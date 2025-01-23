@@ -1,0 +1,70 @@
+# use either of these functions to read json files and convert them to csv files. choose whichever one you like
+
+
+read_json_write_csv(
+    your_input_dirpath, 
+    your_input_filename, 
+    your_output_dirpath, 
+    your_output_filename
+)
+
+read_json_write_pretty_csv(
+    your_input_dirpath,
+    your_input_filename,
+    your_output_dirpath,
+    your_output_filename,
+    your_excel_column_shortlist,
+    your_excel_column_headers,
+)
+
+your_excel_column_headers: Dict[str, str] = {
+    "Region": "01 Region",
+    "Category": "02 Category",
+    "Team": "03 Team",
+    "Rider": "04 Rider",
+    "Rank by Points": "05 Rank by Points",
+    "Riders in Race": "06 Riders in Race",
+    "Finishing Position": "07 Finishing Position",
+    "Rank in Segments": "08 Rank in Segments",
+    "FAL Points": "09 FAL Points",
+    "FTS Points": "10 FTS Points",
+    "FAL + FTS Points": "11 FAL + FTS Points",
+    "Finishing Points": "12 Finishing Points",
+    "Podium Bonus Points": "13 Podium Bonus Points",
+    "Total Points": "14 Total Points",
+    "Finish Time": "15 Finish Time",
+    "W/Kg": "16 W/Kg",
+    "Watts": "17 Watts",
+    "Distance": "18 Distance",
+    "Gap": "19 Gap",
+    "DQ": "20 DQ",
+    "DQ Code": "21 DQ Code",
+    "Open/Womens": "22 Open/Womens",
+}
+
+your_excel_column_shortlist: List[str] = {
+    "Region",
+    "Category",
+    "Team",
+    "Rider",
+    # "Rank by Points": "05 Rank by Points",
+    # "Riders in Race": "06 Riders in Race",
+    # "Finishing Position": "07 Finishing Position",
+    # "Rank in Segments": "08 Rank in Segments",
+    # "FAL Points": "09 FAL Points",
+    # "FTS Points": "10 FTS Points",
+    # "FAL + FTS Points": "11 FAL + FTS Points",
+    # "Finishing Points": "12 Finishing Points",
+    # "Podium Bonus Points": "13 Podium Bonus Points",
+    # "Total Points",
+    # "Finish Time",
+    # "W/Kg": "16 W/Kg",
+    # "Watts": "17 Watts",
+    # "Distance": "18 Distance",
+    # "Gap": "19 Gap",
+    # "DQ": "20 DQ",
+    # "DQ Code": "21 DQ Code",
+    # "Open/Womens": "22 Open/Womens"
+}
+
+

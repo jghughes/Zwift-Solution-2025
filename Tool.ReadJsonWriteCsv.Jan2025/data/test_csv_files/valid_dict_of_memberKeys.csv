@@ -1,0 +1,7 @@
+GroovyID,GroovyFirstName,GroovyLastName,GroovyEmail,GroovyDiscordAccountUsername,GroovyDiscordProfileDisplayName,GroovyTimestamp
+3147366,joe,soap,Joe Soap,Crusher Joe,Joe the beast,2024-11-09T23:50:52.087Z
+123456789,john,smith,Jonathon Smith,J Smith,Jonny Rotten,2024-11-09T23:50:52.087Z
+987654321, ,doe,Jane Doe,J Doe,Jane the Brave,invalid-timestamp
+456789123,alice, ,Alice Wonderland,A Wonderland,Alice the Explorer,
+789123456,,brown,Charlie Brown,C Brown,Charlie the Great,2024-11-09T23:50:52.087Z
+321654987,bob,builder,Bob Builder,B Builder,Bob the Builder,2024-13-09T23:50:52.087Z

@@ -1,0 +1,88 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>c47699d7-48ea-4e4a-984a-42725eedf674</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <SearchPath>data;data\test_csv_files;data\test_json_files;data\test_json_files_riderkeys;src\classes;tests;..\Thon.Goodies.Jan2025\src</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>Tool.ReadJsonWriteCsv.Jan2025</Name>
+    <RootNamespace>Tool.ReadJsonWriteCsv.Jan2025</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\models\club_member_dto.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\models\club_member_item.py" />
+    <Compile Include="tests\test_club_member_item.py" />
+    <Compile Include="src\models\club_member_repository.py" />
+    <Compile Include="tests\test_clubmembershiprepository.py" />
+    <Compile Include="src\main_parameters.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="tests\test_read_json_write_csv.py" />
+    <Compile Include="tests\test_tool_serialization_of_riderkey.py" />
+    <Compile Include="src\main.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="data\" />
+    <Folder Include="docs\" />
+    <Folder Include="src\models\" />
+    <Folder Include="tests\" />
+    <Folder Include="src\" />
+    <Folder Include="data\test_csv_files\" />
+    <Folder Include="data\test_json_files\" />
+    <Folder Include="data\test_json_files_riderkeys\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="docs\Note to Dave for JSON to CSV conversions.txt" />
+    <Content Include="README.md" />
+    <Content Include="requirements.txt" />
+    <Content Include="settings.json" />
+    <Content Include="data\test_csv_files\valid_dict_of_memberKeys.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_memberKeys.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects01.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects02.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects03.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects04.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects05.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects06.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects07.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_objects08.csv" />
+    <Content Include="data\test_csv_files\valid_list_of_zrl-season-15-race-5-rider-performance.csv" />
+    <Content Include="data\test_csv_files\valid_single_object01.csv" />
+    <Content Include="data\test_csv_files\valid_single_object02.csv" />
+    <Content Include="data\test_csv_files\valid_single_object03.csv" />
+    <Content Include="data\test_csv_files\valid_single_object04.csv" />
+    <Content Include="data\test_json_files\invalid_structure.json" />
+    <Content Include="data\test_json_files\valid_list_of_objects.json" />
+    <Content Include="data\test_json_files\valid_list_of_zrl-season-15-race-5-rider-performance.json" />
+    <Content Include="data\test_json_files\valid_list_of_Zwift-RiderProfiles.json" />
+    <Content Include="data\test_json_files\valid_list_of_ZwiftPower-Profile.json" />
+    <Content Include="data\test_json_files\valid_list_of_ZwiftRacingApp-Riders.json" />
+    <Content Include="data\test_json_files\valid_single_object.json" />
+    <Content Include="data\test_json_files_riderkeys\valid_dict_of_dict_of_riderkey.json" />
+    <Content Include="data\test_json_files_riderkeys\valid_dict_of_riderkey.json" />
+    <Content Include="data\test_json_files_riderkeys\valid_list_of_riderkey.json" />
+    <Content Include="data\test_json_files_riderkeys\valid_single_riderkey.json" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

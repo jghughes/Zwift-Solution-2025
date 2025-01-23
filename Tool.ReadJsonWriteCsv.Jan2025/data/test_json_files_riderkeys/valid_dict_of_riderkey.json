@@ -1,0 +1,56 @@
+{
+  "a": {
+    "zwift_id": "3147366",
+    "zwift_firstname": "joe",
+    "zwift_lastname": "soap",
+    "discord_accountusername": "Joe Soap",
+    "discord_accountdisplayname": "Crusher Joe",
+    "discord_profiledisplayname": "Joe the beast",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  },
+  "b": {
+    "zwift_id": "123456789",
+    "zwift_firstname": "john",
+    "zwift_lastname": "smith",
+    "discord_accountusername": "Jonathon Smith",
+    "discord_accountdisplayname": "J Smith",
+    "discord_profiledisplayname": "Jonny Rotten",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  },
+  "c": {
+    "zwift_id": "987654321",
+    "zwift_firstname": " ",
+    "zwift_lastname": "doe",
+    "discord_accountusername": "Jane Doe",
+    "discord_accountdisplayname": "J Doe",
+    "discord_profiledisplayname": "Jane the Brave",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  },
+  "d": {
+    "zwift_id": "456789123",
+    "zwift_firstname": "alice",
+    "zwift_lastname": " ",
+    "discord_accountusername": "Alice Wonderland",
+    "discord_accountdisplayname": "A Wonderland",
+    "discord_profiledisplayname": "Alice the Explorer",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  },
+  "e": {
+    "zwift_id": "789123456",
+    "zwift_firstname": null,
+    "zwift_lastname": "brown",
+    "discord_accountusername": "Charlie Brown",
+    "discord_accountdisplayname": "C Brown",
+    "discord_profiledisplayname": "Charlie the Great",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  },
+  "f": {
+    "zwift_id": "321654987",
+    "zwift_firstname": "bob",
+    "zwift_lastname": "builder",
+    "discord_accountusername": "Bob Builder",
+    "discord_accountdisplayname": "B Builder",
+    "discord_profiledisplayname": "Bob the Builder",
+    "timestamp": "2024-11-09T23:50:52.087Z"
+  }
+}

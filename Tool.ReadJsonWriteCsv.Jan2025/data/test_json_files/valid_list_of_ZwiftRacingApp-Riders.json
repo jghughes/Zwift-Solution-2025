@@ -1,0 +1,2345 @@
+{
+  "props": {
+    "pageProps": {
+      "rider": {
+        "riderId": 1884456,
+        "name": "John Hughes",
+        "height": 174,
+        "weight": 74.3,
+        "male": true,
+        "age": "60+",
+        "zpClass": null,
+        "phenotype": {
+          "profile": {
+            "flat": -26.56424625330385,
+            "rolling": -54.35831872203841,
+            "hilly": -43.28988278316181,
+            "mountainous": 27.78423385901114
+          },
+          "overall": {
+            "scores": {
+              "sprinter": 51.7,
+              "puncheur": 57.7,
+              "pursuiter": 56.2,
+              "climber": 62.6,
+              "tt": 58
+            },
+            "value": "Climber",
+            "bias": 5.549999999999997
+          },
+          "value": "Climber"
+        },
+        "handicaps": {
+          "profile": {
+            "flat": -26.56424625330385,
+            "rolling": -54.35831872203841,
+            "hilly": -43.28988278316181,
+            "mountainous": 27.78423385901114
+          }
+        },
+        "points": {
+          "events": [ "4491210", "4526318", "4491219", "4526284", "4459439" ],
+          "total": 410.8910392751917
+        },
+        "club": {
+          "_id": "61494e3d1371ff0016f769ec",
+          "clubId": 161,
+          "name": "ZSUNR",
+          "backgroundColor": "1c1300",
+          "textColor": "ffd808",
+          "borderColor": "ffffff",
+          "createdAt": "2021-09-21T03:15:09.962Z",
+          "updatedAt": "2021-09-21T03:15:09.962Z",
+          "__v": 0
+        },
+        "power": {
+          "wkg5": [ 7.1242, 51.1, 56.1 ],
+          "wkg15": [ 6.4199, 53.9, 61.3 ],
+          "wkg30": [ 5.6258, 55.9, 66.9 ],
+          "wkg60": [ 4.8183, 57.7, 75.8 ],
+          "wkg120": [ 4.0377, 50.2, 62.2 ],
+          "wkg300": [ 3.7416, 56.2, 83.4 ],
+          "wkg1200": [ 3.4724, 62.6, 89.7 ],
+          "w5": [ 545, 50.4, 55.4 ],
+          "w15": [ 477, 50.1, 56.1 ],
+          "w30": [ 418, 51.7, 59.3 ],
+          "w60": [ 358, 53, 62.9 ],
+          "w120": [ 300, 44.7, 48 ],
+          "w300": [ 278, 50.9, 59.7 ],
+          "w1200": [ 258, 58, 71.5 ],
+          "CP": 250.88732631893134,
+          "AWC": 8787.276554766335,
+          "compoundScore": 983.8609723445868,
+          "powerRating": 1013.8894702700582
+        },
+        "race": {
+          "rating": 986.1989989290197,
+          "finishes": 17,
+          "wins": 1,
+          "podiums": 5,
+          "ratingMax30": 986.1989989290197,
+          "ratingMax90": 1003.6209018976668
+        },
+        "history": [
+          {
+            "_id": "672ea9d7b752a700152a5f2b",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526284",
+              "time": 1731107400,
+              "title": "Community Racing Festival || Team Italy || Seaside Sprint",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 27.99,
+              "elevation": 156,
+              "route": {
+                "routeId": "3454338139",
+                "world": "Watopia",
+                "name": "Seaside Sprint",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2697.234,
+            "timeGun": 2697.414,
+            "gap": 0.825,
+            "position": 31,
+            "positionInCategory": 3,
+            "points": null,
+            "avgSpeed": 37.3583,
+            "wkgAvg": 2.9206,
+            "wkg5": 6.3526,
+            "wkg15": 5.1952,
+            "wkg30": 4.6703,
+            "wkg60": 4.4549,
+            "wkg120": 3.755,
+            "wkg300": 3.1359,
+            "wkg1200": 2.9341,
+            "np": 227,
+            "ftp": 249,
+            "zpCat": "C",
+            "load": 62.272761732337656,
+            "distance": 27.99,
+            "heartRate": {
+              "avg": 131,
+              "max": 151
+            },
+            "createdAt": "2024-11-09T00:16:23.795Z",
+            "updatedAt": "2024-11-09T05:31:54.065Z",
+            "__v": 0,
+            "eventRating": 945.4719726337423,
+            "rating": 986.1989989290197,
+            "ratingBefore": 972.0362188870462,
+            "ratingDelta": 14.162780041973543,
+            "rankPoints": 78.20569329306161,
+            "didNotFinish": null,
+            "penTotal": 13,
+            "penTimeCut": 2885.15763
+          },
+          {
+            "_id": "672d75c0acae9900158a66cd",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4579323",
+              "time": 1731025800,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 24.954,
+              "elevation": 107,
+              "route": {
+                "routeId": "1776635757",
+                "world": "France",
+                "name": "R.G.V.",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "B",
+            "time": 2588.628,
+            "timeGun": 2588.688,
+            "gap": 370.871,
+            "position": 148,
+            "positionInCategory": 38,
+            "points": null,
+            "avgSpeed": 34.7035,
+            "wkgAvg": 2.0727,
+            "wkg5": 4.7914,
+            "wkg15": 3.8627,
+            "wkg30": 3.0417,
+            "wkg60": 2.8937,
+            "wkg120": 2.5707,
+            "wkg300": 2.4495,
+            "wkg1200": 2.1803,
+            "np": 161,
+            "ftp": 249,
+            "zpCat": "C",
+            "load": 30.06285814744924,
+            "distance": 24.954,
+            "heartRate": {
+              "avg": 96,
+              "max": 105
+            },
+            "createdAt": "2024-11-08T02:21:52.734Z",
+            "updatedAt": "2024-11-08T06:44:42.435Z",
+            "__v": 0,
+            "rating": 972.0362188870462,
+            "ratingBefore": 972.0362188870462,
+            "didNotFinish": null,
+            "penTotal": 58,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "6729645d06b5640015962961",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526460",
+              "time": 1730761800,
+              "title": "Community Racing Festival || ZSUN || R.G.V.",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 24.954,
+              "elevation": 107,
+              "route": {
+                "routeId": "1776635757",
+                "world": "France",
+                "name": "R.G.V.",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2277.567,
+            "timeGun": 2277.747,
+            "gap": 3.196,
+            "position": 47,
+            "positionInCategory": 6,
+            "points": null,
+            "avgSpeed": 39.4431,
+            "wkgAvg": 3.2571,
+            "wkg5": 6.2584,
+            "wkg15": 5.1144,
+            "wkg30": 4.8721,
+            "wkg60": 4.3742,
+            "wkg120": 4.0377,
+            "wkg300": 3.7416,
+            "wkg1200": 3.4724,
+            "np": 250,
+            "ftp": 249,
+            "zpCat": "C",
+            "load": 63.77996927468913,
+            "distance": 24.954,
+            "heartRate": {
+              "avg": 129,
+              "max": 154
+            },
+            "createdAt": "2024-11-05T00:18:37.686Z",
+            "updatedAt": "2024-11-05T05:32:53.626Z",
+            "__v": 0,
+            "eventRating": 953.8329105441211,
+            "rating": 972.0362188870462,
+            "ratingBefore": 972.5182288837943,
+            "ratingDelta": -0.4820099967481215,
+            "rankPoints": 70.04597053018307,
+            "didNotFinish": null,
+            "penTotal": 18,
+            "penTimeCut": 2456.3206800000003
+          },
+          {
+            "_id": "6726c09a766ba80015c34fbf",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526318",
+              "time": 1730585400,
+              "title": "Community Racing Festival || Team Vegan || Casse Pattes",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 23.765,
+              "elevation": 145,
+              "route": {
+                "routeId": "3919912289",
+                "world": "France",
+                "name": "Casse-Pattes",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2362.47,
+            "timeGun": 2362.65,
+            "gap": 0,
+            "position": 24,
+            "positionInCategory": 1,
+            "points": null,
+            "avgSpeed": 36.2138,
+            "wkgAvg": 3.0417,
+            "wkg5": 6.0162,
+            "wkg15": 5.5316,
+            "wkg30": 5.3701,
+            "wkg60": 4.8183,
+            "wkg120": 3.9031,
+            "wkg300": 3.459,
+            "wkg1200": 3.3244,
+            "np": 238,
+            "ftp": 248,
+            "zpCat": "C",
+            "load": 60.443199087322256,
+            "distance": 23.765,
+            "heartRate": {
+              "avg": 127,
+              "max": 151
+            },
+            "createdAt": "2024-11-03T00:15:22.431Z",
+            "updatedAt": "2024-11-03T04:30:23.333Z",
+            "__v": 0,
+            "eventRating": 911.5370469122939,
+            "rating": 972.5182288837943,
+            "ratingBefore": 957.4140433472975,
+            "ratingDelta": 15.104185536496882,
+            "rankPoints": 84.41410692956129,
+            "didNotFinish": null,
+            "penTotal": 15,
+            "penTimeCut": 2669.5910999999996
+          },
+          {
+            "_id": "6722cc0761627700151363b6",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526303",
+              "time": 1730326200,
+              "title": "Community Racing Festival || Team Vegan || Casse Pattes",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 23.765,
+              "elevation": 145,
+              "route": {
+                "routeId": "3919912289",
+                "world": "France",
+                "name": "Casse-Pattes",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2375.945,
+            "timeGun": 2376.125,
+            "gap": 1.022,
+            "position": 31,
+            "positionInCategory": 3,
+            "points": null,
+            "avgSpeed": 36.0084,
+            "wkgAvg": 2.8668,
+            "wkg5": 6.393,
+            "wkg15": 5.9085,
+            "wkg30": 4.6972,
+            "wkg60": 3.9704,
+            "wkg120": 3.607,
+            "wkg300": 3.3917,
+            "wkg1200": 3.0821,
+            "np": 220,
+            "ftp": 248,
+            "zpCat": "C",
+            "load": 51.94081776072378,
+            "distance": 23.765,
+            "heartRate": {
+              "avg": 126,
+              "max": 153
+            },
+            "createdAt": "2024-10-31T00:15:03.489Z",
+            "updatedAt": "2024-10-31T04:30:21.165Z",
+            "__v": 0,
+            "eventRating": 923.8878230433493,
+            "rating": 957.4140433472975,
+            "ratingBefore": 953.9946019538204,
+            "ratingDelta": 3.4194413934770638,
+            "rankPoints": 72.93653566937992,
+            "didNotFinish": null,
+            "penTotal": 15,
+            "penTimeCut": 2683.66299
+          },
+          {
+            "_id": "67202906fb8754001505070f",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4525988",
+              "time": 1730153400,
+              "title": "Community Racing Festival || OTR || Mayan San Remo",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 21.412,
+              "elevation": 217,
+              "route": {
+                "routeId": "226950646",
+                "world": "Watopia",
+                "name": "Mayan San Remo",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2135.822,
+            "timeGun": 2136.002,
+            "gap": 46.358,
+            "position": 50,
+            "positionInCategory": 10,
+            "points": null,
+            "avgSpeed": 36.0906,
+            "wkgAvg": 3.2167,
+            "wkg5": 5.1279,
+            "wkg15": 4.5626,
+            "wkg30": 4.0646,
+            "wkg60": 3.9838,
+            "wkg120": 3.755,
+            "wkg300": 3.5128,
+            "wkg1200": 3.2974,
+            "np": 244,
+            "ftp": 248,
+            "zpCat": "C",
+            "load": 57.43484392704359,
+            "distance": 21.412,
+            "heartRate": {
+              "avg": 135,
+              "max": 149
+            },
+            "createdAt": "2024-10-29T00:15:02.190Z",
+            "updatedAt": "2024-10-29T04:30:25.581Z",
+            "__v": 0,
+            "eventRating": 927.0425691361434,
+            "rating": 953.9946019538204,
+            "ratingBefore": 957.6272334261457,
+            "ratingDelta": -3.632631472325302,
+            "rankPoints": 70.46115592220792,
+            "didNotFinish": null,
+            "penTotal": 26,
+            "penTimeCut": 2361.09432
+          },
+          {
+            "_id": "671d7911a969f100151aca4f",
+            "ratingScenarios": [ "powerup-minor" ],
+            "event": {
+              "id": "4525508",
+              "time": 1729980600,
+              "title": "Community Racing Festival || Bikes France || Douce France",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 24.788,
+              "elevation": 108,
+              "route": {
+                "routeId": "986252325",
+                "world": "France",
+                "name": "Douce France",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2257.387,
+            "timeGun": 2257.567,
+            "gap": 13.963,
+            "position": 16,
+            "positionInCategory": 3,
+            "points": null,
+            "avgSpeed": 39.531,
+            "wkgAvg": 3.3513,
+            "wkg5": 5.9219,
+            "wkg15": 5.0875,
+            "wkg30": 4.9529,
+            "wkg60": 4.4011,
+            "wkg120": 4.0108,
+            "wkg300": 3.6878,
+            "wkg1200": 3.4455,
+            "np": 255,
+            "ftp": 248,
+            "zpCat": "C",
+            "load": 66.3002470367781,
+            "distance": 24.788,
+            "heartRate": {
+              "avg": 137,
+              "max": 151
+            },
+            "createdAt": "2024-10-26T23:19:45.337Z",
+            "updatedAt": "2024-10-27T04:33:32.232Z",
+            "__v": 1,
+            "eventRating": 925.6355734227227,
+            "rating": 957.6272334261457,
+            "ratingBefore": 948.785950617797,
+            "ratingDelta": 8.8412828083488,
+            "rankPoints": 70.70516748764031,
+            "didNotFinish": null,
+            "penTotal": 16,
+            "penTimeCut": 2422.89792
+          },
+          {
+            "_id": "671af2a57707e400150a4f93",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4557185",
+              "time": 1729812600,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 42.1,
+              "elevation": 303,
+              "route": {
+                "routeId": "2748657713",
+                "world": "Watopia",
+                "name": "Out and Back Again",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "A",
+            "time": 4022.011,
+            "timeGun": 4022.011,
+            "gap": 540.06,
+            "position": 66,
+            "positionInCategory": 38,
+            "points": null,
+            "avgSpeed": 37.6826,
+            "wkgAvg": 2.8533,
+            "wkg5": 5.3028,
+            "wkg15": 4.6703,
+            "wkg30": 4.2934,
+            "wkg60": 3.7416,
+            "wkg120": 3.5801,
+            "wkg300": 3.459,
+            "wkg1200": 3.1763,
+            "np": 220,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 95.46236749601803,
+            "distance": 42.1,
+            "heartRate": {
+              "avg": 127,
+              "max": 149
+            },
+            "createdAt": "2024-10-25T01:21:41.967Z",
+            "updatedAt": "2024-10-25T06:33:49.526Z",
+            "__v": 0,
+            "rating": 945.8422177095028,
+            "ratingBefore": 945.8422177095028,
+            "didNotFinish": null,
+            "penTotal": 79,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "671832adbdca710015a189ff",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526495",
+              "time": 1729635000,
+              "title": "Community Racing Festival || Zwift insider || Seaside Sprint",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 21.699,
+              "elevation": 117,
+              "route": {
+                "routeId": "3454338139",
+                "world": "Watopia",
+                "name": "Seaside Sprint",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2070.861,
+            "timeGun": 2071.041,
+            "gap": 14.518,
+            "position": 24,
+            "positionInCategory": 8,
+            "points": null,
+            "avgSpeed": 37.7217,
+            "wkgAvg": 3.109,
+            "wkg5": 5.5585,
+            "wkg15": 4.8856,
+            "wkg30": 4.5222,
+            "wkg60": 4.0377,
+            "wkg120": 3.782,
+            "wkg300": 3.4859,
+            "wkg1200": 3.2571,
+            "np": 238,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 57.528916666666674,
+            "distance": 21.699,
+            "heartRate": {
+              "avg": 138,
+              "max": 150
+            },
+            "createdAt": "2024-10-22T23:18:05.258Z",
+            "updatedAt": "2024-10-23T04:30:54.219Z",
+            "__v": 0,
+            "eventRating": 964.7303326168582,
+            "rating": 945.8422177095028,
+            "ratingBefore": 952.6255367457937,
+            "ratingDelta": -6.783319036290923,
+            "rankPoints": 67.12968473118205,
+            "didNotFinish": null,
+            "penTotal": 15,
+            "penTimeCut": 2200.28701
+          },
+          {
+            "_id": "6711b6a25da4da0015d3af49",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4547069",
+              "time": 1729207800,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 36.839,
+              "elevation": 300,
+              "route": {
+                "routeId": "3367186349",
+                "world": "Makuri Islands",
+                "name": "Suki's Playground",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "L",
+            "time": 3471.862,
+            "timeGun": 3471.862,
+            "gap": 371.548,
+            "position": 81,
+            "positionInCategory": 28,
+            "points": null,
+            "avgSpeed": 38.1986,
+            "wkgAvg": 2.9206,
+            "wkg5": 5.1817,
+            "wkg15": 4.6164,
+            "wkg30": 4.1857,
+            "wkg60": 3.93,
+            "wkg120": 3.4186,
+            "wkg300": 3.1629,
+            "wkg1200": 2.9341,
+            "np": 224,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 85.42836139946174,
+            "distance": 36.839,
+            "heartRate": {
+              "avg": 125,
+              "max": 142
+            },
+            "createdAt": "2024-10-18T01:15:14.104Z",
+            "updatedAt": "2024-10-18T18:45:14.197Z",
+            "__v": 0,
+            "rating": 952.6255367457937,
+            "ratingBefore": 952.6255367457937,
+            "didNotFinish": null,
+            "penTotal": 68,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "670f13c7d5915c001593a96a",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4546489",
+              "time": 1729035120,
+              "title": "Zwift Racing League - Open AMERICAS Eastern Division 3",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 22.145,
+              "elevation": 211,
+              "route": {
+                "routeId": "377566656",
+                "world": "Scotland",
+                "name": "BRAEkfast Crits and Grits",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 2071.907,
+            "timeGun": 2071.967,
+            "gap": 22.392,
+            "position": 19,
+            "positionInCategory": 19,
+            "points": null,
+            "avgSpeed": 38.4776,
+            "wkgAvg": 3.0552,
+            "wkg5": 6.3122,
+            "wkg15": 6.0565,
+            "wkg30": 5.6258,
+            "wkg60": 4.4549,
+            "wkg120": 3.93,
+            "wkg300": 3.3917,
+            "wkg1200": 3.0686,
+            "np": 244,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 60.49313220974663,
+            "distance": 22.145,
+            "heartRate": {
+              "avg": 134,
+              "max": 151
+            },
+            "createdAt": "2024-10-16T01:15:51.545Z",
+            "updatedAt": "2024-10-16T05:30:59.865Z",
+            "__v": 0,
+            "rating": 952.6255367457937,
+            "ratingBefore": 952.6255367457937,
+            "didNotFinish": null,
+            "penTotal": 61,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "6709bf859ca6b90015288b7c",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4538833",
+              "time": 1728684300,
+              "title": "3R Racing - 50km Race",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 51.075,
+              "elevation": 270,
+              "route": {
+                "routeId": "3395698268",
+                "world": "Watopia",
+                "name": "Flat Route",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 5283.721,
+            "timeGun": 5283.841,
+            "gap": 543.2,
+            "position": 19,
+            "positionInCategory": 9,
+            "points": null,
+            "avgSpeed": 34.7993,
+            "wkgAvg": 2.5976,
+            "wkg5": 6.3257,
+            "wkg15": 5.1413,
+            "wkg30": 4.7645,
+            "wkg60": 4.105,
+            "wkg120": 3.3917,
+            "wkg300": 3.284,
+            "wkg1200": 3.0013,
+            "np": 206,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 109.95823656717589,
+            "distance": 51.075,
+            "heartRate": {
+              "avg": 124,
+              "max": 141
+            },
+            "createdAt": "2024-10-12T00:15:01.868Z",
+            "updatedAt": "2024-10-12T04:30:27.576Z",
+            "__v": 0,
+            "eventRating": 967.6320083491275,
+            "rating": 952.6255367457937,
+            "ratingBefore": 959.724130754527,
+            "ratingDelta": -7.098594008733286,
+            "rankPoints": 0,
+            "didNotFinish": null,
+            "penTotal": 10,
+            "penTimeCut": 5072.35747
+          },
+          {
+            "_id": "67087c221c4f9d00151a2212",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4537837",
+              "time": 1728603000,
+              "title": "WTRL Canadian Thanksgiving Pre-Burn Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 21.412,
+              "elevation": 217,
+              "route": {
+                "routeId": "226950646",
+                "world": "Watopia",
+                "name": "Mayan San Remo",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "A",
+            "time": 2164.711,
+            "timeGun": 2164.711,
+            "gap": 390.072,
+            "position": 55,
+            "positionInCategory": 29,
+            "points": null,
+            "avgSpeed": 35.609,
+            "wkgAvg": 2.961,
+            "wkg5": 5.7739,
+            "wkg15": 5.3836,
+            "wkg30": 4.9798,
+            "wkg60": 4.0511,
+            "wkg120": 3.5666,
+            "wkg300": 3.4051,
+            "wkg1200": 3.0283,
+            "np": 229,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 55.66913508099318,
+            "distance": 21.412,
+            "heartRate": {
+              "avg": 119,
+              "max": 136
+            },
+            "createdAt": "2024-10-11T01:15:14.308Z",
+            "updatedAt": "2024-10-11T05:30:40.205Z",
+            "__v": 0,
+            "rating": 959.724130754527,
+            "ratingBefore": 959.724130754527,
+            "didNotFinish": null,
+            "penTotal": 55,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "67071c868e1471001510f56b",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4526046",
+              "time": 1728511800,
+              "title": "Community Racing Festival || Rhino Racing || Seaside Sprint",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 21.699,
+              "elevation": 117,
+              "route": {
+                "routeId": "3454338139",
+                "world": "Watopia",
+                "name": "Seaside Sprint",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2084.163,
+            "timeGun": 2084.343,
+            "gap": 3.571,
+            "position": 26,
+            "positionInCategory": 4,
+            "points": null,
+            "avgSpeed": 37.4809,
+            "wkgAvg": 3.0283,
+            "wkg5": 6.7026,
+            "wkg15": 6.4199,
+            "wkg30": 5.4643,
+            "wkg60": 4.5357,
+            "wkg120": 3.8762,
+            "wkg300": 3.3378,
+            "wkg1200": 3.0956,
+            "np": 237,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 57.41289749576302,
+            "distance": 21.699,
+            "heartRate": {
+              "avg": 129,
+              "max": 152
+            },
+            "createdAt": "2024-10-10T00:15:02.984Z",
+            "updatedAt": "2024-10-10T04:30:48.126Z",
+            "__v": 0,
+            "eventRating": 956.6685989343817,
+            "rating": 959.724130754527,
+            "ratingBefore": 952.0740778738317,
+            "ratingDelta": 7.650052880695244,
+            "rankPoints": 74.13638654298003,
+            "didNotFinish": null,
+            "penTotal": 15,
+            "penTimeCut": 2226.23344
+          },
+          {
+            "_id": "67008507573f5c0015ee50f0",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491272",
+              "time": 1728079800,
+              "title": "Stage 5: Pinarello Powered - Mayan 8 || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 26.148,
+              "elevation": 241,
+              "route": {
+                "routeId": "4084028627",
+                "world": "Watopia",
+                "name": "Mayan 8",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "E",
+            "time": 2879.448,
+            "timeGun": 2879.688,
+            "gap": 1.483,
+            "position": 24,
+            "positionInCategory": 4,
+            "points": null,
+            "avgSpeed": 32.6913,
+            "wkgAvg": 2.7995,
+            "wkg5": 5.4374,
+            "wkg15": 4.8452,
+            "wkg30": 4.3607,
+            "wkg60": 3.7147,
+            "wkg120": 3.4051,
+            "wkg300": 3.1898,
+            "wkg1200": 2.9879,
+            "np": 217,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 66.49798558246827,
+            "distance": 26.148,
+            "heartRate": {
+              "avg": 123,
+              "max": 149
+            },
+            "createdAt": "2024-10-05T00:15:03.789Z",
+            "updatedAt": "2024-10-05T04:30:28.617Z",
+            "__v": 0,
+            "eventRating": 994.0861323660237,
+            "rating": 952.0740778738317,
+            "ratingBefore": 966.9166087868095,
+            "ratingDelta": -14.842530912977905,
+            "rankPoints": 61.29511421187078,
+            "didNotFinish": null,
+            "penTotal": 9,
+            "penTimeCut": 3194.54115
+          },
+          {
+            "_id": "66ff4311cf40f500155fc153",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4524944",
+              "time": 1727998200,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 32.136,
+              "elevation": 284,
+              "route": {
+                "routeId": "2196019512",
+                "world": "Richmond",
+                "name": "2015 UCI Worlds Course",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "A",
+            "time": 3194.222,
+            "timeGun": 3194.222,
+            "gap": 527.947,
+            "position": 68,
+            "positionInCategory": 33,
+            "points": null,
+            "avgSpeed": 36.2184,
+            "wkgAvg": 2.9206,
+            "wkg5": 5.2759,
+            "wkg15": 5.1413,
+            "wkg30": 4.9798,
+            "wkg60": 4.105,
+            "wkg120": 3.8358,
+            "wkg300": 3.4724,
+            "wkg1200": 3.1629,
+            "np": 224,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 78.59677354863514,
+            "distance": 32.136,
+            "heartRate": {
+              "avg": 131,
+              "max": 149
+            },
+            "createdAt": "2024-10-04T01:21:21.950Z",
+            "updatedAt": "2024-10-04T05:39:40.985Z",
+            "__v": 0,
+            "rating": 966.9166087868095,
+            "ratingBefore": 966.9166087868095,
+            "didNotFinish": null,
+            "penTotal": 69,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66fca655bff4f400152d8e88",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4525144",
+              "time": 1727825640,
+              "title": "Zwift Racing League - Open AMERICAS Eastern (West) Division 2",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 24.013,
+              "elevation": 256,
+              "route": {
+                "routeId": "87055383",
+                "world": "London",
+                "name": "Greater London 8",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 2593.436,
+            "timeGun": 2473.556,
+            "gap": 354.334,
+            "position": 72,
+            "positionInCategory": 30,
+            "points": null,
+            "avgSpeed": 33.3329,
+            "wkgAvg": 2.8937,
+            "wkg5": 6.0834,
+            "wkg15": 5.2355,
+            "wkg30": 4.4011,
+            "wkg60": 4.0646,
+            "wkg120": 3.6878,
+            "wkg300": 3.4186,
+            "wkg1200": 2.9744,
+            "np": 222,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 59.78211574041382,
+            "distance": 24.013,
+            "heartRate": {
+              "avg": 121,
+              "max": 145
+            },
+            "createdAt": "2024-10-02T01:48:05.480Z",
+            "updatedAt": "2024-10-02T06:41:14.224Z",
+            "__v": 0,
+            "rating": 966.9166087868095,
+            "ratingBefore": 966.9166087868095,
+            "didNotFinish": null,
+            "penTotal": 59,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66f890a95387cb00155bc7e2",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491252",
+              "time": 1727561400,
+              "title": "Stage 4: Pinarello Powered - Loop de Loop || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 25.026,
+              "elevation": 290,
+              "route": {
+                "routeId": "243949867",
+                "world": "Watopia",
+                "name": "Loop de Loop",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2693.967,
+            "timeGun": 2694.147,
+            "gap": 47.021,
+            "position": 12,
+            "positionInCategory": 2,
+            "points": null,
+            "avgSpeed": 33.4427,
+            "wkgAvg": 2.611,
+            "wkg5": 4.7645,
+            "wkg15": 4.4818,
+            "wkg30": 4.1723,
+            "wkg60": 3.8089,
+            "wkg120": 3.3647,
+            "wkg300": 3.3378,
+            "wkg1200": 2.7725,
+            "np": 207,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 56.611617589682936,
+            "distance": 25.026,
+            "heartRate": {
+              "avg": 111,
+              "max": 140
+            },
+            "createdAt": "2024-09-28T23:26:33.264Z",
+            "updatedAt": "2024-09-29T04:32:35.321Z",
+            "__v": 0,
+            "eventRating": 981.9449784992006,
+            "rating": 966.9166087868095,
+            "ratingBefore": 976.6436080447198,
+            "ratingDelta": -9.72699925791024,
+            "didNotFinish": null,
+            "penTotal": 3,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66f6090088e5ff0015dfddba",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4517190",
+              "time": 1727393400,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 28.91,
+              "elevation": 131,
+              "route": {
+                "routeId": "2207442179",
+                "world": "Watopia",
+                "name": "The Magnificent 8",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 74.3,
+            "age": "60+",
+            "male": true,
+            "category": "B",
+            "time": 2698.382,
+            "timeGun": 2698.442,
+            "gap": 1.29,
+            "position": 109,
+            "positionInCategory": 4,
+            "points": null,
+            "avgSpeed": 38.5698,
+            "wkgAvg": 2.8533,
+            "wkg5": 5.6258,
+            "wkg15": 4.7645,
+            "wkg30": 4.1723,
+            "wkg60": 3.9031,
+            "wkg120": 3.4859,
+            "wkg300": 3.1494,
+            "wkg1200": 2.8802,
+            "np": 219,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 63.4665517000918,
+            "distance": 28.91,
+            "heartRate": {
+              "avg": 123,
+              "max": 147
+            },
+            "createdAt": "2024-09-27T01:23:12.109Z",
+            "updatedAt": "2024-09-27T05:40:35.761Z",
+            "__v": 0,
+            "rating": 976.6436080447198,
+            "ratingBefore": 976.6436080447198,
+            "didNotFinish": null,
+            "penTotal": 82,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66f348820ee0860015693ab5",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491240",
+              "time": 1727215800,
+              "title": "Stage 4: Pinarello Powered - Loop de Loop || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 25.026,
+              "elevation": 290,
+              "route": {
+                "routeId": "243949867",
+                "world": "Watopia",
+                "name": "Loop de Loop",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 2566.103,
+            "timeGun": 2566.283,
+            "gap": 236.62,
+            "position": 47,
+            "positionInCategory": 20,
+            "points": null,
+            "avgSpeed": 35.1091,
+            "wkgAvg": 2.8235,
+            "wkg5": 6.2745,
+            "wkg15": 4.9804,
+            "wkg30": 4.0131,
+            "wkg60": 3.6471,
+            "wkg120": 3.4118,
+            "wkg300": 3.3333,
+            "wkg1200": 2.915,
+            "np": 224,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 63.14575624759707,
+            "distance": 25.026,
+            "heartRate": {
+              "avg": 128,
+              "max": 139
+            },
+            "createdAt": "2024-09-24T23:17:22.437Z",
+            "updatedAt": "2024-09-25T03:38:20.621Z",
+            "__v": 0,
+            "eventRating": 997.2062355471008,
+            "rating": 976.6436080447198,
+            "ratingBefore": 991.6839746570167,
+            "ratingDelta": -15.040366612296953,
+            "rankPoints": 0,
+            "didNotFinish": null,
+            "penTotal": 22,
+            "penTimeCut": 2562.4313
+          },
+          {
+            "_id": "66f1f6c78aab8700154cc708",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491237",
+              "time": 1727129400,
+              "title": "Stage 4: Pinarello Powered - Loop de Loop || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 25.026,
+              "elevation": 290,
+              "route": {
+                "routeId": "243949867",
+                "world": "Watopia",
+                "name": "Loop de Loop",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 2666.512,
+            "timeGun": 2666.632,
+            "gap": 319.015,
+            "position": 21,
+            "positionInCategory": 13,
+            "points": null,
+            "avgSpeed": 33.7871,
+            "wkgAvg": 2.7582,
+            "wkg5": 4.9804,
+            "wkg15": 4.7451,
+            "wkg30": 4.4444,
+            "wkg60": 3.8039,
+            "wkg120": 3.3333,
+            "wkg300": 3.2549,
+            "wkg1200": 2.9673,
+            "np": 221,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 63.86916213151929,
+            "distance": 25.026,
+            "heartRate": {
+              "avg": 129,
+              "max": 138
+            },
+            "createdAt": "2024-09-23T23:16:23.941Z",
+            "updatedAt": "2024-09-24T04:34:03.868Z",
+            "__v": 0,
+            "eventRating": 999.7935793595137,
+            "rating": 991.6839746570167,
+            "ratingBefore": 995.8175515186531,
+            "ratingDelta": -4.133576861636326,
+            "rankPoints": 0,
+            "didNotFinish": null,
+            "penTotal": 14,
+            "penTimeCut": 2582.2466999999997
+          },
+          {
+            "_id": "66ee1008b3b22e00153daa2f",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491219",
+              "time": 1726870200,
+              "title": "Stage 3: Pinarello Powered - Turf N Surf || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 24.692,
+              "elevation": 195.8,
+              "route": {
+                "routeId": "4258943387",
+                "world": "Makuri Islands",
+                "name": "Turf N Surf",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 2516.057,
+            "timeGun": 2516.177,
+            "gap": 167.961,
+            "position": 27,
+            "positionInCategory": 13,
+            "points": null,
+            "avgSpeed": 35.3296,
+            "wkgAvg": 2.8235,
+            "wkg5": 5.0588,
+            "wkg15": 4.183,
+            "wkg30": 4.0654,
+            "wkg60": 3.9739,
+            "wkg120": 3.6209,
+            "wkg300": 3.4641,
+            "wkg1200": 3.0458,
+            "np": 223,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 61.36129257242112,
+            "distance": 24.692,
+            "heartRate": {
+              "avg": 125,
+              "max": 148
+            },
+            "createdAt": "2024-09-21T00:15:04.601Z",
+            "updatedAt": "2024-09-21T04:30:16.062Z",
+            "__v": 0,
+            "eventRating": 997.8745635097088,
+            "rating": 995.8175515186531,
+            "ratingBefore": 1003.6209018976668,
+            "ratingDelta": -7.8033503790137635,
+            "rankPoints": 79.24936187406256,
+            "didNotFinish": null,
+            "penTotal": 14,
+            "penTimeCut": 2582.9056
+          },
+          {
+            "_id": "66eccca1aa9bfd00154ac0ae",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4509505",
+              "time": 1726788600,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 22.5,
+              "elevation": 346,
+              "route": {
+                "routeId": "2954366662",
+                "world": "New York",
+                "name": "Knickerbocker",
+                "profile": "Hilly"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "L",
+            "time": 2406.077,
+            "timeGun": 2406.077,
+            "gap": 336.489,
+            "position": 75,
+            "positionInCategory": 44,
+            "points": null,
+            "avgSpeed": 33.6648,
+            "wkgAvg": 2.8497,
+            "wkg5": 7.1242,
+            "wkg15": 4.3399,
+            "wkg30": 4.2745,
+            "wkg60": 4.0131,
+            "wkg120": 3.7516,
+            "wkg300": 3.3725,
+            "wkg1200": 3.085,
+            "np": 229,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 61.87626224852687,
+            "distance": 22.5,
+            "heartRate": {
+              "avg": 132,
+              "max": 148
+            },
+            "createdAt": "2024-09-20T01:15:13.919Z",
+            "updatedAt": "2024-09-20T05:30:22.174Z",
+            "__v": 0,
+            "rating": 1003.6209018976668,
+            "ratingBefore": 1003.6209018976668,
+            "didNotFinish": null,
+            "penTotal": 74,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66ea1b852b630a00153739b7",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4491210",
+              "time": 1726611000,
+              "title": "Stage 3: Pinarello Powered - Turf N Surf || Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 24.692,
+              "elevation": 195.8,
+              "route": {
+                "routeId": "4258943387",
+                "world": "Makuri Islands",
+                "name": "Turf N Surf",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "C",
+            "time": 2440.448,
+            "timeGun": 2440.568,
+            "gap": 224.135,
+            "position": 32,
+            "positionInCategory": 20,
+            "points": null,
+            "avgSpeed": 36.4241,
+            "wkgAvg": 2.8627,
+            "wkg5": 5.4248,
+            "wkg15": 4.3268,
+            "wkg30": 4.1307,
+            "wkg60": 3.7908,
+            "wkg120": 3.3333,
+            "wkg300": 3.0327,
+            "wkg1200": 2.9281,
+            "np": 222,
+            "ftp": 238,
+            "zpCat": "C",
+            "load": 58.98484556175412,
+            "distance": 24.692,
+            "heartRate": {
+              "avg": 134,
+              "max": 147
+            },
+            "createdAt": "2024-09-18T00:15:01.631Z",
+            "updatedAt": "2024-09-18T04:30:05.156Z",
+            "__v": 0,
+            "eventRating": 996.4336668670327,
+            "rating": 1003.6209018976668,
+            "ratingBefore": 1002.1800052549908,
+            "ratingDelta": 1.4408966426761003,
+            "rankPoints": 92.26330646650912,
+            "didNotFinish": null,
+            "penTotal": 26,
+            "penTimeCut": 2460.10743
+          },
+          {
+            "_id": "66c7e29f5743770015b4785b",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4480448",
+              "time": 1724369400,
+              "title": "WTRL Team Time Trial - Zone 28",
+              "type": "Race",
+              "subType": "TTT",
+              "distance": 24.954,
+              "elevation": 107,
+              "route": {
+                "routeId": "1776635757",
+                "world": "France",
+                "name": "R.G.V.",
+                "profile": "Flat"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "L",
+            "time": 2430.883,
+            "timeGun": 2430.883,
+            "gap": 416.24,
+            "position": 100,
+            "positionInCategory": 47,
+            "points": null,
+            "avgSpeed": 36.9555,
+            "wkgAvg": 2.4575,
+            "wkg5": 4.5359,
+            "wkg15": 4.1176,
+            "wkg30": 3.817,
+            "wkg60": 3.6993,
+            "wkg120": 3.3203,
+            "wkg300": 3.0327,
+            "wkg1200": 2.8889,
+            "np": 202,
+            "ftp": 237,
+            "zpCat": "C",
+            "load": 49.053229209073415,
+            "distance": 24.954,
+            "heartRate": {
+              "avg": 133,
+              "max": 154
+            },
+            "createdAt": "2024-08-23T01:15:11.513Z",
+            "updatedAt": "2024-08-23T22:45:10.606Z",
+            "__v": 0,
+            "rating": 1002.1800052549908,
+            "ratingBefore": 1002.1800052549908,
+            "didNotFinish": null,
+            "penTotal": 67,
+            "penTimeCut": 0
+          },
+          {
+            "_id": "66c12f01e4bbda00152dc603",
+            "ratingScenarios": [],
+            "event": {
+              "id": "4459439",
+              "time": 1723932600,
+              "title": "Stage 3: Punchy Power - Rooftop Rendezvous | Using Racing Score",
+              "type": "Race",
+              "subType": "Scratch",
+              "distance": 17.927,
+              "elevation": 224,
+              "route": {
+                "routeId": "3565430790",
+                "world": "Makuri Islands",
+                "name": "Rooftop Rendezvous",
+                "profile": "Rolling"
+              }
+            },
+            "riderId": 1884456,
+            "source": "Fit",
+            "name": "John Hughes",
+            "teamId": "161",
+            "teamName": "ZSUNR",
+            "country": "ca",
+            "height": 174,
+            "weight": 76.5,
+            "age": "60+",
+            "male": true,
+            "category": "D",
+            "time": 1916.526,
+            "timeGun": 1916.706,
+            "gap": 127.072,
+            "position": 15,
+            "positionInCategory": 4,
+            "points": null,
+            "avgSpeed": 33.6741,
+            "wkgAvg": 2.915,
+            "wkg5": 5.4771,
+            "wkg15": 4.915,
+            "wkg30": 4.2353,
+            "wkg60": 3.7908,
+            "wkg120": 3.5686,
+            "wkg300": 3.3203,
+            "wkg1200": 2.9935,
+            "np": 231,
+            "ftp": 237,
+            "zpCat": "C",
+            "load": 50.58016821556374,
+            "distance": 17.927,
+            "heartRate": {
+              "avg": 135,
+              "max": 151
+            },
+            "createdAt": "2024-08-17T23:15:13.864Z",
+            "updatedAt": "2024-08-18T04:30:09.005Z",
+            "__v": 0,
+            "eventRating": 976.6817796505682,
+            "rating": 1002.1800052549908,
+            "ratingBefore": 1011.8493705848718,
+            "ratingDelta": -9.669365329881112,
+            "rankPoints": 76.75857071199707,
+            "didNotFinish": null,
+            "penTotal": 5,
+            "penTimeCut": 1968.3994
+          }
+        ],
+        "achievements": [
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a5",
+              "category": "Route Type",
+              "name": "Hilltop Triumph",
+              "description": "Win a Race on a Hilly route",
+              "value": 40
+            },
+            "event": {
+              "eventId": "4526318",
+              "time": 1730585400,
+              "title": "Community Racing Festival || Team Vegan || Casse Pattes"
+            },
+            "time": 1730585400
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489092",
+              "category": "World",
+              "name": "France Win!",
+              "description": "Win a Race in France",
+              "value": 20
+            },
+            "event": {
+              "eventId": "4526318",
+              "time": 1730585400,
+              "title": "Community Racing Festival || Team Vegan || Casse Pattes"
+            },
+            "time": 1730585400
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a4",
+              "category": "Route Type",
+              "name": "Hilly Podium",
+              "description": "Podium on a Race on a Hilly route",
+              "value": 20
+            },
+            "event": {
+              "eventId": "4526303",
+              "time": 1730326200,
+              "title": "Community Racing Festival || Team Vegan || Casse Pattes"
+            },
+            "time": 1730326200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489086",
+              "category": "World",
+              "name": "France Podium",
+              "description": "Podium on a Race in France",
+              "value": 10
+            },
+            "event": {
+              "eventId": "4525508",
+              "time": 1729980600,
+              "title": "Community Racing Festival || Bikes France || Douce France"
+            },
+            "time": 1729980600
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890b0",
+              "category": "vELO",
+              "name": "New Colors",
+              "description": "Advance to a new vELO Category",
+              "value": 20
+            },
+            "event": {
+              "eventId": "4397126",
+              "time": 1718143800,
+              "title": "Stage 2: Sea Breeze - Island Hopper"
+            },
+            "time": 1718143800
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48907b",
+              "category": "World",
+              "name": "Visit Paris",
+              "description": "Finish any Event in Paris",
+              "value": 5
+            },
+            "event": {
+              "eventId": "4310805",
+              "time": 1712013000,
+              "title": "Stage 1: Lap It Up - Champs Elysees"
+            },
+            "time": 1712013000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489080",
+              "category": "World",
+              "name": "Watopia Podium",
+              "description": "Podium on a Race in Watopia",
+              "value": 10
+            },
+            "event": {
+              "eventId": "4287122",
+              "time": 1711146000,
+              "title": "Epic Racing: Fast and Fearless Friday"
+            },
+            "time": 1711146000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a6",
+              "category": "Route Type",
+              "name": "Mountain Finisher",
+              "description": "Finish a Race on a Mountain route",
+              "value": 10
+            },
+            "event": {
+              "eventId": "4035615",
+              "time": 1706398200,
+              "title": "Stage 5 | Epic Race | Tour de Zwift 2024"
+            },
+            "time": 1706398200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489077",
+              "category": "World",
+              "name": "Visit Innsbruck",
+              "description": "Finish any Event in Innsbruck",
+              "value": 5
+            },
+            "event": {
+              "eventId": "4035615",
+              "time": 1706398200,
+              "title": "Stage 5 | Epic Race | Tour de Zwift 2024"
+            },
+            "time": 1706398200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890ad",
+              "category": "vELO",
+              "name": "Minor Losses",
+              "description": "Receive a minor vELO decrease from a Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3955975",
+              "time": 1703981400,
+              "title": "Stage 4: Best Of - R.G.V."
+            },
+            "time": 1703981400
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48907e",
+              "category": "World",
+              "name": "Visit Bologna",
+              "description": "Finish any Event in Bologna",
+              "value": 5
+            },
+            "event": {
+              "eventId": "4024135",
+              "time": 1703205000,
+              "title": "WTRL Team Time Trial Christmas Special - Zone 26"
+            },
+            "time": 1703205000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890bb",
+              "category": "Points",
+              "name": "Dropped",
+              "description": "Miss the Time Cut in a Race",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3902452",
+              "time": 1700953200,
+              "title": "Race #2 | Cobbled Climbs | ZA 2023"
+            },
+            "time": 1700953200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48907d",
+              "category": "World",
+              "name": "Visit Scotland",
+              "description": "Finish any Event in Scotland",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3944151",
+              "time": 1700613240,
+              "title": "Zwift Racing League - Open AMERICAN Eastern 4"
+            },
+            "time": 1700613240
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890b6",
+              "category": "Points",
+              "name": "Points Collector",
+              "description": "Score at least 100 points from a Race",
+              "value": 20
+            },
+            "event": {
+              "eventId": "3894515",
+              "time": 1700262600,
+              "title": "Stage 2: Neokyo Nights - Twilight Harbor"
+            },
+            "time": 1700262600
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489079",
+              "category": "World",
+              "name": "Visit Richmond",
+              "description": "Finish any Event in Richmond",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3928809",
+              "time": 1700181000,
+              "title": "WTRL Team Time Trial - Zone 26"
+            },
+            "time": 1700181000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890ac",
+              "category": "vELO",
+              "name": "Meh",
+              "description": "Receive an insignificant vELO change from a Race",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3894928",
+              "time": 1699657800,
+              "title": "Stage 1: Neokyo Nights - Sleepless City"
+            },
+            "time": 1699657800
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a9",
+              "category": "vELO",
+              "name": "Minor Gains",
+              "description": "Receive a minor vELO increase from a Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3895275",
+              "time": 1698790200,
+              "title": "Stage 5: Race Watopia - Going Coastal"
+            },
+            "time": 1698790200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48909f",
+              "category": "Route Type",
+              "name": "Sprinter's Paradise",
+              "description": "Win a Race on a Flat route",
+              "value": 40
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48908d",
+              "category": "World",
+              "name": "London Win!",
+              "description": "Win a Race in London",
+              "value": 20
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48909e",
+              "category": "Route Type",
+              "name": "Flat Podium",
+              "description": "Podium on a Race on a Flat route",
+              "value": 20
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489081",
+              "category": "World",
+              "name": "London Podium",
+              "description": "Podium on a Race in London",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890b5",
+              "category": "Points",
+              "name": "Points Gatherer",
+              "description": "Score at least 50 points from a Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890b4",
+              "category": "Points",
+              "name": "Points Earner",
+              "description": "Score points from a Race",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3884860",
+              "time": 1698531300,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1698531300
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890aa",
+              "category": "vELO",
+              "name": "Major Gains",
+              "description": "Receive a major vELO increase from a Race",
+              "value": 20
+            },
+            "event": {
+              "eventId": "3873976",
+              "time": 1697926500,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1697926500
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890b1",
+              "category": "vELO",
+              "name": "Power!",
+              "description": "Receive a minor zrCS rating adjustment",
+              "value": 20
+            },
+            "event": {
+              "eventId": "3873976",
+              "time": 1697926500,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1697926500
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890bc",
+              "category": "Points",
+              "name": "Where is Everyone?",
+              "description": "Not enough finishers to earn points from a Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3873976",
+              "time": 1697926500,
+              "title": "3R Classique Flat Race"
+            },
+            "time": 1697926500
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489075",
+              "category": "World",
+              "name": "Visit London",
+              "description": "Finish any Event in London",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3854010",
+              "time": 1696548600,
+              "title": "WTRL Team Time Trial - Zone 23"
+            },
+            "time": 1696548600
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489078",
+              "category": "World",
+              "name": "Visit Yorkshire",
+              "description": "Finish any Event in Yorkshire",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3853431",
+              "time": 1696375860,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 2"
+            },
+            "time": 1696375860
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48909d",
+              "category": "Route Type",
+              "name": "Flat Finisher",
+              "description": "Finish a Race on a Flat route",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3843470",
+              "time": 1695943800,
+              "title": "WTRL Team Time Trial - Zone 23"
+            },
+            "time": 1695943800
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489074",
+              "category": "World",
+              "name": "Visit Watopia",
+              "description": "Finish any Event in Watopia",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3843470",
+              "time": 1695943800,
+              "title": "WTRL Team Time Trial - Zone 23"
+            },
+            "time": 1695943800
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a3",
+              "category": "Route Type",
+              "name": "Hilly Finisher",
+              "description": "Finish a Race on a Hilly route",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3840363",
+              "time": 1695771060,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 2"
+            },
+            "time": 1695771060
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48907a",
+              "category": "World",
+              "name": "Visit France",
+              "description": "Finish any Event in France",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3840363",
+              "time": 1695771060,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 2"
+            },
+            "time": 1695771060
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48909c",
+              "category": "Race Type",
+              "name": "You and Your Friends",
+              "description": "Finish a Team Time Trial Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3835419",
+              "time": 1695339000,
+              "title": "WTRL Team Time Trial - Zone 23"
+            },
+            "time": 1695339000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489076",
+              "category": "World",
+              "name": "Visit New York",
+              "description": "Finish any Event in New York",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3835419",
+              "time": 1695339000,
+              "title": "WTRL Team Time Trial - Zone 23"
+            },
+            "time": 1695339000
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890a0",
+              "category": "Route Type",
+              "name": "Rolling Finisher",
+              "description": "Finish a Race on a Rolling route",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3833657",
+              "time": 1695166200,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 1"
+            },
+            "time": 1695166200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef489098",
+              "category": "Race Type",
+              "name": "Scratch That Itch",
+              "description": "Finish a Scratch Race",
+              "value": 10
+            },
+            "event": {
+              "eventId": "3833657",
+              "time": 1695166200,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 1"
+            },
+            "time": 1695166200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef4890bd",
+              "category": "General",
+              "name": "Represent",
+              "description": "Represent a Club in a Race",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3833657",
+              "time": 1695166200,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 1"
+            },
+            "time": 1695166200
+          },
+          {
+            "achievement": {
+              "_id": "64d2fcacfaa9aa90ef48907c",
+              "category": "World",
+              "name": "Visit Makuri Islands",
+              "description": "Finish any Event in Makuri Islands",
+              "value": 5
+            },
+            "event": {
+              "eventId": "3833657",
+              "time": 1695166200,
+              "title": "Zwift Racing League | WTRL - Open Americas East Division 1"
+            },
+            "time": 1695166200
+          }
+        ],
+        "ranks": {
+          "overall": {
+            "rank": 32047,
+            "total": 53121
+          },
+          "category": {
+            "rank": 460,
+            "total": 7796
+          },
+          "age": {
+            "rank": 548,
+            "total": 3194
+          },
+          "achievements": {
+            "rank": 17528,
+            "total": 182970
+          }
+        }
+      }
+    },
+    "__N_SSP": true
+  },
+  "page": "/riders/[id]",
+  "query": { "id": "1884456" },
+  "buildId": "Gl2KhNfcKDvvXOdYCLqGq",
+  "isFallback": false,
+  "gssp": true,
+  "scriptLoader": []
+}
+   
