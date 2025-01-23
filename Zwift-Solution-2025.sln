@@ -17,6 +17,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun01", "Zsun01\Zsun01.pyp
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun02", "Zsun02\Zsun02.pyproj", "{9EFCA8B5-705A-418B-B583-6C21D575FD3B}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun.DataTypes.Jan2024", "Zsun.DataTypes.Jan2024\Zsun.DataTypes.Jan2024.pyproj", "{77128B3C-3239-45D1-AF61-4717332EFD26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,8 @@ Global
 		{3F670AD8-602C-4E11-AEBE-3D1B70B55DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EFCA8B5-705A-418B-B583-6C21D575FD3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EFCA8B5-705A-418B-B583-6C21D575FD3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77128B3C-3239-45D1-AF61-4717332EFD26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77128B3C-3239-45D1-AF61-4717332EFD26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
