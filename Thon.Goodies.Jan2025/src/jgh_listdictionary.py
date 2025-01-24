@@ -7,12 +7,12 @@ from collections import defaultdict
 from typing import TypeVar, Generic, List, Callable, Tuple
 
 # Local application imports
-from pydantic import BaseModel, Field
+# from pydantic import BaseModel, Field
 
 TKey = TypeVar("TKey")
 TValue = TypeVar("TValue")
 
-class JghListDictionary(BaseModel, Generic[TKey, TValue]):
+class JghListDictionary(Generic[TKey, TValue]):
     """
     A generic dictionary-like class that maps keys to lists of values.
 
@@ -102,7 +102,7 @@ class JghListDictionary(BaseModel, Generic[TKey, TValue]):
         Retrieves the total number of values in the dictionary.
     """
 
-    backingstore_dict: defaultdict[TKey, List[TValue]] = Field(default_factory=lambda: defaultdict(list))
+    backingstore_dict: defaultdict[TKey, List[TValue]] = defaultdict(list)
 
     def insert_key(self, key: TKey) -> bool:
         """

@@ -48,7 +48,6 @@ class PersonDto(BaseModel):
     Functions:
         None
     """
-
     zsun_id: str = Field(default="", serialization_alias="zsun_id")
     zsun_firstname: str = Field(default="", serialization_alias="zsun_firstname")
     zsun_lastname: str = Field(default="", serialization_alias="zsun_lastname")
@@ -63,7 +62,7 @@ class PersonDto(BaseModel):
         default="", serialization_alias="discord_profiledisplayname"
     )
     comment: str = Field(default="", serialization_alias="comment")
-    click_counter: str = Field(default="", serialization_alias="click_counter")
+    click_counter: int = Field(default=0, serialization_alias="click_counter")
     recording_mode_enum: str = Field(default="", serialization_alias="recording_mode_enum")
     database_action_enum: str = Field(default="", serialization_alias="database_action_enum")
     must_ditch_originating_item: bool = Field(
@@ -74,9 +73,9 @@ class PersonDto(BaseModel):
     )
     is_still_to_be_pushed: bool = Field(default=True, serialization_alias="is_still_to_be_pushed")
     touched_by: str = Field(default="", serialization_alias="touched_by")
-    timestamp_binary_format: float = Field(default=0, serialization_alias="timestamp_binary_format")
-    when_touched_binary_format: float = Field(default=0, serialization_alias="when_touched_binary_format")
-    when_pushed_binary_format: float = Field(default=0, serialization_alias="when_pushed_binary_format")
+    timestamp_binary_format: int = Field(default=0, serialization_alias="timestamp_binary_format")
+    when_touched_binary_format: int = Field(default=0, serialization_alias="when_touched_binary_format")
+    when_pushed_binary_format: int = Field(default=0, serialization_alias="when_pushed_binary_format")
     originating_item_guid: str = Field(default="", serialization_alias="originating_item_guid")
     guid: str = Field(default="", serialization_alias="guid")
 

@@ -105,16 +105,16 @@ class Test_PersonItem(unittest.TestCase):
                 discord_accountdisplayname="JohnDoe",
                 discord_profiledisplayname="JohnDoeProfile",
                 comment="Test comment",
-                click_counter="10",
+                click_counter=10,
                 recording_mode_enum="mode1",
                 database_action_enum="action1",
                 must_ditch_originating_item=True,
                 is_still_to_be_backed_up=False,
                 is_still_to_be_pushed=True,
                 touched_by="tester",
-                timestamp=1633036800.0,
-                when_touched=1633036800.0,
-                when_pushed=1633036800.0,
+                timestamp_binary_format=1633036800,
+                when_touched_binary_format=1633036800,
+                when_pushed_binary_format=1633036800,
                 originating_item_guid="origin_guid",
                 guid="test_guid"
             )
@@ -130,16 +130,16 @@ class Test_PersonItem(unittest.TestCase):
             self.assertEqual(item.discord_accountdisplayname, "JohnDoe")
             self.assertEqual(item.discord_profiledisplayname, "JohnDoeProfile")
             self.assertEqual(item.comment, "Test comment")
-            self.assertEqual(item.click_counter, "10")
+            self.assertEqual(item.click_counter, 10)
             self.assertEqual(item.recording_mode_enum, "mode1")
             self.assertEqual(item.database_action_enum, "action1")
             self.assertTrue(item.must_ditch_originating_item)
             self.assertFalse(item.is_still_to_be_backed_up)
             self.assertTrue(item.is_still_to_be_pushed)
             self.assertEqual(item.touched_by, "tester")
-            self.assertEqual(item.timestamp, 1633036800.0)
-            self.assertEqual(item.when_touched, 1633036800.0)
-            self.assertEqual(item.when_pushed, 1633036800.0)
+            self.assertEqual(item.timestamp_binary_format, 1633036800)
+            self.assertEqual(item.when_touched_binary_format, 1633036800)
+            self.assertEqual(item.when_pushed_binary_format, 1633036800)
             self.assertEqual(item.originating_item_guid, "origin_guid")
             self.assertEqual(item.guid, "test_guid")
             logger.info(f"TEST OUTCOME: PASS:\n\tThe input object was:-\n{dto}")

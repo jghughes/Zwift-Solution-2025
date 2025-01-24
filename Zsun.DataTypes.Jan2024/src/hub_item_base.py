@@ -8,11 +8,11 @@ import json
 from typing import List
 
 # Local application imports
-from pydantic import BaseModel, Field
+# from pydantic import BaseModel, Field
 from jgh_listdictionary import JghListDictionary
 
 
-class HubItemBase(BaseModel):
+class HubItemBase():
     """
     A class representing an item with various attributes.
 
@@ -56,24 +56,24 @@ class HubItemBase(BaseModel):
         A label associated with the item.
     """
 
-    click_counter: int = Field(0)
-    bib: str = Field("")
-    rfid: str = Field("")
-    recording_mode_enum: str = Field("")
-    database_action_enum: str = Field("")
-    must_ditch_originating_item: bool = Field(False)
-    is_still_to_be_backed_up: bool = Field(True)
-    is_still_to_be_pushed: bool = Field(True)
-    touched_by: str = Field("")
-    timestamp_binary_format: int = Field(0)
-    when_touched_binary_format: int = Field(0)
-    when_pushed_binary_format: int = Field(0)
-    originating_item_guid: str = Field("")
-    guid: str = Field("")
-    comment: str = Field("")
-    id: int = Field(0)
-    enum_string: str = Field("")
-    label: str = Field("")
+    click_counter: int = 0
+    bib: str = ""
+    rfid: str = ""
+    recording_mode_enum: str = ""
+    database_action_enum: str = ""
+    must_ditch_originating_item: bool = False
+    is_still_to_be_backed_up: bool = True
+    is_still_to_be_pushed: bool = True
+    touched_by: str = ""
+    timestamp_binary_format: int = 0
+    when_touched_binary_format: int = 0
+    when_pushed_binary_format: int = 0
+    originating_item_guid: str = ""
+    guid: str = ""
+    comment: str = ""
+    id: int = 0
+    enum_string: str = ""
+    label: str = ""
 
     def get_both_guids(self) -> str:
         """
@@ -152,79 +152,75 @@ class HubItemBase(BaseModel):
 
 if __name__ == "__main__":
     # Create instances of HubItemBase
-    item1 = HubItemBase(
-        click_counter=5,
-        bib="12345",
-        rfid="rfid123",
-        recording_mode_enum="mode1",
-        database_action_enum="action1",
-        must_ditch_originating_item=True,
-        is_still_to_be_backed_up=False,
-        is_still_to_be_pushed=True,
-        touched_by="user1",
-        timestamp_binary_format=1627849923,
-        when_touched_binary_format=1627849923,
-        when_pushed_binary_format=1627849923,
-        originating_item_guid="orig_guid1",
-        guid="guid1",
-        comment="This is a comment",
-        id=1,
-        enum_string="enum1",
-        label="label1",
-    )
+# Create an instance of HubItemBase with an empty constructor
+    item1 = HubItemBase()
+    item1.click_counter = 5
+    item1.bib = "12345"
+    item1.rfid = "rfid123"
+    item1.recording_mode_enum = "mode1"
+    item1.database_action_enum = "action1"
+    item1.must_ditch_originating_item = True
+    item1.is_still_to_be_backed_up = False
+    item1.is_still_to_be_pushed = True
+    item1.touched_by = "user1"
+    item1.timestamp_binary_format = 1627849923
+    item1.when_touched_binary_format = 1627849923
+    item1.when_pushed_binary_format = 1627849923
+    item1.originating_item_guid = "orig_guid1"
+    item1.guid = "guid1"
+    item1.comment = "This is a comment"
+    item1.id = 1
+    item1.enum_string = "enum1"
+    item1.label = "label1"
 
-    item2 = HubItemBase(
-        click_counter=3,
-        bib="67890",
-        rfid="rfid456",
-        recording_mode_enum="mode2",
-        database_action_enum="action2",
-        must_ditch_originating_item=False,
-        is_still_to_be_backed_up=True,
-        is_still_to_be_pushed=False,
-        touched_by="user2",
-        timestamp_binary_format=1627849933,
-        when_touched_binary_format=1627849933,
-        when_pushed_binary_format=1627849933,
-        originating_item_guid="orig_guid2",
-        guid="guid2",
-        comment="Another comment",
-        id=2,
-        enum_string="enum2",
-        label="label2",
-    )
+    item2 = HubItemBase()
+    item2.click_counter = 3
+    item2.bib = "67890"
+    item2.rfid = "rfid456"
+    item2.recording_mode_enum = "mode2"
+    item2.database_action_enum = "action2"
+    item2.must_ditch_originating_item = False
+    item2.is_still_to_be_backed_up = True
+    item2.is_still_to_be_pushed = False
+    item2.touched_by = "user2"
+    item2.timestamp_binary_format = 1627849933
+    item2.when_touched_binary_format = 1627849933
+    item2.when_pushed_binary_format = 1627849933
+    item2.originating_item_guid = "orig_guid2"
+    item2.guid = "guid2"
+    item2.comment = "Another comment"
+    item2.id = 2
+    item2.enum_string = "enum2"
+    item2.label = "label2" 
 
-    item3 = HubItemBase(
-        click_counter=7,
-        bib="12345",
-        rfid="rfid789",
-        recording_mode_enum="mode3",
-        database_action_enum="action3",
-        must_ditch_originating_item=False,
-        is_still_to_be_backed_up=True,
-        is_still_to_be_pushed=True,
-        touched_by="user3",
-        timestamp_binary_format=1627849943,
-        when_touched_binary_format=1627849943,
-        when_pushed_binary_format=1627849943,
-        originating_item_guid="orig_guid3",
-        guid="guid3",
-        comment="Yet another comment",
-        id=3,
-        enum_string="enum3",
-        label="label3",
-    )
+    item3 = HubItemBase()
+    item3.click_counter = 7
+    item3.bib = "12345"
+    item3.rfid = "rfid789"
+    item3.recording_mode_enum = "mode3"
+    item3.database_action_enum = "action3"
+    item3.must_ditch_originating_item = False
+    item3.is_still_to_be_backed_up = True
+    item3.is_still_to_be_pushed = True
+    item3.touched_by = "user3"
+    item3.timestamp_binary_format = 1627849943
+    item3.when_touched_binary_format = 1627849943
+    item3.when_pushed_binary_format = 1627849943
+    item3.originating_item_guid = "orig_guid3"
+    item3.guid = "guid3"
+    item3.comment = "Yet another comment"
+    item3.id = 3
+    item3.enum_string = "enum3"
+    item3.label = "label3"
 
-    # List of HubItemBase instances
     items = [item1, item2, item3]
 
     # Serialize item1 to JSON
-    validDict = item1.model_dump()
-    json_data = json.dumps(validDict)
+    json_data = json.dumps(item1.__dict__)
     print("Serialized item1 to JSON:\n\t", json_data)
 
     # Deserialize back from JSON
-    deserialized_item = HubItemBase.model_validate_json(json_data)
+    deserialized_item = json.loads(json_data)
     print("\nDeserialized item1 back from JSON:\n\t", deserialized_item)
 
     # Group items by bib
