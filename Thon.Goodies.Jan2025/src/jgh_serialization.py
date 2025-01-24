@@ -78,7 +78,7 @@ class JghSerialization:
             if is_dataclass(inputmodel) and not isinstance(inputmodel, type):
                 candidate_json = json.dumps(asdict(inputmodel), indent=4)
             elif isinstance(inputmodel, BaseModel):
-                candidate_json = inputmodel.model_dump_json(indent=4)
+                candidate_json = inputmodel.model_dump_json(indent=4, by_alias = True)
             else:
                 candidate_json = json.dumps(inputmodel.__dict__, indent=4)
         except TypeError as e:

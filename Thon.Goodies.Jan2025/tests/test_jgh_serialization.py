@@ -264,7 +264,7 @@ class Test_JghSerialization(unittest.TestCase):
         try:
             instance = TestModel(
                 id=1, last="Clinton", isactive_alias=True, age=84
-            )  # note the use of the alias name in ctor syntax, but not serialization_alias
+            )  # note the use of the alias name for the prop name in ctor syntax, but not serialization_alias
             json_str = JghSerialization.to_json_from_object(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
             self.assertIsInstance(json_str, str)

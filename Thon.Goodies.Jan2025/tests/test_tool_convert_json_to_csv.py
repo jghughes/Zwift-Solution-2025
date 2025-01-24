@@ -1,17 +1,25 @@
 import os
-import sys
 
-from JghFileReaderWriters import read_json_write_pretty_csv
+# import sys
+from typing import Any
+
+from jgh_read_json_write_csv import read_json_write_pretty_csv
 
 # Verify the import by printing a message
-print("JghFileReaderWriters module imported successfully")
+print(
+    "\nfunction 'read_json_write_pretty_csv' imported successfully from module 'jgh_read_json_write_csv'\n"
+)
 
 # Define the absolute paths
-input_dirpath = r"C:/Users/johng/source/repos/Zwift-Solution-2024/Tool.ConvertJsonToCsvPython.Dec2024/test_json_files"
-output_dirpath = r"C:/Users/johng/source/repos/Zwift-Solution-2024/Tool.ConvertJsonToCsvPython.Dec2024/test_csv_files"
+input_dirpath: str = r"C:\Users\johng\holding_pen\StuffForZsun\Tool.ConvertJsonToCsv.Dec2024_TestInput"
+output_dirpath: str =  r"C:\Users\johng\holding_pen\StuffForZsun\Tool.ConvertJsonToCsv.Dec2024_TestOutput"
+
+
+# Define the type for the test cases
+TestCase: list[dict[str, Any]] = []
 
 # Define test cases
-test_cases = [
+TestCase = [
     {
         "input_dirpath": input_dirpath,
         "input_filename": "invalid_structure.json",
@@ -158,12 +166,20 @@ test_cases = [
             "rubbishemail": "GroovyEmail",
         },
     },
-   {
+    {
         "input_dirpath": input_dirpath,
         "input_filename": "valid_list_of_riderKeys.json",
         "output_dirpath": output_dirpath,
         "output_filename": "valid_list_of_riderKeys.csv",
-        "excel_column_shortlist": ["zwift_id", "zwift_firstname", "zwift_lastname", "discord_accountusername", "discord_accountdisplayname", "discord_profiledisplayname", "timestamp"],
+        "excel_column_shortlist": [
+            "zwift_id",
+            "zwift_firstname",
+            "zwift_lastname",
+            "discord_accountusername",
+            "discord_accountdisplayname",
+            "discord_profiledisplayname",
+            "timestamp",
+        ],
         "excel_column_headers": {
             "zwift_id": "GroovyID",
             "zwift_firstname": "GroovyFirstName",
@@ -174,12 +190,20 @@ test_cases = [
             "timestamp": "GroovyTimestamp",
         },
     },
-       {
+    {
         "input_dirpath": input_dirpath,
         "input_filename": "valid_dict_of_riderKeys.json",
         "output_dirpath": output_dirpath,
         "output_filename": "valid_dict_of_riderKeys.csv",
-        "excel_column_shortlist": ["zwift_id", "zwift_firstname", "zwift_lastname", "discord_accountusername", "discord_accountdisplayname", "discord_profiledisplayname","timestamp"],
+        "excel_column_shortlist": [
+            "zwift_id",
+            "zwift_firstname",
+            "zwift_lastname",
+            "discord_accountusername",
+            "discord_accountdisplayname",
+            "discord_profiledisplayname",
+            "timestamp",
+        ],
         "excel_column_headers": {
             "zwift_id": "GroovyID",
             "zwift_firstname": "GroovyFirstName",
@@ -189,14 +213,21 @@ test_cases = [
             "discord_profiledisplayname": "GroovyDiscordProfileDisplayName",
             "timestamp": "GroovyTimestamp",
         },
-
     },
-{
+    {
         "input_dirpath": input_dirpath,
         "input_filename": "valid_list_of_zrl-season-15-race-5-rider-performance.json",
         "output_dirpath": output_dirpath,
         "output_filename": "valid_list_of_zrl-season-15-race-5-rider-performance.csv",
-        "excel_column_shortlist": ["Region", "Category", "Team", "Rider", "Rank by Points", "Riders in Race","Finishing Position"],
+        "excel_column_shortlist": [
+            "Region",
+            "Category",
+            "Team",
+            "Rider",
+            "Rank by Points",
+            "Riders in Race",
+            "Finishing Position",
+        ],
         "excel_column_headers": {
             "Region": "GroovyRegion",
             "Category": "GroovyCategory",
@@ -207,12 +238,20 @@ test_cases = [
             "Finishing Position": "GroovyFinishing Position",
         },
     },
-{
+    {
         "input_dirpath": input_dirpath,
         "input_filename": "valid_list_of_ZwiftPower-Profile.json",
         "output_dirpath": output_dirpath,
         "output_filename": "valid_list_of_ZwiftPower-Profile.csv",
-        "excel_column_shortlist": ["zftp", "zmap", "vo2max", "cpBestEfforts", "relevantCpEfforts", "category","categoryWomen"],
+        "excel_column_shortlist": [
+            "zftp",
+            "zmap",
+            "vo2max",
+            "cpBestEfforts",
+            "relevantCpEfforts",
+            "category",
+            "categoryWomen",
+        ],
         "excel_column_headers": {
             "zftp": "Groovyzftp",
             "zmap": "Groovyzmap",
@@ -222,14 +261,14 @@ test_cases = [
             "category": "GroovyRiders in Race",
             "categoryWomen": "categoryWomen",
         },
-    }
+    },
 ]
 
 # Create output directory if it doesn't exist
 os.makedirs(output_dirpath, exist_ok=True)
 
 # Run test cases
-for test_case in test_cases:
+for test_case in TestCase:
     try:
         read_json_write_pretty_csv(
             test_case["input_dirpath"],

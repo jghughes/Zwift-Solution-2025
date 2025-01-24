@@ -3,10 +3,7 @@ import os
 import json
 import csv
 from collections import OrderedDict
-from typing import List, Dict, Any
-
-from git import Optional
-
+from typing import List, Dict, Any, Optional
 
 def is_valid_path(path: str) -> bool:
     """
