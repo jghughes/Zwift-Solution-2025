@@ -6,12 +6,34 @@ serializing and deserializing objects.
 import json
 from typing import Any, Type, TypeVar
 from dataclasses import dataclass, asdict, is_dataclass
+
 # Local application imports
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, ValidationError, Field
 
 T = TypeVar('T')
 # T = TypeVar('T', bound=pydantic.BaseModel)
+
+# Helper function to write a pretty error message
+def pretty_error_message(ex: Exception) -> str:
+    """
+    This function writes a pretty error message to the console.
+    The function attempts to unpack the args attribute of the exception ex
+    into code and message. If the unpacking fails (e.g., if args does not
+    contain two elements), it falls back to setting code to 0 and message
+    to the first and only element of args.
+
+    If an exception ex has args like (404, "Not Found"), the function
+    will return "Not Found ErrorCode=404". If an exception ex has args
+    like ("An error occurred",), the function will return "An error occurred".
+    """
+    try:
+        (code, message) = ex.args
+    except:
+        code = 0
+        message = ex.args[0]
+    if code == 0:
+        return f"{str(message)}"
+    return f"{str(message)} ErrorCode={str(code)}"
 
 class JghSerialization:
     """
@@ -25,7 +47,7 @@ class JghSerialization:
 
     Methods:
         to_json_from_object: Serializes an object to a JSON string. 
-        to_object_from_json_simply: Deserializes a JSON string to a generic type.
+        to_object_from_json: Deserializes a JSON string to a generic type.
 
 
     Functions:
@@ -61,15 +83,15 @@ class JghSerialization:
                 candidate_json = json.dumps(inputmodel.__dict__, indent=4)
         except TypeError as e:
             input_type = type(inputmodel).__name__
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The object of type '{input_type}' failed to serialise to JSON due to a TypeError.\nError Message: {e}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The object of type '{input_type}' failed to serialise to JSON due to a TypeError.\nError Message: {pretty_error_message(e)}"))
         except ValueError as e:
             input_type = type(inputmodel).__name__
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The object of type '{input_type}' failed to serialise to JSON due to a ValueError.\nError Message: {e}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The object of type '{input_type}' failed to serialise to JSON due to a ValueError.\nError Message: {pretty_error_message(e)}"))
         
         return candidate_json
 
     @staticmethod
-    def to_object_from_json_simply(inputString: str, outputmodel: Type[T]) -> T:
+    def to_object_from_json(inputString: str, outputmodel: Type[T]) -> T:
         """
         Deserializes a JSON string to an object of the specifiedtype.
         Field aliases are used in the deserialization.
@@ -89,7 +111,7 @@ class JghSerialization:
             superfluous (not defined in the model), it will be ignored during deserialization.
         """
         _failure = "Unable to deserialize JSON to object using Pydantic."
-        _locus = "[to_object_from_json_simply]"
+        _locus = "[to_object_from_json]"
         _locus2 = "[JghSerialization]"
         
         if not inputString:
@@ -98,9 +120,12 @@ class JghSerialization:
             answer = json.loads(inputString)
             return outputmodel(**answer)
         except TypeError as e:
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a TypeError.\nError Message: {e}\nInput string:\n\t{inputString}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a TypeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputString}"))
         except json.JSONDecodeError as e:
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a JSONDecodeError.\nError Message: {e}\nInput string:\n\t{inputString}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a JSONDecodeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputString}"))
+        except ValidationError as e:
+            error_messages = "\n".join([f"\tField: {err['loc']}\n\tError: {err['msg']}" for err in e.errors()])
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' due to validation errors.\nValidation errors:\n{error_messages}\nInput string:\n\t{inputString}"))
 
 
 # example usage of the JghSerialization class
@@ -120,7 +145,7 @@ def main():
     json_string_v1 = JghSerialization.to_json_from_object(simple_instance_v1)
     print("\nSerialized JSON string for SimpleModelv1:\n")
     print(json_string_v1)
-    roundtripped_instance_v1 = JghSerialization.to_object_from_json_simply(json_string_v1, SimpleModelV1)
+    roundtripped_instance_v1 = JghSerialization.to_object_from_json(json_string_v1, SimpleModelV1)
     print("\nRound tripped SimpleModelv1 object:\n")
     print(roundtripped_instance_v1)
 
@@ -136,7 +161,7 @@ def main():
     json_string_v2 = JghSerialization.to_json_from_object(simple_instance_v2)
     print("\nSerialized JSON string:\n")
     print(json_string_v2)
-    roundtripped_instance_v2 = JghSerialization.to_object_from_json_simply(json_string_v2, SimpleModelV2)
+    roundtripped_instance_v2 = JghSerialization.to_object_from_json(json_string_v2, SimpleModelV2)
     print("\nRound tripped SimpleModelV2 object:\n")
     print(roundtripped_instance_v2)
 
@@ -156,7 +181,7 @@ def main():
     json_string_v3 = JghSerialization.to_json_from_object(simple_instance_v3)
     print("\nSerialized JSON string for SimpleModelV3:\n")
     print(json_string_v3)
-    roundtripped_instance_v3 = JghSerialization.to_object_from_json_simply(json_string_v3, SimpleModelV3)
+    roundtripped_instance_v3 = JghSerialization.to_object_from_json(json_string_v3, SimpleModelV3)
     print("\nRound tripped SimpleModelV3 object:\n")
     print(roundtripped_instance_v3)
 
@@ -173,7 +198,8 @@ def main():
         is_valid: bool = Field(default=True, alias="alias_for_prop_is_valid")
         is_legal: bool = Field(default=True, validation_alias="validation_alias_for_prop_is_legal")
         is_active: bool = Field(default=True, serialization_alias="serialization_alias_for_prop_is_active")
-    # example 1: Create an instance of SimpleModelV4 with only the required field
+    # example 1: Create an instance of SimpleModelV4 with only one field. The other fields will
+    # be set to their defaults.
     simple_instance_v4 = SimpleModelV4(id=4)
     # example 2: create an instance of SimpleModelV4 specifying all fields. Notice that if a field 
     # has a pydantic alias, the alias akwardly suppresses the field name in the ctor. 
@@ -195,7 +221,7 @@ def main():
     json_string_v4 = JghSerialization.to_json_from_object(simple_instance_v4)
     print("\nSerialized JSON string for SimpleModelV4:\n")
     print(json_string_v4)
-    roundtripped_instance_v4 = JghSerialization.to_object_from_json_simply(json_string_v4, SimpleModelV4)
+    roundtripped_instance_v4 = JghSerialization.to_object_from_json(json_string_v4, SimpleModelV4)
     print("\nRoundTripped SimpleModelV4 object:\n")
     print(roundtripped_instance_v4)
     # Assertions to prove that roundtripped_instance_v4 is identical to simple_instance_v4
@@ -204,7 +230,7 @@ def main():
     assert simple_instance_v4.is_active == roundtripped_instance_v4.is_active, "is_active does not match"
     assert simple_instance_v4.is_valid == roundtripped_instance_v4.is_valid, "is_valid does not match"
     assert simple_instance_v4.is_legal == roundtripped_instance_v4.is_legal, "is_legal does not match"
-    print("\nAll assertions passed. The roundtripped instance is identical to the original instance.")
+    print("\nAll assertions passed. The roundtripped instance is identical to the original instance.\n")
 
 if __name__ == "__main__":
     main()

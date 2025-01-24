@@ -80,7 +80,7 @@ def error_message(ex: Exception) -> str:
     return f"{str(message)} ErrorCode={str(code)}"
 
 
-# Define a Pydantic model for testing
+# Define a Pydantic model for testing pyndatic's validation and serialisation. change the signature to @dataclass for testing dataclasses
 class TestModel(pydantic.BaseModel):
     """
     id: int                 required in ctor because no default is specified. Can be roundtripped.
