@@ -199,10 +199,21 @@ def rinse_nested_elements(object_from_json: Any) -> List[Dict[str, Any]]:
 
 
 def read_json_write_csv(
-    input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str
-) -> None:
+    input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str) -> None:
     """
     Reads a JSON file, converts it to a list of dictionaries, and writes it to a CSV file.
+
+    This method performs the following steps:
+    1. Validates the input and output directory paths and filenames to ensure they meet the required criteria.
+    2. Reads the content of the input JSON file.
+    3. Decodes the JSON content into a Python object.
+    4. Converts the decoded JSON object into a list of dictionaries suitable for CSV conversion.
+    5. Writes the list of dictionaries to the output CSV file.
+
+    If the file contains non-dictionary elements at top level (i.e. non-key-value pairs), they are skipped 
+    during the conversion process. Nested dictionaries are converted to their string representation. Keys or 
+    values that contain special characters are reproduced without difficulty. A superset of all field names
+    in the JSON file is used as the header row in the CSV file. Varying length records are thus handled correctly.
 
     Args:
         input_dirpath (str): The directory path where the input JSON file is located.
@@ -211,7 +222,11 @@ def read_json_write_csv(
         output_filename (str): The name of the output CSV file.
 
     Raises:
-        Exception: If any error occurs during the process.
+        ValueError: If the directory path or filename format is invalid, or if the directory or file does not exist.
+        FileNotFoundError: If the input JSON file does not exist.
+        IOError: If there is an error reading the input JSON file.
+        ValueError: If the JSON content is empty or not compatible with CSV conversion.
+        Exception: If any other error occurs during the process.
     """
     try:
         raise_exception_if_invalid(input_dirpath, input_filename, ".json", True)
@@ -236,20 +251,46 @@ def read_json_write_abridged_csv(
     your_excel_column_headers: Optional[Dict[str, str]],
 ) -> None:
     """
-    Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers, and writes it to a CSV file.
+    Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers, 
+    and writes it to a CSV file.
+
+    This method performs the following steps:
+    1. Validates the input and output directory paths and filenames to ensure they meet the required criteria.
+    2. Reads the content of the input JSON file.
+    3. Decodes the JSON content into a Python object.
+    4. Converts the decoded JSON object into a list of dictionaries suitable for CSV conversion.
+    5. Filters the list of dictionaries to include only specified columns.
+    6. Replaces dictionary keys with specified headers if provided.
+    7. Writes the filtered and transformed list of dictionaries to the output CSV file.
+
+    If the file contains non-dictionary elements at the top level (i.e., non-key-value pairs), they are skipped 
+    during the conversion process. Nested dictionaries are converted to their string representation. Keys or 
+    values that contain special characters are reproduced without difficulty. A superset of all field names
+    in the JSON file is used as the header row in the CSV file. Varying length records are thus handled correctly.
+
+    This method enables the selection of a subset of columns from the JSON data, allowing for more focused 
+    and relevant CSV output. This method allows for renaming columns in the output CSV file, providing more 
+    meaningful or user-friendly headers.
 
     Args:
         input_dirpath (str): The directory path where the input JSON file is located.
         input_filename (str): The name of the input JSON file.
         output_dirpath (str): The directory path where the output CSV file will be saved.
         output_filename (str): The name of the output CSV file.
-        your_excel_column_headers (Dict[str, str], optional): A dictionary mapping old keys to new headers. Defaults to None.
-        your_excel_column_shortlist (List[str], optional): A list of columns to include in the output CSV file. Defaults to None.
+        your_excel_column_headers (Dict[str, str], optional): A dictionary mapping old keys to new headers. 
+            Defaults to None.
+        your_excel_column_shortlist (List[str], optional): A list of columns to include in the output CSV file. 
+            Defaults to None.
 
     Raises:
-        Exception: If any error occurs during the process.
+        ValueError: If the directory path or filename format is invalid, or if the directory or file does not exist.
+        FileNotFoundError: If the input JSON file does not exist.
+        IOError: If there is an error reading the input JSON file.
+        ValueError: If the JSON content is empty or not compatible with CSV conversion.
+        Exception: If any other error occurs during the process.
     """
     try:
+
         raise_exception_if_invalid(input_dirpath, input_filename, ".json", True)
         raise_exception_if_invalid(output_dirpath, output_filename, ".csv", False)
         jsontext = read_text(input_dirpath, input_filename)

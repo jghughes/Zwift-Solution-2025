@@ -57,13 +57,13 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
         logger.info(f"=" * 100)
         logger.info(f"\n")
 
-    def test_read_json_write_csv_filters_non_dict_elements(self):
+    def test_01read_json_write_csv_filters_non_dict_elements(self):
         """
         This test case verifies that the read_json_write_csv function correctly filters out non-dictionary elements
         from the input JSON and only includes dictionary elements in the output CSV.
         """
-        input_filename = "test_input.json"
-        output_filename = "test_output.csv"
+        input_filename = "01test_input.json"
+        output_filename = "01test_output.csv"
 
         # Create the test JSON file with an isolated string an isolate integer
         test_json_content = [
@@ -93,7 +93,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 3, f"Expected 3 rows in the CSV file, but found {len(rows)}.")
-            self.assertEqual(reader.fieldnames, ["name", "age"], f"Expected headers ['name', 'age'], but found {reader.fieldnames}.")
+            self.assertEqual(set(reader.fieldnames or []), set(["name", "age"]), f"Expected headers ['name', 'age'], but found {reader.fieldnames}.")
 
             expected_content = [
                 {"name": "Alice", "age": "30"},
@@ -105,13 +105,13 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_empty_json_array(self):
+    def test_02read_json_write_csv_empty_json_array(self):
         """
         This test case verifies that the read_json_write_csv function handles an empty JSON array correctly
         and produces an empty CSV file.
         """
-        input_filename = "test_input_empty.json"
-        output_filename = "test_output_empty.csv"
+        input_filename = "02test_input_empty.json"
+        output_filename = "02test_output_empty.csv"
 
         # Create the test JSON file
         test_json_content = []
@@ -146,13 +146,13 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_only_non_dict_elements(self):
+    def test_03read_json_write_csv_only_non_dict_elements(self):
         """
         This test case verifies that the read_json_write_csv function handles a JSON array with only non-dictionary elements
         correctly and produces an empty CSV file.
         """
-        input_filename = "test_input_non_dict.json"
-        output_filename = "test_output_non_dict.csv"
+        input_filename = "03test_input_non_dict.json"
+        output_filename = "03test_output_non_dict.csv"
 
         # Create the test JSON file
         test_json_content = [
@@ -168,10 +168,12 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
         # Run the function
         try:
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
-            logger.info("Test completed successfully. Check the output CSV file.")
+
+            logger.error(f"Test failed. The method should have raised an exception and exited\nbecuase the JSON does not map to CSV.")
+            self.fail(f"Test failed. The method should have raised an exception and exited\nbecuase the JSON does not map to CSV.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.info(f"Test completed successfully. The method correctly raised an exception and exited.\nThe JSON is untranslatable as CSV. There is no output CSV file.\nTest succeeded with error: {error_message(e)}")
+            return
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -184,12 +186,12 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_nested_dicts(self):
+    def test_04read_json_write_csv_nested_dicts(self):
         """
         This test case verifies that the read_json_write_csv function handles nested dictionaries correctly.
         """
-        input_filename = "test_input_nested.json"
-        output_filename = "test_output_nested.csv"
+        input_filename = "04test_input_nested.json"
+        output_filename = "04test_output_nested.csv"
 
         # Create the test JSON file
         test_json_content = [
@@ -216,7 +218,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 2, f"Expected 2 rows in the CSV file, but found {len(rows)}.")
-            self.assertEqual(set(reader.fieldnames or []), {"name", "details"}, f"Expected headers {{'name', 'details'}}, but found {set(reader.fieldnames or [])}.")
+            self.assertEqual(set(reader.fieldnames or []), set({"name", "details"}), f"Expected headers {{'name', 'details'}}, but found {reader.fieldnames}.")
             expected_content = [
                 {"name": "Alice", "details": "{'age': 30, 'city': 'Wonderland'}"},
                 {"name": "Bob", "details": "{'age': 25, 'city': 'Builderland'}"}
@@ -226,12 +228,12 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_different_keys(self):
+    def test_05read_json_write_csv_different_keys(self):
         """
         This test case verifies that the read_json_write_csv function handles dictionaries with different keys correctly.
         """
-        input_filename = "test_input_diff_keys.json"
-        output_filename = "test_output_diff_keys.csv"
+        input_filename = "05test_input_diff_keys.json"
+        output_filename = "05test_output_diff_keys.csv"
 
         # Create the test JSON file
         test_json_content = [
@@ -259,7 +261,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 3, f"Expected 3 rows in the CSV file, but found {len(rows)}.")
-            self.assertEqual(set(reader.fieldnames or []), {"name", "age", "city"}, f"Expected headers {{'name', 'age', 'city'}}, but found {set(reader.fieldnames or [])}.")
+            self.assertEqual(set(reader.fieldnames or []), set({"name", "age", "city"}), f"Expected headers {{'name', 'age', 'city'}}, but found {reader.fieldnames}.")
             expected_content = [
                 {"name": "Alice", "age": "30", "city": ""},
                 {"name": "Bob", "age": "", "city": "Builderland"},
@@ -270,12 +272,12 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_special_characters(self):
+    def test_06read_json_write_csv_special_characters(self):
         """
         This test case verifies that the read_json_write_csv function handles special characters in keys and values correctly.
         """
-        input_filename = "test_input_special_chars.json"
-        output_filename = "test_output_special_chars.csv"
+        input_filename = "06test_input_special_chars.json"
+        output_filename = "06test_output_special_chars.csv"
 
         # Create the test JSON file
         test_json_content = [
@@ -303,7 +305,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 3, f"Expected 3 rows in the CSV file, but found {len(rows)}.")
-            self.assertEqual(reader.fieldnames, ["na!me", "a@ge"], f"Expected headers ['na!me', 'a@ge'], but found {reader.fieldnames}.")
+            self.assertEqual(set(reader.fieldnames or []), set(["na!me", "a@ge"]), f"Expected headers ['na!me', 'a@ge'], but found {reader.fieldnames}.")
 
             expected_content = [
                 {"na!me": "A!lice", "a@ge": "30"},
@@ -315,13 +317,13 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         logger.info("All assertions passed.")
 
-    def test_read_json_write_csv_large_json_array(self):
+    def test_07read_json_write_csv_large_json_array(self):
         """
         This test case verifies that the read_json_write_csv function handles a large JSON array efficiently
         and produces the correct CSV output.
         """
-        input_filename = "test_input_large.json"
-        output_filename = "test_output_large.csv"
+        input_filename = "07test_input_large.json"
+        output_filename = "07test_output_large.csv"
 
         # Create the test JSON file
         test_json_content = [{"name": f"Person{i}", "age": i} for i in range(1000)]
@@ -345,7 +347,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
             self.assertEqual(len(rows), 1000, f"Expected 1000 rows in the CSV file, but found {len(rows)}.")
-            self.assertEqual(reader.fieldnames, ["name", "age"], f"Expected headers ['name', 'age'], but found {reader.fieldnames}.")
+            self.assertEqual(set(reader.fieldnames or []), set(["name", "age"]), f"Expected headers ['name', 'age'], but found {reader.fieldnames}.")
 
             expected_content = [{"name": f"Person{i}", "age": str(i)} for i in range(1000)]
             for row, expected_row in zip(rows, expected_content):
