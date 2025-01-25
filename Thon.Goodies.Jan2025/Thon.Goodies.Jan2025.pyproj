@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_tool_convert_json_to_csv.py</StartupFile>
+    <StartupFile>tests\test_jgh_read_json_write_csv.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -34,6 +34,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_jgh_listdictionary.py" />
+    <Compile Include="tests\test_jgh_read_json_write_csv.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_jgh_serialization.py" />
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
   </ItemGroup>

@@ -50,10 +50,8 @@ def raise_exception_if_invalid(
         ValueError: If the directory path or filename format is invalid, or if the directory or file does not exist.
     """
     if not is_valid_path(dirpath):
-        # Check directory format
-        print("Invalid directory path.")
         raise ValueError(
-            f"Error: Invalid directory path format. The dirpath is [{dirpath}]"
+            f"Invalid directory path format.\nThe path must use forward slashes not backslashes and must not end with a slash.\nThe invalid dirpath is: [{dirpath}]"
         )
 
     if not is_valid_filename(filename, required_extension):
@@ -101,34 +99,26 @@ def read_text(dirpath: str, filename: str) -> str:
         raise IOError(f"Error reading file {input_filepath}: {e}")
 
 
-def write_csv(dirpath: str, filename: str, items: List[Dict[str, Any]]) -> None:
-    """
-    Writes a list of dictionaries to a CSV file.
-
-    Args:
-        dirpath (str): The directory path where the CSV file will be saved.
-        filename (str): The name of the CSV file to write.
-        items (List[Dict[str, Any]]): The items to write to the CSV file.
-
-    Raises:
-        ValueError: If there is no items to write to the CSV file.
-    """
+def write_csv(dirpath:str, filename: str, items: Any) -> None:
     try:
         if not items:
             raise ValueError("No items to write to CSV.")
-        # Use the first dictionary in the List[Dict[str, Any]] to get the field names. Beware, this is very risky. The first record may not have all the keys, or they may be in the wrong order.
-        keys = list(items[0].keys())
+        
+        # Determine all unique keys across all dictionaries
+        keys : set[str] = set()
+        for item in items:
+            keys.update(item.keys())
+        keys_list :list[str] = list(keys)
         output_file_path = os.path.join(dirpath, filename)
         with open(output_file_path, "w", encoding="utf-8", newline="") as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=keys, dialect="excel")
+            writer = csv.DictWriter(csv_file, fieldnames=keys_list, dialect="excel")
             writer.writeheader()
             writer.writerows(items)
-        print(f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(keys)}\r\nOutput CSV filepath: {output_file_path}")
+        print(f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(keys_list)}\r\nOutput CSV filepath: {output_file_path}")
 
     except Exception as e:
         error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}].\r\nError: {e}")
         raise Exception(error_message)
-
 
 def write_csv_with_fieldnames(
     dirpath: str, filename: str, items: List[Dict[str, Any]], fieldnames: List[str]
@@ -180,7 +170,7 @@ def decode_json(text: str) -> Any:
         raise ValueError(f"Failed to decode JSON: {e}")
 
 
-def make_ready_for_csv(object_from_json: Any) -> List[Dict[str, Any]]:
+def rinse_nested_elements(object_from_json: Any) -> List[Dict[str, Any]]:
     """
     Converts a JSON object to a list of dictionaries compatible with CSV conversion. Checks if the object is a dictionary.
     - If it is a dictionary with exactly one key-value pair, it assigns the value of that single key to the object.
@@ -196,19 +186,16 @@ def make_ready_for_csv(object_from_json: Any) -> List[Dict[str, Any]]:
     Raises:
         ValueError: If the JSON structure is not compatible for CSV conversion.
     """
-    # if isinstance(object_from_json, dict):
-    #     object_from_json = (
-    #         next(iter(object_from_json.values()))
-    #         if len(object_from_json) == 1
-    #         else list(object_from_json.values())
-    #     )
 
-    if not isinstance(object_from_json, list) or not all(
-        isinstance(item, dict) for item in object_from_json
-    ):
-        raise ValueError("JSON structure is not compatible with CSV conversion.")
+    if not isinstance(object_from_json, list):
+        raise ValueError("Object decoded from raw JSON is not compatible with CSV conversion. It is not an iterable type in python.")
 
-    return object_from_json
+    valid_items = [item for item in object_from_json if isinstance(item, dict)]
+
+    if not valid_items:
+        raise ValueError("Object decoded from raw JSON is not compatible with CSV conversion. No valid dictionary elements found.")
+    
+    return valid_items
 
 
 def read_json_write_csv(
@@ -231,14 +218,16 @@ def read_json_write_csv(
         raise_exception_if_invalid(output_dirpath, output_filename, ".csv", False)
         jsontext = read_text(input_dirpath, input_filename)
         decoded_object = decode_json(jsontext)
-        suitable_object = make_ready_for_csv(decoded_object)
+        if not decoded_object:  # Check if the JSON object is empty
+            raise ValueError("Input JSON is empty. No data to convert to CSV.")
+        suitable_object = rinse_nested_elements(decoded_object)
         write_csv(output_dirpath, output_filename, suitable_object)
     except Exception as e:
         error_message = f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to read json file [{input_filename}] and write to csv file [{output_filename}].\r\nError: {e}"
         raise Exception(error_message)
 
 
-def read_json_write_pretty_csv(
+def read_json_write_abridged_csv(
     input_dirpath: str,
     input_filename: str,
     output_dirpath: str,
@@ -265,20 +254,18 @@ def read_json_write_pretty_csv(
         raise_exception_if_invalid(output_dirpath, output_filename, ".csv", False)
         jsontext = read_text(input_dirpath, input_filename)
         decoded_object = decode_json(jsontext)
-        suitable_object = make_ready_for_csv(decoded_object)
-
+        if not decoded_object:  # Check if the JSON object is empty
+            raise ValueError("Input JSON is empty. No data to convert to CSV.")
+        suitable_object = rinse_nested_elements(decoded_object)
         # Ensure your_excel_column_shortlist is a list
         if your_excel_column_shortlist is None:
             your_excel_column_shortlist = []
-
         # Use keys from the first dictionary as the default column list if your_excel_column_shortlist is empty
         if not your_excel_column_shortlist and suitable_object:
             your_excel_column_shortlist = list(suitable_object[0].keys())
-
         # Ensure your_excel_column_headers is a dictionary
         if your_excel_column_headers is None:
             your_excel_column_headers = {}
-
         # Filter columns and replace keys with headers if provided
         if your_excel_column_shortlist or your_excel_column_headers:
             suitable_object = [
@@ -288,13 +275,11 @@ def read_json_write_pretty_csv(
                 )
                 for item in suitable_object
             ]
-
         # Ensure the correct order of columns in the CSV output
         fieldnames = [
             your_excel_column_headers.get(key, key)
             for key in your_excel_column_shortlist
         ]
-
         write_csv_with_fieldnames(
             output_dirpath, output_filename, suitable_object, fieldnames
         )
