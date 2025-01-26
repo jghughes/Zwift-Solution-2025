@@ -5,7 +5,7 @@ import json
 import csv
 import unittest
 import logging
-from jgh_read_json_write_csv import read_json_write_csv
+from jgh_read_json_write_csv import read_json_write_csv, read_json_write_csv_abridged
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -46,8 +46,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
 
         # Create directories if they do not exist
 
-        self.input_dirpath = r"C:/Users/johng/holding_pen/StuffForZsun/Tool.ConvertJsonToCsv.Dec2024_TestInput"
-        self.output_dirpath = r"C:/Users/johng/holding_pen/StuffForZsun/Tool.ConvertJsonToCsv.Dec2024_TestOutputV2"
+        self.input_dirpath = r"C:/Users/johng/holding_pen/Test_scratchpad/Thon.Goodies.Jan2025/jgh_read_json_write_csv/Input"
+        self.output_dirpath = r"C:/Users/johng/holding_pen/Test_scratchpad/Thon.Goodies.Jan2025/jgh_read_json_write_csv/Output"
         os.makedirs(self.input_dirpath, exist_ok=True)
         os.makedirs(self.output_dirpath, exist_ok=True)
 
@@ -354,6 +354,60 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
                 self.assertEqual(row, expected_row, f"Expected row {expected_row}, but found {row}.")
 
         logger.info("All assertions passed.")
+
+    def test_08read_json_write_abridged_csv(self):
+        """
+        This test case verifies that the read_json_write_abridged_csv function can extract a subset of field names
+        and use replacements as their column headings for the output CSV.
+        """
+        input_filename = "08test_input_abridged.json"
+        output_filename = "08test_output_abridged.csv"
+
+        # Create the test JSON file
+        test_json_content = [
+            {"name": "Alice", "age": 30, "city": "Wonderland"},
+            {"name": "Bob", "age": 25, "city": "Builderland"},
+            {"name": "Charlie", "age": 35, "city": "Charlieland"}
+        ]
+
+        with open(os.path.join(self.input_dirpath, input_filename), "w", encoding="utf-8") as f:
+            json.dump(test_json_content, f, ensure_ascii=False, indent=4)
+
+        # Define the subset of field names and their replacements
+        your_excel_column_shortlist = ["name", "city"]
+        your_excel_column_headers = {"name": "Full Name", "city": "Location"}
+
+        # Run the function
+        try:
+            read_json_write_csv_abridged(
+                self.input_dirpath, input_filename, self.output_dirpath, output_filename,
+                your_excel_column_shortlist, your_excel_column_headers
+            )
+            logger.info("Test completed successfully. Check the output CSV file.")
+        except Exception as e:
+            logger.error(f"Test failed with error: {error_message(e)}")
+            self.fail(f"Test failed with error: {error_message(e)}")
+
+        # Verify the output CSV file
+        output_file_path = os.path.join(self.output_dirpath, output_filename)
+        self.assertTrue(os.path.exists(output_file_path), "Output CSV file does not exist.")
+
+        with open(output_file_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            self.assertEqual(len(rows), 3, f"Expected 3 rows in the CSV file, but found {len(rows)}.")
+            self.assertEqual(set(reader.fieldnames or []), set(["Full Name", "Location"]), f"Expected headers ['Full Name', 'Location'], but found {reader.fieldnames}.")
+
+            expected_content = [
+                {"Full Name": "Alice", "Location": "Wonderland"},
+                {"Full Name": "Bob", "Location": "Builderland"},
+                {"Full Name": "Charlie", "Location": "Charlieland"}
+            ]
+            for row, expected_row in zip(rows, expected_content):
+                self.assertEqual(row, expected_row, f"Expected row {expected_row}, but found {row}.")
+
+        logger.info("All assertions passed.")
+
 
 # Do the tests (but not if this script is imported as a module)
 if __name__ == "__main__":

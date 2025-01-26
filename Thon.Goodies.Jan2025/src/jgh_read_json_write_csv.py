@@ -5,6 +5,7 @@ import csv
 from collections import OrderedDict
 from typing import List, Dict, Any, Optional
 
+
 def is_valid_path(path: str) -> bool:
     """
     Checks if path is a string, contains at least one forward slash, and does not end with a forward slash.
@@ -33,7 +34,8 @@ def is_valid_filename(filename: str, required_extension: str) -> bool:
 
 
 def raise_exception_if_invalid(
-    dirpath: str, filename: str, required_extension: str, must_read_not_write: bool) -> bool:
+    dirpath: str, filename: str, required_extension: str, must_read_not_write: bool
+) -> bool:
     """
     Validates the directory path and filename, ensuring they meet specified criteria.
 
@@ -69,7 +71,9 @@ def raise_exception_if_invalid(
     if must_read_not_write and not os.path.isfile(os.path.join(dirpath, filename)):
         # Check if the file exists for reading
         print(f"Read file does not exist.")
-        raise ValueError(f"Error: Read file does not exist. [{os.path.join(dirpath, filename)}]")
+        raise ValueError(
+            f"Error: Read file does not exist. [{os.path.join(dirpath, filename)}]"
+        )
 
     return True
 
@@ -99,26 +103,29 @@ def read_text(dirpath: str, filename: str) -> str:
         raise IOError(f"Error reading file {input_filepath}: {e}")
 
 
-def write_csv(dirpath:str, filename: str, items: Any) -> None:
+def write_csv(dirpath: str, filename: str, items: Any) -> None:
     try:
         if not items:
             raise ValueError("No items to write to CSV.")
-        
+
         # Determine all unique keys across all dictionaries
-        keys : set[str] = set()
+        keys: set[str] = set()
         for item in items:
             keys.update(item.keys())
-        keys_list :list[str] = list(keys)
+        keys_list: list[str] = list(keys)
         output_file_path = os.path.join(dirpath, filename)
         with open(output_file_path, "w", encoding="utf-8", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=keys_list, dialect="excel")
             writer.writeheader()
             writer.writerows(items)
-        print(f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(keys_list)}\r\nOutput CSV filepath: {output_file_path}")
+        print(
+            f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(keys_list)}\r\nOutput CSV filepath: {output_file_path}"
+        )
 
     except Exception as e:
-        error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}].\r\nError: {e}")
+        error_message = f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}].\r\nError: {e}"
         raise Exception(error_message)
+
 
 def write_csv_with_fieldnames(
     dirpath: str, filename: str, items: List[Dict[str, Any]], fieldnames: List[str]
@@ -144,10 +151,12 @@ def write_csv_with_fieldnames(
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames, dialect="excel")
             writer.writeheader()
             writer.writerows(items)
-        print(f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(fieldnames)}\r\nOutput CSV filepath: {output_file_path}")
+        print(
+            f"Success. Work saved:-\r\nRows: {len(items)}\r\nColumns: {len(fieldnames)}\r\nOutput CSV filepath: {output_file_path}"
+        )
 
     except Exception as e:
-        error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}] with specified fieldnames {fieldnames}.\r\nError: {e}")
+        error_message = f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}] with specified fieldnames {fieldnames}.\r\nError: {e}"
         raise Exception(error_message)
 
 
@@ -188,18 +197,23 @@ def rinse_nested_elements(object_from_json: Any) -> List[Dict[str, Any]]:
     """
 
     if not isinstance(object_from_json, list):
-        raise ValueError("Object decoded from raw JSON is not compatible with CSV conversion. It is not an iterable type in python.")
+        raise ValueError(
+            "Object decoded from raw JSON is not compatible with CSV conversion. It is not an iterable type in python."
+        )
 
     valid_items = [item for item in object_from_json if isinstance(item, dict)]
 
     if not valid_items:
-        raise ValueError("Object decoded from raw JSON is not compatible with CSV conversion. No valid dictionary elements found.")
-    
+        raise ValueError(
+            "Object decoded from raw JSON is not compatible with CSV conversion. No valid dictionary elements found."
+        )
+
     return valid_items
 
 
 def read_json_write_csv(
-    input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str) -> None:
+    input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str
+) -> None:
     """
     Reads a JSON file, converts it to a list of dictionaries, and writes it to a CSV file.
 
@@ -210,8 +224,8 @@ def read_json_write_csv(
     4. Converts the decoded JSON object into a list of dictionaries suitable for CSV conversion.
     5. Writes the list of dictionaries to the output CSV file.
 
-    If the file contains non-dictionary elements at top level (i.e. non-key-value pairs), they are skipped 
-    during the conversion process. Nested dictionaries are converted to their string representation. Keys or 
+    If the file contains non-dictionary elements at top level (i.e. non-key-value pairs), they are skipped
+    during the conversion process. Nested dictionaries are converted to their string representation. Keys or
     values that contain special characters are reproduced without difficulty. A superset of all field names
     in the JSON file is used as the header row in the CSV file. Varying length records are thus handled correctly.
 
@@ -242,7 +256,7 @@ def read_json_write_csv(
         raise Exception(error_message)
 
 
-def read_json_write_abridged_csv(
+def read_json_write_csv_abridged(
     input_dirpath: str,
     input_filename: str,
     output_dirpath: str,
@@ -251,7 +265,7 @@ def read_json_write_abridged_csv(
     your_excel_column_headers: Optional[Dict[str, str]],
 ) -> None:
     """
-    Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers, 
+    Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers,
     and writes it to a CSV file.
 
     This method performs the following steps:
@@ -263,13 +277,13 @@ def read_json_write_abridged_csv(
     6. Replaces dictionary keys with specified headers if provided.
     7. Writes the filtered and transformed list of dictionaries to the output CSV file.
 
-    If the file contains non-dictionary elements at the top level (i.e., non-key-value pairs), they are skipped 
-    during the conversion process. Nested dictionaries are converted to their string representation. Keys or 
+    If the file contains non-dictionary elements at the top level (i.e., non-key-value pairs), they are skipped
+    during the conversion process. Nested dictionaries are converted to their string representation. Keys or
     values that contain special characters are reproduced without difficulty. A superset of all field names
     in the JSON file is used as the header row in the CSV file. Varying length records are thus handled correctly.
 
-    This method enables the selection of a subset of columns from the JSON data, allowing for more focused 
-    and relevant CSV output. This method allows for renaming columns in the output CSV file, providing more 
+    This method enables the selection of a subset of columns from the JSON data, allowing for more focused
+    and relevant CSV output. This method allows for renaming columns in the output CSV file, providing more
     meaningful or user-friendly headers.
 
     Args:
@@ -277,9 +291,9 @@ def read_json_write_abridged_csv(
         input_filename (str): The name of the input JSON file.
         output_dirpath (str): The directory path where the output CSV file will be saved.
         output_filename (str): The name of the output CSV file.
-        your_excel_column_headers (Dict[str, str], optional): A dictionary mapping old keys to new headers. 
+        your_excel_column_headers (Dict[str, str], optional): A dictionary mapping old keys to new headers.
             Defaults to None.
-        your_excel_column_shortlist (List[str], optional): A list of columns to include in the output CSV file. 
+        your_excel_column_shortlist (List[str], optional): A list of columns to include in the output CSV file.
             Defaults to None.
 
     Raises:
@@ -325,6 +339,5 @@ def read_json_write_abridged_csv(
             output_dirpath, output_filename, suitable_object, fieldnames
         )
     except Exception as e:
-        error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to read json file [{input_filename}] and write to csv file [{output_filename}].\r\nError: {e}"
-        )
+        error_message = f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to read json file [{input_filename}] and write to csv file [{output_filename}].\r\nError: {e}"
         raise Exception(error_message)
