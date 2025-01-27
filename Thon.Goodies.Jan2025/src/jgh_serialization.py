@@ -46,8 +46,8 @@ class JghSerialization:
         None
 
     Methods:
-        to_json_from_object: Serializes an object to a JSON string. 
-        to_object_from_json: Deserializes a JSON string to a generic type.
+        serialise: Serializes an object to a JSON string. 
+        validate: Deserializes a JSON string to a generic type.
 
 
     Functions:
@@ -55,7 +55,7 @@ class JghSerialization:
     """
 
     @staticmethod
-    def to_json_from_object(inputmodel: Any) -> str:
+    def serialise(inputmodel: Any) -> str:
         """
         Serializes any object to a JSON string. JSON is printed with an indent of 4 spaces.
 
@@ -69,7 +69,7 @@ class JghSerialization:
             ValueError: If the object cannot be serialized to JSON.
         """
         _failure = "Unable to serialize object to JSON."
-        _locus = "[to_json_from_object]"
+        _locus = "[serialise]"
         _locus2 = "[JghSerialization]"
    
         if not inputmodel:
@@ -91,14 +91,17 @@ class JghSerialization:
         return candidate_json
 
     @staticmethod
-    def to_object_from_json(inputString: str, outputmodel: Type[T]) -> T:
+    def validate(inputJson: str, requiredModel: Type[T]) -> T:
         """
-        Deserializes a JSON string to an object of the specifiedtype.
-        Field aliases are used in the deserialization.
+        Validates a JSON string and uses it to instatiate a model  
+        of the specified type. if the model derives from the Pydantic
+        BaseModel, and if aliases or validation_aliases are specified
+        for the attributes of the model, the aliases are respected
+        during validation.
 
         Args:
-            inputString (str): The JSON string to deserialize.
-            outputmodel (Type[T]): The model type to deserialize to.
+            inputJson (str): The JSON string to validate.
+            requiredModel (Type[T]): The model type to deserialize to.
 
         Returns:
             T: An instance of the specified model type.
@@ -108,24 +111,35 @@ class JghSerialization:
             model type or if a field in the JSON string is of the wrong type.
             To avoid a validation error if a field in the JSON is missing, provide 
             a default value for the field in the model definition. If a field is 
-            superfluous (not defined in the model), it will be ignored during deserialization.
+            superfluous (not defined in the model), it will be ignored during validation.
         """
         _failure = "Unable to deserialize JSON to object using Pydantic."
-        _locus = "[to_object_from_json]"
+        _locus = "[validate]"
         _locus2 = "[JghSerialization]"
         
-        if not inputString:
+        if not inputJson:
             raise ValueError(f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string is null or empty.")
+        
         try:
-            answer = json.loads(inputString)
-            return outputmodel(**answer)
+            
+            if is_dataclass(requiredModel):
+                # Handle dataclass deserialization
+                answer = json.loads(inputJson)
+                return requiredModel(**answer)
+            elif issubclass(requiredModel, BaseModel):
+                # Handle Pydantic model deserialization - with type coercion (strict=True)
+                return requiredModel.model_validate_json(inputJson)
+            else:
+                # Handle generic object deserialization
+                answer = json.loads(inputJson)
+                return requiredModel(**answer)
         except TypeError as e:
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a TypeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputString}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize as an object of Type '{requiredModel.__name__}' \n\t\tdue to a TypeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputJson}"))
         except json.JSONDecodeError as e:
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' \n\t\tdue to a JSONDecodeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputString}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize as an object of Type '{requiredModel.__name__}' \n\t\tdue to a JSONDecodeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputJson}"))
         except ValidationError as e:
             error_messages = "\n".join([f"\tField: {err['loc']}\n\tError: {err['msg']}" for err in e.errors()])
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize to an object of Type '{outputmodel.__name__}' due to validation errors.\nValidation errors:\n{error_messages}\nInput string:\n\t{inputString}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to validate as an object of Type '{requiredModel.__name__}' due to validation errors.\nValidation errors:\n{error_messages}\nInput string:\n\t{inputJson}"))
 
 
 # example usage of the JghSerialization class
@@ -142,10 +156,10 @@ def main():
     simple_instance_v1.id = 1
     simple_instance_v1.name = "simplemodelv1"
     simple_instance_v1.is_active = True
-    json_string_v1 = JghSerialization.to_json_from_object(simple_instance_v1)
+    json_string_v1 = JghSerialization.serialise(simple_instance_v1)
     print("\nSerialized JSON string for SimpleModelv1:\n")
     print(json_string_v1)
-    roundtripped_instance_v1 = JghSerialization.to_object_from_json(json_string_v1, SimpleModelV1)
+    roundtripped_instance_v1 = JghSerialization.validate(json_string_v1, SimpleModelV1)
     print("\nRound tripped SimpleModelv1 object:\n")
     print(roundtripped_instance_v1)
 
@@ -158,10 +172,10 @@ def main():
     simple_instance_v2 = SimpleModelV2(id=2)
     simple_instance_v2.name = "simplemodelV2"
     simple_instance_v2.is_active = True
-    json_string_v2 = JghSerialization.to_json_from_object(simple_instance_v2)
+    json_string_v2 = JghSerialization.serialise(simple_instance_v2)
     print("\nSerialized JSON string:\n")
     print(json_string_v2)
-    roundtripped_instance_v2 = JghSerialization.to_object_from_json(json_string_v2, SimpleModelV2)
+    roundtripped_instance_v2 = JghSerialization.validate(json_string_v2, SimpleModelV2)
     print("\nRound tripped SimpleModelV2 object:\n")
     print(roundtripped_instance_v2)
 
@@ -178,10 +192,10 @@ def main():
     simple_instance_v3 = SimpleModelV3(id=3)
     simple_instance_v3.name = "SimpleModelV3"
     simple_instance_v3.is_active = True
-    json_string_v3 = JghSerialization.to_json_from_object(simple_instance_v3)
+    json_string_v3 = JghSerialization.serialise(simple_instance_v3)
     print("\nSerialized JSON string for SimpleModelV3:\n")
     print(json_string_v3)
-    roundtripped_instance_v3 = JghSerialization.to_object_from_json(json_string_v3, SimpleModelV3)
+    roundtripped_instance_v3 = JghSerialization.validate(json_string_v3, SimpleModelV3)
     print("\nRound tripped SimpleModelV3 object:\n")
     print(roundtripped_instance_v3)
 
@@ -218,10 +232,10 @@ def main():
     simple_instance_v4.is_valid = True
     simple_instance_v4.is_legal = True
     simple_instance_v4.is_active = True
-    json_string_v4 = JghSerialization.to_json_from_object(simple_instance_v4)
+    json_string_v4 = JghSerialization.serialise(simple_instance_v4)
     print("\nSerialized JSON string for SimpleModelV4:\n")
     print(json_string_v4)
-    roundtripped_instance_v4 = JghSerialization.to_object_from_json(json_string_v4, SimpleModelV4)
+    roundtripped_instance_v4 = JghSerialization.validate(json_string_v4, SimpleModelV4)
     print("\nRoundTripped SimpleModelV4 object:\n")
     print(roundtripped_instance_v4)
     # Assertions to prove that roundtripped_instance_v4 is identical to simple_instance_v4

@@ -4,6 +4,7 @@ The HubItemBase class represents an item with various attributes and includes
 methods for grouping items by specific attributes.
 """
 # Standard library imports
+from dataclasses import dataclass
 import json
 from typing import List
 
@@ -11,8 +12,8 @@ from typing import List
 # from pydantic import BaseModel, Field
 from jgh_listdictionary import JghListDictionary
 
-
-class HubItemBase():
+@dataclass
+class HubItemBase:
     """
     A class representing an item with various attributes.
 

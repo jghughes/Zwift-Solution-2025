@@ -1,10 +1,47 @@
+"""
+This module provides functions to read JSON files, process their content, and write the data to CSV files.
 
+Functions:
+    is_valid_path(path: str) -> bool:
+        Checks if a path is valid.
+
+    is_valid_filename(filename: str, required_extension: str) -> bool:
+        Checks if a filename is valid.
+
+    raise_exception_if_invalid(dirpath: str, filename: str, required_extension: str, must_read_not_write: bool) -> bool:
+        Validates the directory path and filename.
+
+    read_text(dirpath: str, filename: str) -> str:
+        Reads the content of a file as text.
+
+    write_csv(dirpath: str, filename: str, items: Any) -> None:
+        Writes a list of dictionaries to a CSV file.
+
+    write_csv_with_fieldnames(dirpath: str, filename: str, items: List[Dict[str, Any]], fieldnames: List[str]) -> None:
+        Writes a list of dictionaries to a CSV file with specified fieldnames.
+
+    decode_json(text: str) -> Any:
+        Deserializes a JSON string into a Python object.
+
+    rinse_nested_elements(object_from_json: Any) -> List[Dict[str, Any]]:
+        Converts a JSON object to a list of dictionaries compatible with CSV conversion.
+
+    read_json_write_csv(input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str) -> None:
+        Reads a JSON file, converts it to a list of dictionaries, and writes it to a CSV file.
+
+    read_json_write_csv_abridged(input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str,
+                                 your_excel_column_shortlist: Optional[List[str]],
+                                 your_excel_column_headers: Optional[Dict[str, str]]) -> None:
+        Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers,
+        and writes it to a CSV file.
+"""
+
+# Standard library imports
 import os
 import json
 import csv
 from collections import OrderedDict
 from typing import List, Dict, Any, Optional
-
 
 def is_valid_path(path: str) -> bool:
     """
@@ -215,7 +252,8 @@ def read_json_write_csv(
     input_dirpath: str, input_filename: str, output_dirpath: str, output_filename: str
 ) -> None:
     """
-    Reads a JSON file, converts it to a list of dictionaries, and writes it to a CSV file.
+    Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers,
+    and writes it to a CSV file. It can only access the first level of attributes in the JSON file.
 
     This method performs the following steps:
     1. Validates the input and output directory paths and filenames to ensure they meet the required criteria.
@@ -266,7 +304,11 @@ def read_json_write_csv_abridged(
 ) -> None:
     """
     Reads a JSON file, converts it to a list of dictionaries, filters columns, replaces keys with headers,
-    and writes it to a CSV file.
+    and writes it to a CSV file. It can only access the first level of attributes in the JSON file.
+
+    Enables the selection of a subset of columns from the JSON data, allowing for more focused
+    and relevant CSV output. Enables renaming columns in the output CSV file, providing more
+    meaningful or user-friendly headers.
 
     This method performs the following steps:
     1. Validates the input and output directory paths and filenames to ensure they meet the required criteria.

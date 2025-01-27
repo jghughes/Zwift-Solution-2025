@@ -108,14 +108,13 @@ class TestModel(pydantic.BaseModel):
     email: str = Field(
         default=emailDEFAULT,
         serialization_alias=emailSERIALIZATION_ALIAS,
-        validation_alias=AliasChoices("Email", "EMAIL"),
+        validation_alias=AliasChoices("Email", "EMAIL"), # this is invalid because list fails to include the mame of the attribute 'email'
     )
     street: str = Field(
         default=streetDEFAULT,
         serialization_alias=streetSERIALIZATION_ALIAS,
         validation_alias=AliasChoices(
-            "street", streetSERIALIZATION_ALIAS, "dummystreetfieldname"
-        ),
+            "street", streetSERIALIZATION_ALIAS, "dummystreetfieldname"), # this is valid because list includes the mame of the attribute 'street'
     )
 
 
@@ -137,7 +136,7 @@ class Test_JghSerialization(unittest.TestCase):
         logger.info(f"=" * 100)
         logger.info(f"\n")
 
-    def test_to_instantiate_TestModel_multiple_ways(self):
+    def test_01instantiate_TestModel_multiple_ways(self):
         """
         This test case demonstrates multiple ways to instantiate TestModel in code using a ctor,
         and the pitfalls entailed. It highlights the unexpected side effects that different
@@ -251,10 +250,10 @@ class Test_JghSerialization(unittest.TestCase):
                 + "\n".join(errors)
             )
 
-    def test_to_json_from_object(self):
+    def test_02to_json_from_object(self):
         """
         This test case creates an instance of TestModel, serializes it to JSON using
-        JghSerialization.to_json_from_object, and asserts that the JSON string contains
+        JghSerialization.serialise, and asserts that the JSON string contains
         the expected fields and values.
 
         Illustrates the bizarre usage of alias string as the code-name of an attribute in the ctor syntax.
@@ -265,7 +264,7 @@ class Test_JghSerialization(unittest.TestCase):
             instance = TestModel(
                 id=1, last="Clinton", isactive_alias=True, age=84
             )  # note the use of the alias name for the prop name in ctor syntax, but not serialization_alias
-            json_str = JghSerialization.to_json_from_object(instance)
+            json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
             self.assertIsInstance(json_str, str)
             self.assertIn('"id": 1', json_str)
@@ -281,10 +280,10 @@ class Test_JghSerialization(unittest.TestCase):
             )
             self.fail(f"ERROR OCCURRED: test_to_json_from_object:\nerror_message(e)\n")
 
-    def test_ingest_json_featuring_alias(self):
+    def test_03ingest_json_featuring_alias(self):
         """
         This test case deserializes a valid JSON string to an instance of TestModel using
-        JghSerialization.to_object_from_json, and asserts that the resulting object has
+        JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
 
@@ -294,7 +293,7 @@ class Test_JghSerialization(unittest.TestCase):
         try:
             valid_json = f'{{"id": 1, "last": "Clinton", "{isactiveALIAS}": true}}'
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.to_object_from_json(valid_json, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
@@ -310,10 +309,10 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_ingest_json_featuring_alias:\nerror_message(e)\n"
             )
 
-    def test_ingest_json_featuring_serialisation_alias(self):
+    def test_04ingest_json_featuring_serialisation_alias(self):
         """
         This test case deserializes a valid JSON string to an instance of TestModel using
-        JghSerialization.to_object_from_json, and asserts that the resulting object has
+        JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
 
@@ -330,7 +329,7 @@ class Test_JghSerialization(unittest.TestCase):
                 f'{{"id": 1, "last": "Clinton", "{ageSERIALIZATION_ALIAS}": 99}}'
             )
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.to_object_from_json(valid_json, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
@@ -346,10 +345,10 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_ingest_json_featuring_serialisation_alias:\nerror_message(e)\n"
             )
 
-    def test_ingest_json_featuring_serialisation_alias_and_validationchoice(self):
+    def test_05ingest_json_featuring_serialisation_alias_and_validationchoice(self):
         """
         This test case deserializes a valid JSON string to an instance of TestModel using
-        JghSerialization.to_object_from_json, and asserts that the resulting object has
+        JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
 
@@ -363,7 +362,7 @@ class Test_JghSerialization(unittest.TestCase):
                 f'{{"id": 1, "last": "Clinton", "dummystreetfieldname": "Rubbish St"}}'
             )
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.to_object_from_json(valid_json, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
@@ -379,11 +378,11 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_ingest_json_featuring_serialisation_alias_and_validationchoice:\nerror_message(e)\n"
             )
 
-    def test_roundtrip_object_featuring_alias(self):
+    def test_06roundtrip_object_featuring_alias(self):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.to_json_from_object,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.to_object_from_json,
+        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that a field with an alias will successfully round-trip i.e. the alias is emitted
@@ -391,9 +390,9 @@ class Test_JghSerialization(unittest.TestCase):
         """
         try:
             instance = TestModel(id=1, last="Clinton", isactive_alias=True)
-            json_str = JghSerialization.to_json_from_object(instance)
+            json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.to_object_from_json(json_str, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModel)
             self.assertIsInstance(roundtripped, TestModel)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
@@ -409,13 +408,13 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_roundtrip_object_featuring_alias:\nerror_message(e)\n"
             )
 
-    def test_roundtrip_object_featuring_serialisation_alias_and_missing_validation_alias(
+    def test_07roundtrip_object_featuring_serialisation_alias_and_missing_validation_alias(
         self,
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.to_json_from_object,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.to_object_from_json,
+        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will fail to correctly roundtrip by itself.
@@ -424,9 +423,9 @@ class Test_JghSerialization(unittest.TestCase):
         """
         try:
             instance = TestModel(id=1, last="Clinton", age=84)
-            json_str = JghSerialization.to_json_from_object(instance)
+            json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.to_object_from_json(json_str, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModel)
             self.assertIsInstance(roundtripped, TestModel)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
@@ -442,13 +441,13 @@ class Test_JghSerialization(unittest.TestCase):
                 f"TEST OUTCOME PASS:\n\tAn assertion correctly failed in test_roundtrip_object_featuring_serialisation_alias_and_missing_validation_alias:-\n{error_message(e)}"
             )
 
-    def test_roundtrip_object_featuring_serialisation_alias_and_inadequate_validation_alias(
+    def test_08roundtrip_object_featuring_serialisation_alias_and_inadequate_validation_alias(
         self,
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.to_json_from_object,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.to_object_from_json,
+        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will fail to correctly roundtrip by itself.
@@ -457,9 +456,9 @@ class Test_JghSerialization(unittest.TestCase):
         """
         try:
             instance = TestModel(id=1, last="Clinton", email="maggie@london.com")
-            json_str = JghSerialization.to_json_from_object(instance)
+            json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.to_object_from_json(json_str, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModel)
             self.assertIsInstance(roundtripped, TestModel)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
@@ -477,13 +476,13 @@ class Test_JghSerialization(unittest.TestCase):
                 f"TEST OUTCOME PASS:\n\tAn assertion correctly failed in roundtrip_object_to_json_and_back_again:-\n{error_message(e)}"
             )
 
-    def test_roundtrip_object_featuring_serialisation_alias_and_matching_validation_alias(
+    def test_09roundtrip_object_featuring_serialisation_alias_and_matching_validation_alias(
         self,
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.to_json_from_object,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.to_object_from_json,
+        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will correctly roundtrip as long as
@@ -493,9 +492,9 @@ class Test_JghSerialization(unittest.TestCase):
             instance = TestModel(
                 id=1, last="Clinton", email="maggie@london.com", street="Dundas St"
             )
-            json_str = JghSerialization.to_json_from_object(instance)
+            json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.to_object_from_json(json_str, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModel)
             self.assertIsInstance(roundtripped, TestModel)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
@@ -511,14 +510,14 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_roundtrip_object_featuring_serialisation_alias_and_matching_validation_alias:\nerror_message(e)\n"
             )
 
-    def test_json_with_null_value(self):
+    def test_10ingest_json_with_null_value(self):
         """
         Test to illustrate that a JSON field with a null value will be correctly interpreted as None.
         """
         try:
             json_with_null_value = f'{{"id": 1, "first": null,  "last": "Clinton"}}'
             logger.info(f"JSON STRING:\n\t{json_with_null_value}")
-            obj = JghSerialization.to_object_from_json(json_with_null_value, TestModel)
+            obj = JghSerialization.validate(json_with_null_value, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertIsNone(obj.first)
@@ -533,14 +532,14 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_json_with_null_value:\nerror_message(e)\n"
             )
 
-    def test_json_with_missing_fields(self):
+    def test_11ingest_json_with_missing_fields(self):
         """
         Test to illustrate that a JSON field that is missing will be correctly assigned the default value.
         """
         try:
             missing_fields_json = '{"id": 1, "last": "Clinton"}'
             logger.info(f"JSON STRING:\n\t{missing_fields_json}")
-            obj = JghSerialization.to_object_from_json(missing_fields_json, TestModel)
+            obj = JghSerialization.validate(missing_fields_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertIsNone(obj.first)
@@ -559,7 +558,7 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_json_with_missing_fields:\nerror_message(e)\n"
             )
 
-    def test_json_with_extra_fields(self):
+    def test_12ingest_json_with_extra_fields(self):
         """
         Test to illustrate that a JSON field with extra fields will be correctly interpreted.
         """
@@ -567,7 +566,7 @@ class Test_JghSerialization(unittest.TestCase):
             # JSON string with extra superfluous fields
             extra_fields_json = f'{{"id": 1, "last": "Clinton", "extra_field": "extra_value", "another_extra_field": "another_extra_value"}}'
             logger.info(f"JSON STRING:\n\t{extra_fields_json}")
-            obj = JghSerialization.to_object_from_json(extra_fields_json, TestModel)
+            obj = JghSerialization.validate(extra_fields_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
@@ -582,7 +581,7 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_json_with_extra_fields:\nerror_message(e)\n"
             )
 
-    def test_json_with_invalid_attribute_types_in_the_json(self):
+    def test_13ingest_json_with_invalid_attribute_types_in_the_json(self):
         """
         Test to illustrate that a JSON field with an invalid attribute type will raise a ValueError.
         """
@@ -590,7 +589,7 @@ class Test_JghSerialization(unittest.TestCase):
         json_with_invalid_types = f'{{"id": "one", "first": 10}}'
         logger.info(f"JSON STRING:\n\t{json_with_invalid_types}")
         try:
-            JghSerialization.to_object_from_json(json_with_invalid_types, TestModel)
+            JghSerialization.validate(json_with_invalid_types, TestModel)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with JSON containing invalid attribute types correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -601,17 +600,17 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED:\n\t'test_json_with_invalid_attribute_types_in_the_json' ValueError not raised"
             )
 
-    def test_json_with_badly_formatted_json(self):
+    def test_14ingest_json_with_fatally_badly_formatted_json(self):
         """
         This test case attempts to deserialize a JSON string that is badly formatted and contains garbage
-        using JghSerialization.to_object_from_json, and asserts that a ValueError is raised.
+        using JghSerialization.validate, and asserts that a ValueError is raised.
         """
         # Invalid JSON string
         rubbish_json = f'{{"id"::::}}'
         logger.info(f"JSON STRING:\n\t{rubbish_json}")
 
         try:
-            JghSerialization.to_object_from_json(rubbish_json, TestModel)
+            JghSerialization.validate(rubbish_json, TestModel)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with badly formatted JSON correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -622,14 +621,14 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED:\n\t'test_json_with_badly_formatted_json' ValueError not raised"
             )
 
-    def test_json_with_empty_json(self):
+    def test_15ingest_json_with_empty_json(self):
         """
         Test to illustrate that deserialization with empty and therefore invalid JSON will raise a ValueError.
         """
         # Empty JSON string
         empty_json = ""
         try:
-            JghSerialization.to_object_from_json(empty_json, TestModel)
+            JghSerialization.validate(empty_json, TestModel)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with empty and therefore invalid JSON correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -637,6 +636,50 @@ class Test_JghSerialization(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.fail(f"TEST OUTCOME FAIL:\n\tValueError not raised")
+
+
+    def test_16ingest_json_with_int_and_bool_represented_as_strings(self):
+        """
+        This test will check if the deserialization process can handle JSON
+        strings where integer and boolean values are represented as strings.
+        It will ensure that Pydantic can successfully coerce these fields to
+        the correct types.
+        """
+        try:
+            # Define a JSON string with integer and boolean values represented as strings
+            #id should an integer, isactive is a boolean, age_serialization_alias is an integer
+            json_with_strings = """
+            {
+                "id": "1",
+                "first": "John",
+                "last": "Doe",
+                "isactive_alias": "true",
+                "age_serialization_alias": "32",
+                "email_serialization_alias": "john.doe@example.com",
+                "street_serialization_alias": "123 Main St"
+            }
+            """
+            logger.info(f"JSON STRING:\n\t{json_with_strings}")
+            obj = JghSerialization.validate(json_with_strings, TestModel)
+            self.assertIsInstance(obj, TestModel)
+            self.assertEqual(obj.id, 1)  # Coerced to integer
+            self.assertEqual(obj.first, "John")
+            self.assertEqual(obj.last, "Doe")
+            self.assertTrue(obj.isactive)  # Coerced to boolean
+            self.assertEqual(obj.age, 32)  # Coerced to integer
+            self.assertEqual(obj.email, "john.doe@example.com")
+            self.assertEqual(obj.street, "123 Main St")
+            logger.info(
+                f"TEST OUTCOME: PASS:\n\tDeserialization with integer and boolean values represented as strings succeeded.\n\tInput string:\n\t{json_with_strings}\n\tOutput object:\n\t{obj}"
+            )
+        except AssertionError as e:
+            logger.error(
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_16ingest_json_with_int_and_bool_represented_as_strings:-\n{error_message(e)}"
+            )
+            self.fail(
+                f"ERROR OCCURRED: test_16ingest_json_with_int_and_bool_represented_as_strings:\nerror_message(e)\n"
+            )
+
 
 
 # Do the tests (but not if this script is imported as a module)

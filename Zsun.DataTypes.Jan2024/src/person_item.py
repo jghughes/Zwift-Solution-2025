@@ -7,10 +7,8 @@ from datetime import datetime, timezone
 import uuid
 
 # Local application imports
-from person_dto import PersonDto
+from person_dto import PersonDataTransferObject
 from hub_item_base import HubItemBase
-
-
 
 class PersonItem(HubItemBase):
     """
@@ -79,15 +77,15 @@ class PersonItem(HubItemBase):
         return answer
 
     @staticmethod
-    def to_dataTransferObject(item: "PersonItem") -> PersonDto:
+    def to_dataTransferObject(item: "PersonItem") -> PersonDataTransferObject:
         """
-        Converts a PersonItem instance to a PersonDto instance.
+        Converts a PersonItem instance to a PersonDataTransferObject instance.
         Args:
-            item (PersonItem): The PersonItem instance to convert to a PersonDto instance.
+            item (PersonItem): The PersonItem instance to convert to a PersonDataTransferObject instance.
         Returns:
-            PersonDto: A new instance of the PersonDto class.
+            PersonDataTransferObject: A new instance of the PersonDataTransferObject class.
         """
-        answer = PersonDto()
+        answer = PersonDataTransferObject()
 
         answer.zsun_id = item.zsun_id
         answer.zsun_firstname = item.zsun_firstname
@@ -115,15 +113,15 @@ class PersonItem(HubItemBase):
         return answer
 
     @staticmethod
-    def from_dataTransferObject(dto: PersonDto) -> "PersonItem":
+    def from_dataTransferObject(dto: PersonDataTransferObject) -> "PersonItem":
         """
-        Creates a PersonItem instance from a PersonDto instance.
+        Creates a PersonItem instance from a PersonDataTransferObject instance.
 
         This method captures the privately set attributes from the DataTransferObject and restores them
         to the new PersonItem instance. The private attributes include timestamp and guid.
 
         Args:
-            dto (PersonDto): The PersonDto instance to create the PersonItem instance from.
+            dto (PersonDataTransferObject): The PersonDataTransferObject instance to create the PersonItem instance from.
         Returns:
             PersonItem: A new instance of the PersonItem class.
         """
@@ -170,12 +168,12 @@ if __name__ == "__main__":
     print("PersonItem instance:")
     print(person_item)
 
-    # Convert the PersonItem instance to a PersonDto instance
+    # Convert the PersonItem instance to a PersonDataTransferObject instance
     person_dto = PersonItem.to_dataTransferObject(person_item)
-    print("\nConverted to PersonDto:")
+    print("\nConverted to PersonDataTransferObject:")
     print(person_dto)
 
-    # Convert the PersonDto instance back to a PersonItem instance
+    # Convert the PersonDataTransferObject instance back to a PersonItem instance
     new_person_item = PersonItem.from_dataTransferObject(person_dto)
     print("\nConverted back to PersonItem:")
     print(new_person_item)

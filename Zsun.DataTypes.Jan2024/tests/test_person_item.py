@@ -15,7 +15,7 @@ import logging
 import unittest
 
 # Local application imports
-from person_dto import PersonDto
+# from person_dto import PersonDataTransferObject
 from person_item import PersonItem
 
 # Configure logging
