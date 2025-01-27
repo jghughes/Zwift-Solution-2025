@@ -127,8 +127,8 @@ class JghSerialization:
                 answer = json.loads(inputJson)
                 return requiredModel(**answer)
             elif issubclass(requiredModel, BaseModel):
-                # Handle Pydantic model deserialization - with type coercion (strict=True)
-                return requiredModel.model_validate_json(inputJson)
+                # Handle Pydantic model deserialization - with powerful and clever type coercion for numbers and bools (strict=False)
+                return requiredModel.model_validate_json(inputJson, strict=False)
             else:
                 # Handle generic object deserialization
                 answer = json.loads(inputJson)

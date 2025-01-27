@@ -35,7 +35,7 @@ import logging
 import unittest
 import pydantic as pydantic
 from pydantic import Field, AliasChoices
-from typing import Optional
+from typing import Optional, Data
 
 # Local application imports
 from jgh_serialization import JghSerialization
@@ -80,8 +80,8 @@ def error_message(ex: Exception) -> str:
     return f"{str(message)} ErrorCode={str(code)}"
 
 
-# Define a Pydantic model for testing pyndatic's validation and serialisation. change the signature to @dataclass for testing dataclasses
-class TestModel(pydantic.BaseModel):
+# Define a Pydantic model for testing pyndatic's validation and serialisation.
+class TestModelPydantic(pydantic.BaseModel):
     """
     id: int                 required in ctor because no default is specified. Can be roundtripped.
     first: Optional[str]    not required because a default is specified (None). Can be roundtripped.
@@ -92,7 +92,7 @@ class TestModel(pydantic.BaseModel):
     street: str             not required. Uses serialization_alias for export. AliasChoices are not mutually inclusive. Can be roundtripped
 
     N.B. AliasChoices is a Pydantic class that allows for multiple aliases for a field.
-    Beware, if the name of the attribute - 'email' - is not among the AliasChoices, instantiation of TestModel in code will
+    Beware, if the name of the attribute - 'email' - is not among the AliasChoices, instantiation of TestModelPydantic in code will
     ignore whatever you think you have assigned in the ctor and will impose the default.
 
     In case you use alias together with validation_alias or serialization_alias at the same time, the
@@ -108,14 +108,24 @@ class TestModel(pydantic.BaseModel):
     email: str = Field(
         default=emailDEFAULT,
         serialization_alias=emailSERIALIZATION_ALIAS,
-        validation_alias=AliasChoices("Email", "EMAIL"), # this is invalid because list fails to include the mame of the attribute 'email'
+        validation_alias=AliasChoices("Email", "EMAIL"), # this will fail because list fails to include the mame of the attribute 'email'
     )
     street: str = Field(
         default=streetDEFAULT,
         serialization_alias=streetSERIALIZATION_ALIAS,
         validation_alias=AliasChoices(
-            "street", streetSERIALIZATION_ALIAS, "dummystreetfieldname"), # this is valid because list includes the mame of the attribute 'street'
+            "street", streetSERIALIZATION_ALIAS, "dummystreetfieldname"), # this is OK because list includes the mame of the attribute 'street'
     )
+
+    @dataclass
+    class TestModelDataclass():
+        id: int
+        first: Optional[str] = None
+        last: str = ""
+        isactive: bool = False
+        age: int = 32
+        email: str = "default.com"
+        street: str = "Default St"
 
 
 # All the tests
@@ -138,7 +148,7 @@ class Test_JghSerialization(unittest.TestCase):
 
     def test_01instantiate_TestModel_multiple_ways(self):
         """
-        This test case demonstrates multiple ways to instantiate TestModel in code using a ctor,
+        This test case demonstrates multiple ways to instantiate TestModelPydantic in code using a ctor,
         and the pitfalls entailed. It highlights the unexpected side effects that different
         pydantic Field attributes have on the success or failure of a ctor.
 
@@ -156,8 +166,8 @@ class Test_JghSerialization(unittest.TestCase):
         errors: list[str] = []
 
         try:
-            dummy = TestModel(id=1, first=None, last="Trump")
-            self.assertIsInstance(dummy, TestModel)
+            dummy = TestModelPydantic(id=1, first=None, last="Trump")
+            self.assertIsInstance(dummy, TestModelPydantic)
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tTestModel instantiated successfully with first=None and last={dummy.last}."
             )
@@ -168,8 +178,8 @@ class Test_JghSerialization(unittest.TestCase):
             errors.append(f"Trump: error_message(e)")
 
         try:
-            dummy = TestModel(id=1, first="Bill", last="Clinton")
-            self.assertIsInstance(dummy, TestModel)
+            dummy = TestModelPydantic(id=1, first="Bill", last="Clinton")
+            self.assertIsInstance(dummy, TestModelPydantic)
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tTestModel instantiated successfully with first={dummy.first} and last={dummy.last}."
             )
@@ -180,14 +190,14 @@ class Test_JghSerialization(unittest.TestCase):
             errors.append(f"Clinton: error_message(e)")
 
         try:
-            dummy = TestModel(
+            dummy = TestModelPydantic(
                 id=1,
                 first="Barak",
                 last="Obama",
                 isactive_alias=not isactiveDEFAULTisfalse,
                 age=17,
             )
-            self.assertIsInstance(dummy, TestModel)
+            self.assertIsInstance(dummy, TestModelPydantic)
             self.assertTrue(dummy.isactive != isactiveDEFAULTisfalse)
             self.assertTrue(dummy.age == 17)
             logger.info(
@@ -200,8 +210,8 @@ class Test_JghSerialization(unittest.TestCase):
             errors.append(f"Obama: error_message(e)")
 
         try:
-            dummy = TestModel(id=1, first="George", last="Bush", age=93)
-            self.assertIsInstance(dummy, TestModel)
+            dummy = TestModelPydantic(id=1, first="George", last="Bush", age=93)
+            self.assertIsInstance(dummy, TestModelPydantic)
             self.assertTrue(dummy.age == 93)
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tTestModel instantiated successfully with age={dummy.age}. Note that ctor syntax does not use the str value of the serialisation_alias as the name of the attribute"
@@ -213,8 +223,8 @@ class Test_JghSerialization(unittest.TestCase):
             errors.append(f"Bush: error_message(e)")
 
         try:
-            dummy = TestModel(id=1, last="Thatcher", street="10 Downing St")
-            self.assertIsInstance(dummy, TestModel)
+            dummy = TestModelPydantic(id=1, last="Thatcher", street="10 Downing St")
+            self.assertIsInstance(dummy, TestModelPydantic)
             self.assertTrue(dummy.street == "10 Downing St")
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tTestModel instantiated successfully with street={dummy.street}"
@@ -229,8 +239,8 @@ class Test_JghSerialization(unittest.TestCase):
             errors.append(f"Thatcher: error_message(e)")
 
         try:
-            dummy = TestModel(id=1, last="Thatcher", email="maggie@rubbish.com")
-            self.assertIsInstance(dummy, TestModel)
+            dummy = TestModelPydantic(id=1, last="Thatcher", email="maggie@rubbish.com")
+            self.assertIsInstance(dummy, TestModelPydantic)
             self.assertTrue(dummy.email == emailDEFAULT)
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tTestModel instantiated successfully with email={emailDEFAULT}"
@@ -252,7 +262,7 @@ class Test_JghSerialization(unittest.TestCase):
 
     def test_02to_json_from_object(self):
         """
-        This test case creates an instance of TestModel, serializes it to JSON using
+        This test case creates an instance of TestModelPydantic, serializes it to JSON using
         JghSerialization.serialise, and asserts that the JSON string contains
         the expected fields and values.
 
@@ -261,7 +271,7 @@ class Test_JghSerialization(unittest.TestCase):
         Illustrates the usage of alias and serialization_alias to the field names in the emitted JSON string.
         """
         try:
-            instance = TestModel(
+            instance = TestModelPydantic(
                 id=1, last="Clinton", isactive_alias=True, age=84
             )  # note the use of the alias name for the prop name in ctor syntax, but not serialization_alias
             json_str = JghSerialization.serialise(instance)
@@ -282,7 +292,7 @@ class Test_JghSerialization(unittest.TestCase):
 
     def test_03ingest_json_featuring_alias(self):
         """
-        This test case deserializes a valid JSON string to an instance of TestModel using
+        This test case deserializes a valid JSON string to an instance of TestModelPydantic using
         JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
@@ -293,8 +303,8 @@ class Test_JghSerialization(unittest.TestCase):
         try:
             valid_json = f'{{"id": 1, "last": "Clinton", "{isactiveALIAS}": true}}'
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.validate(valid_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
             self.assertEqual(obj.isactive, True)  # the crunch
@@ -311,7 +321,7 @@ class Test_JghSerialization(unittest.TestCase):
 
     def test_04ingest_json_featuring_serialisation_alias(self):
         """
-        This test case deserializes a valid JSON string to an instance of TestModel using
+        This test case deserializes a valid JSON string to an instance of TestModelPydantic using
         JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
@@ -329,8 +339,8 @@ class Test_JghSerialization(unittest.TestCase):
                 f'{{"id": 1, "last": "Clinton", "{ageSERIALIZATION_ALIAS}": 99}}'
             )
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.validate(valid_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
             self.assertEqual(obj.age, ageDEFAULTis32)  # the crunch
@@ -347,7 +357,7 @@ class Test_JghSerialization(unittest.TestCase):
 
     def test_05ingest_json_featuring_serialisation_alias_and_validationchoice(self):
         """
-        This test case deserializes a valid JSON string to an instance of TestModel using
+        This test case deserializes a valid JSON string to an instance of TestModelPydantic using
         JghSerialization.validate, and asserts that the resulting object has
         the expected attribute values. Note how we (must be sure to) use the aliases in the JSON string
         to be consistent with the aliases we are using for some of our model attributes.
@@ -362,8 +372,8 @@ class Test_JghSerialization(unittest.TestCase):
                 f'{{"id": 1, "last": "Clinton", "dummystreetfieldname": "Rubbish St"}}'
             )
             logger.info(f"JSON STRING:\n\t{valid_json}")
-            obj = JghSerialization.validate(valid_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(valid_json, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
             self.assertEqual(obj.street, "Rubbish St")  # the crunch
@@ -381,19 +391,19 @@ class Test_JghSerialization(unittest.TestCase):
     def test_06roundtrip_object_featuring_alias(self):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
+        It creates an instance of TestModelPydantic, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModelPydantic using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that a field with an alias will successfully round-trip i.e. the alias is emitted
         in the JSON, and recognised in incoming JSON
         """
         try:
-            instance = TestModel(id=1, last="Clinton", isactive_alias=True)
+            instance = TestModelPydantic(id=1, last="Clinton", isactive_alias=True)
             json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.validate(json_str, TestModel)
-            self.assertIsInstance(roundtripped, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModelPydantic)
+            self.assertIsInstance(roundtripped, TestModelPydantic)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
             self.assertEqual(roundtripped.isactive, True)  # the crunch
@@ -413,8 +423,8 @@ class Test_JghSerialization(unittest.TestCase):
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
+        It creates an instance of TestModelPydantic, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModelPydantic using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will fail to correctly roundtrip by itself.
@@ -422,11 +432,11 @@ class Test_JghSerialization(unittest.TestCase):
         field will be treated as missing and the attribute will end up with its default.
         """
         try:
-            instance = TestModel(id=1, last="Clinton", age=84)
+            instance = TestModelPydantic(id=1, last="Clinton", age=84)
             json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.validate(json_str, TestModel)
-            self.assertIsInstance(roundtripped, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModelPydantic)
+            self.assertIsInstance(roundtripped, TestModelPydantic)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
             self.assertEqual(roundtripped.age, 84)  # the crunch - this will fail
@@ -446,8 +456,8 @@ class Test_JghSerialization(unittest.TestCase):
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
+        It creates an instance of TestModelPydantic, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModelPydantic using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will fail to correctly roundtrip by itself.
@@ -455,11 +465,11 @@ class Test_JghSerialization(unittest.TestCase):
         field will be treated as missing and the attribute will end up with its default.
         """
         try:
-            instance = TestModel(id=1, last="Clinton", email="maggie@london.com")
+            instance = TestModelPydantic(id=1, last="Clinton", email="maggie@london.com")
             json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.validate(json_str, TestModel)
-            self.assertIsInstance(roundtripped, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModelPydantic)
+            self.assertIsInstance(roundtripped, TestModelPydantic)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
             self.assertEqual(
@@ -481,21 +491,21 @@ class Test_JghSerialization(unittest.TestCase):
     ):
         """
         This test case demonstrates a roundtrip from object to JSON and back to object.
-        It creates an instance of TestModel, serializes it to JSON using JghSerialization.serialise,
-        deserializes the JSON back to an instance of TestModel using JghSerialization.validate,
+        It creates an instance of TestModelPydantic, serializes it to JSON using JghSerialization.serialise,
+        deserializes the JSON back to an instance of TestModelPydantic using JghSerialization.validate,
         and asserts that the resulting object has the expected attribute values.
 
         Illustrates that an attribute with a serialisation_alias will correctly roundtrip as long as
         it has a matching AliasChoice. Failing that the attribute will end up with its default.
         """
         try:
-            instance = TestModel(
+            instance = TestModelPydantic(
                 id=1, last="Clinton", email="maggie@london.com", street="Dundas St"
             )
             json_str = JghSerialization.serialise(instance)
             logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.validate(json_str, TestModel)
-            self.assertIsInstance(roundtripped, TestModel)
+            roundtripped = JghSerialization.validate(json_str, TestModelPydantic)
+            self.assertIsInstance(roundtripped, TestModelPydantic)
             self.assertEqual(roundtripped.id, 1)
             self.assertEqual(roundtripped.last, "Clinton")
             self.assertEqual(roundtripped.street, "Dundas St")  # the crunch
@@ -517,8 +527,8 @@ class Test_JghSerialization(unittest.TestCase):
         try:
             json_with_null_value = f'{{"id": 1, "first": null,  "last": "Clinton"}}'
             logger.info(f"JSON STRING:\n\t{json_with_null_value}")
-            obj = JghSerialization.validate(json_with_null_value, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(json_with_null_value, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertIsNone(obj.first)
             logger.info(
@@ -539,8 +549,8 @@ class Test_JghSerialization(unittest.TestCase):
         try:
             missing_fields_json = '{"id": 1, "last": "Clinton"}'
             logger.info(f"JSON STRING:\n\t{missing_fields_json}")
-            obj = JghSerialization.validate(missing_fields_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(missing_fields_json, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertIsNone(obj.first)
             self.assertEqual(obj.last, "Clinton")
@@ -566,8 +576,8 @@ class Test_JghSerialization(unittest.TestCase):
             # JSON string with extra superfluous fields
             extra_fields_json = f'{{"id": 1, "last": "Clinton", "extra_field": "extra_value", "another_extra_field": "another_extra_value"}}'
             logger.info(f"JSON STRING:\n\t{extra_fields_json}")
-            obj = JghSerialization.validate(extra_fields_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(extra_fields_json, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)
             self.assertEqual(obj.last, "Clinton")
             logger.info(
@@ -589,7 +599,7 @@ class Test_JghSerialization(unittest.TestCase):
         json_with_invalid_types = f'{{"id": "one", "first": 10}}'
         logger.info(f"JSON STRING:\n\t{json_with_invalid_types}")
         try:
-            JghSerialization.validate(json_with_invalid_types, TestModel)
+            JghSerialization.validate(json_with_invalid_types, TestModelPydantic)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with JSON containing invalid attribute types correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -610,7 +620,7 @@ class Test_JghSerialization(unittest.TestCase):
         logger.info(f"JSON STRING:\n\t{rubbish_json}")
 
         try:
-            JghSerialization.validate(rubbish_json, TestModel)
+            JghSerialization.validate(rubbish_json, TestModelPydantic)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with badly formatted JSON correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -628,7 +638,7 @@ class Test_JghSerialization(unittest.TestCase):
         # Empty JSON string
         empty_json = ""
         try:
-            JghSerialization.validate(empty_json, TestModel)
+            JghSerialization.validate(empty_json, TestModelPydantic)
         except ValueError as e:
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with empty and therefore invalid JSON correctly raised a ValueError.\nError message:\n\t{error_message(e)}"
@@ -636,7 +646,6 @@ class Test_JghSerialization(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.fail(f"TEST OUTCOME FAIL:\n\tValueError not raised")
-
 
     def test_16ingest_json_with_int_and_bool_represented_as_strings(self):
         """
@@ -655,19 +664,17 @@ class Test_JghSerialization(unittest.TestCase):
                 "last": "Doe",
                 "isactive_alias": "true",
                 "age_serialization_alias": "32",
-                "email_serialization_alias": "john.doe@example.com",
                 "street_serialization_alias": "123 Main St"
             }
             """
             logger.info(f"JSON STRING:\n\t{json_with_strings}")
-            obj = JghSerialization.validate(json_with_strings, TestModel)
-            self.assertIsInstance(obj, TestModel)
+            obj = JghSerialization.validate(json_with_strings, TestModelPydantic)
+            self.assertIsInstance(obj, TestModelPydantic)
             self.assertEqual(obj.id, 1)  # Coerced to integer
             self.assertEqual(obj.first, "John")
             self.assertEqual(obj.last, "Doe")
             self.assertTrue(obj.isactive)  # Coerced to boolean
             self.assertEqual(obj.age, 32)  # Coerced to integer
-            self.assertEqual(obj.email, "john.doe@example.com")
             self.assertEqual(obj.street, "123 Main St")
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with integer and boolean values represented as strings succeeded.\n\tInput string:\n\t{json_with_strings}\n\tOutput object:\n\t{obj}"
