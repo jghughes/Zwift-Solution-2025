@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_serialization.py</StartupFile>
+    <StartupFile>src\jgh_serialization.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -24,11 +24,13 @@
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\jgh_listdictionary.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_listdictionary.py" />
     <Compile Include="src\jgh_serialization.py" />
     <Compile Include="src\__init__.py">
       <SubType>Code</SubType>

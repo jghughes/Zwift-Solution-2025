@@ -3,7 +3,7 @@ This module defines various string utility functions.
 """
 
 # Standard library imports
-from typing import List, Optional, Tuple
+
 
 # Local application imports
 # from some_local_module import some_function  # Uncomment and replace with actual local imports as needed
@@ -37,8 +37,6 @@ class JghString:
         Returns:
             str: Concatenated strings.
         """
-        if separator is None:
-            separator = ""
 
         # Rinse out all the empties
         list_of_texts = [text for text in array_of_texts if text]

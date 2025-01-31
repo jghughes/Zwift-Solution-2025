@@ -6,7 +6,7 @@ methods for grouping items by specific attributes.
 # Standard library imports
 from dataclasses import dataclass
 import json
-from typing import List
+# from typing import List
 
 # Local application imports
 # from pydantic import BaseModel, Field
@@ -84,14 +84,14 @@ class HubItemBase:
 
     @staticmethod
     def to_list_dictionary_grouped_by_bib(
-        list_hub_items: List["HubItemBase"],
+        list_hub_items: list["HubItemBase"],
     ) -> JghListDictionary[str, "HubItemBase"]:
         """
         Groups a list of HubItemBase instances by their bib attribute.
 
         Parameters:
         -----------
-        list_hub_items : List[HubItemBase]
+        list_hub_items : list[HubItemBase]
             The list of HubItemBase instances to group.
 
         Returns:
@@ -115,14 +115,14 @@ class HubItemBase:
 
     @staticmethod
     def to_list_dictionary_grouped_by_originating_item_guid(
-        list_hub_items: List["HubItemBase"],
+        list_hub_items: list["HubItemBase"],
     ) -> JghListDictionary[str, "HubItemBase"]:
         """
         Groups a list of HubItemBase instances by their originating_item_guid attribute.
 
         Parameters:
         -----------
-        list_hub_items : List[HubItemBase]
+        list_hub_items : list[HubItemBase]
             The list of HubItemBase instances to group.
 
         Returns:

@@ -4,14 +4,11 @@ serializing and deserializing objects.
 """
 # Standard library imports
 import json
-from typing import Any, Type, TypeVar
+from typing import Any
 from dataclasses import dataclass, asdict, is_dataclass
 
 # Local application imports
-from pydantic import BaseModel, ValidationError, Field
-
-T = TypeVar('T')
-# T = TypeVar('T', bound=pydantic.BaseModel)
+from pydantic import BaseModel, ValidationError
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:
@@ -37,7 +34,9 @@ def pretty_error_message(ex: Exception) -> str:
 
 class JghSerialization:
     """
-    A class for serializing and deserializing generic types.
+    A class for serializing and deserializing generic types, primarily 
+    Pydantic models. It can also handle dataclasses at a push but is not
+    as powerful as Pydantic in terms of type coercion and validation.
 
     Attributes:
         None
@@ -91,17 +90,18 @@ class JghSerialization:
         return candidate_json
 
     @staticmethod
-    def validate(inputJson: str, requiredModel: Type[T]) -> T:
+    def validate[T](inputJson: str, requiredModel: T) -> T:
         """
         Validates a JSON string and uses it to instatiate a model  
         of the specified type. if the model derives from the Pydantic
-        BaseModel, and if aliases or validation_aliases are specified
-        for the attributes of the model, the aliases are respected
-        during validation.
+        BaseModel, and if serialisation_alias's or validation_aliase
+        Choices are specified for the attributes of the model, the 
+        aliases are respected during validation.
 
         Args:
             inputJson (str): The JSON string to validate.
-            requiredModel (Type[T]): The model type to deserialize to.
+            requiredModel[T]: The model type to deserialize to.
+            It must be a dataclass or a Pydantic model.
 
         Returns:
             T: An instance of the specified model type.
@@ -123,18 +123,18 @@ class JghSerialization:
         try:
             
             if is_dataclass(requiredModel):
-                # Handle dataclass deserialization
                 answer = json.loads(inputJson)
-                return requiredModel(**answer)
-            elif issubclass(requiredModel, BaseModel):
+                filtered_answer = {k: v for k, v in answer.items() if k in requiredModel.__annotations__} # Filter out any extra fields that are not in the dataclass if any
+                return requiredModel(**filtered_answer) # type: ignore
+            elif issubclass(requiredModel, BaseModel): # type: ignore
                 # Handle Pydantic model deserialization - with powerful and clever type coercion for numbers and bools (strict=False)
                 return requiredModel.model_validate_json(inputJson, strict=False)
             else:
                 # Handle generic object deserialization
                 answer = json.loads(inputJson)
-                return requiredModel(**answer)
+                return requiredModel(**answer) # type: ignore
         except TypeError as e:
-            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize as an object of Type '{requiredModel.__name__}' \n\t\tdue to a TypeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputJson}"))
+            raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize as an object of Type '{requiredModel.__name__}' \n\t\tdue to a TypeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputJson}")) # type: ignore
         except json.JSONDecodeError as e:
             raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to deserialize as an object of Type '{requiredModel.__name__}' \n\t\tdue to a JSONDecodeError.\nError Message: {pretty_error_message(e)}\nInput string:\n\t{inputJson}"))
         except ValidationError as e:
@@ -179,72 +179,6 @@ def main():
     print("\nRound tripped SimpleModelV2 object:\n")
     print(roundtripped_instance_v2)
 
-    # the even greater beauty of using powerful pydantic to define a class and make it serialisable
-    class SimpleModelV3(BaseModel):
-        """
-        A beautiful pydantic model deriving from BaseModel. Uses Pydantic Field to explicitly define required/not required fields and their defaults.
-
-        Only 'id' is required, other fields are provided with defaults using pydantic and are therefore optional.
-        """
-        id: int
-        name: str = ""
-        is_active: bool = Field(default=False, description="The active status of the model")
-    simple_instance_v3 = SimpleModelV3(id=3)
-    simple_instance_v3.name = "SimpleModelV3"
-    simple_instance_v3.is_active = True
-    json_string_v3 = JghSerialization.serialise(simple_instance_v3)
-    print("\nSerialized JSON string for SimpleModelV3:\n")
-    print(json_string_v3)
-    roundtripped_instance_v3 = JghSerialization.validate(json_string_v3, SimpleModelV3)
-    print("\nRound tripped SimpleModelV3 object:\n")
-    print(roundtripped_instance_v3)
-
-    # the even greater beauty of using powerful pydantic to define a class and make it serialisable
-    class SimpleModelV4(BaseModel):
-        """
-        Same SimpleModelV3, adding 'is_active' and 'is_valid' to demonstrate the use of aliases. 
-        Alias and serialization_alias are very similar in that they are both used for serialisation. 
-        Both survive roundtripping. Validation_alias has no effect on serialisation, it's brilliant
-        for deserialisation
-        """
-        id: int = Field(default=4)
-        name: str = Field(default="SimpleModelV4")
-        is_valid: bool = Field(default=True, alias="alias_for_prop_is_valid")
-        is_legal: bool = Field(default=True, validation_alias="validation_alias_for_prop_is_legal")
-        is_active: bool = Field(default=True, serialization_alias="serialization_alias_for_prop_is_active")
-    # example 1: Create an instance of SimpleModelV4 with only one field. The other fields will
-    # be set to their defaults.
-    simple_instance_v4 = SimpleModelV4(id=4)
-    # example 2: create an instance of SimpleModelV4 specifying all fields. Notice that if a field 
-    # has a pydantic alias, the alias akwardly suppresses the field name in the ctor. 
-    # The same is not true for serialization_alias (used for serialization only),
-    # or for validation_alias (used for validation only).
-    # The alias is used in the JSON serialization and deserialization as is 
-    # the serialization_alias. The validation_alias is ignored in serialization.
-    # In all three cases, field name usage is normal outside the ctor.
-    simple_instance_v4 = SimpleModelV4(
-        id=4,
-        name="Test Model",
-        alias_for_prop_is_valid=False,
-        is_legal=True,
-        is_active=False
-    )
-    simple_instance_v4.is_valid = True
-    simple_instance_v4.is_legal = True
-    simple_instance_v4.is_active = True
-    json_string_v4 = JghSerialization.serialise(simple_instance_v4)
-    print("\nSerialized JSON string for SimpleModelV4:\n")
-    print(json_string_v4)
-    roundtripped_instance_v4 = JghSerialization.validate(json_string_v4, SimpleModelV4)
-    print("\nRoundTripped SimpleModelV4 object:\n")
-    print(roundtripped_instance_v4)
-    # Assertions to prove that roundtripped_instance_v4 is identical to simple_instance_v4
-    assert simple_instance_v4.id == roundtripped_instance_v4.id, "ID does not match"
-    assert simple_instance_v4.name == roundtripped_instance_v4.name, "Name does not match"
-    assert simple_instance_v4.is_active == roundtripped_instance_v4.is_active, "is_active does not match"
-    assert simple_instance_v4.is_valid == roundtripped_instance_v4.is_valid, "is_valid does not match"
-    assert simple_instance_v4.is_legal == roundtripped_instance_v4.is_legal, "is_legal does not match"
-    print("\nAll assertions passed. The roundtripped instance is identical to the original instance.\n")
 
 if __name__ == "__main__":
     main()
