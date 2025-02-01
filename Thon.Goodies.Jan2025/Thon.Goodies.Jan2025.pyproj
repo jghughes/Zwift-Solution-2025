@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_serialization.py</StartupFile>
+    <StartupFile>tests\test_jgh_serialization_with_dataclasses.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -39,7 +39,8 @@
     <Compile Include="tests\test_jgh_read_json_write_csv.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tests\test_jgh_serialization.py" />
+    <Compile Include="tests\test_jgh_serialization_with_dataclasses.py" />
+    <Compile Include="tests\test_jgh_serialization_with_pydantic_models.py" />
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
   </ItemGroup>
   <ItemGroup>

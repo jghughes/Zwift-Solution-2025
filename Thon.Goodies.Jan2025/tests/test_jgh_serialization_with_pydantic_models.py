@@ -44,57 +44,54 @@ from jgh_serialization import JghSerialization
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-# Define aliases for the tests
-idSERIALIZATION_ALIAS = "id_serialization_alias"
-firstSERIALIZATION_ALIAS = "first_serialization_alias"
-middlenamesSERIALIZATION_ALIAS = "middlenames_serialization_alias"
-lastSERIALIZATION_ALIAS = "last_serialization_alias"
-isactiveSERIALIZATION_ALIAS = "isactive_serialization_alias"
-ageSERIALIZATION_ALIAS = "age_serialization_alias"
-emailSERIALIZATION_ALIAS = "email_serialization_alias"
-streetSERIALIZATION_ALIAS = "street_serialization_alias"
-
-# Define default values for the tests
-DEFAULTjohn: str = "john"
-DEfAULTmiddlenames : list[str] = ["gerald", "elana", "thomas", "alexandra"]
-DEFAULTjones: str = "jones"
-DEFAULTfalse: bool = False
-DEFAULT99 = 99
-DEFAULTemail: str = "nill@zip.com"
-DEFAULTunknown: str = "unknown"
+# Define convenient default values for the tests
+default_john: str = "john"
+default_middlenames : list[str] = ["gerald", "elana", "thomas", "alexandra"]
+default_jones: str = "jones"
+default_false: bool = False
+default_99 = 99
+default_email: str = "email@zip.com"
+default_eglinton: str = "eglinton"
 
 
-# Make a dict to map model attribute names to the serialisation aliases for the tests
-output_alias_map : dict[str,str] ={
-    "id": f"{idSERIALIZATION_ALIAS}",
-    "first": f"{firstSERIALIZATION_ALIAS}",
-    "middle_names": f"{middlenamesSERIALIZATION_ALIAS}",
-    "last": f"{lastSERIALIZATION_ALIAS}",
-    "isactive": f"{isactiveSERIALIZATION_ALIAS}",
-    "age": f"{ageSERIALIZATION_ALIAS}",
-    "email": f"{emailSERIALIZATION_ALIAS}",
-    "street" : f"{streetSERIALIZATION_ALIAS}"
+# Define convenient output aliases for the tests
+id_serialization_alias = "id_serialization_alias"
+first_serialization_alias = "first_serialization_alias"
+middlenames_serialization_alias = "middlenames_serialization_alias"
+last_serialization_alias = "last_serialization_alias"
+isactive_serialization_alias = "isactive_serialization_alias"
+age_serialization_alias = "age_serialization_alias"
+email_serialization_alias = "email_serialization_alias"
+street_serialization_alias = "street_serialization_alias"
+serialization_alias_map : dict[str,str] ={
+    "id": f"{id_serialization_alias}",
+    "first": f"{first_serialization_alias}",
+    "middle_names": f"{middlenames_serialization_alias}",
+    "last": f"{last_serialization_alias}",
+    "isactive": f"{isactive_serialization_alias}",
+    "age": f"{age_serialization_alias}",
+    "email": f"{email_serialization_alias}",
+    "street" : f"{street_serialization_alias}"
     }
 
-# Make a dict of lists of AliasChoices to map model attributes to field names. NB. Always include attribute name and serialisation_alias (if defined) on all lists to ensure roundtripping success.
-input_alias_map : dict[str,AliasChoices] = {
-    "id": AliasChoices("id", f"{idSERIALIZATION_ALIAS}"),  
-    "first": AliasChoices("first", f"{firstSERIALIZATION_ALIAS}"), 
-    "middle_names": AliasChoices("middle_names", f"{middlenamesSERIALIZATION_ALIAS}"), 
-    "last": AliasChoices("last", f"{lastSERIALIZATION_ALIAS}"),
-    "isactive": AliasChoices("isactive", f"{isactiveSERIALIZATION_ALIAS}"),
-    "age": AliasChoices("age", f"{ageSERIALIZATION_ALIAS}"),
-    "email": AliasChoices("email", f"{emailSERIALIZATION_ALIAS}"),
-    "street": AliasChoices("street", f"{streetSERIALIZATION_ALIAS}") 
+# Make a dict of lists of AliasChoices to map model attributes to field names. NB. Always include attribute name and serialisation_alias (if defined) in each list to ensure roundtripping success.
+validation_alias_choices_map : dict[str,AliasChoices] = {
+    "id": AliasChoices("id", f"{id_serialization_alias}"),  
+    "first": AliasChoices("first", f"{first_serialization_alias}"), 
+    "middle_names": AliasChoices("middle_names", f"{middlenames_serialization_alias}"), 
+    "last": AliasChoices("last", f"{last_serialization_alias}"),
+    "isactive": AliasChoices("isactive", f"{isactive_serialization_alias}"),
+    "age": AliasChoices("age", f"{age_serialization_alias}"),
+    "email": AliasChoices("email", f"{email_serialization_alias}"),
+    "street": AliasChoices("street", f"{street_serialization_alias}") 
 }
 
-# Prepare a ConfigDict for all test models.
-# This has myriad useful attributes, but we are only interested in the alias_generator attribute for our examples so far.
-# Assign this to the pydantic model's model_config attribute.
+# Prepare a ConfigDict for all test models. Assign this to the pydantic model's model_config attribute.
 alias_config = ConfigDict(alias_generator=AliasGenerator(
         alias=None,
-        serialization_alias=lambda field_name: output_alias_map.get(field_name, field_name), 
-        validation_alias=lambda field_name: input_alias_map.get(field_name, field_name)))
+        serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
+        validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
+
 
 # Helper function to write a pretty error messages for the tests
 def pretty_error_message(ex: Exception) -> str:
@@ -136,7 +133,7 @@ class Test_JghSerialization(unittest.TestCase):
         logger.info(f"=" * 100)
         logger.info(f"\n")
 
-    def test_01how_to_define_and_roundtrip_a_pydantic_object_with_no_config(self):
+    def test_01_how_to_define_and_roundtrip_a_pydantic_object_with_no_config(self):
         """
         This test case demonstrates how to define and instantiate a sophisticated Pydantic model
         but with any serialisation config. Tests JghSerialisation.serialise and JghSerialisation.validate.
@@ -166,13 +163,13 @@ class Test_JghSerialization(unittest.TestCase):
 
             """
             id: int | None = 0 #NB # The union operator means the attribute value doesn't have to be sent or received as a field in the JSON string.
-            first: str | None = DEFAULTjohn
+            first: str | None = default_john
             middle_names: list[str] | None = Field(default_factory=list[str]) #NB. must use a factory for objects, a class or function is passed to the factory and not a instance of such, notice we are not specifying a default here. just to experiment 
-            last: str | None = DEFAULTjones
-            isactive: bool | None = DEFAULTfalse
-            age: int | None = DEFAULT99
-            email: str | None = DEFAULTemail
-            street: str | None = DEFAULTunknown
+            last: str | None = default_jones
+            isactive: bool | None = default_false
+            age: int | None = default_99
+            email: str | None = default_email
+            street: str | None = default_eglinton
 
         try:
             instance = TestModel()
@@ -193,13 +190,13 @@ class Test_JghSerialization(unittest.TestCase):
             )
         except Exception as e:
             logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_01how_to_define_and_roundtrip_a_pydantic_object_with_no_config:-\n{pretty_error_message(e)}"
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_01_how_to_define_and_roundtrip_a_pydantic_object_with_no_config:-\n{pretty_error_message(e)}"
             )
             self.fail(
-                f"ERROR OCCURRED: test_01how_to_define_and_roundtrip_a_pydantic_object_with_no_config:\n {pretty_error_message(e)}\n"
+                f"ERROR OCCURRED: test_01_how_to_define_and_roundtrip_a_pydantic_object_with_no_config:\n {pretty_error_message(e)}\n"
             )
 
-    def test_02how_to_define_and_roundtrip_a_pydantic_object_with_serialisation_config(self):
+    def test_02_how_to_define_and_roundtrip_a_pydantic_object_with_serialisation_config(self):
         """
         This test case demonstrates how to define and instantiate a sophisticated Pydantic model.
         Tests JghSerialisation.serialise and JghSerialisation.validate.
@@ -237,13 +234,13 @@ class Test_JghSerialization(unittest.TestCase):
             model_config = alias_config 
 
             id: int | None = 0 #NB # The union operator means the attribute value doesn't have to be sent or received as a field in the JSON string.
-            first: str | None = DEFAULTjohn
+            first: str | None = default_john
             middle_names: list[str] | None = Field(default_factory=list[str]) #NB. must use a factory for objects, a class or function is passed to the factory and not a instance of such, notice we are not specifying a default here. just to experiment 
-            last: str | None = DEFAULTjones
-            isactive: bool | None = DEFAULTfalse
-            age: int | None = DEFAULT99
-            email: str | None = DEFAULTemail
-            street: str | None = DEFAULTunknown
+            last: str | None = default_jones
+            isactive: bool | None = default_false
+            age: int | None = default_99
+            email: str | None = default_email
+            street: str | None = default_eglinton
 
         try:
             instance = TestModel()
@@ -270,90 +267,7 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_01how_to_define_and_roundtrip_a_pydantic_object_with_serialisation_config:\n {pretty_error_message(e)}\n"
             )
 
-    def test_03roundtrip_a_dataclasss(self):
-        """
-        This test case creates an instance of dataclass (as opposed to a pydantic model),
-        roundtrips it using JghSerialization.serialise, and asserts that the roundtripped 
-        instance is identical.
-        """
-        @dataclass
-        class TestModel():
-            isactive: bool = DEFAULTfalse
-            age: int = DEFAULT99
-
-        try:
-            instance = TestModel(isactive=True, age=16)
-            json_str = JghSerialization.serialise(instance)
-            logger.info(f"\nJSON STRING:\n\t{json_str}")
-            roundtripped = JghSerialization.validate(json_str, TestModel)
-            self.assertIsInstance(roundtripped, TestModel)
-            self.assertEqual(roundtripped.isactive, True)
-            self.assertEqual(roundtripped.age, 16)
-            logger.info(
-                f"TEST OUTCOME: PASS:\n\tSerialization succeeded.\nInput object:\n\t{instance}\n\tOutput string:\n\t{json_str}"
-            )
-        except AssertionError as e:
-            logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_to_json_from_object:-\n\n{pretty_error_message(e)}"
-            )
-            self.fail(f"ERROR OCCURRED: test_03roundtrip_a_dataclasss:\n{pretty_error_message(e)}\n")
-
-    def test_04import_json_with_missing_fields_for_a_dataclass(self):
-        """
-        Test to illustrate that a JSON field that is missing will be correctly assigned the default value
-        by JghSerialization.validate().
-        For a dataclass, the default value is assigned to the attribute.
-        """
-        @dataclass
-        class TestModel():
-            age: int = 99
-            email: str = DEFAULTemail
-
-        try:
-            missing_fields_json = '{"age": 16}' # Missing email field
-            logger.info(f"JSON STRING:\n\t{missing_fields_json}")
-            obj = JghSerialization.validate(missing_fields_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
-            self.assertEqual(obj.age, 16)  # the crunch
-            self.assertEqual(obj.email, DEFAULTemail)  # the crunch
-            logger.info(
-                f"TEST OUTCOME: PASS:\n\tDeserialization with missing field succeeded.\n\tInput string:\n\t{missing_fields_json}\n\tOutput object:\n\t{obj}"
-            )
-        except AssertionError as e:
-            logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_04import_json_with_missing_fields_for_a_dataclass:-\n{pretty_error_message(e)}"
-            )
-            self.fail(
-                f"ERROR OCCURRED: test_04import_json_with_missing_fields_for_a_dataclass:\n{pretty_error_message(e)}\n"
-            )
-
-    def test_05import_json_with_superfluous_fields_for_a_dataclass(self):
-        """
-        Test to illustrate that superfluous fields in a JSON string will happily ignored
-        when a dataclass is deserialised using JghSerialization.validate().
-        """
-        @dataclass
-        class TestModel():
-            age: int
-
-        try:
-            extra_fields_json = f'{{"age": 27, "extra_field": "extra_value", "another_extra_field": "another_extra_value"}}' # Extra fields
-            logger.info(f"JSON STRING:\n\t{extra_fields_json}")
-            obj = JghSerialization.validate(extra_fields_json, TestModel)
-            self.assertIsInstance(obj, TestModel)
-            self.assertEqual(obj.age, 27)
-            logger.info(
-                f"TEST OUTCOME: PASS:\n\tDeserialization with extra field succeeded.\n\tInput string:\n\t{extra_fields_json}\n\tOutput object:\n\t{obj}"
-            )
-        except AssertionError as e:
-            logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_05import_json_with_superfluous_fields_for_a_dataclass:-\n{pretty_error_message(e)}"
-            )
-            self.fail(
-                f"ERROR OCCURRED: test_05import_json_with_superfluous_fields_for_a_dataclass:\n{pretty_error_message(e)}\n"
-            )
-
-    def test_06import_json_with_missing_fields_for_a_pydantic_model(self):
+    def test_03_import_json_with_missing_fields_for_a_pydantic_model(self):
         """
         Test to illustrate that a pydantic model attribute corresponding to a JSON field 
         that is missing will be correctly assigned its default value
@@ -361,7 +275,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
         class TestModel(pydantic.BaseModel):
             age: int = 99
-            email: str = DEFAULTemail
+            email: str = default_email
 
         try:
             missing_fields_json = '{"age": 16}' # Missing email field
@@ -369,19 +283,19 @@ class Test_JghSerialization(unittest.TestCase):
             obj = JghSerialization.validate(missing_fields_json, TestModel)
             self.assertIsInstance(obj, TestModel)
             self.assertEqual(obj.age, 16)  # the crunch
-            self.assertEqual(obj.email, DEFAULTemail)  # the crunch
+            self.assertEqual(obj.email, default_email)  # the crunch
             logger.info(
                 f"TEST OUTCOME: PASS:\n\tDeserialization with missing field succeeded.\n\tInput string:\n\t{missing_fields_json}\n\tOutput object:\n\t{obj}"
             )
         except AssertionError as e:
             logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_06import_json_with_missing_fields_for_a_pydantic_model:-\n{pretty_error_message(e)}"
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_03_import_json_with_missing_fields_for_a_pydantic_model:-\n{pretty_error_message(e)}"
             )
             self.fail(
-                f"ERROR OCCURRED: test_06import_json_with_missing_fields_for_a_pydantic_model:\n{pretty_error_message(e)}\n"
+                f"ERROR OCCURRED: test_03_import_json_with_missing_fields_for_a_pydantic_model:\n{pretty_error_message(e)}\n"
             )
 
-    def test_07import_json_with_superfluous_fields_for_a_pydantic_model(self):
+    def test_04_import_json_with_superfluous_fields_for_a_pydantic_model(self):
         """
         Test to illustrate that superfluous fields in a JSON string will happily ignored
         when a pydantic model is deserialised using JghSerialization.validate().
@@ -401,13 +315,13 @@ class Test_JghSerialization(unittest.TestCase):
             )
         except AssertionError as e:
             logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_07import_json_with_superfluous_fields_for_a_pydantic_model:-\n{pretty_error_message(e)}"
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_04_import_json_with_superfluous_fields_for_a_pydantic_model:-\n{pretty_error_message(e)}"
             )
             self.fail(
-                f"ERROR OCCURRED: test_07import_json_with_superfluous_fields_for_a_pydantic_model:\n{pretty_error_message(e)}\n"
+                f"ERROR OCCURRED: test_04_import_json_with_superfluous_fields_for_a_pydantic_model:\n{pretty_error_message(e)}\n"
             )
 
-    def test_08import_json_with_invalid_attribute_types_in_the_json(self):
+    def test_05_import_json_with_invalid_attribute_types_in_the_json(self):
         """
         Test to illustrate that JghSerialization.validate will raise a ValueError
         if JSON field is an invalid type for the attribute.
@@ -429,10 +343,10 @@ class Test_JghSerialization(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.fail(
-                f"ERROR OCCURRED:\n\t'test_08import_json_with_invalid_attribute_types_in_the_json' ValueError not raised"
+                f"ERROR OCCURRED:\n\t'test_05_import_json_with_invalid_attribute_types_in_the_json' ValueError not raised"
             )
 
-    def test_09import_json_with_fatally_badly_formatted_json(self):
+    def test_06_import_json_with_fatally_badly_formatted_json(self):
         """
         Test to illustrate that JghSerialization.validate will raise a ValueError
         if JSON is garbage.
@@ -454,10 +368,10 @@ class Test_JghSerialization(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.fail(
-                f"ERROR OCCURRED:\n\t'test_09import_json_with_fatally_badly_formatted_json' ValueError not raised"
+                f"ERROR OCCURRED:\n\t'test_06_import_json_with_fatally_badly_formatted_json' ValueError not raised"
             )
 
-    def test_10import_json_with_empty_json(self):
+    def test_07_import_json_with_empty_json(self):
         """
         Test to illustrate that JghSerialization.validate with empty and therefore invalid JSON will raise a ValueError.
         """
@@ -477,7 +391,7 @@ class Test_JghSerialization(unittest.TestCase):
         else:
             self.fail(f"TEST OUTCOME FAIL:\n\tValueError not raised")
 
-    def test_10import_json_with_int_and_bool_represented_as_strings(self):
+    def test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings(self):
         """
         This test will illustrate how JghSerialization.validate reacts where 
         integer and boolean values are represented as strings in the JSON
@@ -507,10 +421,10 @@ class Test_JghSerialization(unittest.TestCase):
             )
         except AssertionError as e:
             logger.error(
-                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_10import_json_with_int_and_bool_represented_as_strings:-\n{pretty_error_message(e)}"
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings:-\n{pretty_error_message(e)}"
             )
             self.fail(
-                f"ERROR OCCURRED: test_10import_json_with_int_and_bool_represented_as_strings:\nerror_message(e)\n"
+                f"ERROR OCCURRED: test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings:\nerror_message(e)\n"
             )
 
 

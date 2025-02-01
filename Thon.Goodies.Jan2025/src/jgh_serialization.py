@@ -32,6 +32,52 @@ def pretty_error_message(ex: Exception) -> str:
         return f"{str(message)}"
     return f"{str(message)} ErrorCode={str(code)}"
 
+# Custom JSON decoder to handle int, float, and bool coercion for dataclasses
+class CustomJSONDecoder(json.JSONDecoder):
+    def __init__(self, *args, target_types=None, **kwargs): # type: ignore
+        super().__init__(*args, **kwargs)
+        self.target_types = target_types or {} # type: ignore
+
+
+    def decode(self, s: str, _w=json.decoder.WHITESPACE.match) -> Any: # type: ignore
+        try:
+            decoded_data = super().decode(s, _w)
+            return self._coerce_types(decoded_data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Structure or content of JSON content is fatally flawed. It cannot be decoded.\n\n\t{pretty_error_message(e)}\n\n")
+
+    def _coerce_types(self, decoded_data: Any) -> Any:
+        if isinstance(decoded_data, dict):
+            return {key: self._coerce_value(key, value) for key, value in decoded_data.items()} # type: ignore
+        elif isinstance(decoded_data, list):
+            return [self._coerce_value(None, item) for item in decoded_data] # type: ignore
+        else:
+            return decoded_data
+
+    def _coerce_value(self, key: Any, value: Any) -> Any:
+        if isinstance(value, str):
+            # Check the type of the target attribute before attempting coercion
+            if key in self.target_types: # type: ignore
+                target_type = self.target_types[key] # type: ignore
+                if target_type == int:
+                    try:
+                        return int(value)
+                    except ValueError:
+                        pass
+                elif target_type == float:
+                    try:
+                        return float(value)
+                    except ValueError:
+                        pass
+                elif target_type == bool:
+                    if value.lower() in ['true', 'false']:
+                        return value.lower() == 'true'
+        return value
+
+    def set_target_types(self, target_types: dict) -> None: # type: ignore
+        self.target_types = target_types # type: ignore
+
+
 class JghSerialization:
     """
     A class for serializing and deserializing generic types, primarily 
@@ -52,6 +98,7 @@ class JghSerialization:
     Functions:
         None
     """
+
 
     @staticmethod
     def serialise(inputmodel: Any) -> str:
@@ -113,7 +160,7 @@ class JghSerialization:
             a default value for the field in the model definition. If a field is 
             superfluous (not defined in the model), it will be ignored during validation.
         """
-        _failure = "Unable to deserialize JSON to object using Pydantic."
+        _failure = "Unable to deserialize JSON to object."
         _locus = "[validate]"
         _locus2 = "[JghSerialization]"
         
@@ -123,7 +170,9 @@ class JghSerialization:
         try:
             
             if is_dataclass(requiredModel):
-                answer = json.loads(inputJson)
+                target_types = requiredModel.__annotations__
+                answer = json.loads(inputJson, cls=CustomJSONDecoder, target_types=target_types)
+                # answer = json.loads(inputJson, cls=CustomJSONDecoder)
                 filtered_answer = {k: v for k, v in answer.items() if k in requiredModel.__annotations__} # Filter out any extra fields that are not in the dataclass if any
                 return requiredModel(**filtered_answer) # type: ignore
             elif issubclass(requiredModel, BaseModel): # type: ignore
