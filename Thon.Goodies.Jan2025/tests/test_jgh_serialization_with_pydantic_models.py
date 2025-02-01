@@ -33,9 +33,10 @@ For round-tripping:-
 import sys
 import logging
 import unittest
+from numpy import isin
 import pydantic as pydantic
-from pydantic import ConfigDict, AliasGenerator, AliasChoices, Field
-from dataclasses import dataclass 
+from pydantic import ConfigDict, AliasGenerator, AliasChoices, Field, BeforeValidator, AfterValidator, ValidationError
+from typing import Any, Annotated
 
 # Local application imports
 from jgh_serialization import JghSerialization
@@ -87,7 +88,7 @@ validation_alias_choices_map : dict[str,AliasChoices] = {
 }
 
 # Prepare a ConfigDict for all test models. Assign this to the pydantic model's model_config attribute.
-alias_config = ConfigDict(alias_generator=AliasGenerator(
+groovy_configdict = ConfigDict(alias_generator=AliasGenerator(
         alias=None,
         serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
         validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
@@ -231,7 +232,7 @@ class Test_JghSerialization(unittest.TestCase):
             - AliasChoices is a Pydantic class that allows for multiple aliases for a field. If the attribute name is not among the AliasChoices, the default value will be imposed during instantiation.
             - When using alias together with validation_alias or serialization_alias, validation_alias takes priority for validation, and serialization_alias takes priority for dumping JSON.
             """
-            model_config = alias_config 
+            model_config = groovy_configdict 
 
             id: int | None = 0 #NB # The union operator means the attribute value doesn't have to be sent or received as a field in the JSON string.
             first: str | None = default_john
@@ -274,6 +275,7 @@ class Test_JghSerialization(unittest.TestCase):
         by JghSerialization.validate().
         """
         class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict
             age: int = 99
             email: str = default_email
 
@@ -302,6 +304,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
             age: int
 
         try:
@@ -328,6 +331,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
             id: int
             first: str | None = None
 
@@ -353,6 +357,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
             first: str | None = None
 
         # Invalid JSON string
@@ -377,6 +382,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
             id: int = 0
 
         # Empty JSON string
@@ -400,8 +406,9 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         class TestModel(pydantic.BaseModel):
-            isactive: bool | None
-            age: int | None
+            model_config = groovy_configdict 
+            isactive: bool | None = False
+            age: int | None = 68
 
         try:
             # Define a JSON string with integer and boolean values represented as strings
@@ -424,7 +431,139 @@ class Test_JghSerialization(unittest.TestCase):
                 f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings:-\n{pretty_error_message(e)}"
             )
             self.fail(
-                f"ERROR OCCURRED: test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings:\nerror_message(e)\n"
+                f"ERROR OCCURRED: test_08_import_json_with_int_and_bool_mistakenly_represented_as_strings:\n{pretty_error_message(e)}\n"
+            )
+
+    def test_09_import_json_using_before_and_after_validators(self):
+        """
+        This test will illustrate how to use before and after validators to coerce
+        JSON string values to the correct types during deserialization.
+        """
+        def any_to_bool(value : Any) -> bool:
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                if value.lower() in ['true', "yes", '1']:
+                    return True
+                if value.lower() in ['false', 'no', '0']:
+                    return False
+            if isinstance(value, int):
+                if value > 0:
+                    return True
+            if isinstance(value, float):
+                if value > 0:
+                    return True
+            return False
+
+        def any_to_integer(value : Any) -> int:
+            if isinstance(value, int):
+                return value;
+            if isinstance(value, float):
+                return int(value)
+            if isinstance(value, str) and value.isnumeric():
+                return int(value)
+            if isinstance(value, bool):
+                return 1 if value else 0
+            return 0
+
+        def min_is_zero(value : int) -> int:
+            if value < 0:
+                value = 0
+            return value
+
+        class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
+            isactive: Annotated[bool, BeforeValidator(any_to_bool)] | None = False
+            age: Annotated[int, BeforeValidator(any_to_integer), AfterValidator(min_is_zero)] | None = 68
+
+        try:
+            # Define a JSON string with integer and boolean values mistakenly arriving as strings
+            json_with_strings = """
+            {
+                "isactive": "true",
+                "age": "32"
+            }
+            """
+            logger.info(f"JSON STRING:\n\t{json_with_strings}")
+            obj = JghSerialization.validate(json_with_strings, TestModel)
+            self.assertIsInstance(obj, TestModel)
+            self.assertTrue(obj.isactive)  # string to boolean
+            self.assertEqual(obj.age, 32)  # string to integer
+            logger.info(
+                f"TEST OUTCOME: PASS:\n\tDeserialization with integer and boolean values represented as strings succeeded.\n\tInput string:\n\t{json_with_strings}\n\tOutput object:\n\t{obj}"
+            )
+        except AssertionError as e:
+            logger.error(
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_09_import_json_using_before_and_after_validators:-\n{pretty_error_message(e)}"
+            )
+            self.fail(
+                f"ERROR OCCURRED: test_09_import_json_using_before_and_after_validators:\n{pretty_error_message(e)}\n"
+            )
+
+    def test_10_import_json_using_before_and_after_validators(self):
+        """
+        This test will illustrate how to use before and after validators to coerce
+        JSON string values to the correct types during deserialization.
+        """
+        def any_to_bool(value : Any) -> bool:
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                if value.lower() in ['true', "yes", '1']:
+                    return True
+                if value.lower() in ['false', 'no', '0']:
+                    return False
+            if isinstance(value, int):
+                if value > 0:
+                    return True
+            if isinstance(value, float):
+                if value > 0:
+                    return True
+            return False
+
+        def any_to_integer(value : Any) -> int:
+            if isinstance(value, int):
+                return value;
+            if isinstance(value, float):
+                return int(value)
+            if isinstance(value, str) and value.isnumeric():
+                return int(value)
+            if isinstance(value, bool):
+                return 1 if value else 0
+            return 0
+
+        def min_is_zero(value : int) -> int:
+            if value < 0:
+                value = 0
+            return value
+
+        class TestModel(pydantic.BaseModel):
+            model_config = groovy_configdict 
+            isactive: Annotated[bool, BeforeValidator(any_to_bool)] | None = False
+            age: Annotated[int, BeforeValidator(any_to_integer), AfterValidator(min_is_zero)] | None = 68
+
+        try:
+            # Define a JSON string with integer and boolean values mistakenly arriving as strings
+            json_with_strings = """
+            {
+                "isactive": 1,
+                "age": "-32"
+            }
+            """
+            logger.info(f"JSON STRING:\n\t{json_with_strings}")
+            obj = JghSerialization.validate(json_with_strings, TestModel)
+            self.assertIsInstance(obj, TestModel)
+            self.assertTrue(obj.isactive)  # string to boolean
+            self.assertEqual(obj.age, 0)  # string to integer
+            logger.info(
+                f"TEST OUTCOME: PASS:\n\tDeserialization with integer and boolean values represented as strings succeeded.\n\tInput string:\n\t{json_with_strings}\n\tOutput object:\n\t{obj}"
+            )
+        except AssertionError as e:
+            logger.error(
+                f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_09_import_json_using_before_and_after_validators:-\n{pretty_error_message(e)}"
+            )
+            self.fail(
+                f"ERROR OCCURRED: test_09_import_json_using_before_and_after_validators:\n{pretty_error_message(e)}\n"
             )
 
 
