@@ -7,7 +7,94 @@ with various attributes.
 import json
 
 # Local application imports
-from pydantic import BaseModel, Field, AliasChoices
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
+
+# Define constants for all the serialization aliases - for now, they are the same as the attribute names
+ZSUN_ID = "zsun_id"
+ZSUN_FIRSTNAME = "zsun_firstname"
+ZSUN_LASTNAME = "zsun_lastname"
+ZWIFT_ID = "zwift_id"
+ZWIFT_FIRSTNAME = "zwift_firstname"
+ZWIFT_LASTNAME = "zwift_lastname"
+DISCORD_ACCOUNTUSERNAME = "discord_accountusername"
+DISCORD_ACCOUNTDISPLAYNAME = "discord_accountdisplayname"
+DISCORD_PROFILEDISPLAYNAME = "discord_profiledisplayname"
+COMMENT = "comment"
+CLICK_COUNTER = "click_counter"
+RECORDING_MODE_ENUM = "recording_mode_enum"
+DATABASE_ACTION_ENUM = "database_action_enum"
+MUST_DITCH_ORIGINATING_ITEM = "must_ditch_originating_item"
+IS_STILL_TO_BE_BACKED_UP = "is_still_to_be_backed_up"
+IS_STILL_TO_BE_PUSHED = "is_still_to_be_pushed"
+TOUCHED_BY = "touched_by"
+TIMESTAMP_BINARY_FORMAT = "timestamp_binary_format"
+WHEN_TOUCHED_BINARY_FORMAT = "when_touched_binary_format"
+WHEN_PUSHED_BINARY_FORMAT = "when_pushed_binary_format"
+ORIGINATING_ITEM_GUID = "originating_item_guid"
+GUID = "guid"
+
+# Define the serialization alias map using the constants
+serialization_alias_map : dict[str,str]  = {
+    "zsun_id": ZSUN_ID,
+    "zsun_firstname": ZSUN_FIRSTNAME,
+    "zsun_lastname": ZSUN_LASTNAME,
+    "zwift_id": ZWIFT_ID,
+    "zwift_firstname": ZWIFT_FIRSTNAME,
+    "zwift_lastname": ZWIFT_LASTNAME,
+    "discord_accountusername": DISCORD_ACCOUNTUSERNAME,
+    "discord_accountdisplayname": DISCORD_ACCOUNTDISPLAYNAME,
+    "discord_profiledisplayname": DISCORD_PROFILEDISPLAYNAME,
+    "comment": COMMENT,
+    "click_counter": CLICK_COUNTER,
+    "recording_mode_enum": RECORDING_MODE_ENUM,
+    "database_action_enum": DATABASE_ACTION_ENUM,
+    "must_ditch_originating_item": MUST_DITCH_ORIGINATING_ITEM,
+    "is_still_to_be_backed_up": IS_STILL_TO_BE_BACKED_UP,
+    "is_still_to_be_pushed": IS_STILL_TO_BE_PUSHED,
+    "touched_by": TOUCHED_BY,
+    "timestamp_binary_format": TIMESTAMP_BINARY_FORMAT,
+    "when_touched_binary_format": WHEN_TOUCHED_BINARY_FORMAT,
+    "when_pushed_binary_format": WHEN_PUSHED_BINARY_FORMAT,
+    "originating_item_guid": ORIGINATING_ITEM_GUID,
+    "guid": GUID,
+}
+
+# Define the validation alias choices map. for now, they are only the attribute names. 
+# more may added later to optionally handle JSON from varying sources with varying field names
+# that mean the same thing.
+
+validation_alias_choices_map : dict[str,AliasChoices] = {
+    "zsun_id": AliasChoices("zsun_id"),
+    "zsun_firstname": AliasChoices("zsun_firstname"),
+    "zsun_lastname": AliasChoices("zsun_lastname"),
+    "zwift_id": AliasChoices("zwift_id"),
+    "zwift_firstname": AliasChoices("zwift_firstname"),
+    "zwift_lastname": AliasChoices("zwift_lastname"),
+    "discord_accountusername": AliasChoices("discord_accountusername"),
+    "discord_accountdisplayname": AliasChoices("discord_accountdisplayname"),
+    "discord_profiledisplayname": AliasChoices("discord_profiledisplayname"),
+    "comment": AliasChoices("comment"),
+    "click_counter": AliasChoices("click_counter"),
+    "recording_mode_enum": AliasChoices("recording_mode_enum"),
+    "database_action_enum": AliasChoices("database_action_enum"),
+    "must_ditch_originating_item": AliasChoices("must_ditch_originating_item"),
+    "is_still_to_be_backed_up": AliasChoices("is_still_to_be_backed_up"),
+    "is_still_to_be_pushed": AliasChoices("is_still_to_be_pushed"),
+    "touched_by": AliasChoices("touched_by"),
+    "timestamp_binary_format": AliasChoices("timestamp_binary_format"),
+    "when_touched_binary_format": AliasChoices("when_touched_binary_format"),
+    "when_pushed_binary_format": AliasChoices("when_pushed_binary_format"),
+    "originating_item_guid": AliasChoices("originating_item_guid"),
+    "guid": AliasChoices("guid"),
+}
+# Define the Pydantic ConfigDict
+configdictV1 = ConfigDict(
+        alias_generator=AliasGenerator(
+            alias=None,
+            serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
+            validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
+
+preferred_config_dict = configdictV1
 
 
 class PersonDataTransferObject(BaseModel):
@@ -22,32 +109,35 @@ class PersonDataTransferObject(BaseModel):
     output of serialization. The validation_alias governs the input of JSON.
     The validation_alias consists of a list of AliasChoices. The list must always
     include a string copy of the attribute name. Additional AliasChoices enable
-    the data transfer object to effortlessly interpret and validate (deserialize)
-    any envisaged range of variations in the JSON field names in the records provided 
-    to it. The name mapping is done in the AliasChoices list.
+    the data transfer object to interpret and validate (deserialize)
+    any envisaged range of variations in the JSON field names in source data
+    obtained from a third party. The name mapping is done in the AliasChoices list.
+
+    Note: in Python, timestamps are in seconds since epoch. This is not the case 
+    in all languages. Be aware of this when interfacing with other systems.
+
 
     Attributes:
-        zsun_id (str):                      The ZSUN ID of the member.
-        zsun_firstname (str):               The ZSUN first name of the member.
-        zsun_lastname (str):                The ZSUN last name of the member.
-        zwift_id (int):                     The Zwift ID of the member.
-        zwift_firstname (str):              The Zwift first name of the member.
-        zwift_lastname (str):               The Zwift last name of the member.
-        discord_accountusername (str):      The Discord account username of the member.
-        discord_accountdisplayname (str):   The Discord account display name of the member.
-        discord_profiledisplayname (str):   The Discord profile display name of the member.
-        comment (str):                      An optional comment about the member or entry.
-        database_action_enum (str):         The database action enum.
-        must_ditch_originating_item (bool): Indicates if the originating record must be ditched.
-        is_still_to_be_backed_up (bool):    Indicates if the record is still to be backed up locally.
-        is_still_to_be_pushed (bool):       Indicates if the record is still to be pushed to storage.
-        touched_by (str):                   The user who touched the record.
-        timestamp_binary_format (int):      The timestamp_binary_format in seconds since epoch.
-        when_touched_binary_format (int):   The when touched timestamp_binary_format in seconds since epoch.
-        when_pushed_binary_format (int):    The when pushed timestamp_binary_format in seconds since epoch.
-        originating_item_guid (str):        The GUID of the originating record.
-        guid (str):                         The GUID of the record.
-
+        zsun_id                    : str  The ZSUN ID of the member.
+        zsun_firstname             : str  The ZSUN first name of the member.
+        zsun_lastname              : str  The ZSUN last name of the member.
+        zwift_id                   : int  The Zwift ID of the member.
+        zwift_firstname            : str  The Zwift first name of the member.
+        zwift_lastname             : str  The Zwift last name of the member.
+        discord_accountusername    : str  The Discord account username of the member.
+        discord_accountdisplayname : str  The Discord account display name of the member.
+        discord_profiledisplayname : str  The Discord profile display name of the member.
+        comment                    : str  An optional comment about the member or entry.
+        database_action_enum       : str  The database action enum.
+        must_ditch_originating_item: bool Indicates if the originating record must be ditched.
+        is_still_to_be_backed_up   : bool Indicates if the record is still to be backed up locally.
+        is_still_to_be_pushed      : bool Indicates if the record is still to be pushed to storage.
+        touched_by                 : str  The user who touched the record.
+        timestamp_binary_format    : int  The timestamp when created.
+        when_touched_binary_format : int  The timestamp when edited.
+        when_pushed_binary_format  : int  The timestamp when pushed to the database.
+        originating_item_guid      : str  The GUID of the originating record.
+        guid                       : str  The GUID of the record.
     Properties:
         None
 
@@ -58,118 +148,30 @@ class PersonDataTransferObject(BaseModel):
         None
     """
 
-    zsun_id: str = Field(
-        default="",
-        serialization_alias="zsun_id",
-        validation_alias=AliasChoices("zsun_id"),
-    )
-    zsun_firstname: str = Field(
-        default="",
-        serialization_alias="zsun_firstname",
-        validation_alias=AliasChoices("zsun_firstname"),
-    )
-    zsun_lastname: str = Field(
-        default="",
-        serialization_alias="zsun_lastname",
-        validation_alias=AliasChoices("zsun_lastname"),
-    )
-    zwift_id: int = Field(
-        default=0,
-        serialization_alias="zwift_id",
-        validation_alias=AliasChoices("zwift_id"),
-    )
-    zwift_firstname: str = Field(
-        default="",
-        serialization_alias="zwift_firstname",
-        validation_alias=AliasChoices("zwift_firstname"),
-    )
-    zwift_lastname: str = Field(
-        default="",
-        serialization_alias="zwift_lastname",
-        validation_alias=AliasChoices("zwift_lastname"),
-    )
-    discord_accountusername: str = Field(
-        default="",
-        serialization_alias="discord_accountusername",
-        validation_alias=AliasChoices("discord_accountusername"),
-    )
-    discord_accountdisplayname: str = Field(
-        default="",
-        serialization_alias="discord_accountdisplayname",
-        validation_alias=AliasChoices("discord_accountdisplayname"),
-    )
-    discord_profiledisplayname: str = Field(
-        default="",
-        serialization_alias="discord_profiledisplayname",
-        validation_alias=AliasChoices("discord_profiledisplayname"),
-    )
-    comment: str = Field(
-        default="",
-        serialization_alias="comment",
-        validation_alias=AliasChoices("comment"),
-    )
-    click_counter: int = Field(
-        default=0,
-        serialization_alias="click_counter",
-        validation_alias=AliasChoices("click_counter"),
-    )
-    recording_mode_enum: str = Field(
-        default="",
-        serialization_alias="recording_mode_enum",
-        validation_alias=AliasChoices("recording_mode_enum"),
-    )
-    database_action_enum: str = Field(
-        default="",
-        serialization_alias="database_action_enum",
-        validation_alias=AliasChoices("database_action_enum"),
-    )
-    must_ditch_originating_item: bool = Field(
-        default=False,
-        serialization_alias="must_ditch_originating_item",
-        validation_alias=AliasChoices("must_ditch_originating_item"),
-    )
-    is_still_to_be_backed_up: bool = Field(
-        default=True,
-        serialization_alias="is_still_to_be_backed_up",
-        validation_alias=AliasChoices("is_still_to_be_backed_up"),
-    )
-    is_still_to_be_pushed: bool = Field(
-        default=True,
-        serialization_alias="is_still_to_be_pushed",
-        validation_alias=AliasChoices("is_still_to_be_pushed"),
-    )
-    touched_by: str = Field(
-        default="",
-        serialization_alias="touched_by",
-        validation_alias=AliasChoices("touched_by"),
-    )
-    timestamp_binary_format: int = Field(
-        default=0,
-        serialization_alias="timestamp_binary_format",
-        validation_alias=AliasChoices("timestamp_binary_format"),
-    )
-    when_touched_binary_format: int = Field(
-        default=0,
-        serialization_alias="when_touched_binary_format",
-        validation_alias=AliasChoices("when_touched_binary_format"),
-    )
-    when_pushed_binary_format: int = Field(
-        default=0,
-        serialization_alias="when_pushed_binary_format",
-        validation_alias=AliasChoices("when_pushed_binary_format"),
-    )
-    originating_item_guid: str = Field(
-        default="",
-        serialization_alias="originating_item_guid",
-        validation_alias=AliasChoices("originating_item_guid"),
-    )
-    guid: str = Field(
-        default="", serialization_alias="guid", validation_alias=AliasChoices("guid")
-    )
+    zsun_id: str | None = ""
+    zsun_firstname: str | None = ""
+    zsun_lastname: str | None = ""
+    zwift_id: int | None = 0
+    zwift_firstname: str | None = ""
+    zwift_lastname: str | None = ""
+    discord_accountusername: str | None = ""
+    discord_accountdisplayname: str | None = ""
+    discord_profiledisplayname: str | None = ""
+    comment: str | None = ""
+    click_counter: int | None = 0
+    recording_mode_enum: str | None = ""
+    database_action_enum: str | None = ""
+    must_ditch_originating_item: bool | None = False
+    is_still_to_be_backed_up: bool | None = True
+    is_still_to_be_pushed: bool | None = True
+    touched_by: str | None = ""
+    timestamp_binary_format: int | None = 0
+    when_touched_binary_format: int | None = 0
+    when_pushed_binary_format: int | None = 0
+    originating_item_guid: str | None = ""
+    guid: str | None = ""
 
-    # Override the default Pydantic behavior so as to tolerate and ignore extra fields in any JSON input string
-    class Config:
-        extra = "ignore"
+    model_config = preferred_config_dict
 
     # overridden to pretty-print JSON representation of the object with nice indentation
     def __str__(self):

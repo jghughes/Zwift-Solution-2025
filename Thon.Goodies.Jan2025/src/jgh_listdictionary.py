@@ -7,7 +7,6 @@ provides a custom dictionary-like data structure.
 from collections import defaultdict
 from typing import Callable, Tuple
 
-# Local application imports
 
 class JghListDictionary[TKey, TValue]:
     """
@@ -69,19 +68,19 @@ class JghListDictionary[TKey, TValue]:
     get_value_count_for_key(key: TKey) -> int:
         Retrieves the number of values associated with the given key.
 
-    get_values_belonging_to_key(key: TKey) -> list[TValue]:
+    get_values(key: TKey) -> list[TValue]:
         Retrieves the list of values associated with the given key.
 
-    get_values_belonging_to_selected_keys(key_selector: Callable[[TKey], bool]) -> list[TValue]:
+    get_values_for_keys(key_selector: Callable[[TKey], bool]) -> list[TValue]:
         Retrieves all values for keys that match the given selector.
 
-    get_values_from_everywhere() -> list[TValue]:
+    get_values_for_all() -> list[TValue]:
         Retrieves all values in the dictionary.
 
     get_selected_values_from_key(key: TKey, value_selector: Callable[[TValue], bool]) -> list[TValue]:
         Retrieves all values associated with the given key that match the given selector.
 
-    get_selected_values_from_everywhere(value_selector: Callable[[TValue], bool]) -> list[TValue]:
+    get_selected_values_from_all(value_selector: Callable[[TValue], bool]) -> list[TValue]:
         Retrieves all values that match the given selector.
 
     get_key_value_pairs_containing_selected_values(value_selector: Callable[[TValue], bool]) -> list[Tuple[TKey, TValue]]:
@@ -444,7 +443,7 @@ class JghListDictionary[TKey, TValue]:
             return 0
         return len(self.backingstore_dict[key])
 
-    def get_values_belonging_to_key(self, key: TKey) -> list[TValue]:
+    def get_values(self, key: TKey) -> list[TValue]:
         """
         Retrieves the list of values associated with the given key.
 
@@ -462,18 +461,16 @@ class JghListDictionary[TKey, TValue]:
             raise ValueError("key cannot be None")
         return self.backingstore_dict.get(key, [])
 
-    def get_values_belonging_to_selected_keys(
-        self, key_selector: Callable[[TKey], bool]
-    ) -> list[TValue]:
+    def get_values_for_keys(self, key_selector: Callable[[TKey], bool]) -> list[TValue]:
         """
         Retrieves all values for keys that match the given selector.
 
-        The get_values_belonging_to_selected_keys method iterates over all keys and
+        The get_values_for_keys method iterates over all keys and
         their associated lists of values. For each key that matches the given selector,
         it collects each value in the list associated with that key. This process is
         repeated for all keys in the dictionary.
 
-        The get_values_belonging_to_selected_keys method handles multiple occurrences
+        The get_values_for_keys method handles multiple occurrences
         of a value in the same list by including each occurrence separately. It handles
         multiple occurrences of a value across multiple lists by including each
         occurrence separately for each key that matches the selector.
@@ -494,12 +491,12 @@ class JghListDictionary[TKey, TValue]:
                 values_list.extend(values)
         return values_list
 
-    def get_values_from_everywhere(self) -> list[TValue]:
+    def get_values_for_all(self) -> list[TValue]:
         """
         Retrieves all values in the dictionary.
 
         If the dictionary contains multiple occurrences of a value under the same
-        key and multiple occurrences across different keys, the get_values_from_everywhere
+        key and multiple occurrences across different keys, the get_values_for_all
         method will include each occurrence of the value in the returned list. Here
         is a detailed explanation:
 
@@ -551,7 +548,7 @@ class JghListDictionary[TKey, TValue]:
                 selected_values.append(value)
         return selected_values
 
-    def get_selected_values_from_everywhere(
+    def get_selected_values_from_all(
         self, value_selector: Callable[[TValue], bool]
     ) -> list[TValue]:
         """
@@ -559,7 +556,7 @@ class JghListDictionary[TKey, TValue]:
 
         If the dictionary contains multiple occurrences of a value that satisfies
         the selector under the same key and multiple occurrences across different
-        keys, the get_selected_values_from_everywhere method will include each
+        keys, the get_selected_values_from_all method will include each
         occurrence of the value in the returned list. Here is a detailed explanation:
 
         1. Multiple Occurrences Under the Same Key:
@@ -695,8 +692,8 @@ class JghListDictionary[TKey, TValue]:
         """
         self.backingstore_dict[key] = value
 
-
         # example usage of the JghListDictionary class
+
 
 if __name__ == "__main__":
     # Create an instance of JghListDictionary
@@ -719,7 +716,7 @@ if __name__ == "__main__":
     dictionary.append_value_to_key("grains", 6)
 
     # Retrieve values for a given key
-    fruits = dictionary.get_values_belonging_to_key("fruits")
+    fruits = dictionary.get_values("fruits")
     print("Fruits:", fruits)
 
     # Retrieve all keys
@@ -760,7 +757,7 @@ if __name__ == "__main__":
     dictionary.clear_all_values_from_key("vegetables")
     print(
         "Vegetables after clearing values:",
-        dictionary.get_values_belonging_to_key("vegetables"),
+        dictionary.get_values("vegetables"),
     )
 
     # Clear all entries in the dictionary and get the original counts
@@ -770,4 +767,3 @@ if __name__ == "__main__":
     print("Original number of keys:", original_keys_count)
     print("Original number of values:", original_values_count)
     print("Dictionary after clearing everything:", dictionary.backingstore_dict)
-

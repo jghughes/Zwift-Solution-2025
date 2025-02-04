@@ -284,23 +284,23 @@ class Test_PersonDto(unittest.TestCase):
                 "zsun_id": "456",
                 "zsun_firstname": "John",
                 "zsun_lastname": "Doe",
-                "zwift_id": "789",  # Should be an integer
+                "zwift_id": "789",
                 "zwift_firstname": "Jane",
                 "zwift_lastname": "Doe",
                 "discord_accountusername": "john_doe",
                 "discord_accountdisplayname": "JohnDoe",
                 "discord_profiledisplayname": "JohnDoeProfile",
                 "comment": "Test comment",
-                "click_counter": "10",  # Should be an integer
+                "click_counter": "10",
                 "recording_mode_enum": "mode1",
                 "database_action_enum": "action1",
-                "must_ditch_originating_item": "true",  # Should be a boolean
-                "is_still_to_be_backed_up": "false",  # Should be a boolean
-                "is_still_to_be_pushed": "true",  # Should be a boolean
+                "must_ditch_originating_item": "true",
+                "is_still_to_be_backed_up": "false",
+                "is_still_to_be_pushed": "true",
                 "touched_by": "tester",
-                "timestamp_binary_format": "1633036800",  # Should be an integer
-                "when_touched_binary_format": "1633036800",  # Should be an integer
-                "when_pushed_binary_format": "1633036800",  # Should be an integer
+                "timestamp_binary_format": "1633036800",
+                "when_touched_binary_format": "1633036800",
+                "when_pushed_binary_format": "1633036800",
                 "originating_item_guid": "origin_guid",
                 "guid": "test_guid"
             }

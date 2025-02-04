@@ -3,16 +3,31 @@
 import sys
 import logging
 import unittest
-from dataclasses import dataclass 
+from dataclasses import dataclass
+
+from libmambapy import LogLevel
+from param import logging_level 
 
 # Local application imports
 from jgh_serialization import JghSerialization
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging_level = logging.DEBUG
+logging_level = logging.INFO
+logging_level = logging.WARNING
+logging_level = logging.ERROR
+logging_level = logging.CRITICAL
+
+log_format = "%(asctime)s - %(levelname)s - %(message)s"
+log_format = "%(message)s"
+
+log_filename="error_log.log"
+
+logging.basicConfig(filename=log_filename, level=logging_level, format=log_format)
 logger = logging.getLogger(__name__)
 
-# Define convenient default values for the tests
+
+# Define some arbitrary default values for the tests
 default_john: str = "john"
 default_middlenames : list[str] = ["gerald", "elana", "thomas", "alexandra"]
 default_jones: str = "jones"

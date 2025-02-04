@@ -33,9 +33,8 @@ For round-tripping:-
 import sys
 import logging
 import unittest
-from numpy import isin
 import pydantic as pydantic
-from pydantic import ConfigDict, AliasGenerator, AliasChoices, Field, BeforeValidator, AfterValidator, ValidationError
+from pydantic import ConfigDict, AliasGenerator, AliasChoices, Field, BeforeValidator, AfterValidator
 from typing import Any, Annotated
 
 # Local application imports
@@ -45,14 +44,16 @@ from jgh_serialization import JghSerialization
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-# Define convenient default values for the tests
-default_john: str = "john"
-default_middlenames : list[str] = ["gerald", "elana", "thomas", "alexandra"]
-default_jones: str = "jones"
+# Define convenient default values for the tests.
+# Note the intentional use of caps, you can fiddle and add to the ConfigDict 
+# to play with ConfigDict(str_to_lower=True)
+default_john: str = "John"
+default_middlenames : list[str] = ["Gerald", "Elana", "Thomas", "Alexandra"]
+default_jones: str = "Jones"
 default_false: bool = False
 default_99 = 99
 default_email: str = "email@zip.com"
-default_eglinton: str = "eglinton"
+default_eglinton: str = "Eglinton"
 
 
 # Define convenient output aliases for the tests
@@ -88,11 +89,21 @@ validation_alias_choices_map : dict[str,AliasChoices] = {
 }
 
 # Prepare a ConfigDict for all test models. Assign this to the pydantic model's model_config attribute.
-groovy_configdict = ConfigDict(alias_generator=AliasGenerator(
-        alias=None,
-        serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
-        validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
+# Myriad settings and options available.
+# As examples for the tests, we will use the alias_generator to set the serialization_alias and validation_alias for the model.
+# To go further, you can use the str_to_lower setting to automatically convert incomming string values to lowerr case
+# across the board. In real life, this ensures that all string data in the model is stored in a consistent lowercase format. 
+# Helps avoid issues related to case sensitivity.
 
+configdict_default = ConfigDict() # Default configdict
+configdictV1 = ConfigDict(str_to_lower=True) # recommended for real life use - but some assertions will fail down below becuase I have not written tests to handle this.
+configdictV3 = ConfigDict(
+        alias_generator=AliasGenerator(
+            alias=None,
+            serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
+            validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
+
+groovy_configdict = configdictV3
 
 # Helper function to write a pretty error messages for the tests
 def pretty_error_message(ex: Exception) -> str:

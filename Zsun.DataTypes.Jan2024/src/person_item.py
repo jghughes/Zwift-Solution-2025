@@ -4,12 +4,50 @@ This module defines the PersonItem class, which represents an item associated wi
 # Standard library imports
 import datetime
 from datetime import datetime, timezone
+from typing import Any
 import uuid
+from dataclasses import dataclass
+import logging
 
 # Local application imports
 from person_dto import PersonDataTransferObject
 from hub_item_base import HubItemBase
 
+# Configure logging settings
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
+
+# Helper function to write a pretty error message
+def pretty_error_message(ex: Exception) -> str:
+    """
+    The function attempts to unpack the args attribute of the exception ex
+    into code and message. If the unpacking fails (e.g., if args does not
+    contain two elements), it falls back to setting code to 0 and message
+    to the first and only element of args.
+
+    If an exception ex has args like (404, "Not Found"), the function
+    will return "Not Found ErrorCode=404". If an exception ex has args
+    like ("An error occurred",), the function will return "An error occurred".
+    """
+    try:
+        (code, message) = ex.args
+    except:
+        code = 0
+        message = ex.args[0]
+    if code == 0:
+        return f"{str(message)}"
+    return f"{str(message)} ErrorCode={str(code)}"
+
+def assign_if_not_none(target: Any, source: Any, attribute: Any):
+    try:
+        if hasattr(source, attribute):
+            value = getattr(source, attribute)
+            if value is not None:
+                setattr(target, attribute, value)
+    except Exception as e:
+        logging.error(f"Error assigning attribute '{attribute}': {pretty_error_message(e)}")
+
+@dataclass
 class PersonItem(HubItemBase):
     """
     An object representing a club member's particulars.
@@ -37,12 +75,6 @@ class PersonItem(HubItemBase):
     discord_accountdisplayname: str = ""
     discord_profiledisplayname: str = ""
 
-    def get_both_guids(self) -> str:
-        """
-        A string concatenation ofboth the originating_guid and the guid.
-        """
-        return f"{self.originating_item_guid}{self.guid}"
-
     @staticmethod
     def create(
         zwift_id: int,
@@ -63,16 +95,16 @@ class PersonItem(HubItemBase):
         Returns:
             PersonItem: A new instance of the PersonItem class.
         """
-        answer = PersonItem()
 
-        answer.zwift_id=zwift_id
-        answer.discord_accountusername=discord_accountusername
-        answer.recording_mode_enum=recording_mode_enum
-        answer.touched_by=touched_by
-
-        answer.when_touched_binary_format = int(datetime.now(timezone.utc).timestamp())
-        answer.timestamp_binary_format = int(datetime.now(timezone.utc).timestamp())
-        answer.guid = str(uuid.uuid4())
+        answer = PersonItem(
+            zwift_id=zwift_id,
+            discord_accountusername=discord_accountusername,
+            recording_mode_enum=recording_mode_enum,
+            touched_by=touched_by,
+            when_touched_binary_format=int(datetime.now(timezone.utc).timestamp()),
+            timestamp_binary_format=int(datetime.now(timezone.utc).timestamp()),
+            guid=str(uuid.uuid4())
+        )
 
         return answer
 
@@ -85,30 +117,11 @@ class PersonItem(HubItemBase):
         Returns:
             PersonDataTransferObject: A new instance of the PersonDataTransferObject class.
         """
+
         answer = PersonDataTransferObject()
 
-        answer.zsun_id = item.zsun_id
-        answer.zsun_firstname = item.zsun_firstname
-        answer.zsun_lastname = item.zsun_lastname
-        answer.zwift_id = item.zwift_id
-        answer.zwift_firstname = item.zwift_firstname
-        answer.zwift_lastname = item.zwift_lastname
-        answer.discord_accountusername = item.discord_accountusername
-        answer.discord_accountdisplayname = item.discord_accountdisplayname
-        answer.discord_profiledisplayname = item.discord_profiledisplayname
-        answer.comment = item.comment
-        answer.click_counter = item.click_counter
-        answer.recording_mode_enum = item.recording_mode_enum
-        answer.database_action_enum = item.database_action_enum
-        answer.must_ditch_originating_item = item.must_ditch_originating_item
-        answer.is_still_to_be_backed_up = item.is_still_to_be_backed_up
-        answer.is_still_to_be_pushed = item.is_still_to_be_pushed
-        answer.touched_by = item.touched_by
-        answer.when_touched_binary_format = item.when_touched_binary_format
-        answer.when_pushed_binary_format = item.when_pushed_binary_format
-        answer.timestamp_binary_format = item.timestamp_binary_format
-        answer.originating_item_guid = item.originating_item_guid
-        answer.guid = item.guid
+        for attribute in item.__dict__:
+            assign_if_not_none(answer, item, attribute)
 
         return answer
 
@@ -128,28 +141,8 @@ class PersonItem(HubItemBase):
 
         answer = PersonItem()
 
-        answer.zsun_id = dto.zsun_id
-        answer.zsun_firstname = dto.zsun_firstname
-        answer.zsun_lastname = dto.zsun_lastname
-        answer.zwift_id = dto.zwift_id
-        answer.zwift_firstname = dto.zwift_firstname
-        answer.zwift_lastname = dto.zwift_lastname
-        answer.discord_accountusername = dto.discord_accountusername
-        answer.discord_accountdisplayname = dto.discord_accountdisplayname
-        answer.discord_profiledisplayname = dto.discord_profiledisplayname
-        answer.comment = dto.comment
-        answer.click_counter = dto.click_counter
-        answer.recording_mode_enum = dto.recording_mode_enum
-        answer.database_action_enum = dto.database_action_enum
-        answer.must_ditch_originating_item = dto.must_ditch_originating_item
-        answer.is_still_to_be_backed_up = dto.is_still_to_be_backed_up
-        answer.is_still_to_be_pushed = dto.is_still_to_be_pushed
-        answer.touched_by = dto.touched_by
-        answer.when_touched_binary_format = dto.when_touched_binary_format
-        answer.when_pushed_binary_format = dto.when_pushed_binary_format
-        answer.timestamp_binary_format = dto.timestamp_binary_format
-        answer.originating_item_guid = dto.originating_item_guid
-        answer.guid = dto.guid
+        for attribute in dto.__dict__:
+            assign_if_not_none(answer, dto, attribute)
 
         return answer
 
@@ -178,9 +171,11 @@ if __name__ == "__main__":
     print("\nConverted back to PersonItem:")
     print(new_person_item)
 
-    # Check if the original and new PersonItem instances are equal
-    print("\nAre the original and new PersonItem instances equal?")
-    print(person_item == new_person_item)
+    # Check if all the attributes of the pair of original and new PersonItem instances are equal
+    # The __eq__ method of a dataclass ensures that the instances are equal if all their attributes are equal
+    print("\nAre all the attributes of the the original and roundtripped PersonItem instances equal?")
+    isequal : bool = person_item == new_person_item
+    print(isequal)
 
 
 

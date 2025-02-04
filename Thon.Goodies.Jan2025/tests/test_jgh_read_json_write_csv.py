@@ -5,14 +5,14 @@ import json
 import csv
 import unittest
 import logging
-from jgh_read_json_write_csv import read_json_write_csv, read_json_write_csv_abridged
+from jgh_read_json_write_csv import read_json_write_csv, read_json_write_pretty_csv
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 # Helper function to write a pretty error message
-def error_message(ex: Exception) -> str:
+def pretty_error_message(ex: Exception) -> str:
     """
     This function writes a pretty error message to the console.
     The function attempts to unpack the args attribute of the exception ex
@@ -82,8 +82,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -124,7 +124,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             self.fail("Test failed because no exception was raised.")
         except Exception as e:
-            logger.info(f"Test passed with expected error: {error_message(e)}")
+            logger.info(f"Test passed with expected error: {pretty_error_message(e)}")
             return
 
         # # Run the function
@@ -132,8 +132,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
         #     read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
         #     logger.info("Test completed successfully. Check the output CSV file.")
         # except Exception as e:
-        #     logger.error(f"Test failed with error: {error_message(e)}")
-        #     self.fail(f"Test failed with error: {error_message(e)}")
+        #     logger.error(f"Test failed with error: {pretty_error_message(e)}")
+        #     self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -172,7 +172,7 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             logger.error(f"Test failed. The method should have raised an exception and exited\nbecuase the JSON does not map to CSV.")
             self.fail(f"Test failed. The method should have raised an exception and exited\nbecuase the JSON does not map to CSV.")
         except Exception as e:
-            logger.info(f"Test completed successfully. The method correctly raised an exception and exited.\nThe JSON is untranslatable as CSV. There is no output CSV file.\nTest succeeded with error: {error_message(e)}")
+            logger.info(f"Test completed successfully. The method correctly raised an exception and exited.\nThe JSON is untranslatable as CSV. There is no output CSV file.\nTest succeeded with error: {pretty_error_message(e)}")
             return
 
         # Verify the output CSV file
@@ -207,8 +207,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -250,8 +250,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -294,8 +294,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -336,8 +336,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             read_json_write_csv(self.input_dirpath, input_filename, self.output_dirpath, output_filename)
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)
@@ -385,8 +385,8 @@ class Test_ReadJsonWriteCsv(unittest.TestCase):
             )
             logger.info("Test completed successfully. Check the output CSV file.")
         except Exception as e:
-            logger.error(f"Test failed with error: {error_message(e)}")
-            self.fail(f"Test failed with error: {error_message(e)}")
+            logger.error(f"Test failed with error: {pretty_error_message(e)}")
+            self.fail(f"Test failed with error: {pretty_error_message(e)}")
 
         # Verify the output CSV file
         output_file_path = os.path.join(self.output_dirpath, output_filename)

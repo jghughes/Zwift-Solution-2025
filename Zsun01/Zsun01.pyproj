@@ -27,7 +27,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="classes\person_dto.py" />
     <Compile Include="classes\PersonItemClass.py" />
     <Compile Include="repositories\PersonRepositoryClass.py" />
     <Compile Include="utilities\importlocator.py">

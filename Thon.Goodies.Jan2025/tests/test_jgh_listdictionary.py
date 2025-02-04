@@ -8,11 +8,22 @@ import unittest
 
 # Local application imports
 from jgh_listdictionary import JghListDictionary
+from jgh_logging_config import configure_logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+# Specify desired file locations
+
+# Configure logging with a dynamic logging level and your own file locations.
+# Just enter None for the configure_logging() method parameter to use the defaults)
+log_filenames = {
+    "debug": "custom_debug_log.log",
+    "info": "custom_info_log.log",
+    "warning": "custom_warning_log.log",
+    "error": "custom_error_log.log",
+    "critical": "custom_critical_log.log"
+}
+
+configure_logging(logging.DEBUG, log_filenames)
 logger = logging.getLogger(__name__)
-
 
 # Define the tests
 class Test_JghListdictionary(unittest.TestCase):
@@ -126,7 +137,7 @@ class Test_JghListdictionary(unittest.TestCase):
         This test case creates an instance of JghListDictionary with str keys and str values,
         adds a single value using append_value_to_key to two different keys, removes the value
         using remove_value_from_all_keys, and then asserts that the value is no longer
-        present in the dictionary by calling get_values_from_everywhere.
+        present in the dictionary by calling get_values_for_all.
         """
         try:
             # Instantiate JghListDictionary with str keys and str values
@@ -146,7 +157,7 @@ class Test_JghListdictionary(unittest.TestCase):
             removed_count, keys_with_removed_value = dictionary.remove_value_from_all_keys(value)
 
             # Get all values from everywhere in the dictionary
-            all_values = dictionary.get_values_from_everywhere()
+            all_values = dictionary.get_values_for_all()
 
             # Assert that the value is no longer present in the dictionary
             self.assertNotIn(value, all_values)
