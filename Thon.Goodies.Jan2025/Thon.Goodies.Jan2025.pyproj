@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_logging.py</StartupFile>
+    <StartupFile>tests\test_logging_config.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -44,7 +44,7 @@
     </Compile>
     <Compile Include="tests\test_jgh_serialization_with_dataclasses.py" />
     <Compile Include="tests\test_jgh_serialization_with_pydantic_models.py" />
-    <Compile Include="tests\test_logging.py">
+    <Compile Include="tests\test_logging_config.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
@@ -56,7 +56,6 @@
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="error_log.log" />
     <Content Include="log_critical_log.log" />
     <Content Include="log_debug_log.log" />
     <Content Include="log_error_log.log" />

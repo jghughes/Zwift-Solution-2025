@@ -10,19 +10,8 @@ import unittest
 from jgh_listdictionary import JghListDictionary
 from jgh_logging_config import configure_logging
 
-# Specify desired file locations
-
-# Configure logging with a dynamic logging level and your own file locations.
-# Just enter None for the configure_logging() method parameter to use the defaults)
-log_filenames = {
-    "debug": "custom_debug_log.log",
-    "info": "custom_info_log.log",
-    "warning": "custom_warning_log.log",
-    "error": "custom_error_log.log",
-    "critical": "custom_critical_log.log"
-}
-
-configure_logging(logging.DEBUG, log_filenames)
+# Configure logging with a dynamic logging level and your custom file locations if desired.
+configure_logging(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Define the tests
