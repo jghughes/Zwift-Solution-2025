@@ -6,6 +6,9 @@ The `configure_logging` function sets up logging handlers for different log leve
 for both console and file outputs. It allows customization of log filenames and logging levels.
 If `log_filenames` is set to `None`, logging is configured to output to the console only.
 
+Since the logging module handles the absence of an interactive console gracefully, you can safely 
+include both console and file handlers without risking application stability in a production environment.
+
 Classes:
     LogFilenames: A dataclass to hold log filenames for different log levels.
 
