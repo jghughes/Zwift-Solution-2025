@@ -52,6 +52,9 @@ def configure_logging(logging_level: int = logging.DEBUG, log_filenames: Optiona
             "critical": "log_critical.log"
         }
 
+    # Ensure all log filenames are absolute paths
+    log_filenames = {level: os.path.abspath(path) for level, path in log_filenames.items()}
+
     # Define logging parameters for console
     log_format_for_console = """
     %(asctime)s
