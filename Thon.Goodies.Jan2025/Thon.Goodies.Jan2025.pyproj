@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_logging_config.py</StartupFile>
+    <StartupFile>src\jgh_logging_config.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -56,11 +56,6 @@
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="log_critical_log.log" />
-    <Content Include="log_debug_log.log" />
-    <Content Include="log_error_log.log" />
-    <Content Include="log_info_log.log" />
-    <Content Include="log_warning_log.log" />
     <Content Include="README.md">
       <SubType>Code</SubType>
     </Content>
