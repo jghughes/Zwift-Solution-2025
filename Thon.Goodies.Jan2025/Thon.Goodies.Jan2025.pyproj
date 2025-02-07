@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_logging_configV3.py</StartupFile>
+    <StartupFile>src\jgh_logging_configV4.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -21,9 +21,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="jgh_logging_configV3.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
@@ -37,6 +34,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\jgh_logging_configV3.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\jgh_logging_configV4.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
@@ -71,6 +71,7 @@
     <Content Include="requirements.txt" />
     <Content Include="settings.development.json" />
     <Content Include="settings.production.json" />
+    <Content Include="src\settings.test.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

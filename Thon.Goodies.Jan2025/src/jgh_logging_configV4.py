@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from typing import Dict
+from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 from pythonjsonlogger import jsonlogger
 
@@ -20,6 +20,23 @@ HANDLER_NAME_WARNING = "jgh_logging_module_filehandler_for_warning"
 HANDLER_NAME_ERROR = "jgh_logging_module_filehandler_for_error"
 HANDLER_NAME_CRITICAL = "jgh_logging_module_filehandler_for_critical"
 
+# Define constants for configuration keys
+CONFIG_LOGGING = "logging"
+LOGFILES_FOLDERPATH = "logfile_folderpath"
+DEBUG_FILE_NAME = "debug"
+INFO_FILE_NAME = "info"
+WARNING_FILE_NAME = "warning"
+ERROR_FILE_NAME = "error"
+CRITICAL_FILE_NAME = "critical"
+
+@dataclass
+class LogFilePaths:
+    debug: Optional[str] = None
+    info: Optional[str] = None
+    warning: Optional[str] = None
+    error: Optional[str] = None
+    critical: Optional[str] = None
+
 @dataclass
 class LogFilenames:
     """
@@ -27,52 +44,56 @@ class LogFilenames:
 
     Attributes:
     -----------
-    Name          | Type         | Description
-    --------------|--------------|-------------------------------------------
-    base_filepath | str          | The base directory path where log files will be stored. Must be an absolute path.
-    debug         | str          | The filename for debug level logs. Must end with .log.
-    info          | Optional[str]| The filename for info level logs. Must end with .log. Default is None.
-    warning       | Optional[str]| The filename for warning level logs. Must end with .log. Default is None.
-    error         | Optional[str]| The filename for error level logs. Must end with .log. Default is None.
-    critical      | Optional[str]| The filename for critical level logs. Must end with .log. Default is None.
+    Name                  | Type         | Description
+    ----------------------|--------------|-------------------------------------------
+    logfiles_folder       | str | None   | The base directory path where log files will be stored. Must be an absolute path. Default is None.
+    debug_filename        | str | None   | The filename for debug level logs. Must end with .log. Default is None.
+    info_filename         | str | None   | The filename for info level logs. Must end with .log. Default is None.
+    warning_filename      | str | None   | The filename for warning level logs. Must end with .log. Default is None.
+    error_filename        | str | None   | The filename for error level logs. Must end with .log. Default is None.
+    critical_filename     | str | None   | The filename for critical level logs. Must end with .log. Default is None.
     """
 
-    base_filepath: str
-    debug: str | None = None
-    info: str | None = None
-    warning: str | None = None
-    error: str | None = None
-    critical: str | None = None
+    logfiles_folder: str | None = None
+    debug_filename: str | None = None
+    info_filename: str | None = None
+    warning_filename: str | None = None
+    error_filename: str | None = None
+    critical_filename: str | None = None
 
     def __post_init__(self):
-        # Validate base_filepath
-        if not os.path.isabs(self.base_filepath):
-            raise ValueError(f"base_filepath must be an absolute path: {self.base_filepath}")
+        # Validate logfiles_folder
+        if self.logfiles_folder and not os.path.isabs(self.logfiles_folder):
+            raise ValueError(f"logfiles_folder must be an absolute path: {self.logfiles_folder}")
 
         # Validate filenames
-        invalid_filenames = []
+        invalid_filenames: List[str] = []
         for level, filename in self.__dict__.items():
-            if level != "base_filepath" and filename is not None:
+            if level != "logfiles_folder" and filename is not None:
                 if not filename.endswith(".log"):
                     invalid_filenames.append(f"{level}: {filename}")
 
         if invalid_filenames:
             raise ValueError(f"The following filenames are invalid (must end with .log): {', '.join(invalid_filenames)}")
 
-    def get_absolute_paths(self) -> Dict[str, str | None]:
+    def get_absolute_paths(self) -> Optional[LogFilePaths]:
         """
-        Returns a dictionary mapping log levels to their absolute file paths.
+        Returns an LogFilePaths dataclass with absolute file paths for each log level.
 
         Returns:
-        Dict[str, str | None]: A dictionary with log levels as keys and absolute file paths as values.
+        LogFilePaths: A dataclass with absolute file paths for each log level, or None if logfiles_folder is None.
         """
-        return {
-            LOG_LEVEL_DEBUG: os.path.join(self.base_filepath, self.debug) if self.debug else None,
-            LOG_LEVEL_INFO: os.path.join(self.base_filepath, self.info) if self.info else None,
-            LOG_LEVEL_WARNING: os.path.join(self.base_filepath, self.warning) if self.warning else None,
-            LOG_LEVEL_ERROR: os.path.join(self.base_filepath, self.error) if self.error else None,
-            LOG_LEVEL_CRITICAL: os.path.join(self.base_filepath, self.critical) if self.critical else None
-        }
+        if self.logfiles_folder is None:
+            return None
+
+        return LogFilePaths(
+            debug=os.path.join(self.logfiles_folder, self.debug_filename) if self.debug_filename else None,
+            info=os.path.join(self.logfiles_folder, self.info_filename) if self.info_filename else None,
+            warning=os.path.join(self.logfiles_folder, self.warning_filename) if self.warning_filename else None,
+            error=os.path.join(self.logfiles_folder, self.error_filename) if self.error_filename else None,
+            critical=os.path.join(self.logfiles_folder, self.critical_filename) if self.critical_filename else None
+        )
+
 
 def configure_logging() -> None:
     """
@@ -96,29 +117,32 @@ def configure_logging() -> None:
         logger.error("This is an error message")
         logger.critical("This is a critical message")
     """
-    log_filenames = None
+    log_filenames: Optional[LogFilenames] = None
+    settings_file: str = ""
     try:
         # Determine the environment (default to development)
         environment = os.getenv("APP_ENV", "development")
-        settings_file = f"settings.{environment}.json"
-
+        # Get the root directory of the project
+        root_dir = os.getenv("APP_ROOT", os.path.dirname(__file__)) # Default to the directory of this file
+        # Construct the path to the settings file based on the environment
+        settings_file = os.path.join(root_dir, f"settings.{environment}.json")
         # Load configuration from the appropriate settings file
         with open(settings_file, "r") as config_file:
             config = json.load(config_file)
 
         # Ensure the logging section exists
-        if "logging" in config:
+        if CONFIG_LOGGING in config:
             # Instantiate the LogFilenames dataclass with the loaded configuration
             log_filenames = LogFilenames(
-                base_filepath=config["logging"].get("base_filepath"),
-                debug=config["logging"].get("debug"),
-                info=config["logging"].get("info"),
-                warning=config["logging"].get("warning"),
-                error=config["logging"].get("error"),
-                critical=config["logging"].get("critical")
+                logfiles_folder=config[CONFIG_LOGGING].get(LOGFILES_FOLDERPATH),
+                debug_filename=config[CONFIG_LOGGING].get(DEBUG_FILE_NAME),
+                info_filename=config[CONFIG_LOGGING].get(INFO_FILE_NAME),
+                warning_filename=config[CONFIG_LOGGING].get(WARNING_FILE_NAME),
+                error_filename=config[CONFIG_LOGGING].get(ERROR_FILE_NAME),
+                critical_filename=config[CONFIG_LOGGING].get(CRITICAL_FILE_NAME)
             )
         else:
-            print(f"ERROR: 'logging' section not found in {settings_file}")
+            print(f"ERROR: '{CONFIG_LOGGING}' section not found in {settings_file}")
 
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"ERROR: Failed to load configuration from {settings_file}: {e}")
@@ -134,7 +158,7 @@ def configure_logging() -> None:
         # Define logging parameters for console
         log_format_for_console = """
         %(asctime)s
-            Level: %(levellevel)s
+            Level: %(levelname)s
             Module: %(module)s
             Function: %(funcName)s
             Line: %(lineno)d
@@ -149,12 +173,8 @@ def configure_logging() -> None:
         logger.addHandler(console_handler)
 
         # return if log_filenames is None
-        if log_filenames is None:
+        if log_filenames is None or not log_filenames.logfiles_folder:
             return
-
-        # Validate that log_filenames is minimally valid with a base_filepath
-        if not log_filenames.base_filepath:
-            raise ValueError("base_filepath must be provided and not None.")
 
         # rephrase all log filenames as absolute paths
         absolute_log_filenames = log_filenames.get_absolute_paths()
@@ -167,36 +187,36 @@ def configure_logging() -> None:
 
         # add optional file handlers if the user specified filenames for them
 
-        if absolute_log_filenames[LOG_LEVEL_DEBUG]:
-            log_filehandler_debug = logging.FileHandler(absolute_log_filenames[LOG_LEVEL_DEBUG])
+        if absolute_log_filenames.debug:
+            log_filehandler_debug = logging.FileHandler(absolute_log_filenames.debug)
             log_filehandler_debug.setLevel(logging.DEBUG)
             log_filehandler_debug.setFormatter(json_log_format_for_file)
             log_filehandler_debug.set_name(HANDLER_NAME_DEBUG)
             logger.addHandler(log_filehandler_debug)
 
-        if absolute_log_filenames[LOG_LEVEL_INFO]:
-            log_filehandler_info = logging.FileHandler(absolute_log_filenames[LOG_LEVEL_INFO])
+        if absolute_log_filenames.info:
+            log_filehandler_info = logging.FileHandler(absolute_log_filenames.info)
             log_filehandler_info.setLevel(logging.INFO)
             log_filehandler_info.setFormatter(json_log_format_for_file)
             log_filehandler_info.set_name(HANDLER_NAME_INFO)
             logger.addHandler(log_filehandler_info)
 
-        if absolute_log_filenames[LOG_LEVEL_WARNING]:
-            log_filehandler_warning = logging.FileHandler(absolute_log_filenames[LOG_LEVEL_WARNING])
+        if absolute_log_filenames.warning:
+            log_filehandler_warning = logging.FileHandler(absolute_log_filenames.warning)
             log_filehandler_warning.setLevel(logging.WARNING)
             log_filehandler_warning.setFormatter(json_log_format_for_file)
             log_filehandler_warning.set_name(HANDLER_NAME_WARNING)
             logger.addHandler(log_filehandler_warning)
 
-        if absolute_log_filenames[LOG_LEVEL_ERROR]:
-            log_filehandler_error = logging.FileHandler(absolute_log_filenames[LOG_LEVEL_ERROR])
+        if absolute_log_filenames.error:
+            log_filehandler_error = logging.FileHandler(absolute_log_filenames.error)
             log_filehandler_error.setLevel(logging.ERROR)
             log_filehandler_error.setFormatter(json_log_format_for_file)
             log_filehandler_error.set_name(HANDLER_NAME_ERROR)
             logger.addHandler(log_filehandler_error)
 
-        if absolute_log_filenames[LOG_LEVEL_CRITICAL]:
-            log_filehandler_critical = logging.FileHandler(absolute_log_filenames[LOG_LEVEL_CRITICAL])
+        if absolute_log_filenames.critical:
+            log_filehandler_critical = logging.FileHandler(absolute_log_filenames.critical)
             log_filehandler_critical.setLevel(logging.CRITICAL)
             log_filehandler_critical.setFormatter(json_log_format_for_file)
             log_filehandler_critical.set_name(HANDLER_NAME_CRITICAL)
@@ -208,6 +228,11 @@ def configure_logging() -> None:
 # simple illustration of using the configure_logging function
 
 if __name__ == "__main__":
+
+    # set up environment variables manually for this mickey mouse illustration. ensure thete is a test.settings.json file is in the same folder as this file
+    os.environ["APP_ENV"] = "test"
+    os.environ["APP_ROOT"] = os.path.dirname(__file__) 
+    
     configure_logging()
     logger = logging.getLogger()  # Get the root logger
 

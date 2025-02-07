@@ -101,8 +101,10 @@ def configure_logging() -> None:
     try:
         # Determine the environment (default to development)
         environment = os.getenv("APP_ENV", "development")
-        settings_file = f"settings.{environment}.json"
-
+        # Get the root directory of the project
+        root_dir = os.getenv("APP_ROOT", os.path.dirname(__file__)) # Default to the directory of this file
+        # Construct the path to the settings file based on the environment
+        settings_file = os.path.join(root_dir, f"settings.{environment}.json")
         # Load configuration from the appropriate settings file
         with open(settings_file, "r") as config_file:
             config = json.load(config_file)
@@ -209,6 +211,11 @@ def configure_logging() -> None:
 # simple illustration of using the configure_logging function
 
 if __name__ == "__main__":
+
+    # set up environment variables manually for this mickey mouse illustration. ensure thete is a test.settings.json file is in the same folder as this file
+    os.environ["APP_ENV"] = "test"
+    os.environ["APP_ROOT"] = os.path.dirname(__file__) 
+    
     configure_logging()
     logger = logging.getLogger()  # Get the root logger
 
