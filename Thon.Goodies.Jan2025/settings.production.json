@@ -1,10 +1,10 @@
 {
   "logging": {
-    "base_filepath": "/path/to/production/logs",
-    "debug": "prod_debug.log",
-    "info": "prod_info.log",
-    "warning": "prod_warning.log",
-    "error": "prod_error.log",
-    "critical": "prod_critical.log"
+    "path": "/path/to/production/logs",
+    "debug_filename": "prod_debug.log",
+    "info_filename": "prod_info.log",
+    "warning_filename": "prod_warning.log",
+    "error_filename": "prod_error.log",
+    "critical_filename": "prod_critical.log"
   }
 }

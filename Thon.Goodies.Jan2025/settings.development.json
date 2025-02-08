@@ -1,10 +1,10 @@
 {
   "logging": {
-    "base_filepath": "/path/to/development/logs",
-    "debug": "dev_debug.log",
-    "info": "dev_info.log",
-    "warning": "dev_warning.log",
-    "error": "dev_error.log",
-    "critical": "dev_critical.log"
+    "path": "/path/to/development/logs",
+    "debug_filename": "dev_debug.log",
+    "info_filename": "dev_info.log",
+    "warning_filename": "dev_warning.log",
+    "error_filename": "dev_error.log",
+    "critical_filename": "dev_critical.log"
   }
 }

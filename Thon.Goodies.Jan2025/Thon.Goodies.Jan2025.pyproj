@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_logging_configV4.py</StartupFile>
+    <StartupFile>src\jgh_logging_config.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -30,15 +30,6 @@
     <Compile Include="src\jgh_logging_config.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_logging_configV2.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\jgh_logging_configV3.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\jgh_logging_configV4.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
       <SubType>Code</SubType>
@@ -53,7 +44,7 @@
     </Compile>
     <Compile Include="tests\test_jgh_serialization_with_dataclasses.py" />
     <Compile Include="tests\test_jgh_serialization_with_pydantic_models.py" />
-    <Compile Include="tests\test_logging_config.py">
+    <Compile Include="tests\test_jgh_logging_config.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
