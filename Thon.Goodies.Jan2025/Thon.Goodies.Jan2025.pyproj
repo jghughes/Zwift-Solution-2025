@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_logging_config.py</StartupFile>
+    <StartupFile>tests\test_jgh_logger.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -27,10 +27,10 @@
     <Compile Include="src\jgh_listdictionary.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_logging_config.py">
+    <Compile Include="src\jgh_logger_old.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_logging_configV2.py">
+    <Compile Include="src\jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
@@ -47,7 +47,7 @@
     </Compile>
     <Compile Include="tests\test_jgh_serialization_with_dataclasses.py" />
     <Compile Include="tests\test_jgh_serialization_with_pydantic_models.py" />
-    <Compile Include="tests\test_jgh_logging_config.py">
+    <Compile Include="tests\test_jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
@@ -66,6 +66,7 @@
     <Content Include="settings.development.json" />
     <Content Include="settings.production.json" />
     <Content Include="src\settings.test.json" />
+    <Content Include="tests\settings.test.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
