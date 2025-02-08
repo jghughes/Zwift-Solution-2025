@@ -31,16 +31,16 @@ ERROR_FILE_NAME = "error_filename"
 CRITICAL_FILE_NAME = "critical_filename"
 
 @dataclass
-class LogFileNameCompendium:
-    debug_level_filename: str | None = None
-    info_level_filename: str | None = None
-    warning_level_filename: str | None = None
-    error_level_filename: str | None = None
-    critical_level_filename: str | None = None
+class LogFileDescriptionsCompendium:
+    debug_level_file: str | None = None
+    info_level_file: str | None = None
+    warning_level_file: str | None = None
+    error_level_file: str | None = None
+    critical_level_file: str | None = None
 
 @dataclass
 class LogFileSegmentsCompendium:
-    logfiles_folder: str | None = None
+    storage_dirpath: str | None = None
     debug_filename: str | None = None
     info_filename: str | None = None
     warning_filename: str | None = None
@@ -77,7 +77,7 @@ def load_logfile_specifications() -> Optional[LogFileSegmentsCompendium]:
 
         if CONFIG_LOGGING in config:
             return LogFileSegmentsCompendium(
-                logfiles_folder=config[CONFIG_LOGGING].get(LOGFILES_FOLDERPATH),
+                storage_dirpath=config[CONFIG_LOGGING].get(LOGFILES_FOLDERPATH),
                 debug_filename=config[CONFIG_LOGGING].get(DEBUG_FILE_NAME),
                 info_filename=config[CONFIG_LOGGING].get(INFO_FILE_NAME),
                 warning_filename=config[CONFIG_LOGGING].get(WARNING_FILE_NAME),
@@ -92,43 +92,43 @@ def load_logfile_specifications() -> Optional[LogFileSegmentsCompendium]:
         print(f"ERROR: Failed to load loggin configuration. No file logging will be done to files. : {e}")
         return None
 
-def validate_logfile_specifications(file_compendium: LogFileSegmentsCompendium) -> Optional[LogFileNameCompendium]:
-    if file_compendium.logfiles_folder is None:
+def validate_logfile_specifications(segments_compendium: LogFileSegmentsCompendium) -> Optional[LogFileDescriptionsCompendium]:
+    if segments_compendium.storage_dirpath is None:
         return None
 
-    if file_compendium.logfiles_folder and not os.path.isabs(file_compendium.logfiles_folder):
-        print(f"Error: logfiles_folder must be an absolute path: {file_compendium.logfiles_folder}")
+    if segments_compendium.storage_dirpath and not os.path.isabs(segments_compendium.storage_dirpath):
+        print(f"Error: storage_dirpath must be an absolute path: {segments_compendium.storage_dirpath}")
         return None
 
-    temp_compendium = LogFileNameCompendium(
-        debug_level_filename=file_compendium.debug_filename,
-        info_level_filename=file_compendium.info_filename,
-        warning_level_filename=file_compendium.warning_filename,
-        error_level_filename=file_compendium.error_filename,
-        critical_level_filename=file_compendium.critical_filename
+    temp = LogFileDescriptionsCompendium(
+        debug_level_file=segments_compendium.debug_filename,
+        info_level_file=segments_compendium.info_filename,
+        warning_level_file=segments_compendium.warning_filename,
+        error_level_file=segments_compendium.error_filename,
+        critical_level_file=segments_compendium.critical_filename
     )
 
-    for level, filename in temp_compendium.__dict__.items():
+    for level, filename in temp.__dict__.items():
         if filename is not None and not filename.endswith(".log"):
             print(f"Invalid filename for {level}: {filename} (must end with .log)")
-            setattr(temp_compendium, level, None)
+            setattr(temp, level, None)
 
-    if all(value is None for value in temp_compendium.__dict__.values()):
+    if all(value is None for value in temp.__dict__.values()):
         return None
 
-    folder=file_compendium.logfiles_folder
+    folder=segments_compendium.storage_dirpath
 
-    return LogFileNameCompendium(
-        debug_level_filename=os.path.join(folder, temp_compendium.debug_level_filename) if temp_compendium.debug_level_filename else None,
-        info_level_filename=os.path.join(folder, temp_compendium.info_level_filename) if temp_compendium.info_level_filename else None,
-        warning_level_filename=os.path.join(folder, temp_compendium.warning_level_filename) if temp_compendium.warning_level_filename else None,
-        error_level_filename=os.path.join(folder, temp_compendium.error_level_filename) if temp_compendium.error_level_filename else None,
-        critical_level_filename=os.path.join(folder, temp_compendium.critical_level_filename) if temp_compendium.critical_level_filename else None
+    return LogFileDescriptionsCompendium(
+        debug_level_file=os.path.join(folder, temp.debug_level_file) if temp.debug_level_file else None,
+        info_level_file=os.path.join(folder, temp.info_level_file) if temp.info_level_file else None,
+        warning_level_file=os.path.join(folder, temp.warning_level_file) if temp.warning_level_file else None,
+        error_level_file=os.path.join(folder, temp.error_level_file) if temp.error_level_file else None,
+        critical_level_file=os.path.join(folder, temp.critical_level_file) if temp.critical_level_file else None
     )
 
 def add_logfile_handlers(logger: logging.Logger) -> None:
     log_file_compendium = load_logfile_specifications()
-    if log_file_compendium is None or not log_file_compendium.logfiles_folder:
+    if log_file_compendium is None or not log_file_compendium.storage_dirpath:
         return
 
     try:
@@ -144,36 +144,36 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
         max_bytes = 1 * 1024 * 1024  # 1MB
         backup_count = 5
 
-        if filepath_compendium.debug_level_filename:
-            filehandler_debug = RotatingFileHandler(filepath_compendium.debug_level_filename, maxBytes=max_bytes, backupCount=backup_count)
+        if filepath_compendium.debug_level_file:
+            filehandler_debug = RotatingFileHandler(filepath_compendium.debug_level_file, maxBytes=max_bytes, backupCount=backup_count)
             filehandler_debug.setLevel(logging.DEBUG)
             filehandler_debug.setFormatter(json_log_format_for_file)
             filehandler_debug.set_name(HANDLER_NAME_DEBUG)
             logger.addHandler(filehandler_debug)
 
-        if filepath_compendium.info_level_filename:
-            filehandler_info = RotatingFileHandler(filepath_compendium.info_level_filename, maxBytes=max_bytes, backupCount=backup_count)
+        if filepath_compendium.info_level_file:
+            filehandler_info = RotatingFileHandler(filepath_compendium.info_level_file, maxBytes=max_bytes, backupCount=backup_count)
             filehandler_info.setLevel(logging.INFO)
             filehandler_info.setFormatter(json_log_format_for_file)
             filehandler_info.set_name(HANDLER_NAME_INFO)
             logger.addHandler(filehandler_info)
 
-        if filepath_compendium.warning_level_filename:
-            filehandler_warning = RotatingFileHandler(filepath_compendium.warning_level_filename, maxBytes=max_bytes, backupCount=backup_count)
+        if filepath_compendium.warning_level_file:
+            filehandler_warning = RotatingFileHandler(filepath_compendium.warning_level_file, maxBytes=max_bytes, backupCount=backup_count)
             filehandler_warning.setLevel(logging.WARNING)
             filehandler_warning.setFormatter(json_log_format_for_file)
             filehandler_warning.set_name(HANDLER_NAME_WARNING)
             logger.addHandler(filehandler_warning)
 
-        if filepath_compendium.error_level_filename:
-            filehandler_error = RotatingFileHandler(filepath_compendium.error_level_filename, maxBytes=max_bytes, backupCount=backup_count)
+        if filepath_compendium.error_level_file:
+            filehandler_error = RotatingFileHandler(filepath_compendium.error_level_file, maxBytes=max_bytes, backupCount=backup_count)
             filehandler_error.setLevel(logging.ERROR)
             filehandler_error.setFormatter(json_log_format_for_file)
             filehandler_error.set_name(HANDLER_NAME_ERROR)
             logger.addHandler(filehandler_error)
 
-        if filepath_compendium.critical_level_filename:
-            filehandler_critical = RotatingFileHandler(filepath_compendium.critical_level_filename, maxBytes=max_bytes, backupCount=backup_count)
+        if filepath_compendium.critical_level_file:
+            filehandler_critical = RotatingFileHandler(filepath_compendium.critical_level_file, maxBytes=max_bytes, backupCount=backup_count)
             filehandler_critical.setLevel(logging.CRITICAL)
             filehandler_critical.setFormatter(json_log_format_for_file)
             filehandler_critical.set_name(HANDLER_NAME_CRITICAL)
