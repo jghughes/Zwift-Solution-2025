@@ -30,6 +30,9 @@
     <Compile Include="src\jgh_logging_config.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\jgh_logging_configV2.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
       <SubType>Code</SubType>
