@@ -132,11 +132,11 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
         return
 
     try:
-        filepath_compendium = validate_logfile_specifications(log_file_compendium)
-        if filepath_compendium is None:
+        fpath = validate_logfile_specifications(log_file_compendium)
+        if fpath is None:
             return
 
-        json_log_format_for_file = jsonlogger.JsonFormatter( # type: ignore
+        json_format = jsonlogger.JsonFormatter( # type: ignore
             json_indent=4,
             fmt='%(asctime)s %(levellevel)s %(module)s %(funcName)s %(lineno)d %(pathname)s %(threadName)s %(process)d %(message)s'
         )
@@ -144,40 +144,40 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
         max_bytes = 1 * 1024 * 1024  # 1MB
         backup_count = 5
 
-        if filepath_compendium.debug_level_file:
-            filehandler_debug = RotatingFileHandler(filepath_compendium.debug_level_file, maxBytes=max_bytes, backupCount=backup_count)
-            filehandler_debug.setLevel(logging.DEBUG)
-            filehandler_debug.setFormatter(json_log_format_for_file)
-            filehandler_debug.set_name(HANDLER_NAME_DEBUG)
-            logger.addHandler(filehandler_debug)
+        if fpath.debug_level_file:
+            handler_debug = RotatingFileHandler(fpath.debug_level_file, maxBytes=max_bytes, backupCount=backup_count)
+            handler_debug.setLevel(logging.DEBUG)
+            handler_debug.setFormatter(json_format)
+            handler_debug.set_name(HANDLER_NAME_DEBUG)
+            logger.addHandler(handler_debug)
 
-        if filepath_compendium.info_level_file:
-            filehandler_info = RotatingFileHandler(filepath_compendium.info_level_file, maxBytes=max_bytes, backupCount=backup_count)
-            filehandler_info.setLevel(logging.INFO)
-            filehandler_info.setFormatter(json_log_format_for_file)
-            filehandler_info.set_name(HANDLER_NAME_INFO)
-            logger.addHandler(filehandler_info)
+        if fpath.info_level_file:
+            handler_info = RotatingFileHandler(fpath.info_level_file, maxBytes=max_bytes, backupCount=backup_count)
+            handler_info.setLevel(logging.INFO)
+            handler_info.setFormatter(json_format)
+            handler_info.set_name(HANDLER_NAME_INFO)
+            logger.addHandler(handler_info)
 
-        if filepath_compendium.warning_level_file:
-            filehandler_warning = RotatingFileHandler(filepath_compendium.warning_level_file, maxBytes=max_bytes, backupCount=backup_count)
-            filehandler_warning.setLevel(logging.WARNING)
-            filehandler_warning.setFormatter(json_log_format_for_file)
-            filehandler_warning.set_name(HANDLER_NAME_WARNING)
-            logger.addHandler(filehandler_warning)
+        if fpath.warning_level_file:
+            handler_warning = RotatingFileHandler(fpath.warning_level_file, maxBytes=max_bytes, backupCount=backup_count)
+            handler_warning.setLevel(logging.WARNING)
+            handler_warning.setFormatter(json_format)
+            handler_warning.set_name(HANDLER_NAME_WARNING)
+            logger.addHandler(handler_warning)
 
-        if filepath_compendium.error_level_file:
-            filehandler_error = RotatingFileHandler(filepath_compendium.error_level_file, maxBytes=max_bytes, backupCount=backup_count)
-            filehandler_error.setLevel(logging.ERROR)
-            filehandler_error.setFormatter(json_log_format_for_file)
-            filehandler_error.set_name(HANDLER_NAME_ERROR)
-            logger.addHandler(filehandler_error)
+        if fpath.error_level_file:
+            handler_error = RotatingFileHandler(fpath.error_level_file, maxBytes=max_bytes, backupCount=backup_count)
+            handler_error.setLevel(logging.ERROR)
+            handler_error.setFormatter(json_format)
+            handler_error.set_name(HANDLER_NAME_ERROR)
+            logger.addHandler(handler_error)
 
-        if filepath_compendium.critical_level_file:
-            filehandler_critical = RotatingFileHandler(filepath_compendium.critical_level_file, maxBytes=max_bytes, backupCount=backup_count)
-            filehandler_critical.setLevel(logging.CRITICAL)
-            filehandler_critical.setFormatter(json_log_format_for_file)
-            filehandler_critical.set_name(HANDLER_NAME_CRITICAL)
-            logger.addHandler(filehandler_critical)
+        if fpath.critical_level_file:
+            handler_critical = RotatingFileHandler(fpath.critical_level_file, maxBytes=max_bytes, backupCount=backup_count)
+            handler_critical.setLevel(logging.CRITICAL)
+            handler_critical.setFormatter(json_format)
+            handler_critical.set_name(HANDLER_NAME_CRITICAL)
+            logger.addHandler(handler_critical)
 
     except Exception as e:
         print(f"Error configuring file logging. No logging will be done to files: {e}")
