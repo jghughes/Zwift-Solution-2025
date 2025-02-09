@@ -32,11 +32,11 @@ CRITICAL_FILE_NAME = "critical_filename"
 
 @dataclass
 class LogFilePathCompendium:
-    debug_level_file: str | None = None
-    info_level_file: str | None = None
-    warning_level_file: str | None = None
-    error_level_file: str | None = None
-    critical_level_file: str | None = None
+    debug_filepath: str | None = None
+    info_filepath: str | None = None
+    warning_filepath: str | None = None
+    error_filepath: str | None = None
+    critical_filepath: str | None = None
 
 @dataclass
 class LogFilePathSegmentCompendium:
@@ -68,7 +68,7 @@ def add_console_handler(logger: logging.Logger) -> None:
     except Exception as e:
         raise RuntimeError(f"Error configuring console logging: {e}")
 
-def load_logging_settings() -> Optional[LogFilePathSegmentCompendium]:
+def read_logfile_settings() -> Optional[LogFilePathSegmentCompendium]:
     """
     Do not call this from client code.
 
@@ -97,13 +97,11 @@ def load_logging_settings() -> Optional[LogFilePathSegmentCompendium]:
     The `storage_dirpath` must be an absolute path and must already exist. If either of these requirements
     are not satisfied, the method returns None and as a result, no logging to file will be done.
 
-    Each log filename must end in .log and will be skipped if not.
+    Each log filename must end in .log and will be skipped if not. Other than this requirement, the filenames can be anything.
 
     Returns:
         Optional[LogFilePathSegmentCompendium]: A compendium of log file path segments if settings are found and valid, otherwise None.
     """
-
-
     try:
         environment = os.getenv("APP_ENV", "development")
         root_dir = os.getenv("APP_ROOT", os.path.dirname(__file__))
@@ -126,7 +124,7 @@ def load_logging_settings() -> Optional[LogFilePathSegmentCompendium]:
     except (FileNotFoundError, json.JSONDecodeError) as e:
         return None
 
-def validate_logfile_particulars(segments_compendium: LogFilePathSegmentCompendium) -> Optional[LogFilePathCompendium]:
+def validate_logfile_settings(segments_compendium: LogFilePathSegmentCompendium) -> Optional[LogFilePathCompendium]:
     """
     Do not call this from client code.
 
@@ -143,24 +141,21 @@ def validate_logfile_particulars(segments_compendium: LogFilePathSegmentCompendi
         return None
 
     if segments_compendium.storage_dirpath and not os.path.isabs(segments_compendium.storage_dirpath):
-        print(f"Error: storage_dirpath must be an absolute path: {segments_compendium.storage_dirpath}")
         return None
 
     if not os.path.exists(segments_compendium.storage_dirpath):
-        print(f"Error: storage_dirpath does not exist: {segments_compendium.storage_dirpath}. No logging to file will be done.")
         return None
 
     temp = LogFilePathCompendium(
-        debug_level_file=segments_compendium.debug_filename,
-        info_level_file=segments_compendium.info_filename,
-        warning_level_file=segments_compendium.warning_filename,
-        error_level_file=segments_compendium.error_filename,
-        critical_level_file=segments_compendium.critical_filename
+        debug_filepath=segments_compendium.debug_filename,
+        info_filepath=segments_compendium.info_filename,
+        warning_filepath=segments_compendium.warning_filename,
+        error_filepath=segments_compendium.error_filename,
+        critical_filepath=segments_compendium.critical_filename
     )
 
     for level, filename in temp.__dict__.items():
         if filename is not None and not filename.endswith(".log"):
-            print(f"Invalid filename for {level}: {filename} (must end with .log). {level} log will be skipped.")
             setattr(temp, level, None)
 
     if all(value is None for value in temp.__dict__.values()):
@@ -169,11 +164,11 @@ def validate_logfile_particulars(segments_compendium: LogFilePathSegmentCompendi
     folder=segments_compendium.storage_dirpath
 
     return LogFilePathCompendium(
-        debug_level_file=os.path.join(folder, temp.debug_level_file) if temp.debug_level_file else None,
-        info_level_file=os.path.join(folder, temp.info_level_file) if temp.info_level_file else None,
-        warning_level_file=os.path.join(folder, temp.warning_level_file) if temp.warning_level_file else None,
-        error_level_file=os.path.join(folder, temp.error_level_file) if temp.error_level_file else None,
-        critical_level_file=os.path.join(folder, temp.critical_level_file) if temp.critical_level_file else None
+        debug_filepath=os.path.join(folder, temp.debug_filepath) if temp.debug_filepath else None,
+        info_filepath=os.path.join(folder, temp.info_filepath) if temp.info_filepath else None,
+        warning_filepath=os.path.join(folder, temp.warning_filepath) if temp.warning_filepath else None,
+        error_filepath=os.path.join(folder, temp.error_filepath) if temp.error_filepath else None,
+        critical_filepath=os.path.join(folder, temp.critical_filepath) if temp.critical_filepath else None
     )
 
 def add_logfile_handlers(logger: logging.Logger) -> None:
@@ -186,13 +181,13 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
         logger (logging.Logger): The logger to which the file handlers will be added.
     """
 
-    log_file_compendium = load_logging_settings()
+    log_file_compendium = read_logfile_settings()
 
     if log_file_compendium is None or not log_file_compendium.storage_dirpath:
         return
 
     try:
-        fpath = validate_logfile_particulars(log_file_compendium)
+        fpath = validate_logfile_settings(log_file_compendium)
 
         if fpath is None:
             return
@@ -216,11 +211,11 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
                 except (OSError, IOError):
                     return None
 
-        add_handler(fpath.debug_level_file, logging.DEBUG, HANDLER_NAME_DEBUG)
-        add_handler(fpath.info_level_file, logging.INFO, HANDLER_NAME_INFO)
-        add_handler(fpath.warning_level_file, logging.WARNING, HANDLER_NAME_WARNING)
-        add_handler(fpath.error_level_file, logging.ERROR, HANDLER_NAME_ERROR)
-        add_handler(fpath.critical_level_file, logging.CRITICAL, HANDLER_NAME_CRITICAL)
+        add_handler(fpath.debug_filepath, logging.DEBUG, HANDLER_NAME_DEBUG)
+        add_handler(fpath.info_filepath, logging.INFO, HANDLER_NAME_INFO)
+        add_handler(fpath.warning_filepath, logging.WARNING, HANDLER_NAME_WARNING)
+        add_handler(fpath.error_filepath, logging.ERROR, HANDLER_NAME_ERROR)
+        add_handler(fpath.critical_filepath, logging.CRITICAL, HANDLER_NAME_CRITICAL)
 
     except Exception:
         return None
@@ -230,7 +225,7 @@ def jgh_configure_logger() -> None:
     This is the only function that should be called by the client code to configure logging.
 
     Configures the root logger by adding console and file handlers based on the logging settings file for test or
-    development or production. seee further detail in doctring for load_logging_settings().
+    development or production. seee further detail in doctring for read_logfile_settings().
     """
 
     try:

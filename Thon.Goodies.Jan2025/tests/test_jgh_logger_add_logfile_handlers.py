@@ -20,19 +20,19 @@ class TestAddLogfileHandlers(unittest.TestCase):
                 handler.close()
             self.logger.handlers.clear()
 
-    @patch("jgh_logger.load_logging_settings")
-    @patch("jgh_logger.validate_logfile_particulars")
+    @patch("jgh_logger.read_logfile_settings")
+    @patch("jgh_logger.validate_logfile_settings")
     def test_add_logfile_handlers_valid_config(self, mock_validate: Mock, mock_load: Mock):
         """
         Test that logfile handlers are added with a valid configuration.
         """
         mock_load.return_value = MagicMock(storage_dirpath=r"C:\Users\johng\holding_pen\Test_scratchpad\LogFiles")
         mock_validate.return_value = MagicMock(
-            debug_level_file="debug.log",
-            info_level_file="info.log",
-            warning_level_file="warning.log",
-            error_level_file="error.log",
-            critical_level_file="critical.log"
+            debug_filepath="debug.log",
+            info_filepath="info.log",
+            warning_filepath="warning.log",
+            error_filepath="error.log",
+            critical_filepath="critical.log"
         )
 
         add_logfile_handlers(self.logger)
@@ -43,7 +43,7 @@ class TestAddLogfileHandlers(unittest.TestCase):
         self.assertIn(HANDLER_NAME_ERROR, handler_names)
         self.assertIn(HANDLER_NAME_CRITICAL, handler_names)
 
-    @patch("jgh_logger.load_logging_settings")
+    @patch("jgh_logger.read_logfile_settings")
     def test_add_logfile_handlers_no_config(self, mock_load: Mock):
         """
         Test that no handlers are added if the configuration is missing.
@@ -52,8 +52,8 @@ class TestAddLogfileHandlers(unittest.TestCase):
         add_logfile_handlers(self.logger)
         self.assertFalse(self.logger.handlers)
 
-    @patch("jgh_logger.load_logging_settings")
-    @patch("jgh_logger.validate_logfile_particulars")
+    @patch("jgh_logger.read_logfile_settings")
+    @patch("jgh_logger.validate_logfile_settings")
     def test_add_logfile_handlers_invalid_path(self, mock_validate: Mock, mock_load: Mock):
         """
         Test that no handlers are added if the log file path is invalid.
@@ -63,8 +63,8 @@ class TestAddLogfileHandlers(unittest.TestCase):
         add_logfile_handlers(self.logger)
         self.assertFalse(self.logger.handlers)
 
-    @patch("jgh_logger.load_logging_settings")
-    @patch("jgh_logger.validate_logfile_particulars")
+    @patch("jgh_logger.read_logfile_settings")
+    @patch("jgh_logger.validate_logfile_settings")
     @patch("jgh_logger.RotatingFileHandler")
     def test_add_logfile_handlers_exception(self, mock_handler: Mock, mock_validate: Mock, mock_load: Mock) -> None:
         """
@@ -72,11 +72,11 @@ class TestAddLogfileHandlers(unittest.TestCase):
         """
         mock_load.return_value = MagicMock(storage_dirpath=r"C:\Users\johng\holding_pen\Test_scratchpad\LogFiles")
         mock_validate.return_value = MagicMock(
-            debug_level_file="debug.log",
-            info_level_file="info.log",
-            warning_level_file="warning.log",
-            error_level_file="error.log",
-            critical_level_file="critical.log"
+            debug_filepath="debug.log",
+            info_filepath="info.log",
+            warning_filepath="warning.log",
+            error_filepath="error.log",
+            critical_filepath="critical.log"
         )
         mock_handler.side_effect = OSError("Test exception")
         add_logfile_handlers(self.logger)
