@@ -48,19 +48,17 @@ class LogFilePathSegmentCompendium:
     critical_filename: str | None = None
 
 def add_console_handler(logger: logging.Logger) -> None:
-    try:
-        log_format_for_console = """
-        %(message)s
-        """
-        # log_format_for_console = """
-        # %(asctime)s
-        #     Level: %(levelname)s
-        #     Module: %(module)s
-        #     Function: %(funcName)s
-        #     Line: %(lineno)d
-        #     Message: %(message)s
-        # """
+    """
+    Do not call this from client code.
 
+    Adds a console handler to the provided logger.
+
+    Args:
+        logger (logging.Logger): The logger to which the console handler will be added.
+    """
+
+    try:
+        log_format_for_console = """%(message)s"""
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(logging.Formatter(log_format_for_console))
@@ -71,6 +69,41 @@ def add_console_handler(logger: logging.Logger) -> None:
         raise RuntimeError(f"Error configuring console logging: {e}")
 
 def load_logging_settings() -> Optional[LogFilePathSegmentCompendium]:
+    """
+    Do not call this from client code.
+
+    Loads logging settings from a JSON configuration file based on the environment.
+
+    This method will look for a settings file in the root directory with the name:
+    settings.{environment}.json
+
+    The three options for {environment} are 'test', 'development', and 'production'.
+
+    The method expects the settings file to have the following format and content:
+    {
+        "logging": {
+            "path": "your/absolute/path/to/log/files",
+            "debug_filename": "yourdebug.log",
+            "info_filename": "yourinfo.log",
+            "warning_filename": "yourwarning.log",
+            "error_filename": "yourerror.log",
+            "critical_filename": "yourcritical.log"
+        }
+    }
+
+    The settings file specifies the directory path where log files will be saved, and the names of one or more desired log files.
+    Log files will be created if they do not exist.
+
+    The `storage_dirpath` must be an absolute path and must already exist. If either of these requirements
+    are not satisfied, the method returns None and as a result, no logging to file will be done.
+
+    Each log filename must end in .log and will be skipped if not.
+
+    Returns:
+        Optional[LogFilePathSegmentCompendium]: A compendium of log file path segments if settings are found and valid, otherwise None.
+    """
+
+
     try:
         environment = os.getenv("APP_ENV", "development")
         root_dir = os.getenv("APP_ROOT", os.path.dirname(__file__))
@@ -88,14 +121,23 @@ def load_logging_settings() -> Optional[LogFilePathSegmentCompendium]:
                 critical_filename=config[CONFIG_LOGGING].get(CRITICAL_FILE_NAME)
             )
         else:
-            print(f"ERROR: '{CONFIG_LOGGING}' section not found in {settings_file}")
             return None
 
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"ERROR: Failed to load loggin configuration. No logging will be done to files. : {e}")
         return None
 
 def validate_logfile_particulars(segments_compendium: LogFilePathSegmentCompendium) -> Optional[LogFilePathCompendium]:
+    """
+    Do not call this from client code.
+
+    Validates and constructs absolute paths for log files based on the provided segments compendium.
+
+    Args:
+        segments_compendium (LogFilePathSegmentCompendium): The segments compendium containing log file path segments.
+
+    Returns:
+        Optional[LogFilePathCompendium]: A compendium of validated log file paths if valid, otherwise None.
+    """
 
     if segments_compendium.storage_dirpath is None:
         return None
@@ -135,6 +177,14 @@ def validate_logfile_particulars(segments_compendium: LogFilePathSegmentCompendi
     )
 
 def add_logfile_handlers(logger: logging.Logger) -> None:
+    """
+    Do not call this from client code.
+
+    Adds file handlers to the provided logger based on the logging settings.
+
+    Args:
+        logger (logging.Logger): The logger to which the file handlers will be added.
+    """
 
     log_file_compendium = load_logging_settings()
 
@@ -163,8 +213,8 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
                     handler.setFormatter(json_format)
                     handler.set_name(handler_name)
                     logger.addHandler(handler)
-                except (OSError, IOError) as e:
-                    print(f"Error: Unable to access log file {file_path}. {handler_name} will not be added. Exception: {e}")
+                except (OSError, IOError):
+                    return None
 
         add_handler(fpath.debug_level_file, logging.DEBUG, HANDLER_NAME_DEBUG)
         add_handler(fpath.info_level_file, logging.INFO, HANDLER_NAME_INFO)
@@ -172,10 +222,17 @@ def add_logfile_handlers(logger: logging.Logger) -> None:
         add_handler(fpath.error_level_file, logging.ERROR, HANDLER_NAME_ERROR)
         add_handler(fpath.critical_level_file, logging.CRITICAL, HANDLER_NAME_CRITICAL)
 
-    except Exception as e:
-        print(f"Error configuring file logging. No logging will be done to files: {e}")
+    except Exception:
+        return None
 
 def jgh_configure_logger() -> None:
+    """
+    This is the only function that should be called by the client code to configure logging.
+
+    Configures the root logger by adding console and file handlers based on the logging settings file for test or
+    development or production. seee further detail in doctring for load_logging_settings().
+    """
+
     try:
         logger = logging.getLogger() # Get the root logger, we will add handlers to this logger
         logger.setLevel(logging.DEBUG) # Set the default logging level to DEBUG, we override this in the handlers

@@ -1,6 +1,6 @@
 {
   "logging": {
-    "path": "/path/to/test/logs",
+    "path": "C:\\Users\\johng\\holding_pen\\Test_scratchpad\\LogFiles",
     "debug_filename": "test_debug.log",
     "info_filename": "test_info.log",
     "warning_filename": "test_warning.log",

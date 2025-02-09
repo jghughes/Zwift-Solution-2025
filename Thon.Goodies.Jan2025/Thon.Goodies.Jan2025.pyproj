@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_logger.py</StartupFile>
+    <StartupFile>tests\test_jgh_logger_validate_logfile_particulars.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -27,9 +27,6 @@
     <Compile Include="src\jgh_listdictionary.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_logger_old.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
@@ -42,12 +39,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_jgh_listdictionary.py" />
+    <Compile Include="tests\test_jgh_logger_add_logfile_handlers.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_jgh_logger_validate_logfile_particulars.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_jgh_read_json_write_csv.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_jgh_serialization_with_dataclasses.py" />
     <Compile Include="tests\test_jgh_serialization_with_pydantic_models.py" />
-    <Compile Include="tests\test_jgh_logger.py">
+    <Compile Include="tests\test_jgh_logger_add_console_handler.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_tool_convert_json_to_csv.py" />
