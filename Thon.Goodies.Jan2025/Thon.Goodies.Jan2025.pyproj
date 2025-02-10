@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_logger_validate_logfile_particulars.py</StartupFile>
+    <StartupFile>tests\test_jgh_locate_appsettings.py</StartupFile>
     <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -27,6 +27,9 @@
     <Compile Include="src\jgh_listdictionary.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\jgh_locate_appsettings.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
@@ -39,6 +42,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_jgh_listdictionary.py" />
+    <Compile Include="tests\test_jgh_locate_appsettings.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_jgh_logger_add_logfile_handlers.py">
       <SubType>Code</SubType>
     </Compile>
@@ -66,10 +72,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="requirements.txt" />
-    <Content Include="settings.development.json" />
-    <Content Include="settings.production.json" />
-    <Content Include="src\settings.test.json" />
-    <Content Include="tests\settings.test.json" />
+    <Content Include="appsettings.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
