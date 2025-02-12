@@ -1,109 +1,109 @@
 from pydantic import BaseModel
 
-class ConsoleLoggingSettings(BaseModel):
-    loglevel: str | None = ""
-    format: str | None = ""
-    simpleformat: str | None = ""
-    verboseformat: str | None = ""
-    jsonformat: str | None = ""
+class ConsoleLoggingSettingsDataTransferObject(BaseModel):
+    loglevel: str | None = None
+    format: str | None = None
+    simpleformat: str | None = None
+    verboseformat: str | None = None
+    jsonformat: str | None = None
 
-class LocalStorageSettings(BaseModel):
-    path: str | None = ""
+class LocalStorageSettingsDataTransferObject(BaseModel):
+    path: str | None = None
 
-class AzureStorageSettings(BaseModel):
-    connectionstring: str | None = ""
-    container: str | None = ""
-    blobname: str | None = ""
+class AzureStorageSettingsDataTransferObject(BaseModel):
+    connectionstring: str | None = None
+    container: str | None = None
+    blobname: str | None = None
 
-class AwsStorageSettings(BaseModel):
-    accesskey: str | None = ""
-    secretkey: str | None = ""
-    bucket: str | None = ""
-    objectname: str | None = ""
+class AwsStorageSettingsDataTransferObject(BaseModel):
+    accesskey: str | None = None
+    secretkey: str | None = None
+    bucket: str | None = None
+    objectname: str | None = None
 
-class OracleStorageSettings(BaseModel):
-    username: str | None = ""
-    password: str | None = ""
-    bucket: str | None = ""
-    objectname: str | None = ""
+class OracleStorageSettingsDataTransferObject(BaseModel):
+    username: str | None = None
+    password: str | None = None
+    bucket: str | None = None
+    objectname: str | None = None
 
-class StorageSettings(BaseModel):
-    type: str | None = ""
-    local: LocalStorageSettings | None = LocalStorageSettings()
-    azure: AzureStorageSettings | None = AzureStorageSettings()
-    aws: AwsStorageSettings | None = AwsStorageSettings()
-    oracle: OracleStorageSettings | None = OracleStorageSettings()
+class StorageSettingsDataTransferObject(BaseModel):
+    type: str | None = None
+    local: LocalStorageSettingsDataTransferObject | None = None
+    azure: AzureStorageSettingsDataTransferObject | None = None
+    aws: AwsStorageSettingsDataTransferObject | None = None
+    oracle: OracleStorageSettingsDataTransferObject | None = None
 
-class RotationSettings(BaseModel):
-    when: str | None = ""
-    interval: int | None = 0
-    backupcount: int | None = 0
+class RotationSettingsDataTransferObject(BaseModel):
+    when: str | None = None
+    interval: int | None = None
+    backupcount: int | None = None
 
-class FileLoggingSettings(BaseModel):
-    loglevel: str | None = ""
-    format: str | None = ""
-    simpleformat: str | None = ""
-    verboseformat: str | None = ""
-    jsonformat: str | None = ""
-    maxfilesize: int | None = 0
-    rotation: RotationSettings | None = RotationSettings()
-    storage: StorageSettings | None = StorageSettings()
+class FileLoggingSettingsDataTransferObject(BaseModel):
+    loglevel: str | None = None
+    format: str | None = None
+    simpleformat: str | None = None
+    verboseformat: str | None = None
+    jsonformat: str | None = None
+    maxfilesize: int | None = None
+    rotation: RotationSettingsDataTransferObject | None = None
+    storage: StorageSettingsDataTransferObject | None = None
 
-class LoggingSettings(BaseModel):
-    console: ConsoleLoggingSettings | None = ConsoleLoggingSettings()
-    file: FileLoggingSettings | None = FileLoggingSettings()
+class LoggingSettingsDataTransferObject(BaseModel):
+    console: ConsoleLoggingSettingsDataTransferObject | None = None
+    file: FileLoggingSettingsDataTransferObject | None = None
 
-class RetryPolicySettings(BaseModel):
-    maxretries: int | None = 0
-    delay: int | None = 0
+class RetryPolicySettingsDataTransferObject(BaseModel):
+    maxretries: int | None = None
+    delay: int | None = None
 
-class DatabaseSettings(BaseModel):
-    provider: str | None = ""
-    connectionstring: str | None = ""
-    timeout: int | None = 0
-    pooling: bool | None = False
-    maxpoolsize: int | None = 0
-    minpoolsize: int | None = 0
-    retrypolicy: RetryPolicySettings | None = RetryPolicySettings()
+class DatabaseSettingsDataTransferObject(BaseModel):
+    provider: str | None = None
+    connectionstring: str | None = None
+    timeout: int | None = None
+    pooling: bool | None = None
+    maxpoolsize: int | None = None
+    minpoolsize: int | None = None
+    retrypolicy: RetryPolicySettingsDataTransferObject | None = None
 
-class DatabasesSettings(BaseModel):
-    primary: DatabaseSettings | None = DatabaseSettings()
-    external: DatabaseSettings | None = DatabaseSettings()
+class DatabasesSettingsDataTransferObject(BaseModel):
+    primary: DatabaseSettingsDataTransferObject | None = None
+    external: DatabaseSettingsDataTransferObject | None = None
 
-class HeadersSettings(BaseModel):
-    Content_Type: str | None = ""
-    Accept: str | None = ""
-    Authorization: str | None = ""
-    User_Agent: str | None = ""
-    Cache_Control: str | None = ""
-    Custom_Header: str | None = ""
-    Accept_Encoding: str | None = ""
+class HeadersSettingsDataTransferObject(BaseModel):
+    Content_Type: str | None = None
+    Accept: str | None = None
+    Authorization: str | None = None
+    User_Agent: str | None = None
+    Cache_Control: str | None = None
+    Custom_Header: str | None = None
+    Accept_Encoding: str | None = None
 
-class EndpointsSettings(BaseModel):
-    get: str | None = ""
-    create: str | None = ""
-    update: str | None = ""
-    delete: str | None = ""
-    getByFilter: str | None = ""
+class EndpointsSettingsDataTransferObject(BaseModel):
+    get: str | None = None
+    create: str | None = None
+    update: str | None = None
+    delete: str | None = None
+    getByFilter: str | None = None
 
-class ApiSettings(BaseModel):
-    baseurl: str | None = ""
-    apikey: str | None = ""
-    version: str | None = ""
-    timeout: int | None = 0
-    retrypolicy: RetryPolicySettings | None = RetryPolicySettings()
-    headers: HeadersSettings | None = HeadersSettings()
-    endpoints: EndpointsSettings | None = EndpointsSettings()
+class ApiSettingsDataTransferObject(BaseModel):
+    baseurl: str | None = None
+    apikey: str | None = None
+    version: str | None = None
+    timeout: int | None = None
+    retrypolicy: RetryPolicySettingsDataTransferObject | None = None
+    headers: HeadersSettingsDataTransferObject | None = None
+    endpoints: EndpointsSettingsDataTransferObject | None = None
 
-class ApisSettings(BaseModel):
-    exampleapi: ApiSettings | None = ApiSettings()
-    anotherapi: ApiSettings | None = ApiSettings()
+class ApisSettingsDataTransferObject(BaseModel):
+    exampleapi: ApiSettingsDataTransferObject | None = None
+    anotherapi: ApiSettingsDataTransferObject | None = None
 
-class EnvironmentSettings(BaseModel):
-    name: str | None = ""
+class EnvironmentSettingsDataTransferObject(BaseModel):
+    name: str | None = None
 
 class AppSettingsDataTransferObject(BaseModel):
-    logging: LoggingSettings | None = LoggingSettings()
-    databases: DatabasesSettings | None = DatabasesSettings()
-    apis: ApisSettings | None = ApisSettings()
-    environment: EnvironmentSettings | None = EnvironmentSettings()
+    logging: LoggingSettingsDataTransferObject | None = None
+    databases: DatabasesSettingsDataTransferObject | None = None
+    apis: ApisSettingsDataTransferObject | None = None
+    environment: EnvironmentSettingsDataTransferObject | None = None

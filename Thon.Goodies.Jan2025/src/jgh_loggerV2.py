@@ -9,7 +9,7 @@ from pythonjsonlogger import jsonlogger
 from pydantic import BaseModel
 import jgh_file_finder
 from jgh_serialization import JghSerialization
-
+from app_settings_dto import *
 
 
 
@@ -55,7 +55,7 @@ class LogFilePathSegmentCompendium:
     error_filename: str | None = None
     critical_filename: str | None = None
 
-def add_console_handler(logger: logging.Logger, appsettings_dto : Optional[AppSettingsDataTransferObject] = None) -> None:
+def add_console_handler(logger: logging.Logger, appsettings_dto : AppSettingsDataTransferObject | None = None) -> None:
     """
     Do not call this from client code.
 
@@ -179,7 +179,7 @@ def validate_logfile_settings(segments_compendium: LogFilePathSegmentCompendium)
         critical_filepath=os.path.join(folder, temp.critical_filepath) if temp.critical_filepath else None
     )
 
-def add_logfile_handlers(logger: logging.Logger, appsettings_dto : Optional[AppSettingsDataTransferObject] = None) -> None:
+def add_logfile_handlers(logger: logging.Logger, appsettings_dto : AppSettingsDataTransferObject | None = None) -> None:
     """
     Do not call this from client code.
 
@@ -243,6 +243,18 @@ def jgh_configure_logger(appsettings_filename: Optional[str] = None) -> None:
         if logger.hasHandlers():
             logger.handlers.clear()
 
+        try:
+            log_format_for_console = """%(message)s"""
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.DEBUG)
+            console_handler.setFormatter(logging.Formatter(log_format_for_console))
+            console_handler.set_name(HANDLER_NAME_CONSOLE)
+            logger.addHandler(console_handler)
+
+        except Exception as e:
+            raise RuntimeError(f"Error configuring console logging: {e}")
+
+
         settings_path = jgh_file_finder.find_path_to_file(appsettings_filename)
 
 
@@ -258,7 +270,7 @@ def jgh_configure_logger(appsettings_filename: Optional[str] = None) -> None:
 
 
 
-        add_console_handler(logger, appsettings_dto)
+        # add_console_handler(logger, appsettings_dto)
         add_logfile_handlers(logger, appsettings_dto)
 
     except Exception as e:
