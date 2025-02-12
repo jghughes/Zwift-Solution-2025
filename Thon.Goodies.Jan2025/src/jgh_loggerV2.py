@@ -37,8 +37,6 @@ WARNING_FILE_NAME = "warning_filename"
 ERROR_FILE_NAME = "error_filename"
 CRITICAL_FILE_NAME = "critical_filename"
 
-class AppSettingsDataTransferObject(BaseModel):
-    pass
 
 @dataclass
 class LogFilePathCompendium:
