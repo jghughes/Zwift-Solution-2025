@@ -1,14 +1,13 @@
 from pydantic import BaseModel
 
-class ConsoleLoggingSettingsDataTransferObject(BaseModel):
+class ConsoleHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
-    format: str | None = None
-    simpleformat: str | None = None
-    verboseformat: str | None = None
-    jsonformat: str | None = None
+    formatstring: str | None = None
+    handlername: str | None = None
 
 class LocalStorageSettingsDataTransferObject(BaseModel):
-    path: str | None = None
+    dirpath: str | None = None
+    filename: str | None = None
 
 class AzureStorageSettingsDataTransferObject(BaseModel):
     connectionstring: str | None = None
@@ -28,7 +27,6 @@ class OracleStorageSettingsDataTransferObject(BaseModel):
     objectname: str | None = None
 
 class StorageSettingsDataTransferObject(BaseModel):
-    type: str | None = None
     local: LocalStorageSettingsDataTransferObject | None = None
     azure: AzureStorageSettingsDataTransferObject | None = None
     aws: AwsStorageSettingsDataTransferObject | None = None
@@ -39,19 +37,17 @@ class RotationSettingsDataTransferObject(BaseModel):
     interval: int | None = None
     backupcount: int | None = None
 
-class FileLoggingSettingsDataTransferObject(BaseModel):
+class FileHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
-    format: str | None = None
-    simpleformat: str | None = None
-    verboseformat: str | None = None
-    jsonformat: str | None = None
+    formatstring: str | None = None
+    handlername: str | None = None
     maxfilesize: int | None = None
     rotation: RotationSettingsDataTransferObject | None = None
     storage: StorageSettingsDataTransferObject | None = None
 
-class LoggingSettingsDataTransferObject(BaseModel):
-    console: ConsoleLoggingSettingsDataTransferObject | None = None
-    file: FileLoggingSettingsDataTransferObject | None = None
+class LoggingHandlersDataTransferObject(BaseModel):
+    console: ConsoleHandlerDataTransferObject | None = None
+    file: FileHandlerDataTransferObject | None = None
 
 class RetryPolicySettingsDataTransferObject(BaseModel):
     maxretries: int | None = None
@@ -68,7 +64,7 @@ class DatabaseSettingsDataTransferObject(BaseModel):
 
 class DatabasesSettingsDataTransferObject(BaseModel):
     primary: DatabaseSettingsDataTransferObject | None = None
-    external: DatabaseSettingsDataTransferObject | None = None
+    secondary: DatabaseSettingsDataTransferObject | None = None
 
 class HeadersSettingsDataTransferObject(BaseModel):
     Content_Type: str | None = None
@@ -79,7 +75,7 @@ class HeadersSettingsDataTransferObject(BaseModel):
     Custom_Header: str | None = None
     Accept_Encoding: str | None = None
 
-class EndpointsSettingsDataTransferObject(BaseModel):
+class ApiEndpointsDataTransferObject(BaseModel):
     get: str | None = None
     create: str | None = None
     update: str | None = None
@@ -93,17 +89,17 @@ class ApiSettingsDataTransferObject(BaseModel):
     timeout: int | None = None
     retrypolicy: RetryPolicySettingsDataTransferObject | None = None
     headers: HeadersSettingsDataTransferObject | None = None
-    endpoints: EndpointsSettingsDataTransferObject | None = None
+    endpoints: ApiEndpointsDataTransferObject | None = None
 
 class ApisSettingsDataTransferObject(BaseModel):
-    exampleapi: ApiSettingsDataTransferObject | None = None
-    anotherapi: ApiSettingsDataTransferObject | None = None
+    primary: ApiSettingsDataTransferObject | None = None
+    secondary: ApiSettingsDataTransferObject | None = None
 
 class EnvironmentSettingsDataTransferObject(BaseModel):
     name: str | None = None
 
 class AppSettingsDataTransferObject(BaseModel):
-    logging: LoggingSettingsDataTransferObject | None = None
+    logging: LoggingHandlersDataTransferObject | None = None
     databases: DatabasesSettingsDataTransferObject | None = None
     apis: ApisSettingsDataTransferObject | None = None
     environment: EnvironmentSettingsDataTransferObject | None = None

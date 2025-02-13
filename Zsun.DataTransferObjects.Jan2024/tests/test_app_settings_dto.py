@@ -1,4 +1,3 @@
-
 import json
 import unittest
 from pydantic import ValidationError
@@ -10,18 +9,14 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         {
           "logging": {
             "console": {
-              "loglevel": "information",
-              "format": "simple",
-              "simpleformat": "{timestamp} [{level}] {message}",
-              "verboseformat": "{timestamp} [{level}] {message} {exception}",
-              "jsonformat": "{ \\"timestamp\\": \\"{timestamp}\\", \\"level\\": \\"{level}\\", \\"message\\": \\"{message}\\", \\"exception\\": \\"{exception}\\" }"
+              "loglevel": "debug",
+              "formatstring": "%(message)s",
+              "handlername": "consoleHandler"
             },
             "file": {
               "loglevel": "information",
-              "format": "json",
-              "simpleformat": "{timestamp} [{level}] {message}",
-              "verboseformat": "{timestamp} [{level}] {message} {exception}",
-              "jsonformat": "{ \\"timestamp\\": \\"{timestamp}\\", \\"level\\": \\"{level}\\", \\"message\\": \\"{message}\\", \\"exception\\": \\"{exception}\\" }",
+              "formatstring": "{ \\"timestamp\\": \\"{timestamp}\\", \\"level\\": \\"{level}\\", \\"message\\": \\"{message}\\", \\"exception\\": \\"{exception}\\" }",
+              "handlername": "fileHandler",
               "maxfilesize": 10485760,
               "rotation": {
                 "when": "midnight",
@@ -29,9 +24,9 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
                 "backupcount": 7
               },
               "storage": {
-                "type": "local",
                 "local": {
-                  "path": "logs/app.log"
+                  "dirpath": "logs",
+                  "filename": "app.log"
                 },
                 "azure": {
                   "connectionstring": "your-azure-connection-string",
@@ -66,7 +61,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
                 "delay": 2000
               }
             },
-            "external": {
+            "secondary": {
               "provider": "SQLServer",
               "connectionstring": "Server=thirdPartyServerAddress;Database=thirdPartyDataBase;User Id=thirdPartyUsername;Password=thirdPartyPassword;",
               "timeout": 30,
@@ -80,7 +75,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
             }
           },
           "apis": {
-            "exampleapi": {
+            "primary": {
               "baseurl": "https://api.example.com",
               "apikey": "your-api-key-here",
               "version": "v1",
@@ -106,8 +101,8 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
                 "getByFilter": "/users?filter={filter}"
               }
             },
-            "anotherapi": {
-              "baseurl": "https://anotherapi.example.com",
+            "secondary": {
+              "baseurl": "https://secondaryapi.example.com",
               "apikey": "another-api-key-here",
               "version": "v2",
               "timeout": 30,
@@ -125,12 +120,11 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
                 "Accept-Encoding": "gzip, deflate"
               },
               "endpoints": {
-                "get": "/products/{id}",
+                "get": "/products?id={id}",
                 "create": "/products",
-                "update": "/products/{id}",
-                "delete": "/products/{id}",
-                "getByFilter": "/products?filter={filter}"
-              }
+                "update": "/products?id={id}",
+                "delete": "/products?id={id}",
+                "getByFilter": "/products?filter={filter}"              }
             }
           },
           "environment": {
@@ -148,13 +142,18 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         data = json.loads(self.json_data)
         app_settings = AppSettingsDataTransferObject(**data)
         self.assertIsInstance(app_settings, AppSettingsDataTransferObject)
+        
         # Additional assertions
-        self.assertEqual(app_settings.logging.console.loglevel, "information")
-        self.assertEqual(app_settings.logging.console.format, "simple")
+        self.assertEqual(app_settings.logging.console.loglevel, "debug")
+        self.assertEqual(app_settings.logging.console.formatstring, "%(message)s")
+        self.assertEqual(app_settings.logging.console.handlername, "consoleHandler")
+        self.assertEqual(app_settings.logging.file.loglevel, "information")
+        self.assertEqual(app_settings.logging.file.formatstring, "{ \"timestamp\": \"{timestamp}\", \"level\": \"{level}\", \"message\": \"{message}\", \"exception\": \"{exception}\" }")
+        self.assertEqual(app_settings.logging.file.handlername, "fileHandler")
         self.assertEqual(app_settings.logging.file.maxfilesize, 10485760)
         self.assertEqual(app_settings.logging.file.rotation.when, "midnight")
-        self.assertEqual(app_settings.logging.file.storage.type, "local")
-
+        self.assertEqual(app_settings.logging.file.rotation.interval, 1)
+        self.assertEqual(app_settings.logging.file.rotation.backupcount, 7)
 
     def test_app_settings_dto_with_pydantic_validate(self):
         """
@@ -166,13 +165,18 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         try:
             app_settings = AppSettingsDataTransferObject.model_validate_json(self.json_data)
             self.assertIsInstance(app_settings, AppSettingsDataTransferObject)
+            
             # Additional assertions
-            self.assertEqual(app_settings.logging.console.loglevel, "information")
-            self.assertEqual(app_settings.logging.console.format, "simple")
+            self.assertEqual(app_settings.logging.console.loglevel, "debug")
+            self.assertEqual(app_settings.logging.console.formatstring, "%(message)s")
+            self.assertEqual(app_settings.logging.console.handlername, "consoleHandler")
+            self.assertEqual(app_settings.logging.file.loglevel, "information")
+            self.assertEqual(app_settings.logging.file.formatstring, "{ \"timestamp\": \"{timestamp}\", \"level\": \"{level}\", \"message\": \"{message}\", \"exception\": \"{exception}\" }")
+            self.assertEqual(app_settings.logging.file.handlername, "fileHandler")
             self.assertEqual(app_settings.logging.file.maxfilesize, 10485760)
             self.assertEqual(app_settings.logging.file.rotation.when, "midnight")
-            self.assertEqual(app_settings.logging.file.storage.type, "local")
-
+            self.assertEqual(app_settings.logging.file.rotation.interval, 1)
+            self.assertEqual(app_settings.logging.file.rotation.backupcount, 7)
         except ValidationError as e:
             self.fail(f"Validation failed: {e}")
 

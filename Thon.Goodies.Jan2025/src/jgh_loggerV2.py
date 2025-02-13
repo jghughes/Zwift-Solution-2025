@@ -244,10 +244,9 @@ def jgh_configure_logger(appsettings_filename: Optional[str] = None) -> None:
             logger.handlers.clear()
 
         try:
-            log_format_for_console = """%(message)s"""
             console_handler = logging.StreamHandler()
             console_handler.setLevel(logging.DEBUG)
-            console_handler.setFormatter(logging.Formatter(log_format_for_console))
+            console_handler.setFormatter(logging.Formatter("""%(message)s"""))
             console_handler.set_name(HANDLER_NAME_CONSOLE)
             logger.addHandler(console_handler)
 
@@ -257,18 +256,18 @@ def jgh_configure_logger(appsettings_filename: Optional[str] = None) -> None:
 
         settings_path = jgh_file_finder.find_path_to_file(appsettings_filename)
 
+        if not settings_path:
+            return
 
         try:
-            if settings_path:
-                with open(settings_path, "r") as file:
-                    input_json = file.read()
-                appsettings_dto = JghSerialization.validate(input_json, AppSettingsDataTransferObject)
-            else:
-                appsettings_dto = None
+            with open(settings_path, "r") as file:
+                input_json = file.read()
+            appsettings_dto = JghSerialization.validate(input_json, AppSettingsDataTransferObject)
         except Exception:
             appsettings_dto = None
 
-
+        if not appsettings_dto:
+            return
 
         # add_console_handler(logger, appsettings_dto)
         add_logfile_handlers(logger, appsettings_dto)
