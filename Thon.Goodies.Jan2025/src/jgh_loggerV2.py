@@ -11,7 +11,14 @@ import jgh_file_finder
 from jgh_serialization import JghSerialization
 from app_settings_dto import *
 
-
+    # "formats": {
+    #   "message": "%(message)s",
+    #   "minimal": "%(levelname)s: %(message)s",
+    #   "standard": "%(asctime)s - %(levelname)s - %(message)s - %(exc_info)s",
+    #   "csv": "%(asctime)s, %(levelname)s, %(module)s, %(funcName)s, %(message)s, %(exc_info)s",
+    #   "json": "{ \\"timestamp\\": \\"%(asctime)s\\", \\"level\\": \\"%(levelname)s\\", \\"module\\": \\"%(module)s\\", \\"function\\": \\"%(funcName)s\\", \\"message\\": \\"%(message)s\\", \\"exception\\": \\"%(exc_info)s\\" }",
+    #   "jsonlong": "{ \\"timestamp\\": \\"%(asctime)s\\", \\"level\\": \\"%(levelname)s\\", \\"process\\": \\"%(process)d\\", \\"thread\\": \\"%(thread)d\\", \\"filename\\": \\"%(filename)s\\", \\"module\\": \\"%(module)s\\", \\"function\\": \\"%(funcName)s\\", \\"message\\": \\"%(message)s\\", \\"exception\\": \\"%(exc_info)s\\" }"
+    # },
 
 # Constants for log levels
 LOG_LEVEL_DEBUG = "debug"

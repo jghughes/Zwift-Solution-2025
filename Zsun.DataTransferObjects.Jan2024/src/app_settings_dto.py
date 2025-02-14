@@ -1,13 +1,85 @@
+from dataclasses import dataclass
 from pydantic import BaseModel
+import logging
+import os
+
+@dataclass(frozen=True)
+class LoggingMessageFormat:
+    message: str = "%(message)s"
+    standard: str = "%(asctime)s - %(levelname)s - %(message)s - %(exc_info)s"
+    verbose: str = "%(asctime)s - %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
+   
+    @classmethod
+    def get_messageformat(cls, format_name: str | None) -> str:
+        match format_name:
+            case "standard":
+                return cls.standard
+            case "verbose":
+                return cls.verbose
+            case _:
+                return cls.message
+
+@dataclass(frozen=True)
+class LogLevel:
+    debug: int = logging.DEBUG
+    info: int = logging.INFO
+    warning: int = logging.WARNING
+    error: int = logging.ERROR
+    critical: int = logging.CRITICAL
+
+    @classmethod
+    def get_level(cls, level_name: str | None) -> int:
+        if level_name is not None:
+            level_name = level_name.strip().lower()
+        match level_name:
+            case "debug":
+                return cls.debug
+            case "info":
+                return cls.info
+            case "warning":
+                return cls.warning
+            case "error":
+                return cls.error
+            case "critical":
+                return cls.critical
+            case _:
+                return cls.info  # Default log level
 
 class ConsoleHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
-    formatstring: str | None = None
-    handlername: str | None = None
+    messageformat: str | None = None
 
 class LocalStorageSettingsDataTransferObject(BaseModel):
-    dirpath: str | None = None
-    filename: str | None = None
+    relativedirpath: str | None = None
+
+    FILENAME: str = "logger.log"
+
+    @classmethod
+    def dirpathexists(cls) -> bool:
+        if cls.relativedirpath is None:
+            return False
+        try:
+            # Check if relativedirpath is a valid relative path
+            if not os.path.isabs(cls.relativedirpath):
+                abs_dirpath = os.path.abspath(cls.relativedirpath)
+                if not os.path.exists(abs_dirpath):
+                    return False
+            else:
+                return False
+        except (OSError, IOError):
+            return False
+
+        return True
+
+    @classmethod
+    def get_absolutefilepath(cls) -> str | None:
+        if not cls.dirpathexists():
+            return None
+        if not cls.relativedirpath:
+            return None
+        abs_dirpath: str = os.path.abspath(cls.relativedirpath)
+        absolute_logfile_path = os.path.join(abs_dirpath, cls.FILENAME)
+        return absolute_logfile_path
 
 class AzureStorageSettingsDataTransferObject(BaseModel):
     connectionstring: str | None = None
@@ -32,18 +104,9 @@ class StorageSettingsDataTransferObject(BaseModel):
     aws: AwsStorageSettingsDataTransferObject | None = None
     oracle: OracleStorageSettingsDataTransferObject | None = None
 
-class RotationSettingsDataTransferObject(BaseModel):
-    when: str | None = None
-    interval: int | None = None
-    backupcount: int | None = None
-
 class FileHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
-    formatstring: str | None = None
-    handlername: str | None = None
-    maxfilesize: int | None = None
-    rotation: RotationSettingsDataTransferObject | None = None
-    storage: StorageSettingsDataTransferObject | None = None
+    messageformat: str | None = None
 
 class LoggingHandlersDataTransferObject(BaseModel):
     console: ConsoleHandlerDataTransferObject | None = None
@@ -100,6 +163,8 @@ class EnvironmentSettingsDataTransferObject(BaseModel):
 
 class AppSettingsDataTransferObject(BaseModel):
     logging: LoggingHandlersDataTransferObject | None = None
+    storage: StorageSettingsDataTransferObject | None = None
     databases: DatabasesSettingsDataTransferObject | None = None
     apis: ApisSettingsDataTransferObject | None = None
     environment: EnvironmentSettingsDataTransferObject | None = None
+
