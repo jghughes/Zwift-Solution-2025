@@ -7,8 +7,8 @@ import json
 @dataclass(frozen=True)
 class LoggingMessageFormat:
     message: str = "%(message)s"
-    standard: str = "%(asctime)s - %(levelname)s - %(message)s - %(exc_info)s"
-    verbose: str = "%(asctime)s - %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
+    standard: str = "%(asctime)s %(levelname)s - %(message)s - %(exc_info)s"
+    verbose: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
    
     @classmethod
     def get_messageformat(cls, format_name: str | None) -> str:
