@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 import logging
 import os
-import json
 
 @dataclass(frozen=True)
 class LoggingMessageFormat:

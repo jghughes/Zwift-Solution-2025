@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_loggerV3.py</StartupFile>
+    <StartupFile>src\jgh_logger.py</StartupFile>
     <SearchPath>tests;src;..\Zsun.DataTypes.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -33,12 +33,6 @@
     <Compile Include="src\jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_loggerV2.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\jgh_loggerV3.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
       <SubType>Code</SubType>
@@ -49,6 +43,9 @@
     </Compile>
     <Compile Include="tests\test_jgh_listdictionary.py" />
     <Compile Include="tests\test_jgh_file_finder.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_jgh_logger.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_jgh_logger_add_logfile_handlers.py">
