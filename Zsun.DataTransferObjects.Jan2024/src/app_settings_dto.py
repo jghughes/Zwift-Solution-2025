@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 import logging
 import os
+import json
 
 @dataclass(frozen=True)
 class LoggingMessageFormat:
@@ -52,8 +53,6 @@ class ConsoleHandlerDataTransferObject(BaseModel):
 class LocalStorageSettingsDataTransferObject(BaseModel):
     relativedirpath: str | None = None
 
-    FILENAME: str = "logger.log"
-
     @classmethod
     def dirpathexists(cls) -> bool:
         if cls.relativedirpath is None:
@@ -78,7 +77,7 @@ class LocalStorageSettingsDataTransferObject(BaseModel):
         if not cls.relativedirpath:
             return None
         abs_dirpath: str = os.path.abspath(cls.relativedirpath)
-        absolute_logfile_path = os.path.join(abs_dirpath, cls.FILENAME)
+        absolute_logfile_path = os.path.join(abs_dirpath, "logger.log")
         return absolute_logfile_path
 
 class AzureStorageSettingsDataTransferObject(BaseModel):
@@ -104,13 +103,13 @@ class StorageSettingsDataTransferObject(BaseModel):
     aws: AwsStorageSettingsDataTransferObject | None = None
     oracle: OracleStorageSettingsDataTransferObject | None = None
 
-class FileHandlerDataTransferObject(BaseModel):
+class LogFileHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
     messageformat: str | None = None
 
 class LoggingHandlersDataTransferObject(BaseModel):
     console: ConsoleHandlerDataTransferObject | None = None
-    file: FileHandlerDataTransferObject | None = None
+    file: LogFileHandlerDataTransferObject | None = None
 
 class RetryPolicySettingsDataTransferObject(BaseModel):
     maxretries: int | None = None
@@ -162,9 +161,145 @@ class EnvironmentSettingsDataTransferObject(BaseModel):
     name: str | None = None
 
 class AppSettingsDataTransferObject(BaseModel):
+    environment: EnvironmentSettingsDataTransferObject | None = None
     logging: LoggingHandlersDataTransferObject | None = None
     storage: StorageSettingsDataTransferObject | None = None
     databases: DatabasesSettingsDataTransferObject | None = None
     apis: ApisSettingsDataTransferObject | None = None
-    environment: EnvironmentSettingsDataTransferObject | None = None
+
+if __name__ == "__main__":
+    # Create an instance of AppSettingsDataTransferObject with realistic test data
+    app_settings = AppSettingsDataTransferObject(
+        environment=EnvironmentSettingsDataTransferObject(name="development"),
+        logging=LoggingHandlersDataTransferObject(
+            console=ConsoleHandlerDataTransferObject(
+                loglevel="debug",
+                messageformat="standard"
+            ),
+            file=LogFileHandlerDataTransferObject(
+                loglevel="info",
+                messageformat="verbose"
+            )
+        ),
+        storage=StorageSettingsDataTransferObject(
+            local=LocalStorageSettingsDataTransferObject(
+                relativedirpath="logs"
+            ),
+            azure=AzureStorageSettingsDataTransferObject(
+                connectionstring="your-azure-connection-string",
+                container="your-container-name",
+                blobname="your-blob-name"
+            ),
+            aws=AwsStorageSettingsDataTransferObject(
+                accesskey="your-aws-access-key",
+                secretkey="your-aws-secret-key",
+                bucket="your-bucket-name",
+                objectname="your-object-name"
+            ),
+            oracle=OracleStorageSettingsDataTransferObject(
+                username="your-oracle-username",
+                password="your-oracle-password",
+                bucket="your-bucket-name",
+                objectname="your-object-name"
+            )
+        ),
+        databases=DatabasesSettingsDataTransferObject(
+            primary=DatabaseSettingsDataTransferObject(
+                provider="SQLServer",
+                connectionstring="Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;",
+                timeout=30,
+                pooling=True,
+                maxpoolsize=100,
+                minpoolsize=10,
+                retrypolicy=RetryPolicySettingsDataTransferObject(
+                    maxretries=3,
+                    delay=2000
+                )
+            ),
+            secondary=DatabaseSettingsDataTransferObject(
+                provider="SQLServer",
+                connectionstring="Server=thirdPartyServerAddress;Database=thirdPartyDataBase;User Id=thirdPartyUsername;Password=thirdPartyPassword;",
+                timeout=30,
+                pooling=True,
+                maxpoolsize=100,
+                minpoolsize=10,
+                retrypolicy=RetryPolicySettingsDataTransferObject(
+                    maxretries=3,
+                    delay=2000
+                )
+            )
+        ),
+        apis=ApisSettingsDataTransferObject(
+            primary=ApiSettingsDataTransferObject(
+                baseurl="https://api.example.com",
+                apikey="your-api-key-here",
+                version="v1",
+                timeout=30,
+                retrypolicy=RetryPolicySettingsDataTransferObject(
+                    maxretries=3,
+                    delay=2000
+                ),
+                headers=HeadersSettingsDataTransferObject(
+                    Content_Type="application/json",
+                    Accept="application/json",
+                    Authorization="Bearer your-token-here",
+                    User_Agent="YourAppName/1.0",
+                    Cache_Control="no-cache",
+                    Custom_Header="custom-value",
+                    Accept_Encoding="gzip, deflate"
+                ),
+                endpoints=ApiEndpointsDataTransferObject(
+                    get="/users/{id}",
+                    create="/users",
+                    update="/users/{id}",
+                    delete="/users/{id}",
+                    getByFilter="/users?filter={filter}"
+                )
+            ),
+            secondary=ApiSettingsDataTransferObject(
+                baseurl="https://secondaryapi.example.com",
+                apikey="another-api-key-here",
+                version="v2",
+                timeout=30,
+                retrypolicy=RetryPolicySettingsDataTransferObject(
+                    maxretries=3,
+                    delay=2000
+                ),
+                headers=HeadersSettingsDataTransferObject(
+                    Content_Type="application/json",
+                    Accept="application/json",
+                    Authorization="Bearer another-token-here",
+                    User_Agent="YourAppName/1.0",
+                    Cache_Control="no-cache",
+                    Custom_Header="another-custom-value",
+                    Accept_Encoding="gzip, deflate"
+                ),
+                endpoints=ApiEndpointsDataTransferObject(
+                    get="/products?id={id}",
+                    create="/products",
+                    update="/products?id={id}",
+                    delete="/products?id={id}",
+                    getByFilter="/products?filter={filter}"
+                )
+            )
+        )
+    )
+
+    # Serialize the instance to JSON
+    app_settings_json = app_settings.model_dump_json(indent=4)
+    print(app_settings_json)
+
+        # Write some assertions
+    assert app_settings.environment.name == "development"
+    assert app_settings.logging.console.loglevel == "debug"
+    assert app_settings.logging.console.messageformat == "standard"
+    assert app_settings.logging.file.loglevel == "info"
+    assert app_settings.logging.file.messageformat == "verbose"
+    assert app_settings.storage.local.relativedirpath == "logs"
+    assert app_settings.storage.azure.connectionstring == "your-azure-connection-string"
+    assert app_settings.storage.aws.accesskey == "your-aws-access-key"
+    assert app_settings.storage.oracle.username == "your-oracle-username"
+
+    # Deserialize the JSON back to an instance of AppSettingsDataTransferObject
+    app_settings = AppSettingsDataTransferObject.model_validate_json(app_settings_json)
 
