@@ -1,3 +1,5 @@
+
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 from typing import Optional
@@ -7,22 +9,50 @@ from jgh_serialization import JghSerialization
 
 def configure_logger(appsettings_filename: Optional[str] = None)-> None:
     """
-    Configures the root logger based on the provided appsettings JSON file.
+    Configures the root logger based on the provided appsettings JSON filename.
 
     If no filename is provided, the logger will be configured with default settings.
     If the filename is provided, the function will attempt to read the configuration
     from the specified file and set up the logger accordingly.
 
-    The function searches for the configuration file starting from the current folder
-    and then works its way up the directory tree until it finds the file or reaches
+    configure_logger searches for the configuration file starting from the current folder
+    and working its way up the directory tree until it finds the file or reaches
     the root directory.
 
-    If the file is not found, the logger will be configured with default settings.
-    If the file is found but is invalid or deficient in any way, the logger will also
-    be configured with default settings.
+    If the file is not found, the Python system logger will be configured with its
+    standard defaults, meaning that it will print to the console. If the file 
+    is found but is invalid or deficient in any way, the Python logger will 
+    also be configured with default settings.
+
+    The logger will be configured with the following handlers if the appsettings file 
+    is valid and includes the necessary logging section and contents.
+
+    - Console handler with the specified log level and message format.
+    - File handler with the specified log level and message format, and the log file
+        will be created automatically in the root folder of the application
+        with a filename of "logger.log". The log file will be rotated when it reaches
+        2MB in size, and up to 3 backup files will be kept.
+
+    Included in the JSON settings file, the following logging section is expected:
+        "logging": {
+            "console": {
+                "loglevel": "debug",
+                "messageformat": "message"
+            },
+            "file": {
+                "loglevel": "info",
+                "messageformat": "verbose"
+            }
+        }
+    The log level can be one of the following: "debug", "info", "warning", "error", "critical".
+    The message format can be one of the following: "message, "standard", "verbose".
+
 
     Args:
-        appsettings_filename (Optional[str]): The short name of the JSON file.
+        appsettings_filename (Optional[str]): The short name of the JSON file
+            containing the settings for the app including logging config.
+            Typically, this file is named "appsettings.json" and found
+            in the root folder of the application.
             If None, the logger will be configured with default settings.
 
     Raises:
@@ -82,7 +112,9 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
             logger.addHandler(handler01)
 
         if mustaddfilehandler:
-            handler02 = RotatingFileHandler(appsettings.storage.local.get_absolutefilepath(), maxBytes=1 * 1024 * 1024, backupCount=5)
+            root_folder = os.path.abspath(os.sep)
+            log_file_path = os.path.join(root_folder, 'logger.log')
+            handler02 = RotatingFileHandler(log_file_path, maxBytes=2 * 1024 * 1024, backupCount=3)
             handler02.setLevel(LogLevel.get_level(appsettings.logging.file.loglevel))
             handler02.setFormatter(logging.Formatter(LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat)))
             handler02.set_name("logfile_handler")
