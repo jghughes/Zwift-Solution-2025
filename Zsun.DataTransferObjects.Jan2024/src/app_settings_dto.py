@@ -10,14 +10,16 @@ class LoggingMessageFormat:
     verbose: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
    
     @classmethod
-    def get_messageformat(cls, format_name: str | None) -> str:
+    def get_messageformat(cls, format_name: str | None) -> str | None:
         match format_name:
+            case "message":
+                return cls.message
             case "standard":
                 return cls.standard
             case "verbose":
                 return cls.verbose
             case _:
-                return cls.message
+                return None
 
 @dataclass(frozen=True)
 class LogLevel:
@@ -26,6 +28,7 @@ class LogLevel:
     warning: int = logging.WARNING
     error: int = logging.ERROR
     critical: int = logging.CRITICAL
+    notset: int = logging.NOTSET
 
     @classmethod
     def get_level(cls, level_name: str | None) -> int:
@@ -43,7 +46,7 @@ class LogLevel:
             case "critical":
                 return cls.critical
             case _:
-                return cls.info  # Default log level
+                return cls.notset
 
 class ConsoleHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None

@@ -7,7 +7,7 @@ from app_settings_dto import AppSettingsDataTransferObject, LoggingMessageFormat
 from jgh_file_finder import find_path_to_file
 from jgh_serialization import JghSerialization
 
-def configure_logger(appsettings_filename: Optional[str] = None)-> None:
+def jgh_configure_custom_logger(customLogger: logging.Logger, appsettings_filename: Optional[str] = None)-> None:
     """
     Configures the root logger based on the provided appsettings JSON filename.
 
@@ -15,7 +15,7 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
     If the filename is provided, the function will attempt to read the configuration
     from the specified file and set up the logger accordingly.
 
-    configure_logger searches for the configuration file starting from the current folder
+    jgh_configure_custom_logger searches for the configuration file starting from the current folder
     and working its way up the directory tree until it finds the file or reaches
     the root directory.
 
@@ -47,7 +47,6 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
     The log level can be one of the following: "debug", "info", "warning", "error", "critical".
     The message format can be one of the following: "message, "standard", "verbose".
 
-
     Args:
         appsettings_filename (Optional[str]): The short name of the JSON file
             containing the settings for the app including logging config.
@@ -58,11 +57,8 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
     Raises:
         RuntimeError: If there is an error during the configuration process.
     """
+ 
     try:
-        # configure root logger as the default
-        logger = logging.getLogger() 
-        logger.setLevel(logging.DEBUG)
-
         if appsettings_filename is None:
             return
 
@@ -76,49 +72,54 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
                 input_json = file.read()
             if not input_json:
                 return None
-
-            appsettings = JghSerialization.validate(input_json, AppSettingsDataTransferObject)
-            if not appsettings:
-                return
-
         except Exception:
             return None
 
-        mustaddconsolehandler = (appsettings.logging 
-                                 and appsettings.logging.console 
-                                 and appsettings.logging.console.loglevel 
-                                 and appsettings.logging.console.messageformat)
+        try:
+            JghSerialization.validate(input_json, AppSettingsDataTransferObject)
+        except Exception as e:
+            raise RuntimeError(f"Error validating appsettings file. {e}")
+        
+        appsettings  = JghSerialization.validate(input_json, AppSettingsDataTransferObject)
 
-        mustaddfilehandler = (appsettings.logging 
-                              and appsettings.logging.file 
-                              and appsettings.logging.file.loglevel
-                              and appsettings.logging.file.messageformat
-                              and appsettings.storage 
-                              and appsettings.storage.local 
-                              and appsettings.storage.local.dirpathexists() 
-                              and appsettings.storage.local.get_absolutefilepath())
+        mustaddconsolehandler: bool = not (appsettings.logging is None
+                                           or appsettings.logging.console is None
+                                           or LogLevel.get_level(appsettings.logging.console.loglevel) is logging.NOTSET
+                                           or appsettings.logging.console.messageformat is None)
+
+        mustaddfilehandler: bool = not (appsettings.logging is None
+                                        or appsettings.logging.file is None
+                                        or LogLevel.get_level(appsettings.logging.file.loglevel) is logging.NOTSET
+                                        or LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat) is None)
 
         if not mustaddconsolehandler and not mustaddfilehandler:
             return None;
 
-        if logger.hasHandlers():
-            logger.handlers.clear()
+        if customLogger.hasHandlers():
+            for handler in customLogger.handlers:
+                handler.close()
+            customLogger.handlers.clear()
+
 
         if mustaddconsolehandler:
+            severity = LogLevel.get_level(appsettings.logging.console.loglevel)
+            formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.console.messageformat)
             handler01 = logging.StreamHandler()
-            handler01.setLevel(LogLevel.get_level(appsettings.logging.console.loglevel))
-            handler01.setFormatter(logging.Formatter(LoggingMessageFormat.get_messageformat(appsettings.logging.console.messageformat)))
-            handler01.set_name("console_handler")
-            logger.addHandler(handler01)
+            handler01.setLevel(severity)
+            handler01.setFormatter(formatstring)
+            handler01.set_name("custom_console_handler")
+            customLogger.addHandler(handler01)
 
         if mustaddfilehandler:
+            severity = LogLevel.get_level(appsettings.logging.file.loglevel)
+            formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat)
             root_folder = os.path.abspath(os.sep)
             log_file_path = os.path.join(root_folder, 'logger.log')
             handler02 = RotatingFileHandler(log_file_path, maxBytes=2 * 1024 * 1024, backupCount=3)
-            handler02.setLevel(LogLevel.get_level(appsettings.logging.file.loglevel))
-            handler02.setFormatter(logging.Formatter(LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat)))
-            handler02.set_name("logfile_handler")
-            logger.addHandler(handler02)
+            handler02.setLevel(severity)
+            handler02.setFormatter(formatstring)
+            handler02.set_name("custom_logfile_handler")
+            customLogger.addHandler(handler02)
 
     except Exception as e:
         raise RuntimeError(f"Error configuring logging: {e}")
@@ -126,18 +127,36 @@ def configure_logger(appsettings_filename: Optional[str] = None)-> None:
 
 # Example usage
 if __name__ == "__main__":
-    # Specify the path to the configuration file - in this example it is non-existent, so the logger will just be the default logger.
-    appsettings_filename = "path/to/appsettings.json"
+    # Specify the path to the configuration file - 
+    #   in this example it is rubbish, so the logger will just be the default logger.
+    appsettings_filename = "rubbish.json"
 
-    # Configure the logger using the configuration file
-    configure_logger(appsettings_filename)
+    #   Always do the following in your app: set logging system (and hence the root logger) to log all messages with a severity of DEBUG or higher.
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
+    
+    #   Do it because otherwise the root logger will not log any messages above the level of WARNING by default.
+    #   The automatic name of the root logger is 'root'. To get the root logger from anywhere in your application,
+    #   use the getLogger() function without any arguments.
+    #   
 
-    # Get the logger instance
-    logger = logging.getLogger()
+    # Create/or retrieve our custom logger with the specified name and register it with the logging system.
+    customLogger = logging.getLogger("mycustomlogger") 
 
-    # Example log messages
-    logger.debug("This is a debug message")
-    logger.info("This is an info message")
-    logger.warning("This is a warning message")
-    logger.error("This is an error message")
-    logger.critical("This is a critical message")
+    # Configure our custom customLogger using the configuration file, if any
+    jgh_configure_custom_logger(customLogger, appsettings_filename)
+
+    # Example log messages using the custom customLogger named mycustomlogger
+    # You can obtain this logger from anywhere in your application by using getLogger("mycustomlogger")
+    customLogger.debug("This is a debug message")
+    customLogger.info("This is an info message")
+    customLogger.warning("This is a warning message")
+    customLogger.error("This is an error message")
+    customLogger.critical("This is a critical message")
+
+    rootlogger = logging.getLogger()
+    # Example log messages using the root logger
+    rootlogger.debug("This is a debug message")
+    rootlogger.info("This is an info message")
+    rootlogger.warning("This is a warning message")
+    rootlogger.error("This is an error message")
+    rootlogger.critical("This is a critical message")
