@@ -5,17 +5,17 @@ import os
 
 @dataclass(frozen=True)
 class LoggingMessageFormat:
-    message: str = "%(message)s"
-    standard: str = "%(asctime)s %(levelname)s - %(message)s - %(exc_info)s"
-    verbose: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
+    concise: str = "%(concise)s"
+    normal: str = "%(asctime)s %(levelname)s - %(concise)s - %(exc_info)s"
+    verbose: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(concise)s - %(exc_info)s"
    
     @classmethod
     def get_messageformat(cls, format_name: str | None) -> str | None:
         match format_name:
-            case "message":
-                return cls.message
-            case "standard":
-                return cls.standard
+            case "concise":
+                return cls.concise
+            case "normal":
+                return cls.normal
             case "verbose":
                 return cls.verbose
             case _:
@@ -176,7 +176,7 @@ if __name__ == "__main__":
         logging=LoggingHandlersDataTransferObject(
             console=ConsoleHandlerDataTransferObject(
                 loglevel="debug",
-                messageformat="standard"
+                messageformat="normal"
             ),
             file=LogFileHandlerDataTransferObject(
                 loglevel="info",
@@ -294,7 +294,7 @@ if __name__ == "__main__":
         # Write some assertions
     assert app_settings.environment.name == "development"
     assert app_settings.logging.console.loglevel == "debug"
-    assert app_settings.logging.console.messageformat == "standard"
+    assert app_settings.logging.console.messageformat == "normal"
     assert app_settings.logging.file.loglevel == "info"
     assert app_settings.logging.file.messageformat == "verbose"
     assert app_settings.storage.local.relativedirpath == "logs"

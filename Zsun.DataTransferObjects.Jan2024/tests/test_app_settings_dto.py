@@ -14,7 +14,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
     "logging": {
         "console": {
             "loglevel": "debug",
-            "messageformat": "standard"
+            "messageformat": "normal"
         },
         "file": {
             "loglevel": "info",
@@ -137,7 +137,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         
         # Additional assertions
         self.assertEqual(app_settings.logging.console.loglevel, "debug")
-        self.assertEqual(app_settings.logging.console.messageformat, "standard")
+        self.assertEqual(app_settings.logging.console.messageformat, "normal")
         self.assertEqual(app_settings.logging.file.loglevel, "info")
         self.assertEqual(app_settings.logging.file.messageformat, "verbose")
 
@@ -154,7 +154,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
             
             # Additional assertions
             self.assertEqual(app_settings.logging.console.loglevel, "debug")
-            self.assertEqual(app_settings.logging.console.messageformat, "standard")
+            self.assertEqual(app_settings.logging.console.messageformat, "normal")
             self.assertEqual(app_settings.logging.file.loglevel, "info")
             self.assertEqual(app_settings.logging.file.messageformat, "verbose")
         except ValidationError as e:
@@ -173,7 +173,7 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
             
             # Additional assertions
             self.assertEqual(app_settings.logging.console.loglevel, "debug")
-            self.assertEqual(app_settings.logging.console.messageformat, "standard")
+            self.assertEqual(app_settings.logging.console.messageformat, "normal")
             self.assertEqual(app_settings.logging.file.loglevel, "info")
             self.assertEqual(app_settings.logging.file.messageformat, "verbose")
         except ValidationError as e:

@@ -8,11 +8,11 @@ import unittest
 
 # Local application imports
 from jgh_listdictionary import JghListDictionary
-from jgh_logging_config import configure_logging
+from jgh_logger import jgh_customise_logger
 
-# Configure logging with a dynamic logging level and your custom file locations if desired.
-configure_logging(logging.DEBUG)
+# Configure logging with a dynamic logging level and your custom file location if desired.
 logger = logging.getLogger(__name__)
+jgh_customise_logger(logger, "appsettings.json")
 
 # Define the tests
 class Test_JghListdictionary(unittest.TestCase):

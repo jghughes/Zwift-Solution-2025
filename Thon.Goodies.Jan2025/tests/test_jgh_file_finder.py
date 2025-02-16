@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from typing import List
-from jgh_file_finder import find_path_to_file  # Updated module name
+from jgh_file_finder import find_filepath  # Updated module name
 
 class TestSearchForPathToFile(unittest.TestCase):
 
@@ -43,7 +43,7 @@ class TestSearchForPathToFile(unittest.TestCase):
             [True, False, False]
         )
 
-        result: str | None = find_path_to_file(self.FILENAME)
+        result: str | None = find_filepath(self.FILENAME)
         if result is not None:
             normalized_result: str = result.replace("\\", "/")
             self.assertEqual(normalized_result, f"{self.CHILD_DIR_1}/{self.FILENAME}")
@@ -69,7 +69,7 @@ class TestSearchForPathToFile(unittest.TestCase):
             [False, True, False]
         )
 
-        result: str | None = find_path_to_file(self.FILENAME)
+        result: str | None = find_filepath(self.FILENAME)
         if result is not None:
             normalized_result: str = result.replace("\\", "/")
             self.assertEqual(normalized_result, f"{self.PARENT_DIR}/{self.FILENAME}")
@@ -95,7 +95,7 @@ class TestSearchForPathToFile(unittest.TestCase):
             [False, False, True]
         )
 
-        result: str | None = find_path_to_file(self.FILENAME)
+        result: str | None = find_filepath(self.FILENAME)
         if result is not None:
             normalized_result: str = result.replace("\\", "/")
             self.assertEqual(normalized_result, f"/{self.FILENAME}")
@@ -121,7 +121,7 @@ class TestSearchForPathToFile(unittest.TestCase):
             [False, False, False]
         )
 
-        result: str | None = find_path_to_file(self.FILENAME)
+        result: str | None = find_filepath(self.FILENAME)
         self.assertIsNone(result)
 
 if __name__ == "__main__":
