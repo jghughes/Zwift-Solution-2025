@@ -5,19 +5,19 @@ import os
 
 @dataclass(frozen=True)
 class LoggingMessageFormat:
-    concise: str = "%(concise)s"
-    normal: str = "%(asctime)s %(levelname)s - %(concise)s - %(exc_info)s"
-    verbose: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(concise)s - %(exc_info)s"
+    simple: str = "%(message)s"
+    balanced: str = "%(asctime)s %(levelname)s - %(message)s - %(exc_info)s"
+    informative: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
    
     @classmethod
     def get_messageformat(cls, format_name: str | None) -> str | None:
         match format_name:
-            case "concise":
-                return cls.concise
-            case "normal":
-                return cls.normal
-            case "verbose":
-                return cls.verbose
+            case "simple":
+                return cls.simple
+            case "balanced":
+                return cls.balanced
+            case "informative":
+                return cls.informative
             case _:
                 return None
 
@@ -176,11 +176,11 @@ if __name__ == "__main__":
         logging=LoggingHandlersDataTransferObject(
             console=ConsoleHandlerDataTransferObject(
                 loglevel="debug",
-                messageformat="normal"
+                messageformat="balanced"
             ),
             file=LogFileHandlerDataTransferObject(
                 loglevel="info",
-                messageformat="verbose"
+                messageformat="informative"
             )
         ),
         storage=StorageSettingsDataTransferObject(
@@ -294,9 +294,9 @@ if __name__ == "__main__":
         # Write some assertions
     assert app_settings.environment.name == "development"
     assert app_settings.logging.console.loglevel == "debug"
-    assert app_settings.logging.console.messageformat == "normal"
+    assert app_settings.logging.console.messageformat == "balanced"
     assert app_settings.logging.file.loglevel == "info"
-    assert app_settings.logging.file.messageformat == "verbose"
+    assert app_settings.logging.file.messageformat == "informative"
     assert app_settings.storage.local.relativedirpath == "logs"
     assert app_settings.storage.azure.connectionstring == "your-azure-connection-string"
     assert app_settings.storage.aws.accesskey == "your-aws-access-key"

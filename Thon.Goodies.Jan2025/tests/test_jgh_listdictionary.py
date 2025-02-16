@@ -10,14 +10,18 @@ import unittest
 from jgh_listdictionary import JghListDictionary
 from jgh_logger import jgh_customise_logger
 
-# Configure logging with a dynamic logging level and your custom file location if desired.
+# initialise logging system with level and format.
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+# logger = logging.getLogger()
 logger = logging.getLogger(__name__)
 jgh_customise_logger(logger, "appsettings.json")
+
 
 # Define the tests
 class Test_JghListdictionary(unittest.TestCase):
 
     def setUp(self):
+
         logger.info(f"\nTEST NAME: {self._testMethodName}")
         logger.info(f"-"*100)
         # Print the docstring of the test method
