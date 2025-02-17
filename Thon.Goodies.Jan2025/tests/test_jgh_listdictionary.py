@@ -10,12 +10,8 @@ import unittest
 from jgh_listdictionary import JghListDictionary
 from jgh_logger import jgh_customise_logger
 
-# initialise logging system with level and format.
-logging.basicConfig(level=logging.DEBUG, format='%(message)s')
-# logger = logging.getLogger()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 jgh_customise_logger(logger, "appsettings.json")
-
 
 # Define the tests
 class Test_JghListdictionary(unittest.TestCase):

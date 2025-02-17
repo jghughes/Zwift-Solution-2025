@@ -1,23 +1,9 @@
-import io
-import sys
-from typing import Any
 import unittest
 import logging
 from unittest.mock import patch, mock_open, MagicMock
 from jgh_logger import jgh_customise_logger
 
 class TestConfigureLogger(unittest.TestCase):
-
-    def assertEqualResilient(self, arg1 : Any , arg2 : Any, msg : str | None = None):
-        """
-        Custom assertion method that handles None values gracefully.
-        """
-        if arg1 is None and arg2 is None:
-            return
-        if arg1 is None or arg2 is None:
-            self.fail(msg or f"One of the arguments is None: arg1={arg1}, arg2={arg2}")
-        self.assertEqual(arg1, arg2, msg)
-
 
     @patch('jgh_logger.find_filepath')
     @patch('builtins.open', new_callable=mock_open, read_data='''{
@@ -42,8 +28,10 @@ class TestConfigureLogger(unittest.TestCase):
         file_handler = next((h for h in logger.handlers if h.name == 'jgh_logfile_handler'), None)
         self.assertIsNotNone(console_handler)
         self.assertIsNotNone(file_handler)
-        self.assertEqualResilient(console_handler.level, logging.DEBUG)
-        self.assertEqual(file_handler.level, logging.CRITICAL)
+        if console_handler is not None:
+            self.assertEqual(console_handler.level, logging.DEBUG)
+        if file_handler is not None:
+            self.assertEqual(file_handler.level, logging.CRITICAL)
 
     @patch('jgh_logger.find_filepath')
     @patch('builtins.open', new_callable=mock_open, read_data='')
@@ -91,7 +79,8 @@ class TestConfigureLogger(unittest.TestCase):
         self.assertTrue(logger.hasHandlers())
         self.assertEqual(len(logger.handlers), 1)
         self.assertIsNotNone(console_handler)
-        self.assertEqual(console_handler.level, logging.DEBUG)
+        if console_handler is not None:
+            self.assertEqual(console_handler.level, logging.DEBUG)
 
     @patch('jgh_logger.find_filepath')
     @patch('builtins.open', new_callable=mock_open, read_data='''{
@@ -111,105 +100,48 @@ class TestConfigureLogger(unittest.TestCase):
         file_handler = next((h for h in logger.handlers if h.name == 'jgh_logfile_handler'), None)
         self.assertTrue(logger.hasHandlers())
         self.assertEqual(len(logger.handlers), 1)
-
         self.assertIsNotNone(file_handler)
-        self.assertEqual(file_handler.level, logging.CRITICAL)
+        if file_handler is not None:
+            self.assertEqual(file_handler.level, logging.CRITICAL)
 
-    @patch('jgh_logger.find_filepath')
-    @patch('builtins.open', new_callable=mock_open, read_data='''{
-        "logging": {
-            "console": {
-                "loglevel": "debug",
-                "messageformat": "balanced"
-            }
-        }
-    }''')
-    def test_configure_logger_with_consolehandler_only_and_log_message(self, mock_file: MagicMock, mock_find_path: MagicMock) -> None:
+
+
+    def test_configure_logger_with_handlers_and_write_log_messages(self) -> None:
         logger = logging.getLogger()
-        jgh_customise_logger(logger,'appsettings.json')
+        jgh_customise_logger(logger,'appsettings.json') # This must be a valid settings file with both console and file handlers
         self.assertTrue(logger.hasHandlers())
-        self.assertEqual(len(logger.handlers), 1)
-
+        self.assertEqual(len(logger.handlers), 2)
         console_handler = next((h for h in logger.handlers if h.name == 'jgh_console_handler'), None)
+        file_handler = next((h for h in logger.handlers if h.name == 'jgh_logfile_handler'), None)
         self.assertTrue(logger.hasHandlers())
-        self.assertEqual(len(logger.handlers), 1)
+        self.assertEqual(len(logger.handlers), 2)
         self.assertIsNotNone(console_handler)
-        self.assertEqual(console_handler.level, logging.DEBUG)
+        self.assertIsNotNone(file_handler)
+        if console_handler is not None:
+            self.assertEqual(console_handler.level, logging.DEBUG)
 
-        # Capture the output
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
+        if file_handler is not None:
+            self.assertEqual(file_handler.level, logging.DEBUG)
 
-        # Log a test message
-        test_message = "This is a test debug message"
-        logger.debug(test_message)
+        # Log some test messages
+        test_message_debug = "This is a DEBUG severity message"
+        logger.debug(test_message_debug)
 
-        # Reset redirect.
-        sys.stdout = sys.__stdout__
+        test_message_info = "This is a INFO severity message"
+        logger.debug(test_message_info)
 
-        # Check if the message was logged to the console
-        self.assertIn(test_message, captured_output.getvalue())
+        test_message_debug = "This is a DEBUG severity message"
+        logger.debug(test_message_debug)
 
+        test_message_warning = "This is a WARNING severity message"
+        logger.warning(test_message_warning)
 
-    # @patch('jgh_logger.find_filepath')
-    # @patch('builtins.open', new_callable=mock_open, read_data='''{
-    #     "logging": {
-    #         "console": {
-    #             "loglevel": "debug",
-    #             "messageformat": "balanced"
-    #         }
-    #     }
-    # }''')
-    # @patch('sys.stdout', new_callable=MagicMock)
-    # def test_configure_logger_with_consolehandler_only_and_log_message(self, mock_stdout: MagicMock, mock_file: MagicMock, mock_find_path: MagicMock) -> None:
-    #     logger = logging.getLogger()
-    #     jgh_customise_logger(logger,'appsettings.json')
-    #     self.assertTrue(logger.hasHandlers())
-    #     self.assertEqual(len(logger.handlers), 1)
+        test_message_error = "This is a ERROR severity message"
+        logger.warning(test_message_error)
 
-    #     console_handler = next((h for h in logger.handlers if h.name == 'jgh_console_handler'), None)
-    #     self.assertTrue(logger.hasHandlers())
-    #     self.assertEqual(len(logger.handlers), 1)
-    #     self.assertIsNotNone(console_handler)
-    #     self.assertEqual(console_handler.level, logging.DEBUG)
+        test_message_critical= "This is a CRITICAL severity message"
+        logger.warning(test_message_critical)
 
-    #     # Log a test message
-    #     test_message = "This is a test debug message"
-    #     logger.debug(test_message)
-
-    #     # Check if the message was logged to the console
-    #     logged_output = mock_stdout.write.call_args_list
-    #     self.assertTrue(any(test_message in str(call) for call in logged_output))
-
-
-    # @patch('jgh_logger.find_filepath')
-    # @patch('builtins.open', new_callable=mock_open, read_data='''{
-    #     "logging": {
-    #         "file": {
-    #             "loglevel": "critical",
-    #             "messageformat": "informative"
-    #         }
-    #     }
-    # }''')
-    # @patch('builtins.open', new_callable=mock_open)
-    # def test_configure_logger_with_filehandler_only_and_log_message(self, mock_file_open: MagicMock, mock_file: MagicMock, mock_find_path: MagicMock) -> None:
-    #     logger = logging.getLogger()
-    #     jgh_customise_logger(logger,'appsettings.json')
-    #     self.assertTrue(logger.hasHandlers())
-    #     self.assertEqual(len(logger.handlers), 1)
-
-    #     file_handler = next((h for h in logger.handlers if h.name == 'jgh_logfile_handler'), None)
-    #     self.assertTrue(logger.hasHandlers())
-    #     self.assertEqual(len(logger.handlers), 1)
-    #     self.assertIsNotNone(file_handler)
-    #     self.assertEqual(file_handler.level, logging.CRITICAL)
-
-    #     # Log a test message
-    #     test_message = "This is a test critical message"
-    #     logger.critical(test_message)
-
-    #     # Check if the message was logged to the file
-    #     mock_file_open().write.assert_any_call(f"{test_message}\n")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

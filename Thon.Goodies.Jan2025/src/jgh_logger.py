@@ -44,7 +44,7 @@ def jgh_customise_logger(customLogger: logging.Logger, appsettings_filename: Opt
                 "messageformat": "simple"
             },
             "file": {
-                "loglevel": "info",
+                "loglevel": "warning",
                 "messageformat": "informative"
             }
         }
@@ -56,18 +56,22 @@ def jgh_customise_logger(customLogger: logging.Logger, appsettings_filename: Opt
         appsettings_filename (Optional[str]): The short name of the JSON file
             containing the settings for the app including logging config.
             Typically, this file is named "appsettings.json" and found
-            in the root folder of the application.
-            If None, the logger will be configured with the logging system's default settings.
+            in the root folder of the application. If None, the logger 
+            will remain unconfigured and as such will fail to log 
+            messages with a (low) severity of DEBUG and INFO. Only WARNING
+            and higher severity messages will be logged.
 
     Raises:
         RuntimeError: If there is an irrecoverable error during the configuration process.
     """
- 
+     # initialise logging system (without which this module will be ineffective).
+    logging.basicConfig(level=logging.DEBUG)
+
     try:
         if appsettings_filename is None:
             return
 
-        settings_path = find_filepath(appsettings_filename)
+        settings_path : str | None = find_filepath(appsettings_filename)
 
         if not settings_path:
             return
@@ -107,24 +111,27 @@ def jgh_customise_logger(customLogger: logging.Logger, appsettings_filename: Opt
 
 
         if mustaddconsolehandler:
-            severity = LogLevel.get_level(appsettings.logging.console.loglevel)
-            formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.console.messageformat)
-            handler01 = logging.StreamHandler()
-            handler01.setLevel(severity)
-            handler01.setFormatter(logging.Formatter(formatstring))
-            handler01.set_name("jgh_console_handler")
-            customLogger.addHandler(handler01)
+            if not(appsettings.logging is None or appsettings.logging.console is None):
+                severity = LogLevel.get_level(appsettings.logging.console.loglevel)
+                formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.console.messageformat)
+                handler01 = logging.StreamHandler()
+                handler01.setLevel(severity)
+                handler01.setFormatter(logging.Formatter(formatstring))
+                handler01.set_name("jgh_console_handler")
+                customLogger.addHandler(handler01)
 
         if mustaddfilehandler:
-            severity = LogLevel.get_level(appsettings.logging.file.loglevel)
-            formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat)
-            appsettings_folder = find_dirpath(appsettings_filename)
-            log_file_path = os.path.join(appsettings_folder, 'logger.log')
-            handler02 = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
-            handler02.setLevel(severity)
-            handler02.setFormatter(logging.Formatter(formatstring))
-            handler02.set_name("jgh_logfile_handler")
-            customLogger.addHandler(handler02)
+            if not(appsettings.logging is None or appsettings.logging.file is None):
+                appsettings_folder = find_dirpath(appsettings_filename)
+                if (appsettings_folder is not None):
+                    log_file_path = os.path.join(appsettings_folder, 'logger.log')
+                    severity = LogLevel.get_level(appsettings.logging.file.loglevel)
+                    formatstring = LoggingMessageFormat.get_messageformat(appsettings.logging.file.messageformat)
+                    handler02 = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+                    handler02.setLevel(severity)
+                    handler02.setFormatter(logging.Formatter(formatstring))
+                    handler02.set_name("jgh_logfile_handler")
+                    customLogger.addHandler(handler02)
 
         # Prevent log messages from being propagated to the root logger (if you omit this, messages will be printed twice)
         customLogger.propagate = False
@@ -134,45 +141,28 @@ def jgh_customise_logger(customLogger: logging.Logger, appsettings_filename: Opt
 
 
 # Example usage
+    # Note: the root logger is the parent of all loggers in the logging module hierarchy.
+    # It is named 'root' and has no parent. The root logger is the default logger 
+    # that is used by the logging module. It is the logger that is used when you 
+    # call logging.getLogger() without any arguments.
+
 if __name__ == "__main__":
-    # Specify the path to the configuration file - 
-    #   in this example it is rubbish, so the logger will just be the unadorned default logger.
-    appsettings_filename = "rubbish.json"
 
-    #   Always do the following in your app: set logging system (and hence the root logger) to log all messages with a severity of DEBUG or higher.
-    # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
-    
-    #   Do it because otherwise the root logger will not log any messages above the level of WARNING by default.
-    #   The automatic name of the root logger is 'root'. To get the root logger from anywhere in your application,
-    #   use the getLogger() function without any arguments.
-    #   
+    # Try log some messages using a new (named) custom logger. 
+    # Because the settings file is rubbish, jgh_customise_logger() exits early and 
+    # does nothing to customise the new logger, which thus remains in an unconfigured state.
+    # With no config, it will fail to log messages with a (low) severity of DEBUG and INFO.
 
-    # Retrieve a named and registered logger from the logging system, or create it. usually, you would do this at the start of your application.
-    # the usual way to do this is to use getLogger() with the name of the logger you want to retrieve or create.
-    # the common in the case of an app that has many layers is to use the name of the module that the logger is in.
-    # Configure our custom customLogger using the configuration file, if any.
-    # You can obtain this logger from anywhere in your application by using getLogger("mycustomlogger")
-
-    # Log some messages using a dummy custom logger. Beacause the settings file is illusory
-    # jgh_customise_logger leaves the dummy logger undisturbed in its basic default state
-    # which is identical to the state of the root logger.
-    # In this case, the dummy logger will log all messages 
-    # with a severity of WARNING or higher which is the logging system default.
-
-    customLogger = logging.getLogger("mycustomlogger") 
-    jgh_customise_logger(customLogger, appsettings_filename)
+    customLogger = logging.getLogger("mycustomlogger") # instantiate a new logger
+    jgh_customise_logger(customLogger, "nonexistantfile.rubbish")
     customLogger.debug("This is a debug message01")
     customLogger.info("This is an info message01")
     customLogger.warning("This is a warning message01")
     customLogger.error("This is an error message01")
     customLogger.critical("This is a critical message01")
 
-    # Log some messages using the root logger as opposed to a dummy custom logger.
-    # The root logger is the parent of all loggers in the logging module hierarchy.
-    # It is named 'root' and has no parent. The root logger is the default logger 
-    # that is used by the logging module. It is the logger that is used when you 
-    # call logging.getLogger() without any arguments. Because we have not configured
-    # it, it will log all messages with a severity of WARNING or higher, identical to above.
+    # Try log some messages using the root logger  in an unconfigured state.
+    # With no config, it will fail to log messages with a (low) severity of DEBUG and INFO.
 
     rootlogger = logging.getLogger()
     rootlogger.debug("This is a debug message02")
@@ -181,21 +171,8 @@ if __name__ == "__main__":
     rootlogger.error("This is an error message02")
     rootlogger.critical("This is a critical message02")
 
-    # Log some messages using the root logger modified with basicConfig
-    # jgh_customise_logger leaves the logger undisturbed because the file doesn't exist
-    # in this case, the root logger will log all messages with a severity of DEBUG or higher.
-    # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')    
-    rootLoggerCustomised = logging.getLogger() 
-    jgh_customise_logger(rootLoggerCustomised, appsettings_filename)
-    rootLoggerCustomised.debug("This is a debug message03")
-    rootLoggerCustomised.info("This is an info message03")
-    rootLoggerCustomised.warning("This is a warning message03")
-    rootLoggerCustomised.error("This is an error message03")
-    rootLoggerCustomised.critical("This is a critical message03")
-
     # Log some messages using the root logger after the logging system has been properly
-    # provided with a basicConfig which in this case is set to log all messages with a 
-    # severity of DEBUG or higher and to do so in an informative format.
+    # provided with a basicConfig which in this case is set to log all messages from DEBUG and up
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s') 
     rootlogger = logging.getLogger()
     rootlogger.debug("This is a debug message04")
