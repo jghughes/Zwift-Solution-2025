@@ -11,7 +11,6 @@ for path in sorted(sys.path):
 print("\nExplanation:\n\tThe above paths are where Python will look to find modules and imports\n\treferenced in this file. If imports fail to resolve, it is because of\n\tincorrect paths. In a Visual Studio 2022 project, right-click\n\tthe 'Search Paths' node to add a path.")
 
 # Standard library imports
-import logging
 import unittest
 
 # Local application imports
@@ -19,7 +18,8 @@ from jgh_serialization import JghSerialization
 from person_dto import PersonDataTransferObject
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+import logging
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Define the tests

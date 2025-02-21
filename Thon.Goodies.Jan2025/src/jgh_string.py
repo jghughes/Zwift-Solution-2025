@@ -3,10 +3,11 @@ This module defines various string utility functions.
 """
 
 # Standard library imports
-
-
 # Local application imports
-# from some_local_module import some_function  # Uncomment and replace with actual local imports as needed
+
+# Configure logging
+import logging
+logger = logging.getLogger(__name__)
 
 class JghString:
     

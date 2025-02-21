@@ -1,56 +1,21 @@
 from dataclasses import dataclass
 from pydantic import BaseModel
-import logging
 import os
 
-@dataclass(frozen=True)
-class LoggingMessageFormat:
-    simple: str = "%(message)s"
-    balanced: str = "%(asctime)s %(levelname)s - %(message)s - %(exc_info)s"
-    informative: str = "%(asctime)s %(levelname)s - %(process)d - %(thread)d - %(module)s - %(funcName)s - %(message)s - %(exc_info)s"
-   
-    @classmethod
-    def get_messageformat(cls, format_name: str | None) -> str | None:
-        match format_name:
-            case "simple":
-                return cls.simple
-            case "balanced":
-                return cls.balanced
-            case "informative":
-                return cls.informative
-            case _:
-                return None
-
-@dataclass(frozen=True)
-class LogLevel:
-    debug: int = logging.DEBUG
-    info: int = logging.INFO
-    warning: int = logging.WARNING
-    error: int = logging.ERROR
-    critical: int = logging.CRITICAL
-    notset: int = logging.NOTSET
-
-    @classmethod
-    def get_level(cls, level_name: str | None) -> int:
-        if level_name is not None:
-            level_name = level_name.strip().lower()
-        match level_name:
-            case "debug":
-                return cls.debug
-            case "info":
-                return cls.info
-            case "warning":
-                return cls.warning
-            case "error":
-                return cls.error
-            case "critical":
-                return cls.critical
-            case _:
-                return cls.notset
+# Configure logging
 
 class ConsoleHandlerDataTransferObject(BaseModel):
     loglevel: str | None = None
     messageformat: str | None = None
+
+class LogFileHandlerDataTransferObject(BaseModel):
+    loglevel: str | None = None
+    messageformat: str | None = None
+
+class LoggingHandlersDataTransferObject(BaseModel):
+    console: ConsoleHandlerDataTransferObject | None = None
+    file: LogFileHandlerDataTransferObject | None = None
+
 
 class LocalStorageSettingsDataTransferObject(BaseModel):
     relativedirpath: str | None = None
@@ -105,13 +70,6 @@ class StorageSettingsDataTransferObject(BaseModel):
     aws: AwsStorageSettingsDataTransferObject | None = None
     oracle: OracleStorageSettingsDataTransferObject | None = None
 
-class LogFileHandlerDataTransferObject(BaseModel):
-    loglevel: str | None = None
-    messageformat: str | None = None
-
-class LoggingHandlersDataTransferObject(BaseModel):
-    console: ConsoleHandlerDataTransferObject | None = None
-    file: LogFileHandlerDataTransferObject | None = None
 
 class RetryPolicySettingsDataTransferObject(BaseModel):
     maxretries: int | None = None
@@ -170,6 +128,7 @@ class AppSettingsDataTransferObject(BaseModel):
     apis: ApisSettingsDataTransferObject | None = None
 
 if __name__ == "__main__":
+
     # Create an instance of AppSettingsDataTransferObject with realistic test data
     app_settings = AppSettingsDataTransferObject(
         environment=EnvironmentSettingsDataTransferObject(name="development"),
@@ -291,7 +250,7 @@ if __name__ == "__main__":
     app_settings_json = app_settings.model_dump_json(indent=4)
     print(app_settings_json)
 
-        # Write some assertions
+    # Write some assertions
     assert app_settings.environment.name == "development"
     assert app_settings.logging.console.loglevel == "debug"
     assert app_settings.logging.console.messageformat == "balanced"

@@ -5,6 +5,10 @@ import csv
 from collections import OrderedDict
 from typing import List, Dict, Any, Optional
 
+# Configure logging
+import logging
+logger = logging.getLogger(__name__)
+
 def is_valid_path(path: str) -> bool:
     """
     Checks if path is a string, contains at least one forward slash, and does not end with a forward slash.

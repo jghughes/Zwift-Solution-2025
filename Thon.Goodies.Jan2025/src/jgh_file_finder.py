@@ -1,6 +1,10 @@
 import os
 from typing import Optional
 
+# Configure logging
+import logging
+logger = logging.getLogger(__name__)
+
 def find_filepath(filename: Optional[str] = None) -> str | None:
     """
     Searches the current folder, and then upwards in the folder hierarchy
@@ -57,9 +61,6 @@ def find_dirpath(filename: Optional[str] = None) -> str | None:
             return None
 
     return None
-
-
-
 
 # Example usage
 if __name__ == "__main__":

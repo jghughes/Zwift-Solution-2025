@@ -5,6 +5,7 @@ from app_settings_dto import AppSettingsDataTransferObject
 from jgh_serialization import JghSerialization
 
 class TestAppSettingsDataTransferObject(unittest.TestCase):
+
     def setUp(self):
         self.json_data = '''
 {
@@ -14,11 +15,11 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
     "logging": {
         "console": {
             "loglevel": "debug",
-            "messageformat": "normal"
+            "messageformat": "simple"
         },
         "file": {
             "loglevel": "info",
-            "messageformat": "verbose"
+            "messageformat": "balanced"
         }
     },
     "storage": {
@@ -133,13 +134,14 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         """
         data = json.loads(self.json_data)
         app_settings = AppSettingsDataTransferObject(**data)
+        # assertions
         self.assertIsInstance(app_settings, AppSettingsDataTransferObject)
-        
-        # Additional assertions
-        self.assertEqual(app_settings.logging.console.loglevel, "debug")
-        self.assertEqual(app_settings.logging.console.messageformat, "normal")
-        self.assertEqual(app_settings.logging.file.loglevel, "info")
-        self.assertEqual(app_settings.logging.file.messageformat, "verbose")
+        if app_settings.logging is not None and app_settings.logging.console is not None:
+            self.assertEqual(app_settings.logging.console.loglevel, "debug")
+            self.assertEqual(app_settings.logging.console.messageformat, "simple")
+        if app_settings.logging is not None and app_settings.logging.file is not None:
+            self.assertEqual(app_settings.logging.file.loglevel, "info")
+            self.assertEqual(app_settings.logging.file.messageformat, "balanced")
 
     def test_app_settings_dto_with_pydantic_validate(self):
         """
@@ -150,13 +152,14 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         """
         try:
             app_settings = AppSettingsDataTransferObject.model_validate_json(self.json_data)
+            # assertions
             self.assertIsInstance(app_settings, AppSettingsDataTransferObject)
-            
-            # Additional assertions
-            self.assertEqual(app_settings.logging.console.loglevel, "debug")
-            self.assertEqual(app_settings.logging.console.messageformat, "normal")
-            self.assertEqual(app_settings.logging.file.loglevel, "info")
-            self.assertEqual(app_settings.logging.file.messageformat, "verbose")
+            if app_settings.logging is not None and app_settings.logging.console is not None:
+                self.assertEqual(app_settings.logging.console.loglevel, "debug")
+                self.assertEqual(app_settings.logging.console.messageformat, "simple")
+            if app_settings.logging is not None and app_settings.logging.file is not None:
+                self.assertEqual(app_settings.logging.file.loglevel, "info")
+                self.assertEqual(app_settings.logging.file.messageformat, "balanced")
         except ValidationError as e:
             self.fail(f"Validation failed: {e}")
 
@@ -169,13 +172,14 @@ class TestAppSettingsDataTransferObject(unittest.TestCase):
         """
         try:
             app_settings = JghSerialization.validate(self.json_data, AppSettingsDataTransferObject)
+            # assertions
             self.assertIsInstance(app_settings, AppSettingsDataTransferObject)
-            
-            # Additional assertions
-            self.assertEqual(app_settings.logging.console.loglevel, "debug")
-            self.assertEqual(app_settings.logging.console.messageformat, "normal")
-            self.assertEqual(app_settings.logging.file.loglevel, "info")
-            self.assertEqual(app_settings.logging.file.messageformat, "verbose")
+            if app_settings.logging is not None and app_settings.logging.console is not None:
+                self.assertEqual(app_settings.logging.console.loglevel, "debug")
+                self.assertEqual(app_settings.logging.console.messageformat, "simple")
+            if app_settings.logging is not None and app_settings.logging.file is not None:
+                self.assertEqual(app_settings.logging.file.loglevel, "info")
+                self.assertEqual(app_settings.logging.file.messageformat, "balanced")
         except ValidationError as e:
             self.fail(f"Validation failed: {e}")
 

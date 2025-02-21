@@ -9,9 +9,12 @@ recommended to use Pydantic Models for more complex data structures.
 import json
 from typing import Any
 from dataclasses import dataclass, asdict, is_dataclass
-
 # Local application imports
 from pydantic import BaseModel, ValidationError
+
+# Configure logging
+import logging
+logger = logging.getLogger(__name__)
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:
