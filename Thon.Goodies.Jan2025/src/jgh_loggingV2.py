@@ -4,7 +4,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from typing import Optional
-from jgh_file_finder import find_filepath, find_dirpath
+from jgh_file_finder import find_dirpath, find_filepath
 from jgh_serialization import JghSerialization
 from dataclasses import dataclass
 from pydantic import BaseModel
@@ -70,7 +70,7 @@ class LogLevel:
                 return cls.debuglevel
 
 
-def jgh_configure_logging(appsettings_filename: Optional[str] = None)-> None:
+def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
     """
     Configures the root logging system from an appsettings file. This is intended 
     to be called as a one-time set-up function used at the start of an application. 
@@ -117,7 +117,7 @@ def jgh_configure_logging(appsettings_filename: Optional[str] = None)-> None:
     logging.getLogger(__name__) to get a logger with the name of the current module.
 
     Args:
-        appsettings_filename (Optional[str]): The short name of the JSON file
+        appSettingsFilename (Optional[str]): The short name of the JSON file
             containing the settings for the app including logging config.
             Typically, this file is named "appsettings.json" and found
             in the root folder of the application. If None, the logger 
@@ -138,28 +138,33 @@ def jgh_configure_logging(appsettings_filename: Optional[str] = None)-> None:
     logging.basicConfig(level=logging.DEBUG) # this is the fallback config, we might or might not override it later
 
     try:
-        if appsettings_filename is None:
+        if appSettingsFilename is None:
             return
 
-        settings_path : str | None = find_filepath(appsettings_filename)
+        appSettingsDirPath: str | None = find_dirpath(appSettingsFilename)
 
-        if not settings_path:
+        if appSettingsDirPath is None:
+            return None
+
+        appSettingsFilePath: str = os.path.join(appSettingsDirPath, appSettingsFilename)
+
+        if not appSettingsFilePath:
             return
 
         try:
-            with open(settings_path, "r") as file:
-                input_json = file.read()
-            if not input_json:
+            with open(appSettingsFilePath, "r") as file:
+                inputJson = file.read()
+            if not inputJson:
                 return None
         except Exception:
             return None
 
         try:
-            JghSerialization.validate(input_json, AppSettingsDataTransferObject)
+            JghSerialization.validate(inputJson, AppSettingsDataTransferObject)
         except Exception as e:
             return None
         
-        appsettings  = JghSerialization.validate(input_json, AppSettingsDataTransferObject)
+        appsettings  = JghSerialization.validate(inputJson, AppSettingsDataTransferObject)
 
         mustskipconsolehandler: bool = (appsettings.logging is None or appsettings.logging.console is None)
 
@@ -177,28 +182,23 @@ def jgh_configure_logging(appsettings_filename: Optional[str] = None)-> None:
 
         if not(appsettings.logging is None or appsettings.logging.console is None):
             severity = LogLevel.get_level(appsettings.logging.console.loglevel)
-            formatstring = LoggingMessageFormat.get_format_string(appsettings.logging.console.messageformat)
+            formatString = LoggingMessageFormat.get_format_string(appsettings.logging.console.messageformat)
             handler01 = logging.StreamHandler()
             handler01.setLevel(severity)
-            handler01.setFormatter(logging.Formatter(formatstring))
+            handler01.setFormatter(logging.Formatter(formatString))
             handler01.set_name(f"consoleHandler")
             logger.addHandler(handler01)
 
         if not(appsettings.logging is None or appsettings.logging.file is None):
-            appsettings_folder = find_dirpath(appsettings_filename)
-            log_filename = 'logger.log'
-            if (appsettings_folder is not None):
-                log_file_path = os.path.join(appsettings_folder, log_filename)
-                severity = LogLevel.get_level(appsettings.logging.file.loglevel)
-                formatstring = LoggingMessageFormat.get_format_string(appsettings.logging.file.messageformat)
-                handler02 = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
-                handler02.setLevel(severity)
-                handler02.setFormatter(logging.Formatter(formatstring))
-                handler02.set_name(f"fileHandler")
-                logger.addHandler(handler02)
-
-        # # Prevent log messages from being propagated to the root logger (if you omit this, messages will be printed twice)
-        # customLogger.propagate = False
+            severity = LogLevel.get_level(appsettings.logging.file.loglevel)
+            formatString = LoggingMessageFormat.get_format_string(appsettings.logging.file.messageformat)
+            logFileName = 'logger.log'
+            logFilePath = os.path.join(appSettingsDirPath, logFileName)
+            handler02 = RotatingFileHandler(logFilePath, maxBytes=5 * 1024 * 1024, backupCount=3)
+            handler02.setLevel(severity)
+            handler02.setFormatter(logging.Formatter(formatString))
+            handler02.set_name(f"fileHandler")
+            logger.addHandler(handler02)
 
     except Exception as e:
         raise Error(f"Error configuring logging: {e}")
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     print("")
     print("Example 3: call jgh_configure_logging(nonexistantfile.rubbish) to initialise the logging system. Because the filename in this test is nonsensical, the method calls logging.basicConfig(logging.DEBUG) by itself.")
     print("")
-    jgh_configure_logging("nonexistantfile.rubbish")
+    jgh_configure_logging("RubbishFileName")
     rootlogger = logging.getLogger()
     rootlogger.debug(debugMsg)
     rootlogger.info(infoMsg)

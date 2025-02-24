@@ -19,7 +19,9 @@ from person_dto import PersonDataTransferObject
 
 # Configure logging
 import logging
-logging.basicConfig(level=logging.DEBUG)
+from jgh_logging import jgh_configure_logging
+
+jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 # Define the tests

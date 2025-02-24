@@ -30,6 +30,7 @@
     <Compile Include="src\jgh_file_finder.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\jgh_loggingV2.py" />
     <Compile Include="src\jgh_logging.py" />
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
@@ -60,12 +61,15 @@
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="logger.log" />
+    <Content Include="data\logger.log" />
     <Content Include="README.md">
       <SubType>Code</SubType>
     </Content>
     <Content Include="requirements.txt" />
-    <Content Include="appsettings.json" />
+    <Content Include="data\appsettings.json" />
+    <Content Include="data\appsettingsEmpty.json" />
+    <Content Include="data\appsettingsInvalid.json" />
+    <Content Include="data\appsettingsValid.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
