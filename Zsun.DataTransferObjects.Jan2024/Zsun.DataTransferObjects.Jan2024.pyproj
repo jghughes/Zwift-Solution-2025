@@ -39,10 +39,11 @@
     <Compile Include="tests\test_person_dto.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\logger.log" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />
-    <Content Include="tests\appsettings.json" />
+    <Content Include="data\appsettings.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

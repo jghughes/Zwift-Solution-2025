@@ -39,9 +39,10 @@ from typing import Any, Annotated
 
 # Local application imports
 from jgh_serialization import JghSerialization
+from jgh_logging import jgh_configure_logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(message)s")
+jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 # Define convenient default values for the tests.

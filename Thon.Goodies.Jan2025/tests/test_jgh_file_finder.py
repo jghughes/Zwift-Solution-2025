@@ -1,128 +1,64 @@
 import unittest
-from unittest.mock import patch, MagicMock
-from typing import List
-from jgh_file_finder import find_filepath  # Updated module name
+import os
+from unittest.mock import patch, mock_open, MagicMock
+from jgh_file_finder import find_directory_that_contains_file
 
 class TestSearchForPathToFile(unittest.TestCase):
 
-    PARENT_DIR = "/parent"
-    CHILD_DIR_1 = "/parent/child1"
-    FILENAME = "dummy.json"
+    def setUp(self):
+        # Set the BASE_DIR environment variable for testing
+        os.environ['BASE_DIR'] = '/mocked/path'
 
-    def setUpMockBehavior(
-        self,
-        mock_abspath: MagicMock,
-        mock_dirname: MagicMock,
-        mock_isfile: MagicMock,
-        abspath_return_value: str,
-        dirname_side_effect: List[str],
-        isfile_side_effect: List[bool]
-    ) -> None:
-        mock_abspath.return_value = abspath_return_value
-        mock_dirname.side_effect = dirname_side_effect
-        mock_isfile.side_effect = isfile_side_effect
+    def tearDown(self):
+        # Clean up the BASE_DIR environment variable after testing
+        del os.environ['BASE_DIR']
 
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    @patch("os.path.isfile")
-    @patch("os.listdir")
-    def test_find_file_in_current_directory(
-        self,
-        mock_listdir: MagicMock,
-        mock_isfile: MagicMock,
-        mock_dirname: MagicMock,
-        mock_abspath: MagicMock
-    ) -> None:
-        """Test finding dummy.json in the current directory."""
-        self.setUpMockBehavior(
-            mock_abspath,
-            mock_dirname,
-            mock_isfile,
-            self.CHILD_DIR_1,
-            [self.CHILD_DIR_1, self.PARENT_DIR, "/"],
-            [True, False, False]
-        )
+    @patch('os.walk')
+    def test_find_directory_with_valid_file(self, mock_walk: MagicMock) -> None:
+        mock_walk.return_value = [
+            ('/mocked/path', ('subdir',), ('appsettings.json',)),
+            ('/mocked/path/subdir', (), ()),
+        ]
 
-        result: str | None = find_filepath(self.FILENAME)
-        if result is not None:
-            normalized_result: str = result.replace("\\", "/")
-            self.assertEqual(normalized_result, f"{self.CHILD_DIR_1}/{self.FILENAME}")
+        dir_path = find_directory_that_contains_file('appsettings.json')
+        self.assertEqual(dir_path, '/mocked/path')
 
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    @patch("os.path.isfile")
-    @patch("os.listdir")
-    def test_find_file_in_parent_directory(
-        self,
-        mock_listdir: MagicMock,
-        mock_isfile: MagicMock,
-        mock_dirname: MagicMock,
-        mock_abspath: MagicMock
-    ) -> None:
-        """Test finding dummy.json in the parent directory."""
-        self.setUpMockBehavior(
-            mock_abspath,
-            mock_dirname,
-            mock_isfile,
-            self.CHILD_DIR_1,
-            [self.CHILD_DIR_1, self.PARENT_DIR, "/"],
-            [False, True, False]
-        )
+    @patch('os.walk')
+    def test_find_directory_with_file_in_subdirectory(self, mock_walk: MagicMock) -> None:
+        mock_walk.return_value = [
+            ('/mocked/path', ('subdir',), ()),
+            ('/mocked/path/subdir', (), ('appsettings.json',)),
+        ]
 
-        result: str | None = find_filepath(self.FILENAME)
-        if result is not None:
-            normalized_result: str = result.replace("\\", "/")
-            self.assertEqual(normalized_result, f"{self.PARENT_DIR}/{self.FILENAME}")
+        dir_path = find_directory_that_contains_file('appsettings.json')
+        self.assertEqual(dir_path, '/mocked/path/subdir')
 
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    @patch("os.path.isfile")
-    @patch("os.listdir")
-    def test_find_file_two_levels_up(
-        self,
-        mock_listdir: MagicMock,
-        mock_isfile: MagicMock,
-        mock_dirname: MagicMock,
-        mock_abspath: MagicMock
-    ) -> None:
-        """Test finding dummy.json two levels up from the current directory."""
-        self.setUpMockBehavior(
-            mock_abspath,
-            mock_dirname,
-            mock_isfile,
-            self.CHILD_DIR_1,
-            [self.CHILD_DIR_1, self.PARENT_DIR, "/"],
-            [False, False, True]
-        )
+    @patch('os.walk')
+    def test_find_directory_with_nonexistent_file(self, mock_walk: MagicMock) -> None:
+        mock_walk.return_value = [
+            ('/mocked/path', ('subdir',), ()),
+            ('/mocked/path/subdir', (), ()),
+        ]
 
-        result: str | None = find_filepath(self.FILENAME)
-        if result is not None:
-            normalized_result: str = result.replace("\\", "/")
-            self.assertEqual(normalized_result, f"/{self.FILENAME}")
+        dir_path = find_directory_that_contains_file('appsettings.json')
+        self.assertIsNone(dir_path)
 
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    @patch("os.path.isfile")
-    @patch("os.listdir")
-    def test_file_not_found(
-        self,
-        mock_listdir: MagicMock,
-        mock_isfile: MagicMock,
-        mock_dirname: MagicMock,
-        mock_abspath: MagicMock
-    ) -> None:
-        """Test scenario where dummy.json is not found in any directory."""
-        self.setUpMockBehavior(
-            mock_abspath,
-            mock_dirname,
-            mock_isfile,
-            self.CHILD_DIR_1,
-            [self.CHILD_DIR_1, self.PARENT_DIR, "/"],
-            [False, False, False]
-        )
+    @patch('os.getcwd')
+    @patch('os.walk')
+    def test_find_directory_with_no_parent_dir_provided(self, mock_walk: MagicMock, mock_getcwd: MagicMock) -> None:
+        mock_getcwd.return_value = '/mocked/current/dir'
+        mock_walk.return_value = [
+            ('/mocked/current/dir', ('subdir',), ('appsettings.json',)),
+            ('/mocked/current/dir/subdir', (), ()),
+        ]
 
-        result: str | None = find_filepath(self.FILENAME)
-        self.assertIsNone(result)
+        dir_path = find_directory_that_contains_file('appsettings.json')
+        self.assertEqual(dir_path, '/mocked/current/dir')
 
-if __name__ == "__main__":
+    @patch('os.walk')
+    def test_find_directory_with_invalid_parent_dir(self, mock_walk: MagicMock) -> None:
+        dir_path = find_directory_that_contains_file('appsettings.json', '/invalid/path')
+        self.assertIsNone(dir_path)
+
+if __name__ == '__main__':
     unittest.main(verbosity=2)

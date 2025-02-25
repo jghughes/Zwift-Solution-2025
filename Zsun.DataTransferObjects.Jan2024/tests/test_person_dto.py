@@ -11,18 +11,23 @@ for path in sorted(sys.path):
 print("\nExplanation:\n\tThe above paths are where Python will look to find modules and imports\n\treferenced in this file. If imports fail to resolve, it is because of\n\tincorrect paths. In a Visual Studio 2022 project, right-click\n\tthe 'Search Paths' node to add a path.")
 
 # Standard library imports
+import os
 import unittest
+import logging
 
 # Local application imports
+from jgh_logging import jgh_configure_logging
 from jgh_serialization import JghSerialization
 from person_dto import PersonDataTransferObject
 
-# Configure logging
-import logging
-from jgh_logging import jgh_configure_logging
+# Set the BASE_DIR environment variable 
+# This is required to be known inside jgh_configure_logging() to locate the appsettings file and the log file
+os.environ['BASE_DIR'] = 'C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024'
 
+# Configure logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
+
 
 # Define the tests
 class Test_PersonDto(unittest.TestCase):

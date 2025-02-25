@@ -5,25 +5,11 @@ import logging
 import unittest
 from dataclasses import dataclass
 
-from libmambapy import LogLevel
-from param import logging_level 
-
 # Local application imports
 from jgh_serialization import JghSerialization
+from jgh_logging import jgh_configure_logging
 
-# Configure logging
-logging_level = logging.DEBUG
-logging_level = logging.INFO
-logging_level = logging.WARNING
-logging_level = logging.ERROR
-logging_level = logging.CRITICAL
-
-log_format = "%(asctime)s - %(levelname)s - %(message)s"
-log_format = "%(message)s"
-
-log_filename="error_log.log"
-
-logging.basicConfig(filename=log_filename, level=logging_level, format=log_format)
+jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 
@@ -238,9 +224,9 @@ class Test_JghSerialization(unittest.TestCase):
     def test_07_import_json_with_int_and_bool_represented_as_strings_for_dataclass(self):
         """
         This test will illustrate how JghSerialization.validate reacts where 
-        integer, float, and boolean values are represented as strings in the JSON
-        for a dataclass. It will ensure that JghSerialisation can successfully 
-        coerce these fields to the correct types.
+        integer, float, and boolean values are encountered as strings in the JSON
+        being deserialised into a a dataclass. The test shows how JghSerialization.validate 
+        raises an error because of the limited functionality of dataclasses. 
         """
 
         @dataclass
