@@ -77,24 +77,30 @@ def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
     """
     Configures the root logging system from an appsettings file. Intended 
     to be called as a one-time set-up function used at the start of an application
-    in function Main. It would be incorrect to use it in library code other than for
-    testing.
+    in function Main. Logging should not be configured in library code. The main 
+    application that uses a library should configure logging. The logger should 
+    merely be obtained in library code. To obtain a logger in library code, call 
+    logger=logging.getLogger(__name__) to get a logger with the name of the current module.
 
-    Searches the base directory in the current operating environment and then drills 
-    downwards in the folder hierarchy to locate the dirpath of subdirectory containing
-    the "appSettingsFilename" file.
+    For this function to work as intended, the developer must include a custom 
+    key-value pair in the environment variables dictionary of the application. 
+    The key must be named BASE_DIR and the value must be the (hard-coded) base 
+    directory of the desktop application or the root folder of the web application 
+    as the case may be.
 
-    The base directory is the value attached to the BASE_DIR key in the environment 
-    variables. If this key value pair is not in the environment dictionary, the 
-    current working directory is used instead of the base directory. The
-    base directory is the root folder of the application. The way it is specified is
+    If this key value pair is not manually created in the environment dictionary, 
+    the current system working directory is used instead of the base directory. The
+    base directory is normally the root folder of a web app. The way it is specified is
     platform-dependent. On Windows, it is typically something like "C:/MyApp". On Linux,
     it is typically something like "/home/myapp". To setup it manually in code, use the
     os.environ["BASE_DIR"] = "C:/MyApp" or os.environ["BASE_DIR"] = "/home/myapp".
 
-    If no filename is provided, or the file is not found, or it is found but is 
-    invalid or falls short in any way, the root log in the logging system is initialised 
-    with the out-of-the-box default configuration  i.e. with logging to the console 
+    The function will search the obtained base directory and all its sub-directories 
+    if necessary to locate the dirpath of the folder containing the "appSettingsFilename" file.
+
+    If no filename is provided, or the file is not found, or is found but is 
+    invalid or falls short in any way, the the logging system is initialised 
+    with the out-of-the-box default configuration i.e. with logging to the console 
     in a message-only format.
 
     The logger will be configured with the following handlers if the appsettings file
@@ -109,7 +115,7 @@ def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
       rotated when it reaches 5MB in size, and up to 3 backup files will be kept.
 
     Included in the appsettings file, the following logging content is
-    expected:
+    expected (illustration):
 
         "logging": {
             "console": {
@@ -125,9 +131,6 @@ def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
     The log level can be one of the following: "debug", "info", "warning", "error", "critical".
     The message format can be one of the following: "messageonly", "simple, "balanced", "informative".
 
-    In library code, do no configuration of the logging system. This is the responsibility
-    of the application that uses the library. To obtain a logger in library code, call
-    logging.getLogger(__name__) to get a logger with the name of the current module.
 
     Args:
         appSettingsFilename (Optional[str]): The short name of the JSON file

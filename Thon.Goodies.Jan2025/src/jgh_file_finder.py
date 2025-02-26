@@ -6,16 +6,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def find_directory_that_contains_file(filename: Optional[str] = None, parent_dir: Optional[str] = None) -> str | None:
+def find_directory_that_contains_file(filename: Optional[str] = None, directory: Optional[str] = None) -> str | None:
     """
-    Begins by searching the given parent directory and then traverse downwards in the directory tree
-    to locate the full directory path of the folder containing the given file.
-    If parent_dir is None, the current working directory is assumed to be as the parent directory.
-    On many/most occasions this will be a false asumption, so it is recommended to provide the parent_dir.
+    Searches for the named file everywhere in the given directory, including all subdirectories. 
+    Returns the directory path of the folder containing the file. The method tries its best to 
+    find the file even if the caller chooses not to specify a directory. In this case, the method 
+    searches everywhere in the current working directory of the system. This is helpful
+    in circumstances where the caller wishes to search the working directory but doesn't know 
+    where/what it is.
     
     Args:
         filename (str): The name of the file to search for.
-        parent_dir (str): The parent directory to start the search from.
+        directory (str): The parent directory to start the search in.
     
     Returns:
         str | None: The directory path of the folder containing the given
@@ -24,15 +26,15 @@ def find_directory_that_contains_file(filename: Optional[str] = None, parent_dir
     if not filename:
         return None
 
-    if parent_dir is None:
-        parent_dir = os.getcwd()  # Use current working directory if parent_dir is not provided
+    if directory is None:
+        directory = os.getcwd()  # Use current working directory if directory is not provided
 
     try:
-        parent_dir = os.path.abspath(parent_dir)  # Normalize the base directory
+        directory = os.path.abspath(directory)  # Normalize the base directory
     except Exception:
         return None
 
-    for root, dirs, files in os.walk(parent_dir):
+    for root, dirs, files in os.walk(directory):
         if filename in files:
             return root.replace("\\", "/")
 

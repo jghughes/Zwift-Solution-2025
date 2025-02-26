@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>77128b3c-3239-45d1-af61-4717332efd26</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\hub_item_base_helpers.py</StartupFile>
+    <StartupFile>tests\test_person_item.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -40,6 +40,8 @@
     <Compile Include="tests\test_person_item.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\appsettings.json" />
+    <Content Include="data\logger.log" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />

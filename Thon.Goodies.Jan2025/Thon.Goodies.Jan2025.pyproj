@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_logging.py</StartupFile>
+    <StartupFile>tests\test_jgh_serialization_with_dataclasses.py</StartupFile>
     <SearchPath>tests;src;..\Zsun.DataTypes.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

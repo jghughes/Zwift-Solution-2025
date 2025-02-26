@@ -15,12 +15,13 @@ logger = logging.getLogger(__name__)
 
 # Define some arbitrary default values for the tests
 default_john: str = "john"
-default_middlenames : list[str] = ["gerald", "elana", "thomas", "alexandra"]
+default_middlenames: list[str] = ["gerald", "elana", "thomas", "alexandra"]
 default_jones: str = "jones"
 default_false: bool = False
 default_99 = 99
 default_email: str = "email@zip.com"
 default_eglinton: str = "eglinton"
+
 
 # Helper function to write a pretty error messages for the tests
 def pretty_error_message(ex: Exception) -> str:
@@ -65,11 +66,12 @@ class Test_JghSerialization(unittest.TestCase):
     def test_01_how_to_roundtrip_a_dataclass(self):
         """
         This test case creates an instance of dataclass (as opposed to a pydantic model),
-        roundtrips it using JghSerialization.serialise, and asserts that the roundtripped 
+        roundtrips it using JghSerialization.serialise, and asserts that the roundtripped
         instance is identical.
         """
+
         @dataclass
-        class TestModel():
+        class TestModel:
             isactive: bool = default_false
             age: int = default_99
 
@@ -88,7 +90,9 @@ class Test_JghSerialization(unittest.TestCase):
             logger.error(
                 f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_to_json_from_object:-\n\n{pretty_error_message(e)}"
             )
-            self.fail(f"ERROR OCCURRED: test_01_how_to_roundtrip_a_dataclass:\n{pretty_error_message(e)}\n")
+            self.fail(
+                f"ERROR OCCURRED: test_01_how_to_roundtrip_a_dataclass:\n{pretty_error_message(e)}\n"
+            )
 
     def test_02_import_json_with_missing_fields_for_dataclass(self):
         """
@@ -96,13 +100,14 @@ class Test_JghSerialization(unittest.TestCase):
         by JghSerialization.validate().
         For a dataclass, the default value is assigned to the attribute.
         """
+
         @dataclass
-        class TestModel():
+        class TestModel:
             age: int = 99
             email: str = default_email
 
         try:
-            missing_fields_json = '{"age": 16}' # Missing email field
+            missing_fields_json = '{"age": 16}'  # Missing email field
             logger.info(f"JSON STRING:\n\t{missing_fields_json}")
             obj = JghSerialization.validate(missing_fields_json, TestModel)
             self.assertIsInstance(obj, TestModel)
@@ -124,12 +129,13 @@ class Test_JghSerialization(unittest.TestCase):
         Test to illustrate that superfluous fields in a JSON string will happily ignored
         when a dataclass is deserialised using JghSerialization.validate().
         """
+
         @dataclass
-        class TestModel():
+        class TestModel:
             age: int
 
         try:
-            extra_fields_json = f'{{"age": 27, "extra_field": "extra_value", "another_extra_field": "another_extra_value"}}' # Extra fields
+            extra_fields_json = f'{{"age": 27, "extra_field": "extra_value", "another_extra_field": "another_extra_value"}}'  # Extra fields
             logger.info(f"JSON STRING:\n\t{extra_fields_json}")
             obj = JghSerialization.validate(extra_fields_json, TestModel)
             self.assertIsInstance(obj, TestModel)
@@ -145,15 +151,17 @@ class Test_JghSerialization(unittest.TestCase):
                 f"ERROR OCCURRED: test_03_import_json_with_superfluous_fields_for_dataclass:\n{pretty_error_message(e)}\n"
             )
 
-    #test fails: demonstrating that dataclass is useless for catching egregious problems
-    def test_04_import_json_with_unacceptible_field_value_types_in_json_for_dataclass(self):
+    # test fails: demonstrating that dataclass is useless for catching egregious problems
+    def test_04_import_json_with_unacceptible_field_value_types_in_json_for_dataclass(
+        self,
+    ):
         """
         Test to illustrate that JghSerialization.validate will raise a ValueError
         if JSON field is an invalid type for the attribute.
         """
 
         @dataclass
-        class TestModel():
+        class TestModel:
             id: int
             first: str | None = None
 
@@ -179,7 +187,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         @dataclass
-        class TestModel():
+        class TestModel:
             first: str | None = None
 
         # Invalid JSON string
@@ -204,7 +212,7 @@ class Test_JghSerialization(unittest.TestCase):
         """
 
         @dataclass
-        class TestModel():
+        class TestModel:
             id: int = 0
 
         # Empty JSON string
@@ -221,16 +229,18 @@ class Test_JghSerialization(unittest.TestCase):
 
     # test fails: demonstrating that dataclass is useless for catching egregious problems
     # problem. test is failing maybe because my custom decoder isn't working
-    def test_07_import_json_with_int_and_bool_represented_as_strings_for_dataclass(self):
+    def test_07_import_json_with_int_and_bool_represented_as_strings_for_dataclass(
+        self,
+    ):
         """
-        This test will illustrate how JghSerialization.validate reacts where 
+        This test will illustrate how JghSerialization.validate reacts where
         integer, float, and boolean values are encountered as strings in the JSON
-        being deserialised into a a dataclass. The test shows how JghSerialization.validate 
-        raises an error because of the limited functionality of dataclasses. 
+        being deserialised into a a dataclass. The test shows how JghSerialization.validate
+        raises an error because of the limited functionality of dataclasses.
         """
 
         @dataclass
-        class TestModel():
+        class TestModel:
             isactive: bool | None
             age: int | None
 

@@ -10,12 +10,9 @@ from dataclasses import dataclass
 import logging
 
 # Local application imports
+from jgh_logging import jgh_configure_logging
 from person_dto import PersonDataTransferObject
 from hub_item_base import HubItemBase
-
-# Configure logging settings
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:

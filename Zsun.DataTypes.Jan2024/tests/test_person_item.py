@@ -3,6 +3,7 @@ This module contains unit tests for the PersonItem class.
 """
 # Sys library import
 import sys
+import os
 
 # Check the paths for the module     
 print("sys.path (in alphabetical order):-")
@@ -15,12 +16,18 @@ import logging
 import unittest
 
 # Local application imports
-# from person_dto import PersonDataTransferObject
+from jgh_logging import jgh_configure_logging
 from person_item import PersonItem
+from person_dto import PersonDataTransferObject
+
+# Set a custom BASE_DIR environment variable 
+# This is required to be known inside jgh_configure_logging() to locate the appsettings file and the log file
+os.environ['BASE_DIR'] = 'C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTypes.Jan2024'
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger(__name__)
+jgh_configure_logging("appsettings.json")
+logger = logging.getLogger()
+
 
 # Define the tests
 class Test_PersonItem(unittest.TestCase):
@@ -65,7 +72,7 @@ class Test_PersonItem(unittest.TestCase):
     def test_to_dataTransferObject(self):
         """
         This test case creates an instance of PersonItem with specified attributes,
-        converts it to a PersonDto object using the to_dataTransferObject method,
+        converts it to a PersonDataTransferObject object using the to_dataTransferObject method,
         and then asserts that the converted object has the expected attribute values.
         """
         try:
@@ -76,7 +83,7 @@ class Test_PersonItem(unittest.TestCase):
                 touched_by="tester"
             )
             dto = PersonItem.to_dataTransferObject(item)
-            self.assertIsInstance(dto, PersonDto)
+            self.assertIsInstance(dto, PersonDataTransferObject)
             self.assertEqual(dto.zwift_id, 123)
             self.assertEqual(dto.discord_accountusername, "test_user")
             self.assertEqual(dto.recording_mode_enum, "mode1")
@@ -89,12 +96,12 @@ class Test_PersonItem(unittest.TestCase):
 
     def test_from_dataTransferObject(self):
         """
-        This test case creates an instance of PersonDto with specified attributes,
+        This test case creates an instance of PersonDataTransferObject with specified attributes,
         converts it to a PersonItem object using the from_dataTransferObject method,
         and then asserts that the converted object has the expected attribute values.
         """
         try:
-            dto = PersonDto(
+            dto = PersonDataTransferObject(
                 zsun_id="456",
                 zsun_firstname="John",
                 zsun_lastname="Doe",
