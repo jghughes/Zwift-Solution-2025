@@ -601,7 +601,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
 
 # Example usage
-if __name__ == "__main__":
+def main():
     # Example usage of the RepositoryOfHubStyleEntries class
     class ExampleHubItem:
         def __init__(self, guid: str, originating_item_guid: str, timestamp_binary_format: int, when_touched_binary_format: int):
@@ -660,3 +660,6 @@ if __name__ == "__main__":
 
     best_guess_headline_entry = repo.get_best_guess_headline_entry()
     print("Best guess headline entry:", best_guess_headline_entry.guid if best_guess_headline_entry else "None")
+
+if __name__ == "__main__":
+    main()

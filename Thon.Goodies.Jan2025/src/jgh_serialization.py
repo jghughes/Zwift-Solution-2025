@@ -186,6 +186,5 @@ def main():
     print("\nRound tripped SimpleModelV2 object:\n")
     print(roundtripped_instance_v2)
 
-
 if __name__ == "__main__":
     main()

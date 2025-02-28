@@ -179,7 +179,7 @@ class PersonDataTransferObject(BaseModel):
 
 
 # simple example usage of the PersonDataTransferObject class
-def illustrative_example_usages_of_person_dto():
+def main():
     """
     This function creates an instance of the PersonDataTransferObject class with sample data
     and prints the JSON representation of the instance. It serves as a test
@@ -213,4 +213,4 @@ def illustrative_example_usages_of_person_dto():
 
 # do the examples (but not if this script is imported as a module)
 if __name__ == "__main__":
-    illustrative_example_usages_of_person_dto()
+    main()

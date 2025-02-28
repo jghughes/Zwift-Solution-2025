@@ -127,7 +127,8 @@ class AppSettingsDataTransferObject(BaseModel):
     databases: DatabasesSettingsDataTransferObject | None = None
     apis: ApisSettingsDataTransferObject | None = None
 
-if __name__ == "__main__":
+
+def main():
 
     # Create an instance of AppSettingsDataTransferObject with realistic test data
     app_settings = AppSettingsDataTransferObject(
@@ -263,4 +264,7 @@ if __name__ == "__main__":
 
     # Deserialize the JSON back to an instance of AppSettingsDataTransferObject
     app_settings = AppSettingsDataTransferObject.model_validate_json(app_settings_json)
+
+if __name__ == "__main__":
+    main()
 

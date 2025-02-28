@@ -62,7 +62,7 @@ class HubItemBase:
 
 # Example usage of HubItemBase class
 
-if __name__ == "__main__":
+def main():
     # Create test instances of HubItemBase
     item1 = HubItemBase(
         click_counter=5,
@@ -130,3 +130,6 @@ if __name__ == "__main__":
     both_guids = item2.get_both_guids()
     print(f"\nItem2 instance - both GUIDs:\n\n\t{both_guids}\n")
 
+
+if __name__ == "__main__":
+    main()

@@ -10,7 +10,6 @@ from dataclasses import dataclass
 import logging
 
 # Local application imports
-from jgh_logging import jgh_configure_logging
 from person_dto import PersonDataTransferObject
 from hub_item_base import HubItemBase
 
@@ -145,7 +144,7 @@ class PersonItem(HubItemBase):
 
 # simple example usage of the PersonItem class
 
-if __name__ == "__main__":
+def main():
     # Create a new PersonItem instance using the create method
     person_item = PersonItem.create(
         zwift_id=12345,
@@ -173,6 +172,9 @@ if __name__ == "__main__":
     print("\nAre all the attributes of the the original and roundtripped PersonItem instances equal?")
     isequal : bool = person_item == new_person_item
     print(isequal)
+
+    if __name__ == "__main__":
+        main()
 
 
 

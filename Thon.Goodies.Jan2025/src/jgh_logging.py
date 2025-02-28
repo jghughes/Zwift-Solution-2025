@@ -75,12 +75,12 @@ class LogLevel:
 
 def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
     """
-    Configures the root logging system from an appsettings file. Intended 
+    Configures the root logger in the logging system from an appsettings file. Intended 
     to be called as a one-time set-up function used at the start of an application
     in function Main. Logging should not be configured in library code. The main 
     application that uses a library should configure logging. The logger should 
-    merely be obtained in library code. To obtain a logger in library code, call 
-    logger=logging.getLogger(__name__) to get a logger with the name of the current module.
+    merely be obtained in library code. To obtain a logger in library code, merely call 
+    logger=logging.getLogger(__name__).
 
     For this function to work as intended, the developer must include a custom 
     key-value pair in the environment variables dictionary of the application. 
@@ -88,9 +88,11 @@ def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
     directory of the desktop application or the root folder of the web application 
     as the case may be.
 
-    If this key value pair is not manually created in the environment dictionary, 
-    the current system working directory is used instead of the base directory. The
-    base directory is normally the root folder of a web app. The way it is specified is
+    If this key-value pair is not manually created in the environment dictionary, 
+    the function resorts to using the current system working directory instead. 
+    This will normally be useless other than in a testing environment. 
+    
+    The base directory is normally the root folder of a web app. The way it is specified is
     platform-dependent. On Windows, it is typically something like "C:/MyApp". On Linux,
     it is typically something like "/home/myapp". To setup it manually in code, use the
     os.environ["BASE_DIR"] = "C:/MyApp" or os.environ["BASE_DIR"] = "/home/myapp".
@@ -224,7 +226,7 @@ def jgh_configure_logging(appSettingsFilename: Optional[str] = None)-> None:
 
 # Example usage
 
-if __name__ == "__main__":
+def main():
 
     debugMsg="This is a debug message"
     infoMsg="This is an info message"
@@ -276,6 +278,9 @@ if __name__ == "__main__":
     rootlogger.warning(warningMsg)
     rootlogger.error(errorMsg)
     rootlogger.critical(criticalMsg)
+
+if __name__ == "__main__":
+    main()
 
 
 

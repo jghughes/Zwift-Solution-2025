@@ -695,10 +695,9 @@ class JghListDictionary[TKey, TValue]:
         """
         self.backingstore_dict[key] = value
 
-        # example usage of the JghListDictionary class
+ # example usage of the JghListDictionary class
 
-
-if __name__ == "__main__":
+def main():
     # Create an instance of JghListDictionary
     dictionary = JghListDictionary[str, int]()
 
@@ -770,3 +769,6 @@ if __name__ == "__main__":
     print("Original number of keys:", original_keys_count)
     print("Original number of values:", original_values_count)
     print("Dictionary after clearing everything:", dictionary.backingstore_dict)
+
+if __name__ == "__main__":
+    main()

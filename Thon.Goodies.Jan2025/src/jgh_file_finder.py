@@ -40,17 +40,14 @@ def find_directory_that_contains_file(filename: Optional[str] = None, directory:
 
     return None
 
-# Example usage
-if __name__ == "__main__":
-    # path_to_file = find_filepath("appsettings.json")
-    # if path_to_file:
-    #     print(f"Found appsettings.json at: {path_to_file}")
-    # else:
-    #     print("appsettings.json not found.")
-
+def main():
     dir_path = find_directory_that_contains_file("appsettings.json")
     if dir_path:
         print(f"Found appsettings.json at: {dir_path}")
     else:
         print("appsettings.json not found.")
 
+
+# Example usage
+if __name__ == "__main__":
+    main()

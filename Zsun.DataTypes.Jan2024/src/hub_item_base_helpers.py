@@ -40,7 +40,7 @@ def group_by_originating_guid(list_of_hubitembases: list[HubItemBase]) -> JghLis
 
 # Example usage of HubItemBase class helpers
 
-if __name__ == "__main__":
+def main():
     # Create illustrative instances of HubItemBase
     item1 = HubItemBase(
         originating_item_guid="orig_guid1",
@@ -78,3 +78,6 @@ if __name__ == "__main__":
         count += 1
         print(f"\nHubItem {count}:\n\tOriginating GUID={hubitem.originating_item_guid}\tComment={hubitem.comment}")
 
+    
+if __name__ == "__main__":
+    main()

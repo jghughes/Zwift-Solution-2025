@@ -96,8 +96,7 @@ class JghString:
         return result
 
 # Example usage
-if __name__ == "__main__":
-
+def main():
     concatenated = JghString.concat("first", "", "second", "third", "")
     print(f"Concatenated:\n{concatenated}")
 
@@ -112,3 +111,6 @@ if __name__ == "__main__":
 
     concatenated_as_paragraphs = JghString.concat_as_paragraphs("first", "", "second", "third", "")
     print(f"Concatenated as paragraphs:\n{concatenated_as_paragraphs}")
+
+if __name__ == "__main__":
+    main()
