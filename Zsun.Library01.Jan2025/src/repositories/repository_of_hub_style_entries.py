@@ -1,5 +1,7 @@
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable
+
+from attr import dataclass
 from hub_item_base import HubItemBase
 
 class RepositoryOfHubStyleEntries[T : HubItemBase]():
@@ -601,18 +603,17 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
 # Example usage
 def main():
     # Example usage of the RepositoryOfHubStyleEntries class
-    class ExampleHubItem:
-        def __init__(self, guid: str, originating_item_guid: str, timestamp_binary_format: int, when_touched_binary_format: int):
-            self.guid = guid
-            self.originating_item_guid = originating_item_guid
-            self.timestamp_binary_format = timestamp_binary_format
-            self.when_touched_binary_format = when_touched_binary_format
-        
-        self.GetBothGuids = lambda: f"{self.guid}{self.originating_item_guid}"
+    @dataclass
+    class DanielHubItem(HubItemBase):
+        """
+        A class representing an example hub item.
+        """
+        height: int = 0
+        width: int = 0
 
-    repo = RepositoryOfHubStyleEntries[ExampleHubItem]()
-    item1 = ExampleHubItem("guid1", "orig_guid1", 100, 200)
-    item2 = ExampleHubItem("guid2", "orig_guid2", 150, 250)
+    repo = RepositoryOfHubStyleEntries[DanielHubItem]()
+    item1 = DanielHubItem("guid1", "orig_guid1", 100, 200)
+    item2 = DanielHubItem("guid2", "orig_guid2", 150, 250)
     repo._dictionary_of_everything_keyed_by_both_guids[item1.guid] = item1
     repo._dictionary_of_everything_keyed_by_both_guids[item2.guid] = item2
     repo._sequence_is_out_of_date = True

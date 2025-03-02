@@ -1,7 +1,7 @@
 import unittest
 import os
 from unittest.mock import patch, mock_open, MagicMock
-from jgh_file_finder import find_directory_that_contains_file
+from jgh_logging import find_directory_that_contains_file
 
 class TestSearchForPathToFile(unittest.TestCase):
 

@@ -20,7 +20,7 @@ from jgh_logging import jgh_configure_logging
 from jgh_serialization import JghSerialization
 from person_dto import PersonDataTransferObject
 
-# Configure root logging  -  Set a custom BASE_DIR environment variable (to search for the appsettings file)
+# Configure root logging  -  Set a custom BASE_DIR environment variable (where to delve for the appsettings file)
 os.environ['BASE_DIR'] = 'C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024'
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)

@@ -5,7 +5,7 @@
     <ProjectGuid>77128b3c-3239-45d1-af61-4717332efd26</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\hub_item_base.py</StartupFile>
-    <SearchPath>src;..\Zsun.DataTransferObjects.Jan2024\src;..\Thon.Goodies.Jan2025\src</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun.DataTypes.Jan2024</Name>
@@ -28,6 +28,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="setup.py" />
+    <Compile Include="src\hubitem_helpers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\hub_item_base.py">
       <SubType>Code</SubType>
     </Compile>

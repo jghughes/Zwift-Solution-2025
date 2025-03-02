@@ -27,9 +27,6 @@
     <Compile Include="src\jgh_listdictionary.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_file_finder.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\jgh_logging.py" />
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">

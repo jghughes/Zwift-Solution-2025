@@ -2,7 +2,7 @@
 This module defines the PersonItem class, which represents an item associated with a person.
 """
 # Standard library imports
-import datetime
+# import datetime
 from datetime import datetime, timezone
 from typing import Any
 import uuid
@@ -12,6 +12,8 @@ import logging
 # Local application imports
 from person_dto import PersonDataTransferObject
 from hub_item_base import HubItemBase
+
+logger = logging.getLogger(__name__)
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:
@@ -41,7 +43,7 @@ def assign_if_not_none(target: Any, source: Any, attribute: Any):
             if value is not None:
                 setattr(target, attribute, value)
     except Exception as e:
-        logging.error(f"Error assigning attribute '{attribute}': {pretty_error_message(e)}")
+        logger.warning(f"Error assigning attribute '{attribute}': {pretty_error_message(e)}")
 
 @dataclass
 class PersonItem(HubItemBase):
@@ -61,15 +63,15 @@ class PersonItem(HubItemBase):
         comment (str):                      An optional comment about the person or entry.
     """
 
-    zsun_id: str = ""
-    zsun_firstname: str = ""
-    zsun_lastname: str = ""
-    zwift_id: int = 0
-    zwift_firstname: str = ""
-    zwift_lastname: str = ""
-    discord_accountusername: str = ""
-    discord_accountdisplayname: str = ""
-    discord_profiledisplayname: str = ""
+    zsun_id: str | None = ""
+    zsun_firstname: str | None = ""
+    zsun_lastname: str | None = ""
+    zwift_id: int | None = 0
+    zwift_firstname: str | None = ""
+    zwift_lastname: str | None = ""
+    discord_accountusername: str | None = ""
+    discord_accountdisplayname: str | None = ""
+    discord_profiledisplayname: str | None = ""
 
     @staticmethod
     def create(

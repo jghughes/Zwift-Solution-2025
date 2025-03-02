@@ -5,10 +5,6 @@ This module defines various string utility functions.
 # Standard library imports
 # Local application imports
 
-# Configure logging
-import logging
-logger = logging.getLogger(__name__)
-
 class JghString:
     
    @staticmethod

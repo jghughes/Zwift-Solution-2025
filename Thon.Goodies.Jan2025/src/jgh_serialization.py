@@ -14,7 +14,6 @@ from pydantic import BaseModel, ValidationError
 
 # Configure logging
 import logging
-logger = logging.getLogger(__name__)
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:

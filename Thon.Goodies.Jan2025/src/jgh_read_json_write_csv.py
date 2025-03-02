@@ -7,7 +7,6 @@ from typing import List, Dict, Any, Optional
 
 # Configure logging
 import logging
-logger = logging.getLogger(__name__)
 
 def is_valid_path(path: str) -> bool:
     """
