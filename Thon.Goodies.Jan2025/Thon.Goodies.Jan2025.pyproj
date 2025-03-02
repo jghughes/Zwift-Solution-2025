@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_jgh_serialization_with_dataclasses.py</StartupFile>
-    <SearchPath>tests;src;..\Zsun.DataTypes.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src</SearchPath>
+    <StartupFile>tests\test_tool_convert_json_to_csv.py</StartupFile>
+    <SearchPath>tests;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Thon.Goodies.Jan2025</Name>
@@ -36,9 +36,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\jgh_serialization.py" />
-    <Compile Include="src\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="tests\test_jgh_listdictionary.py" />
     <Compile Include="tests\test_jgh_file_finder.py">
       <SubType>Code</SubType>

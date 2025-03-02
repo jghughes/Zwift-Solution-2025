@@ -1,8 +1,8 @@
-from typing import List, Dict, TypeVar, Generic, Tuple, Optional, Iterable
+from collections import defaultdict
+from typing import List, Dict, Tuple, Optional, Iterable
+from hub_item_base import HubItemBase
 
-T = TypeVar('T', bound='IHubItem')
-
-class RepositoryOfHubStyleEntries(Generic[T]):
+class RepositoryOfHubStyleEntries[T : HubItemBase]():
     """
     RepositoryOfHubStyleEntries is a generic class that manages a collection of hub-style entries.
     """
@@ -26,7 +26,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
     # methods to add/change/delete data
 
-    def try_add_no_duplicate(self, item: T) -> Tuple[bool, str]:
+    def try_add_no_duplicate(self, item: T | None) -> Tuple[bool, str]:
         """
         Tries to add an item without duplicates.
 
@@ -49,8 +49,8 @@ class RepositoryOfHubStyleEntries(Generic[T]):
         if not item.get_both_guids().strip():
             return False, "Item BothGuids property not specified. Data error"
 
-        if item == T():
-            return False, "Item is blank."
+        if item == type(item)():
+            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
 
         # Fast insertion
         self._dictionary_of_everything_keyed_by_both_guids[item.get_both_guids()] = item  # Overwrite
@@ -62,7 +62,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
         return True, ""
 
-    def try_add_range_no_duplicates(self, items: List[T]) -> Tuple[bool, str]:
+    def try_add_range_no_duplicates(self, items: List[T] | None) -> Tuple[bool, str]:
         """
         Tries to add a range of items without duplicates.
 
@@ -82,7 +82,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
         return True, ""
 
-    def update_entry(self, item: T):
+    def update_entry(self, item: T | None):
         """
         Updates an entry.
 
@@ -288,7 +288,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
         """
         return both_guids_as_key in self._dictionary_of_everything_keyed_by_both_guids
 
-    def contains_entry_with_matching_both_guids(self, item: T) -> bool:
+    def contains_entry_with_matching_both_guids(self, item: Optional[T]) -> bool:
         """
         Checks if the dictionary contains an entry with matching both GUIDs.
 
@@ -414,7 +414,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
         return self.to_list_dictionary_grouped_by_bib(items_for_this_recording_mode)
 
-    def is_most_recent_entry_with_same_originating_item_guid(self, candidate_most_recent_item: T) -> bool:
+    def is_most_recent_entry_with_same_originating_item_guid(self, candidate_most_recent_item: Optional[T]) -> bool:
         """
         Checks if the candidate item is the most recent entry with the same originating item GUID.
 
@@ -516,7 +516,7 @@ class RepositoryOfHubStyleEntries(Generic[T]):
 
     # helpers
 
-    def add_or_overwrite_to_dirty_little_baby_mirror(self, item: T):
+    def add_or_overwrite_to_dirty_little_baby_mirror(self, item: Optional[T]):
         """
         Adds or overwrites an item in the dirty little baby mirror.
 
@@ -530,8 +530,8 @@ class RepositoryOfHubStyleEntries(Generic[T]):
         if not item.get_both_guids():
             return
 
-        if item == T():
-            return  # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
+        if item == type(item)():
+            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
 
         # Fast update
         if item in self._nasty_little_mirror:
@@ -597,8 +597,6 @@ class RepositoryOfHubStyleEntries(Generic[T]):
         )
 
         return sorted_unditched_items
-
-
 
 # Example usage
 def main():

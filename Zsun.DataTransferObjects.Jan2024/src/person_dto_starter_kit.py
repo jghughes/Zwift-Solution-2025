@@ -1,11 +1,6 @@
 # Local application imports
 from pydantic import BaseModel
 
-# Configure logging
-import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
 # WARNING: This is a simple version of a PersonDataTransferObject.
 # The object is extensible. It can be extended to handle almost infinitely 
 # advanced scenarios.

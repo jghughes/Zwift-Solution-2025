@@ -5,9 +5,9 @@ with various attributes.
 
 # Standard library imports
 import json
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 
 # Local application imports
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 
 # Define constants for all the serialization aliases - for now, they are the same as the attribute names
 ZSUN_ID = "zsun_id"

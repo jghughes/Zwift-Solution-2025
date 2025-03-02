@@ -7,9 +7,6 @@ provides a custom dictionary-like data structure.
 from collections import defaultdict
 from typing import Callable, Tuple
 
-# Configure logging
-import logging
-logger = logging.getLogger(__name__)
 
 class JghListDictionary[TKey, TValue]:
     """
@@ -771,4 +768,6 @@ def main():
     print("Dictionary after clearing everything:", dictionary.backingstore_dict)
 
 if __name__ == "__main__":
+    import logging
+    logger = logging.getLogger(__name__)
     main()

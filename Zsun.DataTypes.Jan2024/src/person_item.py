@@ -173,8 +173,8 @@ def main():
     isequal : bool = person_item == new_person_item
     print(isequal)
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
 
 
 
