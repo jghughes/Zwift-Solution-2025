@@ -8,6 +8,7 @@ functionality.
 """
 # Standard library imports
 from dataclasses import dataclass
+from typing import Optional, Tuple
 
 
 @dataclass
@@ -37,18 +38,18 @@ class HubItemBase:
     
     """
 
-    click_counter: int | None = 0
+    click_counter: int = 0
     recording_mode_enum: str | None = ""
     database_action_enum: str | None = ""
-    must_ditch_originating_item: bool | None = False
-    is_still_to_be_backed_up: bool | None = True
-    is_still_to_be_pushed: bool | None = True
+    must_ditch_originating_item: bool = False
+    is_still_to_be_backed_up: bool = True
+    is_still_to_be_pushed: bool  = True
     touched_by: str | None = ""
-    timestamp_binary_format: int | None = 0
-    when_touched_binary_format: int | None = 0
-    when_pushed_binary_format: int | None = 0
-    originating_item_guid: str | None = ""
-    guid: str | None = ""
+    timestamp_binary_format: int = 0
+    when_touched_binary_format: int = 0
+    when_pushed_binary_format: int = 0
+    originating_item_guid: str = ""
+    guid: str = ""
     comment: str | None = ""
 
     def get_both_guids(self) -> str:
@@ -56,6 +57,40 @@ class HubItemBase:
         Returns a concatenation of the originating item GUID and the item GUID.
         """
         return f"{self.originating_item_guid}{self.guid}"
+
+    @staticmethod
+    def is_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
+        """
+        Determines if the item is a minimally valid candidate for addition 
+        to a repository keyed on the concatentaion of both GUIDs. 
+
+        Null items and unpopulated "new" items are deemed invalid as are items 
+        where one or both GUIDS are empty. No validity check is done on the format 
+        or content of the GUID variables.
+
+        Args:
+            item (T): The item to check.
+
+        Returns:
+            bool: True if the item is valid, otherwise False with an explanatory message.
+        """
+        # Null checks
+        if item is None:
+            return False, "Item is null. Data error"
+
+        if not item.guid.strip():
+            return False, "Item Guid property not specified. Data error"
+
+        if not item.originating_item_guid.strip():
+            return False, "Item OriginatingItemGuid property not specified. Data error"
+
+        if not item.get_both_guids().strip():
+            return False, "Item BothGuids property not specified. Data error"
+
+        if item == type(item)():
+            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
+
+        return True, "Item is valid"
 
 
 

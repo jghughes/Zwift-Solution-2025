@@ -30,29 +30,40 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
 
     def try_add_no_duplicate(self, item: T | None) -> Tuple[bool, str]:
         """
-        Tries to add an item without duplicates.
+        Tries to add a key-value pair without duplication. The key is the 
+        concatenation of the originating item GUID and the item GUID 
+        (guaranteed uniqueness). The value is the item. If the key is 
+        already present, the value is overwritten.
 
         Args:
             item (T): The item to add.
 
         Returns:
-            Tuple[bool, str]: A tuple containing a boolean indicating success and an error message if any.
+           Tuple[bool, str]: A tuple containing a boolean indicating success and 
+            an error message if any. Returns false if the item is blank or either 
+            GUID is not specified.
         """
         # Null checks
-        if item is None:
-            return False, "Item is null. Data error"
 
-        if not item.guid.strip():
-            return False, "Item Guid property not specified. Data error"
+        outcome, message = HubItemBase.is_valid_item(item)
 
-        if not item.originating_item_guid.strip():
-            return False, "Item OriginatingItemGuid property not specified. Data error"
+        if not outcome:
+            return False, message
 
-        if not item.get_both_guids().strip():
-            return False, "Item BothGuids property not specified. Data error"
+        # if item is None:
+        #     return False, "Item is null. Data error"
 
-        if item == type(item)():
-            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
+        # if not item.guid.strip():
+        #     return False, "Item Guid property not specified. Data error"
+
+        # if not item.originating_item_guid.strip():
+        #     return False, "Item OriginatingItemGuid property not specified. Data error"
+
+        # if not item.get_both_guids().strip():
+        #     return False, "Item BothGuids property not specified. Data error"
+
+        # if item == type(item)():
+        #     return False, "Item is blank." # 
 
         # Fast insertion
         self._dictionary_of_everything_keyed_by_both_guids[item.get_both_guids()] = item  # Overwrite
@@ -66,16 +77,25 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
 
     def try_add_range_no_duplicates(self, items: List[T] | None) -> Tuple[bool, str]:
         """
-        Tries to add a range of items without duplicates.
+        Tries to add a range of items. Items with duplicate keys are overwritten not 
+        duplicated. Iteratively performs try_add_no_duplicate(item) on each item in 
+        the list. The contents of the repository are updated only if all items are 
+        valid. If any item is invalid, none of the items are added.
 
         Args:
             items (List[T]): The list of items to add.
 
         Returns:
-            Tuple[bool, str]: A tuple containing a boolean indicating success and an error message if any.
+            Tuple[bool, str]: A tuple containing a boolean indicating success and 
+            an error message if any. Returns false if the range of items is null 
+            or any item on the list is blank or either GUID is not specified. 
         """
         if items is None:
             return False, "Range of items is null. Data error."
+
+        # check that all the item are valid and an exit if not
+        if not all(HubItemBase.is_valid_item(item)[0] for item in items):
+                    return False, "One or more items are invalid. Data error."
 
         for item in items:
             success, error_message = self.try_add_no_duplicate(item)
@@ -189,7 +209,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         Returns:
             bool: True if the entry is present, False otherwise.
         """
-        return item is not None and self.contains_key_as_both_guids(item.get_both_guids())
+        return self.contains_key_as_both_guids(item.get_both_guids())
 
     def get_entry_by_both_guids_as_key(self, both_guids_as_key: str) -> Optional[T]:
         """
@@ -278,59 +298,6 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         """
         return self.get_most_recent_entry()
 
-    def contains_key_as_both_guids(self, both_guids_as_key: str) -> bool:
-        """
-        Checks if the dictionary contains the given key.
-
-        Args:
-            both_guids_as_key (str): The key to check.
-
-        Returns:
-            bool: True if the key is present, False otherwise.
-        """
-        return both_guids_as_key in self._dictionary_of_everything_keyed_by_both_guids
-
-    def contains_entry_with_matching_both_guids(self, item: Optional[T]) -> bool:
-        """
-        Checks if the dictionary contains an entry with matching both GUIDs.
-
-        Args:
-            item (T): The item to check.
-
-        Returns:
-            bool: True if the entry is present, False otherwise.
-        """
-        return item is not None and self.contains_key_as_both_guids(item.get_both_guids())
-
-    def get_entry_by_both_guids_as_key(self, both_guids_as_key: str) -> Optional[T]:
-        """
-        Gets an entry by both GUIDs as key.
-
-        Args:
-            both_guids_as_key (str): The key to get the entry.
-
-        Returns:
-            Optional[T]: The entry if found, None otherwise.
-        """
-        if not both_guids_as_key.strip():
-            return None
-
-        return self._dictionary_of_everything_keyed_by_both_guids.get(both_guids_as_key)
-
-    def get_all_entries_as_raw_data(self) -> List[T]:
-        """
-        Gets all entries as raw data.
-
-        Returns:
-            List[T]: A list of all entries ordered by descending timestamp.
-        """
-        if self.sequence_is_pristine:
-            return self._everything_ordered_by_descending_timestamp
-
-        self.reorder_raw_entries_by_descending_timestamp()
-
-        return self._everything_ordered_by_descending_timestamp
-
     def get_youngest_descendent_with_same_originating_item_guid(self, candidate_originating_item_guid: str) -> Optional[T]:
         """
         Gets the youngest descendent with the same originating item GUID.
@@ -358,15 +325,22 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         if not recording_mode_enum.strip():
             return None
 
-        return next(
-            (item for item in sorted(
-                (item for item in self.get_all_un_ditched_youngest_descendents_with_same_originating_item_guid_as_master_list()
-                 if item and item.recording_mode_enum == recording_mode_enum),
-                key=lambda x: x.when_touched_binary_format,
-                reverse=True
-            )),
-            None
-        )
+        # Step 1: Retrieve all unditched youngest descendents
+        all_unditched_youngest_descendents = self.get_all_un_ditched_youngest_descendents_with_same_originating_item_guid_as_master_list()
+
+        # Step 2: Filter by recording mode
+        filtered_items = [
+            item for item in all_unditched_youngest_descendents
+            if item and item.recording_mode_enum == recording_mode_enum
+        ]
+
+        # Step 3: Sort by when_touched_binary_format in descending order
+        sorted_items = sorted(filtered_items, key=lambda x: x.when_touched_binary_format, reverse=True)
+
+        # Step 4: Get the first item from the sorted list, or None if the list is empty
+        most_recent_item = next(iter(sorted_items), None)
+
+        return most_recent_item
 
     def get_dictionary_of_identifiers_with_their_most_recent_item_for_this_recording_mode_from_master_list(self, recording_mode_enum: str) -> Optional[Dict[str, T]]:
         """
@@ -608,26 +582,32 @@ def main():
         """
         A class representing an example hub item.
         """
-        height: int = 0
-        width: int = 0
+        height: float = 0
+        weight: float = 0
+
+        @staticmethod
+        def create(height: float, weight: float, guid : str) -> "DanielHubItem":
+            answer =DanielHubItem(height=height, weight=weight)
+            answer.guid = guid
+            answer.originating_item_guid = guid
+            return answer
 
     repo = RepositoryOfHubStyleEntries[DanielHubItem]()
-    item1 = DanielHubItem("guid1", "orig_guid1", 100, 200)
-    item2 = DanielHubItem("guid2", "orig_guid2", 150, 250)
-    repo._dictionary_of_everything_keyed_by_both_guids[item1.guid] = item1
-    repo._dictionary_of_everything_keyed_by_both_guids[item2.guid] = item2
-    repo._sequence_is_out_of_date = True
+    item1 = DanielHubItem.create(height=174, weight=74.7, guid="Tom")
+    item2 = DanielHubItem.create(height=196, weight=92, guid="Dick")
+    repo.try_add_no_duplicate(item1)
+    repo.try_add_no_duplicate(item2)
 
     all_entries = repo.get_all_entries_as_raw_data()
     print("All entries:", [item.guid for item in all_entries])
 
-    contains_key = repo.contains_key_as_both_guids("guid1-orig_guid1")
-    print("Contains key 'guid1-orig_guid1':", contains_key)
+    contains_key = repo.contains_key_as_both_guids("TomTom")
+    print("Contains key 'TomTom':", contains_key)
 
     contains_entry = repo.contains_entry_with_matching_both_guids(item1)
     print("Contains entry with matching both GUIDs:", contains_entry)
 
-    entry = repo.get_entry_by_both_guids_as_key("guid1-orig_guid1")
+    entry = repo.get_entry_by_both_guids_as_key("TomTom")
     print("Entry by both GUIDs as key:", entry.guid if entry else "None")
 
     success, error_message = repo.try_add_no_duplicate(item1)
@@ -637,13 +617,8 @@ def main():
     print("Try add range no duplicates:", success, error_message)
 
     repo.update_entry(item1)
-    print("Updated entry:", repo.get_entry_by_both_guids_as_key("guid1-orig_guid1").guid)
-
-    removed_entry = repo.remove_entry("guid1-orig_guid1")
-    print("Removed entry:", removed_entry.guid if removed_entry else "None")
-
-    count_cleared = repo.clear_cache()
-    print("Count of items cleared:", count_cleared)
+    entry = repo.get_entry_by_both_guids_as_key("TomTom")
+    print("Updated entry:", entry.guid if entry else "Nothing found")
 
     youngest_descendents = repo.get_youngest_descendent_of_each_originating_item_guid_including_ditches()
     print("Youngest descendents including ditches:", [item.guid for item in youngest_descendents])
@@ -659,6 +634,13 @@ def main():
 
     best_guess_headline_entry = repo.get_best_guess_headline_entry()
     print("Best guess headline entry:", best_guess_headline_entry.guid if best_guess_headline_entry else "None")
+
+    removed_entry = repo.remove_entry("TomTom")
+    print("Removed entry:", removed_entry.guid if removed_entry else "None")
+
+    count_cleared = repo.clear_cache()
+    print("Count of items cleared:", count_cleared)
+
 
 if __name__ == "__main__":
     main()
