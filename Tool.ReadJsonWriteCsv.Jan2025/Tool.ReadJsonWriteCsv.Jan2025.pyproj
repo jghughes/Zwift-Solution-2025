@@ -6,7 +6,7 @@
     <ProjectHome>.</ProjectHome>
     <StartupFile>
     </StartupFile>
-    <SearchPath>data;data\test_csv_files;data\test_json_files;data\test_json_files_riderkeys;src\classes;tests;..\Thon.Goodies.Jan2025\src</SearchPath>
+    <SearchPath>data;data\test_csv_files;data\test_json_files;data\test_json_files_riderkeys;tests;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Tool.ReadJsonWriteCsv.Jan2025</Name>

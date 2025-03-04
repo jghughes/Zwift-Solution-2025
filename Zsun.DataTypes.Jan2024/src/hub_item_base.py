@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 
+
 @dataclass
 class HubItemBase:
     """
@@ -53,10 +54,14 @@ class HubItemBase:
     comment: str | None = ""
 
     def get_both_guids(self) -> str:
+       """
+        Returns the concatenation of the originating item GUID and the item GUID.
+        Ensures that the return value is always a string, at minimum an empty string.
+        An empty string is invalid and must be checked for in the calling code.
         """
-        Returns a concatenation of the originating item GUID and the item GUID.
-        """
-        return f"{self.originating_item_guid}{self.guid}"
+       originating_item_guid = self.originating_item_guid.strip() or ""
+       guid = self.guid.strip() or ""
+       return originating_item_guid + guid
 
     @staticmethod
     def is_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
@@ -78,6 +83,9 @@ class HubItemBase:
         if item is None:
             return False, "Item is null. Data error"
 
+        if item == type(item)():
+            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
+
         if not item.guid.strip():
             return False, "Item Guid property not specified. Data error"
 
@@ -86,9 +94,6 @@ class HubItemBase:
 
         if not item.get_both_guids().strip():
             return False, "Item BothGuids property not specified. Data error"
-
-        if item == type(item)():
-            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
 
         return True, "Item is valid"
 

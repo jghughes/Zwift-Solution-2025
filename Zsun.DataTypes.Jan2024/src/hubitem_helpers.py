@@ -1,24 +1,25 @@
 from jgh_listdictionary import JghListDictionary
+from typing import TypeVar
 from hub_item_base import HubItemBase
+from jgh_logging import JghLogger
 
 
-def group_by_originating_guid(list_of_hubitembases: list[HubItemBase]) -> JghListDictionary[str, HubItemBase]:
+T = TypeVar('T', bound=HubItemBase)
+def group_by_originating_guid(list_of_hubitembases: list[T]) -> JghListDictionary[str, T]:
     """
-    Groups a list of HubItemBase instances by their originating_item_guid attribute.
+    Groups a list of HubItemBase instances (or its subclasses) by their originating_item_guid attribute.
 
     Parameters:
     -----------
-    list_of_hubitembases : list[HubItemBase]
-        The list of HubItemBase instances to group.
+    list_of_hubitembases : list[T]
+        The list of HubItemBase instances (or its subclasses) to group.
 
     Returns:
     --------
-    JghListDictionary[str, HubItemBase]
+    JghListDictionary[str, T]
         A dictionary-like object grouping the list_of_hubitems by their originating_item_guid attribute.
     """
-    answer: JghListDictionary[str, HubItemBase] = JghListDictionary[
-        str, HubItemBase
-    ]()
+    answer: JghListDictionary[str, T] = JghListDictionary[str, T]()
 
     sorted_list_of_hubitems = sorted(
         (

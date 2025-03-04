@@ -4,11 +4,13 @@ provides a custom dictionary-like data structure.
 """
 
 # Standard library imports
+from typing import TypeVar, Generic
 from collections import defaultdict
 from typing import Callable, Tuple
 
-
-class JghListDictionary[TKey, TValue]:
+TKey = TypeVar('TKey')
+TValue = TypeVar('TValue')
+class JghListDictionary(Generic[TKey, TValue]):
     """
     A generic dictionary-like class that maps keys to lists of values.
 
@@ -97,7 +99,6 @@ class JghListDictionary[TKey, TValue]:
     number_of_values -> int:
         Retrieves the total number of values in the dictionary.
     """
-
     backingstore_dict: defaultdict[TKey, list[TValue]] = defaultdict(list)
 
     def insert_key(self, key: TKey) -> bool:

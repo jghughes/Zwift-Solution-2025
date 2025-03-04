@@ -1,5 +1,7 @@
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable
+from datetime import datetime, timezone
+from hubitem_helpers import group_by_originating_guid
 
 from attr import dataclass
 from hub_item_base import HubItemBase
@@ -50,23 +52,9 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         if not outcome:
             return False, message
 
-        # if item is None:
-        #     return False, "Item is null. Data error"
-
-        # if not item.guid.strip():
-        #     return False, "Item Guid property not specified. Data error"
-
-        # if not item.originating_item_guid.strip():
-        #     return False, "Item OriginatingItemGuid property not specified. Data error"
-
-        # if not item.get_both_guids().strip():
-        #     return False, "Item BothGuids property not specified. Data error"
-
-        # if item == type(item)():
-        #     return False, "Item is blank." # 
-
         # Fast insertion
-        self._dictionary_of_everything_keyed_by_both_guids[item.get_both_guids()] = item  # Overwrite
+        if item is not None:
+            self._dictionary_of_everything_keyed_by_both_guids[item.get_both_guids()] = item  # Overwrite
 
         self._sequence_is_out_of_date = True
         self._dictionary_of_most_recent_item_per_originating_item_guid_is_out_of_date = True
@@ -363,7 +351,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         if not items_for_this_recording_mode:
             return {}
 
-        hub_items_grouped_by_identifier = self.to_list_dictionary_grouped_by_bib(items_for_this_recording_mode)
+        hub_items_grouped_by_identifier = group_by_originating_guid(items_for_this_recording_mode)
 
         return {
             identifier: max(subgroup, key=lambda x: x.when_touched_binary_format)
@@ -465,16 +453,15 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
             int: The number of new pushes.
         """
         new_pushes = 0
-        when_pushed = datetime.now().timestamp()
+        when_pushed = int(datetime.now(timezone.utc).timestamp())
+
 
         for item in pushed:
-            if item is None or not item.get_both_guids():
+            if not item.get_both_guids() or not item.get_both_guids().strip():
                 continue
-
             discovered = self._dictionary_of_everything_keyed_by_both_guids.get(item.get_both_guids())
             if discovered is None:
                 continue
-
             if true_if_pushed_false_if_unpushed:
                 discovered.is_still_to_be_pushed = False
                 discovered.when_pushed_binary_format = when_pushed
@@ -535,7 +522,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
             if item.originating_item_guid
         )
 
-        grouped_items = defaultdict(list)
+        grouped_items: defaultdict[str, List[T]] = defaultdict(list)
         for item in all_hub_items:
             grouped_items[item.originating_item_guid].append(item)
 
