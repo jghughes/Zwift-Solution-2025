@@ -6,6 +6,7 @@ with various attributes.
 # Standard library imports
 import json
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
+from typing import Optional
 
 # Local application imports
 
@@ -148,28 +149,28 @@ class PersonDataTransferObject(BaseModel):
         None
     """
 
-    zsun_id: str | None = ""
-    zsun_firstname: str | None = ""
-    zsun_lastname: str | None = ""
-    zwift_id: int | None = 0
-    zwift_firstname: str | None = ""
-    zwift_lastname: str | None = ""
-    discord_accountusername: str | None = ""
-    discord_accountdisplayname: str | None = ""
-    discord_profiledisplayname: str | None = ""
-    comment: str | None = ""
-    click_counter: int | None = 0
-    recording_mode_enum: str | None = ""
-    database_action_enum: str | None = ""
-    must_ditch_originating_item: bool | None = False
-    is_still_to_be_backed_up: bool | None = True
-    is_still_to_be_pushed: bool | None = True
-    touched_by: str | None = ""
-    timestamp_binary_format: int | None = 0
-    when_touched_binary_format: int | None = 0
-    when_pushed_binary_format: int | None = 0
-    originating_item_guid: str | None = ""
-    guid: str | None = ""
+    zsun_id: Optional[str] = ""
+    zsun_firstname: Optional[str] = ""
+    zsun_lastname: Optional[str] = ""
+    zwift_id: Optional[int] = 0
+    zwift_firstname: Optional[str] = ""
+    zwift_lastname: Optional[str] = ""
+    discord_accountusername: Optional[str] = ""
+    discord_accountdisplayname: Optional[str] = ""
+    discord_profiledisplayname: Optional[str] = ""
+    comment: Optional[str] = ""
+    click_counter: Optional[int] = 0
+    recording_mode_enum: Optional[str] = ""
+    database_action_enum: Optional[str] = ""
+    must_ditch_originating_item: Optional[bool] = False
+    is_still_to_be_backed_up: Optional[bool] = True
+    is_still_to_be_pushed: Optional[bool] = True
+    touched_by: Optional[str] = ""
+    timestamp_binary_format: Optional[int] = 0
+    when_touched_binary_format: Optional[int] = 0
+    when_pushed_binary_format: Optional[int] = 0
+    originating_item_guid: Optional[str] = ""
+    guid: Optional[str] = ""
 
     model_config = preferred_config_dict
 

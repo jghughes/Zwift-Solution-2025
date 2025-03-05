@@ -1,15 +1,14 @@
 """
-This module contains the HubItemBase class and provides example usage.
+This module contains the HubItemBase class.
 The HubItemBase class is designed as a base class for database entity
 objects. Entity objects should derive from this class. The class is
 decorated as a dataclass for basic serialisation/roundtripping to and
-from local system storage. Derived classes will inherit this basic
+from local system storage. Derived classes will inherit this 
 functionality.
 """
 # Standard library imports
 from dataclasses import dataclass
 from typing import Optional, Tuple
-
 
 
 @dataclass
@@ -40,18 +39,18 @@ class HubItemBase:
     """
 
     click_counter: int = 0
-    recording_mode_enum: str | None = ""
-    database_action_enum: str | None = ""
+    recording_mode_enum: str = ""
+    database_action_enum: str = ""
     must_ditch_originating_item: bool = False
     is_still_to_be_backed_up: bool = True
     is_still_to_be_pushed: bool  = True
-    touched_by: str | None = ""
-    timestamp_binary_format: int = 0
-    when_touched_binary_format: int = 0
+    touched_by: str = ""
+    timestamp_binary_format: int= 0
+    when_touched_binary_format: int= 0
     when_pushed_binary_format: int = 0
     originating_item_guid: str = ""
     guid: str = ""
-    comment: str | None = ""
+    comment: str = ""
 
     def get_both_guids(self) -> str:
        """
@@ -59,12 +58,12 @@ class HubItemBase:
         Ensures that the return value is always a string, at minimum an empty string.
         An empty string is invalid and must be checked for in the calling code.
         """
-       originating_item_guid = self.originating_item_guid.strip() or ""
-       guid = self.guid.strip() or ""
+       originating_item_guid = (self.originating_item_guid or "").strip()
+       guid = (self.guid or "").strip()
        return originating_item_guid + guid
 
     @staticmethod
-    def is_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
+    def is_minimally_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
         """
         Determines if the item is a minimally valid candidate for addition 
         to a repository keyed on the concatentaion of both GUIDs. 
@@ -79,21 +78,17 @@ class HubItemBase:
         Returns:
             bool: True if the item is valid, otherwise False with an explanatory message.
         """
-        # Null checks
         if item is None:
             return False, "Item is null. Data error"
 
-        if item == type(item)():
-            return False, "Item is blank." # Policy is to ignore attempted additions of "blank" i.e. unpopulated "new" items
-
-        if not item.guid.strip():
+        if not item.guid or item.guid.strip():
             return False, "Item Guid property not specified. Data error"
 
-        if not item.originating_item_guid.strip():
+        if not item.originating_item_guid or item.originating_item_guid.strip():
             return False, "Item OriginatingItemGuid property not specified. Data error"
 
-        if not item.get_both_guids().strip():
-            return False, "Item BothGuids property not specified. Data error"
+        if item == type(item)():
+            return False, "Item is blank." # Policy is to reject attempted additions of "blank" i.e. unpopulated "new" items
 
         return True, "Item is valid"
 

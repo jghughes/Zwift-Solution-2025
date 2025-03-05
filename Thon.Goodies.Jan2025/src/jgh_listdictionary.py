@@ -32,17 +32,17 @@ class JghListDictionary(Generic[TKey, TValue]):
     remove_key(key: TKey) -> list[TValue]:
         Removes the list for the given key and returns the associated list of values.
 
-    append_value_to_key(key: TKey, value: TValue) -> None:
-        Adds a value to the list associated with the given key.
+    append_value_to_list(key: TKey, value: TValue) -> None:
+        Adds a value to the list associated with the given key. Overwrites existing value if any.
 
-    remove_value_from_key(key: TKey, value: TValue) -> int:
+    remove_value_from_list(key: TKey, value: TValue) -> int:
         Removes all occurrences of the value from the list associated with the given key.
 
-    remove_value_from_all_keys(value: TValue) -> Tuple[int, list[TKey]]:
+    remove_value_from_all_lists(value: TValue) -> Tuple[int, list[TKey]]:
         Removes the given value from all lists in the dictionary and returns the count of removed occurrences
         and the list of keys from which the value was removed.
 
-    clear_all_values_from_key(key: TKey) -> int:
+    clear_all_values_from_list(key: TKey) -> int:
         Clears all values associated with the given key and returns the count of removed occurrences.
 
     clear_everything_everywhere() -> Tuple[int, int]:
@@ -52,10 +52,10 @@ class JghListDictionary(Generic[TKey, TValue]):
     contains_key(key: TKey) -> bool:
         Checks if the dictionary contains the given key.
 
-    contains_value_in_key(key: TKey, value: TValue) -> bool:
+    contains_value_in_list(key: TKey, value: TValue) -> bool:
         Checks if the list associated with the given key contains the specified value.
 
-    contains_value_in_any_key(value: TValue) -> bool:
+    contains_value_in_any_list(value: TValue) -> bool:
         Checks if the dictionary contains the given value in any of the lists associated with the keys.
 
     get_keys() -> list[TKey]:
@@ -150,7 +150,7 @@ class JghListDictionary(Generic[TKey, TValue]):
             case _:
                 return self.backingstore_dict.pop(key, [])
 
-    def append_value_to_key(self, key: TKey, value: TValue) -> None:
+    def append_value_to_list(self, key: TKey, value: TValue) -> None:
         """
         Adds a value to the list associated with the given key.
 
@@ -162,7 +162,7 @@ class JghListDictionary(Generic[TKey, TValue]):
            the list, even if the key-value pair already exists in the list. This means
            that the list can contain multiple values for the same key.
 
-        If the key doesn't exist, the append_value_to_key method will create a new
+        If the key doesn't exist, the append_value_to_list method will create a new
         list for that key and then append the value to this new list.
 
         Parameters:
@@ -183,7 +183,7 @@ class JghListDictionary(Generic[TKey, TValue]):
 
         return None
 
-    def remove_value_from_key(self, key: TKey, value: TValue) -> int:
+    def remove_value_from_list(self, key: TKey, value: TValue) -> int:
         """
         Removes all occurrences of the value from the list associated with the given key.
 
@@ -215,7 +215,7 @@ class JghListDictionary(Generic[TKey, TValue]):
                 ]
                 return original_length - len(self.backingstore_dict[key])
 
-    def remove_value_from_all_keys(self, value: TValue) -> Tuple[int, list[TKey]]:
+    def remove_value_from_all_lists(self, value: TValue) -> Tuple[int, list[TKey]]:
         """
         Removes the given value from all lists in the dictionary and returns the count of removed occurrences
         and the list of keys from which the value was removed.
@@ -240,14 +240,14 @@ class JghListDictionary(Generic[TKey, TValue]):
         keys_with_removed_value: list[TKey] = []
 
         for key in list(self.backingstore_dict.keys()):
-            count = self.remove_value_from_key(key, value)
+            count = self.remove_value_from_list(key, value)
             if count > 0:
                 removed_count += count
                 keys_with_removed_value.append(key)
 
         return removed_count, keys_with_removed_value
 
-    def clear_all_values_from_key(self, key: TKey) -> int:
+    def clear_all_values_from_list(self, key: TKey) -> int:
         """
         Clears all values associated with the given key.
 
@@ -304,7 +304,7 @@ class JghListDictionary(Generic[TKey, TValue]):
         """
         return key in self.backingstore_dict
 
-    def contains_value_in_key(self, key: TKey, value: TValue) -> bool:
+    def contains_value_in_list(self, key: TKey, value: TValue) -> bool:
         """
         Checks if the list associated with the given key contains the specified value.
 
@@ -325,7 +325,7 @@ class JghListDictionary(Generic[TKey, TValue]):
             return False
         return value in self.backingstore_dict.get(key, [])
 
-    def contains_value_in_any_key(self, value: TValue) -> bool:
+    def contains_value_in_any_list(self, value: TValue) -> bool:
         """
         Checks if the dictionary contains the given value in any of
         the lists associated with the keys.
@@ -701,19 +701,19 @@ def main():
 
     # Add keys and values with multiple occurrences of the same value
     dictionary.insert_key("fruits")
-    dictionary.append_value_to_key("fruits", 1)
-    dictionary.append_value_to_key("fruits", 2)
-    dictionary.append_value_to_key("fruits", 3)
-    dictionary.append_value_to_key("fruits", 2)  # Duplicate value
+    dictionary.append_value_to_list("fruits", 1)
+    dictionary.append_value_to_list("fruits", 2)
+    dictionary.append_value_to_list("fruits", 3)
+    dictionary.append_value_to_list("fruits", 2)  # Duplicate value
 
     dictionary.insert_key("vegetables")
-    dictionary.append_value_to_key("vegetables", 2)  # Same value in different key
-    dictionary.append_value_to_key("vegetables", 4)
-    dictionary.append_value_to_key("vegetables", 5)
+    dictionary.append_value_to_list("vegetables", 2)  # Same value in different key
+    dictionary.append_value_to_list("vegetables", 4)
+    dictionary.append_value_to_list("vegetables", 5)
 
     dictionary.insert_key("grains")
-    dictionary.append_value_to_key("grains", 2)  # Same value in different key
-    dictionary.append_value_to_key("grains", 6)
+    dictionary.append_value_to_list("grains", 2)  # Same value in different key
+    dictionary.append_value_to_list("grains", 6)
 
     # Retrieve values for a given key
     fruits = dictionary.get_values("fruits")
@@ -728,7 +728,7 @@ def main():
     print("Contains 'fruits' key:", contains_fruits)
 
     # Check if a value exists in a given key
-    contains_value = dictionary.contains_value_in_key("fruits", 2)
+    contains_value = dictionary.contains_value_in_list("fruits", 2)
     print("Contains value 2 in 'fruits':", contains_value)
 
     # Retrieve all key-value pairs
@@ -737,12 +737,12 @@ def main():
 
     # Count the number of occurrences of a value across all keys
     value_to_count = 2
-    count, keys_with_value = dictionary.remove_value_from_all_keys(value_to_count)
+    count, keys_with_value = dictionary.remove_value_from_all_lists(value_to_count)
     print(f"Number of occurrences of value {value_to_count}:", count)
     print(f"Keys with value {value_to_count}:", keys_with_value)
 
     # Remove all occurrences of a value across all keys
-    removed_count, keys_with_removed_value = dictionary.remove_value_from_all_keys(
+    removed_count, keys_with_removed_value = dictionary.remove_value_from_all_lists(
         value_to_count
     )
     print(f"Number of occurrences of value {value_to_count} removed:", removed_count)
@@ -754,7 +754,7 @@ def main():
     print("Dictionary after removing value 2:", dictionary.backingstore_dict)
 
     # Clear all values for a given key
-    dictionary.clear_all_values_from_key("vegetables")
+    dictionary.clear_all_values_from_list("vegetables")
     print(
         "Vegetables after clearing values:",
         dictionary.get_values("vegetables"),

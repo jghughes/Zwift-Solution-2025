@@ -1,23 +1,25 @@
 from pydantic import BaseModel
 import os
+from typing import Optional
+
 
 # Configure logging
 
 class ConsoleHandlerDataTransferObject(BaseModel):
-    loglevel: str | None = None
-    messageformat: str | None = None
+    loglevel: Optional[str] = None
+    messageformat: Optional[str] = None
 
 class LogFileHandlerDataTransferObject(BaseModel):
-    loglevel: str | None = None
-    messageformat: str | None = None
+    loglevel: Optional[str] = None
+    messageformat: Optional[str] = None
 
 class LoggingHandlersDataTransferObject(BaseModel):
-    console: ConsoleHandlerDataTransferObject | None = None
-    file: LogFileHandlerDataTransferObject | None = None
+    console: Optional[ConsoleHandlerDataTransferObject] = None
+    file: Optional[LogFileHandlerDataTransferObject] = None
 
 
 class LocalStorageSettingsDataTransferObject(BaseModel):
-    relativedirpath: str | None = None
+    relativedirpath: Optional[str] = None
 
     @classmethod
     def dirpathexists(cls) -> bool:
@@ -37,7 +39,7 @@ class LocalStorageSettingsDataTransferObject(BaseModel):
         return True
 
     @classmethod
-    def get_absolutefilepath(cls) -> str | None:
+    def get_absolutefilepath(cls) -> Optional[str]:
         if not cls.dirpathexists():
             return None
         if not cls.relativedirpath:
@@ -47,84 +49,84 @@ class LocalStorageSettingsDataTransferObject(BaseModel):
         return absolute_logfile_path
 
 class AzureStorageSettingsDataTransferObject(BaseModel):
-    connectionstring: str | None = None
-    container: str | None = None
-    blobname: str | None = None
+    connectionstring: Optional[str] = None
+    container: Optional[str] = None
+    blobname: Optional[str] = None
 
 class AwsStorageSettingsDataTransferObject(BaseModel):
-    accesskey: str | None = None
-    secretkey: str | None = None
-    bucket: str | None = None
-    objectname: str | None = None
+    accesskey: Optional[str] = None
+    secretkey: Optional[str] = None
+    bucket: Optional[str] = None
+    objectname: Optional[str] = None
 
 class OracleStorageSettingsDataTransferObject(BaseModel):
-    username: str | None = None
-    password: str | None = None
-    bucket: str | None = None
-    objectname: str | None = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    bucket: Optional[str] = None
+    objectname: Optional[str] = None
 
 class StorageSettingsDataTransferObject(BaseModel):
-    local: LocalStorageSettingsDataTransferObject | None = None
-    azure: AzureStorageSettingsDataTransferObject | None = None
-    aws: AwsStorageSettingsDataTransferObject | None = None
-    oracle: OracleStorageSettingsDataTransferObject | None = None
+    local: Optional[LocalStorageSettingsDataTransferObject] = None
+    azure: Optional[AzureStorageSettingsDataTransferObject] = None
+    aws: Optional[AwsStorageSettingsDataTransferObject] = None
+    oracle: Optional[OracleStorageSettingsDataTransferObject] = None
 
 
 class RetryPolicySettingsDataTransferObject(BaseModel):
-    maxretries: int | None = None
-    delay: int | None = None
+    maxretries: Optional[int] = None
+    delay: Optional[int] = None
 
 class DatabaseSettingsDataTransferObject(BaseModel):
-    provider: str | None = None
-    connectionstring: str | None = None
-    timeout: int | None = None
-    pooling: bool | None = None
-    maxpoolsize: int | None = None
-    minpoolsize: int | None = None
-    retrypolicy: RetryPolicySettingsDataTransferObject | None = None
+    provider: Optional[str] = None
+    connectionstring: Optional[str] = None
+    timeout: Optional[int] = None
+    pooling: Optional[bool] = None
+    maxpoolsize: Optional[int] = None
+    minpoolsize: Optional[int] = None
+    retrypolicy: Optional[RetryPolicySettingsDataTransferObject] = None
 
 class DatabasesSettingsDataTransferObject(BaseModel):
-    primary: DatabaseSettingsDataTransferObject | None = None
-    secondary: DatabaseSettingsDataTransferObject | None = None
+    primary: Optional[DatabaseSettingsDataTransferObject] = None
+    secondary: Optional[DatabaseSettingsDataTransferObject] = None
 
 class HeadersSettingsDataTransferObject(BaseModel):
-    Content_Type: str | None = None
-    Accept: str | None = None
-    Authorization: str | None = None
-    User_Agent: str | None = None
-    Cache_Control: str | None = None
-    Custom_Header: str | None = None
-    Accept_Encoding: str | None = None
+    Content_Type: Optional[str] = None
+    Accept: Optional[str] = None
+    Authorization: Optional[str] = None
+    User_Agent: Optional[str] = None
+    Cache_Control: Optional[str] = None
+    Custom_Header: Optional[str] = None
+    Accept_Encoding: Optional[str] = None
 
 class ApiEndpointsDataTransferObject(BaseModel):
-    get: str | None = None
-    create: str | None = None
-    update: str | None = None
-    delete: str | None = None
-    getByFilter: str | None = None
+    get: Optional[str] = None
+    create: Optional[str] = None
+    update: Optional[str] = None
+    delete: Optional[str] = None
+    getByFilter: Optional[str] = None
 
 class ApiSettingsDataTransferObject(BaseModel):
-    baseurl: str | None = None
-    apikey: str | None = None
-    version: str | None = None
-    timeout: int | None = None
-    retrypolicy: RetryPolicySettingsDataTransferObject | None = None
-    headers: HeadersSettingsDataTransferObject | None = None
-    endpoints: ApiEndpointsDataTransferObject | None = None
+    baseurl: Optional[str] = None
+    apikey: Optional[str] = None
+    version: Optional[str] = None
+    timeout: Optional[int] = None
+    retrypolicy: Optional[RetryPolicySettingsDataTransferObject] = None
+    headers: Optional[HeadersSettingsDataTransferObject] = None
+    endpoints: Optional[ApiEndpointsDataTransferObject] = None
 
 class ApisSettingsDataTransferObject(BaseModel):
-    primary: ApiSettingsDataTransferObject | None = None
-    secondary: ApiSettingsDataTransferObject | None = None
+    primary: Optional[ApiSettingsDataTransferObject] = None
+    secondary: Optional[ApiSettingsDataTransferObject] = None
 
 class EnvironmentSettingsDataTransferObject(BaseModel):
-    name: str | None = None
+    name: Optional[str] = None
 
 class AppSettingsDataTransferObject(BaseModel):
-    environment: EnvironmentSettingsDataTransferObject | None = None
-    logging: LoggingHandlersDataTransferObject | None = None
-    storage: StorageSettingsDataTransferObject | None = None
-    databases: DatabasesSettingsDataTransferObject | None = None
-    apis: ApisSettingsDataTransferObject | None = None
+    environment: Optional[EnvironmentSettingsDataTransferObject] = None
+    logging: Optional[LoggingHandlersDataTransferObject] = None
+    storage: Optional[StorageSettingsDataTransferObject] = None
+    databases: Optional[DatabasesSettingsDataTransferObject] = None
+    apis: Optional[ApisSettingsDataTransferObject] = None
 
 
 def main():

@@ -1,34 +1,34 @@
 from jgh_listdictionary import JghListDictionary
 from typing import TypeVar
 from hub_item_base import HubItemBase
-from jgh_logging import JghLogger
 
 
 T = TypeVar('T', bound=HubItemBase)
 def group_by_originating_guid(list_of_hubitembases: list[T]) -> JghListDictionary[str, T]:
     """
-    Groups a list of HubItemBase instances (or its subclasses) by their originating_item_guid attribute.
+    Groups instances of HubItemBase (or its subclasses) by their originating_item_guid attribute.
 
     Parameters:
     -----------
     list_of_hubitembases : list[T]
-        The list of HubItemBase instances (or its subclasses) to group.
+        The list of instances to group.
 
     Returns:
     --------
     JghListDictionary[str, T]
         A dictionary-like object grouping the list_of_hubitems by their originating_item_guid attribute.
     """
-    answer: JghListDictionary[str, T] = JghListDictionary[str, T]()
 
     sorted_list_of_hubitems = sorted(
         (
             item
             for item in list_of_hubitembases
-            if item and item.originating_item_guid.strip()
+            if item and item.originating_item_guid and item.originating_item_guid.strip()
         ),
         key=lambda x: -x.when_touched_binary_format,
     )
+
+    answer: JghListDictionary[str, T] = JghListDictionary[str, T]()
 
     for item in sorted_list_of_hubitems:
         answer.append_value_to_key(item.originating_item_guid, item)
@@ -72,8 +72,6 @@ def main():
     for hubitem in my_listdict.get_values(origGuid):
         count += 1
         print(f"\nHubItem {count}:\n\tOriginating GUID={hubitem.originating_item_guid}\tComment={hubitem.comment}")
-
-        # Example usage of HubItemBase class
 
 if __name__ == "__main__":
     main()

@@ -37,9 +37,22 @@ def pretty_error_message(ex: Exception) -> str:
     return f"{str(message)} ErrorCode={str(code)}"
 
 def assign_if_not_none(target: Any, source: Any, attribute: Any):
+    """
+    Assigns the value of an attribute from the source object to the target object if the attribute exists
+    on both objects and the value is not None. Warning! This function presupposes that the name of the attribute is
+    identical on both objects.
+
+    Args:
+        target (Any): The object to which the attribute value will be assigned.
+        source (Any): The object from which the attribute value will be retrieved.
+        attribute (Any): The name of the attribute to be assigned.
+
+    Logs a warning if an error occurs during the assignment process.
+    """
+
     try:
-        if hasattr(source, attribute):
-            value = getattr(source, attribute)
+        if hasattr(source, attribute) and hasattr(target, attribute):
+            value = getattr(source, attribute, None)
             if value is not None:
                 setattr(target, attribute, value)
     except Exception as e:
@@ -63,15 +76,15 @@ class PersonItem(HubItemBase):
         comment (str):                      An optional comment about the person or entry.
     """
 
-    zsun_id: str | None = ""
-    zsun_firstname: str | None = ""
-    zsun_lastname: str | None = ""
-    zwift_id: int | None = 0
-    zwift_firstname: str | None = ""
-    zwift_lastname: str | None = ""
-    discord_accountusername: str | None = ""
-    discord_accountdisplayname: str | None = ""
-    discord_profiledisplayname: str | None = ""
+    zsun_id: str = ""
+    zsun_firstname: str = ""
+    zsun_lastname: str = ""
+    zwift_id: int = 0
+    zwift_firstname: str = ""
+    zwift_lastname: str = ""
+    discord_accountusername: str = ""
+    discord_accountdisplayname: str = ""
+    discord_profiledisplayname: str = ""
 
     @staticmethod
     def create(
@@ -116,11 +129,31 @@ class PersonItem(HubItemBase):
             PersonDataTransferObject: A new instance of the PersonDataTransferObject class.
         """
 
-        answer = PersonDataTransferObject()
+        answer = PersonDataTransferObject(
+            zsun_id=item.zsun_id,
+            zsun_firstname=item.zsun_firstname,
+            zsun_lastname=item.zsun_lastname,
+            zwift_id=item.zwift_id,
+            zwift_firstname=item.zwift_firstname,
+            zwift_lastname=item.zwift_lastname,
+            discord_accountusername=item.discord_accountusername,
+            discord_accountdisplayname=item.discord_accountdisplayname,
+            discord_profiledisplayname=item.discord_profiledisplayname,
+            comment=item.comment,
+            click_counter=item.click_counter,
+            recording_mode_enum=item.recording_mode_enum,
+            database_action_enum=item.database_action_enum,
+            must_ditch_originating_item=item.must_ditch_originating_item,
+            is_still_to_be_backed_up=item.is_still_to_be_backed_up,
+            is_still_to_be_pushed=item.is_still_to_be_pushed,
+            touched_by=item.touched_by,
+            timestamp_binary_format=item.timestamp_binary_format,
+            when_touched_binary_format=item.when_touched_binary_format,
+            when_pushed_binary_format=item.when_pushed_binary_format,
+            originating_item_guid=item.originating_item_guid,
+            guid=item.guid
 
-        for attribute in item.__dict__:
-            assign_if_not_none(answer, item, attribute)
-
+        )        
         return answer
 
     @staticmethod
@@ -137,13 +170,31 @@ class PersonItem(HubItemBase):
             PersonItem: A new instance of the PersonItem class.
         """
 
-        answer = PersonItem()
-
-        for attribute in dto.__dict__:
-            assign_if_not_none(answer, dto, attribute)
-
+        answer = PersonItem(
+            zsun_id=dto.zsun_id or "",
+            zsun_firstname=dto.zsun_firstname or "",
+            zsun_lastname=dto.zsun_lastname or "",
+            zwift_id=dto.zwift_id or 0,
+            zwift_firstname=dto.zwift_firstname or "",
+            zwift_lastname=dto.zwift_lastname or "",
+            discord_accountusername=dto.discord_accountusername or "",
+            discord_accountdisplayname=dto.discord_accountdisplayname or "",
+            discord_profiledisplayname=dto.discord_profiledisplayname or "",
+            comment=dto.comment or "",
+            click_counter=dto.click_counter or 0,
+            recording_mode_enum=dto.recording_mode_enum or "",
+            database_action_enum=dto.database_action_enum or "",
+            must_ditch_originating_item=dto.must_ditch_originating_item or False,
+            is_still_to_be_backed_up=dto.is_still_to_be_backed_up or True,
+            is_still_to_be_pushed=dto.is_still_to_be_pushed or True,
+            touched_by=dto.touched_by or "",
+            timestamp_binary_format=dto.timestamp_binary_format or 0,
+            when_touched_binary_format=dto.when_touched_binary_format or 0,
+            when_pushed_binary_format=dto.when_pushed_binary_format or 0,
+            originating_item_guid=dto.originating_item_guid or "",
+            guid=dto.guid or ""
+        )
         return answer
-
 # simple example usage of the PersonItem class
 
 def main():
