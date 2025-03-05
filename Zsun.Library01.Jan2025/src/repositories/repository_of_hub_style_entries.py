@@ -1,12 +1,13 @@
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional, Iterable
+from typing import List, Dict, Tuple, Optional, Iterable, TypeVar, Generic
 from datetime import datetime, timezone
-from hubitem_helpers import group_by_originating_guid
+from jgh_listdictionary import JghListDictionary
 
 from attr import dataclass
-from hub_item_base import HubItemBase
+from hub_item_base import HubItemBase, is_minimally_valid_item
 
-class RepositoryOfHubStyleEntries[T : HubItemBase]():
+T = TypeVar('T', bound=HubItemBase)
+class RepositoryOfHubStyleEntries(Generic[T]):
     """
     RepositoryOfHubStyleEntries is a generic class that manages a collection of hub-style entries.
     """
@@ -47,7 +48,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         """
         # Null checks
 
-        outcome, message = HubItemBase.is_valid_item(item)
+        outcome, message = is_minimally_valid_item(item)
 
         if not outcome:
             return False, message
@@ -81,8 +82,8 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         if items is None:
             return False, "Range of items is null. Data error."
 
-        # check that all the item are valid and an exit if not
-        if not all(HubItemBase.is_valid_item(item)[0] for item in items):
+        # check that all the items are valid and an exit if not
+        if not all(is_minimally_valid_item(item)[0] for item in items):
                     return False, "One or more items are invalid. Data error."
 
         for item in items:
@@ -330,7 +331,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
 
         return most_recent_item
 
-    def get_dictionary_of_identifiers_with_their_most_recent_item_for_this_recording_mode_from_master_list(self, recording_mode_enum: str) -> Optional[Dict[str, T]]:
+    def get_dictionary_of_identifiers_with_their_most_recent_item_for_this_recording_mode_from_master_list(self, recording_mode_enum: str) -> Optional[defaultdict[str, T]]:
         """
         Gets a dictionary of identifiers with their most recent item for this recording mode from the master list.
 
@@ -340,7 +341,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         Returns:
             Optional[Dict[str, T]]: A dictionary of identifiers with their most recent item if found, None otherwise.
         """
-        if not recording_mode_enum.strip():
+        if not recording_mode_enum or recording_mode_enum.strip():
             return None
 
         items_for_this_recording_mode = [
@@ -349,14 +350,20 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         ]
 
         if not items_for_this_recording_mode:
-            return {}
+            return None
 
         hub_items_grouped_by_identifier = group_by_originating_guid(items_for_this_recording_mode)
 
-        return {
-            identifier: max(subgroup, key=lambda x: x.when_touched_binary_format)
-            for identifier, subgroup in hub_items_grouped_by_identifier.items()
-        }
+        answer = defaultdict[str, T]()
+
+        for key in hub_items_grouped_by_identifier.get_keys():
+            values = hub_items_grouped_by_identifier.get_values(key)
+            if not values:
+                continue  # Skip empty subgroups
+            most_recent_item = values[0]  # The first item is the most recent
+            answer[key] = most_recent_item
+
+        return answer
 
     def get_dictionary_of_identifiers_with_their_multiple_items_for_this_recording_mode_from_master_list(self, recording_mode_enum: str) -> Optional[Dict[str, List[T]]]:
         """
@@ -368,7 +375,7 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         Returns:
             Optional[Dict[str, List[T]]]: A dictionary of identifiers with their multiple items if found, None otherwise.
         """
-        if not recording_mode_enum.strip():
+        if not recording_mode_enum or recording_mode_enum.strip():
             return None
 
         items_for_this_recording_mode = [
@@ -376,7 +383,20 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
             if item and item.recording_mode_enum == recording_mode_enum
         ]
 
-        return self.to_list_dictionary_grouped_by_bib(items_for_this_recording_mode)
+        if not items_for_this_recording_mode:
+            return None
+
+        hub_items_grouped_by_identifier = group_by_originating_guid(items_for_this_recording_mode)
+
+        answer = defaultdict[str, List[T]]()
+
+        for key in hub_items_grouped_by_identifier.get_keys():
+            values = hub_items_grouped_by_identifier.get_values(key)
+            if not values:
+                continue  # Skip empty subgroups
+            answer[key] = values
+
+        return answer
 
     def is_most_recent_entry_with_same_originating_item_guid(self, candidate_most_recent_item: Optional[T]) -> bool:
         """
@@ -560,6 +580,46 @@ class RepositoryOfHubStyleEntries[T : HubItemBase]():
         )
 
         return sorted_unditched_items
+
+S = TypeVar('S', bound=HubItemBase)
+def group_by_originating_guid(list_of_hubitembases: list[S]) -> JghListDictionary[str, S]:
+    """
+    Groups instances of HubItemBase (or its subclasses) into a dictionary
+    of key-value pairs where the key is originating_item_guid and value is a list of
+    all instances with a matching originating_item_guid, sorted by most-recently touched first.
+
+    Parameters:
+    -----------
+    list_of_hubitembases : list[T]
+        The list of instances to group.
+
+    Returns:
+    --------
+    JghListDictionary[str, T]
+        A dictionary-like object grouping the list_of_hubitems by their originating_item_guid attribute.
+    """
+
+    # skip nulls
+    filtered_items = [
+        item for item in list_of_hubitembases
+        if item
+    ]
+
+    # sort most-recently touched first
+
+    sorted_list_of_hubitems = sorted(
+        filtered_items,
+        key=lambda x: -x.when_touched_binary_format
+    )
+
+    # create the list dictionary
+
+    answer: JghListDictionary[str, S] = JghListDictionary[str, S]()
+    for item in sorted_list_of_hubitems:
+        answer.append_value_to_list(item.originating_item_guid, item)
+
+    return answer
+
 
 # Example usage
 def main():

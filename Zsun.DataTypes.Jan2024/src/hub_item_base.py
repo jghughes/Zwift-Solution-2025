@@ -62,36 +62,34 @@ class HubItemBase:
        guid = (self.guid or "").strip()
        return originating_item_guid + guid
 
-    @staticmethod
-    def is_minimally_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
-        """
-        Determines if the item is a minimally valid candidate for addition 
-        to a repository keyed on the concatentaion of both GUIDs. 
+def is_minimally_valid_item(item: Optional['HubItemBase']) ->  Tuple[bool, str]:
+    """
+    Determines if the item is a minimally valid candidate for addition 
+    to a repository keyed on the concatentaion of both GUIDs. 
 
-        Null items and unpopulated "new" items are deemed invalid as are items 
-        where one or both GUIDS are empty. No validity check is done on the format 
-        or content of the GUID variables.
+    Null items and unpopulated "new" items are deemed invalid as are items 
+    where one or both GUIDS are empty. No validity check is done on the format 
+    or content of the GUID variables.
 
-        Args:
-            item (T): The item to check.
+    Args:
+        item (T): The item to check.
 
-        Returns:
-            bool: True if the item is valid, otherwise False with an explanatory message.
-        """
-        if item is None:
-            return False, "Item is null. Data error"
+    Returns:
+        bool: True if the item is valid, otherwise False with an explanatory message.
+    """
+    if item is None:
+        return False, "Item is null. Data error"
 
-        if not item.guid or item.guid.strip():
-            return False, "Item Guid property not specified. Data error"
+    if not item.guid or item.guid.strip():
+        return False, "Item Guid property not specified. Data error"
 
-        if not item.originating_item_guid or item.originating_item_guid.strip():
-            return False, "Item OriginatingItemGuid property not specified. Data error"
+    if not item.originating_item_guid or item.originating_item_guid.strip():
+        return False, "Item OriginatingItemGuid property not specified. Data error"
 
-        if item == type(item)():
-            return False, "Item is blank." # Policy is to reject attempted additions of "blank" i.e. unpopulated "new" items
+    if item == type(item)():
+        return False, "Item is blank." # Policy is to reject attempted additions of "blank" i.e. unpopulated "new" items
 
-        return True, "Item is valid"
-
+    return True, "Item is valid"
 
 
 def main():

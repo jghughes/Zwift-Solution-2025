@@ -4,7 +4,6 @@ This module defines the PersonItem class, which represents an item associated wi
 # Standard library imports
 # import datetime
 from datetime import datetime, timezone
-from typing import Any
 import uuid
 from dataclasses import dataclass
 import logging
@@ -35,28 +34,6 @@ def pretty_error_message(ex: Exception) -> str:
     if code == 0:
         return f"{str(message)}"
     return f"{str(message)} ErrorCode={str(code)}"
-
-def assign_if_not_none(target: Any, source: Any, attribute: Any):
-    """
-    Assigns the value of an attribute from the source object to the target object if the attribute exists
-    on both objects and the value is not None. Warning! This function presupposes that the name of the attribute is
-    identical on both objects.
-
-    Args:
-        target (Any): The object to which the attribute value will be assigned.
-        source (Any): The object from which the attribute value will be retrieved.
-        attribute (Any): The name of the attribute to be assigned.
-
-    Logs a warning if an error occurs during the assignment process.
-    """
-
-    try:
-        if hasattr(source, attribute) and hasattr(target, attribute):
-            value = getattr(source, attribute, None)
-            if value is not None:
-                setattr(target, attribute, value)
-    except Exception as e:
-        logger.warning(f"Error assigning attribute '{attribute}': {pretty_error_message(e)}")
 
 @dataclass
 class PersonItem(HubItemBase):
