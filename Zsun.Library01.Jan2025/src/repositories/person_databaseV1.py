@@ -12,7 +12,6 @@ from typing import Union, Dict, Any, List, Tuple
 # Local application imports
 from pydantic import BaseModel, PrivateAttr
 from person_item import PersonItem
-from jgh_listdictionary import JghListDictionary
 
 
 

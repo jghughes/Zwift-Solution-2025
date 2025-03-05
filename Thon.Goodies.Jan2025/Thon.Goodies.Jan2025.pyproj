@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_listdictionary.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -24,9 +25,7 @@
     <Compile Include="setup.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\jgh_listdictionary.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="src\jgh_listdictionary.py" />
     <Compile Include="src\jgh_logging.py" />
     <Compile Include="src\jgh_read_json_write_csv.py" />
     <Compile Include="src\jgh_string.py">
