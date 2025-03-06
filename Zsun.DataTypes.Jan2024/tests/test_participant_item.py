@@ -1,5 +1,5 @@
 """
-This module contains unit tests for the PersonItem class.
+This module contains unit tests for the ParticipantHubItem class.
 """
 # Sys library import
 import sys
@@ -17,8 +17,8 @@ import unittest
 
 # Local application imports
 from jgh_logging import jgh_configure_logging
-from person_item import PersonItem
-from person_dto import PersonDataTransferObject
+from participant_item import ParticipantHubItem
+from participant_dto import ParticipantDataTransferObject
 
 # Set a custom BASE_DIR environment variable 
 # This is required to be known inside jgh_configure_logging() to locate the appsettings file and the log file
@@ -49,17 +49,17 @@ class Test_PersonItem(unittest.TestCase):
 
     def test_create(self):
         """
-        This test case creates an instance of PersonItem with specified attributes,
+        This test case creates an instance of ParticipantHubItem with specified attributes,
         then asserts that the created object has the expected attribute values.
         """
         try:
-            item = PersonItem.create(
+            item = ParticipantHubItem.create(
                 zwift_id=123,
                 discord_accountusername="test_user",
                 recording_mode_enum="mode1",
                 touched_by="tester"
             )
-            self.assertIsInstance(item, PersonItem)
+            self.assertIsInstance(item, ParticipantHubItem)
             self.assertEqual(item.zwift_id, 123)
             self.assertEqual(item.discord_accountusername, "test_user")
             self.assertEqual(item.recording_mode_enum, "mode1")
@@ -71,19 +71,19 @@ class Test_PersonItem(unittest.TestCase):
 
     def test_to_dataTransferObject(self):
         """
-        This test case creates an instance of PersonItem with specified attributes,
-        converts it to a PersonDataTransferObject object using the to_dataTransferObject method,
+        This test case creates an instance of ParticipantHubItem with specified attributes,
+        converts it to a ParticipantDataTransferObject object using the to_dataTransferObject method,
         and then asserts that the converted object has the expected attribute values.
         """
         try:
-            item = PersonItem.create(
+            item = ParticipantHubItem.create(
                 zwift_id=123,
                 discord_accountusername="test_user",
                 recording_mode_enum="mode1",
                 touched_by="tester"
             )
-            dto = PersonItem.to_dataTransferObject(item)
-            self.assertIsInstance(dto, PersonDataTransferObject)
+            dto = ParticipantHubItem.to_dataTransferObject(item)
+            self.assertIsInstance(dto, ParticipantDataTransferObject)
             self.assertEqual(dto.zwift_id, 123)
             self.assertEqual(dto.discord_accountusername, "test_user")
             self.assertEqual(dto.recording_mode_enum, "mode1")
@@ -96,12 +96,12 @@ class Test_PersonItem(unittest.TestCase):
 
     def test_from_dataTransferObject(self):
         """
-        This test case creates an instance of PersonDataTransferObject with specified attributes,
-        converts it to a PersonItem object using the from_dataTransferObject method,
+        This test case creates an instance of ParticipantDataTransferObject with specified attributes,
+        converts it to a ParticipantHubItem object using the from_dataTransferObject method,
         and then asserts that the converted object has the expected attribute values.
         """
         try:
-            dto = PersonDataTransferObject(
+            dto = ParticipantDataTransferObject(
                 zsun_id="456",
                 zsun_firstname="John",
                 zsun_lastname="Doe",
@@ -125,8 +125,8 @@ class Test_PersonItem(unittest.TestCase):
                 originating_item_guid="origin_guid",
                 guid="test_guid"
             )
-            item = PersonItem.from_dataTransferObject(dto)
-            self.assertIsInstance(item, PersonItem)
+            item = ParticipantHubItem.from_dataTransferObject(dto)
+            self.assertIsInstance(item, ParticipantHubItem)
             self.assertEqual(item.zsun_id, "456")
             self.assertEqual(item.zsun_firstname, "John")
             self.assertEqual(item.zsun_lastname, "Doe")
@@ -157,12 +157,12 @@ class Test_PersonItem(unittest.TestCase):
 
     def test_get_both_guids(self):
         """
-        This test case creates an instance of PersonItem with specified attributes,
+        This test case creates an instance of ParticipantHubItem with specified attributes,
         sets the originating_item_guid attribute, retrieves both GUIDs using the
         get_both_guids method, and then asserts that both GUIDs are there.
         """
         try:
-            item = PersonItem.create(
+            item = ParticipantHubItem.create(
                 zwift_id=123,
                 discord_accountusername="test_user",
                 recording_mode_enum="mode1",

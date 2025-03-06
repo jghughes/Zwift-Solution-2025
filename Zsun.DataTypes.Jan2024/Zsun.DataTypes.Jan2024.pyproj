@@ -32,10 +32,10 @@
     <Compile Include="src\hub_item_base.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\person_item.py">
+    <Compile Include="src\participant_item.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tests\test_person_item.py" />
+    <Compile Include="tests\test_participant_item.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\appsettings.json" />

@@ -1,5 +1,5 @@
 """
-This module defines the PersonDataTransferObject class, which is used to represent a person 
+This module defines the ParticipantDataTransferObject class, which is used to represent a person 
 with various attributes.
 """
 
@@ -98,7 +98,7 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 
-class PersonDataTransferObject(BaseModel):
+class ParticipantDataTransferObject(BaseModel):
     """
     A data transfer object representing a club member's particulars. The object
     can be round-tripped to and from JSON. The values of all attributes are
@@ -179,15 +179,15 @@ class PersonDataTransferObject(BaseModel):
         return json.dumps(self.model_dump(), indent=4)
 
 
-# simple example usage of the PersonDataTransferObject class
+# simple example usage of the ParticipantDataTransferObject class
 def main():
     """
-    This function creates an instance of the PersonDataTransferObject class with sample data
+    This function creates an instance of the ParticipantDataTransferObject class with sample data
     and prints the JSON representation of the instance. It serves as a test
-    to ensure that the PersonDataTransferObject class is working correctly and that the
+    to ensure that the ParticipantDataTransferObject class is working correctly and that the
     JSON serialization and deserialization are functioning as expected.
     """
-    person = PersonDataTransferObject(
+    person = ParticipantDataTransferObject(
         zsun_id="12345",
         zsun_firstname="John",
         zsun_lastname="Doe",

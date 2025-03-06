@@ -18,7 +18,7 @@ import logging
 # Local application imports
 from jgh_logging import jgh_configure_logging
 from jgh_serialization import JghSerialization
-from person_dto import PersonDataTransferObject
+from participant_dto import ParticipantDataTransferObject
 
 # Configure root logging  -  Set a custom BASE_DIR environment variable (where to delve for the appsettings file)
 os.environ['BASE_DIR'] = 'C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024'
@@ -56,7 +56,7 @@ class Test_PersonDto(unittest.TestCase):
 
         try:
             # Create an instance of PersonDto
-            test_instance = PersonDataTransferObject(
+            test_instance = ParticipantDataTransferObject(
                 zsun_id="456",
                 zsun_firstname="John",
                 zsun_lastname="Doe",
@@ -148,8 +148,8 @@ class Test_PersonDto(unittest.TestCase):
             }
             """
             # Deserialize to object
-            dto = JghSerialization.validate(valid_test_json_str, PersonDataTransferObject)
-            self.assertIsInstance(dto, PersonDataTransferObject)
+            dto = JghSerialization.validate(valid_test_json_str, ParticipantDataTransferObject)
+            self.assertIsInstance(dto, ParticipantDataTransferObject)
             self.assertEqual(dto.zsun_id, "456")
             self.assertEqual(dto.zsun_firstname, "John")
             self.assertEqual(dto.zsun_lastname, "Doe")
@@ -189,7 +189,7 @@ class Test_PersonDto(unittest.TestCase):
   
         try:
             # Create an instance of PersonDto
-            test_instance = PersonDataTransferObject(
+            test_instance = ParticipantDataTransferObject(
                 zsun_id="456",
                 zsun_firstname="John",
                 zsun_lastname="Doe",
@@ -217,7 +217,7 @@ class Test_PersonDto(unittest.TestCase):
             json_str = JghSerialization.serialise(test_instance)
             # Deserialize back to object
             test_instance_roundtripped = JghSerialization.validate(
-                json_str, PersonDataTransferObject
+                json_str, ParticipantDataTransferObject
             )
             self.assertEqual(test_instance, test_instance_roundtripped)
             logger.info(f"TEST OUTCOME: PASS:\n\tRound-trip succeeded.\n\tThe JSON generated was:\n\t{json_str}")
@@ -244,8 +244,8 @@ class Test_PersonDto(unittest.TestCase):
             }
             """
             # Deserialize to object
-            dto = JghSerialization.validate(invalid_test_json_str, PersonDataTransferObject)
-            self.assertIsInstance(dto, PersonDataTransferObject)
+            dto = JghSerialization.validate(invalid_test_json_str, ParticipantDataTransferObject)
+            self.assertIsInstance(dto, ParticipantDataTransferObject)
             self.assertEqual(dto.zsun_id, "456")
             self.assertEqual(dto.zsun_firstname, "John")
             self.assertEqual(dto.zsun_lastname, "")
@@ -310,8 +310,8 @@ class Test_PersonDto(unittest.TestCase):
             }
             """
             # Deserialize to object
-            dto = JghSerialization.validate(invalid_types_json_str, PersonDataTransferObject)
-            self.assertIsInstance(dto, PersonDataTransferObject)
+            dto = JghSerialization.validate(invalid_types_json_str, ParticipantDataTransferObject)
+            self.assertIsInstance(dto, ParticipantDataTransferObject)
             self.assertEqual(dto.zsun_id, "456")
             self.assertEqual(dto.zsun_firstname, "John")
             self.assertEqual(dto.zsun_lastname, "Doe")

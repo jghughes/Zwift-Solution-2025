@@ -2,11 +2,11 @@
 from pydantic import BaseModel
 from typing import Optional
 
-# WARNING: This is a simple version of a PersonDataTransferObject.
+# WARNING: This is a simple version of a ParticipantDataTransferObject.
 # The object is extensible. It can be extended to handle almost infinitely 
 # advanced scenarios.
 
-class PersonDataTransferObject(BaseModel):
+class ParticipantDataTransferObject(BaseModel):
     """
     A data transfer object representing a club member's particulars. The object
     can be round-tripped to and from JSON. The values of all attributes are

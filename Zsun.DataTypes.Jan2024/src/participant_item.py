@@ -1,5 +1,5 @@
 """
-This module defines the PersonItem class, which represents an item associated with a person.
+This module defines the ParticipantHubItem class, which represents an item associated with a person.
 """
 # Standard library imports
 # import datetime
@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import logging
 
 # Local application imports
-from person_dto import PersonDataTransferObject
+from participant_dto import ParticipantDataTransferObject
 from hub_item_base import HubItemBase
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ def pretty_error_message(ex: Exception) -> str:
     return f"{str(message)} ErrorCode={str(code)}"
 
 @dataclass
-class PersonItem(HubItemBase):
+class ParticipantHubItem(HubItemBase):
     """
     An object representing a club member's particulars.
 
@@ -69,9 +69,9 @@ class PersonItem(HubItemBase):
         discord_accountusername: str,
         recording_mode_enum: str,
         touched_by: str,
-    ) -> "PersonItem":
+    ) -> "ParticipantHubItem":
         """
-        Creates a new instance of the PersonItem class with the provided parameters.
+        Creates a new instance of the ParticipantHubItem class with the provided parameters.
         Sets the timestamp and when touched to UTC now in seconds and initializes the GUID.
 
         Args:
@@ -81,10 +81,10 @@ class PersonItem(HubItemBase):
             touched_by (str): The user who touched the record.
 
         Returns:
-            PersonItem: A new instance of the PersonItem class.
+            ParticipantHubItem: A new instance of the ParticipantHubItem class.
         """
 
-        answer = PersonItem(
+        answer = ParticipantHubItem(
             zwift_id=zwift_id,
             discord_accountusername=discord_accountusername,
             recording_mode_enum=recording_mode_enum,
@@ -97,16 +97,16 @@ class PersonItem(HubItemBase):
         return answer
 
     @staticmethod
-    def to_dataTransferObject(item: "PersonItem") -> PersonDataTransferObject:
+    def to_dataTransferObject(item: "ParticipantHubItem") -> ParticipantDataTransferObject:
         """
-        Converts a PersonItem instance to a PersonDataTransferObject instance.
+        Converts a ParticipantHubItem instance to a ParticipantDataTransferObject instance.
         Args:
-            item (PersonItem): The PersonItem instance to convert to a PersonDataTransferObject instance.
+            item (ParticipantHubItem): The ParticipantHubItem instance to convert to a ParticipantDataTransferObject instance.
         Returns:
-            PersonDataTransferObject: A new instance of the PersonDataTransferObject class.
+            ParticipantDataTransferObject: A new instance of the ParticipantDataTransferObject class.
         """
 
-        answer = PersonDataTransferObject(
+        answer = ParticipantDataTransferObject(
             zsun_id=item.zsun_id,
             zsun_firstname=item.zsun_firstname,
             zsun_lastname=item.zsun_lastname,
@@ -134,20 +134,20 @@ class PersonItem(HubItemBase):
         return answer
 
     @staticmethod
-    def from_dataTransferObject(dto: PersonDataTransferObject) -> "PersonItem":
+    def from_dataTransferObject(dto: ParticipantDataTransferObject) -> "ParticipantHubItem":
         """
-        Creates a PersonItem instance from a PersonDataTransferObject instance.
+        Creates a ParticipantHubItem instance from a ParticipantDataTransferObject instance.
 
         This method captures the privately set attributes from the DataTransferObject and restores them
-        to the new PersonItem instance. The private attributes include timestamp and guid.
+        to the new ParticipantHubItem instance. The private attributes include timestamp and guid.
 
         Args:
-            dto (PersonDataTransferObject): The PersonDataTransferObject instance to create the PersonItem instance from.
+            dto (ParticipantDataTransferObject): The ParticipantDataTransferObject instance to create the ParticipantHubItem instance from.
         Returns:
-            PersonItem: A new instance of the PersonItem class.
+            ParticipantHubItem: A new instance of the ParticipantHubItem class.
         """
 
-        answer = PersonItem(
+        answer = ParticipantHubItem(
             zsun_id=dto.zsun_id or "",
             zsun_firstname=dto.zsun_firstname or "",
             zsun_lastname=dto.zsun_lastname or "",
@@ -172,34 +172,34 @@ class PersonItem(HubItemBase):
             guid=dto.guid or ""
         )
         return answer
-# simple example usage of the PersonItem class
+# simple example usage of the ParticipantHubItem class
 
 def main():
-    # Create a new PersonItem instance using the create method
-    person_item = PersonItem.create(
+    # Create a new ParticipantHubItem instance using the create method
+    person_item = ParticipantHubItem.create(
         zwift_id=12345,
         discord_accountusername="john_doe",
         recording_mode_enum="ACTIVE",
         touched_by="admin"
     )
 
-    # Print the PersonItem instance
-    print("PersonItem instance:")
+    # Print the ParticipantHubItem instance
+    print("ParticipantHubItem instance:")
     print(person_item)
 
-    # Convert the PersonItem instance to a PersonDataTransferObject instance
-    person_dto = PersonItem.to_dataTransferObject(person_item)
-    print("\nConverted to PersonDataTransferObject:")
+    # Convert the ParticipantHubItem instance to a ParticipantDataTransferObject instance
+    person_dto = ParticipantHubItem.to_dataTransferObject(person_item)
+    print("\nConverted to ParticipantDataTransferObject:")
     print(person_dto)
 
-    # Convert the PersonDataTransferObject instance back to a PersonItem instance
-    new_person_item = PersonItem.from_dataTransferObject(person_dto)
-    print("\nConverted back to PersonItem:")
+    # Convert the ParticipantDataTransferObject instance back to a ParticipantHubItem instance
+    new_person_item = ParticipantHubItem.from_dataTransferObject(person_dto)
+    print("\nConverted back to ParticipantHubItem:")
     print(new_person_item)
 
-    # Check if all the attributes of the pair of original and new PersonItem instances are equal
+    # Check if all the attributes of the pair of original and new ParticipantHubItem instances are equal
     # The __eq__ method of a dataclass ensures that the instances are equal if all their attributes are equal
-    print("\nAre all the attributes of the the original and roundtripped PersonItem instances equal?")
+    print("\nAre all the attributes of the the original and roundtripped ParticipantHubItem instances equal?")
     isequal : bool = person_item == new_person_item
     print(isequal)
 
