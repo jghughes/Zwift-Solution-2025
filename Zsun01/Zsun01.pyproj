@@ -4,10 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <StartupFile>src\speedpower.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -28,23 +26,29 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="classes\PersonItemClass.py" />
-    <Compile Include="repositories\PersonRepositoryClass.py" />
-    <Compile Include="utilities\importlocator.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tests\test_PersonItem.py">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <InterpreterReference Include="Global|VisualStudio|anaconda3" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="classes\" />
-    <Folder Include="repositories\" />
-    <Folder Include="utilities\" />
+    <Folder Include="data\" />
+    <Folder Include="docs\" />
+    <Folder Include="src\" />
     <Folder Include="tests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\appsettings.json" />
+    <Content Include="data\logger.log" />
+    <Content Include="docs\coefficientofdrag.txt">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="README.md" />
+    <Content Include="requirements.txt" />
+    <Content Include="settings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="setup.py" />
+    <Compile Include="src\speedpower.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
