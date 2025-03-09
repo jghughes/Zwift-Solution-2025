@@ -1,7 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
 import numpy as np
-from dataclasses import dataclass, field
 
 # Configure logging
 jgh_configure_logging("appsettings.json")
