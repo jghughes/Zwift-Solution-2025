@@ -1,6 +1,5 @@
 import logging
 from jgh_logging import jgh_configure_logging
-import numpy as np
 from pydantic import BaseModel, Field
 from enum import Enum
 
@@ -144,57 +143,6 @@ class ZwiftInsiderRider(BaseModel):
     def calculate_energy_from_velocity(self, velocity: float, duration: float) -> float:
         return calculate_energy_from_velocity(velocity, duration, self.coefficient_of_drag, self.frontal_area)
 
-    def calculate_average_speed(self, total_distance: float, total_time: float) -> float:
-        """
-        Calculate the average speed given total distance and total time.
-        
-        Args:
-        total_distance (float): The total distance in meters.
-        total_time (float): The total time in seconds.
-        
-        Returns:
-        float: The average speed in m/s.
-        """
-        return total_distance / total_time
-
-    def calculate_total_distance(self, velocity: float, duration: float) -> float:
-        """
-        Calculate the total distance covered given velocity and duration.
-        
-        Args:
-        velocity (float): The velocity in m/s.
-        duration (float): The duration in seconds.
-        
-        Returns:
-        float: The total distance in meters.
-        """
-        return velocity * duration
-
-    def calculate_efficiency(self, power: float, energy: float) -> float:
-        """
-        Calculate the efficiency as the ratio of power output to energy consumption.
-        
-        Args:
-        power (float): The power in watts.
-        energy (float): The energy consumption in joules.
-        
-        Returns:
-        float: The efficiency as a ratio.
-        """
-        return power / energy
-
-    def calculate_power_to_weight_ratio(self, power: float) -> float:
-        """
-        Calculate the power-to-weight ratio.
-        
-        Args:
-        power (float): The power in watts.
-        
-        Returns:
-        float: The power-to-weight ratio in watts per kilogram.
-        """
-        return power / self.mass
-
 class Ride(BaseModel):
     rider: ZwiftInsiderRider = ZwiftInsiderRider()
     distance: float = 40000  # Distance in meters
@@ -238,7 +186,7 @@ class Ride(BaseModel):
 
         return average_speed
 
-    def calculate_total_energy_consumption(self, ftp_percentage: float) -> float:
+    def calculate_energy_consumption(self, ftp_percentage: float) -> float:
         """
         Calculate the total energy consumption of the ride given the rider's FTP percentage.
         
@@ -274,7 +222,7 @@ class Ride(BaseModel):
         float: The energy total energy consumption intensity (dimensionless).
         """
         # Calculate the total energy consumption at the given FTP percentage
-        total_energy_consumption = self.calculate_total_energy_consumption(ftp_percentage)
+        total_energy_consumption = self.calculate_energy_consumption(ftp_percentage)
 
         # Calculate the power at 100% FTP
         power_at_100_ftp = self.rider.ftp * self.rider.mass
@@ -293,6 +241,58 @@ class Ride(BaseModel):
 
         return energy_total_energy_consumption_intensity
 
+class Interval(BaseModel):
+    rider: ZwiftInsiderRider = ZwiftInsiderRider()
+    duration: float = 30  # seconds
+    velocity: float = 10  # meters/second
+    power_saving_percentage: float = 0  # percentage, dimensionless ratio
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "rider": {
+                    "mass": 75,
+                    "height": 183,
+                    "gender": "male",
+                    "ftp": 3.5
+                },
+                "duration": 30,
+                "velocity": 10,
+                "power_saving_percentage": 0
+            }
+        }
+
+    def calculate_power(self) -> float:
+        """
+        Calculate the power after adjusting for the power saving percentage.
+        
+        Returns:
+        float: The adjusted power in watts.
+        """
+        base_power = self.rider.calculate_power(self.velocity)
+        adjusted_power = base_power * (1 - self.power_saving_percentage / 100)
+        return adjusted_power
+
+    def calculate_power_to_ftp_ratio(self) -> float:
+        """
+        Calculate the ratio of the adjusted power to the rider's FTP.
+        
+        Returns:
+        float: The power to FTP ratio.
+        """
+        adjusted_power = self.calculate_power()
+        ftp_power = self.rider.ftp * self.rider.mass
+        return adjusted_power / ftp_power
+
+    def calculate_energy_consumption(self) -> float:
+        """
+        Calculate the energy consumption from the adjusted power and duration.
+        
+        Returns:
+        float: The energy consumption in joules.
+        """
+        adjusted_power = self.calculate_power()
+        return calculate_energy_from_power(adjusted_power, self.duration)
 
 # Example usage
 def main():
@@ -314,9 +314,6 @@ def main():
     energy = rider.calculate_energy_from_velocity(velocity, duration)
     logger.info(f"Energy for velocity {velocity} m/s over {duration} seconds: {energy:.2f} J")
 
-    power_to_weight_ratio = rider.calculate_power_to_weight_ratio(power)
-    logger.info(f"Power-to-weight ratio for power {power} W: {power_to_weight_ratio:.2f} W/kg")
-
     logger.info(f"Ride distance: {ride.distance} meters")
 
     # Calculate the finishing time for the ride at 75% of the rider's FTP
@@ -325,7 +322,7 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 75% of the rider's FTP
-    total_energy_consumption = ride.calculate_total_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 75% of the rider's FTP
@@ -342,7 +339,7 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 100% of the rider's FTP
-    total_energy_consumption = ride.calculate_total_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 100% of the rider's FTP
@@ -359,7 +356,7 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 130% of the rider's FTP
-    total_energy_consumption = ride.calculate_total_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 130% of the rider's FTP
