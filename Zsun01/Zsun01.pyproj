@@ -45,7 +45,9 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="data\parameters.py" />
     <Compile Include="setup.py" />
+    <Compile Include="src\formulae.py" />
     <Compile Include="src\speedpower.py">
       <SubType>Code</SubType>
     </Compile>

@@ -1,6 +1,7 @@
 import logging
 from jgh_logging import jgh_configure_logging
 import numpy as np
+import formulae as formula
 
 # Configure logging
 jgh_configure_logging("appsettings.json")
@@ -115,6 +116,23 @@ def calculate_energy_from_velocity(velocity: float, duration: float, coefficient
     power = calculate_power(velocity, coefficient_of_drag, frontal_area)
     return calculate_energy_from_power(power, duration)
 
+# Define the ZwiftInsiderRider class
+
+class ZwiftInsiderRider:
+    def __init__(self, mass, height):
+        self.mass = mass
+        self.height = height
+        self.coefficient_of_drag = estimate_coefficient_of_drag(mass, height)
+        self.frontal_area = estimate_frontal_area(mass, height)
+    def calculate_power(self, velocity):
+        return calculate_power(velocity, self.coefficient_of_drag, self.frontal_area)
+    def calculate_velocity(self, power):
+        return calculate_velocity(power, self.coefficient_of_drag, self.frontal_area)
+    def calculate_energy_from_power(self, power, duration):
+        return calculate_energy_from_power(power, duration)
+    def calculate_energy_from_velocity(self, velocity, duration):
+        return calculate_energy_from_velocity(velocity, duration, self.coefficient_of_drag, self.frontal_area)
+
 # Define the ZwiftInsiderWattageMatrix
 ZwiftInsiderWattageMatrix = np.array([
     [300, 350, 400],
@@ -139,6 +157,11 @@ def main():
     logger.info(ZwiftInsiderVelocityMatrix_kph)
     logger.info("ZwiftInsiderVelocityMatrix_ms:")
     logger.info(ZwiftInsiderVelocityMatrix_ms)
+
+    # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
+    velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_kph, (ZwiftInsiderWattageMatrix.shape[0], 1))
+    logger.info("Velocity Matrix (km/h):")
+    logger.info(velocity_matrix)
 
     # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
     velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_ms, (ZwiftInsiderWattageMatrix.shape[0], 1))
