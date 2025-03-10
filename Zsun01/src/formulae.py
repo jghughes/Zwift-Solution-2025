@@ -147,6 +147,20 @@ class Ride(BaseModel):
     rider: ZwiftInsiderRider = ZwiftInsiderRider()
     distance: float = 40000  # Distance in meters
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "rider": {
+                    "mass": 75,
+                    "height": 183,
+                    "gender": "male",
+                    "ftp": 3.5
+                },
+                "distance": 40000
+            }
+        }
+
+
     def calculate_duration(self, ftp_percentage: float) -> float:
         """
         Calculate the finishing time of the ride given the rider's FTP percentage.
@@ -168,7 +182,7 @@ class Ride(BaseModel):
 
         return finishing_time
 
-    def calculate_average_speed(self, ftp_percentage: float) -> float:
+    def calculate_velocity(self, ftp_percentage: float) -> float:
         """
         Calculate the average speed for the ride as a whole.
         
@@ -186,7 +200,7 @@ class Ride(BaseModel):
 
         return average_speed
 
-    def calculate_energy_consumption(self, ftp_percentage: float) -> float:
+    def calculate_energy_consumed(self, ftp_percentage: float) -> float:
         """
         Calculate the total energy consumption of the ride given the rider's FTP percentage.
         
@@ -210,7 +224,7 @@ class Ride(BaseModel):
 
         return total_energy_consumption
 
-    def calculate_energy_consumption_intensity(self, ftp_percentage: float) -> float:
+    def calculate_energy_consumed_intensity(self, ftp_percentage: float) -> float:
         """
         Calculate the energy total energy consumption intensity as the ratio of the total energy consumption
         to the energy that would have been consumed at a constant average power of 100% of FTP.
@@ -222,7 +236,7 @@ class Ride(BaseModel):
         float: The energy total energy consumption intensity (dimensionless).
         """
         # Calculate the total energy consumption at the given FTP percentage
-        total_energy_consumption = self.calculate_energy_consumption(ftp_percentage)
+        total_energy_consumption = self.calculate_energy_consumed(ftp_percentage)
 
         # Calculate the power at 100% FTP
         power_at_100_ftp = self.rider.ftp * self.rider.mass
@@ -262,6 +276,14 @@ class Interval(BaseModel):
             }
         }
 
+    def calculate_distance(self) -> float:
+        """
+        Calculate the distance covered during the interval.
+        
+        Returns:
+        float: The distance in meters.
+        """
+        return self.velocity * self.duration
     def calculate_power(self) -> float:
         """
         Calculate the power after adjusting for the power saving percentage.
@@ -284,7 +306,7 @@ class Interval(BaseModel):
         ftp_power = self.rider.ftp * self.rider.mass
         return adjusted_power / ftp_power
 
-    def calculate_energy_consumption(self) -> float:
+    def calculate_energy_consumed(self) -> float:
         """
         Calculate the energy consumption from the adjusted power and duration.
         
@@ -322,15 +344,15 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 75% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 75% of the rider's FTP
-    energy_total_energy_consumption_intensity = ride.calculate_energy_consumption_intensity(ftp_percentage)
+    energy_total_energy_consumption_intensity = ride.calculate_energy_consumed_intensity(ftp_percentage)
     logger.info(f"Energy total energy consumption intensity for the ride at {ftp_percentage * 100}% of FTP: {energy_total_energy_consumption_intensity:.2f}")
 
     # Calculate the average speed for the ride at 75% of the rider's FTP
-    average_speed = ride.calculate_average_speed(ftp_percentage)
+    average_speed = ride.calculate_velocity(ftp_percentage)
     logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
 
     # Calculate the finishing time for the ride at 100% of the rider's FTP
@@ -339,15 +361,15 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 100% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 100% of the rider's FTP
-    energy_total_energy_consumption_intensity = ride.calculate_energy_consumption_intensity(ftp_percentage)
+    energy_total_energy_consumption_intensity = ride.calculate_energy_consumed_intensity(ftp_percentage)
     logger.info(f"Energy total energy consumption intensity for the ride at {ftp_percentage * 100}% of FTP: {energy_total_energy_consumption_intensity:.2f}")
 
     # Calculate the average speed for the ride at 100% of the rider's FTP
-    average_speed = ride.calculate_average_speed(ftp_percentage)
+    average_speed = ride.calculate_velocity(ftp_percentage)
     logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
 
     # Calculate the finishing time for the ride at 130% of the rider's FTP
@@ -356,10 +378,38 @@ def main():
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 130% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumption(ftp_percentage)
+    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 130% of the rider's FTP
+
+       # Create an instance of ZwiftInsiderRider with height=183, mass=75, gender=MALE, and ftp=3.5
+    rider = ZwiftInsiderRider(mass=75, height=183, gender=Gender.MALE, ftp=3.5)
+    ride = Ride(rider=rider, distance=40000)
+    
+    # Calculate the finishing time for the ride at 100% of the rider's FTP
+    ftp_percentage = 1.0
+    finishing_time = ride.calculate_duration(ftp_percentage)
+    logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
+
+    # Calculate the average speed for the ride at 100% of the rider's FTP
+    average_speed = ride.calculate_velocity(ftp_percentage)
+    logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
+
+    # Calculate the total energy consumption for the ride at 100% of the rider's FTP
+    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
+    logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
+
+    # Create an Interval instance with the calculated duration and velocity
+    interval = Interval(rider=rider, duration=finishing_time, velocity=average_speed)
+    interval_energy_consumed = interval.calculate_energy_consumed()
+    logger.info(f"Energy consumption for the interval: {interval_energy_consumed:.2f} joules")
+
+    # Check if the energy consumed in the ride and interval are equivalent
+    if abs(total_energy_consumption - interval_energy_consumed) < 1e-6:
+        logger.info("The energy consumption for the ride and interval are equivalent.")
+    else:
+        logger.error("The energy consumption for the ride and interval are not equivalent.")
 
 
 if __name__ == "__main__":
