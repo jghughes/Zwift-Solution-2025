@@ -61,9 +61,9 @@ def estimate_frontal_area(mass: float, height: float) -> float:
     
     return a
 
-def calculate_power(velocity: float, coefficient_of_drag: float, frontal_area: float) -> float:
+def estimate_power(velocity: float, coefficient_of_drag: float, frontal_area: float) -> float:
     """
-    Calculate the power given a velocity, coefficient of drag, and frontal area.
+    Estimate the power given a velocity, coefficient of drag, and frontal area.
     
     Args:
     velocity (float): The velocity in m/s.
@@ -71,11 +71,11 @@ def calculate_power(velocity: float, coefficient_of_drag: float, frontal_area: f
     frontal_area (float): The frontal area in m^2.
     
     Returns:
-    float: The calculated power in watts.
+    float: The estimated power in watts.
     """
     return coefficient_of_drag * frontal_area * (velocity ** 3)
 
-def calculate_velocity(power: float, coefficient_of_drag: float, frontal_area: float) -> float:
+def estimate_speed(power: float, coefficient_of_drag: float, frontal_area: float) -> float:
     """
     Calculate the velocity given the power, coefficient of drag, and frontal area.
     
@@ -89,7 +89,7 @@ def calculate_velocity(power: float, coefficient_of_drag: float, frontal_area: f
     """
     return (power / (coefficient_of_drag * frontal_area)) ** (1 / 3)
 
-def calculate_energy_from_power(power: float, duration: float) -> float:
+def estimate_energy_from_power(power: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
     
@@ -102,7 +102,7 @@ def calculate_energy_from_power(power: float, duration: float) -> float:
     """
     return power * duration
 
-def calculate_energy_from_velocity(velocity: float, duration: float, coefficient_of_drag: float, frontal_area: float) -> float:
+def estimate_energy_consumed_from_velocity(velocity: float, duration: float, coefficient_of_drag: float, frontal_area: float) -> float:
     """
     Calculate the energy consumption given velocity, duration, coefficient of drag, and frontal area.
     
@@ -115,53 +115,97 @@ def calculate_energy_from_velocity(velocity: float, duration: float, coefficient
     Returns:
     float: The energy consumption in joules.
     """
-    power = calculate_power(velocity, coefficient_of_drag, frontal_area)
-    return calculate_energy_from_power(power, duration)
+    power = estimate_power(velocity, coefficient_of_drag, frontal_area)
+    return estimate_energy_from_power(power, duration)
 
-class ZwiftInsiderRider(BaseModel):
+class Rider(BaseModel):
+    name: str = ""  # Name of the rider
     mass: float = 75
     height: float = 183
     gender: Gender = Gender.MALE
     ftp: float = 3.5  # Functional Threshold Power in watts per kilogram
-    coefficient_of_drag: float = Field(init=False, default = 0.5)
-    frontal_area: float = Field(init=False, default=0.5)
-
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.coefficient_of_drag = estimate_coefficient_of_drag(self.mass, self.height)
-        self.frontal_area = estimate_frontal_area(self.mass, self.height)
-
-    def calculate_power(self, velocity: float) -> float:
-        return calculate_power(velocity, self.coefficient_of_drag, self.frontal_area)
-
-    def calculate_velocity(self, power: float) -> float:
-        return calculate_velocity(power, self.coefficient_of_drag, self.frontal_area)
-
-    def calculate_energy_from_power(self, power: float, duration: float) -> float:
-        return calculate_energy_from_power(power, duration)
-
-    def calculate_energy_from_velocity(self, velocity: float, duration: float) -> float:
-        return calculate_energy_from_velocity(velocity, duration, self.coefficient_of_drag, self.frontal_area)
-
-class Ride(BaseModel):
-    rider: ZwiftInsiderRider = ZwiftInsiderRider()
-    distance: float = 40000  # Distance in meters
+    zwift_racing_score: int = 500  # Zwift racing score
+    velo_rating: int = 1200  # Velo rating
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
-                "rider": {
-                    "mass": 75,
-                    "height": 183,
-                    "gender": "male",
-                    "ftp": 3.5
-                },
-                "distance": 40000
+                "name": "John Doe",
+                "mass": 75,
+                "height": 183,
+                "gender": "male",
+                "ftp": 3.5,
+                "zwift_racing_score": 500,
+                "velo_rating": 1200
+            },
+            "description": {
+                "name": "The name of the rider",
+                "mass": "The mass of the rider in kilograms",
+                "height": "The height of the rider in centimeters",
+                "gender": "The gender of the rider",
+                "ftp": "Functional Threshold Power in watts per kilogram",
+                "zwift_racing_score": "Zwift racing score",
+                "velo_rating": "Velo rating"
+            },
+            "validation": {
+                "mass": "Must be a positive number",
+                "height": "Must be a positive number",
+                "ftp": "Must be a positive number"
             }
         }
 
+    def calculate_coefficient_of_drag(self) -> float:
+        return estimate_coefficient_of_drag(self.mass, self.height)
 
-    def calculate_duration(self, ftp_percentage: float) -> float:
+    def calculate_frontal_area(self) -> float:
+        return estimate_frontal_area(self.mass, self.height)
+
+    def calculate_power(self, velocity: float) -> float:
+        coefficient_of_drag = self.calculate_coefficient_of_drag()
+        frontal_area = self.calculate_frontal_area()
+        return estimate_power(velocity, coefficient_of_drag, frontal_area)
+
+    def calculate_velocity(self, power: float) -> float:
+        coefficient_of_drag = self.calculate_coefficient_of_drag()
+        frontal_area = self.calculate_frontal_area()
+        return estimate_speed(power, coefficient_of_drag, frontal_area)
+
+    def calculate_energy_from_power(self, power: float, duration: float) -> float:
+        return estimate_energy_from_power(power, duration)
+
+    def calculate_energy_from_velocity(self, velocity: float, duration: float) -> float:
+        coefficient_of_drag = self.calculate_coefficient_of_drag()
+        frontal_area = self.calculate_frontal_area()
+        return estimate_energy_consumed_from_velocity(velocity, duration, coefficient_of_drag, frontal_area)
+
+class Ride(BaseModel):
+    rider: Rider = Rider()
+    distance: float = 40000  # Distance in meters
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "rider": {
+                    "name": "John Doe",
+                    "mass": 75,
+                    "height": 183,
+                    "gender": "male",
+                    "ftp": 3.5,
+                    "zwift_racing_score": 500,
+                    "velo_rating": 1200
+                },
+                "distance": 40000
+            },
+            "description": {
+                "rider": "The rider participating in the ride",
+                "distance": "The distance of the ride in meters"
+            },
+            "validation": {
+                "distance": "Must be a positive number"
+            }
+        }
+
+    def compute_duration(self, ftp_percentage: float) -> float:
         """
         Calculate the finishing time of the ride given the rider's FTP percentage.
         
@@ -182,7 +226,7 @@ class Ride(BaseModel):
 
         return finishing_time
 
-    def calculate_velocity(self, ftp_percentage: float) -> float:
+    def compute_velocity(self, ftp_percentage: float) -> float:
         """
         Calculate the average speed for the ride as a whole.
         
@@ -193,14 +237,14 @@ class Ride(BaseModel):
         float: The average speed in meters per second.
         """
         # Calculate the finishing time
-        finishing_time = self.calculate_duration(ftp_percentage)
+        finishing_time = self.compute_duration(ftp_percentage)
 
         # Calculate the average speed
         average_speed = self.distance / finishing_time
 
         return average_speed
 
-    def calculate_energy_consumed(self, ftp_percentage: float) -> float:
+    def compute_energy_consumed(self, ftp_percentage: float) -> float:
         """
         Calculate the total energy consumption of the ride given the rider's FTP percentage.
         
@@ -220,11 +264,11 @@ class Ride(BaseModel):
         finishing_time = self.distance / velocity
 
         # Calculate the total energy consumption
-        total_energy_consumption = calculate_energy_from_power(power, finishing_time)
+        total_energy_consumption = estimate_energy_from_power(power, finishing_time)
 
         return total_energy_consumption
 
-    def calculate_energy_consumed_intensity(self, ftp_percentage: float) -> float:
+    def compute_energy_consumed_intensity(self, ftp_percentage: float) -> float:
         """
         Calculate the energy total energy consumption intensity as the ratio of the total energy consumption
         to the energy that would have been consumed at a constant average power of 100% of FTP.
@@ -236,7 +280,7 @@ class Ride(BaseModel):
         float: The energy total energy consumption intensity (dimensionless).
         """
         # Calculate the total energy consumption at the given FTP percentage
-        total_energy_consumption = self.calculate_energy_consumed(ftp_percentage)
+        total_energy_consumption = self.compute_energy_consumed(ftp_percentage)
 
         # Calculate the power at 100% FTP
         power_at_100_ftp = self.rider.ftp * self.rider.mass
@@ -248,7 +292,7 @@ class Ride(BaseModel):
         finishing_time_at_100_ftp = self.distance / velocity_at_100_ftp
 
         # Calculate the energy consumption at 100% FTP
-        energy_consumption_at_100_ftp = calculate_energy_from_power(power_at_100_ftp, finishing_time_at_100_ftp)
+        energy_consumption_at_100_ftp = estimate_energy_from_power(power_at_100_ftp, finishing_time_at_100_ftp)
 
         # Calculate the energy total energy consumption intensity
         energy_total_energy_consumption_intensity = total_energy_consumption / energy_consumption_at_100_ftp
@@ -256,27 +300,41 @@ class Ride(BaseModel):
         return energy_total_energy_consumption_intensity
 
 class Interval(BaseModel):
-    rider: ZwiftInsiderRider = ZwiftInsiderRider()
+    rider: Rider = Rider()
     duration: float = 30  # seconds
     velocity: float = 10  # meters/second
-    power_saving_percentage: float = 0  # percentage, dimensionless ratio
+    drafting_power_saving_percentage: float = 0  # percentage, dimensionless ratio
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "rider": {
+                    "name": "John Doe",
                     "mass": 75,
                     "height": 183,
                     "gender": "male",
-                    "ftp": 3.5
+                    "ftp": 3.5,
+                    "zwift_racing_score": 500,
+                    "velo_rating": 1200
                 },
                 "duration": 30,
                 "velocity": 10,
-                "power_saving_percentage": 0
+                "drafting_power_saving_percentage": 0
+            },
+            "description": {
+                "rider": "The rider participating in the interval",
+                "duration": "The duration of the interval in seconds",
+                "velocity": "The velocity during the interval in meters per second",
+                "drafting_power_saving_percentage": "The percentage of power saved due to drafting"
+            },
+            "validation": {
+                "duration": "Must be a positive number",
+                "velocity": "Must be a positive number",
+                "drafting_power_saving_percentage": "Must be a non-negative number"
             }
         }
 
-    def calculate_distance(self) -> float:
+    def determine_distance(self) -> float:
         """
         Calculate the distance covered during the interval.
         
@@ -284,7 +342,8 @@ class Interval(BaseModel):
         float: The distance in meters.
         """
         return self.velocity * self.duration
-    def calculate_power(self) -> float:
+
+    def determine_average_power(self) -> float:
         """
         Calculate the power after adjusting for the power saving percentage.
         
@@ -292,34 +351,42 @@ class Interval(BaseModel):
         float: The adjusted power in watts.
         """
         base_power = self.rider.calculate_power(self.velocity)
-        adjusted_power = base_power * (1 - self.power_saving_percentage / 100)
+        adjusted_power = base_power * (1 - self.drafting_power_saving_percentage / 100)
         return adjusted_power
 
-    def calculate_power_to_ftp_ratio(self) -> float:
+    def determine_average_power_to_ftp_ratio(self) -> float:
         """
         Calculate the ratio of the adjusted power to the rider's FTP.
         
         Returns:
         float: The power to FTP ratio.
         """
-        adjusted_power = self.calculate_power()
+        adjusted_power = self.determine_average_power()
         ftp_power = self.rider.ftp * self.rider.mass
         return adjusted_power / ftp_power
 
-    def calculate_energy_consumed(self) -> float:
+    def determine_energy_consumed(self) -> float:
         """
         Calculate the energy consumption from the adjusted power and duration.
         
         Returns:
         float: The energy consumption in joules.
         """
-        adjusted_power = self.calculate_power()
-        return calculate_energy_from_power(adjusted_power, self.duration)
+        adjusted_power = self.determine_average_power()
+        return estimate_energy_from_power(adjusted_power, self.duration)
 
 # Example usage
 def main():
-    # Create an instance of ZwiftInsiderRider with height=183, mass=75, gender=MALE, and ftp=3.5
-    rider = ZwiftInsiderRider(mass=75, height=183, gender=Gender.MALE, ftp=3.5)
+
+    # Instantiate Rider using the example from Config
+    example_data = Rider.Config.json_schema_extra["example"]
+    rider = Rider.model_validate(example_data)
+
+    # Log the instantiated object
+    logger.info(f"Rider instantiated from JSON config is:-\r\n{rider}")
+
+    # Create an instance of Rider with height=183, mass=75, gender=MALE, and ftp=3.5
+    rider = Rider(name="John Doe", mass=75, height=183, gender=Gender.MALE, ftp=3.5, zwift_racing_score=500, velo_rating=1200)
     ride = Ride(rider=rider, distance=40000)
     velocity = 10.0  # m/s
     power = rider.calculate_power(velocity)
@@ -340,69 +407,69 @@ def main():
 
     # Calculate the finishing time for the ride at 75% of the rider's FTP
     ftp_percentage = 0.75
-    finishing_time = ride.calculate_duration(ftp_percentage)
+    finishing_time = ride.compute_duration(ftp_percentage)
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 75% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
+    total_energy_consumption = ride.compute_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 75% of the rider's FTP
-    energy_total_energy_consumption_intensity = ride.calculate_energy_consumed_intensity(ftp_percentage)
+    energy_total_energy_consumption_intensity = ride.compute_energy_consumed_intensity(ftp_percentage)
     logger.info(f"Energy total energy consumption intensity for the ride at {ftp_percentage * 100}% of FTP: {energy_total_energy_consumption_intensity:.2f}")
 
     # Calculate the average speed for the ride at 75% of the rider's FTP
-    average_speed = ride.calculate_velocity(ftp_percentage)
+    average_speed = ride.compute_velocity(ftp_percentage)
     logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
 
     # Calculate the finishing time for the ride at 100% of the rider's FTP
     ftp_percentage = 1.0
-    finishing_time = ride.calculate_duration(ftp_percentage)
+    finishing_time = ride.compute_duration(ftp_percentage)
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 100% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
+    total_energy_consumption = ride.compute_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 100% of the rider's FTP
-    energy_total_energy_consumption_intensity = ride.calculate_energy_consumed_intensity(ftp_percentage)
+    energy_total_energy_consumption_intensity = ride.compute_energy_consumed_intensity(ftp_percentage)
     logger.info(f"Energy total energy consumption intensity for the ride at {ftp_percentage * 100}% of FTP: {energy_total_energy_consumption_intensity:.2f}")
 
     # Calculate the average speed for the ride at 100% of the rider's FTP
-    average_speed = ride.calculate_velocity(ftp_percentage)
+    average_speed = ride.compute_velocity(ftp_percentage)
     logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
 
     # Calculate the finishing time for the ride at 130% of the rider's FTP
     ftp_percentage = 1.3
-    finishing_time = ride.calculate_duration(ftp_percentage)
+    finishing_time = ride.compute_duration(ftp_percentage)
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the total energy consumption for the ride at 130% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
+    total_energy_consumption = ride.compute_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Calculate the energy total energy consumption intensity for the ride at 130% of the rider's FTP
 
-       # Create an instance of ZwiftInsiderRider with height=183, mass=75, gender=MALE, and ftp=3.5
-    rider = ZwiftInsiderRider(mass=75, height=183, gender=Gender.MALE, ftp=3.5)
+    # Create an instance of Rider with height=183, mass=75, gender=MALE, and ftp=3.5
+    rider = Rider(name="John Doe", mass=75, height=183, gender=Gender.MALE, ftp=3.5, zwift_racing_score=500, velo_rating=1200)
     ride = Ride(rider=rider, distance=40000)
     
     # Calculate the finishing time for the ride at 100% of the rider's FTP
     ftp_percentage = 1.0
-    finishing_time = ride.calculate_duration(ftp_percentage)
+    finishing_time = ride.compute_duration(ftp_percentage)
     logger.info(f"Finishing time for the ride at {ftp_percentage * 100}% of FTP: {finishing_time:.2f} seconds")
 
     # Calculate the average speed for the ride at 100% of the rider's FTP
-    average_speed = ride.calculate_velocity(ftp_percentage)
+    average_speed = ride.compute_velocity(ftp_percentage)
     logger.info(f"Average speed for the ride at {ftp_percentage * 100}% of FTP: {average_speed:.2f} m/s")
 
     # Calculate the total energy consumption for the ride at 100% of the rider's FTP
-    total_energy_consumption = ride.calculate_energy_consumed(ftp_percentage)
+    total_energy_consumption = ride.compute_energy_consumed(ftp_percentage)
     logger.info(f"Total energy consumption for the ride at {ftp_percentage * 100}% of FTP: {total_energy_consumption:.2f} joules")
 
     # Create an Interval instance with the calculated duration and velocity
     interval = Interval(rider=rider, duration=finishing_time, velocity=average_speed)
-    interval_energy_consumed = interval.calculate_energy_consumed()
+    interval_energy_consumed = interval.determine_energy_consumed()
     logger.info(f"Energy consumption for the interval: {interval_energy_consumed:.2f} joules")
 
     # Check if the energy consumed in the ride and interval are equivalent
@@ -410,7 +477,6 @@ def main():
         logger.info("The energy consumption for the ride and interval are equivalent.")
     else:
         logger.error("The energy consumption for the ride and interval are not equivalent.")
-
 
 if __name__ == "__main__":
     main()
