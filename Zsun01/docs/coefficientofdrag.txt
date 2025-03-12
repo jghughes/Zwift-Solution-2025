@@ -11,3 +11,16 @@ Where:
 •	mass is the body mass (kg)
 •	height is the height (cm)
 Using these formulas, we can write two functions: one to estimate the coefficient of drag (Cd) and another to estimate the frontal area (A).
+
+
+ZwiftInsiderWattageMatrix:
+[[300 350 400]
+ [212 252 290]
+ [196 236 261]
+ [191 217 255]]
+
+ ZwiftInsiderDraftPowerMatrix:
+[[1.         1.         1.        ]
+ [0.70666667 0.72       0.725     ]
+ [0.65333333 0.67428571 0.6525    ]
+ [0.63666667 0.62       0.6375    ]]

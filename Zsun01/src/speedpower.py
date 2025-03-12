@@ -30,6 +30,8 @@ ZwiftInsiderVelocityMatrix_kph = np.array([39.9, 42.2, 44.4])
 # Convert the velocity matrix to m/s
 ZwiftInsiderVelocityMatrix_ms = ZwiftInsiderVelocityMatrix_kph * 1000 / 3600
 
+# Define the ZwiftInsiderDraftPowerMatrix
+ZwiftInsiderDraftPowerMatrix = ZwiftInsiderWattageMatrix / ZwiftInsiderWattageMatrix[0, :]
 
 # Example usage
 
@@ -46,10 +48,8 @@ def main():
     logger.info("Velocity Matrix (km/h):")
     logger.info(velocity_matrix)
 
-    # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
-    velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_ms, (ZwiftInsiderWattageMatrix.shape[0], 1))
-    logger.info("Velocity Matrix (m/s):")
-    logger.info(velocity_matrix)
+    logger.info("ZwiftInsiderDraftPowerMatrix:")
+    logger.info(ZwiftInsiderDraftPowerMatrix)
 
 
 if __name__ == "__main__":
