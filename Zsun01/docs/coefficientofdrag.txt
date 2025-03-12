@@ -24,3 +24,7 @@ ZwiftInsiderWattageMatrix:
  [0.70666667 0.72       0.725     ]
  [0.65333333 0.67428571 0.6525    ]
  [0.63666667 0.62       0.6375    ]]
+
+ https://julesandjames.blogspot.com/2021/04/speed-vs-power-in-zwift.html
+
+

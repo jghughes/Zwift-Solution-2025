@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\speedpower.py</StartupFile>
+    <StartupFile>src\calculations.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -48,7 +48,9 @@
     <Compile Include="data\parameters.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\formulae.py" />
-    <Compile Include="src\speedpower.py">
+    <Compile Include="src\speedpower.py" />
+    <Compile Include="src\ttt.py" />
+    <Compile Include="src\calculations.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
