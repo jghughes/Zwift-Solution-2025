@@ -1,0 +1,41 @@
+ZwiftInsiderSpeedMatrix_kph = np.array([39.9, 42.2, 44.4])
+
+ZwiftInsiderWattageMatrix:
+[[300 350 400]
+ [212 252 290]
+ [196 236 261]
+ [191 217 255]]
+
+ ZwiftInsiderSlipstreamMatrix:
+[[1.         1.         1.        ]
+ [0.70666667 0.72       0.725     ]
+ [0.65333333 0.67428571 0.6525    ]
+ [0.63666667 0.62       0.6375    ]]
+
+
+
+ https://julesandjames.blogspot.com/2021/04/speed-vs-power-in-zwift.html
+
+ Wednesday, April 14, 2021
+Speed vs power in Zwift
+This may be of interest to a relatively small number of readers, but it seems worth documenting that the relationship between power and equilibrium flat speed in the cycling simulator Zwift can be quite accurately summarised via 
+
+P =  1.86e-02 w.v - 5.37e-04 v^3 + 2.23e-05 w.v^3 + 1.33e-05 h.v^3
+
+where v is the velocity in kph, w is the rider weight in kg, and h is the rider height in cm.
+
+The linear term in v can be thought of as arising through rolling resistance (which also varies with w), with the three cubic terms due to air resistance. These cubic terms can be thought of as the dominant terms in a Taylor series expansion of a single term that looks like A.f(w,h).v^3 where f is a function of weight and height that modifies the resistance (eg though changing the cross sectional area). At first I was trying to work out what f was, but an important realisation that only came to me while doing this analysis is that I don't actually need to know its form as the values of w and h only deviate moderately from their mean values for the practical range of riders I'm interested in (ie ± 10% the most part, 20% at worst). Therefore this linearisation approach (with coefficients fitted through linear regression) is plenty good enough and I don't need any of my model-fitting tricks. More engineering than science but nevertheless useful!
+
+To do the model fitting, I did a bunch of flying laps of the volcano circuit at constant power, with different physical parameters and varying power level each time. This route is fairly flat but not perfectly so, which means the average speed here will be a little bit lower than that achieved on truly flat ground, but probably typical of many flattish routes on Zwift such as Watopia's Waistband or Greater London Flat. I estimate the elevation/disequilibrium effect here to be around 0.5kph, so speeds achieved on Tempus Fugit may be about that much quicker than indicated here (or conversely, you'll hit a target pace with a bit less power than this formula suggests). Some of the riders in my data set are real, others imaginary. I've focussed mostly on women, first because I've been DS for my wife's team for a while, and also because through being a large reasonably fit man I can generate their racing power fairly comfortably for long enough to get a fix on their speeds. (Yes, I know there are software approaches to simulating the power. But it's something else to set up, and I don't really want to get into the world of power bots, you never know where it might lead...) Calculating the power needed for a large rider at high speed requires a bit of an extrapolation and may get less reliable. Bike is the Tron, I started out testing different bikes (to check on what zwiftinsider says) but the differences were too trivial to pursue. Specifically, the Canyon Aeroad 2021 with Zipp 808 wheels which I used to use a lot was just one second slower than the Tron. That's 0.1kph, equivalent to less than 2W.
+
+The black lines in the plot below are the model predictions for each rider, with the crosses marking the data points that I used to fit the model. Each line has 3 data points except for the top one which is my own physics. If someone wants to do a flying lap of the volcano at 450W (using my physical parameters) I'd love to know the result :-) The rest are mostly based around a women's team with jules being the bottom line. Few cyclists of either gender lie outside the range of our parameters! The model-data residuals are about 1.5W on average (RMS error) which is basically the magnitude of measurement error on the speed which is only precise to 0.1kph. This level of precision is plenty good enough for practical use, it's difficult to hit a power target more closely than about 5W anyway.
+
+
+
+A conclusion that may be drawn is that for a medium-sized cyclist riding around 42kph, an extra 1kg of weight requires 2.5W more power to maintain the same speed (or alternatively, 1kg less saves 2.5W of power). For an additional 1cm of height, it's around 1W. These numbers aren't far from what I'd estimated through experience, it's nice to have them confirmed in a more careful calculation.
+
+Posted by James Annan at Wednesday, April 14, 2021  
+Email This
+BlogThis!
+Share to X
+Share to Facebook

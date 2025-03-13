@@ -1,7 +1,7 @@
 import logging
 from jgh_logging import jgh_configure_logging
 import numpy as np
-from ttt import * 
+from models import * 
 
 # Configure logging
 jgh_configure_logging("appsettings.json")
@@ -37,45 +37,27 @@ ZwiftInsiderVelocityMatrix_ms = ZwiftInsiderVelocityMatrix_kph * 1000 / 3600
 ZwiftInsiderDraftPowerMatrix = ZwiftInsiderWattageMatrix / ZwiftInsiderWattageMatrix[0, :]
 
 
-def calculate_power(w: float, v: float, h: float) -> float:
-    """
-    Calculate the power (P) as a function of mass (w), velocity (v), and height (h).
-    
-    Args:
-    w (float): The rider's weight in kg.
-    v (float): The velocity in kph.
-    h (float): The rider's height in cm.
-    
-    Returns:
-    float: The calculated power in watts.
-    """
-    P = 1.86e-02 * w * v - 5.37e-04 * v**3 + 2.23e-05 * w * v**3 + 1.33e-05 * h * v**3
-    return P
-
-
 # Example usage
 
 def main():
-    # logger.info("ZwiftInsiderWattageMatrix:")
-    # logger.info(ZwiftInsiderWattageMatrix)
-    # logger.info("ZwiftInsiderVelocityMatrix_kph:")
-    # logger.info(ZwiftInsiderVelocityMatrix_kph)
-    # logger.info("ZwiftInsiderVelocityMatrix_ms:")
-    # logger.info(ZwiftInsiderVelocityMatrix_ms)
+    logger.info("ZwiftInsiderWattageMatrix:")
+    logger.info(ZwiftInsiderWattageMatrix)
+    logger.info("ZwiftInsiderVelocityMatrix_kph:")
+    logger.info(ZwiftInsiderVelocityMatrix_kph)
 
-    # # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
-    # velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_kph, (ZwiftInsiderWattageMatrix.shape[0], 1))
-    # logger.info("Velocity Matrix (km/h):")
-    # logger.info(velocity_matrix)
+    # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
+    velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_kph, (ZwiftInsiderWattageMatrix.shape[0], 1))
+    logger.info("Velocity Matrix (km/h):")
+    logger.info(velocity_matrix)
 
-    # logger.info("ZwiftInsiderDraftPowerMatrix:")
-    # logger.info(ZwiftInsiderDraftPowerMatrix)
+    logger.info("ZwiftInsiderDraftPowerMatrix:")
+    logger.info(ZwiftInsiderDraftPowerMatrix)
 
     # Instantiate the default Rider named ericschlange
     ericschlange = Rider(
-        zwiftid=0,
+        zwiftid=12345,
         name="Eric Schlange",
-        mass=84.3,
+        weight=84.3,
         height=180,
         gender=Gender.MALE,
         ftp=272,
@@ -85,14 +67,7 @@ def main():
 
     # Create a 1xn matrix for power values ranging from 300 to 500 watts in 50-watt increments
     power_values = np.arange(300, 501, 50)
-    velocity_matrix_ms = np.array([ericschlange.calculate_velocity_from_power(power) for power in power_values])
-
-    # Convert the matrix to km/h
-    velocity_matrix_kph = velocity_matrix_ms * 3.6
-
-    # Log the matrices
-    logger.info("Velocity Matrix (m/s):")
-    logger.info(velocity_matrix_ms)
+    velocity_matrix_kph = np.array([ericschlange.calculate_speed_from_power(power) for power in power_values])
     logger.info("Velocity Matrix (km/h):")
     logger.info(velocity_matrix_kph)
 
