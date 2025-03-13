@@ -1,3 +1,28 @@
+def estimate__power_ratio_in_peloton(position: int) -> float:
+    """
+    Calculate the power ratio based on the rider's
+    position in the peloton.
+    """
+    # ZwiftInsiderWattageMatrix = np.array([
+    #     [300, 350, 400],
+    #     [212, 252, 290],
+    #     [196, 236, 261],
+    #     [191, 217, 255]
+    # ])
+
+    # Define the ZwiftInsider power ratios for each position in the peloton
+    denominator = 350
+    power_ratios = {
+        1: denominator/denominator,
+        2: 252/denominator,
+        3: 236/denominator,
+        4: 217/denominator,
+    }
+    # Return the power ratio for the given position
+    if position in power_ratios:
+        return power_ratios.get(position, 1)
+    else:
+        return power_ratios.get(4,1)
 
 def estimate_joules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
@@ -92,6 +117,7 @@ def estimate_kilojoules_from_speed_and_time(speed: float, duration: float, weigh
     energy_kilojoules = energy_joules / 1000
 
     return round(energy_kilojoules, 3)
+
 
 # Example usage
 def main():

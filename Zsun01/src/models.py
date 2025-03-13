@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+
 from formulae import *
 
 class Gender(Enum):
@@ -94,14 +95,47 @@ class Rider(BaseModel):
         energy_kilojoules = energy_joules / 1000
         return round(energy_kilojoules, 3)
 
+    def determine_wattage(self, speed: float, position_in_peloton: int) -> float:
+        """
+        Determine the wattage required for a rider given their speed and position in the peloton.
+
+        Args:
+        rider (Rider): The rider object.
+        speed (float): The speed in km/h.
+        position (int): The position in the peloton.
+
+        Returns:
+        float: The required wattage in watts.
+        """
+        # Calculate the base power required for the given speed
+        base_power = self.calculate_power_from_speed(speed)
+
+        # Adjust the power based on the rider's position in the peloton
+        if position_in_peloton == 1:
+            # No drafting benefit for the lead rider
+            adjusted_power = base_power
+        else:
+            # Apply a drafting benefit for riders behind the lead
+            drafting_benefit = 0.1 * (position_in_peloton - 1)  # Example: 10% benefit per position behind the lead
+            adjusted_power = base_power * (1 - drafting_benefit)
+
+        return round(adjusted_power, 3)
+
 
 class Interval(BaseModel):
     rider: Rider = Rider()
-    duration: float = 30  # seconds
-    speed: float = 40  # km/h
-    drafting_power_saving_percentage: float = 0  # percentage, dimensionless ratio
+    duration: float = 0  # seconds
+    speed: float = 0  # km/h
+    distance: float = 0  # meters
+    position_in_peloton: int = 0
+    wattage_p1: float = 0  # watts
+    wattage_pip: float = 0  # watts
+    energy_consumed_p1 : float = 0 # kiloJoules
+    energy_consumed_pip: float = 0 # kiloJoules
+    
 
     class Config:
+        frozen = True
         json_schema_extra = {
             "example": {
                 "rider": {
@@ -130,47 +164,25 @@ class Interval(BaseModel):
             }
         }
 
-    def determine_distance_covered(self) -> float:
-        """
-        Calculate the distance covered during the interval.
-        
-        Returns:
-        float: The distance in meters.
-        """
-        velocity= self.speed *1000/3600
-        return velocity * self.duration
+    @staticmethod
+    def create(rider: Rider, duration: float, speed: float, distance: float, position: int) -> 'Interval':
+        if speed > 0:
+            # Calculate distance if speed is provided
+            velocity_mps = speed * 1000 / 3600  # Convert speed from km/h to m/s
+            distance = velocity_mps * duration
+        else:
+            # Calculate speed if distance is provided
+            velocity_mps = distance / duration
+            speed = velocity_mps * 3600 / 1000  # Convert speed from m/s to km/h
 
-    def determine_average_wattage(self) -> float:
-        """
-        Calculate the power after adjusting for the power saving percentage.
-        
-        Returns:
-        float: The adjusted power in watts.
-        """
-        base_power = self.rider.calculate_power_from_velocity(self.velocity)
-        adjusted_power = base_power * (1 - self.drafting_power_saving_percentage / 100)
-        return adjusted_power
+        wattage_leader = rider.determine_wattage(speed, 1)
+        wattage_in_peloton = rider.determine_wattage(speed, position)
 
-    def determine_average_power_to_ftp_ratio(self) -> float:
-        """
-        Calculate the ratio of the adjusted power to the rider's FTP.
-        
-        Returns:
-        float: The power to FTP ratio.
-        """
-        adjusted_power = self.determine_average_power()
-        ftp_power = self.rider.ftp * self.rider.weight
-        return adjusted_power / ftp_power
+        energy_consumed_leader = rider.calculate_kilojoules_from_power_and_time(wattage_leader, duration)
+        energy_consumed_in_peloton = rider.calculate_kilojoules_from_power_and_time(wattage_in_peloton, duration)
 
-    def determine_energy_consumed(self) -> float:
-        """
-        Calculate the energy consumption from the adjusted power and duration.
-        
-        Returns:
-        float: The energy consumption in joules.
-        """
-        adjusted_power = self.determine_average_power()
-        return estimate_joules_from_wattage_and_time(adjusted_power, self.duration)
+        return Interval(rider=rider, duration=duration, speed=speed, distance=distance, position_in_peloton=position, wattage_p1 = wattage_leader, wattage_pip = wattage_in_peloton energy_consumed_p1=energy_consumed_leader, energy_consumed_pip=energy_consumed_in_peloton)
+
 
 # Example usage
 def main():
