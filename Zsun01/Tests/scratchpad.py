@@ -53,8 +53,8 @@ def main():
     logger.info("ZwiftInsiderDraftPowerMatrix:")
     logger.info(ZwiftInsiderDraftPowerMatrix)
 
-    # Instantiate the default Rider named ericschlange
-    ericschlange = Rider(
+    # Instantiate the default ZwiftRider named ericschlange
+    ericschlange = ZwiftRider(
         zwiftid=12345,
         name="Eric Schlange",
         weight=84.3,
@@ -67,7 +67,7 @@ def main():
 
     # Create a 1xn matrix for power values ranging from 300 to 500 watts in 50-watt increments
     power_values = np.arange(300, 501, 50)
-    velocity_matrix_kph = np.array([ericschlange.calculate_kph_from_wattage(power) for power in power_values])
+    velocity_matrix_kph = np.array([ericschlange.calculate_kph_riding_alone(power) for power in power_values])
     logger.info("Velocity Matrix (km/h):")
     logger.info(velocity_matrix_kph)
 
