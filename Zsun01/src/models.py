@@ -50,7 +50,7 @@ class Rider(BaseModel):
             }
         }
 
-    def calculate_power_from_speed(self, speed: float) -> float:
+    def calculate_wattage_from_kph(self, speed: float) -> float:
         """
         Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
 
@@ -64,7 +64,7 @@ class Rider(BaseModel):
         power = estimate_wattage_from_speed(speed, self.weight, self.height)
         return power
 
-    def calculate_speed_from_power(self, power: float) -> float:
+    def calculate_kph_from_wattage(self, power: float) -> float:
         """
         Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.
 
@@ -78,7 +78,7 @@ class Rider(BaseModel):
         speed_kph = estimate_speed_from_wattage(power, self.weight, self.height)
         return speed_kph
 
-    def calculate_kilojoules_from_power_and_time(self, power: float, duration: float) -> float:
+    def calculate_kilojoules_from_wattage_and_seconds(self, power: float, duration: float) -> float:
         """
         Calculate the energy consumption in kilojoules given power and duration.
 
@@ -95,7 +95,7 @@ class Rider(BaseModel):
         energy_kilojoules = energy_joules / 1000
         return round(energy_kilojoules, 3)
 
-    def determine_wattage(self, speed: float, position_in_peloton: int) -> float:
+    def calculate_wattage_from_kph_and_position(self, speed: float, position_in_peloton: int) -> float:
         """
         Determine the wattage required for a rider given their speed and position in the peloton.
 
@@ -108,7 +108,7 @@ class Rider(BaseModel):
         float: The required wattage in watts.
         """
         # Calculate the base power required for the given speed
-        base_power = self.calculate_power_from_speed(speed)
+        base_power = self.calculate_wattage_from_kph(speed)
 
         # Adjust the power based on the rider's position in the peloton
         if position_in_peloton == 1:
@@ -127,12 +127,11 @@ class Interval(BaseModel):
     duration: float = 0  # seconds
     speed: float = 0  # km/h
     distance: float = 0  # meters
-    position_in_peloton: int = 0
-    wattage_p1: float = 0  # watts
-    wattage_pip: float = 0  # watts
-    energy_consumed_p1 : float = 0 # kiloJoules
-    energy_consumed_pip: float = 0 # kiloJoules
-    
+    position_in_peloton: int = 1
+    average_wattage_if_leader: float = 0  # watts
+    average_wattage_if_follower: float = 0  # watts
+    energy_burned_if_leader : float = 0 # kiloJoules
+    energy_burned_if_follower: float = 0 # kiloJoules
 
     class Config:
         frozen = True
@@ -148,40 +147,47 @@ class Interval(BaseModel):
                     "velo_rating": 1200
                 },
                 "duration": 30,
-                "velocity": 10,
-                "drafting_power_saving_percentage": 0
+                "speed": 10,
+                "distance": 300,
+                "position_in_peloton": 2,
+                "average_wattage_if_leader": 300,
+                "average_wattage_if_follower": 270,
+                "energy_burned_if_leader": 1080,
+                "energy_burned_if_follower": 972
             },
             "description": {
                 "rider": "The rider participating in the interval",
                 "duration": "The duration of the interval in seconds",
-                "velocity": "The velocity during the interval in meters per second",
-                "drafting_power_saving_percentage": "The percentage of power saved due to drafting"
+                "speed": "The speed during the interval in kilometers per hour",
+                "distance": "The distance covered during the interval in meters",
+                "position_in_peloton": "The position of the rider in the peloton",
+                "average_wattage_if_leader": "The average wattage if the rider is the leader",
+                "average_wattage_if_follower": "The average wattage if the rider is a follower",
+                "energy_burned_if_leader": "The energy burned if the rider is the leader in kiloJoules",
+                "energy_burned_if_follower": "The energy burned if the rider is a follower in kiloJoules"
             },
             "validation": {
                 "duration": "Must be a positive number",
-                "velocity": "Must be a positive number",
-                "drafting_power_saving_percentage": "Must be a non-negative number"
+                "speed": "Must be a positive number",
+                "distance": "Must be a positive number",
+                "position_in_peloton": "Must be a non-negative integer",
+                "average_wattage_if_leader": "Must be a positive number",
+                "average_wattage_if_follower": "Must be a positive number",
+                "energy_burned_if_leader": "Must be a positive number",
+                "energy_burned_if_follower": "Must be a positive number"
             }
         }
 
     @staticmethod
     def create(rider: Rider, duration: float, speed: float, distance: float, position: int) -> 'Interval':
-        if speed > 0:
-            # Calculate distance if speed is provided
-            velocity_mps = speed * 1000 / 3600  # Convert speed from km/h to m/s
-            distance = velocity_mps * duration
-        else:
-            # Calculate speed if distance is provided
-            velocity_mps = distance / duration
-            speed = velocity_mps * 3600 / 1000  # Convert speed from m/s to km/h
+        speed, duration, distance = triangulate_speed_time_and_distance(speed, duration, distance)
+        average_wattage_if_leader = rider.calculate_wattage_from_kph_and_position(speed, 1)
+        average_wattage_as_follower = rider.calculate_wattage_from_kph_and_position(speed, position)
 
-        wattage_leader = rider.determine_wattage(speed, 1)
-        wattage_in_peloton = rider.determine_wattage(speed, position)
+        energy_burned_by_leader = rider.calculate_kilojoules_from_wattage_and_seconds(average_wattage_if_leader, duration)
+        energy_burned_by_follower = rider.calculate_kilojoules_from_wattage_and_seconds(average_wattage_as_follower, duration)
 
-        energy_consumed_leader = rider.calculate_kilojoules_from_power_and_time(wattage_leader, duration)
-        energy_consumed_in_peloton = rider.calculate_kilojoules_from_power_and_time(wattage_in_peloton, duration)
-
-        return Interval(rider=rider, duration=duration, speed=speed, distance=distance, position_in_peloton=position, wattage_p1 = wattage_leader, wattage_pip = wattage_in_peloton energy_consumed_p1=energy_consumed_leader, energy_consumed_pip=energy_consumed_in_peloton)
+        return Interval(rider=rider, duration=duration, speed=speed, distance=distance, position_in_peloton=position, average_wattage_if_leader = average_wattage_if_leader, average_wattage_if_follower = average_wattage_as_follower energy_burned_if_leader=energy_burned_by_leader, energy_burned_if_follower=energy_burned_by_follower)
 
 
 # Example usage
