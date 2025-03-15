@@ -36,7 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\appsettings.json" />
-    <Content Include="data\logger.log" />
     <Content Include="docs\information.txt">
       <SubType>Code</SubType>
     </Content>

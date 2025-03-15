@@ -139,14 +139,15 @@ def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_per
 def main() -> None:
     # Example riders
     riders: List[ZwiftRider] = [
-        ZwiftRider(name="Rider_01", weight=70, height=175, gender=Gender.MALE, ftp=300, zwift_racing_score=600, velo_rating=1500),
-        ZwiftRider(name="Rider_02", weight=68, height=178, gender=Gender.MALE, ftp=290, zwift_racing_score=610, velo_rating=1520),
-        ZwiftRider(name="Rider_03", weight=72, height=180, gender=Gender.MALE, ftp=310, zwift_racing_score=620, velo_rating=1540),
-        ZwiftRider(name="Rider_04", weight=75, height=182, gender=Gender.MALE, ftp=280, zwift_racing_score=590, velo_rating=1480),
+        # ZwiftRider(name="Rider_01", weight=70, height=175, gender=Gender.MALE, ftp=300, zwift_racing_score=600, velo_rating=1500),
+        # ZwiftRider(name="Rider_02", weight=68, height=178, gender=Gender.MALE, ftp=290, zwift_racing_score=610, velo_rating=1520),
+        # ZwiftRider(name="Rider_03", weight=72, height=180, gender=Gender.MALE, ftp=310, zwift_racing_score=620, velo_rating=1540),
+        ZwiftRider(name="Rider_04", weight=75, height=174, gender=Gender.MALE, ftp=230, zwift_racing_score=590, velo_rating=1180),
     ]
 
     # Define speeds for each period
-    speeds: List[float] = [40, 42, 44, 41]
+    # speeds: List[float] = [40, 42, 44, 41]
+    speeds: List[float] = [50]
 
     # Calculate total combinations
     total_combinations: int = calculate_total_combinations(riders, len(speeds))
@@ -161,7 +162,7 @@ def main() -> None:
         logger.info(f"Total Time: {rotation.total_time()} seconds")
         logger.info(f"Average Speed: {rotation.average_speed()} km/h")
         for i, period in enumerate(rotation.periods, start=1):
-            logger.info(f"Period {i}: Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
+            logger.info(f"Period {i}: Leader = {period.riders[0].name} Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
 
     # Log the summary of inspected alternatives
     logger.info(f"Total inspected alternatives: {inspected_count}")
