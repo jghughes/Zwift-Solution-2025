@@ -1,11 +1,12 @@
 
 from pydantic import BaseModel
-from typing import List, Tuple
 from models01 import *
 
-class RiderQuantumOfAction(BaseModel):
+class RiderQuantumOfEffort(BaseModel):
     """
-    A class representing an period of action for a Zwift rider.
+    A class representing the effort of a Zwift rider in a specified period 
+    of a multi-period rotation, based on his position in the peloton at the time
+    of the effort.
 
     Attributes:
         rider                : ZwiftRider The Zwift rider participating in the period.
@@ -17,8 +18,8 @@ class RiderQuantumOfAction(BaseModel):
         energy_burned        : float      The energy burned in the rider's position in kiloJoules.
 
     Methods:
-        create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'RiderQuantumOfAction':
-            Create an RiderQuantumOfAction instance with the given parameters, calculating the wattage and energy burned.
+        create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'RiderQuantumOfEffort':
+            Create an RiderQuantumOfEffort instance with the given parameters, calculating the wattage and energy burned.
     """
 
     rider               : ZwiftRider = ZwiftRider()  # The Zwift rider participating in the period
@@ -48,103 +49,84 @@ class RiderQuantumOfAction(BaseModel):
                 "position_in_peloton": 2,
                 "power_output": 270,
                 "energy_burned": 972
-            },
-            "description": {
-                "rider": "The rider participating in the period",
-                "duration": "The duration of the period in seconds",
-                "speed": "The speed during the period in kilometers per hour",
-                "distance": "The distance covered during the period in meters",
-                "position_in_peloton": "The position of the rider in the peloton",
-                "power_output": "The average wattage in the rider's position",
-                "energy_burned": "The energy burned in the rider's position in kiloJoules"
-            },
-            "validation": {
-                "duration": "Must be a positive number",
-                "speed": "Must be a positive number",
-                "distance": "Must be a positive number",
-                "position_in_peloton": "Must be a non-negative integer",
-                "power_output": "Must be a positive number",
-                "energy_burned": "Must be a positive number"
             }
         }
 
     @staticmethod
-    def create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'RiderQuantumOfAction':
+    def create(rider: ZwiftRider, duration: float, speed: float, distance: float, position_in_peloton: int) -> 'RiderQuantumOfEffort':
 
         speed, duration, distance = triangulate_speed_time_and_distance(speed, duration, distance)
-        wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position)
+        wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position_in_peloton)
         energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
 
-        return RiderQuantumOfAction(
+        instance = RiderQuantumOfEffort(
             rider=rider,
             duration=duration,
             speed=speed,
             distance=distance,
-            position_in_peloton=position,
+            position_in_peloton=position_in_peloton,
             power_output=wattage,
             energy_burned=energy
         )
 
-    # Define the constants
+        return instance
 
-class ActionPeriodWithinRotation(BaseModel):
-    index : int = 1
-    duration: float = 0.0
-    speed: float = 0.0
-    power_limit_factor : float = 1.0
-    rider_actions: List[RiderQuantumOfAction] = []
+def main():
+    import logging
+    from jgh_logging import jgh_configure_logging
+    # Configure logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
 
-    @staticmethod
-    def create(index : int, riders: List[ZwiftRider], duration: int, speed: float, power_ceiling_factor : float, positions: List[int]) -> 'ActionPeriodWithinRotation':
-        rider_actions = [RiderQuantumOfAction.create(rider, duration, speed, 0, position) for rider, position in zip(riders, positions)]
-        return ActionPeriodWithinRotation(index = index, duration=duration, speed=speed, power_limit_factor=power_ceiling_factor, rider_actions=rider_actions)
+    # Create a ZwiftRider instance
+    rider = ZwiftRider(
+        name="John H",
+        weight=75.4,
+        height=174,
+        gender=Gender.MALE,
+        ftp=230,
+        zwift_racing_score=500,
+        velo_rating=1200,
+    )
 
-    def find_overworked_riders(self) -> List[RiderQuantumOfAction]:
-        return [rider_action for rider_action in self.rider_actions if rider_action.power_output > rider_action.rider.ftp * self.power_limit_factor]
+    # Create the first RiderQuantumOfEffort instance
+    rider_action1 = RiderQuantumOfEffort.create(
+        rider=rider,
+        duration=30.0,  # duration in seconds
+        speed=40.0,     # speed in km/h
+        distance=0.0, # distance in meters
+        position_in_peloton=1      # position in peloton
+    )
 
-    def actionperiod_is_too_hard(self) -> bool:
-        # return false if find_riders_with_excessive_power any
-        if self.find_overworked_riders():
-            return False
+    # Create the second RiderQuantumOfEffort instance
+    rider_action2 = RiderQuantumOfEffort.create(
+        rider=rider,
+        duration=30.0,  # duration in seconds
+        speed=40.0,     # speed in km/h
+        distance=0.0, # distance in meters
+        position_in_peloton=5      # position in peloton
+    )
 
-        return True
 
-class Rotation(BaseModel):
-    speed : float = 0.0
-    periods: List[ActionPeriodWithinRotation]
+    # Log the attributes of the first instance
+    logger.info("Pulling position:")
+    logger.info(f"{'Rider:':<20} {rider_action1.rider.name}")
+    logger.info(f"{'Duration:':<20} {rider_action1.duration} seconds")
+    logger.info(f"{'Speed:':<20} {rider_action1.speed} km/h")
+    logger.info(f"{'Distance:':<20} {rider_action1.distance} meters")
+    logger.info(f"{'Position in Peloton:':<20} {rider_action1.position_in_peloton}")
+    logger.info(f"{'Power Output:':<20} {rider_action1.power_output} watts")
+    logger.info(f"{'Energy Burned:':<20} {rider_action1.energy_burned} kJ")
 
-    def total_time(self) -> float:
-        return sum(period.duration for period in self.periods)
+    # Log the attributes of the second instance
+    logger.info("Resting position:")
+    logger.info(f"{'Rider:':<20} {rider_action2.rider.name}")
+    logger.info(f"{'Duration:':<20} {rider_action2.duration} seconds")
+    logger.info(f"{'Speed:':<20} {rider_action2.speed} km/h")
+    logger.info(f"{'Distance:':<20} {rider_action2.distance} meters")
+    logger.info(f"{'Position in Peloton:':<20} {rider_action2.position_in_peloton}")
+    logger.info(f"{'Power Output:':<20} {rider_action2.power_output} watts")
+    logger.info(f"{'Energy Burned:':<20} {rider_action2.energy_burned} kJ")
 
-    def total_distance(self) -> float:
-        return sum(period.speed * (period.duration / 3600) for period in self.periods)
-
-    def average_speed(self) -> float:
-        return self.total_distance() / (self.total_time() / 3600)
-
-    def to_tuple(self) -> Tuple[Tuple[float, float, str], ...]:
-        """
-        Convert the rotation instance to a tuple representation.
-
-        Returns:
-        Tuple[Tuple[float, float, str], ...]: A tuple containing the duration, speed, and concatenated rider names for this instance.
-        """
-        result: List[Tuple[float, float, str]] = []
-        for period in self.periods:
-            # Extract the duration and speed for the period
-            duration: float = period.duration
-            speed: float = period.speed
-            # Concatenate the names of the riders in the period
-            rider_names: str = ", ".join(rider_action.rider.name for rider_action in period.rider_actions)
-            # Append the tuple (duration, speed, rider_names) to the result list
-            result.append((duration, speed, rider_names))
-        # Convert the result list to a tuple and return it
-        return tuple(result)
-
-    def validate_energy_constraint(self) -> None:
-        total_time = self.total_time()
-        for rider in self.periods[0].riders:
-            total_energy_burned = sum(period.total_energy_burned() for period in self.periods if rider in period.riders)
-            max_allowable_energy = estimate_joules_from_wattage_and_time(rider.ftp * energy_intensity, total_time) / 1000
-            if total_energy_burned > max_allowable_energy:
-                raise ValueError(f"Rider {rider.name} exceeds max allowable energy: {total_energy_burned} kJ > {max_allowable_energy} kJ")
+if __name__ == "__main__":
+    main()

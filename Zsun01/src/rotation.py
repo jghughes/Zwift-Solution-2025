@@ -6,7 +6,9 @@ from jgh_logging import jgh_configure_logging
 import numpy as np
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Set
-from models import *
+from models01 import *
+from models02 import *
+from models03 import *
 from math import comb
 
 # Configure logging
@@ -52,7 +54,7 @@ class Solution(BaseModel):
     
 def validate_wattage(duration: int, speed: float, riders: List[ZwiftRider]) -> bool:
     for rider in riders:
-        interval = RiderQuantumOfAction.create(rider, duration, speed, 0, 1)
+        interval = RiderQuantumOfEffort.create(rider, duration, speed, 0, 1)
         max_allowed_wattage = MAX_POWER_INTENSITY * rider.ftp
         if interval.power_output > max_allowed_wattage:
             return False
