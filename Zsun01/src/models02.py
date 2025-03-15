@@ -2,7 +2,7 @@
 from pydantic import BaseModel
 from models01 import *
 
-class RiderQuantumOfEffort(BaseModel):
+class RiderPeriodOfEffort(BaseModel):
     """
     A class representing the effort of a Zwift rider in a specified period 
     of a multi-period rotation, based on his position in the peloton at the time
@@ -18,8 +18,8 @@ class RiderQuantumOfEffort(BaseModel):
         energy_burned        : float      The energy burned in the rider's position in kiloJoules.
 
     Methods:
-        create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'RiderQuantumOfEffort':
-            Create an RiderQuantumOfEffort instance with the given parameters, calculating the wattage and energy burned.
+        create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'RiderPeriodOfEffort':
+            Create an RiderPeriodOfEffort instance with the given parameters, calculating the wattage and energy burned.
     """
 
     rider               : ZwiftRider = ZwiftRider()  # The Zwift rider participating in the period
@@ -53,13 +53,13 @@ class RiderQuantumOfEffort(BaseModel):
         }
 
     @staticmethod
-    def create(rider: ZwiftRider, duration: float, speed: float, distance: float, position_in_peloton: int) -> 'RiderQuantumOfEffort':
+    def create(rider: ZwiftRider, duration: float, speed: float, distance: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
 
         speed, duration, distance = triangulate_speed_time_and_distance(speed, duration, distance)
         wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position_in_peloton)
         energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
 
-        instance = RiderQuantumOfEffort(
+        instance = RiderPeriodOfEffort(
             rider=rider,
             duration=duration,
             speed=speed,
@@ -89,8 +89,8 @@ def main():
         velo_rating=1200,
     )
 
-    # Create the first RiderQuantumOfEffort instance
-    rider_action1 = RiderQuantumOfEffort.create(
+    # Create the first RiderPeriodOfEffort instance
+    rider_action1 = RiderPeriodOfEffort.create(
         rider=rider,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
@@ -98,8 +98,8 @@ def main():
         position_in_peloton=1      # position in peloton
     )
 
-    # Create the second RiderQuantumOfEffort instance
-    rider_action2 = RiderQuantumOfEffort.create(
+    # Create the second RiderPeriodOfEffort instance
+    rider_action2 = RiderPeriodOfEffort.create(
         rider=rider,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
