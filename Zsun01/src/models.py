@@ -72,6 +72,9 @@ class ZwiftRider(BaseModel):
             }
         }
 
+    def calculate_strength(self)-> float:
+        return self.ftp/self.weight
+
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
         Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.
