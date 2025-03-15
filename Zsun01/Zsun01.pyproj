@@ -47,7 +47,8 @@
     <Compile Include="data\measurements.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\formulae.py" />
-    <Compile Include="src\models.py" />
+    <Compile Include="src\models01.py" />
+    <Compile Include="src\models02.py" />
     <Compile Include="src\rotation.py" />
     <Compile Include="tests\scratchpad.py">
       <SubType>Code</SubType>

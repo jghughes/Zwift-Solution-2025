@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+from typing import List, Tuple
 
 from formulae import *
 
@@ -12,6 +13,7 @@ class ZwiftRider(BaseModel):
     A class representing a Zwift rider.
 
     Attributes:
+        rank               : int    The rank of the rider in a group of riders.
         zwiftid            : int    The Zwift ID of the rider.
         name               : str    The name of the rider.
         weight             : float  The weight of the rider in kilograms.
@@ -31,6 +33,7 @@ class ZwiftRider(BaseModel):
         calculate_wattage_riding_in_the_peloton(speed: float, position: int) -> float:
             Calculate the wattage required for a rider given their speed and position in the peloton.
     """
+    rank               : int    = 0               # Rank of the rider in agroup of riders
     zwiftid            : int    = 0               # Zwift ID of the rider
     name               : str    = "Eric Schlange" # Name of the rider
     weight             : float  = 84.3            # Weight of the rider in kilograms
@@ -126,87 +129,44 @@ class ZwiftRider(BaseModel):
 
         return round(adjusted_power, 3)
 
-class Interval(BaseModel):
-    """
-    A class representing an interval for a Zwift rider.
-
-    Attributes:
-        rider                : ZwiftRider The Zwift rider participating in the interval.
-        duration             : float      The duration of the interval in seconds.
-        speed                : float      The speed during the interval in kilometers per hour.
-        distance             : float      The distance covered during the interval in meters.
-        position_in_peloton  : int        The position of the rider in the peloton.
-        power_output         : float      The average wattage in the rider's position.
-        energy_burned        : float      The energy burned in the rider's position in kiloJoules.
-
-    Methods:
-        create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'Interval':
-            Create an Interval instance with the given parameters, calculating the wattage and energy burned.
-    """
-
-    rider               : ZwiftRider = ZwiftRider()  # The Zwift rider participating in the interval
-    duration            : float      = 0             # The duration of the interval in seconds
-    speed               : float      = 0             # The speed during the interval in kilometers per hour
-    distance            : float      = 0             # The distance covered during the interval in meters
-    position_in_peloton : int        = 1             # The position of the rider in the peloton
-    power_output        : float      = 0             # The average wattage in the rider's position
-    energy_burned       : float      = 0             # The energy burned in the rider's position in kiloJoules
-
-    class Config:
-        frozen = True
-        json_schema_extra = {
-            "example": {
-                "rider": {
-                    "name": "John Doe",
-                    "weight": 75,
-                    "height": 183,
-                    "gender": "male",
-                    "ftp": 3.5,
-                    "zwift_racing_score": 500,
-                    "velo_rating": 1200
-                },
-                "duration": 30,
-                "speed": 10,
-                "distance": 300,
-                "position_in_peloton": 2,
-                "power_output": 270,
-                "energy_burned": 972
-            },
-            "description": {
-                "rider": "The rider participating in the interval",
-                "duration": "The duration of the interval in seconds",
-                "speed": "The speed during the interval in kilometers per hour",
-                "distance": "The distance covered during the interval in meters",
-                "position_in_peloton": "The position of the rider in the peloton",
-                "power_output": "The average wattage in the rider's position",
-                "energy_burned": "The energy burned in the rider's position in kiloJoules"
-            },
-            "validation": {
-                "duration": "Must be a positive number",
-                "speed": "Must be a positive number",
-                "distance": "Must be a positive number",
-                "position_in_peloton": "Must be a non-negative integer",
-                "power_output": "Must be a positive number",
-                "energy_burned": "Must be a positive number"
-            }
-        }
-
+class Team(BaseModel):
+    riders_working : list[ZwiftRider] = []
+    riders_sleeping : list[ZwiftRider] = []
+    
     @staticmethod
-    def create(rider: ZwiftRider, duration: float, speed: float, distance: float, position: int) -> 'Interval':
+    def create(riders: list[ZwiftRider]) -> 'Team':
+        riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
+        #assign rank to rank attr sarting with 1
+        for i, rider in enumerate(riders):
+            rider.rank = i+1
+        team = Team(riders_working = riders, riders_sleeping=[])
+        return team
 
-        speed, duration, distance = triangulate_speed_time_and_distance(speed, duration, distance)
-        wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position)
-        energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
+    def sort_riders(self) -> None:
+        self.riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
+        self.riders_sleeping.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-        return Interval(
-            rider=rider,
-            duration=duration,
-            speed=speed,
-            distance=distance,
-            position_in_peloton=position,
-            power_output=wattage,
-            energy_burned=energy
-        )
+    def demote_rider_from_working_to_sleeping(self, rider: ZwiftRider) -> None:
+        self.riders_sleeping.append(rider)
+        self.riders_working.remove(rider)
+        self.sort_riders()
+
+    def promote_rider_from_sleeping_to_working(self, rider: ZwiftRider) -> None:
+        self.riders_working.append(rider)
+        self.riders_sleeping.remove(rider)
+        self.sort_riders()
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Example usage
 def main():

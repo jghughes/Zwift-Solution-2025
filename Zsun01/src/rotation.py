@@ -1,9 +1,12 @@
 import logging
+from turtle import distance
+
+from sympy import Order
 from jgh_logging import jgh_configure_logging
 import numpy as np
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Set
-from models import ZwiftRider, Interval, Gender, estimate_joules_from_wattage_and_time
+from models import *
 from math import comb
 
 # Configure logging
@@ -29,45 +32,27 @@ inspected_count: int = 0
 valid_count: int = 0
 invalid_count: int = 0
 
-class Period(BaseModel):
-    duration: int
-    speed: float
-    riders: List[ZwiftRider]
-    intervals: List[Interval] = []
 
-    def __init__(self, **data):
-        super().__init__(**data)
-        if self.duration not in VALID_DURATIONS:
-            raise ValueError(f"Invalid duration: {self.duration}. Must be one of {VALID_DURATIONS}.")
-        self.intervals = [Interval.create(rider, self.duration, self.speed, 0, 1) for rider in self.riders]
+class SolutionLineItem(BaseModel):
+    order : int = 1
+    rider : ZwiftRider
+    duration : float = 0.0
+    wattage_position_1 : float = 0.0
+    wattage_position_2 : float = 0.0
+    wattage_position_3 : float = 0.0
+    wattage_position_4 : float = 0.0
+    wattage_position_5 : float = 0.0
+    energy_intensity_factor : float = 1.0
 
-    def total_energy_burned(self) -> float:
-        return sum(interval.energy_burned * energy_intensity for interval in self.intervals)
-
-class Rotation(BaseModel):
-    periods: List[Period]
-
-    def total_time(self) -> int:
-        return sum(period.duration for period in self.periods)
-
-    def average_speed(self) -> float:
-        total_distance = sum(period.speed * (period.duration / 3600) for period in self.periods)
-        return total_distance / (self.total_time() / 3600)
-
-    def to_tuple(self) -> Tuple:
-        return tuple((period.duration, period.speed, tuple(rider.name for rider in period.riders)) for period in self.periods)
-
-    def validate_energy_constraint(self) -> None:
-        total_time = self.total_time()
-        for rider in self.periods[0].riders:
-            total_energy_burned = sum(period.total_energy_burned() for period in self.periods if rider in period.riders)
-            max_allowable_energy = estimate_joules_from_wattage_and_time(rider.ftp * energy_intensity, total_time) / 1000
-            if total_energy_burned > max_allowable_energy:
-                raise ValueError(f"Rider {rider.name} exceeds max allowable energy: {total_energy_burned} kJ > {max_allowable_energy} kJ")
-
+class Solution(BaseModel):
+    speed : float = 0
+    distance_of_rotation : float = 0
+    total_time : float = 0
+    lineitems : list[SolutionLineItem] = []
+    
 def validate_wattage(duration: int, speed: float, riders: List[ZwiftRider]) -> bool:
     for rider in riders:
-        interval = Interval.create(rider, duration, speed, 0, 1)
+        interval = RiderQuantumOfAction.create(rider, duration, speed, 0, 1)
         max_allowed_wattage = MAX_POWER_INTENSITY * rider.ftp
         if interval.power_output > max_allowed_wattage:
             return False
@@ -80,7 +65,7 @@ def calculate_total_combinations(riders: List[ZwiftRider], num_periods: int) -> 
         total_combinations += combinations
     return total_combinations
 
-def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_periods: List[Period] = [], depth: int = 0) -> None:
+def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_periods: List[ActionPeriodWithinRotation] = [], depth: int = 0) -> None:
     global inspected_count, valid_count, invalid_count
     # indent: str = "  " * depth
     if len(current_periods) == len(speeds):
@@ -101,7 +86,7 @@ def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_per
             # logger.info(f"{indent}Average Speed of Rotation: {rotation.average_speed()} km/h")
 
             # for i, period in enumerate(rotation.periods, start=1):
-            #     logger.info(f"{indent}Period {i}: Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
+            #     logger.info(f"{indent}ActionPeriodWithinRotation {i}: Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
 
             valid_rotations.add(rotation.to_tuple())
             # logger.info(f"{indent}Rotation is valid and archived.")
@@ -123,7 +108,7 @@ def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_per
     for duration in VALID_DURATIONS:
         if validate_wattage(duration, speeds[len(current_periods)], riders):
             # logger.info(f"{indent}Exploring branch with duration {duration} for period {len(current_periods) + 1}")
-            new_periods: List[Period] = current_periods + [Period(duration=duration, speed=speeds[len(current_periods)], riders=riders)]
+            new_periods: List[ActionPeriodWithinRotation] = current_periods + [ActionPeriodWithinRotation(duration=duration, speed=speeds[len(current_periods)], riders=riders)]
             explore_rotations(riders, speeds, new_periods, depth + 1)
         else:
             # logger.info(f"{indent}Skipping invalid period with duration {duration} for period {len(current_periods) + 1}")
@@ -162,7 +147,7 @@ def main() -> None:
         logger.info(f"Total Time: {rotation.total_time()} seconds")
         logger.info(f"Average Speed: {rotation.average_speed()} km/h")
         for i, period in enumerate(rotation.periods, start=1):
-            logger.info(f"Period {i}: Leader = {period.riders[0].name} Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
+            logger.info(f"ActionPeriodWithinRotation {i}: Leader = {period.riders[0].name} Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
 
     # Log the summary of inspected alternatives
     logger.info(f"Total inspected alternatives: {inspected_count}")
