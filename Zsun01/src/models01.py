@@ -63,15 +63,135 @@ class ZwiftRider(BaseModel):
     class Config:
         frozen = True
         json_schema_extra = {
-            "example": {
+            "davek": {
+                "zwiftid": 3147366,
+                "name": "Dave K",
+                "weight": 73.4,
+                "height": 182,
+                "gender": "m",
+                "ftp": 276,
+                "zwift_racing_score": 744,
+                "velo_rating": 1897,
+            },
+            "huskyc": {
+                "zwiftid": 5134,
+                "name": "Husky C",
+                "weight": 75.5,
+                "height": 178,
+                "gender": "m",
+                "ftp": 268,
+                "zwift_racing_score": 552,
+                "velo_rating": 1519,
+            },
+            "scottm": {
+                "zwiftid": 11526,
+                "name": "Scott M",
+                "weight": 78,
+                "height": 165,
+                "gender": "m",
+                "ftp": 247,
+                "zwift_racing_score": 509,
+                "velo_rating": 1537,
+            },
+            "markb": {
+                "zwiftid": 5530045,
+                "name": "Mark B",
+                "weight": 91.6,
+                "height": 185,
+                "gender": "m",
+                "ftp": 229,
+                "zwift_racing_score": 493,
+                "velo_rating": 1309,
+            },
+            "barryb": {
+                "zwiftid": 5490373,
+                "name": "Barry B",
+                "weight": 77,
+                "height": 176,
+                "gender": "m",
+                "ftp": 273,
+                "zwift_racing_score": 444,
+                "velo_rating": 1294,
+            },
+            "johnh": {
                 "zwiftid": 58160,
-                "name": "John Hughes",
+                "name": "John H",
                 "weight": 75.4,
                 "height": 174,
                 "gender": "m",
                 "ftp": 233,
                 "zwift_racing_score": 351,
                 "velo_rating": 1067,
+            },
+            "brenth": {
+                "zwiftid": 480698,
+                "name": "Brent H",
+                "weight": 75.6,
+                "height": 180,
+                "gender": "m",
+                "ftp": 243,
+                "zwift_racing_score": 335,
+                "velo_rating": 1078,
+            },
+            "joshn": {
+                "zwiftid": 2508033,
+                "name": "Josh N",
+                "weight": 101,
+                "height": 178,
+                "gender": "m",
+                "ftp": 260,
+                "zwift_racing_score": 285,
+                "velo_rating": 942,
+            },
+            "edh": {
+                "zwiftid": 1713736,
+                "name": "Ed H",
+                "weight": 107.5,
+                "height": 188,
+                "gender": "m",
+                "ftp": 274,
+                "zwift_racing_score": 206,
+                "velo_rating": 748,
+            },
+            "richardm": {
+                "zwiftid": 1193,
+                "name": "Richard M",
+                "weight": 93,
+                "height": 178,
+                "gender": "m",
+                "ftp": 200,
+                "zwift_racing_score": 189,
+                "velo_rating": 628,
+            },
+            "selenas": {
+                "zwiftid": 2682791,
+                "name": "Selena S",
+                "weight": 63,
+                "height": 171,
+                "gender": "f",
+                "ftp": 214,
+                "zwift_racing_score": 345,
+                "velo_rating": 1129,
+            },
+            "kristend": {
+                "zwiftid": 2398312,
+                "name": "Kristen D",
+                "weight": 71.2,
+                "height": 178,
+                "gender": "f",
+                "ftp": 236,
+                "zwift_racing_score": 338,
+                "velo_rating": 1035,
+            },
+            "lynseys": {
+                "zwiftid": 383480,
+                "name": "Lynsey S",
+                "weight": 63.5,
+                "height": 165,
+                "gender": "f",
+                "ftp": 201,
+                "zwift_racing_score": 327,
+                "velo_rating": 915,
             }
         }
 
@@ -281,23 +401,20 @@ def main():
 
     # # example: Instantiate ZwiftRider using the example from Config 
     # # i.e.how we could do it from a JSON file
-    example_data = ZwiftRider.Config.json_schema_extra["example"]
-    rider = ZwiftRider.model_validate(example_data)
+    example_data = ZwiftRider.Config.json_schema_extra["johnh"]
+    rider1 = ZwiftRider.model_validate(example_data)
 
     # Log the instantiated object using a table
-    rider_attrs = [[attr, getattr(rider, attr)] for attr in rider.model_fields.keys()]
+    rider_attrs = [[attr, getattr(rider1, attr)] for attr in rider1.model_fields.keys()]
     logger.info("\nZwiftRider instantiated (ctor) from JSON config is:")
     logger.info("\n" + tabulate(rider_attrs, tablefmt="plain"))
 
     # example : instantiate examples of two riders of differing ability. for each of them 
     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
     # position 1 and position 5. tabulate the results in a table and log it.
-    rider1 = ZwiftRider(
-        name="Mark B", weight=90.0, height=183, ftp=255, gender=Gender.MALE
-    )
-    rider2 = ZwiftRider(
-        name="John H", weight=75.4, height=174, ftp=233, gender=Gender.MALE
-    )
+    example_data = ZwiftRider.Config.json_schema_extra["markb"]
+    rider2 = ZwiftRider.model_validate(example_data)
+
     riders = [rider1, rider2]
     table: List[List[Union[str, float]]] = []
     headers = [
@@ -318,9 +435,8 @@ def main():
     # example : using rider "John H" instantiated using ctor
     # calculate wattage for each position in the peloton from 1 to 5
     # at a given speed (40kph) and tabulate neatly and log it.
-    rider_john = ZwiftRider(
-        name="John H", weight=75.4, height=174, ftp=233, gender=Gender.MALE
-    )
+    rider_john = rider1
+
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
     headers = ["Position", "Wattage (Speed 40 km/h)"]
