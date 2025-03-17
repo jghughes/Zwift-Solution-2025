@@ -326,15 +326,20 @@ class ZwiftRiderCache:
         cache_contents = ["Cache contents:"]
         for key, rider in cls._cache.items():
             cache_contents.append(f"Key: {key}")
-            cache_contents.append(f"  ZwiftID: {rider.zwiftid}")
-            cache_contents.append(f"  Name: {rider.name}")
-            cache_contents.append(f"  Weight: {rider.weight}")
-            cache_contents.append(f"  Height: {rider.height}")
-            cache_contents.append(f"  Gender: {rider.gender.value}")
-            cache_contents.append(f"  FTP: {rider.ftp}")
-            cache_contents.append(f"  Zwift Racing Score: {rider.zwift_racing_score}")
-            cache_contents.append(f"  Velo Rating: {rider.velo_rating}")
+            rider_attrs = [[attr, getattr(rider, attr)] for attr in rider.model_fields.keys()]
+            cache_contents.append(tabulate(rider_attrs, tablefmt="plain"))
             cache_contents.append("")  # Add a blank line for readability
+
+
+            # cache_contents.append(f"  ZwiftID: {rider.zwiftid}")
+            # cache_contents.append(f"  Name: {rider.name}")
+            # cache_contents.append(f"  Weight: {rider.weight}")
+            # cache_contents.append(f"  Height: {rider.height}")
+            # cache_contents.append(f"  Gender: {rider.gender.value}")
+            # cache_contents.append(f"  FTP: {rider.ftp}")
+            # cache_contents.append(f"  Zwift Racing Score: {rider.zwift_racing_score}")
+            # cache_contents.append(f"  Velo Rating: {rider.velo_rating}")
+            # cache_contents.append("")  # Add a blank line for readability
         
         return "\n".join(cache_contents)
 
@@ -418,8 +423,8 @@ def main():
     riders = [rider1, rider2]
     table: List[List[Union[str, float]]] = []
     headers = [
-        "Rider", "Wattage (Position 1, Speed 40 km/h)", 
-        "Wattage (Position 5, Speed 40 km/h)"
+        "Rider", "Wattage (P 1, 40 km/h)", 
+        "Wattage (P 5, 40 km/h)"
     ]
     for rider in riders:
         row = [rider.name]
@@ -429,7 +434,7 @@ def main():
         table.append(row)
     
     # Log the table
-    logger.info("\nRider wattage in positions 1 and 5 for speeds 40 km/h")
+    logger.info("\nRider wattage in positions 1 and 5 for 40 km/h")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
     # example : using rider "John H" instantiated using ctor
@@ -439,25 +444,26 @@ def main():
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
-    headers = ["Position", "Wattage (Speed 40 km/h)"]
+    headers = ["Position", "Wattage (40 km/h)"]
 
     for position in positions:
         wattage = rider_john.calculate_wattage_riding_in_the_peloton(40, position)
         table.append([position, wattage])
 
     # Log the table
-    logger.info("\nWattage for John H in positions 1 to 5 at speed 40 km/h")
+    logger.info("\nWattage for John H in positions 1 to 5 at 40 km/h")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
-    # example : using rider "John H" instantiated using ctor
+    # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
     # at a given wattage (ftp=233) and tabulate neatly and log it.
     rider_john = ZwiftRider(
-        name="John H", weight=75.4, height=174, ftp=233, gender=Gender.MALE
-    )
+        name=rider1.name, weight=rider1.weight, height=rider1.height, ftp=rider1.ftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
+
+
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
-    headers = ["Position", "Speed (km/h) at FTP 233"]
+    headers = ["Position", f"Speed (km/h) at FTP {rider_john.ftp}"]
 
     for position in positions:
         # Calculate the speed for the given position and FTP
@@ -465,7 +471,7 @@ def main():
         table.append([position, speed])
 
     # Log the table
-    logger.info("\nSpeed for John H in positions 1 to 5 at FTP 233")
+    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.ftp}")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 
@@ -489,13 +495,18 @@ def main():
 
     # Check if the cached instance is the same as the original instance
     if cached_rider_john is rider_john:
-        logger.info("Cache is working: The second attempt to get_or_create rider_john returned the cached instance.")
+        logger.info("\nCache is working: The second attempt to get_or_create rider_john returned the cached instance.")
     else:
-        logger.error("Cache is not working: The second attempt to get_or_create rider_john did not return the cached instance.")
+        logger.error("\nCache is not working: The second attempt to get_or_create rider_john did not return the cached instance.")
 
     # Log the count of items in the cache
     cache_count = ZwiftRiderCache.get_cache_count()
-    logger.info(f"Number of items in the cache: {cache_count}")
+    logger.info(f"Number of items in the cache: {cache_count}\n")
+
+    # Display cache contents
+    cache_contents = ZwiftRiderCache.display_cache_contents()
+    logger.info("\nCache contents:")
+    logger.info("\n" + cache_contents)
 
 if __name__ == "__main__":
     main()
