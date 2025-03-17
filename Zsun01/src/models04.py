@@ -9,7 +9,7 @@ class ZwiftTeam(BaseModel):
     riders_resting : list[ZwiftRider] = []
     
     @staticmethod
-    def create(riders: list[ZwiftRider]) -> 'ZwiftTeam':
+    def get_or_create(riders: list[ZwiftRider]) -> 'ZwiftTeam':
         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
         #assign rank to rank attr sarting with 1
         for i, rider in enumerate(riders):

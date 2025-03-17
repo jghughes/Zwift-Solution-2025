@@ -29,7 +29,7 @@ class RiderPeriodOfEffort(BaseModel):
             Get the contents of the cache.
         display_cache_contents() -> str:
             Display the contents of the cache in a readable format.
-        create(rider: ZwiftRider, duration: float, speed: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
+        get_or_create(rider: ZwiftRider, duration: float, speed: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
             Create a RiderPeriodOfEffort instance with the given parameters, calculating the wattage and energy burned.
     """
 
@@ -69,13 +69,13 @@ class RiderPeriodOfEffort(BaseModel):
         return ";".join([rider.get_key(), str(duration), str(speed), str(position_in_peloton)])
 
     @classmethod
-    def get_from_cache(cls, key: str) -> Union['RiderPeriodOfEffort', None]:
+    def get_from_cache(cls, key: Union[str, None]) -> Union['RiderPeriodOfEffort', None]:
         if key is None:
             return None
         return cls._cache.get(key)
 
     @classmethod
-    def add_to_cache(cls, key: str, instance: 'RiderPeriodOfEffort'):
+    def add_to_cache(cls, key: Union[str, None], instance: 'RiderPeriodOfEffort'):
         if key is None:
             return
         cls._cache[key] = instance
@@ -107,7 +107,7 @@ class RiderPeriodOfEffort(BaseModel):
         return "\n".join(cache_contents)
 
     @staticmethod
-    def create(rider: ZwiftRider, duration: float, speed: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
+    def get_or_create(rider: ZwiftRider, duration: float, speed: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
         """
         Create a RiderPeriodOfEffort instance with the given parameters, calculating 
         the wattage and energy burned and using the cache if available.
@@ -174,14 +174,14 @@ def main():
     )
 
     # Create RiderPeriodOfEffort instances for position 1 in the peloton
-    rider1_effort_pos1 = RiderPeriodOfEffort.create(
+    rider1_effort_pos1 = RiderPeriodOfEffort.get_or_create(
         rider=rider1,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=1
     )
 
-    rider2_effort_pos1 = RiderPeriodOfEffort.create(
+    rider2_effort_pos1 = RiderPeriodOfEffort.get_or_create(
         rider=rider2,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
@@ -189,14 +189,14 @@ def main():
     )
 
     # Create RiderPeriodOfEffort instances for position 2 in the peloton
-    rider1_effort_pos2 = RiderPeriodOfEffort.create(
+    rider1_effort_pos2 = RiderPeriodOfEffort.get_or_create(
         rider=rider1,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=2
     )
 
-    rider2_effort_pos2 = RiderPeriodOfEffort.create(
+    rider2_effort_pos2 = RiderPeriodOfEffort.get_or_create(
         rider=rider2,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h

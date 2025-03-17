@@ -54,7 +54,7 @@ class Solution(BaseModel):
     
 def validate_wattage(duration: int, speed: float, riders: List[ZwiftRider]) -> bool:
     for rider in riders:
-        interval = RiderPeriodOfEffort.create(rider, duration, speed, 0, 1)
+        interval = RiderPeriodOfEffort.get_or_create(rider, duration, speed, 0, 1)
         max_allowed_wattage = MAX_POWER_INTENSITY * rider.ftp
         if interval.power_output > max_allowed_wattage:
             return False
