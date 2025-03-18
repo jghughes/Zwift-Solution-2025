@@ -1,6 +1,10 @@
 # Local application imports
 from pydantic import BaseModel
 from typing import Optional
+from tabulate import tabulate
+from jgh_read_write import *
+from jgh_serialization import *
+
 # WARNING: This is a simple version.
 # The object is extensible. It can be extended to handle almost infinitely 
 # advanced scenarios.
@@ -43,3 +47,24 @@ class ZwiftRiderDataTransferObject(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
+
+def main():
+    import logging
+    from jgh_logging import jgh_configure_logging
+    # Configure logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+
+    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024/data/", "riders.json")
+
+    zwiftriders = JghSerialization.validate(inputjson, list[ZwiftRiderDataTransferObject])
+
+    logger.info(zwiftriders)
+
+    # Print the deserialized data
+    logger.info(tabulate(zwiftriders, headers="keys"))
+
+
+
+if __name__ == "__main__":
+        main()

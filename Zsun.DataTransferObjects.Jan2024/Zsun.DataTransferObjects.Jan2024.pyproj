@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_app_settings_dto.py</StartupFile>
+    <StartupFile>src\zwiftrider_dto.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\logger.log" />
+    <Content Include="data\riders.json" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />

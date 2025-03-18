@@ -18,7 +18,7 @@ class ZwiftRiderCache:
     def add_to_cache(cls, key: Union[str, None], instance: ZwiftRiderItem):
         if key is None:
             return
-        cls._cache[key] = instance #i.e. overwrite if already exists
+        cls._cache[key] = instance 
 
     @classmethod
     def clear_cache(cls) -> None:

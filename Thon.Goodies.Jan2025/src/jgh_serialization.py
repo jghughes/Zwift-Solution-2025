@@ -1,24 +1,11 @@
-"""
-This module defines the JghSerialization class, which provides methods for 
-serializing and deserializing DataClasses and Pydantic Models. The latter
-have vastly superior capabilities for type coercion and validation compared
-to DataClasses. The JghSerialization class can handle both types, but it is
-recommended to use Pydantic Models for more complex data structures.
-"""
-# Standard library imports
-import json
-from typing import Any
+from typing import Type, TypeVar, List, Dict, Union, Any, Optional, Tuple, Set
 from dataclasses import dataclass, asdict, is_dataclass
-# Local application imports
 from pydantic import BaseModel, ValidationError
-
-# Configure logging
-import logging
+import json
 
 # Helper function to write a pretty error message
 def pretty_error_message(ex: Exception) -> str:
     """
-    This function writes a pretty error message to the console.
     The function attempts to unpack the args attribute of the exception ex
     into code and message. If the unpacking fails (e.g., if args does not
     contain two elements), it falls back to setting code to 0 and message
@@ -37,11 +24,17 @@ def pretty_error_message(ex: Exception) -> str:
         return f"{str(message)}"
     return f"{str(message)} ErrorCode={str(code)}"
 
+
+T = TypeVar('T')
+
 class JghSerialization:
     """
     A class for serializing and deserializing generic types, primarily 
     Pydantic models. It can also handle dataclasses at a push but is not
     as powerful as Pydantic in terms of type coercion and validation.
+
+    N.B. the class cannot handle classes such as ordinary Python classes
+    which as a rule are not serialisable to JSON without additional code.
 
     Attributes:
         None
@@ -57,7 +50,6 @@ class JghSerialization:
     Functions:
         None
     """
-
 
     @staticmethod
     def serialise(inputmodel: Any) -> str:
@@ -80,10 +72,18 @@ class JghSerialization:
         if not inputmodel:
             return "{}"
         try:
-            if is_dataclass(inputmodel) and not isinstance(inputmodel, type):
+            if isinstance(inputmodel, list):
+                candidate_json = json.dumps([asdict(item) if is_dataclass(item) else item.model_dump() if isinstance(item, BaseModel) else item for item in inputmodel], indent=4)
+            elif isinstance(inputmodel, dict):
+                candidate_json = json.dumps(inputmodel, indent=4)
+            elif isinstance(inputmodel, tuple):
+                candidate_json = json.dumps(list(inputmodel), indent=4)
+            elif isinstance(inputmodel, set):
+                candidate_json = json.dumps(list(inputmodel), indent=4)
+            elif is_dataclass(inputmodel) and not isinstance(inputmodel, type):
                 candidate_json = json.dumps(asdict(inputmodel), indent=4)
             elif isinstance(inputmodel, BaseModel):
-                candidate_json = inputmodel.model_dump_json(indent=4, by_alias = True)
+                candidate_json = inputmodel.model_dump_json(indent=4, by_alias=True)
             else:
                 candidate_json = json.dumps(inputmodel.__dict__, indent=4)
         except TypeError as e:
@@ -96,21 +96,21 @@ class JghSerialization:
         return candidate_json
 
     @staticmethod
-    def validate[T](inputJson: str, requiredModel: T) -> T:
+    def validate(inputJson: str, requiredModel: Union[Type[T], Type[List[T]], Type[Dict[str, T]], Type[Tuple[T, ...]], Type[Set[T]]]) -> Union[T, List[T], Dict[str, T], Tuple[T, ...], Set[T]]:
         """
-        Validates a JSON string and uses it to instatiate a model  
+        Validates a JSON string and uses it to instantiate a model  
         of the specified type. If the model derives from the Pydantic
-        BaseModel, and if serialisation_alias's or validation_aliase
+        BaseModel, and if serialization_alias's or validation_aliases
         Choices are specified for the attributes of the model, the 
         aliases are respected during validation.
 
         Args:
             inputJson (str): The JSON string to validate.
-            requiredModel[T]: The model type to deserialize to.
-            It must be a dataclass or a Pydantic model.
+            requiredModel (Union[Type[T], Type[List[T]], Type[Dict[str, T]], Type[Tuple[T, ...]], Type[Set[T]]]): The model type to deserialize to.
+            It must be a dataclass, a Pydantic model, a list, a dictionary, a tuple, or a set.
 
         Returns:
-            T: An instance of the specified model type.
+            Union[T, List[T], Dict[str, T], Tuple[T, ...], Set[T]]: An instance of the specified model type.
 
         Raises:
             ValueError: If the JSON string cannot be deserialized to the specified
@@ -127,8 +127,19 @@ class JghSerialization:
             raise ValueError(f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string is null or empty.")
         
         try:
-            
-            if is_dataclass(requiredModel):
+            if hasattr(requiredModel, '__origin__') and requiredModel.__origin__ is list:
+                answer = json.loads(inputJson)
+                return [JghSerialization.validate(json.dumps(item), requiredModel.__args__[0]) for item in answer]
+            elif hasattr(requiredModel, '__origin__') and requiredModel.__origin__ is dict:
+                answer = json.loads(inputJson)
+                return {k: JghSerialization.validate(json.dumps(v), requiredModel.__args__[1]) for k, v in answer.items()}
+            elif hasattr(requiredModel, '__origin__') and requiredModel.__origin__ is tuple:
+                answer = json.loads(inputJson)
+                return tuple(JghSerialization.validate(json.dumps(item), requiredModel.__args__[0]) for item in answer)
+            elif hasattr(requiredModel, '__origin__') and requiredModel.__origin__ is set:
+                answer = json.loads(inputJson)
+                return set(JghSerialization.validate(json.dumps(item), requiredModel.__args__[0]) for item in answer)
+            elif is_dataclass(requiredModel):
                 answer = json.loads(inputJson)
                 filtered_answer = {k: v for k, v in answer.items() if k in requiredModel.__annotations__} # Filter out any extra fields that are not in the dataclass if any
                 return requiredModel(**filtered_answer) # type: ignore
@@ -147,43 +158,160 @@ class JghSerialization:
             error_messages = "\n".join([f"\tField: {err['loc']}\n\tError: {err['msg']}" for err in e.errors()])
             raise ValueError((f"Error: {_failure} {_locus} {_locus2}\nComment: The input JSON string failed to validate as an object of Type '{requiredModel.__name__}' due to validation errors.\nValidation errors:\n{error_messages}\nInput string:\n\t{inputJson}"))
 
-
 # example usage of the JghSerialization class
 def main():
-    # the tedious legwork to manually define and initialise attributes (__init__) to make a class serialisable and printable(__repr__)
-    class SimpleModelV1:
-        def __init__(self, id: int=0, name: str = "", is_active: bool = False):
-            self.id = id
-            self.name = name
-            self.is_active = is_active
-        def __repr__(self):
-            return f"SimpleModelv1(id={self.id}, name='{self.name}', is_active={self.is_active})"
-    simple_instance_v1 = SimpleModelV1()
-    simple_instance_v1.id = 1
-    simple_instance_v1.name = "simplemodelv1"
-    simple_instance_v1.is_active = True
-    json_string_v1 = JghSerialization.serialise(simple_instance_v1)
-    print("\nSerialized JSON string for SimpleModelv1:\n")
-    print(json_string_v1)
-    roundtripped_instance_v1 = JghSerialization.validate(json_string_v1, SimpleModelV1)
-    print("\nRound tripped SimpleModelv1 object:\n")
-    print(roundtripped_instance_v1)
+    # Define nested Pydantic models with optional fields
+    class AddressPydantic(BaseModel):
+        street: str
+        city: str
+        zipcode: Optional[str] = None
 
-    # the beauty of using @dataclass to define a class to make it serialisable
-    @dataclass
-    class SimpleModelV2:
+    class UserPydantic(BaseModel):
         id: int
-        name: str = ""
-        is_active: bool = False
-    simple_instance_v2 = SimpleModelV2(id=2)
-    simple_instance_v2.name = "simplemodelV2"
-    simple_instance_v2.is_active = True
-    json_string_v2 = JghSerialization.serialise(simple_instance_v2)
-    print("\nSerialized JSON string:\n")
-    print(json_string_v2)
-    roundtripped_instance_v2 = JghSerialization.validate(json_string_v2, SimpleModelV2)
-    print("\nRound tripped SimpleModelV2 object:\n")
-    print(roundtripped_instance_v2)
+        name: str
+        address: AddressPydantic
+        friends: Optional[List[Dict[str, Any]]] = None
+
+    # Create an instance of the nested model with optional fields
+    user_instance = UserPydantic(
+        id=1,
+        name="John Doe",
+        address=AddressPydantic(street="123 Main St", city="Anytown"),
+        friends=[
+            {"id": 2, "name": "Jane Smith"},
+            {"id": 3, "name": "Emily Johnson"}
+        ]
+    )
+
+    # Serialize the nested model to a JSON string
+    json_string = JghSerialization.serialise(user_instance)
+    print("\nSerialized JSON string for UserPydantic:\n")
+    print(json_string)
+
+    # Deserialize the JSON string back to a User instance
+    deserialized_user = JghSerialization.validate(json_string, UserPydantic)
+    print("\nDeserialized User instance:\n")
+    print(deserialized_user)
+
+    # Define nested dataclasses with optional fields
+    @dataclass
+    class AddressDataclass:
+        street: str
+        city: str
+        zipcode: Optional[str] = None
+
+    @dataclass
+    class UserDataclass:
+        id: int
+        name: str
+        address: AddressDataclass
+        friends: Optional[List[Dict[str, Any]]] = None
+
+    # Create an instance of the nested dataclass with optional fields
+    user_instance = UserDataclass(
+        id=1,
+        name="John Doe",
+        address=AddressDataclass(street="123 Main St", city="Anytown"),
+        friends=[
+            {"id": 2, "name": "Jane Smith"},
+            {"id": 3, "name": "Emily Johnson"}
+        ]
+    )
+
+    # Serialize the nested dataclass to a JSON string
+    json_string = JghSerialization.serialise(user_instance)
+    print("\nSerialized JSON string for UserDataclass:\n")
+    print(json_string)
+
+    # Deserialize the JSON string back to a UserDataclass instance
+    deserialized_user = JghSerialization.validate(json_string, UserDataclass)
+    print("\nDeserialized UserDataclass instance:\n")
+    print(deserialized_user)
+
+
+    # # Define nested regular Python classes with optional fields
+    # class AddressPythonclass:
+    #     def __init__(self, street: str, city: str, zipcode: Optional[str] = None):
+    #         self.street = street
+    #         self.city = city
+    #         self.zipcode = zipcode
+
+    #     def to_dict(self) -> Dict[str, Any]:
+    #         return {
+    #             "street": self.street,
+    #             "city": self.city,
+    #             "zipcode": self.zipcode
+    #         }
+
+    #     @classmethod
+    #     def from_dict(cls, data: Dict[str, Any]) -> 'AddressPythonclass':
+    #         return cls(
+    #             street=data.get("street"),
+    #             city=data.get("city"),
+    #             zipcode=data.get("zipcode")
+    #         )
+
+    # class UserPythonclass:
+    #     def __init__(self, id: int, name: str, address: AddressPythonclass, friends: Optional[List[Dict[str, Any]]] = None):
+    #         self.id = id
+    #         self.name = name
+    #         self.address = address
+    #         self.friends = friends
+
+    #     def to_dict(self) -> Dict[str, Any]:
+    #         return {
+    #             "id": self.id,
+    #             "name": self.name,
+    #             "address": self.address.to_dict(),
+    #             "friends": self.friends
+    #         }
+
+    #     @classmethod
+    #     def from_dict(cls, data: Dict[str, Any]) -> 'UserPythonclass':
+    #         return cls(
+    #             id=data.get("id"),
+    #             name=data.get("name"),
+    #             address=AddressPythonclass.from_dict(data.get("address")),
+    #             friends=data.get("friends")
+    #         )
+    # # Create an instance of the nested regular Python class with optional fields
+    # user_instance = UserPythonclass(
+    #     id=1,
+    #     name="John Doe",
+    #     address=AddressPythonclass(street="123 Main St", city="Anytown"),
+    #     friends=[
+    #         {"id": 2, "name": "Jane Smith"},
+    #         {"id": 3, "name": "Emily Johnson"}
+    #     ]
+    # )
+
+    # # Serialize the nested regular Python class to a JSON string
+    # json_string = JghSerialization.serialise(user_instance)
+    # print("\nSerialized JSON string for UserPythonclass:\n")
+    # print(json_string)
+
+    # # Deserialize the JSON string back to a UserPythonclass instance
+    # deserialized_user = JghSerialization.validate(json_string, UserPythonclass)
+    # print("\nDeserialized UserPythonclass instance:\n")
+    # print(deserialized_user)
+
+    # # Test serialization and deserialization of a tuple
+    # sample_tuple = (1, 2, 3)
+    # json_string = JghSerialization.serialise(sample_tuple)
+    # print("\nSerialized JSON string for tuple:\n")
+    # print(json_string)
+    # deserialized_tuple = JghSerialization.validate(json_string, Tuple[int, int, int])
+    # print("\nDeserialized tuple:\n")
+    # print(deserialized_tuple)
+
+    # # Test serialization and deserialization of a set
+    # sample_set = {1, 2, 3}
+    # json_string = JghSerialization.serialise(sample_set)
+    # print("\nSerialized JSON string for set:\n")
+    # print(json_string)
+    # deserialized_set = JghSerialization.validate(json_string, Set[int])
+    # print("\nDeserialized set:\n")
+    # print(deserialized_set)
 
 if __name__ == "__main__":
     main()
