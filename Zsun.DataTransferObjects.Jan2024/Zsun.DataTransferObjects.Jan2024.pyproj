@@ -35,6 +35,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
+    <Compile Include="src\zwiftrider_dto.py" />
     <Compile Include="tests\test_app_settings_dto.py" />
     <Compile Include="tests\test_participant_dto.py" />
   </ItemGroup>

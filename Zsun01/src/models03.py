@@ -11,7 +11,7 @@ class ActionPeriodWithinRotation(BaseModel):
     rider_actions: List[RiderPeriodOfEffort] = []
 
     @staticmethod
-    def create(index : int, riders: List[ZwiftRider], duration: int, speed: float, power_ceiling_factor : float, positions: List[int]) -> 'ActionPeriodWithinRotation':
+    def create(index : int, riders: List[ZwiftRiderItem], duration: int, speed: float, power_ceiling_factor : float, positions: List[int]) -> 'ActionPeriodWithinRotation':
         
         rider_actions = [RiderPeriodOfEffort.create(rider, duration, speed, 0, position) for rider, position in zip(riders, positions)]
 

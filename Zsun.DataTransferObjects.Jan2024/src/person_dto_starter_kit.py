@@ -48,35 +48,27 @@ class ParticipantDataTransferObject(BaseModel):
         originating_item_guid      : str  The GUID of the originating record.
         guid                       : str  The GUID of the record.    
         
-    Properties:
-        None
-
-    Methods:
-        __str__:                            Override to make a pretty string of the object.
-
-    Functions:
-        None
     """
 
-    zsun_id: Optional[str] = ""
-    zsun_firstname: Optional[str] = ""
-    zsun_lastname: Optional[str] = ""
-    zwift_id: Optional[int] = 0
-    zwift_firstname: Optional[str] = ""
-    zwift_lastname: Optional[str] = ""
-    discord_accountusername: Optional[str] = ""
-    discord_accountdisplayname: Optional[str] = ""
-    discord_profiledisplayname: Optional[str] = ""
-    comment: Optional[str] = ""
-    click_counter: Optional[int] = 0
-    recording_mode_enum: Optional[str] = ""
-    database_action_enum: Optional[str] = ""
+    zsun_id                    : Optional[str]  = ""
+    zsun_firstname             : Optional[str]  = ""
+    zsun_lastname              : Optional[str]  = ""
+    zwift_id                   : Optional[int]  = 0
+    zwift_firstname            : Optional[str]  = ""
+    zwift_lastname             : Optional[str]  = ""
+    discord_accountusername    : Optional[str]  = ""
+    discord_accountdisplayname : Optional[str]  = ""
+    discord_profiledisplayname : Optional[str]  = ""
+    comment                    : Optional[str]  = ""
+    click_counter              : Optional[int]  = 0
+    recording_mode_enum        : Optional[str]  = ""
+    database_action_enum       : Optional[str]  = ""
     must_ditch_originating_item: Optional[bool] = False
-    is_still_to_be_backed_up: Optional[bool] = True
-    is_still_to_be_pushed: Optional[bool] = True
-    touched_by: Optional[str] = ""
-    timestamp_binary_format: Optional[int] = 0
-    when_touched_binary_format: Optional[int] = 0
-    when_pushed_binary_format: Optional[int] = 0
-    originating_item_guid: Optional[str] = ""
-    guid: Optional[str] = ""
+    is_still_to_be_backed_up   : Optional[bool] = True
+    is_still_to_be_pushed      : Optional[bool] = True
+    touched_by                 : Optional[str]  = ""
+    timestamp_binary_format    : Optional[int]  = 0
+    when_touched_binary_format : Optional[int]  = 0
+    when_pushed_binary_format  : Optional[int]  = 0
+    originating_item_guid      : Optional[str]  = ""
+    guid                       : Optional[str]  = ""

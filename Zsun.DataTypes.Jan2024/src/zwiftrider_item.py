@@ -1,16 +1,27 @@
-from typing import List, Union, Dict 
+from typing import List, Union 
 from tabulate import tabulate
 
 from pydantic import BaseModel
 from enum import Enum
 
-from formulae import *
+from jgh_formulae import *
+from zwiftrider_dto import ZwiftRiderDataTransferObject
 
 class Gender(Enum):
     MALE = 'm'
     FEMALE = 'f'
 
-class ZwiftRider(BaseModel):
+    @classmethod
+    def _missing_(cls, value : object):
+        """
+        Return the default value 'MALE' if the provided value is None or invalid.
+        """
+        if value is None:
+            return cls.MALE
+        return super()._missing_(value)
+
+
+class ZwiftRiderItem(BaseModel):
     """
     A class representing a Zwift rider.
 
@@ -33,7 +44,7 @@ class ZwiftRider(BaseModel):
             an instance of the class as used in the ctor for the frozen class.
 
         get_key() -> str:
-            Generate a unique key for the current ZwiftRider instance.
+            Generate a unique key for the current ZwiftRiderItem instance.
 
         calculate_strength() -> float:
             Calculate the strength of the rider based on FTP and weight.
@@ -196,6 +207,50 @@ class ZwiftRider(BaseModel):
         }
 
     @staticmethod
+    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDataTransferObject:
+        """
+        Convert a ZwiftRiderItem instance to a ZwiftRiderDataTransferObject.
+
+        Args:
+            item (ZwiftRiderItem): The ZwiftRiderItem instance to convert.
+
+        Returns:
+            ZwiftRiderDataTransferObject: The corresponding data transfer object.
+        """
+        return ZwiftRiderDataTransferObject(
+            zwiftid=item.zwiftid,
+            name=item.name,
+            weight=item.weight,
+            height=item.height,
+            gender=item.gender.value,
+            ftp=item.ftp,
+            zwift_racing_score=item.zwift_racing_score,
+            velo_rating=item.velo_rating
+        )
+
+    @staticmethod
+    def from_dataTransferObject(dto: ZwiftRiderDataTransferObject) -> "ZwiftRiderItem":
+        """
+        Create a ZwiftRiderItem instance from a ZwiftRiderDataTransferObject.
+
+        Args:
+            dto (ZwiftRiderDataTransferObject): The data transfer object to convert.
+
+        Returns:
+            ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
+        """
+        return ZwiftRiderItem(
+            zwiftid=dto.zwiftid or 0,
+            name=dto.name or "",
+            weight=dto.weight or 0,
+            height=dto.height or 0,
+            gender=Gender(dto.gender) or 0,
+            ftp=dto.ftp or 0,
+            zwift_racing_score=dto.zwift_racing_score or 0,
+            velo_rating=dto.velo_rating or 0
+        )
+
+    @staticmethod
     def generate_key(
         zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
         ftp: float, zwift_racing_score: int, velo_rating: int
@@ -211,8 +266,43 @@ class ZwiftRider(BaseModel):
             self.ftp, self.zwift_racing_score, self.velo_rating
         )
 
+    @staticmethod
+    def create(zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
+        ftp: float, zwift_racing_score: int, velo_rating: int
+    ) -> 'ZwiftRiderItem':
+        """
+        Create a ZwiftRiderItem instance with the given parameters
+
+        Args:
+            zwiftid (int): The Zwift ID of the rider.
+            name (str): The name of the rider.
+            weight (float): The weight of the rider in kilograms.
+            height (float): The height of the rider in centimeters.
+            gender (Gender): The gender of the rider.
+            ftp (float): Functional Threshold Power in watts.
+            zwift_racing_score (int): Zwift racing score.
+            velo_rating (int): Velo rating.
+
+        Returns:
+            ZwiftRiderItem: A ZwiftRiderItem instance with the given parameters.
+        """
+
+        instance = ZwiftRiderItem(
+            zwiftid=zwiftid,
+            name=name,
+            weight=weight,
+            height=height,
+            gender=gender,
+            ftp=ftp,
+            zwift_racing_score=zwift_racing_score,
+            velo_rating=velo_rating
+        )
+
+        return instance
+
     def calculate_strength(self) -> float:
-        return self.ftp / self.weight
+        return self.zwift_racing_score
+        # return self.ftp / self.weight
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -252,7 +342,7 @@ class ZwiftRider(BaseModel):
         in the peloton.
 
         Args:
-        rider (ZwiftRider): The rider object.
+        rider (ZwiftRiderItem): The rider object.
         speed (float): The speed in km/h.
         position (int): The position in the peloton.
 
@@ -295,106 +385,6 @@ class ZwiftRider(BaseModel):
         
         return round(speed_kph, 3)
 
-class ZwiftRiderCache:
-    _cache: Dict[str, ZwiftRider] = {}
-
-    @classmethod
-    def get_from_cache(cls, key: Union[str, None]) -> Union[ZwiftRider, None]:
-        if key is None:
-            return None
-        return cls._cache.get(key)
-
-    @classmethod
-    def add_to_cache(cls, key: Union[str, None], instance: ZwiftRider):
-        if key is None:
-            return
-        cls._cache[key] = instance
-
-    @classmethod
-    def clear_cache(cls) -> None:
-        cls._cache.clear()
-
-    @classmethod
-    def get_cache_contents(cls) -> Dict[str, ZwiftRider]:
-        return cls._cache
-
-    @classmethod
-    def display_cache_contents(cls) -> str:
-        if not cls._cache:
-            return "Cache is empty."
-        
-        cache_contents = ["Cache contents:"]
-        for key, rider in cls._cache.items():
-            cache_contents.append(f"Key: {key}")
-            rider_attrs = [[attr, getattr(rider, attr)] for attr in rider.model_fields.keys()]
-            cache_contents.append(tabulate(rider_attrs, tablefmt="plain"))
-            cache_contents.append("")  # Add a blank line for readability
-
-
-            # cache_contents.append(f"  ZwiftID: {rider.zwiftid}")
-            # cache_contents.append(f"  Name: {rider.name}")
-            # cache_contents.append(f"  Weight: {rider.weight}")
-            # cache_contents.append(f"  Height: {rider.height}")
-            # cache_contents.append(f"  Gender: {rider.gender.value}")
-            # cache_contents.append(f"  FTP: {rider.ftp}")
-            # cache_contents.append(f"  Zwift Racing Score: {rider.zwift_racing_score}")
-            # cache_contents.append(f"  Velo Rating: {rider.velo_rating}")
-            # cache_contents.append("")  # Add a blank line for readability
-        
-        return "\n".join(cache_contents)
-
-    @classmethod
-    def get_cache_count(cls) -> int:
-        """
-        Get the count of items in the cache.
-
-        Returns:
-        int: The number of items in the cache.
-        """
-        return len(cls._cache)
-
-    @staticmethod
-    def get_or_create(
-        zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
-        ftp: float, zwift_racing_score: int, velo_rating: int
-    ) -> ZwiftRider:
-        """
-        Create a ZwiftRider instance with the given parameters, using the cache if available.
-
-        Args:
-            zwiftid (int): The Zwift ID of the rider.
-            name (str): The name of the rider.
-            weight (float): The weight of the rider in kilograms.
-            height (float): The height of the rider in centimeters.
-            gender (Gender): The gender of the rider.
-            ftp (float): Functional Threshold Power in watts.
-            zwift_racing_score (int): Zwift racing score.
-            velo_rating (int): Velo rating.
-
-        Returns:
-            ZwiftRider: A ZwiftRider instance with the given parameters.
-        """
-
-        key = ZwiftRider.generate_key(
-            zwiftid, name, weight, height, gender, ftp, zwift_racing_score, velo_rating
-        )
-        cached_instance = ZwiftRiderCache.get_from_cache(key)
-        if cached_instance:
-            return cached_instance
-
-        instance = ZwiftRider(
-            zwiftid=zwiftid,
-            name=name,
-            weight=weight,
-            height=height,
-            gender=gender,
-            ftp=ftp,
-            zwift_racing_score=zwift_racing_score,
-            velo_rating=velo_rating
-        )
-
-        ZwiftRiderCache.add_to_cache(key, instance)
-        return instance
 
 # Example usage
 def main():
@@ -404,10 +394,10 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    # # example: Instantiate ZwiftRider using the example from Config 
+    # # example: Instantiate ZwiftRiderItem using the example from Config 
     # # i.e.how we could do it from a JSON file
-    example_data = ZwiftRider.Config.json_schema_extra["johnh"]
-    rider1 = ZwiftRider.model_validate(example_data)
+    example_data = ZwiftRiderItem.Config.json_schema_extra["johnh"]
+    rider1 = ZwiftRiderItem.model_validate(example_data)
 
     # Log the instantiated object using a table
     rider_attrs = [[attr, getattr(rider1, attr)] for attr in rider1.model_fields.keys()]
@@ -417,8 +407,8 @@ def main():
     # example : instantiate examples of two riders of differing ability. for each of them 
     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
     # position 1 and position 5. tabulate the results in a table and log it.
-    example_data = ZwiftRider.Config.json_schema_extra["markb"]
-    rider2 = ZwiftRider.model_validate(example_data)
+    example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
+    rider2 = ZwiftRiderItem.model_validate(example_data)
 
     riders = [rider1, rider2]
     table: List[List[Union[str, float]]] = []
@@ -457,9 +447,8 @@ def main():
     # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
     # at a given wattage (ftp=233) and tabulate neatly and log it.
-    rider_john = ZwiftRider(
+    rider_john = ZwiftRiderItem(
         name=rider1.name, weight=rider1.weight, height=rider1.height, ftp=rider1.ftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
-
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
@@ -474,39 +463,6 @@ def main():
     logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.ftp}")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
-
-    # Test cache functionality
-    logger.info("\nTesting cache functionality with rider_john")
-    rider_john_key = rider_john.get_key()
-    ZwiftRiderCache.add_to_cache(rider_john_key, rider_john)
-
-    # Attempt to get_or_create rider_john again instantiated using get_or_create()
-    # This should return the cached instance
-    cached_rider_john = ZwiftRiderCache.get_or_create(
-        zwiftid=rider_john.zwiftid,
-        name=rider_john.name,
-        weight=rider_john.weight,
-        height=rider_john.height,
-        gender=rider_john.gender,
-        ftp=rider_john.ftp,
-        zwift_racing_score=rider_john.zwift_racing_score,
-        velo_rating=rider_john.velo_rating
-    )
-
-    # Check if the cached instance is the same as the original instance
-    if cached_rider_john is rider_john:
-        logger.info("\nCache is working: The second attempt to get_or_create rider_john returned the cached instance.")
-    else:
-        logger.error("\nCache is not working: The second attempt to get_or_create rider_john did not return the cached instance.")
-
-    # Log the count of items in the cache
-    cache_count = ZwiftRiderCache.get_cache_count()
-    logger.info(f"Number of items in the cache: {cache_count}\n")
-
-    # Display cache contents
-    cache_contents = ZwiftRiderCache.display_cache_contents()
-    logger.info("\nCache contents:")
-    logger.info("\n" + cache_contents)
 
 if __name__ == "__main__":
     main()

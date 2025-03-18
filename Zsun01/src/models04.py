@@ -5,11 +5,11 @@ from models02 import *
 from models03 import *
 
 class ZwiftTeam(BaseModel):
-    riders_working : list[ZwiftRider] = []
-    riders_resting : list[ZwiftRider] = []
+    riders_working : list[ZwiftRiderItem] = []
+    riders_resting : list[ZwiftRiderItem] = []
     
     @staticmethod
-    def get_or_create(riders: list[ZwiftRider]) -> 'ZwiftTeam':
+    def get_or_create(riders: list[ZwiftRiderItem]) -> 'ZwiftTeam':
         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
         #assign rank to rank attr sarting with 1
         for i, rider in enumerate(riders):
@@ -21,12 +21,12 @@ class ZwiftTeam(BaseModel):
         self.riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
         self.riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-    def demote_rider_from_working_to_resting(self, rider: ZwiftRider) -> None:
+    def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
         self.riders_resting.append(rider)
         self.riders_working.remove(rider)
         self.sort_riders()
 
-    def promote_rider_from_resting_to_working(self, rider: ZwiftRider) -> None:
+    def promote_rider_from_resting_to_working(self, rider: ZwiftRiderItem) -> None:
         self.riders_working.append(rider)
         self.riders_resting.remove(rider)
         self.sort_riders()
