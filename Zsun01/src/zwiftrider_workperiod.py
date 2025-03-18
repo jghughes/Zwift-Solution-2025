@@ -3,7 +3,7 @@ from jgh_formulae import *
 from zwiftrider_item import ZwiftRiderItem
 
 
-class RiderPeriodOfEffort(BaseModel):
+class ZwiftRiderWorkPeriod(BaseModel):
     """
     A class representing the effort of a Zwift rider in a specified period 
     of a multi-period rotation, based on his position in the peloton at the time
@@ -55,7 +55,7 @@ class RiderPeriodOfEffort(BaseModel):
             position_in_peloton (int): The position of the rider in the peloton.
 
         Returns:
-            str: A unique key representing the RiderPeriodOfEffort instance.
+            str: A unique key representing the ZwiftRiderWorkPeriod instance.
         """
         return ";".join([
             rider.get_key(), str(duration), str(speed), str(position_in_peloton)
@@ -63,17 +63,17 @@ class RiderPeriodOfEffort(BaseModel):
 
     def get_key(self) -> str:
         """
-        Generate a unique key for the current RiderPeriodOfEffort instance.
+        Generate a unique key for the current ZwiftRiderWorkPeriod instance.
 
         Returns:
-            str: A unique key representing the RiderPeriodOfEffort instance.
+            str: A unique key representing the ZwiftRiderWorkPeriod instance.
         """
         return self.generate_key(self.rider, self.duration, self.speed, self.position_in_peloton)
 
     @staticmethod
-    def create(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> 'RiderPeriodOfEffort':
+    def create(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> 'ZwiftRiderWorkPeriod':
         """
-        Create a RiderPeriodOfEffort instance with the given parameters, calculating 
+        Create a ZwiftRiderWorkPeriod instance with the given parameters, calculating 
         the wattage and energy burned and using the cache if available.
 
         Args:
@@ -83,7 +83,7 @@ class RiderPeriodOfEffort(BaseModel):
             position_in_peloton (int): The position of the rider in the peloton.
 
         Returns:
-            RiderPeriodOfEffort: An instance of RiderPeriodOfEffort with the calculated 
+            ZwiftRiderWorkPeriod: An instance of ZwiftRiderWorkPeriod with the calculated 
             power output and energy burned.
         """
 
@@ -91,7 +91,7 @@ class RiderPeriodOfEffort(BaseModel):
         wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position_in_peloton)
         energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
 
-        instance = RiderPeriodOfEffort(
+        instance = ZwiftRiderWorkPeriod(
             rider=rider,
             duration=duration,
             speed=speed,
@@ -119,30 +119,30 @@ def main():
     example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
     rider_mark = ZwiftRiderItem.model_validate(example_data)
 
-    # Create RiderPeriodOfEffort instances for position 1 in the peloton
-    rider_john_effort_pos1 = RiderPeriodOfEffort.create(
+    # Create ZwiftRiderWorkPeriod instances for position 1 in the peloton
+    rider_john_effort_pos1 = ZwiftRiderWorkPeriod.create(
         rider=rider_john,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=1
     )
 
-    rider_mark_effort_pos1 = RiderPeriodOfEffort.create(
+    rider_mark_effort_pos1 = ZwiftRiderWorkPeriod.create(
         rider=rider_mark,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=1
     )
 
-    # Create RiderPeriodOfEffort instances for position 2 in the peloton
-    rider_john_effort_pos2 = RiderPeriodOfEffort.create(
+    # Create ZwiftRiderWorkPeriod instances for position 2 in the peloton
+    rider_john_effort_pos2 = ZwiftRiderWorkPeriod.create(
         rider=rider_john,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=2
     )
 
-    rider_mark_effort_pos2 = RiderPeriodOfEffort.create(
+    rider_mark_effort_pos2 = ZwiftRiderWorkPeriod.create(
         rider=rider_mark,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h

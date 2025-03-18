@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\models02.py</StartupFile>
+    <StartupFile>src\zwiftrider_workperiod.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -47,11 +47,10 @@
   <ItemGroup>
     <Compile Include="data\measurements.py" />
     <Compile Include="setup.py" />
-    <Compile Include="src\models02.py" />
+    <Compile Include="src\zwiftrider_workperiod.py" />
     <Compile Include="src\models03.py" />
     <Compile Include="src\models04.py" />
     <Compile Include="src\rotation.py" />
-    <Compile Include="src\zwiftrider_cache.py" />
     <Compile Include="tests\scratchpad.py">
       <SubType>Code</SubType>
     </Compile>

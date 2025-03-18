@@ -1,8 +1,8 @@
-from typing import List, Union, Dict 
+from typing import Union, Dict 
 from tabulate import tabulate
 
-from formulae import *
-from zwiftrider import ZwiftRiderItem
+from jgh_formulae import *
+from zwiftrider_item import ZwiftRiderItem
 
 
 class ZwiftRiderCache:
@@ -18,7 +18,7 @@ class ZwiftRiderCache:
     def add_to_cache(cls, key: Union[str, None], instance: ZwiftRiderItem):
         if key is None:
             return
-        cls._cache[key] = instance
+        cls._cache[key] = instance #i.e. overwrite if already exists
 
     @classmethod
     def clear_cache(cls) -> None:
@@ -39,17 +39,6 @@ class ZwiftRiderCache:
             rider_attrs = [[attr, getattr(rider, attr)] for attr in rider.model_fields.keys()]
             cache_contents.append(tabulate(rider_attrs, tablefmt="plain"))
             cache_contents.append("")  # Add a blank line for readability
-
-
-            # cache_contents.append(f"  ZwiftID: {rider.zwiftid}")
-            # cache_contents.append(f"  Name: {rider.name}")
-            # cache_contents.append(f"  Weight: {rider.weight}")
-            # cache_contents.append(f"  Height: {rider.height}")
-            # cache_contents.append(f"  Gender: {rider.gender.value}")
-            # cache_contents.append(f"  FTP: {rider.ftp}")
-            # cache_contents.append(f"  Zwift Racing Score: {rider.zwift_racing_score}")
-            # cache_contents.append(f"  Velo Rating: {rider.velo_rating}")
-            # cache_contents.append("")  # Add a blank line for readability
         
         return "\n".join(cache_contents)
 
@@ -81,19 +70,10 @@ def main():
     logger.info("\nTesting cache functionality with rider_john")
     rider_john_key = rider_john.get_key()
     ZwiftRiderCache.add_to_cache(rider_john_key, rider_john)
+    ZwiftRiderCache.add_to_cache(rider_john_key, rider_john)
 
-    # Attempt to get_or_create rider_john again instantiated using get_or_create()
-    # This should return the cached instance
-    cached_rider_john = ZwiftRiderCache.get_or_create(
-        zwiftid=rider_john.zwiftid,
-        name=rider_john.name,
-        weight=rider_john.weight,
-        height=rider_john.height,
-        gender=rider_john.gender,
-        ftp=rider_john.ftp,
-        zwift_racing_score=rider_john.zwift_racing_score,
-        velo_rating=rider_john.velo_rating
-    )
+
+    cached_rider_john = ZwiftRiderCache.get_from_cache(rider_john_key)
 
     # Check if the cached instance is the same as the original instance
     if cached_rider_john is rider_john:
@@ -101,7 +81,7 @@ def main():
     else:
         logger.error("\nCache is not working: The second attempt to get_or_create rider_john did not return the cached instance.")
 
-    # Log the count of items in the cache
+    # Log the count of items in the cache - should be 1 not 2 because repeats are prevented
     cache_count = ZwiftRiderCache.get_cache_count()
     logger.info(f"Number of items in the cache: {cache_count}\n")
 

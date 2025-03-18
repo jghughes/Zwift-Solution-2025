@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36154a13-5f9c-4040-9813-3d671b6eb214</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\repositories\repository_of_hub_style_entries.py</StartupFile>
+    <StartupFile>src\caches\zwiftrider_cache.py</StartupFile>
     <SearchPath>..\Zsun.DataTypes.Jan2024\src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -22,12 +22,14 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
+    <Folder Include="src\caches\" />
     <Folder Include="src\repositories\" />
     <Folder Include="tests\" />
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="setup.py" />
+    <Compile Include="src\caches\zwiftrider_cache.py" />
     <Compile Include="src\repositories\participant_database.py">
       <SubType>Code</SubType>
     </Compile>
