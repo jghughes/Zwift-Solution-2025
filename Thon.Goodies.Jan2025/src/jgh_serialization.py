@@ -2,7 +2,6 @@ from typing import Type, TypeVar, List, Dict, Union, Any, Optional, Tuple, Set
 from dataclasses import dataclass, asdict, is_dataclass
 from pydantic import BaseModel, ValidationError
 import json
-from jgh_serialization import JghSerialization
 
 
 # Helper function to write a pretty error message
@@ -31,13 +30,12 @@ T = TypeVar('T')
 
 class JghSerialization:
     """
-    A class for serializing and deserializing generic types that are
+    A class for serializing and deserializing certian generic types that are
     expressly serialisable, i.e. Pydantic models and DataClasses. Ordinary
     Python classes are not serialisable. Use Pydantic classes for their
-    superiority in type coercion and validation. This class is homespun and
-    not foolproof. It will either work or not work for your exact
-    requirements. It is not a one-size-fits-all solution. It should be able
-    to handle most common scenarios. It is not a substitute for a full-fledged
+    superiority in type coercion and validation. This class is of limited 
+    applicability. It might not work for your exact requirements. It is not
+    a one-size-fits-all solution. It is not a substitute for a full-fledged
     serialization. Be sure to test it thoroughly in your specific use case.
 
     Methods:
@@ -48,16 +46,35 @@ class JghSerialization:
     @staticmethod
     def serialise(inputmodel: Any) -> str:
         """
-        Serializes any object to a JSON string. JSON is printed with an indent of 4 spaces.
+        Attempts to serialise an expressly serialisable object to a JSON string.
+        JSON is printed with an indent of 4 spaces.
+
+        This method can explicitly handle:
+        - Individual dataclasses
+        - Individual Pydantic models
+        - Lists of dataclasses or Pydantic models
+        - Dictionaries with dataclasses or Pydantic models as values
+        - Tuples of dataclasses or Pydantic models
+        - Sets of integers and strings but not value types
+
+        For dataclasses, it uses the `asdict` function to convert them to dictionaries.
+        For Pydantic models, it uses the `model_dump` method to convert them to dictionaries.
+        For other objects, it attempts to serialize their `__dict__` attribute.
 
         Args:
-            inputmodel (Any): The object to serialize.
+            inputmodel (Any): The object to attempt to serialize.
 
         Returns:
             str: The JSON string representation of the object.
 
         Raises:
             ValueError: If the object cannot be serialized to JSON.
+
+        Limitations:
+        - Cannot handle ordinary Python classes that are not dataclasses or Pydantic models.
+        - Cannot handle nested complex types beyond the specified types (e.g. nested lists of dictionaries).
+        - Extra fields in the JSON that are not defined in the model will be ignored for dataclasses.
+        - Sets can only be serialized if the elements are integers or strings.
         """
         _failure = "Unable to serialize object to JSON."
         _locus = "[serialise]"
@@ -92,15 +109,17 @@ class JghSerialization:
     @staticmethod
     def validate(inputJson: str, requiredModel: Union[Type[T], Type[List[T]], Type[Dict[Union[str, int], T]], Type[Tuple[T, ...]], Type[Set[T]]]) -> Union[T, List[T], Dict[Union[str, int], T], Tuple[T, ...], Set[T]]:
         """
-        Validates a JSON string and uses it to instantiate a model of the specified type.
+        Attempts to validates a JSON string and uses it to instantiate a model 
+        of the specified object and type. It is strongly recommended to use Pydantic 
+        objects for validation.
 
-        This method can validate and deserialize JSON strings into:
+        This method can validate and deserialize JSON strings into generic objects:
         - Pydantic models
         - Dataclasses
         - Lists of the above types
         - Dictionaries with string keys or int keys and the above types as values
         - Tuples of the above types
-        - Sets of the above types (only if T is hashable)
+        - Sets of the above types (only if T is int or string)
 
         Args:
             inputJson (str): The JSON string to validate.
@@ -174,7 +193,19 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
+    # Define nested dataclasses with optional fields
+    @dataclass
+    class AddressDataclass:
+        street: str
+        city: str
+        zipcode: Optional[str] = None
 
+    @dataclass
+    class UserDataclass:
+        id: int
+        name: str
+        address: AddressDataclass
+        friends: Optional[List[Dict[str, Any]]] = None
 
     # Define nested Pydantic models with optional fields
     class AddressPydantic(BaseModel):
@@ -208,20 +239,6 @@ def main():
     deserialized_user = JghSerialization.validate(json_string, UserPydantic)
     logger.info("\nDeserialized User instance:\n")
     logger.info(deserialized_user)
-
-    # Define nested dataclasses with optional fields
-    @dataclass
-    class AddressDataclass:
-        street: str
-        city: str
-        zipcode: Optional[str] = None
-
-    @dataclass
-    class UserDataclass:
-        id: int
-        name: str
-        address: AddressDataclass
-        friends: Optional[List[Dict[str, Any]]] = None
 
     # Create an instance of the nested dataclass with optional fields
     user_instance = UserDataclass(
@@ -371,37 +388,6 @@ def main():
     reserialized_json_string = JghSerialization.serialise(deserialized_users_dict_int_keys)
     logger.info("\nReserialized JSON string for dictionary of UserDataclass instances with integer keys:\n")
     logger.info(reserialized_json_string)
-
-
-   # Create an instance of JghListDictionary
-    dictionary = JghListDictionary[str, int]()
-
-    # Add keys and values
-    dictionary.insert_key("fruits")
-    dictionary.append_value_to_list("fruits", 1)
-    dictionary.append_value_to_list("fruits", 2)
-    dictionary.append_value_to_list("fruits", 3)
-
-    dictionary.insert_key("vegetables")
-    dictionary.append_value_to_list("vegetables", 4)
-    dictionary.append_value_to_list("vegetables", 5)
-
-    # Serialize the dictionary
-    serialized_dict = JghSerialization.serialise(dictionary)
-    logger.info("Serialized dictionary:\n%s", serialized_dict)
-
-    # Deserialize the dictionary
-    deserialized_dict = JghSerialization.validate(serialized_dict, JghListDictionary)
-    logger.info("Deserialized dictionary:\n%s", deserialized_dict.backingstore_dict)
-
-
-
-
-
-
-
-
-
 
 
     # Test serialization and deserialization of a tuple - sample_tuple = (1, 2, 3)
