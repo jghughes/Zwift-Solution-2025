@@ -697,6 +697,13 @@ class JghListDictionary(Generic[TKey, TValue]):
  # example usage of the JghListDictionary class
 
 def main():
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    # Configure logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+
     # Create an instance of JghListDictionary
     dictionary = JghListDictionary[str, int]()
 
@@ -716,47 +723,54 @@ def main():
     dictionary.append_value_to_list("grains", 2)  # Same value in different key
     dictionary.append_value_to_list("grains", 6)
 
+
+
+
+
+
+
+
     # Retrieve values for a given key
     fruits = dictionary.get_values("fruits")
-    print("Fruits:", fruits)
+    logger.info("Fruits:", fruits)
 
     # Retrieve all keys
     keys = dictionary.get_keys()
-    print("Keys:", keys)
+    logger.info("Keys:", keys)
 
     # Check if a key exists
     contains_fruits = dictionary.contains_key("fruits")
-    print("Contains 'fruits' key:", contains_fruits)
+    logger.info("Contains 'fruits' key:", contains_fruits)
 
     # Check if a value exists in a given key
     contains_value = dictionary.contains_value_in_list("fruits", 2)
-    print("Contains value 2 in 'fruits':", contains_value)
+    logger.info("Contains value 2 in 'fruits':", contains_value)
 
     # Retrieve all key-value pairs
     key_value_pairs = dictionary.get_key_value_pairs_from_everywhere()
-    print("All key-value pairs:", key_value_pairs)
+    logger.info("All key-value pairs:", key_value_pairs)
 
     # Count the number of occurrences of a value across all keys
     value_to_count = 2
     count, keys_with_value = dictionary.remove_value_from_all_lists(value_to_count)
-    print(f"Number of occurrences of value {value_to_count}:", count)
-    print(f"Keys with value {value_to_count}:", keys_with_value)
+    logger.info(f"Number of occurrences of value {value_to_count}:", count)
+    logger.info(f"Keys with value {value_to_count}:", keys_with_value)
 
     # Remove all occurrences of a value across all keys
     removed_count, keys_with_removed_value = dictionary.remove_value_from_all_lists(
         value_to_count
     )
-    print(f"Number of occurrences of value {value_to_count} removed:", removed_count)
-    print(
+    logger.info(f"Number of occurrences of value {value_to_count} removed:", removed_count)
+    logger.info(
         f"Keys from which value {value_to_count} was removed:", keys_with_removed_value
     )
 
     # Check the dictionary after removal
-    print("Dictionary after removing value 2:", dictionary.backingstore_dict)
+    logger.info("Dictionary after removing value 2:", dictionary.backingstore_dict)
 
     # Clear all values for a given key
     dictionary.clear_all_values_from_list("vegetables")
-    print(
+    logger.info(
         "Vegetables after clearing values:",
         dictionary.get_values("vegetables"),
     )
@@ -765,9 +779,9 @@ def main():
     original_keys_count, original_values_count = (
         dictionary.clear_everything_everywhere()
     )
-    print("Original number of keys:", original_keys_count)
-    print("Original number of values:", original_values_count)
-    print("Dictionary after clearing everything:", dictionary.backingstore_dict)
+    logger.info("Original number of keys:", original_keys_count)
+    logger.info("Original number of values:", original_values_count)
+    logger.info("Dictionary after clearing everything:", dictionary.backingstore_dict)
 
 if __name__ == "__main__":
     import logging
