@@ -3,7 +3,7 @@ from jgh_formulae import *
 from zwiftrider_item import ZwiftRiderItem
 
 
-class TttRiderWorkLoad(BaseModel):
+class RiderUnitOfWork(BaseModel):
     """
     A class representing the effort of a Zwift rider in a specified period 
     of a multi-period rotation, based on his position in the peloton at the time
@@ -55,7 +55,7 @@ class TttRiderWorkLoad(BaseModel):
             position_in_peloton (int): The position of the rider in the peloton.
 
         Returns:
-            str: A unique key representing the TttRiderWorkLoad instance.
+            str: A unique key representing the RiderUnitOfWork instance.
         """
         return ";".join([
             rider.get_key(), str(duration), str(speed), str(position_in_peloton)
@@ -63,17 +63,17 @@ class TttRiderWorkLoad(BaseModel):
 
     def get_key(self) -> str:
         """
-        Generate a unique key for the current TttRiderWorkLoad instance.
+        Generate a unique key for the current RiderUnitOfWork instance.
 
         Returns:
-            str: A unique key representing the TttRiderWorkLoad instance.
+            str: A unique key representing the RiderUnitOfWork instance.
         """
         return self.generate_key(self.rider, self.duration, self.speed, self.position_in_peloton)
 
     @staticmethod
-    def create(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> 'TttRiderWorkLoad':
+    def create(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> 'RiderUnitOfWork':
         """
-        Create a TttRiderWorkLoad instance with the given parameters, calculating 
+        Create a RiderUnitOfWork instance with the given parameters, calculating 
         the wattage and energy burned and using the cache if available.
 
         Args:
@@ -83,7 +83,7 @@ class TttRiderWorkLoad(BaseModel):
             position_in_peloton (int): The position of the rider in the peloton.
 
         Returns:
-            TttRiderWorkLoad: An instance of TttRiderWorkLoad with the calculated 
+            RiderUnitOfWork: An instance of RiderUnitOfWork with the calculated 
             power output and energy burned.
         """
 
@@ -91,7 +91,7 @@ class TttRiderWorkLoad(BaseModel):
         wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position_in_peloton)
         energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
 
-        instance = TttRiderWorkLoad(
+        instance = RiderUnitOfWork(
             rider=rider,
             duration=duration,
             speed=speed,
@@ -120,30 +120,30 @@ def main():
     example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
     rider_mark = ZwiftRiderItem.model_validate(example_data)
 
-    # Create TttRiderWorkLoad instances for position 1 in the peloton
-    rider_john_effort_pos1 = TttRiderWorkLoad.create(
+    # Create RiderUnitOfWork instances for position 1 in the peloton
+    rider_john_effort_pos1 = RiderUnitOfWork.create(
         rider=rider_john,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=1
     )
 
-    rider_mark_effort_pos1 = TttRiderWorkLoad.create(
+    rider_mark_effort_pos1 = RiderUnitOfWork.create(
         rider=rider_mark,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=1
     )
 
-    # Create TttRiderWorkLoad instances for position 2 in the peloton
-    rider_john_effort_pos2 = TttRiderWorkLoad.create(
+    # Create RiderUnitOfWork instances for position 2 in the peloton
+    rider_john_effort_pos2 = RiderUnitOfWork.create(
         rider=rider_john,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
         position_in_peloton=2
     )
 
-    rider_mark_effort_pos2 = TttRiderWorkLoad.create(
+    rider_mark_effort_pos2 = RiderUnitOfWork.create(
         rider=rider_mark,
         duration=30.0,  # duration in seconds
         speed=40.0,     # speed in km/h
