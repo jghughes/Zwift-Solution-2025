@@ -55,16 +55,18 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024/data/", "riders.json")
+    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024/data/", "rider_dictionary.json")
 
-    zwiftriders = JghSerialization.validate(inputjson, list[ZwiftRiderDataTransferObject])
+    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZwiftRiderDataTransferObject])
 
-    logger.info(zwiftriders)
+    # Convert the dictionary to a list of lists for tabulate
+    table_data = [
+        [key] + list(vars(rider).values()) for key, rider in dict_of_zwiftriders.items()
+    ]
+    headers = ["ZwiftID", "Name", "Weight", "Height", "Gen", "FTP", "ZRScore", "Velo Rating"]
 
-    # Print the deserialized data
-    logger.info(tabulate(zwiftriders, headers="keys"))
-
-
+    # Log the table
+    logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
         main()

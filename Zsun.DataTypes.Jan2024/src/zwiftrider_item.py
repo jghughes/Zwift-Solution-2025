@@ -260,11 +260,6 @@ class ZwiftRiderItem(BaseModel):
             str(ftp), str(zwift_racing_score), str(velo_rating)
         ])
 
-    def get_key(self) -> str:
-        return self.generate_key(
-            self.zwiftid, self.name, self.weight, self.height, self.gender, 
-            self.ftp, self.zwift_racing_score, self.velo_rating
-        )
 
     @staticmethod
     def create(zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
@@ -299,6 +294,12 @@ class ZwiftRiderItem(BaseModel):
         )
 
         return instance
+
+    def get_key(self) -> str:
+        return self.generate_key(
+            self.zwiftid, self.name, self.weight, self.height, self.gender, 
+            self.ftp, self.zwift_racing_score, self.velo_rating
+        )
 
     def calculate_strength(self) -> float:
         return self.zwift_racing_score

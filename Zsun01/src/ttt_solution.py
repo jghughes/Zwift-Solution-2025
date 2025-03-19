@@ -67,7 +67,7 @@ def calculate_total_combinations(riders: List[ZwiftRider], num_periods: int) -> 
         total_combinations += combinations
     return total_combinations
 
-def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_periods: List[ActionPeriodWithinRotation] = [], depth: int = 0) -> None:
+def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_periods: List[TttWorkPeriod] = [], depth: int = 0) -> None:
     global inspected_count, valid_count, invalid_count
     # indent: str = "  " * depth
     if len(current_periods) == len(speeds):
@@ -88,7 +88,7 @@ def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_per
             # logger.info(f"{indent}Average Speed of Rotation: {rotation.average_speed()} km/h")
 
             # for i, period in enumerate(rotation.periods, start=1):
-            #     logger.info(f"{indent}ActionPeriodWithinRotation {i}: Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
+            #     logger.info(f"{indent}TttWorkPeriod {i}: Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
 
             valid_rotations.add(rotation.to_tuple())
             # logger.info(f"{indent}Rotation is valid and archived.")
@@ -110,7 +110,7 @@ def explore_rotations(riders: List[ZwiftRider], speeds: List[float], current_per
     for duration in VALID_DURATIONS:
         if validate_wattage(duration, speeds[len(current_periods)], riders):
             # logger.info(f"{indent}Exploring branch with duration {duration} for period {len(current_periods) + 1}")
-            new_periods: List[ActionPeriodWithinRotation] = current_periods + [ActionPeriodWithinRotation(duration=duration, speed=speeds[len(current_periods)], riders=riders)]
+            new_periods: List[TttWorkPeriod] = current_periods + [TttWorkPeriod(duration=duration, speed=speeds[len(current_periods)], riders=riders)]
             explore_rotations(riders, speeds, new_periods, depth + 1)
         else:
             # logger.info(f"{indent}Skipping invalid period with duration {duration} for period {len(current_periods) + 1}")
@@ -149,7 +149,7 @@ def main() -> None:
         logger.info(f"Total Time: {rotation.total_time()} seconds")
         logger.info(f"Average Speed: {rotation.average_speed()} km/h")
         for i, period in enumerate(rotation.periods, start=1):
-            logger.info(f"ActionPeriodWithinRotation {i}: Leader = {period.riders[0].name} Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
+            logger.info(f"TttWorkPeriod {i}: Leader = {period.riders[0].name} Duration = {period.duration} sec, Speed = {period.speed} km/h, Total Energy Burned = {period.total_energy_burned()} kJ")
 
     # Log the summary of inspected alternatives
     logger.info(f"Total inspected alternatives: {inspected_count}")

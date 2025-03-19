@@ -10,6 +10,7 @@ from typing import Callable, Tuple
 
 TKey = TypeVar('TKey')
 TValue = TypeVar('TValue')
+
 class JghListDictionary(Generic[TKey, TValue]):
     """
     A generic dictionary-like class that maps keys to lists of values.

@@ -1,20 +1,20 @@
 from pydantic import BaseModel
 from typing import List, Tuple
-from models01 import *
+from zwiftrider_item import ZwiftRiderItem
 from models02 import *
 from models03 import *
 
-class ZwiftTeam(BaseModel):
+class TttTeamOfRiders(BaseModel):
     riders_working : list[ZwiftRiderItem] = []
     riders_resting : list[ZwiftRiderItem] = []
     
     @staticmethod
-    def get_or_create(riders: list[ZwiftRiderItem]) -> 'ZwiftTeam':
+    def create(riders: list[ZwiftRiderItem]) -> 'TttTeamOfRiders':
         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
         #assign rank to rank attr sarting with 1
         for i, rider in enumerate(riders):
             rider.rank = i+1
-        team = ZwiftTeam(riders_working = riders, riders_resting=[])
+        team = TttTeamOfRiders(riders_working = riders, riders_resting=[])
         return team
 
     def sort_riders(self) -> None:
@@ -33,7 +33,7 @@ class ZwiftTeam(BaseModel):
 
 class Rotation(BaseModel):
     speed : float = 0.0
-    periods: List[ActionPeriodWithinRotation]
+    periods: List[TttWorkPeriod]
 
     def total_time(self) -> float:
         return sum(period.duration for period in self.periods)
