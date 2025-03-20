@@ -1,3 +1,8 @@
+from functools import lru_cache
+
+
+
+@lru_cache(maxsize=256)
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
     Calculate the missing parameter (speed, time, or distance) given the other two.
@@ -37,6 +42,7 @@ def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: floa
 
     return kph, seconds, meters
 
+@lru_cache(maxsize=128)
 def estimate_power_factor_in_peloton(position: int) -> float:
     """
     Calculate the power factor based on the rider's
@@ -65,10 +71,11 @@ def estimate_power_factor_in_peloton(position: int) -> float:
     denominator = power_ratios.get(1, default)
     # Return the power ratio for the given position
     if position in power_ratios:
-        return power_ratios.get(position, default)/ denominator
+        return power_ratios.get(position, default) / denominator
     else:
-        return power_ratios.get(4,default)/ denominator
+        return power_ratios.get(4, default) / denominator
 
+@lru_cache(maxsize=256)
 def estimate_joules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
@@ -82,6 +89,7 @@ def estimate_joules_from_wattage_and_time(wattage: float, duration: float) -> fl
     """
     return wattage * duration
 
+@lru_cache(maxsize=256)
 def estimate_wattage_from_speed(kph: float, weight: float, height: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
@@ -99,6 +107,7 @@ def estimate_wattage_from_speed(kph: float, weight: float, height: float) -> flo
     watts = 1.86e-02 * weight * kph - 5.37e-04 * kph**3 + 2.23e-05 * weight * kph**3 + 1.33e-05 * height * kph**3
     return round(watts, 3)
 
+@lru_cache(maxsize=256)
 def estimate_speed_from_wattage(wattage: float, weight: float, height: float) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.
@@ -113,7 +122,7 @@ def estimate_speed_from_wattage(wattage: float, weight: float, height: float) ->
     """
     # Initial guess for speed (km/h)
     v = 30.0
-    m= weight
+    m = weight
 
     # Tolerance and maximum iterations for the Newton-Raphson method
     tolerance = 1e-6
@@ -131,7 +140,7 @@ def estimate_speed_from_wattage(wattage: float, weight: float, height: float) ->
 
         # Check for convergence and return the speed if the tolerance is met
         if abs(new_speed - v) < tolerance:
-            return round(new_speed,2)
+            return round(new_speed, 2)
 
         # Update the speed for the next iteration
         v = new_speed
@@ -139,6 +148,7 @@ def estimate_speed_from_wattage(wattage: float, weight: float, height: float) ->
     # If the method did not converge, raise an error
     raise ValueError("Newton-Raphson method did not converge")
 
+@lru_cache(maxsize=256)
 def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight: float, height: float) -> float:
     """
     Calculate the energy consumed in kilojoules given speed, duration, weight, and height.
@@ -163,7 +173,6 @@ def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight:
 
     return round(energy_kilojoules, 3)
 
-
 # Example usage
 def main():
     # units of power (w) = watts
@@ -180,15 +189,13 @@ def main():
     #     height: float = 180
     #     ftp: float = 272  # Functional Threshold Power in watts
 
-    import numpy as np
-
+    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
-
-    # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
+    import numpy as np
 
     # Define the input parameters
     kph = 40.0
@@ -223,6 +230,13 @@ def main():
     for speed, power in zip(ZwiftInsiderSpeedMatrix_kph, power_matrix):
         logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
+    # Log cache performance
+    logger.info(f"triangulate_speed_time_and_distance cache info: {triangulate_speed_time_and_distance.cache_info()}")
+    logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
+    logger.info(f"estimate_joules_from_wattage_and_time cache info: {estimate_joules_from_wattage_and_time.cache_info()}")
+    logger.info(f"estimate_wattage_from_speed cache info: {estimate_wattage_from_speed.cache_info()}")
+    logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
+    logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
 
 if __name__ == "__main__":
     main()

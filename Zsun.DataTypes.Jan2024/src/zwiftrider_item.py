@@ -23,7 +23,7 @@ class Gender(Enum):
 
 class ZwiftRiderItem(BaseModel):
     """
-    A class representing a Zwift rider.
+    A frozen pydantic data class representing a Zwift rider.
 
     Attributes:
         zwiftid            : int    The Zwift ID of the rider.
@@ -36,14 +36,14 @@ class ZwiftRiderItem(BaseModel):
         velo_rating        : int    Velo rating.
 
     Methods:
-        generate_key(
+        make_identifier(
             zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
             ftp: float, zwift_racing_score: int, velo_rating: int
         ) -> str:
             Generate a unique key based on all the parameters that define
             an instance of the class as used in the ctor for the frozen class.
 
-        get_key() -> str:
+        get_identifier() -> str:
             Generate a unique key for the current ZwiftRiderItem instance.
 
         calculate_strength() -> float:
@@ -207,61 +207,6 @@ class ZwiftRiderItem(BaseModel):
         }
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDataTransferObject:
-        """
-        Convert a ZwiftRiderItem instance to a ZwiftRiderDataTransferObject.
-
-        Args:
-            item (ZwiftRiderItem): The ZwiftRiderItem instance to convert.
-
-        Returns:
-            ZwiftRiderDataTransferObject: The corresponding data transfer object.
-        """
-        return ZwiftRiderDataTransferObject(
-            zwiftid=item.zwiftid,
-            name=item.name,
-            weight=item.weight,
-            height=item.height,
-            gender=item.gender.value,
-            ftp=item.ftp,
-            zwift_racing_score=item.zwift_racing_score,
-            velo_rating=item.velo_rating
-        )
-
-    @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderDataTransferObject) -> "ZwiftRiderItem":
-        """
-        Create a ZwiftRiderItem instance from a ZwiftRiderDataTransferObject.
-
-        Args:
-            dto (ZwiftRiderDataTransferObject): The data transfer object to convert.
-
-        Returns:
-            ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
-        """
-        return ZwiftRiderItem(
-            zwiftid=dto.zwiftid or 0,
-            name=dto.name or "",
-            weight=dto.weight or 0,
-            height=dto.height or 0,
-            gender=Gender(dto.gender) or 0,
-            ftp=dto.ftp or 0,
-            zwift_racing_score=dto.zwift_racing_score or 0,
-            velo_rating=dto.velo_rating or 0
-        )
-
-    @staticmethod
-    def generate_key(
-        zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
-        ftp: float, zwift_racing_score: int, velo_rating: int
-    ) -> str:
-        return ";".join([
-            str(zwiftid), name, str(weight), str(height), gender.value, 
-            str(ftp), str(zwift_racing_score), str(velo_rating)
-        ])
-
-
-    @staticmethod
     def create(zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
         ftp: float, zwift_racing_score: int, velo_rating: int
     ) -> 'ZwiftRiderItem':
@@ -295,15 +240,24 @@ class ZwiftRiderItem(BaseModel):
 
         return instance
 
-    def get_key(self) -> str:
-        return self.generate_key(
+    @staticmethod
+    def make_identifier(
+        zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
+        ftp: float, zwift_racing_score: int, velo_rating: int
+    ) -> str:
+        return ";".join([
+            str(zwiftid), name, str(weight), str(height), gender.value, 
+            str(ftp), str(zwift_racing_score), str(velo_rating)
+        ])
+
+    def get_identifier(self) -> str:
+        return self.make_identifier(
             self.zwiftid, self.name, self.weight, self.height, self.gender, 
             self.ftp, self.zwift_racing_score, self.velo_rating
         )
 
     def calculate_strength(self) -> float:
         return self.zwift_racing_score
-        # return self.ftp / self.weight
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -386,6 +340,49 @@ class ZwiftRiderItem(BaseModel):
         
         return round(speed_kph, 3)
 
+    @staticmethod
+    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDataTransferObject:
+        """
+        Convert a ZwiftRiderItem instance to a ZwiftRiderDataTransferObject.
+
+        Args:
+            item (ZwiftRiderItem): The ZwiftRiderItem instance to convert.
+
+        Returns:
+            ZwiftRiderDataTransferObject: The corresponding data transfer object.
+        """
+        return ZwiftRiderDataTransferObject(
+            zwiftid=item.zwiftid,
+            name=item.name,
+            weight=item.weight,
+            height=item.height,
+            gender=item.gender.value,
+            ftp=item.ftp,
+            zwift_racing_score=item.zwift_racing_score,
+            velo_rating=item.velo_rating
+        )
+
+    @staticmethod
+    def from_dataTransferObject(dto: ZwiftRiderDataTransferObject) -> "ZwiftRiderItem":
+        """
+        Create a ZwiftRiderItem instance from a ZwiftRiderDataTransferObject.
+
+        Args:
+            dto (ZwiftRiderDataTransferObject): The data transfer object to convert.
+
+        Returns:
+            ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
+        """
+        return ZwiftRiderItem(
+            zwiftid=dto.zwiftid or 0,
+            name=dto.name or "",
+            weight=dto.weight or 0,
+            height=dto.height or 0,
+            gender=Gender(dto.gender) or 0,
+            ftp=dto.ftp or 0,
+            zwift_racing_score=dto.zwift_racing_score or 0,
+            velo_rating=dto.velo_rating or 0
+        )
 
 # Example usage
 def main():

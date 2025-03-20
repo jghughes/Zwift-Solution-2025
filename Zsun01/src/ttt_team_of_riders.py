@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Tuple
 from zwiftrider_item import ZwiftRiderItem
-from models02 import *
-from models03 import *
 
 class TttTeamOfRiders(BaseModel):
     riders_working : list[ZwiftRiderItem] = []

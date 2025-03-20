@@ -699,9 +699,9 @@ class JghListDictionary(Generic[TKey, TValue]):
 
 def main():
 
+    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
-    # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from jgh_logging import jgh_configure_logging
 import numpy as np
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Set
-from models01 import *
+from zwiftrider_item import *
 from models02 import *
 from models03 import *
 from math import comb
@@ -36,11 +36,14 @@ invalid_count: int = 0
 
 
 class SolutionLineItem(BaseModel):
-    order : int = 1
-    rider : ZwiftRider
-    duration : float = 0.0
-    wattage_position_1 : float = 0.0
-    wattage_position_2 : float = 0.0
+
+    rank : int = 1
+    rider : ZwiftRiderItem
+    pull_duration : float = 0.0
+    pull_speed : float = 0.0
+    pull_watts: float = 0.0
+    pull_wkg : float = 0.0
+
     wattage_position_3 : float = 0.0
     wattage_position_4 : float = 0.0
     wattage_position_5 : float = 0.0

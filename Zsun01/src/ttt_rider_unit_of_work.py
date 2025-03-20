@@ -10,12 +10,12 @@ class RiderUnitOfWork(BaseModel):
     of the effort.
 
     Attributes:
-        rider (ZwiftRiderItem): The Zwift rider participating in the period.
-        duration (float): The duration of the period in seconds.
-        speed (float): The speed during the period in kilometers per hour.
-        position_in_peloton (int): The position of the rider in the peloton.
-        power_output (float): The average wattage in the rider's position.
-        energy_burned (float): The energy burned in the rider's position in kiloJoules.
+        rider               (ZwiftRiderItem): The Zwift rider participating in the period.
+        duration            (float)         : The duration of the period in seconds.
+        speed               (float)         : The speed during the period in kilometers per hour.
+        position_in_peloton (int)           : The position of the rider in the peloton.
+        power_output        (float)         : The average wattage in the rider's position.
+        energy_burned       (float)         : The energy burned in the rider's position in kiloJoules.
     """
 
     rider               : ZwiftRiderItem = ZwiftRiderItem()  # The Zwift rider participating in the period
@@ -43,33 +43,7 @@ class RiderUnitOfWork(BaseModel):
                 "position_in_peloton": 1,
         }
 
-    @staticmethod
-    def generate_key(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> str:
-        """
-        Generate a unique key based on the rider, duration, speed, and position in the peloton.
-
-        Args:
-            rider (ZwiftRiderItem): The Zwift rider participating in the period.
-            duration (float): The duration of the period in seconds.
-            speed (float): The speed during the period in kilometers per hour.
-            position_in_peloton (int): The position of the rider in the peloton.
-
-        Returns:
-            str: A unique key representing the RiderUnitOfWork instance.
-        """
-        return ";".join([
-            rider.get_key(), str(duration), str(speed), str(position_in_peloton)
-        ])
-
-    def get_key(self) -> str:
-        """
-        Generate a unique key for the current RiderUnitOfWork instance.
-
-        Returns:
-            str: A unique key representing the RiderUnitOfWork instance.
-        """
-        return self.generate_key(self.rider, self.duration, self.speed, self.position_in_peloton)
-
+       
     @staticmethod
     def create(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> 'RiderUnitOfWork':
         """
@@ -77,10 +51,12 @@ class RiderUnitOfWork(BaseModel):
         the wattage and energy burned and using the cache if available.
 
         Args:
-            rider (ZwiftRiderItem): The Zwift rider participating in the period.
-            duration (float): The duration of the period in seconds.
-            speed (float): The speed during the period in kilometers per hour.
-            position_in_peloton (int): The position of the rider in the peloton.
+            rider               (ZwiftRiderItem): The Zwift rider participating in the period.
+            duration            (float)         : The duration of the period in seconds.
+            speed               (float)         : The speed during the period in kilometers per hour.
+            position_in_peloton (int)           : The position of the rider in the peloton.
+            power_output        (float)         : The average wattage in the rider's position.
+            energy_burned       (float)         : The energy burned in the rider's position in kiloJoules.
 
         Returns:
             RiderUnitOfWork: An instance of RiderUnitOfWork with the calculated 
@@ -101,6 +77,36 @@ class RiderUnitOfWork(BaseModel):
         )
 
         return instance
+
+
+    @staticmethod
+    def make_identifier(rider: ZwiftRiderItem, duration: float, speed: float, position_in_peloton: int) -> str:
+        """
+        Generate a unique identifier based on the rider, duration, speed, and position in the peloton.
+
+        Args:
+            rider               (ZwiftRiderItem): The Zwift rider participating in the period.
+            duration            (float)         : The duration of the period in seconds.
+            speed               (float)         : The speed during the period in kilometers per hour.
+            position_in_peloton (int)           : The position of the rider in the peloton.
+            power_output        (float)         : The average wattage in the rider's position.
+            energy_burned       (float)         : The energy burned in the rider's position in kiloJoules.
+
+        Returns:
+            str: A unique key representing the RiderUnitOfWork instance.
+        """
+        return ";".join([
+            rider.get_key(), str(duration), str(speed), str(position_in_peloton)
+        ])
+
+    def get_identifier(self) -> str:
+        """
+        Generate an identifier for the current RiderUnitOfWork instance.
+
+        Returns:
+            str: A unique key representing the RiderUnitOfWork instance.
+        """
+        return self.make_identifier(self.rider, self.duration, self.speed, self.position_in_peloton)
 
 
 def main():
