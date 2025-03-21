@@ -51,6 +51,8 @@
     <Compile Include="src\jgh_formulae02.py" />
     <Compile Include="src\jgh_formulae03.py" />
     <Compile Include="src\jgh_formulae04.py" />
+    <Compile Include="src\jgh_formulae05.py" />
+    <Compile Include="src\jgh_formulae06.py" />
     <Compile Include="src\ttt_rider_unit_of_work.py" />
     <Compile Include="src\ttt_workperiod.py" />
     <Compile Include="src\ttt_team_of_riders.py" />

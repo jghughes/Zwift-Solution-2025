@@ -5,10 +5,10 @@ from zwiftrider_item import ZwiftRiderItem
 
 def generate_rider_workunit_mapping(riders: List[ZwiftRiderItem], pull_durations: List[float]) -> Dict[ZwiftRiderItem, List[Tuple[int, float]]]:
     """
-    Generates a mapping for a team of riders in a Team Time Trial race. The riders 
-    circulate in a cyclical pattern, with each rider taking a turn at the front 
-    and then rotating to the back of the pace line, and so on. The duration for each pull 
-    at the front is specified in the pull_durations list. Each rider has as many 
+    Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
+    Riders circulate in a cyclical pattern in a pace line, with each rider taking a turn 
+    at the front (a pull) and then rotating to the back squentially. The sequence
+    of pulls is according to pull_durations list. Each rider has as many 
     workunits as there are position/riders in the circulating pace line. Each workunit 
     is a tuple of the prevailing position of the rider in the pace line and the 
     pull duration of the prevailing leader at the front of the pace line.
@@ -19,18 +19,19 @@ def generate_rider_workunit_mapping(riders: List[ZwiftRiderItem], pull_durations
 
     Returns:
         Dict[ZwiftRiderItem, List[Tuple[int, float]]]: A dictionary of Zwift riders with
-            their list of respective workunits.
+            their list of respective workunit parameters. The Tuple for a workunit
+            is (position, duration).
     """
     n = len(riders)
-    mapping: Dict[ZwiftRiderItem, List[Tuple[int, float]]] = {}
+    rider_workunits: Dict[ZwiftRiderItem, List[Tuple[int, float]]] = {}
     for k in range(1, n + 1):
-        rider_workunits: List[Tuple[int, float]] = []
+        workunits: List[Tuple[int, float]] = []
         for j in range(n):
             position = (k + n - j - 1) % n + 1
-            pull_duration = pull_durations[j]
-            rider_workunits.append((position, pull_duration))
-        mapping[riders[k - 1]] = rider_workunits
-    return mapping
+            duration = pull_durations[j]
+            workunits.append((position, duration))
+        rider_workunits[riders[k - 1]] = workunits
+    return rider_workunits
 
 # Example usage:
 def main() -> None:
