@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d0848817-1d16-405c-b494-03d14e9036fe</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_formulae03.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -25,10 +26,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\jgh_formulae.py" />
-    <Compile Include="src\jgh_formulae02.py" />
-    <Compile Include="src\jgh_formulae03.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\jgh_listdictionary.py" />
     <Compile Include="src\jgh_logging.py" />
     <Compile Include="src\jgh_read_write.py" />

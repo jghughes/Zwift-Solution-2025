@@ -1,10 +1,8 @@
-from typing import List, Union 
-from tabulate import tabulate
+from typing import Dict
 
 from pydantic import BaseModel
 from enum import Enum
-
-from jgh_formulae import *
+from jgh_formulae import estimate_speed_from_wattage, estimate_wattage_from_speed, estimate_power_factor_in_peloton
 from zwiftrider_dto import ZwiftRiderDataTransferObject
 
 class Gender(Enum):
@@ -70,6 +68,10 @@ class ZwiftRiderItem(BaseModel):
     ftp                : float  = 0             # Functional Threshold Power in watts
     zwift_racing_score : int    = 0             # Zwift racing score
     velo_rating        : int    = 0             # Velo rating
+
+    # need the class to be hashable for a cache or set or as the key in a dictionary
+    def __hash__(self):
+        return hash((self.zwiftid, self.name, self.weight, self.height, self.gender, self.ftp, self.zwift_racing_score, self.velo_rating))
 
     class Config:
         frozen = True
@@ -384,13 +386,32 @@ class ZwiftRiderItem(BaseModel):
             velo_rating=dto.velo_rating or 0
         )
 
-# Example usage
+    @staticmethod
+    def from_dataTransferObject_dict(dict_of_zwiftrider_dto: Dict[str, ZwiftRiderDataTransferObject]) -> Dict[str, 'ZwiftRiderItem']:
+        """
+        Transform a dictionary of ZwiftRiderDataTransferObject to a dictionary of ZwiftRiderItem.
+
+        Args:
+            dict_of_zwiftrider_dto (Dict[str, ZwiftRiderDataTransferObject]): The input dictionary.
+
+        Returns:
+            Dict[str, ZwiftRiderItem]: The transformed dictionary.
+        """
+        dict_of_zwiftrideritem = {
+            key: ZwiftRiderItem.from_dataTransferObject(dto)
+            for key, dto in dict_of_zwiftrider_dto.items()
+        }
+        return dict_of_zwiftrideritem# Example usage
+
 def main():
+    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
-    # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+
+    from tabulate import tabulate
+    from typing import List, Union
 
     # # example: Instantiate ZwiftRiderItem using the example from Config 
     # # i.e.how we could do it from a JSON file
@@ -415,7 +436,7 @@ def main():
         "Wattage (P 5, 40 km/h)"
     ]
     for rider in riders:
-        row = [rider.name]
+        row : List[Union[str, float]] = [rider.name]
         for position in [1, 5]:
             wattage = rider.calculate_wattage_riding_in_the_peloton(40, position)
             row.append(str(wattage))  # Convert wattage to string
