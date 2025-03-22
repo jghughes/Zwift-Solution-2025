@@ -3,16 +3,15 @@ from zwiftrider_item import ZwiftRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 from pydantic import BaseModel
 
-class RiderWorkloadLineItem(BaseModel):
+class RiderEffortItem(BaseModel):
     position: int = 0
     speed: float = 0
     duration: float = 0
     wattage: float = 0
-    wattage_ftp_ratio: float = 0
-    joules: float = 0
+    kilojoules: float = 0
 
 
-def calculate_rider_workload_lineitems(speed: float, rider_workunits: Dict[ZwiftRiderItem, List[Tuple[int, float]]]) -> Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]:
+def populate_map_of_rider_efforts(speed: float, rider_workunits: Dict[ZwiftRiderItem, List[Tuple[int, float]]]) -> Dict[ZwiftRiderItem, List[RiderEffortItem]]:
     """
     Projects the rider_workunits dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -21,21 +20,20 @@ def calculate_rider_workload_lineitems(speed: float, rider_workunits: Dict[Zwift
         rider_workunits (Dict[ZwiftRiderItem, List[Tuple[int, float]]]): The dictionary of rider workunits.
 
     Returns:
-        Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]: A dictionary of Zwift riders with
+        Dict[ZwiftRiderItem, List[RiderEffortItem]]: A dictionary of Zwift riders with
             their list of respective workload parameters including wattage. The Tuple representing 
-            a single workload is (position, speed, duration, wattage). Each rider has a list of workloads
+            a single workload is (position, speed, duration, wattage). Each rider has a list of rider_efforts
     """
-    rider_workloads: Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]] = {}
+    rider_workloads: Dict[ZwiftRiderItem, List[RiderEffortItem]] = {}
     
     for rider, workunits in rider_workunits.items():
-        workloads: List[RiderWorkloadLineItem] = []
+        rider_efforts: List[RiderEffortItem] = []
         for position, duration in workunits:
             wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position)
-            wattage_ftp_ratio: float = wattage / rider.ftp if rider.ftp != 0 else 0
-            joules = estimate_kilojoules_from_wattage_and_time(wattage, duration)
+            kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, duration)
 
-            workloads.append(RiderWorkloadLineItem(position=position, speed=speed, duration=duration, wattage=wattage, wattage_ftp_ratio=wattage_ftp_ratio, joules=joules))
-        rider_workloads[rider] = workloads
+            rider_efforts.append(RiderEffortItem(position=position, speed=speed, duration=duration, wattage=wattage, kilojoules=kilojoules))
+        rider_workloads[rider] = rider_efforts
     
     return rider_workloads
 
@@ -52,6 +50,7 @@ def main() -> None:
     from jgh_serialization import JghSerialization
     from zwiftrider_dto import ZwiftRiderDataTransferObject
     from tabulate import tabulate
+    from jgh_formulae04 import compose_map_of_rider_work_assignments
 
     # Load rider data from JSON
     inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/", "rider_dictionary.json")
@@ -74,21 +73,23 @@ def main() -> None:
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0]
 
-    # Generate the rider-workunit mapping
-    mapping = generate_rider_workunit_mapping(riders, pull_durations)
+    # Compose the rider work_assignments
+    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations)
 
-    # Calculate the rider workloads
+    # Calculate rider efforts
     speed = 40.0  # Example speed
-    workloads = calculate_rider_workload_lineitems(speed, mapping)
+    rider_efforts = populate_map_of_rider_efforts(speed, work_assignments)
 
     # Display the outcome using tabulate
     table = []
-    for rider, tasks in workloads.items():
-        for position, speed, duration, wattage in tasks:
-            table.append([rider.name, position, speed, duration, wattage])
 
-    headers = ["Rider", "Position", "Speed", "Pull Duration", "Wattage"]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="grid"))
+    for rider, efforts in rider_efforts.items():
+        for effort in efforts:
+            table.append([rider.name, effort.position, round(effort.speed, 1), round(effort.duration), round(effort.wattage), round(effort.kilojoules, 1)])
+
+    headers = ["Rider", "Position", "Speed", "Duration of effort", "Wattage", "kJ expended"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 if __name__ == "__main__":
     main()
+

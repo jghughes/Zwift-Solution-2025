@@ -1,60 +1,79 @@
 from typing import  List
-from jgh_formulae05 import RiderWorkloadLineItem
+from jgh_formulae05 import RiderEffortItem
 
-def calculate_rolling_average(values: List[float], window_size: int) -> List[float]:
+def calculate_weighted_average_watts(efforts: List[RiderEffortItem]) -> float:
     """
-    Calculate the rolling average of the given values with the specified window size.
+    Calculate the average power for a list of efforts.
+    The average power is calculated as the total work done (in kilojoules) divided by 
+    the total duration (in seconds). The function sums the kilojoules for each workload 
+    item and divides by the total duration to obtain the average power.
 
-    This function computes the rolling average for a list of values using a 
+    Args:
+        efforts (List[RiderEffortItem]): The list of efforts.
+    Returns:
+        float: The average power.
+    """
+    if not efforts:
+        return 0
+
+    total_kilojoules = sum(item.kilojoules for item in efforts)
+    total_duration = sum(item.duration for item in efforts)
+    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
+    return average_watts
+
+def calculate_smoothed_numbers(numbers: List[float], window_size: int) -> List[float]:
+    """
+    Calculate the rolling average of the given numbers with the specified window size.
+
+    This function computes the rolling average for a list of numbers using a 
     specified window size. The window size determines the number of consecutive 
-    values to include in each average calculation. We assume that the length of 
-    the input list `values` is small, potentially as small as three items. Given 
+    numbers to include in each average calculation. We assume that the length of 
+    the input list `numbers` is small, potentially as small as three items. Given 
     this assumption, the function is implemented in a straightforward manner 
     without complex optimizations.
 
     Args:
-        values (List[float]): The list of values for which the rolling average 
+        numbers (List[float]): The list of numbers for which the rolling average 
         is to be calculated.
         window_size (int): The size of the rolling window, i.e., the number of 
-        consecutive values to include in each average calculation.
+        consecutive numbers to include in each average calculation.
 
     Returns:
-        List[float]: The list of rolling average values. Each value in the 
-        returned list represents the average of a subset of the input values, 
+        List[float]: The list of rolling average numbers. Each value in the 
+        returned list represents the average of a subset of the input numbers, 
         with the subset size determined by the window size. The length of the 
-        returned list will be `len(values) - window_size + 1`.
+        returned list will be `len(numbers) - window_size + 1`.
 
     Example:
-        >>> values = [1, 2, 3, 4, 5]
+        >>> numbers = [1, 2, 3, 4, 5]
         >>> window_size = 3
-        >>> calculate_rolling_average(values, window_size)
+        >>> calculate_smoothed_numbers(numbers, window_size)
         [2.0, 3.0, 4.0]
 
     In this example, the rolling average is calculated for a window size of 3. 
-    The first value in the returned list is the average of the first three values 
+    The first value in the returned list is the average of the first three numbers 
     in the input list (1, 2, 3), the second value is the average of the next 
-    three values (2, 3, 4), and so on.
+    three numbers (2, 3, 4), and so on.
 
     Handling small input lists:
-    - If the length of `values` is less than the `window_size`, the function will 
+    - If the length of `numbers` is less than the `window_size`, the function will 
     return an empty list.
     - The function iterates over the input list and calculates the average for 
     each window of the specified size.
     """
-    if not values or window_size <= 0:
+    if not numbers or window_size <= 0:
         return []
 
     rolling_averages: List[float] = []
-    for i in range(len(values) - window_size + 1):
-        window = values[i:i + window_size]
+    for i in range(len(numbers) - window_size + 1):
+        window = numbers[i:i + window_size]
         rolling_averages.append(sum(window) / window_size)
 
     return rolling_averages
 
-
-def calculate_normalized_power(workload_items: List[RiderWorkloadLineItem]) -> float:
+def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
     """
-    Calculate the normalized power for a list of workload items.
+    Calculate the normalized power for a list of efforts.
 
     Normalized Power (NP) is a metric used to better quantify the physiological 
     demands of a workout compared to average power. It accounts for the variability 
@@ -62,14 +81,14 @@ def calculate_normalized_power(workload_items: List[RiderWorkloadLineItem]) -> f
     required. The calculation involves several steps:
 
     1. Create a list of instantaneous wattages for every second of the durations 
-       of all workload items.
+       of all efforts.
     2. Calculate the 30-second rolling average power.
     3. Raise the smoothed power values to the fourth power.
     4. Calculate the average of these values.
     5. Take the fourth root of the average.
 
     Args:
-        workload_items (List[RiderWorkloadLineItem]): The list of workload items. 
+        efforts (List[RiderEffortItem]): The list of efforts. 
         Each item contains the wattage and duration for a specific segment of the 
         workout.
 
@@ -77,28 +96,29 @@ def calculate_normalized_power(workload_items: List[RiderWorkloadLineItem]) -> f
         float: The normalized power.
 
     Example:
-        >>> workload_items = [
-        ...     RiderWorkloadLineItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, joules=12000),
-        ...     RiderWorkloadLineItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, joules=5400)
+        >>> efforts = [
+        ...     RiderEffortItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
+        ...     RiderEffortItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
         ... ]
-        >>> calculate_normalized_power(workload_items)
+        >>> calculate_normalized_watts(efforts)
         192.0
 
-    In this example, the normalized power is calculated for two workload items. 
+    In this example, the normalized power is calculated for two efforts. 
     The first item has a duration of 60 seconds and a wattage of 200, and the 
     second item has a duration of 30 seconds and a wattage of 180. The function 
     computes the normalized power based on these values.
     """
-    if not workload_items:
+    if not efforts:
         return 0
 
-    # Create a list of instantaneous wattages for every second of the durations of all workload items
+    # Create a list of instantaneous wattages for every second of the durations of all efforts
     instantaneous_wattages: List[float] = []
-    for item in workload_items:
+    for item in efforts:
         instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
-    # Calculate the 30-second rolling average power
-    rolling_avg_power = calculate_rolling_average(instantaneous_wattages, 30)
+    # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
+    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 10-second rolling average
+    rolling_avg_power = calculate_smoothed_numbers(instantaneous_wattages, 10)
 
     # Raise the smoothed power values to the fourth power
     rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
@@ -107,6 +127,66 @@ def calculate_normalized_power(workload_items: List[RiderWorkloadLineItem]) -> f
     mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
 
     # Take the fourth root of the average
-    normalized_power = mean_power_4 ** 0.25
+    normalized_watts = mean_power_4 ** 0.25
 
-    return normalized_power
+    return normalized_watts
+
+
+# Example usage 
+def main() -> None:
+    # Configure logging
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+
+    from typing import Dict, cast
+    from jgh_read_write import read_text
+    from jgh_serialization import JghSerialization
+    from zwiftrider_item import ZwiftRiderItem
+    from zwiftrider_dto import ZwiftRiderDataTransferObject
+    from tabulate import tabulate
+    from jgh_formulae04 import compose_map_of_rider_work_assignments
+    from jgh_formulae05 import populate_map_of_rider_efforts
+
+    # Load rider data from JSON
+    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/", "rider_dictionary.json")
+    dict_of_zwiftrider_dto= JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDataTransferObject])
+
+    # for the benfit of type inference: explicitly cast the return value of the serialisation to expected generic Type
+    dict_of_zwiftrider_dto = cast(Dict[str, ZwiftRiderDataTransferObject], dict_of_zwiftrider_dto)
+
+    #transform to ZwiftRiderItem dict
+    dict_of_zwiftrideritem = ZwiftRiderItem.from_dataTransferObject_dict(dict_of_zwiftrider_dto)
+
+    # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
+
+    # Create a list of the selected riders
+    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
+
+    # Example riders and pull durations
+    pull_durations = [90.0, 60.0, 30.0]
+
+    # Compose the rider work_assignments
+    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations)
+
+    # Calculate rider efforts
+    speed = 40.0  # Example speed
+    rider_efforts = populate_map_of_rider_efforts(speed, work_assignments)
+
+    # Calculate and compare weighted average power and normalized power for each rider
+    table = []
+    for rider, items in rider_efforts.items():
+        weighted_avg_watts = calculate_weighted_average_watts(items)
+        normalized_watts = calculate_normalized_watts(items)
+        table.append([rider.name, weighted_avg_watts, normalized_watts])
+
+    headers = ["Rider", "Weighted Average watts", "Normalized watts"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+
+
+if __name__ == "__main__":
+    main()

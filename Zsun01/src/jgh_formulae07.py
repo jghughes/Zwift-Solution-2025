@@ -1,56 +1,56 @@
 from typing import Dict, List
 from zwiftrider_item import ZwiftRiderItem
 from pydantic import BaseModel
-from jgh_formulae05 import RiderWorkloadLineItem
-from jgh_formulae06 import calculate_normalized_power
+from jgh_formulae05 import RiderEffortItem
+from jgh_formulae06 import calculate_normalized_watts
 
-class RiderAggregateWorkloadItem(BaseModel):
+class RiderAggregateEffortItem(BaseModel):
     total_duration: float = 0
     average_speed: float = 0
     total_distance: float = 0
     total_kilojoules: float = 0
-    average_power : float = 0
-    normalized_power : float = 0
-    peak_wattage: float = 0
+    weighted_average_watts : float = 0
+    normalized_watts : float = 0
+    instantaneous_peak_wattage: float = 0
 
-def calculate_rider_aggregate_workload(riders: Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]) -> Dict[ZwiftRiderItem, RiderAggregateWorkloadItem]:
+def calculate_rider_aggregate_efforts(riders: Dict[ZwiftRiderItem, List[RiderEffortItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
     """
     Calculates aggregate workload metrics for each rider.
 
     Args:
-        riders (Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]): The dictionary of riders with their aggregate workload line items.
+        riders (Dict[ZwiftRiderItem, List[RiderEffortItem]]): The dictionary of riders with their aggregate workload line items.
 
     Returns:
-        Dict[ZwiftRiderItem, RiderAggregateWorkloadItem]: A dictionary of riders with their aggregate workload metrics.
+        Dict[ZwiftRiderItem, RiderAggregateEffortItem]: A dictionary of riders with their aggregate workload metrics.
     """
-    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateWorkloadItem] = {}
+    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateEffortItem] = {}
 
-    for rider, workload_items in riders.items():
+    for rider, efforts in riders.items():
 
-        if not workload_items:
+        if not efforts:
             # Handle case where there are no workload line items
-            rider_aggregates[rider] = RiderAggregateWorkloadItem()
+            rider_aggregates[rider] = RiderAggregateEffortItem()
             continue
-        total_duration = sum(item.duration for item in workload_items) # measured in seconds
-        total_distance = sum(item.speed * item.duration / 3600 for item in workload_items)  # convert to km
+        total_duration = sum(item.duration for item in efforts) # measured in seconds
+        total_distance = sum(item.speed * item.duration / 3600 for item in efforts)  # convert to km
         average_speed = total_distance / (total_duration / 3600) if total_duration != 0 else 0  # convert to km/h
-        total_kilojoules = sum(item.joules for item in workload_items)
+        total_kilojoules = sum(item.kilojoules for item in efforts)
 
 
         # Calculate average wattage
-        total_wattage_duration = sum(item.wattage * item.duration for item in workload_items)
-        average_power = total_wattage_duration / total_duration if total_duration != 0 else 0
-        normalized_power = calculate_normalized_power(workload_items)
-        peak_wattage = max(item.wattage for item in workload_items)
+        total_wattage_duration = sum(item.wattage * item.duration for item in efforts)
+        weighted_average_watts = total_wattage_duration / total_duration if total_duration != 0 else 0
+        normalized_watts = calculate_normalized_watts(efforts)
+        instantaneous_peak_wattage = max(item.wattage for item in efforts)
 
-        rider_aggregates[rider] = RiderAggregateWorkloadItem(
+        rider_aggregates[rider] = RiderAggregateEffortItem(
             total_duration=total_duration,
             average_speed=average_speed,
             total_distance=total_distance,
             total_kilojoules=total_kilojoules,
-            average_power=average_power,
-            normalized_power= normalized_power,
-            peak_wattage=peak_wattage
+            weighted_average_watts=weighted_average_watts,
+            normalized_watts= normalized_watts,
+            instantaneous_peak_wattage=instantaneous_peak_wattage
         )
 
     return rider_aggregates
@@ -68,6 +68,8 @@ def main() -> None:
     from jgh_serialization import JghSerialization
     from zwiftrider_dto import ZwiftRiderDataTransferObject
     from tabulate import tabulate
+    from jgh_formulae04 import compose_map_of_rider_work_assignments
+    from jgh_formulae05 import populate_map_of_rider_efforts
 
     # Load rider data from JSON
     inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/", "rider_dictionary.json")
@@ -90,30 +92,30 @@ def main() -> None:
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0]
 
-    # Generate the rider-workunit mapping
-    mapping = generate_rider_workunit_mapping(riders, pull_durations)
+    # Compose the rider work_assignments
+    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations)
 
-    # Calculate the rider workloads
+    # Calculate rider efforts
     speed = 40.0  # Example speed
-    workloads = calculate_rider_workload_lineitems(speed, mapping)
+    rider_efforts = populate_map_of_rider_efforts(speed, work_assignments)
 
     # Calculate the aggregate workloads
-    aggregate_workloads = calculate_rider_aggregate_workload(workloads)
+    rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
 
     # Display the outcome using tabulate
     table = []
-    for rider, aggregate in aggregate_workloads.items():
+    for rider, aggregate in rider_aggregate_efforts.items():
         table.append([
             rider.name,
             aggregate.total_duration,
             aggregate.average_speed,
             aggregate.total_distance,
-            aggregate.total_kilojoules,
-            aggregate.peak_wattage
+            round(aggregate.total_kilojoules,1),
+            round(aggregate.instantaneous_peak_wattage)
         ])
 
-    headers = ["Rider", "Total Duration (s)", "Average Speed (km/h)", "Total Distance (km)", "Total Joules (kJ)", "Ratio of Joules to FTP"]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="grid"))
+    headers = ["Rider", "Total Duration (s)", "Average Speed (km/h)", "Total Distance (km)", "Total energy (kJ)", "Peak power (W)"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 if __name__ == "__main__":
     main()

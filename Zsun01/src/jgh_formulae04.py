@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 from zwiftrider_item import ZwiftRiderItem
 
 
-def generate_rider_workunit_mapping(riders: List[ZwiftRiderItem], pull_durations: List[float]) -> Dict[ZwiftRiderItem, List[Tuple[int, float]]]:
+def compose_map_of_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations: List[float]) -> Dict[ZwiftRiderItem, List[Tuple[int, float]]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
     Riders circulate in a cyclical pattern in a pace line, with each rider taking a turn 
@@ -69,7 +69,7 @@ def main() -> None:
     pull_durations = [90.0, 60.0, 30.0]
 
     # Generate the rider-workunit mapping
-    mapping = generate_rider_workunit_mapping(riders, pull_durations)
+    mapping = compose_map_of_rider_work_assignments(riders, pull_durations)
 
     # Display the outcome using tabulate
     table = []
