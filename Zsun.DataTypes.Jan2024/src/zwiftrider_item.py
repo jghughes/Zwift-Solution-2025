@@ -2,7 +2,7 @@ from typing import Dict
 
 from pydantic import BaseModel
 from enum import Enum
-from jgh_formulae import estimate_speed_from_wattage, estimate_wattage_from_speed, estimate_power_factor_in_peloton
+from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from zwiftrider_dto import ZwiftRiderDataTransferObject
 
 class Gender(Enum):
@@ -287,8 +287,8 @@ class ZwiftRiderItem(BaseModel):
         Returns:
         float: The calculated power in watts.
         """
-        # Calculate the power using the estimate_wattage_from_speed function
-        power = estimate_wattage_from_speed(speed, self.weight, self.height)
+        # Calculate the power using the estimate_watts_from_speed function
+        power = estimate_watts_from_speed(speed, self.weight, self.height)
         return power
 
     def calculate_wattage_riding_in_the_peloton(

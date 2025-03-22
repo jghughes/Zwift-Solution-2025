@@ -65,6 +65,6 @@ class Rotation(BaseModel):
         total_time = self.total_time()
         for rider in self.periods[0].riders:
             total_energy_burned = sum(period.total_energy_burned() for period in self.periods if rider in period.riders)
-            max_allowable_energy = estimate_joules_from_wattage_and_time(rider.ftp * energy_intensity, total_time) / 1000
+            max_allowable_energy = estimate_kilojoules_from_wattage_and_time(rider.ftp * energy_intensity, total_time)
             if total_energy_burned > max_allowable_energy:
                 raise ValueError(f"Rider {rider.name} exceeds max allowable energy: {total_energy_burned} kJ > {max_allowable_energy} kJ")

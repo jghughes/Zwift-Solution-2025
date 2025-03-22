@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 from zwiftrider_item import ZwiftRiderItem
-from jgh_formulae import estimate_joules_from_wattage_and_time
+from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 from pydantic import BaseModel
 
 class RiderWorkloadLineItem(BaseModel):
@@ -32,7 +32,7 @@ def calculate_rider_workload_lineitems(speed: float, rider_workunits: Dict[Zwift
         for position, duration in workunits:
             wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position)
             wattage_ftp_ratio: float = wattage / rider.ftp if rider.ftp != 0 else 0
-            joules = estimate_joules_from_wattage_and_time(wattage, duration)
+            joules = estimate_kilojoules_from_wattage_and_time(wattage, duration)
 
             workloads.append(RiderWorkloadLineItem(position=position, speed=speed, duration=duration, wattage=wattage, wattage_ftp_ratio=wattage_ftp_ratio, joules=joules))
         rider_workloads[rider] = workloads

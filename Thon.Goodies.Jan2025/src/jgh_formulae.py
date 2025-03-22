@@ -2,7 +2,6 @@ from functools import lru_cache
 
 
 
-@lru_cache(maxsize=256)
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
     Calculate the missing parameter (speed, time, or distance) given the other two.
@@ -75,8 +74,7 @@ def estimate_power_factor_in_peloton(position: int) -> float:
     else:
         return power_ratios.get(4, default) / denominator
 
-@lru_cache(maxsize=256)
-def estimate_joules_from_wattage_and_time(wattage: float, duration: float) -> float:
+def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
     
@@ -87,10 +85,10 @@ def estimate_joules_from_wattage_and_time(wattage: float, duration: float) -> fl
     Returns:
     float: The energy consumption in joules.
     """
-    return wattage * duration
+    return wattage * duration/1_000
 
 @lru_cache(maxsize=256)
-def estimate_wattage_from_speed(kph: float, weight: float, height: float) -> float:
+def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
 
@@ -163,13 +161,10 @@ def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight:
     float: The energy consumed in kilojoules.
     """
     # Estimate the power in watts
-    power = estimate_wattage_from_speed(kph, weight, height)
+    power = estimate_watts_from_speed(kph, weight, height)
 
-    # Calculate the energy consumed in joules
-    energy_joules = estimate_joules_from_wattage_and_time(power, duration)
-
-    # Convert joules to kilojoules
-    energy_kilojoules = energy_joules / 1000
+    # Calculate the energy consumed in kJ
+    energy_kilojoules = estimate_kilojoules_from_wattage_and_time(power, duration)
 
     return round(energy_kilojoules, 3)
 
@@ -213,7 +208,7 @@ def main():
     height = 180.0
 
     # Calculate the power based on the rider's weight, speed, and height
-    power = estimate_wattage_from_speed(speed, weight, height)
+    power = estimate_watts_from_speed(speed, weight, height)
     logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
     # Estimate the speed based on the rider's weight, power, and height
@@ -224,7 +219,7 @@ def main():
     ZwiftInsiderSpeedMatrix_kph = np.array([39.9, 42.2, 44.4])
 
     # Calculate the power matrix based on the rider's weight, speed, and height
-    power_matrix = np.array([estimate_wattage_from_speed(speed, weight, height) for speed in ZwiftInsiderSpeedMatrix_kph])
+    power_matrix = np.array([estimate_watts_from_speed(speed, weight, height) for speed in ZwiftInsiderSpeedMatrix_kph])
 
     # Log the results
     for speed, power in zip(ZwiftInsiderSpeedMatrix_kph, power_matrix):
@@ -233,8 +228,8 @@ def main():
     # Log cache performance
     logger.info(f"triangulate_speed_time_and_distance cache info: {triangulate_speed_time_and_distance.cache_info()}")
     logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
-    logger.info(f"estimate_joules_from_wattage_and_time cache info: {estimate_joules_from_wattage_and_time.cache_info()}")
-    logger.info(f"estimate_wattage_from_speed cache info: {estimate_wattage_from_speed.cache_info()}")
+    logger.info(f"estimate_kilojoules_from_wattage_and_time cache info: {estimate_kilojoules_from_wattage_and_time.cache_info()}")
+    logger.info(f"estimate_watts_from_speed cache info: {estimate_watts_from_speed.cache_info()}")
     logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
     logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
 

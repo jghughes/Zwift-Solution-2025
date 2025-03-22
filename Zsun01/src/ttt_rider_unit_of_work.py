@@ -65,7 +65,7 @@ class RiderUnitOfWork(BaseModel):
 
 
         wattage = rider.calculate_wattage_riding_in_the_peloton(speed, position_in_peloton)
-        energy = estimate_joules_from_wattage_and_time(wattage, duration)/1000
+        energy = estimate_kilojoules_from_wattage_and_time(wattage, duration)
 
         instance = RiderUnitOfWork(
             rider=rider,
