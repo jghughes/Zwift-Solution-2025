@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 
 from pydantic import BaseModel
 from enum import Enum
@@ -69,9 +69,22 @@ class ZwiftRiderItem(BaseModel):
     zwift_racing_score : int    = 0             # Zwift racing score
     velo_rating        : int    = 0             # Velo rating
 
+
     # need the class to be hashable for a cache or set or as the key in a dictionary
     def __hash__(self):
         return hash((self.zwiftid, self.name, self.weight, self.height, self.gender, self.ftp, self.zwift_racing_score, self.velo_rating))
+
+    def __eq__(self, other: Any):
+        if isinstance(other, ZwiftRiderItem):
+            return (self.zwiftid == other.zwiftid and
+                    self.name == other.name and
+                    self.weight == other.weight and
+                    self.height == other.height and
+                    self.gender == other.gender and
+                    self.ftp == other.ftp and
+                    self.zwift_racing_score == other.zwift_racing_score and
+                    self.velo_rating == other.velo_rating)
+        return False
 
     class Config:
         frozen = True

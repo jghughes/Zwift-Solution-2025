@@ -1,105 +1,112 @@
-from typing import Dict, List
-from zwiftrider_item import ZwiftRiderItem
-from pydantic import BaseModel
+from typing import  List
 from jgh_formulae05 import RiderWorkloadLineItem
 
-class RiderAggregateWorkloadItem(BaseModel):
-    total_duration: float = 0
-    average_speed: float = 0
-    total_distance: float = 0
-    total_joules: float = 0
-    ratio_of_joules_to_ftp: float = 0
-
-def calculate_rider_aggregate_workload(riders: Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]) -> Dict[ZwiftRiderItem, RiderAggregateWorkloadItem]:
+def calculate_rolling_average(values: List[float], window_size: int) -> List[float]:
     """
-    Calculates aggregate workload metrics for each rider.
+    Calculate the rolling average of the given values with the specified window size.
+
+    This function computes the rolling average for a list of values using a 
+    specified window size. The window size determines the number of consecutive 
+    values to include in each average calculation. We assume that the length of 
+    the input list `values` is small, potentially as small as three items. Given 
+    this assumption, the function is implemented in a straightforward manner 
+    without complex optimizations.
 
     Args:
-        riders (Dict[ZwiftRiderItem, List[RiderWorkloadLineItem]]): The dictionary of riders with their aggregate workload line items.
+        values (List[float]): The list of values for which the rolling average 
+        is to be calculated.
+        window_size (int): The size of the rolling window, i.e., the number of 
+        consecutive values to include in each average calculation.
 
     Returns:
-        Dict[ZwiftRiderItem, RiderAggregateWorkloadItem]: A dictionary of riders with their aggregate workload metrics.
+        List[float]: The list of rolling average values. Each value in the 
+        returned list represents the average of a subset of the input values, 
+        with the subset size determined by the window size. The length of the 
+        returned list will be `len(values) - window_size + 1`.
+
+    Example:
+        >>> values = [1, 2, 3, 4, 5]
+        >>> window_size = 3
+        >>> calculate_rolling_average(values, window_size)
+        [2.0, 3.0, 4.0]
+
+    In this example, the rolling average is calculated for a window size of 3. 
+    The first value in the returned list is the average of the first three values 
+    in the input list (1, 2, 3), the second value is the average of the next 
+    three values (2, 3, 4), and so on.
+
+    Handling small input lists:
+    - If the length of `values` is less than the `window_size`, the function will 
+    return an empty list.
+    - The function iterates over the input list and calculates the average for 
+    each window of the specified size.
     """
-    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateWorkloadItem] = {}
+    if not values or window_size <= 0:
+        return []
 
-    for rider, workload_items in riders.items():
-        total_duration = sum(item.duration for item in workload_items) # measured in seconds
-        total_distance = sum(item.speed * item.duration / 3600 for item in workload_items)  # convert to km
-        average_speed = total_distance / (total_duration / 3600) if total_duration != 0 else 0  # convert to km/h
-        total_joules = sum(item.joules for item in workload_items) / 1000  # convert to kJ
+    rolling_averages: List[float] = []
+    for i in range(len(values) - window_size + 1):
+        window = values[i:i + window_size]
+        rolling_averages.append(sum(window) / window_size)
 
-        joules_alone_at_ftp = rider.calculate_wattage_riding_alone(average_speed) * total_duration / 1000  # convert to kJ
-        ratio_of_joules_to_ftp = total_joules / joules_alone_at_ftp if joules_alone_at_ftp != 0 else 0
+    return rolling_averages
 
-        rider_aggregates[rider] = RiderAggregateWorkloadItem(
-            total_duration=total_duration,
-            average_speed=average_speed,
-            total_distance=total_distance,
-            total_joules=total_joules,
-            ratio_of_joules_to_ftp=ratio_of_joules_to_ftp,
-        )
 
-    return rider_aggregates
+def calculate_normalized_power(workload_items: List[RiderWorkloadLineItem]) -> float:
+    """
+    Calculate the normalized power for a list of workload items.
 
-# Example usage in the main function
-def main() -> None:
-    # Configure logging
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
+    Normalized Power (NP) is a metric used to better quantify the physiological 
+    demands of a workout compared to average power. It accounts for the variability 
+    in power output and provides a more accurate representation of the effort 
+    required. The calculation involves several steps:
 
-    from typing import Dict, cast
-    from jgh_read_write import read_text
-    from jgh_serialization import JghSerialization
-    from zwiftrider_dto import ZwiftRiderDataTransferObject
-    from tabulate import tabulate
+    1. Create a list of instantaneous wattages for every second of the durations 
+       of all workload items.
+    2. Calculate the 30-second rolling average power.
+    3. Raise the smoothed power values to the fourth power.
+    4. Calculate the average of these values.
+    5. Take the fourth root of the average.
 
-    # Load rider data from JSON
-    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/", "rider_dictionary.json")
-    dict_of_zwiftrider_dto= JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDataTransferObject])
+    Args:
+        workload_items (List[RiderWorkloadLineItem]): The list of workload items. 
+        Each item contains the wattage and duration for a specific segment of the 
+        workout.
 
-    # for the benfit of type inference: explicitly cast the return value of the serialisation to expected generic Type
-    dict_of_zwiftrider_dto = cast(Dict[str, ZwiftRiderDataTransferObject], dict_of_zwiftrider_dto)
+    Returns:
+        float: The normalized power.
 
-    #transform to ZwiftRiderItem dict
-    dict_of_zwiftrideritem = ZwiftRiderItem.from_dataTransferObject_dict(dict_of_zwiftrider_dto)
+    Example:
+        >>> workload_items = [
+        ...     RiderWorkloadLineItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, joules=12000),
+        ...     RiderWorkloadLineItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, joules=5400)
+        ... ]
+        >>> calculate_normalized_power(workload_items)
+        192.0
 
-    # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
+    In this example, the normalized power is calculated for two workload items. 
+    The first item has a duration of 60 seconds and a wattage of 200, and the 
+    second item has a duration of 30 seconds and a wattage of 180. The function 
+    computes the normalized power based on these values.
+    """
+    if not workload_items:
+        return 0
 
-    # Create a list of the selected riders
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
+    # Create a list of instantaneous wattages for every second of the durations of all workload items
+    instantaneous_wattages: List[float] = []
+    for item in workload_items:
+        instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
-    # Example riders and pull durations
-    pull_durations = [90.0, 60.0, 30.0]
+    # Calculate the 30-second rolling average power
+    rolling_avg_power = calculate_rolling_average(instantaneous_wattages, 30)
 
-    # Generate the rider-workunit mapping
-    mapping = generate_rider_workunit_mapping(riders, pull_durations)
+    # Raise the smoothed power values to the fourth power
+    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
 
-    # Calculate the rider workloads
-    speed = 40.0  # Example speed
-    workloads = calculate_rider_workload_lineitems(speed, mapping)
+    # Calculate the average of these values
+    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
 
-    # Calculate the aggregate workloads
-    aggregate_workloads = calculate_rider_aggregate_workload(workloads)
+    # Take the fourth root of the average
+    normalized_power = mean_power_4 ** 0.25
 
-    # Display the outcome using tabulate
-    table = []
-    for rider, aggregate in aggregate_workloads.items():
-        table.append([
-            rider.name,
-            aggregate.total_duration,
-            aggregate.average_speed,
-            aggregate.total_distance,
-            aggregate.total_joules,
-            aggregate.ratio_of_joules_to_ftp
-        ])
-
-    headers = ["Rider", "Total Duration (s)", "Average Speed (km/h)", "Total Distance (km)", "Total Joules (kJ)", "Ratio of Joules to FTP"]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="grid"))
-
-if __name__ == "__main__":
-    main()
+    return normalized_power
