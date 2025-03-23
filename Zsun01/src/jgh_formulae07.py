@@ -160,28 +160,36 @@ def main() -> None:
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
 
     # Create a list of the selected riders
-    riders : list[ZwiftRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, edh, richardm]
+    # riders : list[ZwiftRiderItem] = [davek]
+    riders : list[ZwiftRiderItem] = [davek,scottm]
+    # riders : list[ZwiftRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, edh, richardm]
 
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0, 30.0, 30.0, 30.0, 15.0, 15.0]
-    pull_speeds = [40.0, 40.0, 40.0, 40.0, 40.0, 40.0,40.0, 40.0, 40.0,40.0, 40.0] # nice test of inconasistent lengths
 
-    # Compose the rider work_assignments
-    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
 
     # Calculate rider efforts at varying speeds
-    speeds = [37.5, 40.0, 42.5, 45.0]
-    for speed in speeds:
-        # Calculate rider efforts
-        rider_efforts = populate_map_of_rider_efforts(work_assignments)
-        # Calculate the aggregate_effort workloads
-        rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
-        # Display the outcome using tabulate
-        log_results_efforts(f"\nSpeed={speed}km/h", rider_aggregate_efforts, logger)
-        #calculate rider performances
-        rider_performances = calculate_rider_performances(rider_aggregate_efforts)
-        # Display the outcome using tabulate
-        log_results_performances(f"\nSpeed={speed}km/h", rider_performances, logger)
+    pull_speeds_for_all_riders_for_all_tests = [
+        [37.5, 30.0, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5],
+        [40.0, 30.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0],
+        [42.5, 30.0, 42.5, 42.5, 42.5, 42.5, 42.5, 42.5, 42.5, 42.5],
+        [45.0, 30.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0]
+    ]
+
+    for rider_pull_speeds in pull_speeds_for_all_riders_for_all_tests:
+        # Compose the rider work_assignments
+        work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, rider_pull_speeds)
+        for speed in rider_pull_speeds:
+           # Calculate rider efforts
+            rider_efforts = populate_map_of_rider_efforts(work_assignments)
+            # Calculate the aggregate_effort workloads
+            rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
+            # Display the outcome using tabulate
+            log_results_efforts(f"\nSpeed={speed}km/h", rider_aggregate_efforts, logger)
+            #calculate rider performances
+            rider_performances = calculate_rider_performances(rider_aggregate_efforts)
+            # Display the outcome using tabulate
+            log_results_performances(f"\nSpeed={speed}km/h", rider_performances, logger)
 
 if __name__ == "__main__":
     main()
