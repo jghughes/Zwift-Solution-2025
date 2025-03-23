@@ -3,6 +3,7 @@ from zwiftrider_item import ZwiftRiderItem
 from pydantic import BaseModel
 from jgh_formulae05 import RiderEffortItem
 from jgh_formulae06 import calculate_normalized_watts
+import logging
 
 class RiderAggregateEffortItem(BaseModel):
     total_duration: float = 0
@@ -61,8 +62,9 @@ def calculate_rider_aggregate_efforts(riders: Dict[ZwiftRiderItem, List[RiderEff
 
 
 class RiderPerformanceItem(BaseModel):
-    peak_wattage_over_ftp: float = 0
-    total_normalized_kilojoules_over_ftp_kilojoules: float = 0
+    peak_watts_divided_by_ftp_watts: float = 0
+    total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
+
 
 def calculate_rider_performances(riders: Dict[ZwiftRiderItem, RiderAggregateEffortItem]) -> Dict[ZwiftRiderItem, RiderPerformanceItem]:
     """
@@ -84,10 +86,43 @@ def calculate_rider_performances(riders: Dict[ZwiftRiderItem, RiderAggregateEffo
         energy_intensity = aggregate_effort.total_kilojoules_at_normalized_watts / (rider.ftp * aggregate_effort.total_duration/1_000 )
 
         rider_performance[rider] = RiderPerformanceItem(
-            peak_wattage_over_ftp = power_factor,
-            total_normalized_kilojoules_over_ftp_kilojoules= energy_intensity
+            peak_watts_divided_by_ftp_watts = power_factor,
+            total_normalized_kilojoules_divided_by_ftp_kilojoules= energy_intensity
         )
     return rider_performance
+
+
+def log_results_efforts(test_description: str, result: Dict[ZwiftRiderItem, RiderAggregateEffortItem], logger: logging.Logger) -> None:
+    from tabulate import tabulate
+    table = []
+    for rider, aggregate_effort in result.items():
+        table.append([
+            rider.name,
+            aggregate_effort.total_duration,
+            aggregate_effort.average_speed,
+            round(aggregate_effort.total_distance,3),
+            round(aggregate_effort.weighted_average_watts),
+            round(aggregate_effort.normalized_average_watts),
+            round(aggregate_effort.instantaneous_peak_wattage),
+            round(aggregate_effort.total_kilojoules_at_normalized_watts)
+        ])
+    logger.info(test_description)
+    headers = ["Rider", "Duration (s)", "Av Speed (km/h)", "Dist(km)", "Av power (W)", "NPower (W)", "Peak power (W)", "Energy (kJ)"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+
+
+def log_results_performances(test_description: str, result: Dict[ZwiftRiderItem, RiderPerformanceItem], logger: logging.Logger) -> None:
+    from tabulate import tabulate
+    table = []
+    for rider, performance in result.items():
+        table.append([
+            rider.name,
+            round(performance.peak_watts_divided_by_ftp_watts, 1),
+            round(performance.total_normalized_kilojoules_divided_by_ftp_kilojoules, 1)
+        ])
+    logger.info(test_description)
+    headers = ["Rider", "Peak W/FTP", "Energy Intensity"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 # Example usage in the main function
 def main() -> None:
@@ -101,7 +136,6 @@ def main() -> None:
     from jgh_read_write import read_text
     from jgh_serialization import JghSerialization
     from zwiftrider_dto import ZwiftRiderDataTransferObject
-    from tabulate import tabulate
     from jgh_formulae04 import compose_map_of_rider_work_assignments
     from jgh_formulae05 import populate_map_of_rider_efforts
 
@@ -130,62 +164,25 @@ def main() -> None:
 
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0, 30.0, 30.0, 30.0, 15.0, 15.0]
+    pull_speeds = [40.0, 40.0, 40.0, 40.0, 40.0, 40.0,40.0, 40.0, 40.0,40.0, 40.0] # nice test of inconasistent lengths
 
     # Compose the rider work_assignments
-    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations)
+    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
 
+    # Calculate rider efforts at varying speeds
     speeds = [37.5, 40.0, 42.5, 45.0]
     for speed in speeds:
         # Calculate rider efforts
-        rider_efforts = populate_map_of_rider_efforts(speed, work_assignments)
-
+        rider_efforts = populate_map_of_rider_efforts(work_assignments)
         # Calculate the aggregate_effort workloads
         rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
-
-
         # Display the outcome using tabulate
-        table = []
-        for rider, aggregate_effort in rider_aggregate_efforts.items():
-            table.append([
-                rider.name,
-                aggregate_effort.total_duration,
-                aggregate_effort.average_speed,
-                aggregate_effort.total_distance,
-                round(aggregate_effort.weighted_average_watts),
-                round(aggregate_effort.normalized_average_watts),
-                round(aggregate_effort.instantaneous_peak_wattage),
-                round(aggregate_effort.total_kilojoules_at_normalized_watts)
-            ])
-        logger.info(f"\nSpeed={speed}km/h")
-        headers = ["Rider", "Duration (s)", "Av Speed (km/h)", "Dist(km)", "Av power (W)", "NPower (W)", "Peak power (W)", "Energy (kJ)"]
-        logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
+        log_results_efforts(f"\nSpeed={speed}km/h", rider_aggregate_efforts, logger)
         #calculate rider performances
         rider_performances = calculate_rider_performances(rider_aggregate_efforts)
-
         # Display the outcome using tabulate
-        table = []
-        for rider, performance in rider_performances.items():
-            table.append([
-                rider.name,
-                round(performance.peak_wattage_over_ftp, 1),
-                round(performance.total_normalized_kilojoules_over_ftp_kilojoules, 1)
-            ])
-        logger.info(f"\nSpeed={speed}km/h")
-        headers = ["Rider", "Peak W/FTP", "Energy Intensity"]
-        logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
-
+        log_results_performances(f"\nSpeed={speed}km/h", rider_performances, logger)
 
 if __name__ == "__main__":
     main()
-
-            # total_duration=total_duration,
-            # average_speed=average_speed,
-            # total_distance=total_distance,
-            # weighted_average_watts=weighted_average_watts,
-            # normalized_average_watts= normalized_average_watts,
-            # instantaneous_peak_wattage=instantaneous_peak_wattage,
-            # total_kilojoules_at_weighted_watts=total_kilojoules_at_weighted_watts,
-            # total_kilojoules_at_normalized_watts = total_kilojoules_at_normalized_watts
 

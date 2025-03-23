@@ -169,13 +169,12 @@ def main() -> None:
 
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0]
-
+    pull_speeds = [40.0, 40.0, 40.0]
     # Compose the rider work_assignments
-    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations)
+    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
 
     # Calculate rider efforts
-    speed = 40.0  # Example speed
-    rider_efforts = populate_map_of_rider_efforts(speed, work_assignments)
+    rider_efforts = populate_map_of_rider_efforts(work_assignments)
 
     # Calculate and compare weighted average power and normalized power for each rider
     table = []
