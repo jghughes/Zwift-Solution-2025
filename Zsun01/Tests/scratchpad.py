@@ -1,77 +1,56 @@
-import logging
-from jgh_logging import jgh_configure_logging
-import numpy as np
-from models import * 
+from zwiftrider_item import ZwiftRiderItem
+from jgh_formulae07 import calculate_rider_aggregate_efforts, calculate_rider_stress_metrics, log_rider_aggregate_efforts, log_rider_stress_metrics
 
-# Configure logging
-jgh_configure_logging("appsettings.json")
-logger= logging.getLogger(__name__)
+# Example usage in the main function
+def main() -> None:
 
-# units of power (w) = watts
-# units of velocity (v) = m/s
-# coefficient of drag of cyclist (c) = 0.5
-# frontal area of cyclist (a) = 0.5 m^2
+    # Configure logging
 
-# w = c * a * (v^3)
-# height of cyclist (cm) = 183
-# weight of cyclist (kg) = 75
-# gender of cyclist (enum) m
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
 
+    from jgh_formulae04 import compose_map_of_rider_work_assignments
+    from jgh_formulae05 import populate_map_of_rider_efforts
+    from handy_utilities import get_all_zwiftriders
 
+    # Define constituents of one or more scenarios (4 pull speed scenarios in this case))
 
-# Define the ZwiftInsiderWattageMatrix
-ZwiftInsiderWattageMatrix = np.array([
-    [300, 350, 400],
-    [212, 252, 290],
-    [196, 236, 261],
-    [191, 217, 255]
-])
+    dict_of_zwiftrideritem = get_all_zwiftriders()
 
-# Define the ZwiftInsiderVelocityMatrix_kph (km/h)
-ZwiftInsiderVelocityMatrix_kph = np.array([39.9, 42.2, 44.4])
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
+    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
+    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
+    
+    rider_scenario : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
+    pull_duration_scenario = [30.0, 15.0, 10.0, 10.0]
+    pull_speed_scenarios = [
+        # [37.5, 37.5, 37.5, 37.5],
+        # [40.0, 40.0, 40.0, 40.0],
+        # [42.5, 42.5, 42.5, 42.5],
+        [45.0, 44.0, 42.0, 37.0]
+    ]
 
-# Convert the velocity matrix to m/s
-ZwiftInsiderVelocityMatrix_ms = ZwiftInsiderVelocityMatrix_kph * 1000 / 3600
+    # Compose the rider work_assignments, then work_efforts, then aggregate_efforts, and then stress_metrics for each scenario
 
-# Define the ZwiftInsiderDraftPowerMatrix
-ZwiftInsiderDraftPowerMatrix = ZwiftInsiderWattageMatrix / ZwiftInsiderWattageMatrix[0, :]
+    for i, scenario in enumerate(pull_speed_scenarios):
 
+        work_assignments = compose_map_of_rider_work_assignments(rider_scenario, pull_duration_scenario, scenario)
+        rider_efforts = populate_map_of_rider_efforts(work_assignments)
+        rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
+        rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
 
-# Example usage
-
-def main():
-    logger.info("ZwiftInsiderWattageMatrix:")
-    logger.info(ZwiftInsiderWattageMatrix)
-    logger.info("ZwiftInsiderVelocityMatrix_kph:")
-    logger.info(ZwiftInsiderVelocityMatrix_kph)
-
-    # # Create the velocity matrix with the same shape as ZwiftInsiderWattageMatrix
-    velocity_matrix = np.tile(ZwiftInsiderVelocityMatrix_kph, (ZwiftInsiderWattageMatrix.shape[0], 1))
-    logger.info("Velocity Matrix (km/h):")
-    logger.info(velocity_matrix)
-
-    logger.info("ZwiftInsiderDraftPowerMatrix:")
-    logger.info(ZwiftInsiderDraftPowerMatrix)
-
-    # Instantiate the default ZwiftRider named ericschlange
-    ericschlange = ZwiftRider(
-        zwiftid=12345,
-        name="Eric Schlange",
-        weight=84.3,
-        height=180,
-        gender=Gender.MALE,
-        ftp=272,
-        zwift_racing_score=549,
-        velo_rating=1513
-    )
-
-    # Create a 1xn matrix for power values ranging from 300 to 500 watts in 50-watt increments
-    power_values = np.arange(300, 501, 50)
-    velocity_matrix_kph = np.array([ericschlange.calculate_kph_riding_alone(power) for power in power_values])
-    logger.info("Velocity Matrix (km/h):")
-    logger.info(velocity_matrix_kph)
-
-
+        # display the results
+        total_duration = next(iter(rider_aggregate_efforts.values())).total_duration
+        average_speed = next(iter(rider_aggregate_efforts.values())).average_speed
+        total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
+        table_heading= f"\nPull durations={pull_duration_scenario}sec\nPull speeds={pull_speed_scenarios[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
+        
+        log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
+        log_rider_stress_metrics(f"", rider_stress_metrics, logger)
+        
 if __name__ == "__main__":
     main()
 
