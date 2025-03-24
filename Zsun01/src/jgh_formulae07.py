@@ -132,22 +132,11 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from typing import Dict, cast
-    from jgh_read_write import read_text
-    from jgh_serialization import JghSerialization
-    from zwiftrider_dto import ZwiftRiderDataTransferObject
     from jgh_formulae04 import compose_map_of_rider_work_assignments
     from jgh_formulae05 import populate_map_of_rider_efforts
+    from handy_utilities import get_all_zwiftriders
 
-    # Load rider data from JSON
-    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/", "rider_dictionary.json")
-    dict_of_zwiftrider_dto= JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDataTransferObject])
-
-    # for the benfit of type inference: explicitly cast the return value of the serialisation to expected generic Type
-    dict_of_zwiftrider_dto = cast(Dict[str, ZwiftRiderDataTransferObject], dict_of_zwiftrider_dto)
-
-    #transform to ZwiftRiderItem dict
-    dict_of_zwiftrideritem = ZwiftRiderItem.from_dataTransferObject_dict(dict_of_zwiftrider_dto)
+    dict_of_zwiftrideritem = get_all_zwiftriders()
 
     # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
     davek : ZwiftRiderItem = dict_of_zwiftrideritem['davek']

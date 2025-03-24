@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\logger.log" />
-    <Content Include="data\rider_dictionary.json" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />

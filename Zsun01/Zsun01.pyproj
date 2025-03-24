@@ -31,23 +31,25 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
+    <Folder Include="rider_data\" />
     <Folder Include="src\" />
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\appsettings.json" />
     <Content Include="data\logger.log" />
-    <Content Include="data\rider_dictionary.json" />
     <Content Include="docs\information.txt">
       <SubType>Code</SubType>
     </Content>
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
+    <Content Include="rider_data\rider_dictionary.json" />
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="data\empirical_data.py" />
+    <Compile Include="data\zwiftinsider_stuff.py" />
     <Compile Include="setup.py" />
+    <Compile Include="src\handy_utilities.py" />
     <Compile Include="src\jgh_formulae02.py" />
     <Compile Include="src\jgh_formulae03.py" />
     <Compile Include="src\jgh_formulae04.py" />
