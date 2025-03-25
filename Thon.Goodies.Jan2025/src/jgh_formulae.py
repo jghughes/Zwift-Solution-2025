@@ -1,7 +1,5 @@
 from functools import lru_cache
 
-
-
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
     Calculate the missing parameter (speed, time, or distance) given the other two.
@@ -226,9 +224,7 @@ def main():
         logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
     # Log cache performance
-    logger.info(f"triangulate_speed_time_and_distance cache info: {triangulate_speed_time_and_distance.cache_info()}")
     logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
-    logger.info(f"estimate_kilojoules_from_wattage_and_time cache info: {estimate_kilojoules_from_wattage_and_time.cache_info()}")
     logger.info(f"estimate_watts_from_speed cache info: {estimate_watts_from_speed.cache_info()}")
     logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
     logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
