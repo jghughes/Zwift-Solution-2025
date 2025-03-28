@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>src\jgh_formulae08.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -66,9 +65,6 @@
     <Compile Include="src\ttt_solution.py" />
     <Compile Include="src\zwiftrider_item.py" />
     <Compile Include="tests\scratchpad.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tests\scratchpad03.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

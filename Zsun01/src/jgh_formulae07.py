@@ -17,9 +17,6 @@ class RiderAggregateEffortItem():
     total_kilojoules_at_weighted_watts: float = 0
     total_kilojoules_at_normalized_watts: float = 0
 
-
-
-
 def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[RiderEffortItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
     """
     Calculates aggregate_effort metrics for each rider across all his positions in a complete orbit of a paceline.
@@ -134,7 +131,7 @@ def log_rider_stress_metrics(test_description: str, result: Dict[ZwiftRiderItem,
         ])
     if test_description:
             logger.info(test_description)    
-    headers = ["Rider", "Peak W/FTP", "Peak W position "Energy Intensity"]
+    headers = ["Rider", "Peak W/FTP", "Position when Peak W ", "Energy Intensity"]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 # Example usage in the main function
