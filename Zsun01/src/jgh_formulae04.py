@@ -1,34 +1,34 @@
 from typing import Dict, List
+from dataclasses import dataclass
 from zwiftrider_item import ZwiftRiderItem
-from pydantic import BaseModel
 import logging
 
-
-class RiderWorkAssignmentItem(BaseModel):
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderWorkAssignmentItem():
     position: int = 1
     duration: float = 0
     speed: float = 0
 
-def compose_map_of_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations: List[float], pull_speeds: List[float]) -> Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations: List[float], pull_speeds: List[float]) -> Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
-    Riders circulate in a cyclical pattern in a pace line, with each rider taking a turn 
-    at the front (a pull) and then rotating to the back sequentially. The sequence
+    Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
+    at the head (a pull) and then rotating to the tail sequentially. The sequence
     of pulls is according to pull_durations and pull_speeds lists. Each rider has as many 
-    workunits as there are position/riders in the circulating pace line. Each workunit 
-    is an instance of RiderWorkAssignmentItem with the prevailing position of the rider 
-    in the pace line, with the duration and speed being that of the prevailing leader at 
-    the front of the pace line.
+    workunits as there are positions/riders in the circulating paceline. Each workunit 
+    is an instance of RiderWorkAssignmentItem according to position of the rider 
+    in the paceline, and his duration and speed in that position as dictated 
+    by the duarion and speed of the prevailing leader at that point in time.
 
     Args:
-        riders (List[ZwiftRiderItem]): The list of Zwift riders.
-        pull_durations (List[float]): The list of pull durations.
-        pull_speeds (List[float]): The list of pull speeds.
+        riders (List[ZwiftRiderItem]): The list of Zwift riders from head to tail.
+        pull_durations (List[float]): The list of pull durations from head to tail.
+        pull_speeds (List[float]): The list of pull speeds from head to tail.
 
     Returns:
-        Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]: A dictionary of Zwift riders with
-            their list of respective workunit parameters. Each workunit is an instance of 
-            RiderWorkAssignmentItem.
+        Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
+            with their list of respective assignments, being how fast they must go for 
+            how long in which position. 
     """
     n = len(riders)
     if n == 0:
@@ -94,7 +94,7 @@ def main() -> None:
     pull_speeds = [40.0, 38.0, 36.0]
 
     # Generate the rider-workunit mapping
-    assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+    assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 
     log_results("Example riders",assignments, logger)
 
@@ -120,43 +120,43 @@ def main() -> None:
 #    # Test case 1: All lists have the same length
 #     pull_durations = [90.0, 60.0, 30.0]
 #     pull_speeds = [40.0, 38.0, 36.0]
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 #     log_results("Test case 1: All lists have the same length", assignments, logger)
 
 #     # Test case 2: Empty riders list
-#     assignments = compose_map_of_rider_work_assignments([], pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments([], pull_durations, pull_speeds)
 #     log_results("Test case 2: Empty riders list", assignments, logger)
 
 #     # Test case 3: Empty pull_durations list
-#     assignments = compose_map_of_rider_work_assignments(riders, [], pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, [], pull_speeds)
 #     log_results("Test case 3: Empty pull_durations list", assignments, logger)
 
 #     # Test case 4: Empty pull_speeds list
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, [])
+#     assignments = populate_rider_work_assignments(riders, pull_durations, [])
 #     log_results("Test case 4: Empty pull_speeds list", assignments, logger)
 
 #     # Test case 5: pull_durations shorter than riders
 #     pull_durations = [90.0]
 #     pull_speeds = [40.0, 38.0, 36.0]
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 #     log_results("Test case 5: pull_durations shorter than riders", assignments, logger)
 
 #     # Test case 6: pull_speeds shorter than riders
 #     pull_durations = [90.0, 60.0, 30.0]
 #     pull_speeds = [40.0]
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 #     log_results("Test case 6: pull_speeds shorter than riders", assignments, logger)
 
 #     # Test case 7: pull_durations and pull_speeds shorter than riders
 #     pull_durations = [90.0]
 #     pull_speeds = [40.0]
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 #     log_results("Test case 7: pull_durations and pull_speeds shorter than riders", assignments, logger)
 
 #     # Test case 8: pull_durations and pull_speeds longer than riders
 #     pull_durations = [90.0, 60.0, 30.0, 20.0]
 #     pull_speeds = [40.0, 38.0, 36.0, 34.0]
-#     assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+#     assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 #     log_results("Test case 8: pull_durations and pull_speeds longer than riders", assignments, logger)
 
 

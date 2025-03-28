@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>77128b3c-3239-45d1-af61-4717332efd26</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\zwiftrider_item.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -34,7 +35,6 @@
     <Compile Include="src\participant_item.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\zwiftrider_item.py" />
     <Compile Include="tests\test_participant_item.py" />
   </ItemGroup>
   <ItemGroup>

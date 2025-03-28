@@ -1,7 +1,6 @@
-from typing import Dict, Any
-from dataclasses import dataclass
+from typing import Dict
+from dataclasses import dataclass, asdict
 
-from pydantic import BaseModel
 from enum import Enum
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from zwiftrider_dto import ZwiftRiderDataTransferObject
@@ -71,25 +70,8 @@ class ZwiftRiderItem():
     zwift_racing_score : int    = 0             # Zwift racing score
     velo_rating        : int    = 0             # Velo rating
 
-
-    # # need the class to be hashable for a cache or set or as the key in a dictionary
-    # def __hash__(self):
-    #     return hash((self.zwiftid, self.name, self.weight, self.height, self.gender, self.ftp, self.zwift_racing_score, self.velo_rating))
-
-    # def __eq__(self, other: Any):
-    #     if isinstance(other, ZwiftRiderItem):
-    #         return (self.zwiftid == other.zwiftid and
-    #                 self.name == other.name and
-    #                 self.weight == other.weight and
-    #                 self.height == other.height and
-    #                 self.gender == other.gender and
-    #                 self.ftp == other.ftp and
-    #                 self.zwift_racing_score == other.zwift_racing_score and
-    #                 self.velo_rating == other.velo_rating)
-    #     return False
-
     class Config:
-        frozen = True
+        # Define the extra JSON schema for the class in the form of a dictionary of riders
         json_schema_extra = {
             "davek": {
                 "zwiftid": 3147366,
@@ -257,22 +239,6 @@ class ZwiftRiderItem():
 
         return instance
 
-    # @staticmethod
-    # def make_identifier(
-    #     zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
-    #     ftp: float, zwift_racing_score: int, velo_rating: int
-    # ) -> str:
-    #     return ";".join([
-    #         str(zwiftid), name, str(weight), str(height), gender.value, 
-    #         str(ftp), str(zwift_racing_score), str(velo_rating)
-    #     ])
-
-    # def get_identifier(self) -> str:
-    #     return self.make_identifier(
-    #         self.zwiftid, self.name, self.weight, self.height, self.gender, 
-    #         self.ftp, self.zwift_racing_score, self.velo_rating
-    #     )
-
     def calculate_strength(self) -> float:
         return self.zwift_racing_score
 
@@ -402,7 +368,7 @@ class ZwiftRiderItem():
         )
 
     @staticmethod
-    def from_dataTransferObject_dict(dict_of_zwiftrider_dto: Dict[str, ZwiftRiderDataTransferObject]) -> Dict[str, 'ZwiftRiderItem']:
+    def from_dict_of_dataTransferObjects(dict_of_zwiftrider_dto: Dict[str, ZwiftRiderDataTransferObject]) -> Dict[str, 'ZwiftRiderItem']:
         """
         Transform a dictionary of ZwiftRiderDataTransferObject to a dictionary of ZwiftRiderItem.
 
@@ -418,85 +384,86 @@ class ZwiftRiderItem():
         }
         return dict_of_zwiftrideritem# Example usage
 
-# def main():
-#     # Configure logging
-#     import logging
-#     from jgh_logging import jgh_configure_logging
-#     jgh_configure_logging("appsettings.json")
-#     logger = logging.getLogger(__name__)
+def main():
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
 
-#     from tabulate import tabulate
-#     from typing import List, Union
+    from tabulate import tabulate
+    from typing import List, Union
 
-#     # # example: Instantiate ZwiftRiderItem using the example from Config 
-#     # # i.e.how we could do it from a JSON file
-#     example_data = ZwiftRiderItem.Config.json_schema_extra["johnh"]
-#     rider1 = ZwiftRiderItem.model_validate(example_data)
+    # # example: Instantiate ZwiftRiderItem using the example from Config 
+    # # i.e.how we could do it from a JSON file
+    example_data = ZwiftRiderItem.Config.json_schema_extra["johnh"]
+    example_rider = ZwiftRiderDataTransferObject.model_validate(example_data)
+    rider1 = ZwiftRiderItem.from_dataTransferObject(example_rider)
 
-#     # Log the instantiated object using a table
-#     rider_attrs = [[attr, getattr(rider1, attr)] for attr in rider1.model_fields.keys()]
-#     logger.info("\nZwiftRider instantiated (ctor) from JSON config is:")
-#     logger.info("\n" + tabulate(rider_attrs, tablefmt="plain"))
+    # Log the instantiated object using a table
+    rider_attrs = asdict(rider1)    
+    logger.info("\nZwiftRider instantiated (ctor) from JSON config is:")
+    logger.info("\n" + tabulate(rider_attrs.items(), tablefmt="plain"))
 
-#     # example : instantiate examples of two riders of differing ability. for each of them 
-#     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
-#     # position 1 and position 5. tabulate the results in a table and log it.
-#     example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
-#     rider2 = ZwiftRiderItem.model_validate(example_data)
+    # example : instantiate examples of two riders of differing ability. for each of them 
+    # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
+    # position 1 and position 5. tabulate the results in a table and log it.
+    example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
+    example_rider = ZwiftRiderDataTransferObject.model_validate(example_data)
+    rider2 = ZwiftRiderItem.from_dataTransferObject(example_rider)
 
-#     riders = [rider1, rider2]
-#     table: List[List[Union[str, float]]] = []
-#     headers = [
-#         "Rider", "Wattage (P 1, 40 km/h)", 
-#         "Wattage (P 5, 40 km/h)"
-#     ]
-#     for rider in riders:
-#         row : List[Union[str, float]] = [rider.name]
-#         for position in [1, 5]:
-#             wattage = rider.calculate_wattage_riding_in_the_peloton(40, position)
-#             row.append(str(wattage))  # Convert wattage to string
-#         table.append(row)
+    riders = [rider1, rider2]
+    table: List[List[Union[str, float]]] = []
+    headers = [
+        "Rider", "Wattage (P 1, 40 km/h)", 
+        "Wattage (P 5, 40 km/h)"
+    ]
+    for rider in riders:
+        row : List[Union[str, float]] = [rider.name]
+        for position in [1, 5]:
+            wattage = rider.calculate_wattage_riding_in_the_peloton(40, position)
+            row.append(str(wattage))  # Convert wattage to string
+        table.append(row)
     
-#     # Log the table
-#     logger.info("\nRider wattage in positions 1 and 5 for 40 km/h")
-#     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
+    # Log the table
+    logger.info("\nRider wattage in positions 1 and 5 for 40 km/h")
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
-#     # example : using rider "John H" instantiated using ctor
-#     # calculate wattage for each position in the peloton from 1 to 5
-#     # at a given speed (40kph) and tabulate neatly and log it.
-#     rider_john = rider1
+    # example : using rider "John H" instantiated using ctor
+    # calculate wattage for each position in the peloton from 1 to 5
+    # at a given speed (40kph) and tabulate neatly and log it.
+    rider_john = rider1
 
-#     positions = range(1, 6)
-#     table: List[List[Union[str, float]]] = []
-#     headers = ["Position", "Wattage (40 km/h)"]
+    positions = range(1, 6)
+    table: List[List[Union[str, float]]] = []
+    headers = ["Position", "Wattage (40 km/h)"]
 
-#     for position in positions:
-#         wattage = rider_john.calculate_wattage_riding_in_the_peloton(40, position)
-#         table.append([position, wattage])
+    for position in positions:
+        wattage = rider_john.calculate_wattage_riding_in_the_peloton(40, position)
+        table.append([position, wattage])
 
-#     # Log the table
-#     logger.info("\nWattage for John H in positions 1 to 5 at 40 km/h")
-#     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
+    # Log the table
+    logger.info("\nWattage for John H in positions 1 to 5 at 40 km/h")
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
-#     # example : using rider "John H" instantiated using ctor (no cache)
-#     # calculate speed for each position in the peloton from 1 to 5
-#     # at a given wattage (ftp=233) and tabulate neatly and log it.
-#     rider_john = ZwiftRiderItem(
-#         name=rider1.name, weight=rider1.weight, height=rider1.height, ftp=rider1.ftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
+    # example : using rider "John H" instantiated using ctor (no cache)
+    # calculate speed for each position in the peloton from 1 to 5
+    # at a given wattage (ftp=233) and tabulate neatly and log it.
+    rider_john = ZwiftRiderItem(
+        name=rider1.name, weight=rider1.weight, height=rider1.height, ftp=rider1.ftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
 
-#     positions = range(1, 6)
-#     table: List[List[Union[str, float]]] = []
-#     headers = ["Position", f"Speed (km/h) at FTP {rider_john.ftp}"]
+    positions = range(1, 6)
+    table: List[List[Union[str, float]]] = []
+    headers = ["Position", f"Speed (km/h) at FTP {rider_john.ftp}"]
 
-#     for position in positions:
-#         # Calculate the speed for the given position and FTP
-#         speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.ftp, position)
-#         table.append([position, speed])
+    for position in positions:
+        # Calculate the speed for the given position and FTP
+        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.ftp, position)
+        table.append([position, speed])
 
-#     # Log the table
-#     logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.ftp}")
-#     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
+    # Log the table
+    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.ftp}")
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

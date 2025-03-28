@@ -117,8 +117,8 @@ def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
         instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
     # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
-    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 10-second rolling average
-    rolling_avg_power = calculate_smoothed_numbers(instantaneous_wattages, 10)
+    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 5-second rolling average
+    rolling_avg_power = calculate_smoothed_numbers(instantaneous_wattages, 5)
 
     # Raise the smoothed power values to the fourth power
     rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
@@ -134,7 +134,6 @@ def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
 
 # Example usage 
 def main() -> None:
-    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
@@ -142,8 +141,8 @@ def main() -> None:
 
     from zwiftrider_item import ZwiftRiderItem
     from tabulate import tabulate
-    from jgh_formulae04 import compose_map_of_rider_work_assignments
-    from jgh_formulae05 import populate_map_of_rider_efforts
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_efforts
     from handy_utilities import get_all_zwiftriders
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
@@ -160,10 +159,10 @@ def main() -> None:
     pull_durations = [90.0, 60.0, 30.0]
     pull_speeds = [40.0, 40.0, 40.0]
     # Compose the rider work_assignments
-    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 
     # Calculate rider efforts
-    rider_efforts = populate_map_of_rider_efforts(work_assignments)
+    rider_efforts = populate_rider_efforts(work_assignments)
 
     # Calculate and compare weighted average power and normalized power for each rider
     table = []

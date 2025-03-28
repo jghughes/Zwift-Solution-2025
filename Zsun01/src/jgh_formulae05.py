@@ -1,12 +1,12 @@
 from typing import Dict, List
+from dataclasses import dataclass
 from jgh_formulae04 import RiderWorkAssignmentItem
 from zwiftrider_item import ZwiftRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
-from pydantic import BaseModel
 import logging
 
-
-class RiderEffortItem(BaseModel):
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderEffortItem():
     position: int = 0
     speed: float = 0
     duration: float = 0
@@ -14,17 +14,17 @@ class RiderEffortItem(BaseModel):
     kilojoules: float = 0
 
 
-def populate_map_of_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderEffortItem]]:
+def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderEffortItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
     Args:
-        speed (float): The speed of the peloton.
-        rider_work_assignments (Dict[ZwiftRiderItem, List[Tuple[int, float]]]): The dictionary of rider workunits.
+        speed (float): The speed of the paceline.
+        rider_work_assignments (Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
 
     Returns:
         Dict[ZwiftRiderItem, List[RiderEffortItem]]: A dictionary of Zwift riders with
-            their list of respective workload parameters including wattage. The Tuple representing 
+            their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of rider_efforts
     """
     rider_workloads: Dict[ZwiftRiderItem, List[RiderEffortItem]] = {}
@@ -52,6 +52,7 @@ def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderEf
     headers = ["Rider", "Position", "Speed", "Duration of effort", "Wattage", "kJ expended"]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
+
 # Example usage in the main function
 def main() -> None:
     # Configure logging
@@ -60,7 +61,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from jgh_formulae04 import compose_map_of_rider_work_assignments
+    from jgh_formulae04 import populate_rider_work_assignments
     from handy_utilities import get_all_zwiftriders
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
@@ -75,12 +76,12 @@ def main() -> None:
 
     # Example riders and pull durations
     pull_durations = [90.0, 60.0, 30.0]
-    pull_speeds = [40.0, 40.0, 40.0]
+    pull_speeds = [42.0, 38.0, 36.0]
     # Compose the rider work_assignments
-    work_assignments = compose_map_of_rider_work_assignments(riders, pull_durations, pull_speeds)
+    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
 
     # Calculate rider efforts
-    rider_efforts = populate_map_of_rider_efforts(work_assignments)
+    rider_efforts = populate_rider_efforts(work_assignments)
 
     # Display the outcome using tabulate
     log_results("Calculated rider efforts:", rider_efforts, logger)

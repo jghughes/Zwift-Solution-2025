@@ -1,13 +1,12 @@
 from typing import Dict, List
-
-from regex import P
+from dataclasses import dataclass
 from zwiftrider_item import ZwiftRiderItem
-from pydantic import BaseModel
 from jgh_formulae05 import RiderEffortItem
 from jgh_formulae06 import calculate_normalized_watts
 import logging
 
-class RiderAggregateEffortItem(BaseModel):
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderAggregateEffortItem():
     total_duration: float = 0
     average_speed: float = 0
     total_distance: float = 0
@@ -19,9 +18,11 @@ class RiderAggregateEffortItem(BaseModel):
     total_kilojoules_at_normalized_watts: float = 0
 
 
+
+
 def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[RiderEffortItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
     """
-    Calculates aggregate_effort workload metrics for each rider.
+    Calculates aggregate_effort metrics for each rider across all his positions in a complete orbit of a paceline.
 
     Args:
         rider_scenario (Dict[ZwiftRiderItem, List[RiderEffortItem]]): The dictionary of rider_scenario with their aggregate_effort workload line items.
@@ -65,15 +66,17 @@ def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[
 
     return rider_aggregates
 
-
-class RiderStressItem(BaseModel):
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderStressItem():
     peak_watts_divided_by_ftp_watts: float = 0
+    position_at_peak_wattage : int = 0
     total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
 
 
 def calculate_rider_stress_metrics(rider_scenario: Dict[ZwiftRiderItem, RiderAggregateEffortItem]) -> Dict[ZwiftRiderItem, RiderStressItem]:
     """
-    Calculates stress metrics for each rider.
+    Calculates stress metrics for each rider across all his positions in a complete orbit of a paceline.
+
     Args:
         rider_scenario (Dict[ZwiftRiderItem, RiderAggregateEffortItem]): The dictionary of rider_scenario with their aggregate_effort workload metrics.
     Returns:
@@ -92,6 +95,7 @@ def calculate_rider_stress_metrics(rider_scenario: Dict[ZwiftRiderItem, RiderAgg
 
         rider_performance[rider] = RiderStressItem(
             peak_watts_divided_by_ftp_watts = power_factor,
+            position_at_peak_wattage= aggregate_effort.position_at_peak_wattage,
             total_normalized_kilojoules_divided_by_ftp_kilojoules= energy_intensity
         )
     return rider_performance
@@ -125,11 +129,12 @@ def log_rider_stress_metrics(test_description: str, result: Dict[ZwiftRiderItem,
         table.append([
             rider.name,
             round(performance.peak_watts_divided_by_ftp_watts, 1),
+            performance.position_at_peak_wattage,
             round(performance.total_normalized_kilojoules_divided_by_ftp_kilojoules, 1)
         ])
     if test_description:
             logger.info(test_description)    
-    headers = ["Rider", "Peak W/FTP", "Energy Intensity"]
+    headers = ["Rider", "Peak W/FTP", "Peak W position "Energy Intensity"]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 # Example usage in the main function
@@ -142,8 +147,8 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from jgh_formulae04 import compose_map_of_rider_work_assignments
-    from jgh_formulae05 import populate_map_of_rider_efforts
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_efforts
     from handy_utilities import get_all_zwiftriders
 
     # Define constituents of one or more scenarios (4 pull speed scenarios in this case))
@@ -156,29 +161,29 @@ def main() -> None:
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
     
     rider_scenario : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
-    pull_duration_scenario = [30.0, 30.0, 30.0, 30.0]
+    pull_duration_scenario = [120.0, 30.0, 30.0, 30.0]
     pull_speed_scenarios = [
-        [37.5, 37.5, 37.5, 37.5],
+        # [37.5, 37.5, 37.5, 37.5],
         [40.0, 40.0, 40.0, 40.0],
-        [42.5, 42.5, 42.5, 42.5],
-        [45.0, 45.0, 45.0, 45.0]
+        # [42.5, 42.5, 42.5, 42.5],
+        # [45.0, 45.0, 45.0, 45.0]
     ]
 
     # Compose the rider work_assignments, then work_efforts, then aggregate_efforts, and then stress_metrics for each scenario
 
     for i, scenario in enumerate(pull_speed_scenarios):
-        work_assignments = compose_map_of_rider_work_assignments(rider_scenario, pull_duration_scenario, scenario)
-        rider_efforts = populate_map_of_rider_efforts(work_assignments)
+        work_assignments = populate_rider_work_assignments(rider_scenario, pull_duration_scenario, scenario)
+        rider_efforts = populate_rider_efforts(work_assignments)
         rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
         rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
 
-        # display the results
         total_duration = next(iter(rider_aggregate_efforts.values())).total_duration
-        average_speed = next(iter(rider_aggregate_efforts.values())).average_speed
+        average_speed = next(iter(rider_aggregate_efforts.values())).average_speed #careful. formula only valid when speed is constant, as it is in this case
         total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
+
         table_heading= f"\nPull durations={pull_duration_scenario}sec\nPull speeds={pull_speed_scenarios[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
-        
         log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
+
         log_rider_stress_metrics(f"", rider_stress_metrics, logger)
         
 if __name__ == "__main__":

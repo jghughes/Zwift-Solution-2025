@@ -1,6 +1,11 @@
 from typing import List
 from zwiftrider_item import ZwiftRiderItem
 
+#   this is not used anywhere. it is a method to test the cyclic formula used 
+#   for determining the order of riders in a paceline.
+#   see populate_rider_work_assignments() in jgh_formulae04.py
+
+
 def generate_cyclic_matrix(riders: List[ZwiftRiderItem]) -> List[List[ZwiftRiderItem]]:
     """
     Generates a cyclic matrix where each column is a cyclic permutation of the first column.

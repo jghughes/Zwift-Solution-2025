@@ -11,8 +11,8 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from jgh_formulae04 import compose_map_of_rider_work_assignments
-    from jgh_formulae05 import populate_map_of_rider_efforts
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_efforts
     from handy_utilities import get_all_zwiftriders
 
     # Define constituents of one or more scenarios (4 pull speed scenarios in this case))
@@ -37,8 +37,8 @@ def main() -> None:
 
     for i, scenario in enumerate(pull_speed_scenarios):
 
-        work_assignments = compose_map_of_rider_work_assignments(rider_scenario, pull_duration_scenario, scenario)
-        rider_efforts = populate_map_of_rider_efforts(work_assignments)
+        work_assignments = populate_rider_work_assignments(rider_scenario, pull_duration_scenario, scenario)
+        rider_efforts = populate_rider_efforts(work_assignments)
         rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_efforts)
         rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
 

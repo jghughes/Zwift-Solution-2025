@@ -17,6 +17,8 @@ def get_all_zwiftriders() -> Dict[str, ZwiftRiderItem]:
     dict_of_zwiftrider_dto = cast(Dict[str, ZwiftRiderDataTransferObject], dict_of_zwiftrider_dto)
 
     # #transform to ZwiftRiderItem dict
-    dict_of_zwiftrideritem = ZwiftRiderItem.from_dataTransferObject_dict(dict_of_zwiftrider_dto)
+    dict_of_zwiftrideritem = ZwiftRiderItem.from_dict_of_dataTransferObjects(dict_of_zwiftrider_dto)
 
     return dict_of_zwiftrideritem
+
+
