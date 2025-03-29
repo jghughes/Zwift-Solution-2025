@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_formulae08.py</StartupFile>
+    <StartupFile>src\jgh_formulae09.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -61,13 +61,12 @@
     <Compile Include="src\jgh_formulae05.py" />
     <Compile Include="src\jgh_formulae06.py" />
     <Compile Include="src\jgh_formulae07.py" />
-    <Compile Include="src\jgh_formulae08.py" />
     <Compile Include="src\jgh_formulae09.py" />
+    <Compile Include="src\jgh_formulae08.py" />
     <Compile Include="src\ttt_rider_unit_of_work.py" />
     <Compile Include="src\ttt_workperiod.py" />
     <Compile Include="src\ttt_team_of_riders.py" />
     <Compile Include="src\ttt_solution.py" />
-    <Compile Include="src\zwiftrider_item.py" />
     <Compile Include="tests\scratchpad.py">
       <SubType>Code</SubType>
     </Compile>
