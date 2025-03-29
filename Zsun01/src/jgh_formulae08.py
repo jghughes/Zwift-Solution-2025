@@ -2,7 +2,6 @@ from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
 from jgh_formulae04 import RiderWorkAssignmentItem
 from jgh_formulae05 import RiderEffortItem
-from jgh_formulae07 import calculate_rider_aggregate_efforts, calculate_rider_stress_metrics, log_rider_aggregate_efforts, log_rider_stress_metrics
 
 from zwiftrider_item import ZwiftRiderItem
 
@@ -40,20 +39,20 @@ def generate_rider_power_datapoints_for_one_hour(efforts: List[RiderEffortItem])
     
     return datapoints[:3600]  # Ensure the list is exactly 3600 elements long
 
-def segment_data(datapoints: List[Tuple[int, float]], segment_durations: List[int]) -> Dict[int, float]:
+def generate_power_curve_from_recorded_wattages(datapoints: List[Tuple[int, float]], critical_power_interval_specifications: List[int]) -> Dict[int, float]:
     """
     Segment the data into specified durations and calculate the maximum average power for each segment.
 
     Args:
         datapoints (List[Tuple[int, float]]): List of power datapoints for one hour.
-        segment_durations (List[int]): List of segment durations in seconds.
+        critical_power_interval_specifications (List[int]): List of segment durations in seconds.
 
     Returns:
         Dict[int, float]: Dictionary where keys are segment durations and values are maximum average power outputs.
     """
     segmented_data: Dict[int, float] = {}
 
-    for duration in segment_durations:
+    for duration in critical_power_interval_specifications:
         max_avg_power: float = 0.0
         num_intervals: int = 3600 - duration + 1
 
@@ -72,20 +71,20 @@ def segment_data(datapoints: List[Tuple[int, float]], segment_durations: List[in
 
     return segmented_data
 
-def process_rider(rider: ZwiftRiderItem, rider_efforts: Dict[ZwiftRiderItem, List[RiderEffortItem]], segment_durations: List[int]) -> Dict[int, float]:
+def calculate_rider_power_curve_from_rider_efforts(rider: ZwiftRiderItem, rider_efforts: Dict[ZwiftRiderItem, List[RiderEffortItem]], critical_power_interval_specifications: List[int]) -> Dict[int, float]:
     """
     Process the data for a single rider.
 
     Args:
         rider (ZwiftRiderItem): The rider to process.
         rider_efforts (Dict[ZwiftRiderItem, List[RiderEffortItem]]): Dictionary of rider efforts.
-        segment_durations (List[int]): List of segment durations in seconds.
+        critical_power_interval_specifications (List[int]): List of segment durations in seconds.
 
     Returns:
         Dict[int, float]: Segmented data for the rider.
     """
     rider_power_datapoints = generate_rider_power_datapoints_for_one_hour(rider_efforts[rider])
-    segmented_data = segment_data(rider_power_datapoints, segment_durations)
+    segmented_data = generate_power_curve_from_recorded_wattages(rider_power_datapoints, critical_power_interval_specifications)
     return segmented_data
 
 # Example usage in the main function
@@ -120,8 +119,7 @@ def main() -> None:
         # [45.0, 45.0, 45.0, 45.0]
     ]
     # Segment durations
-    # # segment_durations: List[int] = [30, 60, 90, 120, 2400, 3600]
-    segment_durations: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
+    critical_power_interval_specifications: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
 
     # Compose the rider work_assignments, then work_efforts, then aggregate_efforts, and then stress_metrics for each scenario
 
@@ -154,7 +152,7 @@ def main() -> None:
         # Generate dict of riders with segmented data rider power datapoints for one hour in parallel
         segmented_data: Dict[ZwiftRiderItem, Dict[int, float]] = {}
         with ThreadPoolExecutor() as executor:
-            futures = {executor.submit(process_rider, rider, rider_efforts, segment_durations): rider for rider in riders}
+            futures = {executor.submit(calculate_rider_power_curve_from_rider_efforts, rider, rider_efforts, critical_power_interval_specifications): rider for rider in riders}
             for future in futures:
                 rider = futures[future]
                 segmented_data[rider] = future.result()

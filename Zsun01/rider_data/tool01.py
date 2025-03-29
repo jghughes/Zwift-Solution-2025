@@ -1,7 +1,7 @@
 import json
 
 # Load the JSON data from the file
-with open('Zsun01/rider_data/rider_dictionary.json', 'r') as file:
+with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/rider_dictionary.json', 'r') as file:
     data = json.load(file)
 
 # Define the new entries to be added
@@ -26,7 +26,7 @@ for rider in data.values():
     rider.update(new_entries)
 
 # Write the updated JSON data back to the file
-with open('Zsun01/rider_data/rider_dictionary_v2.json', 'w') as file:
+with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/rider_dictionary_v2.json', 'w') as file:
     json.dump(data, file, indent=4)
 
 print("JSON file updated successfully.")

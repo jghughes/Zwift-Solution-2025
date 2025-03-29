@@ -45,10 +45,14 @@
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="rider_data\rider_dictionary.json" />
+    <Content Include="rider_data\rider_dictionary_v2.json" />
+    <Content Include="rider_data\rider_power_dictionary.json" />
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="data\zwiftinsider_stuff.py" />
+    <Compile Include="rider_data\tool02.py" />
+    <Compile Include="rider_data\tool01.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\handy_utilities.py" />
     <Compile Include="src\jgh_formulae02.py" />

@@ -47,7 +47,6 @@ class ZwiftRiderDataTransferObject(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
-
 def main():
     import logging
     from jgh_logging import jgh_configure_logging
@@ -69,4 +68,4 @@ def main():
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
-        main()
+    main()
