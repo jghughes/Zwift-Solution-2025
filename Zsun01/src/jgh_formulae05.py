@@ -1,12 +1,10 @@
 from typing import Dict, List
-from zwiftrider_item import ZwiftRiderItem
-from zwiftrider_related_items import RiderWorkItem, RiderWorkAssignmentItem
+from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 import logging
 
 
-
-def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderWorkItem]]:
+def populate_rider_exertions(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -15,26 +13,29 @@ def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[Rid
         rider_work_assignments (Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
 
     Returns:
-        Dict[ZwiftRiderItem, List[RiderWorkItem]]: A dictionary of Zwift riders with
+        Dict[ZwiftRiderItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
-            a single workload is (position, speed, duration, wattage). Each rider has a list of rider_efforts
+            a single workload is (position, speed, duration, wattage). Each rider has a list of rider_exertions
     """
-    rider_workloads: Dict[ZwiftRiderItem, List[RiderWorkItem]] = {}
+    rider_workloads: Dict[ZwiftRiderItem, List[RiderExertionItem]] = {}
     
     for rider, work_assignments in rider_work_assignments.items():
-        rider_efforts: List[RiderWorkItem] = []
+        rider_exertions: List[RiderExertionItem] = []
         for assignment in work_assignments:
             wattage = rider.calculate_wattage_riding_in_the_peloton(assignment.speed, assignment.position)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
-            rider_efforts.append(RiderWorkItem(position=assignment.position, speed=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
-        rider_workloads[rider] = rider_efforts
+            rider_exertions.append(RiderExertionItem(position=assignment.position, speed=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
+        rider_workloads[rider] = rider_exertions
     
     return rider_workloads
 
-def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkItem]], logger: logging.Logger) -> None:
+
+def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
-    # Display the outcome using tabulate
+   
+    logger.info(test_description)
+
     table = []
 
     for rider, efforts in result.items():
@@ -45,9 +46,7 @@ def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWo
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 
-# Example usage in the main function
 def main() -> None:
-    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
@@ -58,25 +57,19 @@ def main() -> None:
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
 
-    # Create a list of the selected riders
+    pull_speeds_kph = [40.0, 38.0, 36.0]
+    pull_durations_sec = [60.0, 30.0, 10.0]
     riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
 
-    # Example riders and pull durations
-    pull_durations = [90.0, 60.0, 30.0]
-    pull_speeds = [42.0, 38.0, 36.0]
-    # Compose the rider work_assignments
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
+    work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
-    # Calculate rider efforts
-    rider_efforts = populate_rider_efforts(work_assignments)
+    rider_exertions = populate_rider_exertions(work_assignments)
 
-    # Display the outcome using tabulate
-    log_results("Calculated rider efforts:", rider_efforts, logger)
+    log_results("Calculated rider watts and kJ:", rider_exertions, logger)
 
 
 if __name__ == "__main__":

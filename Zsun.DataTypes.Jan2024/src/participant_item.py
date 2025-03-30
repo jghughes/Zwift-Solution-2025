@@ -172,7 +172,6 @@ class ParticipantHubItem(HubItemBase):
             guid=dto.guid or ""
         )
         return answer
-# simple example usage of the ParticipantHubItem class
 
 def main():
     # Create a new ParticipantHubItem instance using the create method

@@ -109,13 +109,13 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import RiderWorkItem
+    from zwiftrider_related_items import RiderExertionItem
 
     # Sample data for testing
-    efforts1: List[RiderWorkItem] = [
-        RiderWorkItem(duration=10, wattage=300),
-        RiderWorkItem(duration=5, wattage=150),
-        RiderWorkItem(duration=5, wattage=250),
+    efforts1: List[RiderExertionItem] = [
+        RiderExertionItem(duration=10, wattage=300),
+        RiderExertionItem(duration=5, wattage=150),
+        RiderExertionItem(duration=5, wattage=250),
     ]
 
     output: List[Tuple[int, float]] = generate_rider_power_datapoints_for_one_hour(efforts1)

@@ -52,9 +52,11 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun.DataTransferObjects.Jan2024/data/", "rider_dictionary.json")
+    inputjson = read_text("C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/rider_dictionary.json", "rider_dictionary.json")
 
     dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZwiftRiderDataTransferObject])
+
+    dict_of_zwiftriders= cast()
 
     # Convert the dictionary to a list of lists for tabulate
     table_data = [

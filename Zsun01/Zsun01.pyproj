@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_formulae09.py</StartupFile>
+    <StartupFile>src\jgh_formulae06.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -47,7 +47,6 @@
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="rider_data\rider_dictionary.json" />
-    <Content Include="rider_data\rider_dictionary_v2.json" />
     <Content Include="rider_data\rider_power_dictionary.json" />
     <Content Include="settings.json" />
   </ItemGroup>

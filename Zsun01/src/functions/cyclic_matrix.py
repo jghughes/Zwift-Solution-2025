@@ -1,5 +1,5 @@
 from typing import List
-from zwiftrider_item import ZwiftRiderItem
+from zwiftrider_related_items import ZwiftRiderItem
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.
@@ -38,7 +38,6 @@ def generate_cyclic_matrix(riders: List[ZwiftRiderItem]) -> List[List[ZwiftRider
 
 # Example usage:
 def main():
-    # Configure logging
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
@@ -48,18 +47,14 @@ def main():
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
     barryb = dict_of_zwiftrideritem['barryb']
     johnh = dict_of_zwiftrideritem['johnh']
     lynseys = dict_of_zwiftrideritem['lynseys']
 
-    # Create a list of the selected riders
     riders = [barryb, johnh, lynseys]
 
-    # Generate a cyclic matrix for the list of riders
     matrix = generate_cyclic_matrix(riders)
 
-    # Display the matrix by rider name
     for row in matrix:
         logger.info([rider.name for rider in row])
 

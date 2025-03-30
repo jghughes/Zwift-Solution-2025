@@ -389,15 +389,15 @@ class ZwiftRiderItem():
         return dict_of_zwiftrideritem# Example usage
 
 
-@dataclass(frozen=True, eq=True)  # immutable and hashable
+@dataclass(frozen=True, eq=True) 
 class RiderWorkAssignmentItem:
     position: int = 1
     duration: float = 0
     speed: float = 0
 
 
-@dataclass(frozen=True, eq=True)  # immutable and hashable
-class RiderWorkItem:
+@dataclass(frozen=True, eq=True) 
+class RiderExertionItem:
     position: int = 0
     speed: float = 0
     duration: float = 0
@@ -405,8 +405,8 @@ class RiderWorkItem:
     kilojoules: float = 0
 
 
-@dataclass(frozen=True, eq=True)  # immutable and hashable
-class RiderAggregateWorkItem:
+@dataclass(frozen=True, eq=True)
+class RiderAggregateEffortItem:
     total_duration: float = 0
     average_speed: float = 0
     total_distance: float = 0
@@ -416,6 +416,17 @@ class RiderAggregateWorkItem:
     position_at_peak_wattage: int = 0
     total_kilojoules_at_weighted_watts: float = 0
     total_kilojoules_at_normalized_watts: float = 0
+
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderStressItem():
+    ftp: float = 0
+    normalised_power: float = 0
+    intensity_factor: float = 0
+
+    peak_watts_divided_by_ftp_watts: float = 0
+    position_at_peak_wattage : int = 0
+    total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
+
 
 
 @dataclass
@@ -469,9 +480,7 @@ class RiderCriticalPowerItem:
 
     zwiftid: int = 0
     name: str = ""
-    cp: CriticalPowerItem = field(
-        default_factory=CriticalPowerItem
-    )
+    cp: CriticalPowerItem = field(default_factory=CriticalPowerItem)
 
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders' power curve items
@@ -559,7 +568,6 @@ class RiderCriticalPowerItem:
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "RiderCriticalPowerItem":
-
         answer = RiderCriticalPowerItem(zwiftid=dto.zwiftid or 0, name=dto.name or "",  cp=CriticalPowerItem(
                 cpw_5_sec=dto.cpw_5_sec or 0.0,
                 cpw_15_sec=dto.cpw_15_sec or 0.0,
@@ -580,18 +588,19 @@ class RiderCriticalPowerItem:
 
     @staticmethod
     def from_dict_of_dataTransferObjects(dict_of_zwiftrider_powercurve_dto: Dict[str, ZwiftRiderCriticalPowerDataTransferObject]) -> Dict[str, "RiderCriticalPowerItem"]:
-
         answer = {
             key: RiderCriticalPowerItem.from_dataTransferObject(dto)
             for key, dto in dict_of_zwiftrider_powercurve_dto.items()
         }
         return answer
 
-
+    
 @dataclass
 class RiderTeamItem:
-    riders_working: list[ZwiftRiderItem] = []
-    riders_resting: list[ZwiftRiderItem] = []
+    """
+    """
+    riders_working: list[ZwiftRiderItem] = field(default_factory=list)
+    riders_resting: list[ZwiftRiderItem] = field(default_factory=list)
 
     @staticmethod
     def create(riders: list[ZwiftRiderItem]) -> "RiderTeamItem":
@@ -602,19 +611,20 @@ class RiderTeamItem:
         team = RiderTeamItem(riders_working=riders, riders_resting=[])
         return team
 
-    def sort_riders(self) -> None:
-        self.riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
-        self.riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
+    def sort_riders() -> None:
+        riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
+        riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-    def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
-        self.riders_resting.append(rider)
-        self.riders_working.remove(rider)
-        self.sort_riders()
+    def demote_rider_from_working_to_resting(rider: ZwiftRiderItem) -> None:
+        riders_resting.append(rider)
+        riders_working.remove(rider)
+        sort_riders()
 
     def promote_rider_from_resting_to_working(self, rider: ZwiftRiderItem) -> None:
-        self.riders_working.append(rider)
-        self.riders_resting.remove(rider)
-        self.sort_riders()
+        riders_working.append(rider)
+        riders_resting.remove(rider)
+        sort_riders()
+
 
 
 def main():

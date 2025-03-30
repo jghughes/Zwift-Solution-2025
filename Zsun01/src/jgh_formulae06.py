@@ -1,8 +1,10 @@
-from typing import  List
-from zwiftrider_related_items import RiderWorkItem
+from typing import  List, Dict
+from handy_utilities import get_all_zwiftriders
+from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem
+from rolling_average import calculate_rolling_averages
+import logging
 
-
-def calculate_weighted_average_watts(efforts: List[RiderWorkItem]) -> float:
+def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the average power for a list of efforts.
     The average power is calculated as the total work done (in kilojoules) divided by 
@@ -10,7 +12,7 @@ def calculate_weighted_average_watts(efforts: List[RiderWorkItem]) -> float:
     item and divides by the total duration to obtain the average power.
 
     Args:
-        efforts (List[RiderWorkItem]): The list of efforts.
+        efforts (List[RiderExertionItem]): The list of efforts.
     Returns:
         float: The average power.
     """
@@ -23,7 +25,7 @@ def calculate_weighted_average_watts(efforts: List[RiderWorkItem]) -> float:
     return average_watts
 
 
-def calculate_normalized_watts(efforts: List[RiderWorkItem]) -> float:
+def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the normalized power for a list of efforts.
 
@@ -40,7 +42,7 @@ def calculate_normalized_watts(efforts: List[RiderWorkItem]) -> float:
     5. Take the fourth root of the average.
 
     Args:
-        efforts (List[RiderWorkItem]): The list of efforts. 
+        efforts (List[RiderExertionItem]): The list of efforts. 
         Each item contains the wattage and duration for a specific segment of the 
         workout.
 
@@ -49,8 +51,8 @@ def calculate_normalized_watts(efforts: List[RiderWorkItem]) -> float:
 
     Example:
         >>> efforts = [
-        ...     RiderWorkItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
-        ...     RiderWorkItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
+        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
+        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
         ... ]
         >>> calculate_normalized_watts(efforts)
         192.0
@@ -83,48 +85,46 @@ def calculate_normalized_watts(efforts: List[RiderWorkItem]) -> float:
 
     return normalized_watts
 
+def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
+    from tabulate import tabulate
+   
+    logger.info(test_description)
 
-# Example usage 
+    table = []
+    for rider, items in result.items():
+        avg_watts = calculate_average_watts(items)
+        normalized_watts = calculate_normalized_watts(items)
+        table.append([rider.name, rider.ftp, round(avg_watts), round(normalized_watts), round(normalized_watts/rider.ftp,2)])
+
+    headers = ["Rider", "FTP (w)", "Average (w)", "NP (w)", "Intensity factor"]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+
+
 def main() -> None:
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_item import ZwiftRiderItem
-    from tabulate import tabulate
+    from zwiftrider_related_items import ZwiftRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
-    from jgh_formulae05 import populate_rider_efforts
-    from handy_utilities import get_all_zwiftriders
+    from jgh_formulae05 import populate_rider_exertions
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    # Instantiate ZwiftRiderItem objects for barryb, johnh, and lynseys
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
 
-    # Create a list of the selected riders
+    pull_speeds_kph = [42.0, 42.0, 42.0]
+    pull_durations_sec = [30.0, 30.0, 30.0]
     riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
 
-    # Example riders and pull durations
-    pull_durations = [90.0, 60.0, 30.0]
-    pull_speeds = [40.0, 40.0, 40.0]
-    # Compose the rider work_assignments
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds)
+    work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
-    # Calculate rider efforts
-    rider_efforts = populate_rider_efforts(work_assignments)
+    rider_exertions = populate_rider_exertions(work_assignments)
 
-    # Calculate and compare weighted average power and normalized power for each rider
-    table = []
-    for rider, items in rider_efforts.items():
-        weighted_avg_watts = calculate_weighted_average_watts(items)
-        normalized_watts = calculate_normalized_watts(items)
-        table.append([rider.name, weighted_avg_watts, normalized_watts])
-
-    headers = ["Rider", "Weighted Average watts", "Normalized watts"]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+    log_results("Comparative rider wattage metrics based on single loop of the paceline (this is as far as the TTT Calculator goes I suspect):", rider_exertions, logger)
 
 
 if __name__ == "__main__":
