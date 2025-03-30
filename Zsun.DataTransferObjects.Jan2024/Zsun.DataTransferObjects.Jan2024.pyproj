@@ -35,7 +35,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
-    <Compile Include="src\zwiftrider_criticalpower_curve_dto.py">
+    <Compile Include="src\zwiftrider_cp_dto.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\zwiftrider_dto.py" />

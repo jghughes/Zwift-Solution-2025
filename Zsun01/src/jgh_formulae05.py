@@ -1,20 +1,12 @@
 from typing import Dict, List
-from dataclasses import dataclass
-from jgh_formulae04 import RiderWorkAssignmentItem
 from zwiftrider_item import ZwiftRiderItem
+from zwiftrider_related_items import RiderWorkItem, RiderWorkAssignmentItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 import logging
 
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderEffortItem():
-    position: int = 0
-    speed: float = 0
-    duration: float = 0
-    wattage: float = 0
-    kilojoules: float = 0
 
 
-def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderEffortItem]]:
+def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderWorkItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -23,24 +15,24 @@ def populate_rider_efforts(rider_work_assignments: Dict[ZwiftRiderItem, List[Rid
         rider_work_assignments (Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
 
     Returns:
-        Dict[ZwiftRiderItem, List[RiderEffortItem]]: A dictionary of Zwift riders with
+        Dict[ZwiftRiderItem, List[RiderWorkItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of rider_efforts
     """
-    rider_workloads: Dict[ZwiftRiderItem, List[RiderEffortItem]] = {}
+    rider_workloads: Dict[ZwiftRiderItem, List[RiderWorkItem]] = {}
     
     for rider, work_assignments in rider_work_assignments.items():
-        rider_efforts: List[RiderEffortItem] = []
+        rider_efforts: List[RiderWorkItem] = []
         for assignment in work_assignments:
             wattage = rider.calculate_wattage_riding_in_the_peloton(assignment.speed, assignment.position)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
-            rider_efforts.append(RiderEffortItem(position=assignment.position, speed=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
+            rider_efforts.append(RiderWorkItem(position=assignment.position, speed=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
         rider_workloads[rider] = rider_efforts
     
     return rider_workloads
 
-def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderEffortItem]], logger: logging.Logger) -> None:
+def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
     # Display the outcome using tabulate
     table = []

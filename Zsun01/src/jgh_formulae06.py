@@ -1,7 +1,8 @@
 from typing import  List
-from jgh_formulae05 import RiderEffortItem
+from zwiftrider_related_items import RiderWorkItem
 
-def calculate_weighted_average_watts(efforts: List[RiderEffortItem]) -> float:
+
+def calculate_weighted_average_watts(efforts: List[RiderWorkItem]) -> float:
     """
     Calculate the average power for a list of efforts.
     The average power is calculated as the total work done (in kilojoules) divided by 
@@ -9,7 +10,7 @@ def calculate_weighted_average_watts(efforts: List[RiderEffortItem]) -> float:
     item and divides by the total duration to obtain the average power.
 
     Args:
-        efforts (List[RiderEffortItem]): The list of efforts.
+        efforts (List[RiderWorkItem]): The list of efforts.
     Returns:
         float: The average power.
     """
@@ -21,57 +22,8 @@ def calculate_weighted_average_watts(efforts: List[RiderEffortItem]) -> float:
     average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
     return average_watts
 
-def calculate_smoothed_numbers(numbers: List[float], window_size: int) -> List[float]:
-    """
-    Calculate the rolling average of the given numbers with the specified window size.
 
-    This function computes the rolling average for a list of numbers using a 
-    specified window size. The window size determines the number of consecutive 
-    numbers to include in each average calculation. We assume that the length of 
-    the input list `numbers` is small, potentially as small as three items. Given 
-    this assumption, the function is implemented in a straightforward manner 
-    without complex optimizations.
-
-    Args:
-        numbers (List[float]): The list of numbers for which the rolling average 
-        is to be calculated.
-        window_size (int): The size of the rolling window, i.e., the number of 
-        consecutive numbers to include in each average calculation.
-
-    Returns:
-        List[float]: The list of rolling average numbers. Each value in the 
-        returned list represents the average of a subset of the input numbers, 
-        with the subset size determined by the window size. The length of the 
-        returned list will be `len(numbers) - window_size + 1`.
-
-    Example:
-        >>> numbers = [1, 2, 3, 4, 5]
-        >>> window_size = 3
-        >>> calculate_smoothed_numbers(numbers, window_size)
-        [2.0, 3.0, 4.0]
-
-    In this example, the rolling average is calculated for a window size of 3. 
-    The first value in the returned list is the average of the first three numbers 
-    in the input list (1, 2, 3), the second value is the average of the next 
-    three numbers (2, 3, 4), and so on.
-
-    Handling small input lists:
-    - If the length of `numbers` is less than the `window_size`, the function will 
-    return an empty list.
-    - The function iterates over the input list and calculates the average for 
-    each window of the specified size.
-    """
-    if not numbers or window_size <= 0:
-        return []
-
-    rolling_averages: List[float] = []
-    for i in range(len(numbers) - window_size + 1):
-        window = numbers[i:i + window_size]
-        rolling_averages.append(sum(window) / window_size)
-
-    return rolling_averages
-
-def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
+def calculate_normalized_watts(efforts: List[RiderWorkItem]) -> float:
     """
     Calculate the normalized power for a list of efforts.
 
@@ -88,7 +40,7 @@ def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
     5. Take the fourth root of the average.
 
     Args:
-        efforts (List[RiderEffortItem]): The list of efforts. 
+        efforts (List[RiderWorkItem]): The list of efforts. 
         Each item contains the wattage and duration for a specific segment of the 
         workout.
 
@@ -97,8 +49,8 @@ def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
 
     Example:
         >>> efforts = [
-        ...     RiderEffortItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
-        ...     RiderEffortItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
+        ...     RiderWorkItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
+        ...     RiderWorkItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
         ... ]
         >>> calculate_normalized_watts(efforts)
         192.0
@@ -118,7 +70,7 @@ def calculate_normalized_watts(efforts: List[RiderEffortItem]) -> float:
 
     # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
     # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 5-second rolling average
-    rolling_avg_power = calculate_smoothed_numbers(instantaneous_wattages, 5)
+    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
 
     # Raise the smoothed power values to the fourth power
     rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]

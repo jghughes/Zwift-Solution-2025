@@ -1,32 +1,28 @@
 from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
-from jgh_formulae04 import RiderWorkAssignmentItem
-from jgh_formulae05 import RiderEffortItem
-from jgh_formulae08 import linearize_cp_data, make_bestfit_cp_model, extract_cp_and_w_prime
-from zwiftrider_criticalpowercurve_item import CriticalPowerCurveItem
-
 from zwiftrider_item import ZwiftRiderItem
+from zwiftrider_related_items import RiderWorkAssignmentItem, RiderWorkItem, RiderCriticalPowerItem
 
-def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderEffortItem]) -> List[Tuple[int, float]]:
+def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderWorkItem]) -> List[Tuple[int, float]]:
     """
     Generate rider power datapoints for one hour.
 
     Args:
-        efforts (List[RiderEffortItem]): List of rider efforts.
+        efforts (List[RiderWorkItem]): List of rider efforts.
 
     Returns:
         List[Tuple[int, float]]: List of power datapoints for one hour.
     """
-    # Step 1: Generate a succession of repetitions of the input list of RiderEffortItem
+    # Step 1: Generate a succession of repetitions of the input list of RiderWorkItem
     total_duration = sum(effort.duration for effort in efforts)
     repetitions = int((3600 // total_duration) + 1)
-    extended_efforts: List[RiderEffortItem] = [effort for _ in range(repetitions) for effort in efforts]
+    extended_efforts: List[RiderWorkItem] = [effort for _ in range(repetitions) for effort in efforts]
     
     # Step 2: Generate a datapoint of (t, wattage) for every second up until t=3600
     datapoints: List[Tuple[int, float]] = [(0, 0.0)] * 3601  # Preallocate list with 3601 elements
     current_time: int = 0
     effort_index: int = 0
-    current_effort: RiderEffortItem = extended_efforts[effort_index]
+    current_effort: RiderWorkItem = extended_efforts[effort_index]
     effort_time: int = 0
     
     while current_time <= 3600:
@@ -41,53 +37,21 @@ def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderEff
     
     return datapoints[:3600]  # Ensure the list is exactly 3600 elements long
 
-def distill_criticalpower_datapoints_from_wattages_per_second(datapoints: List[Tuple[int, float]], critical_power_interval_specifications: List[int]) -> Dict[int, float]:
-    """
-    Segment the data into specified durations and calculate the maximum average power for each segment.
-
-    Args:
-        datapoints (List[Tuple[int, float]]): List of power wattages recorded per second for a period of one hour.
-        critical_power_interval_specifications (List[int]): List of required critical power timespan in seconds.
-
-    Returns:
-        Dict[int, float]: Dictionary where key is the cp timespan (sec) and value is power (W) for the timespan.
-    """
-    dict_of_riders_and_their_criticalpower_curve: Dict[int, float] = {}
-
-    for duration in critical_power_interval_specifications:
-        max_avg_power: float = 0.0
-        num_intervals: int = 3600 - duration + 1
-
-        # Calculate the sum of the first interval
-        interval_sum: float = sum(datapoints[j][1] for j in range(duration))
-        max_avg_power = interval_sum / duration
-
-        # Use sliding window technique to calculate the sum of subsequent intervals
-        for i in range(1, num_intervals):
-            interval_sum = interval_sum - datapoints[i - 1][1] + datapoints[i + duration - 1][1]
-            avg_power: float = interval_sum / duration
-            if avg_power > max_avg_power:
-                max_avg_power = avg_power
-
-        dict_of_riders_and_their_criticalpower_curve[duration] = max_avg_power
-
-    return dict_of_riders_and_their_criticalpower_curve
-
-def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_efforts: Dict[ZwiftRiderItem, List[RiderEffortItem]], critical_power_interval_specifications: List[int]) -> CriticalPowerCurveItem:
+def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_efforts: Dict[ZwiftRiderItem, List[RiderWorkItem]], cp_test_duration_specs: List[int]) -> RiderCriticalPowerItem:
     """
     Calculate the critical power curve for a single rider.
 
     Args:
         rider (ZwiftRiderItem): The rider to process.
-        rider_efforts (Dict[ZwiftRiderItem, List[RiderEffortItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
-        critical_power_interval_specifications (List[int]): List of timespans for each of the desired datapoints in the power curve in seconds.
+        rider_efforts (Dict[ZwiftRiderItem, List[RiderWorkItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
+        cp_test_duration_specs (List[int]): List of timespans for each of the desired datapoints in the power curve in seconds.
 
     Returns:
         Dict[int, float]: CriticalPower curve data for the rider where int is the number of seconds of the timespan and float is the wattage.
     """
     wattage_datapoints = translate_efforts_to_wattages_per_second_for_one_hour(rider_efforts[rider])
 
-    powercurve_datapoints = distill_criticalpower_datapoints_from_wattages_per_second(wattage_datapoints, critical_power_interval_specifications)
+    powercurve_datapoints = distill_cp_metrics_from_wattages_per_second(wattage_datapoints, cp_test_duration_specs)
 
     # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
     critical_power_curve = CriticalPowerCurveItem(
@@ -108,25 +72,6 @@ def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_effor
 
     return critical_power_curve
 
-def estimate_cp_and_w_prime(cp_data: Dict[int, float]) -> Tuple[float, float]:
-    """
-    Calculate Critical Power (CP) and Work Capacity Above CP (W') for a rider.
-
-    Args:
-        cp_data (List[Tuple[int, float]]): List of power cp_data for one hour.
-        criticalpower_timespans (List[int]): List of segment durations in seconds.
-        high_intensity_threshold (float): Power output threshold for high-intensity efforts.
-        moderate_intensity_threshold (float): Power output threshold for moderate efforts.
-        recovery_rate (float): Rate at which fatigue is recovered during low-intensity efforts.
-
-    Returns:
-        Tuple[float, float]: Estimated CP (in watts) and W' (in joules).
-    """
-   
-    inverse_durations, avg_powers = linearize_cp_data(cp_data)
-    slope, intercept = make_bestfit_cp_model(inverse_durations, avg_powers)
-    cp, w_prime = extract_cp_and_w_prime(slope, intercept)
-    return cp, w_prime
 
 # Example usage in the main function
 def main() -> None:
@@ -160,7 +105,7 @@ def main() -> None:
         # [45.0, 45.0, 45.0, 45.0]
     ]
     # Segment durations
-    critical_power_interval_specifications: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
+    cp_test_duration_specs: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
 
     # Compose the rider work_assignments, then work_efforts, then aggregate_efforts, and then stress_metrics for each scenario
 
@@ -193,7 +138,7 @@ def main() -> None:
         # Generate dict of riders with their critical power curve
         dict_of_riders_and_their_criticalpower_curve: Dict[ZwiftRiderItem, CriticalPowerCurveItem] = {}
         with ThreadPoolExecutor() as executor:
-            futures = {executor.submit(translate_efforts_into_criticalpower_item, rider, rider_efforts, critical_power_interval_specifications): rider for rider in riders}
+            futures = {executor.submit(translate_efforts_into_criticalpower_item, rider, rider_efforts, cp_test_duration_specs): rider for rider in riders}
             for future in futures:
                 rider = futures[future]
                 dict_of_riders_and_their_criticalpower_curve[rider] = future.result()

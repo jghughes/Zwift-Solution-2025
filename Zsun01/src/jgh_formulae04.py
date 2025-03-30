@@ -1,13 +1,7 @@
 from typing import Dict, List
-from dataclasses import dataclass
 from zwiftrider_item import ZwiftRiderItem
 import logging
-
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderWorkAssignmentItem():
-    position: int = 1
-    duration: float = 0
-    speed: float = 0
+from zwiftrider_related_items import RiderWorkAssignmentItem
 
 def populate_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations: List[float], pull_speeds: List[float]) -> Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]:
     """

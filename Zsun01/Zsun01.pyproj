@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\jgh_formulae09.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -33,6 +33,8 @@
     <Folder Include="docs\" />
     <Folder Include="rider_data\" />
     <Folder Include="src\" />
+    <Folder Include="src\functions\" />
+    <Folder Include="src\utilities\" />
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
@@ -54,18 +56,16 @@
     <Compile Include="rider_data\tool02.py" />
     <Compile Include="rider_data\tool01.py" />
     <Compile Include="setup.py" />
-    <Compile Include="src\handy_utilities.py" />
-    <Compile Include="src\jgh_formulae02.py" />
-    <Compile Include="src\jgh_formulae03.py" />
+    <Compile Include="src\functions\rolling_average.py" />
+    <Compile Include="src\utilities\handy_utilities.py" />
+    <Compile Include="src\functions\cyclic_matrix.py" />
+    <Compile Include="src\functions\cyclic_paceline_algebra.py" />
     <Compile Include="src\jgh_formulae04.py" />
     <Compile Include="src\jgh_formulae05.py" />
     <Compile Include="src\jgh_formulae06.py" />
     <Compile Include="src\jgh_formulae07.py" />
     <Compile Include="src\jgh_formulae09.py" />
-    <Compile Include="src\jgh_formulae08.py" />
-    <Compile Include="src\ttt_rider_unit_of_work.py" />
-    <Compile Include="src\ttt_workperiod.py" />
-    <Compile Include="src\ttt_team_of_riders.py" />
+    <Compile Include="src\functions\critical_power.py" />
     <Compile Include="src\ttt_solution.py" />
     <Compile Include="tests\scratchpad.py">
       <SubType>Code</SubType>

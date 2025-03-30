@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class ZwiftRiderCriticalPowerCurveDataTransferObject(BaseModel):
+class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
     """
-    A data transfer object representing a zwiftrider's critical power curve data.
+    A data transfer object representing a zwiftrider's critical power data.
     The object can be round-tripped to and from JSON. The values of all attributes
     are preserved in the JSON serialization and deserialization.
 

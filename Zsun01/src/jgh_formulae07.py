@@ -1,39 +1,28 @@
 from typing import Dict, List
 from dataclasses import dataclass
 from zwiftrider_item import ZwiftRiderItem
-from jgh_formulae05 import RiderEffortItem
+from zwiftrider_related_items import RiderWorkItem, RiderAggregateWorkItem
 from jgh_formulae06 import calculate_normalized_watts
 import logging
 
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderAggregateEffortItem():
-    total_duration: float = 0
-    average_speed: float = 0
-    total_distance: float = 0
-    weighted_average_watts : float = 0
-    normalized_average_watts : float = 0
-    instantaneous_peak_wattage: float = 0
-    position_at_peak_wattage: int = 0
-    total_kilojoules_at_weighted_watts: float = 0
-    total_kilojoules_at_normalized_watts: float = 0
 
-def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[RiderEffortItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
+def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[RiderWorkItem]]) -> Dict[ZwiftRiderItem, RiderAggregateWorkItem]:
     """
     Calculates aggregate_effort metrics for each rider across all his positions in a complete orbit of a paceline.
 
     Args:
-        rider_scenario (Dict[ZwiftRiderItem, List[RiderEffortItem]]): The dictionary of rider_scenario with their aggregate_effort workload line items.
+        rider_scenario (Dict[ZwiftRiderItem, List[RiderWorkItem]]): The dictionary of rider_scenario with their aggregate_effort workload line items.
 
     Returns:
-        Dict[ZwiftRiderItem, RiderAggregateEffortItem]: A dictionary of rider_scenario with their aggregate_effort workload metrics.
+        Dict[ZwiftRiderItem, RiderAggregateWorkItem]: A dictionary of rider_scenario with their aggregate_effort workload metrics.
     """
-    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateEffortItem] = {}
+    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateWorkItem] = {}
 
     for rider, efforts in rider_scenario.items():
 
         if not efforts:
             # Handle case where there are no workload line items
-            rider_aggregates[rider] = RiderAggregateEffortItem()
+            rider_aggregates[rider] = RiderAggregateWorkItem()
             continue
         total_duration = sum(item.duration for item in efforts) # measured in seconds
         total_distance = sum(item.speed * item.duration / 3600 for item in efforts)  # convert to km
@@ -49,7 +38,7 @@ def calculate_rider_aggregate_efforts(rider_scenario: Dict[ZwiftRiderItem, List[
         position_at_peak_wattage = next((i for i, item in enumerate(efforts) if item.wattage == instantaneous_peak_wattage), 0)
         total_kilojoules_at_normalized_watts = normalized_average_watts * total_duration / 1_000
 
-        rider_aggregates[rider] = RiderAggregateEffortItem(
+        rider_aggregates[rider] = RiderAggregateWorkItem(
             total_duration=total_duration,
             average_speed=average_speed,
             total_distance=total_distance,
@@ -70,12 +59,12 @@ class RiderStressItem():
     total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
 
 
-def calculate_rider_stress_metrics(rider_scenario: Dict[ZwiftRiderItem, RiderAggregateEffortItem]) -> Dict[ZwiftRiderItem, RiderStressItem]:
+def calculate_rider_stress_metrics(rider_scenario: Dict[ZwiftRiderItem, RiderAggregateWorkItem]) -> Dict[ZwiftRiderItem, RiderStressItem]:
     """
     Calculates stress metrics for each rider across all his positions in a complete orbit of a paceline.
 
     Args:
-        rider_scenario (Dict[ZwiftRiderItem, RiderAggregateEffortItem]): The dictionary of rider_scenario with their aggregate_effort workload metrics.
+        rider_scenario (Dict[ZwiftRiderItem, RiderAggregateWorkItem]): The dictionary of rider_scenario with their aggregate_effort workload metrics.
     Returns:
         Dict[ZwiftRiderItem, RiderStressItem]: A dictionary of rider_scenario with their stress metrics.
     """
@@ -98,7 +87,7 @@ def calculate_rider_stress_metrics(rider_scenario: Dict[ZwiftRiderItem, RiderAgg
     return rider_performance
 
 
-def log_rider_aggregate_efforts(test_description: str, result: Dict[ZwiftRiderItem, RiderAggregateEffortItem], logger: logging.Logger) -> None:
+def log_rider_aggregate_efforts(test_description: str, result: Dict[ZwiftRiderItem, RiderAggregateWorkItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     table = []
     for rider, aggregate_effort in result.items():

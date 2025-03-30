@@ -5,10 +5,6 @@ from tabulate import tabulate
 from jgh_read_write import *
 from jgh_serialization import *
 
-# WARNING: This is a simple version.
-# The object is extensible. It can be extended to handle almost infinitely 
-# advanced scenarios.
-
 class ZwiftRiderDataTransferObject(BaseModel):
     """
     A data transfer object representing a zwiftrider's particulars. The object
@@ -47,6 +43,8 @@ class ZwiftRiderDataTransferObject(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
+
+
 def main():
     import logging
     from jgh_logging import jgh_configure_logging
