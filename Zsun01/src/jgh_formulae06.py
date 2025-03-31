@@ -139,11 +139,13 @@ def populate_rider_answers(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]
 
         p1_duration, p1_wkg, p1_slash_ftp = extract_pull_metrics(items)
 
+        velo_rank, velo_name = calculate_velo_cat(rider)
+
         rider_display_object = RiderAnswerItem(
             name = rider.name,
             zrs = rider.zwift_racing_score,
             zwiftftp_cat = calculate_zwift_ftp_cat(rider),
-            velo_cat = f"{calculate_velo_cat(rider)[0]} - {calculate_velo_cat(rider)[1]}",
+            velo_cat = f"{velo_rank} - {velo_name}",
             cp_5_min_wkg = 0,
             cp  = 0,
             ftp = rider.ftp,
