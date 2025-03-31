@@ -8,20 +8,6 @@ from zwiftrider_cp_dto import ZwiftRiderCriticalPowerDataTransferObject
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
 
-class Gender(Enum):
-    MALE = 'm'
-    FEMALE = 'f'
-
-    @classmethod
-    def _missing_(cls, value : object):
-        """
-        Return the default value 'MALE' if the provided value is None or invalid.
-        """
-        if value is None:
-            return cls.MALE
-        return super()._missing_(value)
-
-
 @dataclass(frozen=True, eq=True) # immutable and hashable
 class ZwiftRiderItem():
     """
@@ -69,7 +55,7 @@ class ZwiftRiderItem():
     name               : str    = ""            # Name of the rider
     weight             : float  = 0             # Weight of the rider in kilograms
     height             : float  = 0             # Height of the rider in centimeters
-    gender             : Gender = Gender.MALE   # Gender of the rider
+    gender             : str = ""               # Gender of the rider
     ftp                : float  = 0             # Functional Threshold Power in watts
     zwift_racing_score : int    = 0             # Zwift racing score
     velo_rating        : int    = 0             # Velo rating
@@ -210,22 +196,22 @@ class ZwiftRiderItem():
         }
 
     @staticmethod
-    def create(zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
+    def create(zwiftid: int, name: str, weight: float, height: float, gender: str, 
         ftp: float, zwift_racing_score: int, velo_rating: int
     ) -> 'ZwiftRiderItem':
         """
         Create a ZwiftRiderItem instance with the given parameters
 
         Args:
-            zwiftid (int): The Zwift ID of the rider.
-            name (str): The name of the rider.
-            weight (float): The weight of the rider in kilograms.
-            height (float): The height of the rider in centimeters.
-            gender (Gender): The gender of the rider.
-            ftp (float): Functional Threshold Power in watts.
-            zwift_racing_score (int): Zwift racing score.
-            velo_rating (int): Velo rating.
-
+           zwiftid            (int)  : The Zwift ID of the rider.
+            name               (str)  : The name of the rider.
+            weight             (float): The weight of the rider in kilograms.
+            height             (float): The height of the rider in centimeters.
+            gender             (Gender): The gender of the rider.
+            ftp                (float): Functional Threshold Power in watts.
+            zwift_racing_score (int)  : Zwift racing score.
+            velo_rating        (int)  : Velo rating.
+    
         Returns:
             ZwiftRiderItem: A ZwiftRiderItem instance with the given parameters.
         """
@@ -343,7 +329,7 @@ class ZwiftRiderItem():
             name=item.name,
             weight=item.weight,
             height=item.height,
-            gender=item.gender.value,
+            gender=item.gender,
             ftp=item.ftp,
             zwift_racing_score=item.zwift_racing_score,
             velo_rating=item.velo_rating
@@ -365,7 +351,7 @@ class ZwiftRiderItem():
             name=dto.name or "",
             weight=dto.weight or 0,
             height=dto.height or 0,
-            gender=Gender(dto.gender) or 0,
+            gender=dto.gender or "",
             ftp=dto.ftp or 0,
             zwift_racing_score=dto.zwift_racing_score or 0,
             velo_rating=dto.velo_rating or 0
@@ -585,7 +571,6 @@ class RiderTeamItem:
         sort_riders()
 
 
-
 @dataclass(frozen=True, eq=True) 
 class RiderWorkAssignmentItem:
     position: int = 1
@@ -624,23 +609,24 @@ class RiderStressItem():
     position_at_peak_wattage : int = 0
     total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
 
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderAnswerDisplayObject():
+@dataclass
+class RiderAnswerItem():
     name: str = ""
     zrs: float = 0
     zwiftftp_cat : str = ""
-    velo_cat: int = 0
+    velo_cat: str = ""
     cp_5_min_wkg: float = 0
     cp : float = 0
     ftp: float = 0
     ftp_wkg : float = 0
     p1_duration: float = 0
     p1_wkg: float = 0
-    p1_div_ftp: float = 0
+    p1_slash_ftp: float = 0
     p1_w: float = 0
     p2_w: float = 0
     p3_w: float = 0
     p4_w: float = 0
+    pn_w: float = 0
     ftp_intensity_factor: float = 0
     cp_intensity_factor: float = 0
 
