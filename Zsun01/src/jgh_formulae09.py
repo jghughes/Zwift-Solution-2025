@@ -54,19 +54,19 @@ def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_exert
 
     # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
     critical_power_curve = CriticalPowerCurveItem(
-        cpw_5_sec=powercurve_datapoints.get(5, 0.0),
-        cpw_15_sec=powercurve_datapoints.get(15, 0.0),
-        cpw_30_sec=powercurve_datapoints.get(30, 0.0),
-        cpw_1_min=powercurve_datapoints.get(60, 0.0),
-        cpw_2_min=powercurve_datapoints.get(120, 0.0),
-        cpw_3_min=powercurve_datapoints.get(180, 0.0),
-        cpw_5_min=powercurve_datapoints.get(300, 0.0),
-        cpw_10_min=powercurve_datapoints.get(600, 0.0),
-        cpw_12_min=powercurve_datapoints.get(720, 0.0),
-        cpw_15_min=powercurve_datapoints.get(900, 0.0),
-        cpw_20_min=powercurve_datapoints.get(1200, 0.0),
-        cpw_30_min=powercurve_datapoints.get(1800, 0.0),
-        cpw_40_min=powercurve_datapoints.get(2400, 0.0)
+        cp_5_sec=powercurve_datapoints.get(5, 0.0),
+        cp_15_sec=powercurve_datapoints.get(15, 0.0),
+        cp_30_sec=powercurve_datapoints.get(30, 0.0),
+        cp_1_min=powercurve_datapoints.get(60, 0.0),
+        cp_2_min=powercurve_datapoints.get(120, 0.0),
+        cp_3_min=powercurve_datapoints.get(180, 0.0),
+        cp_5_min=powercurve_datapoints.get(300, 0.0),
+        cp_10_min=powercurve_datapoints.get(600, 0.0),
+        cp_12_min=powercurve_datapoints.get(720, 0.0),
+        cp_15_min=powercurve_datapoints.get(900, 0.0),
+        cp_20_min=powercurve_datapoints.get(1200, 0.0),
+        cp_30_min=powercurve_datapoints.get(1800, 0.0),
+        cp_40_min=powercurve_datapoints.get(2400, 0.0)
     )
 
     return critical_power_curve

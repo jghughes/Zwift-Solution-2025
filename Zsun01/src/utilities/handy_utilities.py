@@ -6,8 +6,8 @@ from zwiftrider_related_items import ZwiftRiderItem
 
 def get_all_zwiftriders() -> Dict[str, ZwiftRiderItem]:
 
-    file_name = "rider_dictionary.json"
-    directory_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/"
+    file_name = "zwiftrider_dictionary.json"
+    directory_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     inputjson = read_text(directory_path, file_name)
 

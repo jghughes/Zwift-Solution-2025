@@ -31,29 +31,28 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
-    <Folder Include="rider_data\" />
     <Folder Include="src\" />
     <Folder Include="src\functions\" />
     <Folder Include="src\utilities\" />
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\appsettings.json" />
-    <Content Include="data\logger.log" />
+    <Content Include="appsettings.json" />
+    <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">
       <SubType>Code</SubType>
     </Content>
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
-    <Content Include="rider_data\rider_dictionary.json" />
-    <Content Include="rider_data\rider_power_dictionary.json" />
+    <Content Include="data\zwiftrider_dictionary.json" />
+    <Content Include="data\zwiftrider_power_dictionary.json" />
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="data\zwiftinsider_stuff.py" />
-    <Compile Include="rider_data\tool02.py" />
-    <Compile Include="rider_data\tool01.py" />
+    <Compile Include="data\tool02.py" />
+    <Compile Include="data\tool01.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\functions\rolling_average.py" />
     <Compile Include="src\utilities\handy_utilities.py" />

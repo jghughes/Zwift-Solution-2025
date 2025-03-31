@@ -1,89 +1,98 @@
 from typing import  List, Dict
 from handy_utilities import get_all_zwiftriders
-from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem
-from rolling_average import calculate_rolling_averages
+from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAnswerDisplayObject
+from jgh_formulae05 import calculate_average_watts, calculate_normalized_watts
 import logging
 
-def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
-    """
-    Calculate the average power for a list of efforts.
-    The average power is calculated as the total work done (in kilojoules) divided by 
-    the total duration (in seconds). The function sums the kilojoules for each workload 
-    item and divides by the total duration to obtain the average power.
+def calculate_zwift_zrs_cat(rider: ZwiftRiderItem)-> str:
 
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts.
-    Returns:
-        float: The average power.
-    """
-    if not efforts:
+    if rider.zwift_racing_score < 1.0:
+        return "D"
+    elif rider.zwift_racing_score < 2.0:
+        return "C"
+    elif rider.zwift_racing_score < 3.0:
+        return "B"
+    elif rider.zwift_racing_score < 4.0:
+        return "A"
+    else:
+        return "A+"
+
+def calculate_zwift_ftp_cat(rider: ZwiftRiderItem)-> str:
+    if rider.ftp < 2.0:
+        return "D"
+    elif rider.ftp < 3.2:
+        return "C"
+    elif rider.ftp < 4.0:
+        return "B"
+    elif rider.ftp < 5.0:
+        return "A"
+    else:
+        return "A+"
+
+def calculate_velo_cat(rider: ZwiftRiderItem)-> int:
+    if rider.ftp < 2.0:
+        return "5"
+    elif rider.ftp < 3.2:
+        return "4"
+    elif rider.ftp < 4.0:
+        return "3"
+    elif rider.ftp < 5.0:
+        return "2"
+    else:
+        return "1"
+
+def calculate_ftp_wkg(rider: ZwiftRiderItem)-> float:
+    return round(rider.ftp/rider.weight,2)
+
+def calculate_cp_intensity_factor(rider: ZwiftRiderItem, items: List[RiderExertionItem]) -> float:
+    pass
+
+def calculate_ftp_intensity_factor(rider: ZwiftRiderItem, items: List[RiderExertionItem]) -> float:
+    if not items:
         return 0
-
-    total_kilojoules = sum(item.kilojoules for item in efforts)
-    total_duration = sum(item.duration for item in efforts)
-    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
-    return average_watts
-
-
-def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
-    """
-    Calculate the normalized power for a list of efforts.
-
-    Normalized Power (NP) is a metric used to better quantify the physiological 
-    demands of a workout compared to average power. It accounts for the variability 
-    in power output and provides a more accurate representation of the effort 
-    required. The calculation involves several steps:
-
-    1. Create a list of instantaneous wattages for every second of the durations 
-       of all efforts.
-    2. Calculate the 30-second rolling average power.
-    3. Raise the smoothed power values to the fourth power.
-    4. Calculate the average of these values.
-    5. Take the fourth root of the average.
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts. 
-        Each item contains the wattage and duration for a specific segment of the 
-        workout.
-
-    Returns:
-        float: The normalized power.
-
-    Example:
-        >>> efforts = [
-        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
-        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
-        ... ]
-        >>> calculate_normalized_watts(efforts)
-        192.0
-
-    In this example, the normalized power is calculated for two efforts. 
-    The first item has a duration of 60 seconds and a wattage of 200, and the 
-    second item has a duration of 30 seconds and a wattage of 180. The function 
-    computes the normalized power based on these values.
-    """
-    if not efforts:
+    if rider.ftp == 0:
         return 0
+    ftp_intensity_factor = round(calculate_normalized_watts(items)/rider.ftp,2)
+    return ftp_intensity_factor
 
-    # Create a list of instantaneous wattages for every second of the durations of all efforts
-    instantaneous_wattages: List[float] = []
-    for item in efforts:
-        instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
-    # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
-    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 5-second rolling average
-    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
+def populate_rider_display_objects(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]) -> Dict[ZwiftRiderItem, RiderAnswerDisplayObject]:
 
-    # Raise the smoothed power values to the fourth power
-    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
+    answer: Dict[ZwiftRiderItem, RiderAnswerDisplayObject] = {}
 
-    # Calculate the average of these values
-    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
+    for rider, items in riders.items():
 
-    # Take the fourth root of the average
-    normalized_watts = mean_power_4 ** 0.25
 
-    return normalized_watts
+
+
+
+
+
+
+
+        rider_display_object = RiderAnswerDisplayObject(
+            name = rider.name,
+            zrs = rider.zwift_racing_score,
+            zwiftftp_cat = calculate_zwift_ftp_cat(rider),
+            velo_cat = calculate_velo_cat(rider),
+            cp_5_min_wkg = 0,
+            cp  = 0,
+            ftp = rider.ftp,
+            ftp_wkg  = calculate_ftp_wkg(rider),
+            p1_duration = 0,
+            p1_wkg = 0,
+            p1_div_ftp = 0,
+            p1_w = 0,
+            p2_w = 0,
+            p3_w = 0,
+            p4_w = 0,
+            ftp_intensity_factor = calculate_ftp_intensity_factor(rider, items),
+            cp_intensity_factor = calculate_cp_intensity_factor(rider, items)
+        )
+        answer[rider] = rider_display_object
+
+    return answer
+
 
 def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate

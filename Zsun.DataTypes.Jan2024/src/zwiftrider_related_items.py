@@ -388,47 +388,6 @@ class ZwiftRiderItem():
         }
         return dict_of_zwiftrideritem# Example usage
 
-
-@dataclass(frozen=True, eq=True) 
-class RiderWorkAssignmentItem:
-    position: int = 1
-    duration: float = 0
-    speed: float = 0
-
-
-@dataclass(frozen=True, eq=True) 
-class RiderExertionItem:
-    position: int = 0
-    speed: float = 0
-    duration: float = 0
-    wattage: float = 0
-    kilojoules: float = 0
-
-
-@dataclass(frozen=True, eq=True)
-class RiderAggregateEffortItem:
-    total_duration: float = 0
-    average_speed: float = 0
-    total_distance: float = 0
-    weighted_average_watts: float = 0
-    normalized_average_watts: float = 0
-    instantaneous_peak_wattage: float = 0
-    position_at_peak_wattage: int = 0
-    total_kilojoules_at_weighted_watts: float = 0
-    total_kilojoules_at_normalized_watts: float = 0
-
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderStressItem():
-    ftp: float = 0
-    normalised_power: float = 0
-    intensity_factor: float = 0
-
-    peak_watts_divided_by_ftp_watts: float = 0
-    position_at_peak_wattage : int = 0
-    total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
-
-
-
 @dataclass
 class CriticalPowerItem:
     """
@@ -625,6 +584,65 @@ class RiderTeamItem:
         riders_resting.remove(rider)
         sort_riders()
 
+
+
+@dataclass(frozen=True, eq=True) 
+class RiderWorkAssignmentItem:
+    position: int = 1
+    duration: float = 0
+    speed: float = 0
+
+
+@dataclass(frozen=True, eq=True) 
+class RiderExertionItem:
+    position: int = 0
+    speed: float = 0
+    duration: float = 0
+    wattage: float = 0
+    kilojoules: float = 0
+
+
+@dataclass(frozen=True, eq=True)
+class RiderAggregateEffortItem:
+    total_duration: float = 0
+    average_speed: float = 0
+    total_distance: float = 0
+    weighted_average_watts: float = 0
+    normalized_average_watts: float = 0
+    instantaneous_peak_wattage: float = 0
+    position_at_peak_wattage: int = 0
+    total_kilojoules_at_weighted_watts: float = 0
+    total_kilojoules_at_normalized_watts: float = 0
+
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderStressItem():
+    ftp: float = 0
+    normalised_power: float = 0
+    intensity_factor: float = 0
+
+    peak_watts_divided_by_ftp_watts: float = 0
+    position_at_peak_wattage : int = 0
+    total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
+
+@dataclass(frozen=True, eq=True) # immutable and hashable
+class RiderAnswerDisplayObject():
+    name: str = ""
+    zrs: float = 0
+    zwiftftp_cat : str = ""
+    velo_cat: int = 0
+    cp_5_min_wkg: float = 0
+    cp : float = 0
+    ftp: float = 0
+    ftp_wkg : float = 0
+    p1_duration: float = 0
+    p1_wkg: float = 0
+    p1_div_ftp: float = 0
+    p1_w: float = 0
+    p2_w: float = 0
+    p3_w: float = 0
+    p4_w: float = 0
+    ftp_intensity_factor: float = 0
+    cp_intensity_factor: float = 0
 
 
 def main():

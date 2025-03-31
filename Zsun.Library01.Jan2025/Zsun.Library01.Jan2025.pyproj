@@ -36,8 +36,8 @@
     <Compile Include="src\repositories\repository_of_hub_style_entries.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\appsettings.json" />
-    <Content Include="data\logger.log" />
+    <Content Include="appsettings.json" />
+    <Content Include="logger.log" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />

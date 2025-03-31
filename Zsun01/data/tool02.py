@@ -1,7 +1,7 @@
 import json
 
 # Load the JSON data from the file
-with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/rider_dictionary_v2.json', 'r') as file:
+with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftrider_dictionary_v2.json', 'r') as file:
     data = json.load(file)
 
 # Define the keys to be deleted
@@ -14,7 +14,7 @@ for rider in data.values():
             del rider[key]
 
 # Write the updated JSON data back to the file
-with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/rider_data/rider_dictionary_v3.json', 'w') as file:
+with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftrider_dictionary_v3.json', 'w') as file:
     json.dump(data, file, indent=4)
 
 print("JSON file updated successfully.")
