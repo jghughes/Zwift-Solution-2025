@@ -1,163 +1,278 @@
-from typing import Dict, List
-from dataclasses import dataclass
-from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAggregateEffortItem
-from jgh_formulae06 import calculate_normalized_watts
+from typing import  List, Dict, Tuple
+from handy_utilities import get_all_zwiftriders
+from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAnswerItem, RiderAnswerDisplayObject
+from rolling_average import calculate_rolling_averages
 import logging
 
-
-def calculate_rider_aggregate_efforts(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
+# currenty unsused
+def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
-    Calculates aggregate_effort metrics for each rider across all his positions in a complete orbit of a paceline.
+    Calculate the average power for a list of efforts.
+    The average power is calculated as the total work done (in kilojoules) divided by 
+    the total duration (in seconds). The function sums the kilojoules for each workload 
+    item and divides by the total duration to obtain the average power.
 
     Args:
-        riders (Dict[ZwiftRiderItem, List[RiderExertionItem]]): The dictionary of riders with their aggregate_effort workload line items.
-
+        efforts (List[RiderExertionItem]): The list of efforts.
     Returns:
-        Dict[ZwiftRiderItem, RiderAggregateEffortItem]: A dictionary of riders with their aggregate_effort workload metrics.
+        float: The average power.
     """
-    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateEffortItem] = {}
+    if not efforts:
+        return 0
 
-    for rider, efforts in riders.items():
+    total_kilojoules = sum(item.kilojoules for item in efforts)
+    total_duration = sum(item.duration for item in efforts)
+    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
+    return average_watts
 
-        if not efforts:
-            # Handle case where there are no workload line items
-            rider_aggregates[rider] = RiderAggregateEffortItem()
-            continue
-        total_duration = sum(item.duration for item in efforts) # measured in seconds
-        total_distance = sum(item.speed * item.duration / 3600 for item in efforts)  # convert to km
-        average_speed = total_distance / (total_duration / 3600) if total_duration != 0 else 0  # convert to km/h
-        total_kilojoules_at_weighted_watts = sum(item.kilojoules for item in efforts)
-
-
-        # Calculate average wattage
-        total_wattage_duration = sum(item.wattage * item.duration for item in efforts)
-        weighted_average_watts = total_wattage_duration / total_duration if total_duration != 0 else 0
-        normalized_average_watts = calculate_normalized_watts(efforts)
-        instantaneous_peak_wattage = max(item.wattage for item in efforts)
-        position_at_peak_wattage = next((i for i, item in enumerate(efforts) if item.wattage == instantaneous_peak_wattage), 0)
-        total_kilojoules_at_normalized_watts = normalized_average_watts * total_duration / 1_000
-
-        rider_aggregates[rider] = RiderAggregateEffortItem(
-            total_duration=total_duration,
-            average_speed=average_speed,
-            total_distance=total_distance,
-            weighted_average_watts=weighted_average_watts,
-            normalized_average_watts= normalized_average_watts,
-            instantaneous_peak_wattage=instantaneous_peak_wattage,
-            position_at_peak_wattage=position_at_peak_wattage,
-            total_kilojoules_at_weighted_watts=total_kilojoules_at_weighted_watts,
-            total_kilojoules_at_normalized_watts = total_kilojoules_at_normalized_watts
-        )
-
-    return rider_aggregates
-
-
-def calculate_rider_stress_metrics(riders: Dict[ZwiftRiderItem, RiderAggregateEffortItem]) -> Dict[ZwiftRiderItem, RiderStressItem]:
+def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
-    Calculates stress metrics for each rider across all his positions in a complete orbit of a paceline.
+    Calculate the normalized power for a list of efforts.
+
+    Normalized Power (NP) is a metric used to better quantify the physiological 
+    demands of a workout compared to average power. It accounts for the variability 
+    in power output and provides a more accurate representation of the effort 
+    required. The calculation involves several steps:
+
+    1. Create a list of instantaneous wattages for every second of the durations 
+       of all efforts.
+    2. Calculate the 30-second rolling average power.
+    3. Raise the smoothed power values to the fourth power.
+    4. Calculate the average of these values.
+    5. Take the fourth root of the average.
 
     Args:
-        riders (Dict[ZwiftRiderItem, RiderAggregateEffortItem]): The dictionary of riders with their aggregate_effort workload metrics.
+        efforts (List[RiderExertionItem]): The list of efforts. 
+        Each item contains the wattage and duration for a specific segment of the 
+        workout.
+
     Returns:
-        Dict[ZwiftRiderItem, RiderStressItem]: A dictionary of riders with their stress metrics.
+        float: The normalized power.
+
+    Example:
+        >>> efforts = [
+        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
+        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
+        ... ]
+        >>> calculate_normalized_watts(efforts)
+        192.0
+
+    In this example, the normalized power is calculated for two efforts. 
+    The first item has a duration of 60 seconds and a wattage of 200, and the 
+    second item has a duration of 30 seconds and a wattage of 180. The function 
+    computes the normalized power based on these values.
     """
-    rider_performance: Dict[ZwiftRiderItem, RiderStressItem] = {}
-    for rider, aggregate_effort in riders.items():
+    if not efforts:
+        return 0
 
-        if rider.ftp == 0:
-            # Handle case where rider has no FTP
-            rider_performance[rider] = RiderStressItem()
-            continue
+    # Create a list of instantaneous wattages for every second of the durations of all efforts
+    instantaneous_wattages: List[float] = []
+    for item in efforts:
+        instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
-        power_factor = aggregate_effort.instantaneous_peak_wattage / rider.ftp if rider.ftp != 0 else 0
-        energy_intensity = aggregate_effort.total_kilojoules_at_normalized_watts / (rider.ftp * aggregate_effort.total_duration/1_000 )
+    # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
+    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 5-second rolling average
+    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
 
-        rider_performance[rider] = RiderStressItem(
-            peak_watts_divided_by_ftp_watts = power_factor,
-            position_at_peak_wattage= aggregate_effort.position_at_peak_wattage,
-            total_normalized_kilojoules_divided_by_ftp_kilojoules= energy_intensity
+    # Raise the smoothed power values to the fourth power
+    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
+
+    # Calculate the average of these values
+    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
+
+    # Take the fourth root of the average
+    normalized_watts = mean_power_4 ** 0.25
+
+    return normalized_watts
+
+def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswerItem]) -> Dict[ZwiftRiderItem, RiderAnswerDisplayObject]:
+
+    answer: Dict[ZwiftRiderItem, RiderAnswerDisplayObject] = {}
+
+    def calculate_zwift_zrs_cat(rider: ZwiftRiderItem) -> str:
+        if rider.zwift_racing_score < 180:
+            return "E"
+        elif rider.zwift_racing_score < 350:
+            return "D"
+        elif rider.zwift_racing_score < 520:
+            return "C"
+        elif rider.zwift_racing_score < 690:
+            return "B"
+        else:
+            return "A"
+
+    def calculate_zwift_ftp_cat(rider: ZwiftRiderItem)-> str:
+        if rider.ftp < 2.5:
+            return "D"
+        elif rider.ftp < 3.2:
+            return "C"
+        elif rider.ftp < 4.0:
+            return "B"
+        else:
+            return "A"
+
+    def calculate_wkg(watts: float, weight : float)-> float:
+        return rider.ftp/rider.weight if rider.weight != 0 else 0
+
+    def make_pretty_velo_cat(rider: ZwiftRiderItem) -> str:
+
+        def calculate_velo_cat(rider: ZwiftRiderItem) -> Tuple[int, str]:
+            if rider.gender == "f":
+                if rider.velo_rating >= 1450:
+                    return 1, "Diamond"
+                elif rider.velo_rating >= 1250:
+                    return 2, "Ruby"
+                elif rider.velo_rating >= 1100:
+                    return 3, "Emerald"
+                elif rider.velo_rating >= 950:
+                    return 4, "Sapphire"
+                elif rider.velo_rating >= 850:
+                    return 5, "Amethyst"
+                elif rider.velo_rating >= 750:
+                    return 6, "Platinum"
+                elif rider.velo_rating >= 650:
+                    return 7, "Gold"
+                elif rider.velo_rating >= 550:
+                    return 8, "Silver"
+                elif rider.velo_rating >= 400:
+                    return 9, "Bronze"
+                else:
+                    return 10, "Copper"
+            else:
+                if rider.velo_rating >= 2200:
+                    return 1, "Diamond"
+                elif rider.velo_rating >= 1900:
+                    return 2, "Ruby"
+                elif rider.velo_rating >= 1650:
+                    return 3, "Emerald"
+                elif rider.velo_rating >= 1450:
+                    return 4, "Sapphire"
+                elif rider.velo_rating >= 1300:
+                    return 5, "Amethyst"
+                elif rider.velo_rating >= 1150:
+                    return 6, "Platinum"
+                elif rider.velo_rating >= 1000:
+                    return 7, "Gold"
+                elif rider.velo_rating >= 850:
+                    return 8, "Silver"
+                elif rider.velo_rating >= 650:
+                    return 9, "Bronze"
+                else:
+                    return 10, "Copper"
+
+        velo_rank, velo_name = calculate_velo_cat(rider)
+        return f"{velo_rank}-{velo_name}"
+
+    def make_pretty_cat_descriptor(rider: ZwiftRiderItem) -> str:
+        answer = f"{rider.zwift_racing_score}({calculate_zwift_zrs_cat(rider)}) {round(calculate_wkg(rider.ftp, rider.weight), 1)}({calculate_zwift_ftp_cat(rider)}) {make_pretty_velo_cat(rider)}"
+        return answer
+
+    def make_pretty_p1_p4(answer: RiderAnswerItem) -> str:
+        return f"{round(answer.p1_w,0)} {round(answer.p2_w,0)} {round(answer.p3_w,0)} {round(answer.p3_w,0)}"
+
+    for rider, item in riders.items():
+        rider_display_object = RiderAnswerDisplayObject(
+            name                  = rider.name,
+            cat_descriptor        = make_pretty_cat_descriptor(rider),
+            zrs_score             = rider.zwift_racing_score,
+            zrs_cat               = calculate_zwift_zrs_cat(rider),
+            zwiftftp_cat          = calculate_zwift_ftp_cat(rider),
+            velo_cat              = make_pretty_velo_cat(rider),
+            cp_5_min_wkg          = 0,
+            cp                    = 0,
+            ftp                   = rider.ftp,
+            ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight), 1),
+            p1_duration           = item.p1_duration,
+            p1_wkg                = round(calculate_wkg(item.p1_duration, rider.weight), 1),
+            p1_slash_ftp          = round(item.p1_w / rider.ftp if rider.ftp != 0 else 0, 1),
+            p1_4                  = make_pretty_p1_p4(item),
+            p__w                  = round(item.p__w, 0),
+            ftp_intensity_factor  = round(item.ftp_intensity_factor, 2),
+            cp_intensity_factor   = round(0, 2)
         )
-    return rider_performance
+        answer[rider] = rider_display_object
 
+    return answer
 
-def log_rider_aggregate_efforts(test_description: str, result: Dict[ZwiftRiderItem, RiderAggregateEffortItem], logger: logging.Logger) -> None:
+def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerDisplayObject], logger: logging.Logger) -> None:
+    
     from tabulate import tabulate
+   
+    logger.info(test_description)
+
     table = []
-    for rider, aggregate_effort in result.items():
+    for rider, z in result.items():
         table.append([
-            rider.name,
-            # aggregate_effort.total_duration,
-            # aggregate_effort.average_speed,
-            # round(aggregate_effort.total_distance,3),
-            aggregate_effort.position_at_peak_wattage,
-            round(aggregate_effort.instantaneous_peak_wattage),
-            round(aggregate_effort.normalized_average_watts),
-            round(aggregate_effort.weighted_average_watts),
-            round(aggregate_effort.total_kilojoules_at_normalized_watts)
+            z.name,
+            z.cat_descriptor,
+            # z.zrs_score, 
+            # z.zrs_cat, 
+            # z.zwiftftp_cat, 
+            # z.velo_cat, 
+            z.cp_5_min_wkg, 
+            z.cp, 
+            z.ftp, 
+            # z.ftp_wkg, 
+            z.p1_duration, 
+            z.p1_wkg, 
+            z.p1_slash_ftp, 
+            z.p1_4, 
+            z.p__w, 
+            z.ftp_intensity_factor, 
+            z.cp_intensity_factor
         ])
-    if test_description:
-            logger.info(test_description)
-    headers = ["Rider", "Peak watts position", "Peak Watts", "Norm. Watts",  "Av Watts",  "Norm. kJ"]
+
+    headers = [
+        "Rider",
+        "Categories"
+        # "ZRS", 
+        # "ZRS Cat", 
+        # "FTP Cat", 
+        # "Velo Cat", 
+        "CP 5 min", 
+        "CP", 
+        "FTP", 
+        # "FTP w/kg", 
+        "Pull", 
+        "P1 w/kg", 
+        "P1/FTP", 
+        "P1-4", 
+        "P__W", 
+        "ftpIF", 
+        "cpIF"
+    ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 
-def log_rider_stress_metrics(test_description: str, result: Dict[ZwiftRiderItem, RiderStressItem], logger: logging.Logger) -> None:
-    from tabulate import tabulate
-    table = []
-    for rider, performance in result.items():
-        table.append([
-            rider.name,
-            round(performance.peak_watts_divided_by_ftp_watts, 1),
-            performance.position_at_peak_wattage,
-            round(performance.total_normalized_kilojoules_divided_by_ftp_kilojoules, 1)
-        ])
-    if test_description:
-            logger.info(test_description)    
-    headers = ["Rider", "Peak W/FTP", "Position when Peak W ", "Energy Intensity"]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
-# Example usage in the main function
 def main() -> None:
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
+    from zwiftrider_related_items import ZwiftRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
-    from handy_utilities import get_all_zwiftriders
-
+    from jgh_formulae06 import populate_rider_answeritems
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
-    
-    pull_speeds_kph = [
-        # [37.5, 37.5, 37.5, 37.5],
-        [40.0, 40.0, 40.0, 40.0],
-        # [42.5, 42.5, 42.5, 42.5],
-        # [45.0, 45.0, 45.0, 45.0]
-    ]
-    pull_durations_sec = [120.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
 
-    for i, pull_speed in enumerate(pull_speeds_kph):
-        work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speed)
-        rider_exertions = populate_rider_exertions(work_assignments)
-        rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_exertions)
-        rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
+    pull_speeds_kph = [42.0, 42.0, 42.0]
+    pull_durations_sec = [30.0, 30.0, 30.0]
+    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
 
-        total_duration = next(iter(rider_aggregate_efforts.values())).total_duration
-        average_speed = next(iter(rider_aggregate_efforts.values())).average_speed #careful. formula only valid when speed is constant, as it is in this case
-        total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
+    work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
-        table_heading= f"\nPull durations={pull_durations_sec}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
-        log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
+    rider_exertions = populate_rider_exertions(work_assignments)
 
-        log_rider_stress_metrics(f"", rider_stress_metrics, logger)
-        
+    rider_answer_items = populate_rider_answeritems(rider_exertions)
+
+    rider_answer_displayobjects = populate_rider_answer_dispayobjects(rider_answer_items)
+
+    log_results_answer_displayobjects("Rider print-out:", rider_answer_displayobjects, logger)
+
 if __name__ == "__main__":
     main()
-

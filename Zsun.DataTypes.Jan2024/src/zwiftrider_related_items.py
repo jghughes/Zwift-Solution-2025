@@ -580,12 +580,48 @@ class RiderWorkAssignmentItem:
 
 @dataclass(frozen=True, eq=True) 
 class RiderExertionItem:
-    position: int = 0
-    speed: float = 0
+    current_location_in_paceline: int = 0
+    speed_kph: float = 0
     duration: float = 0
     wattage: float = 0
     kilojoules: float = 0
 
+@dataclass
+class RiderAnswerItem():
+    cp : float = 0
+    w_prime : float = 0
+    speed_kph: float = 0
+    p1_duration: float = 0
+    p1_wkg: float = 0
+    p1_slash_ftp : float = 0
+    p1_w: float = 0
+    p2_w: float = 0
+    p3_w: float = 0
+    p4_w: float = 0
+    p__w: float = 0
+    ftp_intensity_factor: float = 0
+    cp_intensity_factor: float = 0
+
+@dataclass
+class RiderAnswerDisplayObject():
+    name: str = ""
+    cat_descriptor: str = ""
+    zrs_score: float = 0
+    zrs_cat : str = ""
+    zwiftftp_cat : str = ""
+    velo_cat: str = ""
+    cp_5_min_wkg: float = 0
+    cp : float = 0
+    ftp: float = 0
+    ftp_wkg : float = 0
+    speed_kph : float = 0
+    p1_duration: float = 0
+    p1_wkg: float = 0
+    p1_slash_ftp: float = 0
+    p1_4: str = ""
+    p__w: float = 0
+    ftp_intensity_factor: float = 0
+    cp_intensity_factor: float = 0
 
 @dataclass(frozen=True, eq=True)
 class RiderAggregateEffortItem:
@@ -609,26 +645,6 @@ class RiderStressItem():
     position_at_peak_wattage : int = 0
     total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
 
-@dataclass
-class RiderAnswerItem():
-    name: str = ""
-    zrs: float = 0
-    zwiftftp_cat : str = ""
-    velo_cat: str = ""
-    cp_5_min_wkg: float = 0
-    cp : float = 0
-    ftp: float = 0
-    ftp_wkg : float = 0
-    p1_duration: float = 0
-    p1_wkg: float = 0
-    p1_slash_ftp: float = 0
-    p1_w: float = 0
-    p2_w: float = 0
-    p3_w: float = 0
-    p4_w: float = 0
-    pn_w: float = 0
-    ftp_intensity_factor: float = 0
-    cp_intensity_factor: float = 0
 
 
 def main():

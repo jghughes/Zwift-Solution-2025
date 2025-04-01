@@ -50,18 +50,26 @@ def populate_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-
-def log_results(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
+def log_results_work_assignments(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
 
     table = []
     for rider, assignments in result.items():
         for assignment in assignments:
-            table.append([rider.name, assignment.position, assignment.duration, assignment.speed])
+            table.append([
+                rider.name, 
+                assignment.position, 
+                assignment.duration, 
+                assignment.speed
+            ])
 
-    headers = ["Rider", "Position", "Duration (sec)", "Speed (kph)"]
+    headers = [
+        "Rider", 
+        "Position", 
+        "Duration (sec)", 
+        "Speed (kph)"
+    ]
     logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
 
 def main() -> None:
     import logging
@@ -83,7 +91,7 @@ def main() -> None:
 
     assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
-    log_results("Example riders",assignments, logger)
+    log_results_work_assignments("Example riders",assignments, logger)
 
 if __name__ == "__main__":
     main()

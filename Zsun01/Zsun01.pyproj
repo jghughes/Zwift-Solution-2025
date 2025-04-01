@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\jgh_formulae06.py</StartupFile>
+    <StartupFile>src\jgh_formulae07.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -55,13 +55,14 @@
     <Compile Include="data\tool01.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\functions\rolling_average.py" />
+    <Compile Include="src\jgh_formulae06.py" />
     <Compile Include="src\utilities\handy_utilities.py" />
     <Compile Include="src\functions\cyclic_matrix.py" />
     <Compile Include="src\functions\cyclic_paceline_algebra.py" />
     <Compile Include="src\jgh_formulae04.py" />
     <Compile Include="src\jgh_formulae05.py" />
-    <Compile Include="src\jgh_formulae06.py" />
     <Compile Include="src\jgh_formulae07.py" />
+    <Compile Include="src\jgh_formulae08.py" />
     <Compile Include="src\jgh_formulae09.py" />
     <Compile Include="src\functions\critical_power.py" />
     <Compile Include="src\ttt_solution.py" />
