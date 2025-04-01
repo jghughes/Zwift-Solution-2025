@@ -165,35 +165,35 @@ def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem,
     for rider, z in result.items():
         table.append([
             rider.name, 
-            z.cp, 
-            z.w_prime,
             z.speed_kph,
             z.p1_duration,
             z.p1_wkg,
-            z.p1_slash_ftp,
             z.p1_w, 
             z.p2_w, 
             z.p3_w, 
             z.p4_w, 
-            z.p__w, 
+            z.p__w,
+            z.cp, 
+            z.w_prime,
+            z.p1_slash_ftp,
             z.ftp_intensity_factor, 
             z.cp_intensity_factor
         ])
     headers = [
         "rider", 
-        "cp", 
-        "W_prime",
         "speed"
         "pull(s)", 
-        "p1_wkg",
-        "p1 %ftp",
+        "pull(wkg)",
         "p1", 
         "p2", 
         "p3", 
         "p4", 
         "p+", 
-        "ftpIF", 
-        "cpIF"
+        "cp", 
+        "W_prime",
+        "pull(%ftp)",
+        "IF(ftp)", 
+        "IF(cp)"
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
