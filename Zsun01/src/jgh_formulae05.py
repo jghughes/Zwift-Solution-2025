@@ -46,12 +46,12 @@ def log_results_exertions(test_description: str, result: Dict[ZwiftRiderItem, Li
             ])
 
     headers = [
-        "Rider", 
-        "Location", 
-        "Speed", 
-        "Duration of effort", 
-        "Wattage", 
-        "kJ expended"
+        "rider", 
+        "location", 
+        "kph", 
+        "seconds)", 
+        "watts", 
+        "kJ"
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
@@ -70,16 +70,18 @@ def main() -> None:
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
+    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
+    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
 
-    pull_speeds_kph = [40.0, 38.0, 36.0]
-    pull_durations_sec = [60.0, 30.0, 10.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
+    pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0]
+    pull_durations_sec = [120.0, 60.0, 30.0, 30.0, 30.0]
+    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
     rider_exertions = populate_rider_exertions(work_assignments)
 
-    log_results_exertions("Calculated rider watts and kJ as they rotate from head to rear [RiderExertionItem]:", rider_exertions, logger)
+    log_results_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", rider_exertions, logger)
 
 if __name__ == "__main__":
     main()

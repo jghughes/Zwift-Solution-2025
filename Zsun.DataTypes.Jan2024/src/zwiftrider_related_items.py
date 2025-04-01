@@ -1,5 +1,4 @@
 from typing import Dict
-from enum import Enum
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
 from zwiftrider_dto import ZwiftRiderDataTransferObject
@@ -588,41 +587,40 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    cp : float = 0
-    w_prime : float = 0
-    speed_kph: float = 0
-    p1_duration: float = 0
-    p1_wkg: float = 0
-    p1_slash_ftp : float = 0
-    p1_w: float = 0
-    p2_w: float = 0
-    p3_w: float = 0
-    p4_w: float = 0
-    p__w: float = 0
-    ftp_intensity_factor: float = 0
-    cp_intensity_factor: float = 0
-
+    cp                    : float = 0
+    w_prime               : float = 0
+    speed_kph             : float = 0
+    pull_duration         : float = 0
+    pull_wkg              : float = 0
+    pull_w_over_ftp       : float = 0
+    p1_w                  : float = 0
+    p2_w                  : float = 0
+    p3_w                  : float = 0
+    p4_w                  : float = 0
+    p__w                  : float = 0
+    ftp_intensity_factor  : float = 0
+    cp_intensity_factor   : float = 0
+    
 @dataclass
 class RiderAnswerDisplayObject():
-    name: str = ""
-    cat_descriptor: str = ""
-    zrs_score: float = 0
-    zrs_cat : str = ""
-    zwiftftp_cat : str = ""
-    velo_cat: str = ""
-    cp_5_min_wkg: float = 0
-    cp : float = 0
-    ftp: float = 0
-    ftp_wkg : float = 0
-    speed_kph : float = 0
-    p1_duration: float = 0
-    p1_wkg: float = 0
-    p1_slash_ftp: float = 0
-    p1_4: str = ""
-    p__w: float = 0
-    ftp_intensity_factor: float = 0
-    cp_intensity_factor: float = 0
-
+    name                  : str   = ""
+    pretty_cat_descriptor : str   = ""
+    zrs_score             : float = 0
+    zrs_cat               : str   = ""
+    zwiftftp_cat          : str   = ""
+    velo_cat              : str   = ""
+    cp_5_min_wkg          : float = 0
+    cp                    : float = 0
+    ftp                   : float = 0
+    ftp_wkg               : float = 0
+    speed_kph             : float = 0
+    pull_duration         : float = 0
+    pull_wkg              : float = 0
+    pull_w_over_ftp       : str   = ""
+    p1_4                  : str   = ""
+    ftp_intensity_factor  : float = 0
+    cp_intensity_factor   : float = 0
+    
 @dataclass(frozen=True, eq=True)
 class RiderAggregateEffortItem:
     total_duration: float = 0

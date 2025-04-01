@@ -102,11 +102,14 @@ def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswer
             return "A"
 
     def calculate_zwift_ftp_cat(rider: ZwiftRiderItem)-> str:
-        if rider.ftp < 2.5:
+
+        wkg = rider.ftp/rider.weight if rider.weight != 0 else 0
+
+        if wkg < 2.5:
             return "D"
-        elif rider.ftp < 3.2:
+        elif wkg < 3.2:
             return "C"
-        elif rider.ftp < 4.0:
+        elif wkg < 4.0:
             return "B"
         else:
             return "A"
@@ -164,16 +167,18 @@ def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswer
         return f"{velo_rank}-{velo_name}"
 
     def make_pretty_cat_descriptor(rider: ZwiftRiderItem) -> str:
-        answer = f"{rider.zwift_racing_score}({calculate_zwift_zrs_cat(rider)}) {round(calculate_wkg(rider.ftp, rider.weight), 1)}({calculate_zwift_ftp_cat(rider)}) {make_pretty_velo_cat(rider)}"
+        answer = f"{rider.zwift_racing_score} {round(calculate_wkg(rider.ftp, rider.weight), 2)} {calculate_zwift_ftp_cat(rider)} {make_pretty_velo_cat(rider)}"
+        # answer = f"zrs={rider.zwift_racing_score} ftp={round(calculate_wkg(rider.ftp, rider.weight), 2)} cat={calculate_zwift_ftp_cat(rider)} cat={make_pretty_velo_cat(rider)}"
+        # answer = f"{rider.zwift_racing_score}({calculate_zwift_zrs_cat(rider)}) {round(calculate_wkg(rider.ftp, rider.weight), 1)}({calculate_zwift_ftp_cat(rider)}) {make_pretty_velo_cat(rider)}"
         return answer
 
     def make_pretty_p1_p4(answer: RiderAnswerItem) -> str:
-        return f"{round(answer.p1_w,0)} {round(answer.p2_w,0)} {round(answer.p3_w,0)} {round(answer.p3_w,0)}"
+        return f"{round(answer.p1_w)} {round(answer.p2_w)} {round(answer.p3_w)} {round(answer.p4_w)}"
 
     for rider, item in riders.items():
         rider_display_object = RiderAnswerDisplayObject(
             name                  = rider.name,
-            cat_descriptor        = make_pretty_cat_descriptor(rider),
+            pretty_cat_descriptor = make_pretty_cat_descriptor(rider),
             zrs_score             = rider.zwift_racing_score,
             zrs_cat               = calculate_zwift_zrs_cat(rider),
             zwiftftp_cat          = calculate_zwift_ftp_cat(rider),
@@ -181,12 +186,12 @@ def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswer
             cp_5_min_wkg          = 0,
             cp                    = 0,
             ftp                   = rider.ftp,
-            ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight), 1),
-            p1_duration           = item.p1_duration,
-            p1_wkg                = round(calculate_wkg(item.p1_duration, rider.weight), 1),
-            p1_slash_ftp          = round(item.p1_w / rider.ftp if rider.ftp != 0 else 0, 1),
+            ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight),1),
+            speed_kph             = round(item.speed_kph, 1),
+            pull_duration          = item.pull_duration,
+            pull_wkg               = round(calculate_wkg(item.p1_w, rider.weight), 1),
+            pull_w_over_ftp        = f"{round(item.p1_w / rider.ftp*100 if rider.ftp != 0 else 0)}%",
             p1_4                  = make_pretty_p1_p4(item),
-            p__w                  = round(item.p__w, 0),
             ftp_intensity_factor  = round(item.ftp_intensity_factor, 2),
             cp_intensity_factor   = round(0, 2)
         )
@@ -204,44 +209,44 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftR
     for rider, z in result.items():
         table.append([
             z.name,
-            z.cat_descriptor,
+            z.pretty_cat_descriptor,
             # z.zrs_score, 
             # z.zrs_cat, 
             # z.zwiftftp_cat, 
             # z.velo_cat, 
+            # z.ftp, 
+            # z.ftp_wkg, 
+            z.speed_kph,
+            z.pull_duration, 
+            z.pull_wkg, 
+            z.p1_4, 
+            z.pull_w_over_ftp, 
+            z.ftp_intensity_factor, 
+            z.cp_intensity_factor,
             z.cp_5_min_wkg, 
             z.cp, 
-            z.ftp, 
-            # z.ftp_wkg, 
-            z.p1_duration, 
-            z.p1_wkg, 
-            z.p1_slash_ftp, 
-            z.p1_4, 
-            z.p__w, 
-            z.ftp_intensity_factor, 
-            z.cp_intensity_factor
+
         ])
 
-    headers = [
-        "Rider",
-        "Categories"
+    headers = ["Rider",
+        "Categories",
         # "ZRS", 
         # "ZRS Cat", 
         # "FTP Cat", 
         # "Velo Cat", 
-        "CP 5 min", 
-        "CP", 
-        "FTP", 
-        # "FTP w/kg", 
-        "Pull", 
-        "P1 w/kg", 
-        "P1/FTP", 
+        # "FTP", 
+        # "FTP w/kg",
+        "kph", 
+        "pull(s)", 
+        "w/kg", 
         "P1-4", 
-        "P__W", 
-        "ftpIF", 
-        "cpIF"
+        "ftp(%)", 
+        "IF(ftp)", 
+        "IF(cp)",
+        "CP 5 min", 
+        "CP" 
     ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 
 def main() -> None:
