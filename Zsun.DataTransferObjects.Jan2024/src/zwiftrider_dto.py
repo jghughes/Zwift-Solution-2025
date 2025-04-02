@@ -1,9 +1,58 @@
 # Local application imports
-from pydantic import BaseModel
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 from typing import Optional
 from tabulate import tabulate
 from jgh_read_write import *
 from jgh_serialization import *
+
+
+# Define constants for all the serialization aliases - for now, they are the same as the attribute names
+ZWIFTID_ALIAS = "zwiftid"
+NAME_ALIAS = "name"
+WEIGHT_ALIAS = "weight"
+HEIGHT_ALIAS = "height"
+GENDER_ALIAS = "gender"
+FTP_ALIAS = "ftp"
+ZWIFT_RACING_SCORE_ALIAS = "zwift_racing_score"
+VELO_RATING_ALIAS = "velo_rating"
+
+# Define the serialization alias map using the constants
+serialization_alias_map: dict[str, str] = {
+    "zwiftid": ZWIFTID_ALIAS,
+    "name": NAME_ALIAS,
+    "weight": WEIGHT_ALIAS,
+    "height": HEIGHT_ALIAS,
+    "gender": GENDER_ALIAS,
+    "ftp": FTP_ALIAS,
+    "zwift_racing_score": ZWIFT_RACING_SCORE_ALIAS,
+    "velo_rating": VELO_RATING_ALIAS,
+}
+
+
+# Define the validation alias choices map. for now, they are only the attribute names. 
+# more may added later to optionally handle JSON from varying sources with varying field names
+# that mean the same thing.
+
+validation_alias_choices_map: dict[str, AliasChoices] = {
+    "zwiftid": AliasChoices("zwiftid"),
+    "name": AliasChoices("name"),
+    "weight": AliasChoices("weight"),
+    "height": AliasChoices("height"),
+    "gender": AliasChoices("gender"),
+    "ftp": AliasChoices("ftp"),
+    "zwift_racing_score": AliasChoices("zwift_racing_score"),
+    "velo_rating": AliasChoices("velo_rating"),
+}
+
+# Define the Pydantic ConfigDict
+configdictV1 = ConfigDict(
+        alias_generator=AliasGenerator(
+            alias=None,
+            serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
+            validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
+
+preferred_config_dict = configdictV1
+
 
 class ZwiftRiderDataTransferObject(BaseModel):
     """
@@ -43,48 +92,7 @@ class ZwiftRiderDataTransferObject(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
-
-class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
-    """
-    A data transfer object representing a zwiftrider's critical power data.
-    The object can be round-tripped to and from JSON. The values of all attributes
-    are preserved in the JSON serialization and deserialization.
-
-    This class derives from Pydantic's BaseModel, making it powerful for serialization
-    and validation (deserialization).
-
-    Attributes:
-        zwiftid   : int    The Zwift ID of the rider.
-        name      : str    The name of the rider.
-        cpw_5_sec : float  Critical power for 5 seconds.
-        cpw_15_sec: float  Critical power for 15 seconds.
-        cpw_30_sec: float  Critical power for 30 seconds.
-        cpw_1_min : float  Critical power for 1 minute.
-        cpw_2_min : float  Critical power for 2 minutes.
-        cpw_3_min : float  Critical power for 3 minutes.
-        cpw_5_min : float  Critical power for 5 minutes.
-        cpw_10_min: float  Critical power for 10 minutes.
-        cpw_12_min: float  Critical power for 12 minutes.
-        cpw_15_min: float  Critical power for 15 minutes.
-        cpw_20_min: float  Critical power for 20 minutes.
-        cpw_30_min: float  Critical power for 30 minutes.
-        cpw_40_min: float  Critical power for 40 minutes.
-    """
-    zwiftid   : Optional[int]   = 0    # Zwift ID of the rider
-    name      : Optional[str]   = ""   # Name of the rider
-    cpw_5_sec : Optional[float] = 0.0  # Critical power for 5 seconds
-    cpw_15_sec: Optional[float] = 0.0  # Critical power for 15 seconds
-    cpw_30_sec: Optional[float] = 0.0  # Critical power for 30 seconds
-    cpw_1_min : Optional[float] = 0.0  # Critical power for 1 minute
-    cpw_2_min : Optional[float] = 0.0  # Critical power for 2 minutes
-    cpw_3_min : Optional[float] = 0.0  # Critical power for 3 minutes
-    cpw_5_min : Optional[float] = 0.0  # Critical power for 5 minutes
-    cpw_10_min: Optional[float] = 0.0  # Critical power for 10 minutes
-    cpw_12_min: Optional[float] = 0.0  # Critical power for 12 minutes
-    cpw_15_min: Optional[float] = 0.0  # Critical power for 15 minutes
-    cpw_20_min: Optional[float] = 0.0  # Critical power for 20 minutes
-    cpw_30_min: Optional[float] = 0.0  # Critical power for 30 minutes
-    cpw_40_min: Optional[float] = 0.0  # Critical power for 40 minutes
+    model_config = preferred_config_dict
 
 def main():
     import logging
@@ -111,3 +119,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

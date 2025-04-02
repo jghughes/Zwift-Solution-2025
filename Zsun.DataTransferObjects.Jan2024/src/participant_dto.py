@@ -86,7 +86,7 @@ validation_alias_choices_map : dict[str,AliasChoices] = {
     "when_touched_binary_format": AliasChoices("when_touched_binary_format"),
     "when_pushed_binary_format": AliasChoices("when_pushed_binary_format"),
     "originating_item_guid": AliasChoices("originating_item_guid"),
-    "guid": AliasChoices("guid"),
+    "guid": AliasChoices("guid")
 }
 # Define the Pydantic ConfigDict
 configdictV1 = ConfigDict(

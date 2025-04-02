@@ -171,7 +171,8 @@ class JghSerialization:
                 return requiredModel(**filtered_answer) # type: ignore
             elif issubclass(requiredModel, BaseModel): # type: ignore
                 # Handle Pydantic model deserialization - with powerful and clever type coercion for numbers and bools (strict=False)
-                return requiredModel.model_validate_json(inputJson, strict=False)
+                answer = requiredModel.model_validate_json(inputJson, strict=False)
+                return answer
             else:
                 # Handle generic object deserialization
                 answer = json.loads(inputJson)

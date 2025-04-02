@@ -1,7 +1,8 @@
 from typing import Dict, cast
 from jgh_read_write import read_text
 from jgh_serialization import JghSerialization
-from zwiftrider_related_dto import ZwiftRiderDataTransferObject, ZwiftRiderCriticalPowerDataTransferObject
+from zwiftrider_dto import ZwiftRiderDataTransferObject
+from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDataTransferObject
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
 
 def get_all_zwiftriders() -> Dict[str, ZwiftRiderItem]:

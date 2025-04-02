@@ -1,7 +1,8 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
-from zwiftrider_related_dto import ZwiftRiderDataTransferObject, ZwiftRiderCriticalPowerDataTransferObject
+from zwiftrider_dto import ZwiftRiderDataTransferObject 
+from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDataTransferObject
 
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
@@ -378,33 +379,33 @@ class CriticalPowerItem:
     A data class representing a zwiftrider's critical power data.
     
     Attributes:
-        cpw_5_sec : float  Critical power for 5 seconds.
-        cpw_15_sec: float  Critical power for 15 seconds.
-        cpw_30_sec: float  Critical power for 30 seconds.
-        cpw_1_min : float  Critical power for 1 minute.
-        cpw_2_min : float  Critical power for 2 minutes.
-        cpw_3_min : float  Critical power for 3 minutes.
-        cpw_5_min : float  Critical power for 5 minutes.
-        cpw_10_min: float  Critical power for 10 minutes.
-        cpw_12_min: float  Critical power for 12 minutes.
-        cpw_15_min: float  Critical power for 15 minutes.
-        cpw_20_min: float  Critical power for 20 minutes.
-        cpw_30_min: float  Critical power for 30 minutes.
-        cpw_40_min: float  Critical power for 40 minutes.
+        cp_5_sec : float  Critical power for 5 seconds.
+        cp_15_sec: float  Critical power for 15 seconds.
+        cp_30_sec: float  Critical power for 30 seconds.
+        cp_1_min : float  Critical power for 1 minute.
+        cp_2_min : float  Critical power for 2 minutes.
+        cp_3_min : float  Critical power for 3 minutes.
+        cp_5_min : float  Critical power for 5 minutes.
+        cp_10_min: float  Critical power for 10 minutes.
+        cp_12_min: float  Critical power for 12 minutes.
+        cp_15_min: float  Critical power for 15 minutes.
+        cp_20_min: float  Critical power for 20 minutes.
+        cp_30_min: float  Critical power for 30 minutes.
+        cp_40_min: float  Critical power for 40 minutes.
     """
-    cpw_5_sec : float  = 0.0
-    cpw_15_sec: float  = 0.0
-    cpw_30_sec: float  = 0.0
-    cpw_1_min : float  = 0.0
-    cpw_2_min : float  = 0.0
-    cpw_3_min : float  = 0.0
-    cpw_5_min : float  = 0.0
-    cpw_10_min: float  = 0.0
-    cpw_12_min: float  = 0.0
-    cpw_15_min: float  = 0.0
-    cpw_20_min: float  = 0.0
-    cpw_30_min: float  = 0.0
-    cpw_40_min: float  = 0.0
+    cp_5_sec : float  = 0.0
+    cp_15_sec: float  = 0.0
+    cp_30_sec: float  = 0.0
+    cp_1_min : float  = 0.0
+    cp_2_min : float  = 0.0
+    cp_3_min : float  = 0.0
+    cp_5_min : float  = 0.0
+    cp_10_min: float  = 0.0
+    cp_12_min: float  = 0.0
+    cp_15_min: float  = 0.0
+    cp_20_min: float  = 0.0
+    cp_30_min: float  = 0.0
+    cp_40_min: float  = 0.0
     cp: float = 0.0
     w_prime: float = 0.0
 
@@ -432,57 +433,57 @@ class ZwiftRiderCriticalPowerItem:
                 "zwiftid": 3147366,
                 "name": "DaveK",
                 "cp": {
-                    "cpw_5_sec": 0.0,
-                    "cpw_15_sec": 0.0,
-                    "cpw_30_sec": 0.0,
-                    "cpw_1_min": 0.0,
-                    "cpw_2_min": 0.0,
-                    "cpw_3_min": 0.0,
-                    "cpw_5_min": 0.0,
-                    "cpw_10_min": 0.0,
-                    "cpw_12_min": 0.0,
-                    "cpw_15_min": 0.0,
-                    "cpw_20_min": 0.0,
-                    "cpw_30_min": 0.0,
-                    "cpw_40_min": 0.0,
+                    "cp_5_sec": 0.0,
+                    "cp_15_sec": 0.0,
+                    "cp_30_sec": 0.0,
+                    "cp_1_min": 0.0,
+                    "cp_2_min": 0.0,
+                    "cp_3_min": 0.0,
+                    "cp_5_min": 0.0,
+                    "cp_10_min": 0.0,
+                    "cp_12_min": 0.0,
+                    "cp_15_min": 0.0,
+                    "cp_20_min": 0.0,
+                    "cp_30_min": 0.0,
+                    "cp_40_min": 0.0,
                 },
             },
             "timr": {
                 "zwiftid": 5421258,
                 "name": "TimR",
                 "cp": {
-                    "cpw_5_sec": 0.0,
-                    "cpw_15_sec": 0.0,
-                    "cpw_30_sec": 0.0,
-                    "cpw_1_min": 0.0,
-                    "cpw_2_min": 0.0,
-                    "cpw_3_min": 0.0,
-                    "cpw_5_min": 0.0,
-                    "cpw_10_min": 0.0,
-                    "cpw_12_min": 0.0,
-                    "cpw_15_min": 0.0,
-                    "cpw_20_min": 0.0,
-                    "cpw_30_min": 0.0,
-                    "cpw_40_min": 0.0,
+                    "cp_5_sec": 0.0,
+                    "cp_15_sec": 0.0,
+                    "cp_30_sec": 0.0,
+                    "cp_1_min": 0.0,
+                    "cp_2_min": 0.0,
+                    "cp_3_min": 0.0,
+                    "cp_5_min": 0.0,
+                    "cp_10_min": 0.0,
+                    "cp_12_min": 0.0,
+                    "cp_15_min": 0.0,
+                    "cp_20_min": 0.0,
+                    "cp_30_min": 0.0,
+                    "cp_40_min": 0.0,
                 },
             },
             "johnh": {
                 "zwiftid": 58160,
                 "name": "JohnH",
                 "cp": {
-                    "cpw_5_sec": 546,
-                    "cpw_15_sec": 434,
-                    "cpw_30_sec": 425,
-                    "cpw_1_min": 348,
-                    "cpw_2_min": 0,
-                    "cpw_3_min": 293,
-                    "cpw_5_min": 292,
-                    "cpw_10_min": 268,
-                    "cpw_12_min": 264,
-                    "cpw_15_min": 254,
-                    "cpw_20_min": 254,
-                    "cpw_30_min": 252,
-                    "cpw_40_min": 244,
+                    "cp_5_sec": 546,
+                    "cp_15_sec": 434,
+                    "cp_30_sec": 425,
+                    "cp_1_min": 348,
+                    "cp_2_min": 0,
+                    "cp_3_min": 293,
+                    "cp_5_min": 292,
+                    "cp_10_min": 268,
+                    "cp_12_min": 264,
+                    "cp_15_min": 254,
+                    "cp_20_min": 254,
+                    "cp_30_min": 252,
+                    "cp_40_min": 244,
                 },
             },
         }
@@ -493,38 +494,38 @@ class ZwiftRiderCriticalPowerItem:
         answer = ZwiftRiderCriticalPowerDataTransferObject(
             zwiftid=item.zwiftid,
             name=item.name,
-            cpw_5_sec=item.cp.cpw_5_sec,
-            cpw_15_sec=item.cp.cpw_15_sec,
-            cpw_30_sec=item.cp.cpw_30_sec,
-            cpw_1_min=item.cp.cpw_1_min,
-            cpw_2_min=item.cp.cpw_2_min,
-            cpw_3_min=item.cp.cpw_3_min,
-            cpw_5_min=item.cp.cpw_5_min,
-            cpw_10_min=item.cp.cpw_10_min,
-            cpw_12_min=item.cp.cpw_12_min,
-            cpw_15_min=item.cp.cpw_15_min,
-            cpw_20_min=item.cp.cpw_20_min,
-            cpw_30_min=item.cp.cpw_30_min,
-            cpw_40_min=item.cp.cpw_40_min,
+            cp_5_sec=item.cp.cp_5_sec,
+            cp_15_sec=item.cp.cp_15_sec,
+            cp_30_sec=item.cp.cp_30_sec,
+            cp_1_min=item.cp.cp_1_min,
+            cp_2_min=item.cp.cp_2_min,
+            cp_3_min=item.cp.cp_3_min,
+            cp_5_min=item.cp.cp_5_min,
+            cp_10_min=item.cp.cp_10_min,
+            cp_12_min=item.cp.cp_12_min,
+            cp_15_min=item.cp.cp_15_min,
+            cp_20_min=item.cp.cp_20_min,
+            cp_30_min=item.cp.cp_30_min,
+            cp_40_min=item.cp.cp_40_min,
         )
         return answer
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "ZwiftRiderCriticalPowerItem":
         answer = ZwiftRiderCriticalPowerItem(zwiftid=dto.zwiftid or 0, name=dto.name or "",  cp=CriticalPowerItem(
-                cpw_5_sec=dto.cpw_5_sec or 0.0,
-                cpw_15_sec=dto.cpw_15_sec or 0.0,
-                cpw_30_sec=dto.cpw_30_sec or 0.0,
-                cpw_1_min=dto.cpw_1_min or 0.0,
-                cpw_2_min=dto.cpw_2_min or 0.0,
-                cpw_3_min=dto.cpw_3_min or 0.0,
-                cpw_5_min=dto.cpw_5_min or 0.0,
-                cpw_10_min=dto.cpw_10_min or 0.0,
-                cpw_12_min=dto.cpw_12_min or 0.0,
-                cpw_15_min=dto.cpw_15_min or 0.0,
-                cpw_20_min=dto.cpw_20_min or 0.0,
-                cpw_30_min=dto.cpw_30_min or 0.0,
-                cpw_40_min=dto.cpw_40_min or 0.0,
+                cp_5_sec=dto.cp_5_sec or 0.0,
+                cp_15_sec=dto.cp_15_sec or 0.0,
+                cp_30_sec=dto.cp_30_sec or 0.0,
+                cp_1_min=dto.cp_1_min or 0.0,
+                cp_2_min=dto.cp_2_min or 0.0,
+                cp_3_min=dto.cp_3_min or 0.0,
+                cp_5_min=dto.cp_5_min or 0.0,
+                cp_10_min=dto.cp_10_min or 0.0,
+                cp_12_min=dto.cp_12_min or 0.0,
+                cp_15_min=dto.cp_15_min or 0.0,
+                cp_20_min=dto.cp_20_min or 0.0,
+                cp_30_min=dto.cp_30_min or 0.0,
+                cp_40_min=dto.cp_40_min or 0.0,
             ),
         )
         return answer
