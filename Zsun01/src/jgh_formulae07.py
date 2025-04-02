@@ -1,5 +1,4 @@
 from typing import  List, Dict, Tuple
-from handy_utilities import get_all_zwiftriders
 from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAnswerItem, RiderAnswerDisplayObject
 from rolling_average import calculate_rolling_averages
 import logging
@@ -255,10 +254,14 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZwiftRiderItem
+    from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
+
+    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+
+
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
@@ -278,6 +281,12 @@ def main() -> None:
     rider_answer_displayobjects = populate_rider_answer_dispayobjects(rider_answer_items)
 
     log_results_answer_displayobjects("Rider print-out:", rider_answer_displayobjects, logger)
+
+    dict_of_zwiftrider_cp_item = get_all_zwiftriders_cp_data()
+
+    johnh_cp : ZwiftRiderCriticalPowerItem = dict_of_zwiftrider_cp_item['johnh']
+    joshn_cp : ZwiftRiderCriticalPowerItem = dict_of_zwiftrider_cp_item['joshn']
+
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,7 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
-from zwiftrider_dto import ZwiftRiderDataTransferObject
-from zwiftrider_cp_dto import ZwiftRiderCriticalPowerDataTransferObject
+from zwiftrider_related_dto import ZwiftRiderDataTransferObject, ZwiftRiderCriticalPowerDataTransferObject
 
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
@@ -411,7 +410,7 @@ class CriticalPowerItem:
 
 
 @dataclass
-class RiderCriticalPowerItem:
+class ZwiftRiderCriticalPowerItem:
     """
     A data class representing a zwiftrider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -489,7 +488,7 @@ class RiderCriticalPowerItem:
         }
 
     @staticmethod
-    def to_dataTransferObject(item: "RiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:
+    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:
 
         answer = ZwiftRiderCriticalPowerDataTransferObject(
             zwiftid=item.zwiftid,
@@ -511,8 +510,8 @@ class RiderCriticalPowerItem:
         return answer
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "RiderCriticalPowerItem":
-        answer = RiderCriticalPowerItem(zwiftid=dto.zwiftid or 0, name=dto.name or "",  cp=CriticalPowerItem(
+    def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "ZwiftRiderCriticalPowerItem":
+        answer = ZwiftRiderCriticalPowerItem(zwiftid=dto.zwiftid or 0, name=dto.name or "",  cp=CriticalPowerItem(
                 cpw_5_sec=dto.cpw_5_sec or 0.0,
                 cpw_15_sec=dto.cpw_15_sec or 0.0,
                 cpw_30_sec=dto.cpw_30_sec or 0.0,
@@ -531,9 +530,9 @@ class RiderCriticalPowerItem:
         return answer
 
     @staticmethod
-    def from_dict_of_dataTransferObjects(dict_of_zwiftrider_powercurve_dto: Dict[str, ZwiftRiderCriticalPowerDataTransferObject]) -> Dict[str, "RiderCriticalPowerItem"]:
+    def from_dict_of_dataTransferObjects(dict_of_zwiftrider_powercurve_dto: Dict[str, ZwiftRiderCriticalPowerDataTransferObject]) -> Dict[str, "ZwiftRiderCriticalPowerItem"]:
         answer = {
-            key: RiderCriticalPowerItem.from_dataTransferObject(dto)
+            key: ZwiftRiderCriticalPowerItem.from_dataTransferObject(dto)
             for key, dto in dict_of_zwiftrider_powercurve_dto.items()
         }
         return answer

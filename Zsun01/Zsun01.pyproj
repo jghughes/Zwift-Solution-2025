@@ -46,7 +46,7 @@
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="data\zwiftrider_dictionary.json" />
-    <Content Include="data\zwiftrider_power_dictionary.json" />
+    <Content Include="data\zwiftrider_critical_power_dictionary.json" />
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>

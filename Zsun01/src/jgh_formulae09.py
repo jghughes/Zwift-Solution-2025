@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
-from zwiftrider_related_items import ZwiftRiderItem, RiderWorkAssignmentItem, RiderExertionItem, RiderCriticalPowerItem
+from zwiftrider_related_items import ZwiftRiderItem, RiderWorkAssignmentItem, RiderExertionItem, ZwiftRiderCriticalPowerItem
 
 def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
     """
@@ -36,7 +36,7 @@ def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderExe
     
     return datapoints[:3600]  # Ensure the list is exactly 3600 elements long
 
-def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_exertions: Dict[ZwiftRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> RiderCriticalPowerItem:
+def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_exertions: Dict[ZwiftRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> ZwiftRiderCriticalPowerItem:
     """
     Calculate the critical power curve for a single rider.
 
@@ -133,7 +133,7 @@ def main() -> None:
             #     logger.info(f"{datapoint[0]}sec: {datapoint[1]:.1f}W")
 
         # Generate dict of riders with their critical power curve
-        dict_of_riders_and_their_criticalpower_curve: Dict[ZwiftRiderItem, RiderCriticalPowerItem] = {}
+        dict_of_riders_and_their_criticalpower_curve: Dict[ZwiftRiderItem, ZwiftRiderCriticalPowerItem] = {}
         with ThreadPoolExecutor() as executor:
             futures = {executor.submit(translate_efforts_into_criticalpower_item, rider, rider_exertions, cp_test_duration_specs): rider for rider in riders}
             for future in futures:
