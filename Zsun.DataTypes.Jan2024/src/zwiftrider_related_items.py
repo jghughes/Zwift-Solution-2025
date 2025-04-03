@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
 from zwiftrider_dto import ZwiftRiderDataTransferObject 
@@ -373,41 +373,26 @@ class ZwiftRiderItem():
         }
         return dict_of_zwiftrideritem# Example usage
 
-@dataclass
-class CriticalPowerItem:
-    """
-    A data class representing a zwiftrider's critical power data.
+# @dataclass
+# class CriticalPowerItem:
+#     """
+#     A data class representing a zwiftrider's critical power data.
     
-    Attributes:
-        cp_5_sec : float  Critical power for 5 seconds.
-        cp_15_sec: float  Critical power for 15 seconds.
-        cp_30_sec: float  Critical power for 30 seconds.
-        cp_1_min : float  Critical power for 1 minute.
-        cp_2_min : float  Critical power for 2 minutes.
-        cp_3_min : float  Critical power for 3 minutes.
-        cp_5_min : float  Critical power for 5 minutes.
-        cp_10_min: float  Critical power for 10 minutes.
-        cp_12_min: float  Critical power for 12 minutes.
-        cp_15_min: float  Critical power for 15 minutes.
-        cp_20_min: float  Critical power for 20 minutes.
-        cp_30_min: float  Critical power for 30 minutes.
-        cp_40_min: float  Critical power for 40 minutes.
-    """
-    cp_5_sec : float  = 0.0
-    cp_15_sec: float  = 0.0
-    cp_30_sec: float  = 0.0
-    cp_1_min : float  = 0.0
-    cp_2_min : float  = 0.0
-    cp_3_min : float  = 0.0
-    cp_5_min : float  = 0.0
-    cp_10_min: float  = 0.0
-    cp_12_min: float  = 0.0
-    cp_15_min: float  = 0.0
-    cp_20_min: float  = 0.0
-    cp_30_min: float  = 0.0
-    cp_40_min: float  = 0.0
-    cp: float = 0.0
-    w_prime: float = 0.0
+#     Attributes:
+#         cp_5_sec : float  Critical power for 5 seconds.
+#         cp_15_sec: float  Critical power for 15 seconds.
+#         cp_30_sec: float  Critical power for 30 seconds.
+#         cp_1_min : float  Critical power for 1 minute.
+#         cp_2_min : float  Critical power for 2 minutes.
+#         cp_3_min : float  Critical power for 3 minutes.
+#         cp_5_min : float  Critical power for 5 minutes.
+#         cp_10_min: float  Critical power for 10 minutes.
+#         cp_12_min: float  Critical power for 12 minutes.
+#         cp_15_min: float  Critical power for 15 minutes.
+#         cp_20_min: float  Critical power for 20 minutes.
+#         cp_30_min: float  Critical power for 30 minutes.
+#         cp_40_min: float  Critical power for 40 minutes.
+#     """
 
 
 @dataclass
@@ -424,7 +409,21 @@ class ZwiftRiderCriticalPowerItem:
 
     zwiftid: int = 0
     name: str = ""
-    cp: CriticalPowerItem = field(default_factory=CriticalPowerItem)
+    cp_5_sec : float  = 0.0
+    cp_15_sec: float  = 0.0
+    cp_30_sec: float  = 0.0
+    cp_1_min : float  = 0.0
+    cp_2_min : float  = 0.0
+    cp_3_min : float  = 0.0
+    cp_5_min : float  = 0.0
+    cp_10_min: float  = 0.0
+    cp_12_min: float  = 0.0
+    cp_15_min: float  = 0.0
+    cp_20_min: float  = 0.0
+    cp_30_min: float  = 0.0
+    cp_40_min: float  = 0.0
+    cp: float = 0.0
+    w_prime: float = 0.0
 
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders' power curve items
@@ -488,6 +487,32 @@ class ZwiftRiderCriticalPowerItem:
             },
         }
 
+    def map_to_int_float_equivalent(self) -> Dict[int, float]:
+        """
+        Map each attribute to a dictionary entry where the key is the number of seconds
+        corresponding to the attribute name and the value is the attribute's value.
+
+        Returns:
+            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+        """
+        # cp and w_prime are not included as they are not time-based attributes
+
+        return {
+            5: self.cp_5_sec,
+            15: self.cp_15_sec,
+            30: self.cp_30_sec,
+            60: self.cp_1_min,
+            120: self.cp_2_min,
+            180: self.cp_3_min,
+            300: self.cp_5_min,
+            600: self.cp_10_min,
+            720: self.cp_12_min,
+            900: self.cp_15_min,
+            1200: self.cp_20_min,
+            1800: self.cp_30_min,
+            2400: self.cp_40_min
+        }
+
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:
 
@@ -512,21 +537,22 @@ class ZwiftRiderCriticalPowerItem:
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "ZwiftRiderCriticalPowerItem":
-        answer = ZwiftRiderCriticalPowerItem(zwiftid=dto.zwiftid or 0, name=dto.name or "",  cp=CriticalPowerItem(
-                cp_5_sec=dto.cp_5_sec or 0.0,
-                cp_15_sec=dto.cp_15_sec or 0.0,
-                cp_30_sec=dto.cp_30_sec or 0.0,
-                cp_1_min=dto.cp_1_min or 0.0,
-                cp_2_min=dto.cp_2_min or 0.0,
-                cp_3_min=dto.cp_3_min or 0.0,
-                cp_5_min=dto.cp_5_min or 0.0,
-                cp_10_min=dto.cp_10_min or 0.0,
-                cp_12_min=dto.cp_12_min or 0.0,
-                cp_15_min=dto.cp_15_min or 0.0,
-                cp_20_min=dto.cp_20_min or 0.0,
-                cp_30_min=dto.cp_30_min or 0.0,
-                cp_40_min=dto.cp_40_min or 0.0,
-            ),
+        answer = ZwiftRiderCriticalPowerItem(
+            zwiftid=dto.zwiftid or 0, 
+            name=dto.name or "",
+            cp_5_sec=dto.cp_5_sec or 0.0,
+            cp_15_sec=dto.cp_15_sec or 0.0,
+            cp_30_sec=dto.cp_30_sec or 0.0,
+            cp_1_min=dto.cp_1_min or 0.0,
+            cp_2_min=dto.cp_2_min or 0.0,
+            cp_3_min=dto.cp_3_min or 0.0,
+            cp_5_min=dto.cp_5_min or 0.0,
+            cp_10_min=dto.cp_10_min or 0.0,
+            cp_12_min=dto.cp_12_min or 0.0,
+            cp_15_min=dto.cp_15_min or 0.0,
+            cp_20_min=dto.cp_20_min or 0.0,
+            cp_30_min=dto.cp_30_min or 0.0,
+            cp_40_min=dto.cp_40_min or 0.0,
         )
         return answer
 

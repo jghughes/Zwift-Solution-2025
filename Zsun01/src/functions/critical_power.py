@@ -35,18 +35,18 @@ def distill_cp_metrics_from_wattages_per_second(datapoints: List[Tuple[int, floa
 
     return dict_of_riders_and_their_criticalpower_curve
 
-def linearize_cp_metrics(cp_data: Dict[int, float]) -> Tuple[ndarray, ndarray]:
+def linearize_cp_metrics(cp_interval_data: Dict[int, float]) -> Tuple[ndarray, ndarray]:
     """
     Linearize the data by plotting the average power output against the inverse of the duration.
 
     Args:
-        cp_data (Dict[int, float]): Dictionary where keys are segment durations and values are average power outputs.
+        cp_interval_data (Dict[int, float]): Dictionary where keys are segment durations and values are average power outputs.
 
     Returns:
         Tuple[ndarray, ndarray]: Arrays of inverse durations and average power outputs.
     """
-    durations: ndarray = np.array(list(cp_data.keys()))
-    avg_powers: ndarray = np.array(list(cp_data.values()))
+    durations: ndarray = np.array(list(cp_interval_data.keys()))
+    avg_powers: ndarray = np.array(list(cp_interval_data.values()))
     inverse_durations: ndarray = 1 / durations
     return inverse_durations, avg_powers
 
@@ -67,7 +67,7 @@ def make_bestfit_cp_model(inverse_durations: ndarray, avg_powers: ndarray) -> Tu
     slope, intercept = np.linalg.lstsq(A, avg_powers, rcond=None)[0]
     return slope, intercept
 
-def extract_cp_and_w_prime(slope: float, intercept: float) -> Tuple[float, float]:
+def deduce_cp_and_w_prime_from_bestfit_model(slope: float, intercept: float) -> Tuple[float, float]:
     """
     Extract CP and W' from the fitted model.
 
@@ -82,12 +82,12 @@ def extract_cp_and_w_prime(slope: float, intercept: float) -> Tuple[float, float
     w_prime: float = slope * cp
     return cp, w_prime
 
-def estimate_cp_and_w_prime(cp_data: Dict[int, float]) -> Tuple[float, float]:
+def estimate_cp_and_w_prime(cp_interval_data: Dict[int, float]) -> Tuple[float, float]:
     """
     Calculate Critical Power (CP) and Work Capacity Above CP (W') for a rider.
 
     Args:
-        cp_data (List[Tuple[int, float]]): List of power cp_data for one hour.
+        cp_interval_data (List[Tuple[int, float]]): List of power cp_interval_data for one hour.
         criticalpower_timespans (List[int]): List of segment durations in seconds.
         high_intensity_threshold (float): Power output threshold for high-intensity efforts.
         moderate_intensity_threshold (float): Power output threshold for moderate efforts.
@@ -97,9 +97,9 @@ def estimate_cp_and_w_prime(cp_data: Dict[int, float]) -> Tuple[float, float]:
         Tuple[float, float]: Estimated CP (in watts) and W' (in joules).
     """
    
-    inverse_durations, avg_powers = linearize_cp_metrics(cp_data)
+    inverse_durations, avg_powers = linearize_cp_metrics(cp_interval_data)
     slope, intercept = make_bestfit_cp_model(inverse_durations, avg_powers)
-    cp, w_prime = extract_cp_and_w_prime(slope, intercept)
+    cp, w_prime = deduce_cp_and_w_prime_from_bestfit_model(slope, intercept)
     return cp, w_prime
 
 # Example usage

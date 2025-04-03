@@ -1,7 +1,8 @@
 from typing import  List, Dict, Tuple
-from handy_utilities import get_all_zwiftriders
-from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAnswerItem
+from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
+from critical_power import estimate_cp_and_w_prime
 import logging
 
 # currenty unsused
@@ -158,6 +159,39 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
 
     return answer
 
+
+def add_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items: Dict[str, ZwiftRiderCriticalPowerItem]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+    """
+    Add critical power and W' to the ZwiftRiderCriticalPowerItem instances.
+    Args:
+        zwiftrider_cp_items (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items.
+    Returns:
+        Dict[str, ZwiftRiderCriticalPowerItem]: The updated critical power items with critical power and W'.
+    """
+    for rider_cp_item in zwiftrider_cp_items.values():
+        rider_cp_interval_data :  Dict[int, float] = rider_cp_item.map_to_int_float_equivalent()
+        cp, w_prime = estimate_cp_and_w_prime(rider_cp_interval_data)
+        rider_cp_item.cp = cp
+        rider_cp_item.w_prime = w_prime
+    return zwiftrider_cp_items
+
+def add_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZwiftRiderItem, RiderAnswerItem], zwiftrider_cp_items: Dict[str, ZwiftRiderCriticalPowerItem]) -> Dict[ZwiftRiderItem, RiderAnswerItem]:
+    """
+    Add critical power and W' to the rider answer items.
+    Args:
+        rider_answer_items (Dict[ZwiftRiderItem, RiderAnswerItem]): The rider answer items.
+        zwiftrider_cp_items (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items.
+    Returns:
+        Dict[ZwiftRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
+    """
+    for rider, answer_item in rider_answer_items.items():
+        rider_cp_item = zwiftrider_cp_items.get(rider.name) # because keyed on rider name for now
+        if rider_cp_item:
+            answer_item.cp = rider_cp_item.cp
+            answer_item.w_prime =rider_cp_item.w_prime
+    return rider_answer_items
+
+
 def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
@@ -173,11 +207,11 @@ def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem,
             z.p3_w, 
             z.p4_w, 
             z.p__w,
-            z.cp, 
-            z.w_prime,
             z.pull_w_over_ftp,
             z.ftp_intensity_factor, 
-            z.cp_intensity_factor
+            # z.cp_intensity_factor
+            z.cp, 
+            z.w_prime
         ])
     headers = ["rider", 
         "kph",
@@ -188,11 +222,10 @@ def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem,
         "p3", 
         "p4", 
         "p+", 
-        "cp", 
-        "W_prime",
         "pull(%ftp)",
         "IF(ftp)", 
-        "IF(cp)"
+        "cp", 
+        "W_prime",
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
@@ -224,7 +257,13 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items, logger)
+    zwiftrider_cp_items = get_all_zwiftriders_cp_data()
+
+    zwiftrider_cp_items = add_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items)
+
+    rider_answer_items_with_cp_and_w_prime = add_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftrider_cp_items)
+
+    log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items_with_cp_and_w_prime, logger)
 
 if __name__ == "__main__":
     main()
