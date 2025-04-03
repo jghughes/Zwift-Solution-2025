@@ -373,28 +373,6 @@ class ZwiftRiderItem():
         }
         return dict_of_zwiftrideritem# Example usage
 
-# @dataclass
-# class CriticalPowerItem:
-#     """
-#     A data class representing a zwiftrider's critical power data.
-    
-#     Attributes:
-#         cp_5_sec : float  Critical power for 5 seconds.
-#         cp_15_sec: float  Critical power for 15 seconds.
-#         cp_30_sec: float  Critical power for 30 seconds.
-#         cp_1_min : float  Critical power for 1 minute.
-#         cp_2_min : float  Critical power for 2 minutes.
-#         cp_3_min : float  Critical power for 3 minutes.
-#         cp_5_min : float  Critical power for 5 minutes.
-#         cp_10_min: float  Critical power for 10 minutes.
-#         cp_12_min: float  Critical power for 12 minutes.
-#         cp_15_min: float  Critical power for 15 minutes.
-#         cp_20_min: float  Critical power for 20 minutes.
-#         cp_30_min: float  Critical power for 30 minutes.
-#         cp_40_min: float  Critical power for 40 minutes.
-#     """
-
-
 @dataclass
 class ZwiftRiderCriticalPowerItem:
     """
@@ -635,8 +613,8 @@ class RiderAnswerDisplayObject():
     zrs_cat               : str   = ""
     zwiftftp_cat          : str   = ""
     velo_cat              : str   = ""
-    cp_5_min_wkg          : float = 0
-    cp                    : float = 0
+    zwift_cp              : float = 0
+    zwift_w_prime         : float = 0
     ftp                   : float = 0
     ftp_wkg               : float = 0
     speed_kph             : float = 0

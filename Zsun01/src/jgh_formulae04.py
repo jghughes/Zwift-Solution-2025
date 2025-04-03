@@ -81,9 +81,9 @@ def main() -> None:
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
 
     pull_speeds_kph = [40.0, 38.0, 36.0]
     pull_durations_sec = [60.0, 30.0, 10.0]

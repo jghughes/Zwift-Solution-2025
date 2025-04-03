@@ -84,8 +84,8 @@ class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
     and validation (deserialization).
 
     Attributes:
-        zwiftid   : int    The Zwift ID of the rider.
-        name      : str    The name of the rider.
+        zwiftid  : int    The Zwift ID of the rider.
+        name     : str    The name of the rider.
         cp_5_sec : float  Critical power for 5 seconds.
         cp_15_sec: float  Critical power for 15 seconds.
         cp_30_sec: float  Critical power for 30 seconds.
@@ -100,8 +100,8 @@ class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
         cp_30_min: float  Critical power for 30 minutes.
         cp_40_min: float  Critical power for 40 minutes.
     """
-    zwiftid   : Optional[int]   = 0    # Zwift ID of the rider
-    name      : Optional[str]   = ""   # Name of the rider
+    zwiftid  : Optional[int]   = 0    # Zwift ID of the rider
+    name     : Optional[str]   = ""   # Name of the rider
     cp_5_sec : Optional[float] = 0.0  # Critical power for 5 seconds
     cp_15_sec: Optional[float] = 0.0  # Critical power for 15 seconds
     cp_30_sec: Optional[float] = 0.0  # Critical power for 30 seconds

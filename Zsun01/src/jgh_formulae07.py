@@ -1,9 +1,10 @@
 from typing import  Dict, Tuple
 from zwiftrider_related_items import ZwiftRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
+from jgh_formulae06 import add_zwift_cp_and_w_prime_to_rider_answer_items, add_zwift_cp_and_w_prime_to_rider_criticalpower_items
 import logging
 
 
-def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswerItem]) -> Dict[ZwiftRiderItem, RiderAnswerDisplayObject]:
+def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswerItem]) -> Dict[ZwiftRiderItem, RiderAnswerDisplayObject]:
 
     answer: Dict[ZwiftRiderItem, RiderAnswerDisplayObject] = {}
 
@@ -101,14 +102,14 @@ def populate_rider_answer_dispayobjects(riders: Dict[ZwiftRiderItem, RiderAnswer
             zrs_cat               = calculate_zwift_zrs_cat(rider),
             zwiftftp_cat          = calculate_zwift_ftp_cat(rider),
             velo_cat              = make_pretty_velo_cat(rider),
-            cp_5_min_wkg          = 0,
-            cp                    = 0,
-            ftp                   = rider.ftp,
+            zwift_cp              = round(item.cp),
+            zwift_w_prime         = round(item.w_prime),
+            ftp                   = round(rider.ftp),
             ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight),1),
             speed_kph             = round(item.speed_kph, 1),
-            pull_duration          = item.pull_duration,
-            pull_wkg               = round(calculate_wkg(item.p1_w, rider.weight), 1),
-            pull_w_over_ftp        = f"{round(item.p1_w / rider.ftp*100 if rider.ftp != 0 else 0)}%",
+            pull_duration         = item.pull_duration,
+            pull_wkg              = round(calculate_wkg(item.p1_w, rider.weight), 1),
+            pull_w_over_ftp       = f"{round(item.p1_w / rider.ftp*100 if rider.ftp != 0 else 0)}%",
             p1_4                  = make_pretty_p1_p4(item),
             ftp_intensity_factor  = round(item.ftp_intensity_factor, 2),
             cp_intensity_factor   = round(0, 2)
@@ -141,8 +142,8 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftR
             z.pull_w_over_ftp, 
             z.ftp_intensity_factor, 
             z.cp_intensity_factor,
-            z.cp_5_min_wkg, 
-            z.cp, 
+            z.zwift_cp, 
+            z.zwift_w_prime 
 
         ])
 
@@ -161,8 +162,8 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftR
         "ftp(%)", 
         "IF(ftp)", 
         "IF(cp)",
-        "CP 5 min", 
-        "CP" 
+        "CP", 
+        "W'" 
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
@@ -173,7 +174,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
+    from zwiftrider_related_items import ZwiftRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
@@ -183,9 +184,11 @@ def main() -> None:
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    # joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    # richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
     pull_speeds_kph = [42.0, 42.0, 42.0]
     pull_durations_sec = [30.0, 30.0, 30.0]
@@ -197,19 +200,15 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    rider_answer_displayobjects = populate_rider_answer_dispayobjects(rider_answer_items)
+    zwiftrider_cp_items = get_all_zwiftriders_cp_data()
 
-    log_results_answer_displayobjects("Rider print-out:", rider_answer_displayobjects, logger)
+    zwiftrider_cp_items = add_zwift_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items)
 
-    dict_of_zwiftrider_cp_item = get_all_zwiftriders_cp_data()
+    rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftrider_cp_items)
 
-    johnh_cp : ZwiftRiderCriticalPowerItem = dict_of_zwiftrider_cp_item['johnh']
-    joshn_cp : ZwiftRiderCriticalPowerItem = dict_of_zwiftrider_cp_item['joshn']
+    rider_displayobjects = populate_rider_answer_displayobjects(rider_answer_items_with_cp_and_w_prime)
 
-    logger.info(f"johnh cp: {johnh_cp.cp}")
-    logger.info(f"joshn cp: {joshn_cp.cp}")
-
-
+    log_results_answer_displayobjects("Comparative rider metrics [RiderAnswerItem]:", rider_displayobjects, logger)
 
 
 if __name__ == "__main__":

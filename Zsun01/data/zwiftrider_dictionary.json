@@ -1,95 +1,5 @@
 {
-  "davek": {
-    "zwiftid": 3147366,
-    "name": "DaveK",
-    "weight": 73.4,
-    "height": 182,
-    "gender": "m",
-    "ftp": 276,
-    "zwift_racing_score": 744,
-    "velo_rating": 1897
-  },
-  "timr": {
-    "zwiftid": 5421258,
-    "name": "TimR",
-    "weight": 79.8,
-    "height": 185,
-    "gender": "m",
-    "ftp": 380,
-    "zwift_racing_score": 696,
-    "velo_rating": 2061
-  },
-  "bryanb": {
-    "zwiftid": 9011,
-    "name": "BryanB",
-    "weight": 53.5,
-    "height": 162,
-    "gender": "m",
-    "ftp": 214,
-    "zwift_racing_score": 566,
-    "velo_rating": 1593
-  },
-  "huskyc": {
-    "zwiftid": 5134,
-    "name": "HuskyC",
-    "weight": 75.5,
-    "height": 178,
-    "gender": "m",
-    "ftp": 268,
-    "zwift_racing_score": 552,
-    "velo_rating": 1519
-  },
-  "scottm": {
-    "zwiftid": 11526,
-    "name": "ScottM",
-    "weight": 78,
-    "height": 165,
-    "gender": "m",
-    "ftp": 247,
-    "zwift_racing_score": 509,
-    "velo_rating": 1537
-  },
-  "markb": {
-    "zwiftid": 5530045,
-    "name": "MarkB",
-    "weight": 91.6,
-    "height": 185,
-    "gender": "m",
-    "ftp": 229,
-    "zwift_racing_score": 493,
-    "velo_rating": 1309
-  },
-  "steves": {
-    "zwiftid": "6142432",
-    "name": "SteveS",
-    "weight": 71.7,
-    "height": 170,
-    "gender": "m",
-    "ftp": 229,
-    "zwift_racing_score": 454,
-    "velo_rating": 1222
-  },
-  "coryc": {
-    "zwiftid": 5569057,
-    "name": "CoryC",
-    "weight": 90.7,
-    "height": 186,
-    "gender": "m",
-    "ftp": 275,
-    "zwift_racing_score": 446,
-    "velo_rating": 1256
-  },
-  "barryb": {
-    "zwiftid": 5490373,
-    "name": "BarryB",
-    "weight": 77,
-    "height": 176,
-    "gender": "m",
-    "ftp": 273,
-    "zwift_racing_score": 444,
-    "velo_rating": 1294
-  },
-  "johnh": {
+  "58160": {
     "zwiftid": 58160,
     "name": "JohnH",
     "weight": 75.4,
@@ -99,8 +9,98 @@
     "zwift_racing_score": 351,
     "velo_rating": 1067
   },
-  "matts": {
-    "zwiftid": "1024413",
+  "3147366": {
+    "zwiftid": 3147366,
+    "name": "DaveK",
+    "weight": 73.4,
+    "height": 182,
+    "gender": "m",
+    "ftp": 276,
+    "zwift_racing_score": 744,
+    "velo_rating": 1897
+  },
+  "5421258": {
+    "zwiftid": 5421258,
+    "name": "TimR",
+    "weight": 79.8,
+    "height": 185,
+    "gender": "m",
+    "ftp": 380,
+    "zwift_racing_score": 696,
+    "velo_rating": 2061
+  },
+  "9011": {
+    "zwiftid": 9011,
+    "name": "BryanB",
+    "weight": 53.5,
+    "height": 162,
+    "gender": "m",
+    "ftp": 214,
+    "zwift_racing_score": 566,
+    "velo_rating": 1593
+  },
+  "5134": {
+    "zwiftid": 5134,
+    "name": "HuskyC",
+    "weight": 75.5,
+    "height": 178,
+    "gender": "m",
+    "ftp": 268,
+    "zwift_racing_score": 552,
+    "velo_rating": 1519
+  },
+  "11526": {
+    "zwiftid": 11526,
+    "name": "ScottM",
+    "weight": 78,
+    "height": 165,
+    "gender": "m",
+    "ftp": 247,
+    "zwift_racing_score": 509,
+    "velo_rating": 1537
+  },
+  "5530045": {
+    "zwiftid": 5530045,
+    "name": "MarkB",
+    "weight": 91.6,
+    "height": 185,
+    "gender": "m",
+    "ftp": 229,
+    "zwift_racing_score": 493,
+    "velo_rating": 1309
+  },
+  "6142432": {
+    "zwiftid": 6142432,
+    "name": "SteveS",
+    "weight": 71.7,
+    "height": 170,
+    "gender": "m",
+    "ftp": 229,
+    "zwift_racing_score": 454,
+    "velo_rating": 1222
+  },
+  "5569057": {
+    "zwiftid": 5569057,
+    "name": "CoryC",
+    "weight": 90.7,
+    "height": 186,
+    "gender": "m",
+    "ftp": 275,
+    "zwift_racing_score": 446,
+    "velo_rating": 1256
+  },
+  "5490373": {
+    "zwiftid": 5490373,
+    "name": "BarryB",
+    "weight": 77,
+    "height": 176,
+    "gender": "m",
+    "ftp": 273,
+    "zwift_racing_score": 444,
+    "velo_rating": 1294
+  },
+  "1024413": {
+    "zwiftid": 1024413,
     "name": "MattS",
     "weight": 76.8,
     "height": 180,
@@ -109,7 +109,7 @@
     "zwift_racing_score": 345,
     "velo_rating": 1015
   },
-  "brenth": {
+  "480698": {
     "zwiftid": 480698,
     "name": "BrentH",
     "weight": 75.6,
@@ -119,8 +119,8 @@
     "zwift_racing_score": 335,
     "velo_rating": 1078
   },
-  "giaon": {
-    "zwiftid": "183277",
+  "183277": {
+    "zwiftid": 183277,
     "name": "GiaoN",
     "weight": 67.1,
     "height": 165,
@@ -129,7 +129,7 @@
     "zwift_racing_score": 299,
     "velo_rating": 0
   },
-  "joshn": {
+  "2508033": {
     "zwiftid": 2508033,
     "name": "JoshN",
     "weight": 101,
@@ -139,8 +139,8 @@
     "zwift_racing_score": 285,
     "velo_rating": 942
   },
-  "rolands": {
-    "zwiftid": "384442",
+  "384442": {
+    "zwiftid": 384442,
     "name": "RolandS",
     "weight": 90.0,
     "height": 173,
@@ -149,7 +149,7 @@
     "zwift_racing_score": 264,
     "velo_rating": 826
   },
-  "edh": {
+  "1713736": {
     "zwiftid": 1713736,
     "name": "EdH",
     "weight": 107.5,
@@ -159,7 +159,7 @@
     "zwift_racing_score": 206,
     "velo_rating": 748
   },
-  "richardm": {
+  "1193": {
     "zwiftid": 1193,
     "name": "RichardM",
     "weight": 93,
@@ -169,8 +169,8 @@
     "zwift_racing_score": 189,
     "velo_rating": 628
   },
-  "brandis": {
-    "zwiftid": "991817",
+  "991817": {
+    "zwiftid": 991817,
     "name": "BrandiS",
     "weight": 61.5,
     "height": 167,
@@ -179,7 +179,7 @@
     "zwift_racing_score": 378,
     "velo_rating": 1036
   },
-  "selenas": {
+  "2682791": {
     "zwiftid": 2682791,
     "name": "SelenaS",
     "weight": 63,
@@ -189,7 +189,7 @@
     "zwift_racing_score": 345,
     "velo_rating": 1129
   },
-  "kristend": {
+  "2398312": {
     "zwiftid": 2398312,
     "name": "KristenD",
     "weight": 71.2,
@@ -199,7 +199,7 @@
     "zwift_racing_score": 338,
     "velo_rating": 1035
   },
-  "lynseys": {
+  "383480": {
     "zwiftid": 383480,
     "name": "LynseyS",
     "weight": 63.5,

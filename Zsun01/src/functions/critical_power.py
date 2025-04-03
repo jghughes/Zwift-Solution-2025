@@ -65,7 +65,8 @@ def make_bestfit_cp_model(inverse_durations: ndarray, avg_powers: ndarray) -> Tu
     slope: float
     intercept: float
     slope, intercept = np.linalg.lstsq(A, avg_powers, rcond=None)[0]
-    return slope, intercept
+    return float(slope), float(intercept)
+
 
 def deduce_cp_and_w_prime_from_bestfit_model(slope: float, intercept: float) -> Tuple[float, float]:
     """

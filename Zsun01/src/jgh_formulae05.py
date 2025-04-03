@@ -67,11 +67,11 @@ def main() -> None:
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['lynseys']
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
     pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0]
     pull_durations_sec = [120.0, 60.0, 30.0, 30.0, 30.0]
