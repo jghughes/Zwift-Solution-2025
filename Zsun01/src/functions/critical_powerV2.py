@@ -145,17 +145,13 @@ def plot_cp_awc(data: Dict[int, float], cp: float, awc: float, dirpath: str, fil
     plt.plot(durations, best_fit_line, color='red', label='Best Fit Line')
     plt.xlabel('Time (s)')
     plt.ylabel('Total Work (J)' if model_name != 'calculate_cp_awc_linear_p' else 'Power (W)')
-    plt.title('Total Work vs. Time' if model_name != 'calculate_cp_awc_linear_p' else 'Power vs. Inverse Time')
+    plt.title(f'Model: {model_name} ' + f'Total Work vs. Time' if model_name != 'calculate_cp_awc_linear_p' else 'Power vs. Inverse Time')
     plt.legend()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     abs_filepath = os.path.join(dirpath, f"{filename.split('.')[0]}_{timestamp}.{filename.split('.')[1]}")
     plt.savefig(abs_filepath)
     plt.show()
     return abs_filepath
-
-
-
-
 
 
 def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callable, Dict[int, float]]], dirpath: str, filename: str) -> str:
@@ -202,26 +198,7 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
     return abs_filepath
 
 
-
-
-
-
-
-
-
-
-
-
 def main() -> None:
-
-
-
-
-
-
-
-
-
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
@@ -239,15 +216,15 @@ def main() -> None:
     logger.info(f"\n{table}")
 
     models = [
-        ("Linear-TW", calculate_cp_awc_linear_tw, tuples_of_duration_and_ave_power),
+        # ("Linear-TW", calculate_cp_awc_linear_tw, tuples_of_duration_and_ave_power),
         ("Linear-P", calculate_cp_awc_linear_p, tuples_of_duration_and_ave_power),
-        ("Exponential", calculate_cp_awc_exponential, tuples_of_duration_and_ave_power),
-        ("2-Parameter", calculate_cp_awc_2_parameter, tuples_of_duration_and_ave_power),
-        ("3-Parameter", calculate_cp_awc_3_parameter, tuples_of_duration_and_ave_power),
-        ("Hyperbolic", calculate_cp_awc_hyperbolic, tuples_of_duration_and_ave_power),
-        ("Monod-Scherrer", calculate_cp_awc_monod_scherrer, tuples_of_duration_and_ave_power),
-        ("Log-Linear", calculate_cp_awc_log_linear, tuples_of_duration_and_ave_power),
-        ("Nonlinear", lambda data: calculate_cp_awc_nonlinear(data, n=1.5), tuples_of_duration_and_ave_power)  # Add the Nonlinear model here with n=1.5
+        # ("Exponential", calculate_cp_awc_exponential, tuples_of_duration_and_ave_power),
+        # ("2-Parameter", calculate_cp_awc_2_parameter, tuples_of_duration_and_ave_power),
+        # ("3-Parameter", calculate_cp_awc_3_parameter, tuples_of_duration_and_ave_power),
+        # ("Hyperbolic", calculate_cp_awc_hyperbolic, tuples_of_duration_and_ave_power),
+        # ("Monod-Scherrer", calculate_cp_awc_monod_scherrer, tuples_of_duration_and_ave_power),
+        # ("Log-Linear", calculate_cp_awc_log_linear, tuples_of_duration_and_ave_power),
+        # ("Nonlinear", lambda data: calculate_cp_awc_nonlinear(data, n=1.5), tuples_of_duration_and_ave_power)  # Add the Nonlinear model here with n=1.5
     ]
 
     summary_table = []
@@ -260,7 +237,7 @@ def main() -> None:
             cp, awc = model_func(data)
             plot_filepath = plot_cp_awc(data, cp, awc, dirpath, f"{model_name.lower()}_cp_awc_plot.png", model_func)
         
-        logger.info(f"{model_name} Model - Critical Power (CP): {cp:.2f} W, Anaerobic Work Capacity (AWC): {awc:.2f} J")
+        # logger.info(f"{model_name} Model - Critical Power (CP): {cp:.2f} W, Anaerobic Work Capacity (AWC): {awc:.2f} J")
         logger.info(f"{model_name} Model plot saved to: {plot_filepath}")
 
         summary_table.append([model_name, round(cp, 2), round(awc, 2), plot_filepath])
