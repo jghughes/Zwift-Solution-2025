@@ -1,11 +1,10 @@
-from typing import Dict, List, Tuple
+from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
 from zwiftrider_dto import ZwiftRiderDataTransferObject 
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDataTransferObject
 
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
-
 
 @dataclass(frozen=True, eq=True) # immutable and hashable
 class ZwiftRiderItem():
@@ -475,7 +474,7 @@ class ZwiftRiderCriticalPowerItem:
         """
         # cp and w_prime are not included as they are not time-based attributes
 
-        return {
+        answer = {
             5: self.cp_5_sec,
             15: self.cp_15_sec,
             30: self.cp_30_sec,
@@ -490,6 +489,15 @@ class ZwiftRiderCriticalPowerItem:
             1800: self.cp_30_min,
             2400: self.cp_40_min
         }
+
+        # Filter out zero values (becuase they amoun to invalid datapoints)
+        answer = {k: v for k, v in answer.items() if v != 0}
+
+        # Belt and braces: sort by key (if the dictionary is not empty)
+        if answer:
+            answer = dict(sorted(answer.items(), key=lambda item: item[0]))
+
+        return answer
 
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:

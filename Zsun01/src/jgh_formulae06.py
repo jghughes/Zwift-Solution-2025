@@ -4,6 +4,10 @@ from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
 from rolling_average import calculate_rolling_averages
 from critical_power import estimate_cp_and_w_prime
 import logging
+from jgh_logging import jgh_configure_logging
+jgh_configure_logging("appsettings.json")
+logger = logging.getLogger(__name__)
+
 
 # currenty unsused
 def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
@@ -270,6 +274,11 @@ def main() -> None:
     rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftrider_cp_items)
 
     log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items_with_cp_and_w_prime, logger)
+
+
+    logger.info(zwiftrider_cp_items['58160'].map_to_int_float_equivalent())
+
+
 
 if __name__ == "__main__":
     main()

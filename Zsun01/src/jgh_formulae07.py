@@ -187,12 +187,12 @@ def main() -> None:
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    # joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    # richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
-    pull_speeds_kph = [42.0, 42.0, 42.0]
-    pull_durations_sec = [30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys]
+    pull_speeds_kph = [42.0, 42.0, 42.0, 42.0, 42.0]
+    pull_durations_sec = [30.0, 30.0, 30.0, 30.0, 30.0]
+    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
