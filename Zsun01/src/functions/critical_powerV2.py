@@ -114,9 +114,9 @@ def plot_cp_awc(data: Dict[int, float], cp: float, awc: float, dirpath: str, fil
     elif model_name == 'calculate_cp_awc_3_parameter':
         best_fit_line = cp + awc / (durations + tau)
     elif model_name == 'calculate_cp_awc_hyperbolic':
-        best_fit_line = awc / durations + cp
+        best_fit_line = cp + awc / durations
     elif model_name == 'calculate_cp_awc_monod_scherrer':
-        best_fit_line = awc / durations + cp
+        best_fit_line = cp + awc / durations
     elif model_name == 'calculate_cp_awc_log_linear':
         best_fit_line = cp + awc * np.log(durations)
     elif model_name == '<lambda>':  # For the Nonlinear model using lambda
@@ -143,11 +143,11 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
     
     for model_name, model_func, _ in models:
         if model_name == "3-Parameter":
-            cp, w_prime, tau = model_func(data)
-            best_fit_line = cp + w_prime / (durations + tau)
+            cp, awc, tau = model_func(data)
+            best_fit_line = cp + awc / (durations + tau)
         elif model_name == "Nonlinear":
-            cp, w_prime = model_func(data)
-            best_fit_line = cp + w_prime / (durations ** 1.5)  # Assuming n=1.5 for the Nonlinear model
+            cp, awc = model_func(data)
+            best_fit_line = cp + awc / (durations ** 1.5)  # Assuming n=1.5 for the Nonlinear model
         else:
             cp, awc = model_func(data)
             if model_func == calculate_cp_awc_linear_tw:
@@ -157,11 +157,11 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
             elif model_func == calculate_cp_awc_exponential:
                 best_fit_line = awc + cp * np.log(durations)
             elif model_func == calculate_cp_awc_2_parameter:
-                best_fit_line = cp + w_prime / durations
+                best_fit_line = cp + awc / durations
             elif model_func == calculate_cp_awc_hyperbolic:
-                best_fit_line = awc / durations + cp
+                best_fit_line = cp + awc / durations
             elif model_func == calculate_cp_awc_monod_scherrer:
-                best_fit_line = awc / durations + cp
+                best_fit_line = cp + awc / durations
             elif model_func == calculate_cp_awc_log_linear:
                 best_fit_line = cp + awc * np.log(durations)
             else:
