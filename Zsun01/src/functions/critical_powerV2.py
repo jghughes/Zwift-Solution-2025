@@ -28,7 +28,7 @@ def calculate_cp_awc_linear_p(power_data: Dict[int, float]) -> Tuple[float, floa
     power_outputs = np.array(list(power_data.values()), dtype=float)
     inverse_durations = 1 / durations
     A = np.vstack([inverse_durations, np.ones(len(inverse_durations))]).T
-    awc, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    cp, awc = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, awc
 
 # Exponential model
@@ -40,78 +40,60 @@ def calculate_cp_awc_exponential(tw_data: Dict[int, float]) -> Tuple[float, floa
     cp, awc = np.linalg.lstsq(A, total_work, rcond=None)[0]
     return cp, awc
 
+# 2-Parameter model
 def calculate_cp_awc_2_parameter(data: Dict[int, float]) -> Tuple[float, float]:
     durations = np.array(list(data.keys()), dtype=float)
     power_outputs = np.array(list(data.values()), dtype=float)
     inverse_durations = 1 / durations
     A = np.vstack([inverse_durations, np.ones(len(inverse_durations))]).T
-    w_prime, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    cp, w_prime = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, w_prime
 
+# 3-Parameter model
 def calculate_cp_awc_3_parameter(data: Dict[int, float]) -> Tuple[float, float, float]:
+    durations = np.array(list(data.keys()), dtype=float)
+    power_outputs = np.array(list(data.values()), dtype=float)
+    tau = np.mean(durations)  # Example calculation for tau
+    inverse_durations_tau = 1 / (durations + tau)
+    A = np.vstack([inverse_durations_tau, np.ones(len(inverse_durations_tau))]).T
+    cp, w_prime = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    return cp, w_prime, tau
+
+# Hyperbolic model
+def calculate_cp_awc_hyperbolic(data: Dict[int, float]) -> Tuple[float, float]:
     durations = np.array(list(data.keys()), dtype=float)
     power_outputs = np.array(list(data.values()), dtype=float)
     inverse_durations = 1 / durations
     A = np.vstack([inverse_durations, np.ones(len(inverse_durations))]).T
-    w_prime, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
-    tau = np.mean(durations)  # Example calculation for tau
-    return cp, w_prime, tau
-
-def calculate_cp_awc_hyperbolic(data: Dict[int, float]) -> Tuple[float, float]:
-    durations = np.array(list(data.keys()), dtype=float)
-    power_outputs = np.array(list(data.values()), dtype=float)
-    A = np.vstack([1 / durations, np.ones(len(durations))]).T
-    awc, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    cp, awc = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, awc
 
+# Monod-Scherrer model
 def calculate_cp_awc_monod_scherrer(data: Dict[int, float]) -> Tuple[float, float]:
     durations = np.array(list(data.keys()), dtype=float)
     power_outputs = np.array(list(data.values()), dtype=float)
-    A = np.vstack([1 / durations, np.ones(len(durations))]).T
-    awc, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    inverse_durations = 1 / durations
+    A = np.vstack([inverse_durations, np.ones(len(inverse_durations))]).T
+    cp, awc = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, awc
 
+# Log-Linear model
 def calculate_cp_awc_log_linear(data: Dict[int, float]) -> Tuple[float, float]:
-    """
-    Calculate Critical Power (CP) and Anaerobic Work Capacity (AWC) using the Log-Linear model.
-
-    Args:
-        data (Dict[int, float]): Dictionary where keys are time durations (in seconds) and values are power outputs (in watts).
-
-    Returns:
-        Tuple[float, float]: Estimated CP (in watts) and AWC (in joules).
-    """
     durations = np.array(list(data.keys()), dtype=float)
     power_outputs = np.array(list(data.values()), dtype=float)
     log_durations = np.log(durations)
-
-    # Linear regression to find CP and AWC
     A = np.vstack([log_durations, np.ones(len(log_durations))]).T
     cp, awc = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, awc
 
-
+# Nonlinear model
 def calculate_cp_awc_nonlinear(data: Dict[int, float], n: float) -> Tuple[float, float]:
-    """
-    Calculate Critical Power (CP) and Work Capacity Above CP (W') using a Nonlinear model.
-
-    Args:
-        data (Dict[int, float]): Dictionary where keys are time durations (in seconds) and values are power outputs (in watts).
-        n (float): Nonlinear parameter.
-
-    Returns:
-        Tuple[float, float]: Estimated CP (in watts) and W' (in joules).
-    """
     durations = np.array(list(data.keys()), dtype=float)
     power_outputs = np.array(list(data.values()), dtype=float)
     inverse_durations_n = 1 / (durations ** n)
-
-    # Linear regression to find CP and W'
     A = np.vstack([inverse_durations_n, np.ones(len(inverse_durations_n))]).T
-    w_prime, cp = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
+    cp, w_prime = np.linalg.lstsq(A, power_outputs, rcond=None)[0]
     return cp, w_prime
-
-
 
 def plot_cp_awc(data: Dict[int, float], cp: float, awc: float, dirpath: str, filename: str, model: Callable, tau: float = None) -> str:
     durations = np.array(list(data.keys()), dtype=float)
@@ -161,11 +143,11 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
     
     for model_name, model_func, _ in models:
         if model_name == "3-Parameter":
-            cp, awc, tau = model_func(data)
-            best_fit_line = cp + awc / (durations + tau)
+            cp, w_prime, tau = model_func(data)
+            best_fit_line = cp + w_prime / (durations + tau)
         elif model_name == "Nonlinear":
-            cp, awc = model_func(data)
-            best_fit_line = cp + awc / (durations ** 1.5)  # Assuming n=1.5 for the Nonlinear model
+            cp, w_prime = model_func(data)
+            best_fit_line = cp + w_prime / (durations ** 1.5)  # Assuming n=1.5 for the Nonlinear model
         else:
             cp, awc = model_func(data)
             if model_func == calculate_cp_awc_linear_tw:
@@ -175,7 +157,7 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
             elif model_func == calculate_cp_awc_exponential:
                 best_fit_line = awc + cp * np.log(durations)
             elif model_func == calculate_cp_awc_2_parameter:
-                best_fit_line = cp + awc / durations
+                best_fit_line = cp + w_prime / durations
             elif model_func == calculate_cp_awc_hyperbolic:
                 best_fit_line = awc / durations + cp
             elif model_func == calculate_cp_awc_monod_scherrer:
@@ -183,9 +165,9 @@ def plot_combined_models(data: Dict[int, float], models: List[Tuple[str, Callabl
             elif model_func == calculate_cp_awc_log_linear:
                 best_fit_line = cp + awc * np.log(durations)
             else:
-                raise ValueError(f"Unsupported model: {model_name}")
-        
-        plt.plot(durations, best_fit_line, label=f'{model_name} Best Fit Line')
+                raise ValueError(f"Unsupported model: {model_name}")        
+
+    plt.plot(durations, best_fit_line, label=f'{model_name} Best Fit Line')
     
     plt.xlabel('Time (s)')
     plt.ylabel('Total Work (J)' if model_func != calculate_cp_awc_linear_p else 'Power (W)')
@@ -206,25 +188,26 @@ def main() -> None:
     dirpath = "C:/Users/johng/holding_pen"
     os.makedirs(dirpath, exist_ok=True)
 
-    tuples_of_duration_and_ave_power = {5: 546.0, 15: 434.0, 30: 425.0, 60: 348.0, 180: 293.0, 300: 292.0, 600: 268.0, 720: 264.0, 900: 255.0, 1200: 254.0, 1800: 252.0, 2400: 244.0}
+    tuples_of_duration_and_ave_power_joshn = {5: 810.0, 15: 781.0, 30: 679.0, 60: 475.0, 180: 338.0, 300: 320.0, 600: 307.0, 720: 298.0, 900: 283.0, 1200: 279.0, 1800: 271.0, 2400: 261.0}
+    tuples_of_duration_and_ave_power_jgh = {5: 546.0, 15: 434.0, 30: 425.0, 60: 348.0, 180: 293.0, 300: 292.0, 600: 268.0, 720: 264.0, 900: 255.0, 1200: 254.0, 1800: 252.0, 2400: 244.0}
 
     table_data = []
-    for duration, ave_power in tuples_of_duration_and_ave_power.items():
+    for duration, ave_power in tuples_of_duration_and_ave_power_joshn.items():
         inverse_duration = 1 / duration
         table_data.append([round(duration), round(ave_power), round(inverse_duration, 3)])
     table = tabulate(table_data, headers=["Duration (s)", "Average Power (W)", "Inverse Duration (1/s)"], tablefmt="grid")
     logger.info(f"\n{table}")
 
     models = [
-        # ("Linear-TW", calculate_cp_awc_linear_tw, tuples_of_duration_and_ave_power),
-        ("Linear-P", calculate_cp_awc_linear_p, tuples_of_duration_and_ave_power),
-        # ("Exponential", calculate_cp_awc_exponential, tuples_of_duration_and_ave_power),
-        # ("2-Parameter", calculate_cp_awc_2_parameter, tuples_of_duration_and_ave_power),
-        # ("3-Parameter", calculate_cp_awc_3_parameter, tuples_of_duration_and_ave_power),
-        # ("Hyperbolic", calculate_cp_awc_hyperbolic, tuples_of_duration_and_ave_power),
-        # ("Monod-Scherrer", calculate_cp_awc_monod_scherrer, tuples_of_duration_and_ave_power),
-        # ("Log-Linear", calculate_cp_awc_log_linear, tuples_of_duration_and_ave_power),
-        # ("Nonlinear", lambda data: calculate_cp_awc_nonlinear(data, n=1.5), tuples_of_duration_and_ave_power)  # Add the Nonlinear model here with n=1.5
+        ("Linear-TW", calculate_cp_awc_linear_tw, tuples_of_duration_and_ave_power_jgh),
+        ("Linear-P", calculate_cp_awc_linear_p, tuples_of_duration_and_ave_power_joshn),
+        ("Exponential", calculate_cp_awc_exponential, tuples_of_duration_and_ave_power_jgh),
+        ("2-Parameter", calculate_cp_awc_2_parameter, tuples_of_duration_and_ave_power_jgh),
+        ("3-Parameter", calculate_cp_awc_3_parameter, tuples_of_duration_and_ave_power_jgh),
+        ("Hyperbolic", calculate_cp_awc_hyperbolic, tuples_of_duration_and_ave_power_jgh),
+        ("Monod-Scherrer", calculate_cp_awc_monod_scherrer, tuples_of_duration_and_ave_power_jgh),
+        ("Log-Linear", calculate_cp_awc_log_linear, tuples_of_duration_and_ave_power_jgh),
+        ("Nonlinear", lambda data: calculate_cp_awc_nonlinear(data, n=1.5), tuples_of_duration_and_ave_power_jgh)  # Add the Nonlinear model here with n=1.5
     ]
 
     summary_table = []
@@ -246,7 +229,7 @@ def main() -> None:
     summary_table_str = tabulate(summary_table, headers=summary_headers, tablefmt="grid")
     logger.info(f"\n{summary_table_str}")
 
-    combined_plot_filepath = plot_combined_models(tuples_of_duration_and_ave_power, models, dirpath, "combined_models_plot.png")
+    combined_plot_filepath = plot_combined_models(tuples_of_duration_and_ave_power_joshn, models, dirpath, "combined_models_plot.png")
     logger.info(f"Combined models plot saved to: {combined_plot_filepath}")
 
 if __name__ == "__main__":

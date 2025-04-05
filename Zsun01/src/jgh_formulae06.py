@@ -276,7 +276,8 @@ def main() -> None:
     log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items_with_cp_and_w_prime, logger)
 
 
-    logger.info(zwiftrider_cp_items['58160'].map_to_int_float_equivalent())
+    logger.info(zwiftrider_cp_items['2508033'].map_to_int_float_equivalent())
+    # logger.info(zwiftrider_cp_items['58160'].map_to_int_float_equivalent())
 
 
 
