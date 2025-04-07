@@ -1,12 +1,9 @@
-from typing import  List, Dict, Tuple, cast
+from typing import  List, Dict, Tuple
 from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
 from critical_power import estimate_cp_and_w_prime
 import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
 
 
 # currenty unsused
@@ -202,42 +199,6 @@ def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[Zwif
     return rider_answer_items
 
 
-def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
-    from tabulate import tabulate
-    logger.info(test_description)
-    table = []
-    for rider, z in result.items():
-        table.append([
-            rider.name, 
-            z.speed_kph,
-            z.pull_duration,
-            z.pull_wkg,
-            z.p1_w, 
-            z.p2_w, 
-            z.p3_w, 
-            z.p4_w, 
-            z.p__w,
-            z.pull_w_over_ftp,
-            z.ftp_intensity_factor, 
-            # z.cp_intensity_factor
-            z.cp, 
-            z.w_prime
-        ])
-    headers = ["rider", 
-        "kph",
-        "sec", 
-        "wkg",
-        "p1", 
-        "p2", 
-        "p3", 
-        "p4", 
-        "p+", 
-        "pull(%ftp)",
-        "IF(ftp)", 
-        "zwift_cp", 
-        "zwift_W_prime",
-    ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 def main() -> None:
     import logging
@@ -248,6 +209,43 @@ def main() -> None:
     from zwiftrider_related_items import ZwiftRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
+
+    def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
+        from tabulate import tabulate
+        logger.info(test_description)
+        table = []
+        for rider, z in result.items():
+            table.append([
+                rider.name, 
+                z.speed_kph,
+                z.pull_duration,
+                z.pull_wkg,
+                z.p1_w, 
+                z.p2_w, 
+                z.p3_w, 
+                z.p4_w, 
+                z.p__w,
+                z.pull_w_over_ftp,
+                z.ftp_intensity_factor, 
+                # z.cp_intensity_factor
+                z.cp, 
+                z.w_prime
+            ])
+        headers = ["rider", 
+            "kph",
+            "sec", 
+            "wkg",
+            "p1", 
+            "p2", 
+            "p3", 
+            "p4", 
+            "p+", 
+            "pull(%ftp)",
+            "IF(ftp)", 
+            "zwift_cp", 
+            "zwift_W_prime",
+        ]
+        logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 

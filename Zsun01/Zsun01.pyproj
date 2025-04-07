@@ -4,18 +4,19 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\functions\critical_powerV2.py</StartupFile>
+    <StartupFile>tests\excel.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
     <RootNamespace>Zsun01</RootNamespace>
-    <InterpreterId>Global|VisualStudio|anaconda3</InterpreterId>
+    <InterpreterId>Global|PythonCore|3.12</InterpreterId>
     <TestFramework>unittest</TestFramework>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
     <Environment>
     </Environment>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +27,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.12" />
     <InterpreterReference Include="Global|VisualStudio|anaconda3" />
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +69,14 @@
     <Compile Include="src\jgh_formulae09.py" />
     <Compile Include="src\functions\critical_power.py" />
     <Compile Include="src\ttt_solution.py" />
+    <Compile Include="tests\test_cp_w_prime_linear_work_time.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_cp_w_prime_models.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\excel.py" />
+    <Compile Include="tests\test_cp_w_prime_non_linear_power_time.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

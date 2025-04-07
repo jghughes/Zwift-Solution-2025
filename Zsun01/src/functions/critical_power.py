@@ -1,46 +1,11 @@
 from typing import List, Tuple, Dict
 import numpy as np
 from numpy import ndarray
-from  matplotlib import pyplot as plt
+# from  matplotlib import pyplot as plt
 from tabulate import tabulate
 from datetime import datetime
 import os
 import logging
-
-
-# formulae originate from https://pmc.ncbi.nlm.nih.gov/articles/PMC9265641/
-def distill_cp_metrics_from_wattages_per_second(datapoints: List[Tuple[int, float]], cp_test_duration_specs: List[int]) -> Dict[int, float]:
-    """
-    Segment the data into specified durations and calculate the maximum average power for each segment.
-
-    Args:
-        datapoints (List[Tuple[int, float]]): List of power wattages recorded per second for a period of one hour.
-        cp_test_duration_specs (List[int]): List of required critical power timespan in seconds.
-
-    Returns:
-        Dict[int, float]: Dictionary where key is the cp timespan (sec) and value is power (W) for the timespan.
-    """
-    dict_of_riders_and_their_criticalpower_curve: Dict[int, float] = {}
-
-    for duration in cp_test_duration_specs:
-        max_avg_power: float = 0.0
-        num_intervals: int = 3600 - duration + 1
-
-        # Calculate the sum of the first interval
-        interval_sum: float = sum(datapoints[j][1] for j in range(duration))
-        max_avg_power = interval_sum / duration
-
-        # Use sliding window technique to calculate the sum of subsequent intervals
-        for i in range(1, num_intervals):
-            interval_sum = interval_sum - datapoints[i - 1][1] + datapoints[i + duration - 1][1]
-            avg_power: float = interval_sum / duration
-            if avg_power > max_avg_power:
-                max_avg_power = avg_power
-
-        dict_of_riders_and_their_criticalpower_curve[duration] = max_avg_power
-
-    return dict_of_riders_and_their_criticalpower_curve
-
 
 
 def filter_cp_interval_data(cp_interval_data: Dict[int, float]) -> Dict[int, float]:

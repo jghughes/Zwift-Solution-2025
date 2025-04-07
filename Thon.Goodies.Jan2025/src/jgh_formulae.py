@@ -167,67 +167,67 @@ def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight:
     return round(energy_kilojoules, 3)
 
 # Example usage
-def main():
-    # units of power (w) = watts
-    # units of speed (kph) = kilometers per hour
-    # units of velocity (v) = m/s
-    # units of energy (kJ) = kilojoules
-    # units of height (cm) = centimeters
-    # units of weight (kg) = kilograms 
+# def main():
+#     # units of power (w) = watts
+#     # units of speed (kph) = kilometers per hour
+#     # units of velocity (v) = m/s
+#     # units of energy (kJ) = kilojoules
+#     # units of height (cm) = centimeters
+#     # units of weight (kg) = kilograms 
 
-    # parameters for the power calculation
-    #     name: Eric Schlange
-    #     speed: float = 40 kph
-    #     weight: float = 84.3
-    #     height: float = 180
-    #     ftp: float = 272  # Functional Threshold Power in watts
+#     # parameters for the power calculation
+#     #     name: Eric Schlange
+#     #     speed: float = 40 kph
+#     #     weight: float = 84.3
+#     #     height: float = 180
+#     #     ftp: float = 272  # Functional Threshold Power in watts
 
-    # Configure logging
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
+#     # Configure logging
+#     import logging
+#     from jgh_logging import jgh_configure_logging
+#     jgh_configure_logging("appsettings.json")
+#     logger = logging.getLogger(__name__)
 
-    import numpy as np
+#     import numpy as np
 
-    # Define the input parameters
-    kph = 40.0
-    seconds = 0
-    meters = 4000.0
+#     # Define the input parameters
+#     kph = 40.0
+#     seconds = 0
+#     meters = 4000.0
 
-    logger.info(f"Input parameters  = speed: {kph} km/h, time: {seconds} seconds, distance: {meters} meters")
-    kph, seconds, meters = triangulate_speed_time_and_distance(kph, seconds, meters)
-    logger.info(f"Output parameters = speed: {kph} km/h, time: {seconds} seconds, distance: {meters} meters")
+#     logger.info(f"Input parameters  = speed: {kph} km/h, time: {seconds} seconds, distance: {meters} meters")
+#     kph, seconds, meters = triangulate_speed_time_and_distance(kph, seconds, meters)
+#     logger.info(f"Output parameters = speed: {kph} km/h, time: {seconds} seconds, distance: {meters} meters")
 
-    # Define the rider's name, speed, weight, and height
-    name = "Eric Schlange"
-    speed = 40.0
-    weight = 84.3
-    height = 180.0
+#     # Define the rider's name, speed, weight, and height
+#     name = "Eric Schlange"
+#     speed = 40.0
+#     weight = 84.3
+#     height = 180.0
 
-    # Calculate the power based on the rider's weight, speed, and height
-    power = estimate_watts_from_speed(speed, weight, height)
-    logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
+#     # Calculate the power based on the rider's weight, speed, and height
+#     power = estimate_watts_from_speed(speed, weight, height)
+#     logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
-    # Estimate the speed based on the rider's weight, power, and height
-    estimated_speed = estimate_speed_from_wattage(power, weight, height)
-    logger.info(f"Estimated speed for {name} @ {power} watts   {weight} kg   {height} cm  := {estimated_speed} km/h")
+#     # Estimate the speed based on the rider's weight, power, and height
+#     estimated_speed = estimate_speed_from_wattage(power, weight, height)
+#     logger.info(f"Estimated speed for {name} @ {power} watts   {weight} kg   {height} cm  := {estimated_speed} km/h")
 
-    # Define the speed matrix in km/h
-    ZwiftInsiderSpeedMatrix_kph = np.array([39.9, 42.2, 44.4])
+#     # Define the speed matrix in km/h
+#     ZwiftInsiderSpeedMatrix_kph = np.array([39.9, 42.2, 44.4])
 
-    # Calculate the power matrix based on the rider's weight, speed, and height
-    power_matrix = np.array([estimate_watts_from_speed(speed, weight, height) for speed in ZwiftInsiderSpeedMatrix_kph])
+#     # Calculate the power matrix based on the rider's weight, speed, and height
+#     power_matrix = np.array([estimate_watts_from_speed(speed, weight, height) for speed in ZwiftInsiderSpeedMatrix_kph])
 
-    # Log the results
-    for speed, power in zip(ZwiftInsiderSpeedMatrix_kph, power_matrix):
-        logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
+#     # Log the results
+#     for speed, power in zip(ZwiftInsiderSpeedMatrix_kph, power_matrix):
+#         logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
-    # Log cache performance
-    logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
-    logger.info(f"estimate_watts_from_speed cache info: {estimate_watts_from_speed.cache_info()}")
-    logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
-    logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
+#     # Log cache performance
+#     logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
+#     logger.info(f"estimate_watts_from_speed cache info: {estimate_watts_from_speed.cache_info()}")
+#     logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
+#     logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
 from typing import Dict, List
-import logging
 from zwiftrider_related_items import ZwiftRiderItem, RiderWorkAssignmentItem
 
 def populate_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]:
@@ -50,32 +49,33 @@ def populate_rider_work_assignments(riders: List[ZwiftRiderItem], pull_durations
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-def log_results_work_assignments(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
-    from tabulate import tabulate
-
-    table = []
-    for rider, assignments in result.items():
-        for assignment in assignments:
-            table.append([
-                rider.name, 
-                assignment.position, 
-                assignment.duration, 
-                assignment.speed
-            ])
-
-    headers = [
-        "Rider", 
-        "Position", 
-        "Duration (sec)", 
-        "Speed (kph)"
-    ]
-    logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 def main() -> None:
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+
+    def log_results_work_assignments(test_description: str, result: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
+        from tabulate import tabulate
+
+        table = []
+        for rider, assignments in result.items():
+            for assignment in assignments:
+                table.append([
+                    rider.name, 
+                    assignment.position, 
+                    assignment.duration, 
+                    assignment.speed
+                ])
+
+        headers = [
+            "Rider", 
+            "Position", 
+            "Duration (sec)", 
+            "Speed (kph)"
+        ]
+        logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
     from handy_utilities import get_all_zwiftriders
 

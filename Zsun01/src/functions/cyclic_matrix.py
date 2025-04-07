@@ -47,9 +47,9 @@ def main():
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
-    barryb = dict_of_zwiftrideritem['barryb']
-    johnh = dict_of_zwiftrideritem['johnh']
-    lynseys = dict_of_zwiftrideritem['lynseys']
+    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
 
     riders = [barryb, johnh, lynseys]
 

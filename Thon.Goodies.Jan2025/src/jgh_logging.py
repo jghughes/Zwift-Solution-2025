@@ -310,7 +310,6 @@ def main2():
     print("Example 4: call jgh_configure_logging(appsettings.json) to initialise the logging system. The logging system will behave how the settings dictate.")    
     print("")
     jgh_configure_logging("appsettings.json")
-    x = __name__
     rootlogger = logging.getLogger(__name__)
     rootlogger.debug(debugMsg)
     rootlogger.info(infoMsg)

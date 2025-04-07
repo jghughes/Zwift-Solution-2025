@@ -1,17 +1,17 @@
 from typing import List, Tuple, Dict, Callable
-import numpy as np
-from numpy import ndarray
-from matplotlib import pyplot as plt
+# import numpy as np
+# from numpy import ndarray
+# from matplotlib import pyplot as plt
 from tabulate import tabulate
 from datetime import datetime
 import os
 import logging
-from sklearn.metrics import r2_score, mean_squared_error
+
 
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
+# logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 # Function to calculate goodness-of-fit metrics
 def evaluate_model_fit(observed: np.ndarray, predicted: np.ndarray) -> Dict[str, float]:
@@ -201,7 +201,7 @@ def main() -> None:
     dirpath = "C:/Users/johng/holding_pen"
     os.makedirs(dirpath, exist_ok=True)
 
-    # tuples_of_duration_and_ave_power_joshn = {5: 810.0, 15: 781.0, 30: 679.0, 60: 475.0, 180: 338.0, 300: 320.0, 600: 307.0, 720: 298.0, 900: 283.0, 1200: 279.0, 1800: 271.0, 2400: 261.0}
+    tuples_of_duration_and_ave_power_joshn = {5: 810.0, 15: 781.0, 30: 679.0, 60: 475.0, 180: 338.0, 300: 320.0, 600: 307.0, 720: 298.0, 900: 283.0, 1200: 279.0, 1800: 271.0, 2400: 261.0}
     tuples_of_duration_and_ave_power_jgh = {5: 546.0, 15: 434.0, 30: 425.0, 60: 348.0, 180: 293.0, 300: 292.0, 600: 268.0, 720: 264.0, 900: 255.0, 1200: 254.0, 1800: 252.0, 2400: 244.0}
 
     table_data = []

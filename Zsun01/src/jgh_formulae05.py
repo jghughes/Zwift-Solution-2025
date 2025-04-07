@@ -30,30 +30,6 @@ def populate_rider_exertions(rider_work_assignments: Dict[ZwiftRiderItem, List[R
     
     return rider_workloads
 
-def log_results_exertions(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
-    from tabulate import tabulate
-    logger.info(test_description)
-    table = []
-    for rider, efforts in result.items():
-        for effort in efforts:
-            table.append([
-                rider.name, 
-                effort.current_location_in_paceline, 
-                round(effort.speed_kph, 1), 
-                round(effort.duration), 
-                round(effort.wattage, 0), 
-                round(effort.kilojoules, 0)
-            ])
-
-    headers = [
-        "rider", 
-        "location", 
-        "kph", 
-        "seconds)", 
-        "watts", 
-        "kJ"
-    ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 
 def main() -> None:
@@ -64,6 +40,31 @@ def main() -> None:
 
     from jgh_formulae04 import populate_rider_work_assignments
     from handy_utilities import get_all_zwiftriders
+
+    def log_results_exertions(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
+        from tabulate import tabulate
+        logger.info(test_description)
+        table = []
+        for rider, efforts in result.items():
+            for effort in efforts:
+                table.append([
+                    rider.name, 
+                    effort.current_location_in_paceline, 
+                    round(effort.speed_kph, 1), 
+                    round(effort.duration), 
+                    round(effort.wattage, 0), 
+                    round(effort.kilojoules, 0)
+                ])
+
+        headers = [
+            "rider", 
+            "location", 
+            "kph", 
+            "seconds)", 
+            "watts", 
+            "kJ"
+        ]
+        logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
     dict_of_zwiftrideritem = get_all_zwiftriders()
 
