@@ -161,41 +161,41 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
     return answer
 
 
-def add_zwift_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items: Dict[str, ZwiftRiderCriticalPowerItem]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+def add_zwift_cp_and_w_prime_to_rider_criticalpower_items(dict_of_zwiftrider_cp_metrics: Dict[str, ZwiftRiderCriticalPowerItem]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Add critical power and W' to the ZwiftRiderCriticalPowerItem instances.
     Args:
-        zwiftrider_cp_items (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items. Key is str(zwiftid).
+        dict_of_zwiftrider_cp_metrics (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items. Key is str(zwiftid).
     Returns:
         Dict[str, ZwiftRiderCriticalPowerItem]: The updated critical power items with critical power and W'. Key is str(zwiftid).
     """
-    for rider_cp_item in zwiftrider_cp_items.values():
+    for rider_cp_item in dict_of_zwiftrider_cp_metrics.values():
         rider_cp_interval_data :  Dict[int, float] = rider_cp_item.map_to_int_float_equivalent()
         cp, w_prime = estimate_cp_and_w_prime(rider_cp_interval_data)
         rider_cp_item.cp = cp
         rider_cp_item.w_prime = w_prime
-    return zwiftrider_cp_items
+    return dict_of_zwiftrider_cp_metrics
 
-def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZwiftRiderItem, RiderAnswerItem], zwiftrider_cp_items: Dict[str, ZwiftRiderCriticalPowerItem]
+def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZwiftRiderItem, RiderAnswerItem], dict_of_zwiftrider_cp_metrics: Dict[str, ZwiftRiderCriticalPowerItem]
 ) -> Dict[ZwiftRiderItem, RiderAnswerItem]:
     """
     Populate zwift critical power and W' in the the rider answer items.
     Args:
         rider_answer_items (Dict[ZwiftRiderItem, RiderAnswerItem]): The rider answer items.
-        zwiftrider_cp_items (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items. Key is str(zwiftid).
+        dict_of_zwiftrider_cp_metrics (Dict[str, ZwiftRiderCriticalPowerItem]): The critical power items. Key is str(zwiftid).
     Returns:
         Dict[ZwiftRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
     """
     for rider, answer_item in rider_answer_items.items():
         rider_id_str = str(rider.zwiftid).strip()
-        logging.debug(f"Looking for rider ID: {rider_id_str} in zwiftrider_cp_items")
-        rider_cp_item = zwiftrider_cp_items.get(rider_id_str, None) # because keyed on zwiftid
+        logging.debug(f"Looking for rider ID: {rider_id_str} in dict_of_zwiftrider_cp_metrics")
+        rider_cp_item = dict_of_zwiftrider_cp_metrics.get(rider_id_str, None) # because keyed on zwiftid
         if rider_cp_item:
             logging.debug(f"Found rider ID: {rider_id_str}")
             answer_item.cp = rider_cp_item.cp
             answer_item.w_prime = rider_cp_item.w_prime
         else:
-            logging.debug(f"Rider ID: {rider_id_str} not found in zwiftrider_cp_items")
+            logging.debug(f"Rider ID: {rider_id_str} not found in dict_of_zwiftrider_cp_metrics")
     return rider_answer_items
 
 
@@ -254,7 +254,8 @@ def main() -> None:
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
     joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
-
+    markb : ZwiftRiderItem = dict_of_zwiftrideritem['5530045'] # markb
+    
     pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0]
     pull_durations_sec = [120.0, 60.0, 30.0, 30.0, 30.0]
     riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
@@ -265,17 +266,17 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    zwiftrider_cp_items = get_all_zwiftriders_cp_data()
+    dict_of_zwiftrider_cp_metrics = get_all_zwiftriders_cp_data()
 
-    zwiftrider_cp_items = add_zwift_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items)
+    dict_of_zwiftrider_cp_metrics = add_zwift_cp_and_w_prime_to_rider_criticalpower_items(dict_of_zwiftrider_cp_metrics)
 
-    rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftrider_cp_items)
+    rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, dict_of_zwiftrider_cp_metrics)
 
     log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items_with_cp_and_w_prime, logger)
 
 
-    logger.info(zwiftrider_cp_items['2508033'].map_to_int_float_equivalent())
-    # logger.info(zwiftrider_cp_items['58160'].map_to_int_float_equivalent())
+    logger.info(dict_of_zwiftrider_cp_metrics['2508033'].map_to_int_float_equivalent())
+    # logger.info(dict_of_zwiftrider_cp_metrics['58160'].map_to_int_float_equivalent())
 
 
 
