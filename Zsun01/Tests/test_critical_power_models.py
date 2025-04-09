@@ -1,6 +1,6 @@
 import numpy as np
 
-from critical_power_metrics import map_zwiftridercriticalpoweritem_to_xy_lists, exponential_curve_formula
+from critical_power_metrics import map_zwiftridercriticalpoweritem_to_xy_lists, inverse_model_formula
 
 
 
@@ -54,23 +54,23 @@ def main() -> None:
     xdata_filtered = xdata[mask]
     ydata_filtered = ydata[mask]
 
-    # Fit the exponential model to the filtered data - this is the best fit for our purposes
-    popt_filtered, pcov_filtered = curve_fit(exponential_curve_formula, xdata_filtered, ydata_filtered)
-    y_pred_filtered = exponential_curve_formula(xdata_filtered, *popt_filtered)
+    # Fit the inverse model to the filtered data - this is the best fit for our purposes
+    popt_filtered, pcov_filtered = curve_fit(inverse_model_formula, xdata_filtered, ydata_filtered)
+    y_pred_filtered = inverse_model_formula(xdata_filtered, *popt_filtered)
     r_squared_filtered = r2_score(ydata_filtered, y_pred_filtered)
     logger.info(f"\nExponential model (filtered): {riders[rider_id].name} popt_filtered: {popt_filtered} R squared: {r_squared_filtered}")
 
     # since this is our preferred model, we can use the fitted parameters to predict the power for a full data set out to 60 minutes
     xdata_full = np.arange(30, 60*60, 30)  # 30 second intervals
-    ydata_full = exponential_curve_formula(xdata_full, *popt_filtered)
+    ydata_full = inverse_model_formula(xdata_full, *popt_filtered)
     #log the x=60*60 value of ydata_full
-    logger.info(f"\nExponential model (full data): {riders[rider_id].name} 60min power: {ydata_full[-1]}")
+    logger.info(f"\nInverse model (full data): {riders[rider_id].name} 60min power: {ydata_full[-1]}")
 
-    # Fit the exponential model to the full data
-    popt01, pcov = curve_fit(exponential_curve_formula, xdata, ydata)  # popt01 is a tuple of the fitted parameters
-    y_pred01 = exponential_curve_formula(xdata, *popt01)
+    # Fit the inverse_power model to the full data
+    popt01, pcov = curve_fit(inverse_model_formula, xdata, ydata)  # popt01 is a tuple of the fitted parameters
+    y_pred01 = inverse_model_formula(xdata, *popt01)
     r_squared01 = r2_score(ydata, y_pred01)
-    logger.info(f"\nExponential model: {riders[rider_id].name} popt01: {popt01} R squared: {r_squared01}")
+    logger.info(f"\nInverse model (masked): {riders[rider_id].name} popt01: {popt01} R squared: {r_squared01}")
 
     # hyperbolic_model
     popt02, pcov = curve_fit(hyperbolic_model, xdata, ydata)

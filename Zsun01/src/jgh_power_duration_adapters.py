@@ -33,7 +33,7 @@ def map_zwiftridercriticalpoweritem_to_xy_lists(rider_cp_item: ZwiftRiderCritica
 
      return xdata, ydata
 
-def exponential_curve_formula(x_axis_data: Union[NDArray[np.float64], List[float]], constant: float, exponent: float
+def inverse_model_formula(x_axis_data: Union[NDArray[np.float64], List[float]], constant: float, exponent: float
 ) -> NDArray[np.float64]:
     """
     By inputting x_axis_data (durations in seconds) and two coefficients, a constant
@@ -100,7 +100,7 @@ def solve_for_critical_power_and_anaerobic_wok_capacity(x_axis_data: List[float]
 #     ydata_filtered = ydata[mask]
 
 #     # Fit the exponential model to the filtered data - this is the best fit for our purposes
-#     popt_filtered, pcov_filtered = curve_fit(exponential_curve_formula, xdata_filtered, ydata_filtered)
+#     popt_filtered, pcov_filtered = curve_fit(inverse_model_formula, xdata_filtered, ydata_filtered)
 
 #     # popt_filtered is a tuple of the coefficients a and b
 

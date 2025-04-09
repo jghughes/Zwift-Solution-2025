@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tests\test_cp_w_prime_linear_work_time.py</StartupFile>
+    <StartupFile>src\jgh_power_duration_modelling.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -66,9 +66,9 @@
     <Compile Include="src\jgh_formulae07.py" />
     <Compile Include="src\jgh_formulae08.py" />
     <Compile Include="src\jgh_formulae09.py" />
-    <Compile Include="src\functions\critical_power_metrics.py" />
+    <Compile Include="src\jgh_power_duration_adapters.py" />
     <Compile Include="src\ttt_solution.py" />
-    <Compile Include="tests\test_cp_w_prime_linear_work_time.py">
+    <Compile Include="src\jgh_power_duration_modelling.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_critical_power_models.py" />
