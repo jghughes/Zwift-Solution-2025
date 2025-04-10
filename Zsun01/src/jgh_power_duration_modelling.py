@@ -1,25 +1,24 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
-from typing import List, Tuple, Dict
+from typing import Tuple, Dict
 
 
 def linear_model(x : float, a : float, b: float):
     return a * x + b
 
 def inverse_model(x : float, a : float, b: float):
-    # b will/must be negative because it is a decay function
-    return a * x ** b
+    # this a decay function
+    return a * (1/(x ** b))
 
 def cp_w_prime_model(x: float, a: float, b: float) -> float:
     """
-    Compute the critical power model using the formula (a * x + b) / x.
+    Compute power as a function of CP and W' using the formula (a * x + b) / x.
 
     Args:
         x (float): Duration (seconds). Must be non-zero.
-        a (float): Coefficient for the linear term.
-        b (float): Constant term.
+        a (float): Coefficient for the linear term, cp.
+        b (float): Constant term, W'
 
     Returns:
         float: Computed power value.
@@ -27,11 +26,7 @@ def cp_w_prime_model(x: float, a: float, b: float) -> float:
     Raises:
         ValueError: If x is zero, to avoid division by zero.
     """
-    if x.any == 0:
-        raise ValueError("The 'x' parameter cannot be zero to avoid division by zero.")
-    
     return (a * x + b) / x
-
 
 def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, Dict[int, Tuple[float, float]]]:
     """
@@ -109,11 +104,15 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+    from tabulate import tabulate
     import matplotlib.pyplot as plt
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
 
     # get zwift 90-day rider data
+
+    riders = get_all_zwiftriders()
+    riders_cp_data = get_all_zwiftriders_cp_data()
 
     barryb ='5490373' 
     johnh ='58160'
@@ -122,8 +121,6 @@ def main():
     richardm ='1193'
     markb ='5530045'
 
-    riders = get_all_zwiftriders()
-    riders_cp_data = get_all_zwiftriders_cp_data()
 
     rider_id = johnh
     raw_xy_data = riders_cp_data[rider_id].map_to_int_float_equivalent_for_best_fitting()
@@ -131,26 +128,43 @@ def main():
     # do modelling
 
     cp, w_prime, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-    summary = f"Critical power model: CP={round(cp)}W  W'={round(w_prime/1_000)}kJ  R_squared={round(r_squared,2)}"
-    logger.info(summary)
+    summary = f"Critical power model: CP={round(cp)}W  W'={round(w_prime/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, w_prime))}W"
+    logger.info(f"\n{summary}")
 
     constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
-    summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent)}  R_squared={round(r_squared2,2)}"
-    logger.info(summary2)
+    summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
+    logger.info(f"\n{summary2}")
 
     # Tabulate answers
-    from tabulate import tabulate
 
     table_data = [
-        [x, f"{y:.0f}", f"{y_pred_cp:.0f}", f"{y_pred_inv:.0f}"]
+        [x, f"{y:.0f}", f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
         for x, y, (_, y_pred_cp), (_, y_pred_inv) in zip(
             raw_xy_data.keys(), raw_xy_data.values(), answer.values(), answer2.values()
         )
     ]
-    headers = ["x (s)", "y (Raw)", "y_pred (CP Model)", "y_pred (Inverse Model)"]
-    logger.info("Comparison of Predicted Values:")
+    headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+    logger.info("\nComparison of Predicted Values:")
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
+    # Define xdata for predictions
+
+    xdata_pred = [60, 120, 150, 180, 300, 450, 600, 720, 900, 1200, 1800, 2400, 3600, 4200, 4800, 5400]
+    row_titles = ["60s", "2min", "90s", "3min", "5min", "7.5min", "10min", "12min", "15min", "20min", "30min", "40min", "60min", "70min", "80min", "90min"]
+
+    y_pred_cp_model = [cp_w_prime_model(x, cp, w_prime) for x in xdata_pred]
+    y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_pred]
+
+    # Generate a table for the predictions
+    table_data_pred = [
+        [title, x, f"{y_inv:.0f}", f"{y_cp:.0f}"]
+        for title, x, y_inv, y_cp in zip(row_titles, xdata_pred, y_pred_inverse_model, y_pred_cp_model)
+    ]
+    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+
+    logger.info("\nPredicted Values for Specified xdata:")
+    logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
+    logger.info("\nModelling completed. Thank you.\n")
 
     # Plot answers
 
@@ -169,6 +183,6 @@ def main():
     plt.xticks(xdata)  
     plt.legend()
     plt.show()
-        
+
 if __name__ == "__main__":
     main()
