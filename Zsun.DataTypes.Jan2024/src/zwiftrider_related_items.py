@@ -499,6 +499,44 @@ class ZwiftRiderCriticalPowerItem:
 
         return answer
 
+    def map_to_int_float_equivalent_for_best_fitting(self) -> Dict[int, float]:
+        """
+        Map each attribute to a dictionary entry where the key is the number of seconds
+        corresponding to the attribute name and the value is the attribute's value.
+
+        Returns:
+            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+        """
+        # cp and w_prime are not included as they are not time-based attributes
+
+        answer = {
+            # 5: self.cp_5_sec,
+            # 15: self.cp_15_sec,
+            # 30: self.cp_30_sec,
+            60: self.cp_1_min,
+            120: self.cp_2_min,
+            180: self.cp_3_min,
+            300: self.cp_5_min,
+            600: self.cp_10_min,
+            720: self.cp_12_min,
+            900: self.cp_15_min,
+            1200: self.cp_20_min,
+            1800: self.cp_30_min,
+            2400: self.cp_40_min
+        }
+
+        # Filter out zero values (becuase they amoun to invalid datapoints)
+        answer = {k: v for k, v in answer.items() if v != 0}
+
+        # Belt and braces: sort by key (if the dictionary is not empty)
+        if answer:
+            answer = dict(sorted(answer.items(), key=lambda item: item[0]))
+
+        return answer
+
+
+
+
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:
 
