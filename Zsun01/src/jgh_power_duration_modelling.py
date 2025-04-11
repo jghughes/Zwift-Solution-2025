@@ -100,7 +100,7 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     return a, b, r2, result
 
 
-def generate_model_fitted_zwiftrider_cp_metrics(dict_of_zwiftrider_cp_metrics: Dict[str, ZwiftRiderCriticalPowerItem]
+def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Perform model fitting on ZwiftRiderCriticalPowerItem instances to calculate critical power (CP), 
@@ -112,7 +112,7 @@ def generate_model_fitted_zwiftrider_cp_metrics(dict_of_zwiftrider_cp_metrics: D
     capable of achieving in a solo effort.
 
     Args:
-        dict_of_zwiftrider_cp_metrics (Dict[str, ZwiftRiderCriticalPowerItem]): 
+        zwiftriders_zwift_cp_data (Dict[str, ZwiftRiderCriticalPowerItem]): 
             A dictionary where the key is the rider's Zwift ID (as a string) and the value is a 
             ZwiftRiderCriticalPowerItem instance containing critical power data.
 
@@ -126,7 +126,7 @@ def generate_model_fitted_zwiftrider_cp_metrics(dict_of_zwiftrider_cp_metrics: D
     modeled_data : Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
     # Iterate through each ZwiftRiderCriticalPowerItem instance in the input dictionary
-    for rider_id, rider_cp_item in dict_of_zwiftrider_cp_metrics.items():
+    for rider_id, rider_cp_item in zwiftriders_zwift_cp_data.items():
         # Create a copy of the current rider_cp_item to avoid modifying the original
         modeled_rider_cp_item = ZwiftRiderCriticalPowerItem(
             zwiftid=rider_cp_item.zwiftid,
