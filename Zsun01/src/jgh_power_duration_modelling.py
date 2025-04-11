@@ -123,7 +123,7 @@ def main():
 
 
     rider_id = johnh
-    raw_xy_data = riders_cp_data[rider_id].map_to_int_float_equivalent_for_best_fitting()
+    raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fitting()
 
     # do modelling
 
@@ -149,16 +149,16 @@ def main():
 
     # Define xdata for predictions
 
-    xdata_pred = [60, 120, 150, 180, 300, 450, 600, 720, 900, 1200, 1800, 2400, 3600, 4200, 4800, 5400]
-    row_titles = ["60s", "2min", "90s", "3min", "5min", "7.5min", "10min", "12min", "15min", "20min", "30min", "40min", "60min", "70min", "80min", "90min"]
+    xdata_test = [60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
+    row_titles = ["1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "60min", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = [cp_w_prime_model(x, cp, w_prime) for x in xdata_pred]
-    y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_pred]
+    y_pred_cp_model = [cp_w_prime_model(x, cp, w_prime) for x in xdata_test]
+    y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]
 
     # Generate a table for the predictions
     table_data_pred = [
         [title, x, f"{y_inv:.0f}", f"{y_cp:.0f}"]
-        for title, x, y_inv, y_cp in zip(row_titles, xdata_pred, y_pred_inverse_model, y_pred_cp_model)
+        for title, x, y_inv, y_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
     ]
     headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
 
@@ -174,12 +174,12 @@ def main():
     ydata_pred2 = [value[1] for value in answer2.values()]
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata, ydata, color='blue', label='90-day data')
+    plt.scatter(xdata, ydata, color='blue', label='Zwift 90-day data')
     plt.plot(xdata, ydata_pred, color='red', label=summary)
     plt.plot(xdata, ydata_pred2, color='green', label=summary2)
     plt.xlabel('Duration (s)')
     plt.ylabel('Power (W)')
-    plt.title(f'Zwift 90-day data modelling: {riders[rider_id].name}')
+    plt.title(f'{riders[rider_id].name}')
     plt.xticks(xdata)  
     plt.legend()
     plt.show()

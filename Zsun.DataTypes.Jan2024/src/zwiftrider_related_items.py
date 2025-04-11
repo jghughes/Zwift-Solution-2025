@@ -372,6 +372,7 @@ class ZwiftRiderItem():
         }
         return dict_of_zwiftrideritem# Example usage
 
+
 @dataclass
 class ZwiftRiderCriticalPowerItem:
     """
@@ -381,90 +382,40 @@ class ZwiftRiderCriticalPowerItem:
     Attributes:
         zwiftid   : int    The Zwift ID of the rider.
         name      : str    The name of the rider.
-        cp: CriticalPowerItem  The critical power curve data.
+        cp_*      : float  Critical power values for various durations.
     """
 
     zwiftid: int = 0
     name: str = ""
-    cp_5_sec : float  = 0.0
-    cp_15_sec: float  = 0.0
-    cp_30_sec: float  = 0.0
-    cp_1_min : float  = 0.0
-    cp_2_min : float  = 0.0
-    cp_3_min : float  = 0.0
-    cp_5_min : float  = 0.0
-    cp_10_min: float  = 0.0
-    cp_12_min: float  = 0.0
-    cp_15_min: float  = 0.0
-    cp_20_min: float  = 0.0
-    cp_30_min: float  = 0.0
-    cp_40_min: float  = 0.0
+    cp_5_sec: float = 0.0
+    cp_15_sec: float = 0.0
+    cp_30_sec: float = 0.0
+    cp_1_min: float = 0.0
+    cp_2_min: float = 0.0
+    cp_90_sec: float = 0.0
+    cp_3_min: float = 0.0
+    cp_5_min: float = 0.0
+    cp_7_min: float = 0.0
+    cp_10_min: float = 0.0
+    cp_12_min: float = 0.0
+    cp_15_min: float = 0.0
+    cp_20_min: float = 0.0
+    cp_30_min: float = 0.0
+    cp_40_min: float = 0.0
+    cp_50_min: float = 0.0
+    cp_1_hour: float = 0.0
+    cp_75_min: float = 0.0
+    cp_90_min: float = 0.0
+    cp_2_hour: float = 0.0
+    cp_3_hour: float = 0.0
+    cp_4_hour: float = 0.0
     cp: float = 0.0
     w_prime: float = 0.0
+    inverse_const: float = 0.0 
+    inverse_exp: float = 0.0
 
-    class Config:
-        # Define the extra JSON schema for the class in the form of a dictionary of riders' power curve items
-        json_schema_extra = {
-            "davek": {
-                "zwiftid": 3147366,
-                "name": "DaveK",
-                "cp": {
-                    "cp_5_sec": 0.0,
-                    "cp_15_sec": 0.0,
-                    "cp_30_sec": 0.0,
-                    "cp_1_min": 0.0,
-                    "cp_2_min": 0.0,
-                    "cp_3_min": 0.0,
-                    "cp_5_min": 0.0,
-                    "cp_10_min": 0.0,
-                    "cp_12_min": 0.0,
-                    "cp_15_min": 0.0,
-                    "cp_20_min": 0.0,
-                    "cp_30_min": 0.0,
-                    "cp_40_min": 0.0,
-                },
-            },
-            "timr": {
-                "zwiftid": 5421258,
-                "name": "TimR",
-                "cp": {
-                    "cp_5_sec": 0.0,
-                    "cp_15_sec": 0.0,
-                    "cp_30_sec": 0.0,
-                    "cp_1_min": 0.0,
-                    "cp_2_min": 0.0,
-                    "cp_3_min": 0.0,
-                    "cp_5_min": 0.0,
-                    "cp_10_min": 0.0,
-                    "cp_12_min": 0.0,
-                    "cp_15_min": 0.0,
-                    "cp_20_min": 0.0,
-                    "cp_30_min": 0.0,
-                    "cp_40_min": 0.0,
-                },
-            },
-            "johnh": {
-                "zwiftid": 58160,
-                "name": "JohnH",
-                "cp": {
-                    "cp_5_sec": 546,
-                    "cp_15_sec": 434,
-                    "cp_30_sec": 425,
-                    "cp_1_min": 348,
-                    "cp_2_min": 0,
-                    "cp_3_min": 293,
-                    "cp_5_min": 292,
-                    "cp_10_min": 268,
-                    "cp_12_min": 264,
-                    "cp_15_min": 254,
-                    "cp_20_min": 254,
-                    "cp_30_min": 252,
-                    "cp_40_min": 244,
-                },
-            },
-        }
 
-    def map_to_int_float_equivalent(self) -> Dict[int, float]:
+    def export_cp_data(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -472,34 +423,41 @@ class ZwiftRiderCriticalPowerItem:
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
-        # cp and w_prime are not included as they are not time-based attributes
-
         answer = {
             5: self.cp_5_sec,
             15: self.cp_15_sec,
             30: self.cp_30_sec,
             60: self.cp_1_min,
+            90: self.cp_90_sec,
             120: self.cp_2_min,
             180: self.cp_3_min,
             300: self.cp_5_min,
+            420: self.cp_7_min,
             600: self.cp_10_min,
             720: self.cp_12_min,
             900: self.cp_15_min,
             1200: self.cp_20_min,
             1800: self.cp_30_min,
-            2400: self.cp_40_min
+            2400: self.cp_40_min,
+            3000: self.cp_50_min,
+            3600: self.cp_1_hour,
+            4500: self.cp_75_min,
+            5400: self.cp_90_min,
+            7200: self.cp_2_hour,
+            10800: self.cp_3_hour,
+            14400: self.cp_4_hour,
         }
 
-        # Filter out zero values (becuase they amoun to invalid datapoints)
+        # Filter out zero values (because they amount to invalid datapoints)
         answer = {k: v for k, v in answer.items() if v != 0}
 
-        # Belt and braces: sort by key (if the dictionary is not empty)
+        # Sort by key (if the dictionary is not empty)
         if answer:
             answer = dict(sorted(answer.items(), key=lambda item: item[0]))
 
         return answer
 
-    def map_to_int_float_equivalent_for_best_fitting(self) -> Dict[int, float]:
+    def export_cp_data_for_best_fitting(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -510,85 +468,161 @@ class ZwiftRiderCriticalPowerItem:
         # cp and w_prime are not included as they are not time-based attributes
 
         answer = {
-            # 5: self.cp_5_sec,
-            # 15: self.cp_15_sec,
-            # 30: self.cp_30_sec,
             60: self.cp_1_min,
+            90: self.cp_90_sec,
             120: self.cp_2_min,
             180: self.cp_3_min,
             300: self.cp_5_min,
+            420: self.cp_7_min,
             600: self.cp_10_min,
             720: self.cp_12_min,
             900: self.cp_15_min,
             1200: self.cp_20_min,
             1800: self.cp_30_min,
-            2400: self.cp_40_min
+            2400: self.cp_40_min,
+            # 3000: self.cp_50_min,
+            # 3600: self.cp_1_hour,
+            # 4500: self.cp_75_min,
+            # 5400: self.cp_90_min,
+            # 7200: self.cp_2_hour,
+            # 10800: self.cp_3_hour,
+            # 14400: self.cp_4_hour,
         }
 
-        # Filter out zero values (becuase they amoun to invalid datapoints)
+        # Filter out zero values (because they amount to invalid datapoints)
         answer = {k: v for k, v in answer.items() if v != 0}
 
-        # Belt and braces: sort by key (if the dictionary is not empty)
+        # Sort by key (if the dictionary is not empty)
         if answer:
             answer = dict(sorted(answer.items(), key=lambda item: item[0]))
 
         return answer
 
+    def import_cp_data(self, input_data: Dict[int, float]) -> None:
+        """
+        Update the attributes of the instance based on the input_data dictionary.
+        For each key in input_data, if the key corresponds to an attribute in self,
+        update the attribute's value with the value from input_data.
 
+        Args:
+            input_data (Dict[int, float]): A dictionary where keys are durations (in seconds)
+            and values are the corresponding critical power values.
+        """
+        mapping = {
+            5: "cp_5_sec",
+            15: "cp_15_sec",
+            30: "cp_30_sec",
+            60: "cp_1_min",
+            90: "cp_90_sec",
+            120: "cp_2_min",
+            180: "cp_3_min",
+            300: "cp_5_min",
+            420: "cp_7_min",
+            600: "cp_10_min",
+            720: "cp_12_min",
+            900: "cp_15_min",
+            1200: "cp_20_min",
+            1800: "cp_30_min",
+            2400: "cp_40_min",
+            3000: "cp_50_min",
+            3600: "cp_1_hour",
+            4500: "cp_75_min",
+            5400: "cp_90_min",
+            7200: "cp_2_hour",
+            10800: "cp_3_hour",
+            14400: "cp_4_hour",
+        }
+
+        for key, value in input_data.items():
+            if key in mapping:
+                setattr(self, mapping[key], value)
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem",) -> ZwiftRiderCriticalPowerDataTransferObject:
+    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDataTransferObject:
+        """
+        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftRiderCriticalPowerDataTransferObject.
 
-        answer = ZwiftRiderCriticalPowerDataTransferObject(
+        Args:
+            item (ZwiftRiderCriticalPowerItem): The ZwiftRiderCriticalPowerItem instance to convert.
+
+        Returns:
+            ZwiftRiderCriticalPowerDataTransferObject: The corresponding data transfer object.
+        """
+        return ZwiftRiderCriticalPowerDataTransferObject(
             zwiftid=item.zwiftid,
             name=item.name,
-            cp_5_sec=item.cp.cp_5_sec,
-            cp_15_sec=item.cp.cp_15_sec,
-            cp_30_sec=item.cp.cp_30_sec,
-            cp_1_min=item.cp.cp_1_min,
-            cp_2_min=item.cp.cp_2_min,
-            cp_3_min=item.cp.cp_3_min,
-            cp_5_min=item.cp.cp_5_min,
-            cp_10_min=item.cp.cp_10_min,
-            cp_12_min=item.cp.cp_12_min,
-            cp_15_min=item.cp.cp_15_min,
-            cp_20_min=item.cp.cp_20_min,
-            cp_30_min=item.cp.cp_30_min,
-            cp_40_min=item.cp.cp_40_min,
+            cp_5_sec=item.cp_5_sec,
+            cp_15_sec=item.cp_15_sec,
+            cp_30_sec=item.cp_30_sec,
+            cp_1_min=item.cp_1_min,
+            cp_2_min=item.cp_2_min,
+            cp_90_sec=item.cp_90_sec,
+            cp_3_min=item.cp_3_min,
+            cp_5_min=item.cp_5_min,
+            cp_7_min=item.cp_7_min,
+            cp_10_min=item.cp_10_min,
+            cp_12_min=item.cp_12_min,
+            cp_15_min=item.cp_15_min,
+            cp_20_min=item.cp_20_min,
+            cp_30_min=item.cp_30_min,
+            cp_40_min=item.cp_40_min,
+            cp_50_min=item.cp_50_min,
+            cp_1_hour=item.cp_1_hour,
+            cp_75_min=item.cp_75_min,
+            cp_90_min=item.cp_90_min,
+            cp_2_hour=item.cp_2_hour,
+            cp_3_hour=item.cp_3_hour,
+            cp_4_hour=item.cp_4_hour,
+            cp=item.cp,
+            w_prime=item.w_prime,
+            inverse_const=item.inverse_const,
+            inverse_exp=item.inverse_exp,
         )
-        return answer
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "ZwiftRiderCriticalPowerItem":
-        answer = ZwiftRiderCriticalPowerItem(
-            zwiftid=dto.zwiftid or 0, 
+        """
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRiderCriticalPowerDataTransferObject.
+
+        Args:
+            dto (ZwiftRiderCriticalPowerDataTransferObject): The data transfer object to convert.
+
+        Returns:
+            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+        """
+        return ZwiftRiderCriticalPowerItem(
+            zwiftid=dto.zwiftid or 0,
             name=dto.name or "",
             cp_5_sec=dto.cp_5_sec or 0.0,
             cp_15_sec=dto.cp_15_sec or 0.0,
             cp_30_sec=dto.cp_30_sec or 0.0,
             cp_1_min=dto.cp_1_min or 0.0,
             cp_2_min=dto.cp_2_min or 0.0,
+            cp_90_sec=dto.cp_90_sec or 0.0,
             cp_3_min=dto.cp_3_min or 0.0,
             cp_5_min=dto.cp_5_min or 0.0,
+            cp_7_min=dto.cp_7_min or 0.0,
             cp_10_min=dto.cp_10_min or 0.0,
             cp_12_min=dto.cp_12_min or 0.0,
             cp_15_min=dto.cp_15_min or 0.0,
             cp_20_min=dto.cp_20_min or 0.0,
             cp_30_min=dto.cp_30_min or 0.0,
             cp_40_min=dto.cp_40_min or 0.0,
+            cp_50_min=dto.cp_50_min or 0.0,
+            cp_1_hour=dto.cp_1_hour or 0.0,
+            cp_75_min=dto.cp_75_min or 0.0,
+            cp_90_min=dto.cp_90_min or 0.0,
+            cp_2_hour=dto.cp_2_hour or 0.0,
+            cp_3_hour=dto.cp_3_hour or 0.0,
+            cp_4_hour=dto.cp_4_hour or 0.0,
+            cp=dto.cp or 0.0,
+            w_prime=dto.w_prime or 0.0,
+            inverse_const=dto.inverse_const or 0.0,
+            inverse_exp=dto.inverse_exp or 0.0,
         )
-        return answer
 
-    @staticmethod
-    def from_dict_of_dataTransferObjects(dict_of_zwiftrider_powercurve_dto: Dict[str, ZwiftRiderCriticalPowerDataTransferObject]) -> Dict[str, "ZwiftRiderCriticalPowerItem"]:
-        answer = {
-            key: ZwiftRiderCriticalPowerItem.from_dataTransferObject(dto)
-            for key, dto in dict_of_zwiftrider_powercurve_dto.items()
-        }
-        return answer
-
-    
+  
 @dataclass
 class RiderTeamItem:
     """
@@ -696,6 +730,7 @@ class RiderStressItem():
 
 
 def main():
+
     import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
