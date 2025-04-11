@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from typing import Tuple, Dict
+from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
+
 
 
 def linear_model(x : float, a : float, b: float):
@@ -96,6 +98,103 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
     return a, b, r2, result
+
+
+def generate_model_fitted_zwiftrider_cp_metrics(dict_of_zwiftrider_cp_metrics: Dict[str, ZwiftRiderCriticalPowerItem]
+) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+    """
+    Perform model fitting on ZwiftRiderCriticalPowerItem instances to calculate critical power (CP), 
+    anaerobic work capacity (W'), and parameters for the inverse model, and then populate a neew item
+    the item accoridng to the fitted parameters of the inverse model. The intended purpose of this 
+    function is to import the database of ZSun riders and their CP data obtained from Zwiftor ZwiftPower
+    and then to generate a new database of modeled CP data for each rider. This new database serves 
+    as a benchmark for comparing exertion and work rate of riders in a paceline with what they are 
+    capable of achieving in a solo effort.
+
+    Args:
+        dict_of_zwiftrider_cp_metrics (Dict[str, ZwiftRiderCriticalPowerItem]): 
+            A dictionary where the key is the rider's Zwift ID (as a string) and the value is a 
+            ZwiftRiderCriticalPowerItem instance containing critical power data.
+
+    Returns:
+        Dict[str, ZwiftRiderCriticalPowerItem]: 
+            A new dictionary of ZwiftRiderCriticalPowerItem instances with calculated CP, W', 
+            inverse model parameters, and imported predicted critical power data.
+    """
+
+    # Create a new dictionary to store the modeled data
+    modeled_data : Dict[str, ZwiftRiderCriticalPowerItem] = {}
+
+    # Iterate through each ZwiftRiderCriticalPowerItem instance in the input dictionary
+    for rider_id, rider_cp_item in dict_of_zwiftrider_cp_metrics.items():
+        # Create a copy of the current rider_cp_item to avoid modifying the original
+        modeled_rider_cp_item = ZwiftRiderCriticalPowerItem(
+            zwiftid=rider_cp_item.zwiftid,
+            name=rider_cp_item.name,
+            cp_5_sec=rider_cp_item.cp_5_sec,
+            cp_15_sec=rider_cp_item.cp_15_sec,
+            cp_30_sec=rider_cp_item.cp_30_sec,
+            cp_1_min=rider_cp_item.cp_1_min,
+            cp_2_min=rider_cp_item.cp_2_min,
+            cp_90_sec=rider_cp_item.cp_90_sec,
+            cp_3_min=rider_cp_item.cp_3_min,
+            cp_5_min=rider_cp_item.cp_5_min,
+            cp_7_min=rider_cp_item.cp_7_min,
+            cp_10_min=rider_cp_item.cp_10_min,
+            cp_12_min=rider_cp_item.cp_12_min,
+            cp_15_min=rider_cp_item.cp_15_min,
+            cp_20_min=rider_cp_item.cp_20_min,
+            cp_30_min=rider_cp_item.cp_30_min,
+            cp_40_min=rider_cp_item.cp_40_min,
+            cp_50_min=rider_cp_item.cp_50_min,
+            cp_1_hour=rider_cp_item.cp_1_hour,
+            cp_75_min=rider_cp_item.cp_75_min,
+            cp_90_min=rider_cp_item.cp_90_min,
+            cp_2_hour=rider_cp_item.cp_2_hour,
+            cp_3_hour=rider_cp_item.cp_3_hour,
+            cp_4_hour=rider_cp_item.cp_4_hour,
+            cp=rider_cp_item.cp,
+            w_prime=rider_cp_item.w_prime,
+            inverse_const=rider_cp_item.inverse_const,
+            inverse_exp=rider_cp_item.inverse_exp,
+        )
+
+        # Perform modeling with CP-W' model
+        rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_cp_data_for_best_fitting()
+        cp, w_prime, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
+        modeled_rider_cp_item.cp = cp
+        modeled_rider_cp_item.w_prime = w_prime
+
+        # Perform modeling with inverse model
+        constant, exponent, _, _ = do_modelling_with_inverse_model(rider_cp_interval_data)
+        modeled_rider_cp_item.inverse_const = constant
+        modeled_rider_cp_item.inverse_exp = exponent
+
+        # Calculate the predicted y values based on the fitted parameters from the inverse model
+        x_ordinates = ZwiftRiderCriticalPowerItem.export_x_ordinates()
+        y_ordinates_inverse_model = [inverse_model(x_ordinate, constant, exponent) for x_ordinate in x_ordinates]
+
+        # Zip the x_ordinates and y_pred_inverse_model together into a dict[int, float]
+        generated_cp_data = dict(zip(x_ordinates, y_ordinates_inverse_model))
+
+        # Add the y_pred_inverse_model_dict to the modeled_rider_cp_item
+        modeled_rider_cp_item.import_cp_data(generated_cp_data)
+
+        # Add the modeled rider_cp_item to the new dictionary
+        modeled_data[rider_id] = modeled_rider_cp_item
+
+    return modeled_data
+
+
+
+
+
+
+
+
+
+
+
 
 # Example usage of the functions
 def main():

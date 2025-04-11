@@ -414,6 +414,22 @@ class ZwiftRiderCriticalPowerItem:
     inverse_const: float = 0.0 
     inverse_exp: float = 0.0
 
+    @classmethod
+    def export_x_ordinates(cls) -> list[int]:
+        """
+        Returns a list of x ordinates for the critical power data.
+        The x ordinates correspond to the time intervals for which
+        critical power data is available.
+        Returns:
+            [int]: A list of x ordinates (time intervals in seconds).
+        """
+        answer: list[int] = [
+            5, 15, 30, 60, 90, 120, 180, 300, 420,
+            600, 720, 900, 1200, 1800, 2400, 3000,
+            3600, 4500, 5400, 7200, 10800, 14400
+        ]
+        return answer;
+
 
     def export_cp_data(self) -> Dict[int, float]:
         """
@@ -536,6 +552,7 @@ class ZwiftRiderCriticalPowerItem:
         for key, value in input_data.items():
             if key in mapping:
                 setattr(self, mapping[key], value)
+
 
 
     @staticmethod
