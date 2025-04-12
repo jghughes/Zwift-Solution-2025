@@ -22,7 +22,10 @@ def get_all_zwiftriders() -> Dict[str, ZwiftRiderItem]:
 
     dict_of_zwiftrider_dto = cast(Dict[str, ZwiftRiderDataTransferObject], dict_of_zwiftrider_dto) # for the benfit of type inference
 
-    dict_of_zwiftrideritem = ZwiftRiderItem.from_dict_of_dataTransferObjects(dict_of_zwiftrider_dto)
+    dict_of_zwiftrideritem = {
+        key: ZwiftRiderItem.from_dataTransferObject(dto)
+        for key, dto in dict_of_zwiftrider_dto.items()
+    }
 
     return dict_of_zwiftrideritem
 
@@ -39,12 +42,14 @@ def get_all_zwiftriders_cp_data() -> Dict[str, ZwiftRiderCriticalPowerItem]:
 
     inputjson = read_text(directory_path, file_name)
 
-    dict_of_zwiftrider_cp_dto= JghSerialization.validate(inputjson, Dict[str, ZwiftRiderCriticalPowerDataTransferObject])
+    dict_of_zwiftrider_cp_dto = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderCriticalPowerDataTransferObject])
 
-    dict_of_zwiftrider_cp_dto = cast(Dict[str, ZwiftRiderCriticalPowerDataTransferObject], dict_of_zwiftrider_cp_dto) # for the benfit of type inference
+    dict_of_zwiftrider_cp_dto = cast(Dict[str, ZwiftRiderCriticalPowerDataTransferObject], dict_of_zwiftrider_cp_dto)  # for the benefit of type inference
 
-    dict_of_zwiftrider_cp_items = ZwiftRiderCriticalPowerItem.from_dict_of_dataTransferObjects(dict_of_zwiftrider_cp_dto)
+    # Map each DTO to a ZwiftRiderCriticalPowerItem using from_dataTransferObject
+    dict_of_zwiftrider_cp_item = {
+        key: ZwiftRiderCriticalPowerItem.from_dataTransferObject(dto)
+        for key, dto in dict_of_zwiftrider_cp_dto.items()
+    }
 
-    return dict_of_zwiftrider_cp_items
-
-
+    return dict_of_zwiftrider_cp_item

@@ -1,6 +1,8 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
+
+from sympy import Inverse
 from zwiftrider_dto import ZwiftRiderDataTransferObject 
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDataTransferObject
 
@@ -355,24 +357,6 @@ class ZwiftRiderItem():
             velo_rating=dto.velo_rating or 0
         )
 
-    @staticmethod
-    def from_dict_of_dataTransferObjects(dict_of_zwiftrider_dto: Dict[str, ZwiftRiderDataTransferObject]) -> Dict[str, 'ZwiftRiderItem']:
-        """
-        Transform a dictionary of ZwiftRiderDataTransferObject to a dictionary of ZwiftRiderItem.
-
-        Args:
-            dict_of_zwiftrider_dto (Dict[str, ZwiftRiderDataTransferObject]): The input dictionary.
-
-        Returns:
-            Dict[str, ZwiftRiderItem]: The transformed dictionary.
-        """
-        dict_of_zwiftrideritem = {
-            key: ZwiftRiderItem.from_dataTransferObject(dto)
-            for key, dto in dict_of_zwiftrider_dto.items()
-        }
-        return dict_of_zwiftrideritem# Example usage
-
-
 @dataclass
 class ZwiftRiderCriticalPowerItem:
     """
@@ -413,6 +397,7 @@ class ZwiftRiderCriticalPowerItem:
     w_prime: float = 0.0
     inverse_const: float = 0.0 
     inverse_exp: float = 0.0
+    preferred_model: str = "inverse" # Inverse Exponential model "inverse "or Critical Power Model "cp"
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -429,7 +414,6 @@ class ZwiftRiderCriticalPowerItem:
             3600, 4500, 5400, 7200, 10800, 14400
         ]
         return answer;
-
 
     def export_cp_data(self) -> Dict[int, float]:
         """
@@ -552,7 +536,6 @@ class ZwiftRiderCriticalPowerItem:
         for key, value in input_data.items():
             if key in mapping:
                 setattr(self, mapping[key], value)
-
 
 
     @staticmethod

@@ -99,7 +99,6 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     }
     return a, b, r2, result
 
-
 def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
@@ -185,17 +184,6 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
 
     return modeled_data
 
-
-
-
-
-
-
-
-
-
-
-
 # Example usage of the functions
 def main():
     import logging
@@ -221,7 +209,7 @@ def main():
     markb ='5530045'
 
 
-    rider_id = johnh
+    rider_id = joshn
     raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fitting()
 
     # do modelling

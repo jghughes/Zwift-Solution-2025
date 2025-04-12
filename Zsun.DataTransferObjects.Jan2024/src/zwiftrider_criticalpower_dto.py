@@ -33,6 +33,7 @@ CP_ALIAS            = "cp"
 W_PRIME_ALIAS       = "w_prime"
 INVERSE_CONST_ALIAS = "inverse_const"
 INVERSE_EXP_ALIAS   = "inverse_exp"
+PREFERRED_MODEL_ALIAS = "preferred_model"
 
 # Define the serialization alias map
 serialization_alias_map: dict[str, str] = {
@@ -63,7 +64,8 @@ serialization_alias_map: dict[str, str] = {
     "cp": CP_ALIAS,
     "w_prime": W_PRIME_ALIAS,
     "inverse_const": INVERSE_CONST_ALIAS,
-    "inverse_exp": INVERSE_EXP_ALIAS
+    "inverse_exp": INVERSE_EXP_ALIAS,
+    "preferred_model": PREFERRED_MODEL_ALIAS
 }
 
 # Define the validation alias choices map
@@ -95,7 +97,8 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "cp": AliasChoices("cp"),
     "w_prime": AliasChoices("w_prime"),
     "inverse_const": AliasChoices("inverse_const"),
-    "inverse_exp": AliasChoices("inverse_exp")
+    "inverse_exp": AliasChoices("inverse_exp"),
+    "preferred_model": AliasChoices("preferred_model"),
 }
 
 # Define the Pydantic ConfigDict
@@ -142,4 +145,6 @@ class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
     w_prime: Optional[float] = 0.0  # W' (work capacity above critical power)
     inverse_const: Optional[float] = 0.0  # Inverse model constant
     inverse_exp: Optional[float] = 0.0  # Inverse model exponent
+    preferred_model: Optional[str] = "inverse" # Inverse Exponential model "inverse", or Critical Power Model "cp"
+
     model_config = preferred_config_dict
