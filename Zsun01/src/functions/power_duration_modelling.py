@@ -51,14 +51,14 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
     # In the model, x stands for duration, and x * y is work (duration * power)
     popt, _ = curve_fit(linear_model, xdata, xdata * ydata)
 
-    # Extract the optimal parameters: cp (critical power) and w_prime (anaerobic work capacity)
-    # cp, w_prime = popt
+    # Extract the optimal parameters: cp (critical power) and awc (anaerobic work capacity)
+    # cp, awc = popt
 
     cp: float = float(popt[0])
-    w_prime: float = float(popt[1])
+    awc: float = float(popt[1])
 
     # Use the cp_w_prime_model to calculate predicted y values based on the fitted parameters
-    ydata_pred: np.ndarray = cp_w_prime_model(xdata, cp, w_prime)
+    ydata_pred: np.ndarray = cp_w_prime_model(xdata, cp, awc)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
@@ -68,7 +68,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 
-    return cp, w_prime, r2, result
+    return cp, awc, r2, result
 
 def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, Dict[int, Tuple[float, float]]]:
     """
@@ -153,16 +153,16 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
             cp_3_hour=rider_cp_item.cp_3_hour,
             cp_4_hour=rider_cp_item.cp_4_hour,
             cp=rider_cp_item.cp,
-            w_prime=rider_cp_item.w_prime,
+            awc=rider_cp_item.awc,
             inverse_const=rider_cp_item.inverse_const,
             inverse_exp=rider_cp_item.inverse_exp,
         )
 
         # Perform modeling with CP-W' model
         rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_cp_data_for_best_fitting()
-        cp, w_prime, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
+        cp, awc, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
         modeled_rider_cp_item.cp = cp
-        modeled_rider_cp_item.w_prime = w_prime
+        modeled_rider_cp_item.awc = awc
 
         # Perform modeling with inverse model
         constant, exponent, _, _ = do_modelling_with_inverse_model(rider_cp_interval_data)
@@ -214,8 +214,8 @@ def main():
 
     # do modelling
 
-    cp, w_prime, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-    summary = f"Critical power model: CP={round(cp)}W  W'={round(w_prime/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, w_prime))}W"
+    cp, awc, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
+    summary = f"Critical power model: CP={round(cp)}W  W'={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
     logger.info(f"\n{summary}")
 
     constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
@@ -239,7 +239,7 @@ def main():
     xdata_test = [60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
     row_titles = ["1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "60min", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = [cp_w_prime_model(x, cp, w_prime) for x in xdata_test]
+    y_pred_cp_model = [cp_w_prime_model(x, cp, awc) for x in xdata_test]
     y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]
 
     # Generate a table for the predictions

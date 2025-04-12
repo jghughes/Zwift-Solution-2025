@@ -2,9 +2,9 @@ from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
 
-from sympy import Inverse
-from zwiftrider_dto import ZwiftRiderDataTransferObject 
-from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDataTransferObject
+from zwiftrider_dto import ZwiftRiderDTO 
+from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
+from zwiftracing_app_post_dto import ZwiftRacingAppPostDTO
 
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
@@ -314,17 +314,17 @@ class ZwiftRiderItem():
         return round(speed_kph, 3)
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDataTransferObject:
+    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDTO:
         """
-        Convert a ZwiftRiderItem instance to a ZwiftRiderDataTransferObject.
+        Convert a ZwiftRiderItem instance to a ZwiftRiderDTO.
 
         Args:
             item (ZwiftRiderItem): The ZwiftRiderItem instance to convert.
 
         Returns:
-            ZwiftRiderDataTransferObject: The corresponding data transfer object.
+            ZwiftRiderDTO: The corresponding data transfer object.
         """
-        return ZwiftRiderDataTransferObject(
+        return ZwiftRiderDTO(
             zwiftid=item.zwiftid,
             name=item.name,
             weight=item.weight,
@@ -336,12 +336,12 @@ class ZwiftRiderItem():
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderDataTransferObject) -> "ZwiftRiderItem":
+    def from_dataTransferObject(dto: ZwiftRiderDTO) -> "ZwiftRiderItem":
         """
-        Create a ZwiftRiderItem instance from a ZwiftRiderDataTransferObject.
+        Create a ZwiftRiderItem instance from a ZwiftRiderDTO.
 
         Args:
-            dto (ZwiftRiderDataTransferObject): The data transfer object to convert.
+            dto (ZwiftRiderDTO): The data transfer object to convert.
 
         Returns:
             ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
@@ -394,7 +394,7 @@ class ZwiftRiderCriticalPowerItem:
     cp_3_hour: float = 0.0
     cp_4_hour: float = 0.0
     cp: float = 0.0
-    w_prime: float = 0.0
+    awc: float = 0.0
     inverse_const: float = 0.0 
     inverse_exp: float = 0.0
     preferred_model: str = "inverse" # Inverse Exponential model "inverse "or Critical Power Model "cp"
@@ -465,7 +465,7 @@ class ZwiftRiderCriticalPowerItem:
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
-        # cp and w_prime are not included as they are not time-based attributes
+        # cp and awc are not included as they are not time-based attributes
 
         answer = {
             60: self.cp_1_min,
@@ -539,17 +539,17 @@ class ZwiftRiderCriticalPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDataTransferObject:
+    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDTO:
         """
-        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftRiderCriticalPowerDataTransferObject.
+        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftRiderCriticalPowerDTO.
 
         Args:
             item (ZwiftRiderCriticalPowerItem): The ZwiftRiderCriticalPowerItem instance to convert.
 
         Returns:
-            ZwiftRiderCriticalPowerDataTransferObject: The corresponding data transfer object.
+            ZwiftRiderCriticalPowerDTO: The corresponding data transfer object.
         """
-        return ZwiftRiderCriticalPowerDataTransferObject(
+        return ZwiftRiderCriticalPowerDTO(
             zwiftid=item.zwiftid,
             name=item.name,
             cp_5_sec=item.cp_5_sec,
@@ -575,18 +575,18 @@ class ZwiftRiderCriticalPowerItem:
             cp_3_hour=item.cp_3_hour,
             cp_4_hour=item.cp_4_hour,
             cp=item.cp,
-            w_prime=item.w_prime,
+            awc=item.awc,
             inverse_const=item.inverse_const,
             inverse_exp=item.inverse_exp,
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDataTransferObject) -> "ZwiftRiderCriticalPowerItem":
+    def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDTO) -> "ZwiftRiderCriticalPowerItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRiderCriticalPowerDataTransferObject.
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRiderCriticalPowerDTO.
 
         Args:
-            dto (ZwiftRiderCriticalPowerDataTransferObject): The data transfer object to convert.
+            dto (ZwiftRiderCriticalPowerDTO): The data transfer object to convert.
 
         Returns:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
@@ -617,12 +617,38 @@ class ZwiftRiderCriticalPowerItem:
             cp_3_hour=dto.cp_3_hour or 0.0,
             cp_4_hour=dto.cp_4_hour or 0.0,
             cp=dto.cp or 0.0,
-            w_prime=dto.w_prime or 0.0,
+            awc=dto.awc or 0.0,
             inverse_const=dto.inverse_const or 0.0,
             inverse_exp=dto.inverse_exp or 0.0,
         )
 
   
+    @staticmethod
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftRiderCriticalPowerItem":
+        """
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRacingAppPostDTO.
+
+        Args:
+            dto (ZwiftRacingAppPostDTO): The data transfer object to convert.
+
+        Returns:
+            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+        """
+        return ZwiftRiderCriticalPowerItem(
+            zwiftid=int(dto.riderId) if dto.riderId else 0,
+            name=dto.name or "",
+            cp_5_sec=dto.power.w5 if dto.power and dto.power.w5 else 0.0,
+            cp_15_sec=dto.power.w15 if dto.power and dto.power.w15 else 0.0,
+            cp_30_sec=dto.power.w30 if dto.power and dto.power.w30 else 0.0,
+            cp_1_min=dto.power.w60 if dto.power and dto.power.w60 else 0.0,
+            cp_2_min=dto.power.w120 if dto.power and dto.power.w120 else 0.0,
+            cp_5_min=dto.power.w300 if dto.power and dto.power.w300 else 0.0,
+            cp=dto.power.CP if dto.power and dto.power.CP else 0.0,
+            awc=dto.power.AWC if dto.power and dto.power.AWC else 0.0,
+            preferred_model="inverse"  # Default to "inverse" as per the class definition
+        )
+
+
 @dataclass
 class RiderTeamItem:
     """
@@ -672,7 +698,7 @@ class RiderExertionItem:
 @dataclass
 class RiderAnswerItem():
     cp                    : float = 0
-    w_prime               : float = 0
+    awc               : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0
@@ -742,7 +768,7 @@ def main():
     # # example: Instantiate ZwiftRiderItem using the example from Config 
     # # i.e.how we could do it from a JSON file
     example_data = ZwiftRiderItem.Config.json_schema_extra["johnh"]
-    example_rider = ZwiftRiderDataTransferObject.model_validate(example_data)
+    example_rider = ZwiftRiderDTO.model_validate(example_data)
     rider1 = ZwiftRiderItem.from_dataTransferObject(example_rider)
 
     # Log the instantiated object using a table
@@ -754,7 +780,7 @@ def main():
     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
     # position 1 and position 5. tabulate the results in a table and log it.
     example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
-    example_rider = ZwiftRiderDataTransferObject.model_validate(example_data)
+    example_rider = ZwiftRiderDTO.model_validate(example_data)
     rider2 = ZwiftRiderItem.from_dataTransferObject(example_rider)
 
     riders = [rider1, rider2]

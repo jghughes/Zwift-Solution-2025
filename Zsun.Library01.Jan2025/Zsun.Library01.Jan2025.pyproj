@@ -29,9 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="setup.py" />
-    <Compile Include="src\repositories\participant_database.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\repositories\person_databaseV1.py" />
     <Compile Include="src\repositories\repository_of_hub_style_entries.py" />
   </ItemGroup>
@@ -41,7 +38,6 @@
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="settings.json" />
-    <Content Include="src\repositories\ParticipantDatabase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

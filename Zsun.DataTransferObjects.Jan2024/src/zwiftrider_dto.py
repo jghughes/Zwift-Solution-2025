@@ -54,7 +54,7 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 
-class ZwiftRiderDataTransferObject(BaseModel):
+class ZwiftRiderDTO(BaseModel):
     """
     A data transfer object representing a zwiftrider's particulars. The object
     can be round-tripped to and from JSON. The values of all attributes are
@@ -106,7 +106,7 @@ def main():
 
     inputjson = read_text(directory_path, file_name)
 
-    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZwiftRiderDataTransferObject])
+    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZwiftRiderDTO])
 
     # Convert the dictionary to a list of lists for tabulate
     table_data = [

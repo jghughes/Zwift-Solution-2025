@@ -143,7 +143,7 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
         p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp = extract_pull_metrics(exertions)
         rider_answer_item = RiderAnswerItem(
             cp  = 0,
-            w_prime= 0,
+            awc= 0,
             speed_kph = p1_speed_kph,
             pull_duration = pull_duration,
             pull_wkg = pull_wkg,
@@ -178,7 +178,7 @@ def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[Zwif
         if rider_cp_item:
             logging.debug(f"Found rider ID: {rider_id_str}")
             answer_item.cp = rider_cp_item.cp
-            answer_item.w_prime = rider_cp_item.w_prime
+            answer_item.awc = rider_cp_item.awc
         else:
             logging.debug(f"Rider ID: {rider_id_str} not found in zwiftriders_zwift_cp_data")
     return rider_answer_items
@@ -214,7 +214,7 @@ def main() -> None:
                 z.ftp_intensity_factor, 
                 # z.cp_intensity_factor
                 z.cp, 
-                z.w_prime
+                z.awc
             ])
         headers = ["rider", 
             "kph",

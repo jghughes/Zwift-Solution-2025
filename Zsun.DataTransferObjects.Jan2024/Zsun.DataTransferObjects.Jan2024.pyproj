@@ -35,6 +35,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
+    <Compile Include="src\zwiftracing_app_post_dto.py" />
     <Compile Include="src\zwiftrider_dto.py">
       <SubType>Code</SubType>
     </Compile>

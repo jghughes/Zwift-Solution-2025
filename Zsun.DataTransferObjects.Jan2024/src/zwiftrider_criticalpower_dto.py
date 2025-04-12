@@ -30,7 +30,7 @@ CP_2_HOUR_ALIAS = "cp_2_hour"
 CP_3_HOUR_ALIAS = "cp_3_hour"
 CP_4_HOUR_ALIAS = "cp_4_hour"
 CP_ALIAS            = "cp"
-W_PRIME_ALIAS       = "w_prime"
+AWC_ALIAS       = "awc"
 INVERSE_CONST_ALIAS = "inverse_const"
 INVERSE_EXP_ALIAS   = "inverse_exp"
 PREFERRED_MODEL_ALIAS = "preferred_model"
@@ -62,7 +62,7 @@ serialization_alias_map: dict[str, str] = {
     "cp_3_hour": CP_3_HOUR_ALIAS,
     "cp_4_hour": CP_4_HOUR_ALIAS,
     "cp": CP_ALIAS,
-    "w_prime": W_PRIME_ALIAS,
+    "awc": AWC_ALIAS,
     "inverse_const": INVERSE_CONST_ALIAS,
     "inverse_exp": INVERSE_EXP_ALIAS,
     "preferred_model": PREFERRED_MODEL_ALIAS
@@ -95,7 +95,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "cp_3_hour": AliasChoices("cp_3_hour"),
     "cp_4_hour": AliasChoices("cp_4_hour"),
     "cp": AliasChoices("cp"),
-    "w_prime": AliasChoices("w_prime"),
+    "awc": AliasChoices("awc"),
     "inverse_const": AliasChoices("inverse_const"),
     "inverse_exp": AliasChoices("inverse_exp"),
     "preferred_model": AliasChoices("preferred_model"),
@@ -113,7 +113,7 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 
-class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
+class ZwiftRiderCriticalPowerDTO(BaseModel):
     """
     A data transfer object representing a zwiftrider's critical power data.
     """
@@ -142,7 +142,7 @@ class ZwiftRiderCriticalPowerDataTransferObject(BaseModel):
     cp_3_hour: Optional[float] = 0.0  # Critical power for 3 hours
     cp_4_hour: Optional[float] = 0.0  # Critical power for 4 hours
     cp: Optional[float] = 0.0  # Critical power
-    w_prime: Optional[float] = 0.0  # W' (work capacity above critical power)
+    awc: Optional[float] = 0.0  # W' (work capacity above critical power)
     inverse_const: Optional[float] = 0.0  # Inverse model constant
     inverse_exp: Optional[float] = 0.0  # Inverse model exponent
     preferred_model: Optional[str] = "inverse" # Inverse Exponential model "inverse", or Critical Power Model "cp"

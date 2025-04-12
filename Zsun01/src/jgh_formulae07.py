@@ -103,7 +103,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
             zwiftftp_cat          = calculate_zwift_ftp_cat(rider),
             velo_cat              = make_pretty_velo_cat(rider),
             zwift_cp              = round(item.cp),
-            zwift_w_prime         = round(item.w_prime),
+            zwift_w_prime         = round(item.awc),
             ftp                   = round(rider.ftp),
             ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight),1),
             speed_kph             = round(item.speed_kph, 1),
