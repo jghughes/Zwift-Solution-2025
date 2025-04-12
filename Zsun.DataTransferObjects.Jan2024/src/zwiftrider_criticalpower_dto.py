@@ -145,6 +145,6 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     awc: Optional[float] = 0.0  # W' (work capacity above critical power)
     inverse_const: Optional[float] = 0.0  # Inverse model constant
     inverse_exp: Optional[float] = 0.0  # Inverse model exponent
-    preferred_model: Optional[str] = "inverse" # Inverse Exponential model "inverse", or Critical Power Model "cp"
+    preferred_model: Optional[str] = "" # Inverse Exponential model "inverse", or Critical Power Model "cp"
 
     model_config = preferred_config_dict

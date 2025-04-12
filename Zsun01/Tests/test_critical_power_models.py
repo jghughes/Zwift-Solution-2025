@@ -24,7 +24,7 @@ def main() -> None:
     import matplotlib.pyplot as plt
     from scipy.optimize import curve_fit
     from sklearn.metrics import r2_score
-    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+    from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 
     # Suppress matplotlib font matching logs.
     # This provides privided interesting logging messages, but suppresses a deluge of font matching messages
@@ -37,8 +37,8 @@ def main() -> None:
     richardm ='1193'
     markb ='5530045'
 
-    riders = get_all_zwiftriders()
-    metrics = get_all_zwiftriders_cp_data()
+    riders = read_dict_of_zwiftriders()
+    metrics = read_dict_of_cpdata()
 
     # set the rider to the one you want to test
     rider_id = joshn

@@ -84,11 +84,11 @@ def main() -> None:
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
-    from handy_utilities import get_all_zwiftriders
+    from handy_utilities import read_dict_of_zwiftriders
 
     # Define constituents of one or more scenarios (4 pull speed scenarios in this case))
 
-    dict_of_zwiftrideritem = get_all_zwiftriders()
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']

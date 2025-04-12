@@ -1,5 +1,5 @@
 from typing import  List, Dict, Tuple
-from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
 from jgh_power_duration_modelling import generate_model_fitted_zwiftrider_cp_metrics
@@ -232,9 +232,9 @@ def main() -> None:
         ]
         logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
-    dict_of_zwiftrideritem = get_all_zwiftriders()
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
-    zwiftriders_zwift_cp_data = get_all_zwiftriders_cp_data()
+    zwiftriders_zwift_cp_data = read_dict_of_cpdata()
 
     zwiftriders_cp_models = generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data)
 

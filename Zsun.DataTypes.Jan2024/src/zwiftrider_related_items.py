@@ -644,8 +644,7 @@ class ZwiftRiderCriticalPowerItem:
             cp_2_min=dto.power.w120 if dto.power and dto.power.w120 else 0.0,
             cp_5_min=dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp=dto.power.CP if dto.power and dto.power.CP else 0.0,
-            awc=dto.power.AWC if dto.power and dto.power.AWC else 0.0,
-            preferred_model="inverse"  # Default to "inverse" as per the class definition
+            awc=dto.power.AWC if dto.power and dto.power.AWC else 0.0
         )
 
 

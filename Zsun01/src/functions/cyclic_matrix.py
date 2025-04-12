@@ -43,9 +43,9 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from handy_utilities import get_all_zwiftriders
+    from handy_utilities import read_dict_of_zwiftriders
 
-    dict_of_zwiftrideritem = get_all_zwiftriders()
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh

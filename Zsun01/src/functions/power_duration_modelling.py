@@ -194,12 +194,12 @@ def main():
     from tabulate import tabulate
     import matplotlib.pyplot as plt
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+    from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 
     # get zwift 90-day rider data
 
-    riders = get_all_zwiftriders()
-    riders_cp_data = get_all_zwiftriders_cp_data()
+    riders = read_dict_of_zwiftriders()
+    riders_cp_data = read_dict_of_cpdata()
 
     barryb ='5490373' 
     johnh ='58160'

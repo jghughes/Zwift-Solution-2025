@@ -1,0 +1,53 @@
+{
+  "58160": {
+    "zwiftid": 58160,
+    "name": "JohnH",
+    "cp_5_sec": 546,
+    "cp_15_sec": 434,
+    "cp_30_sec": 425,
+    "cp_1_min": 348,
+    "cp_2_min": 0,
+    "cp_3_min": 293,
+    "cp_5_min": 292,
+    "cp_10_min": 268,
+    "cp_12_min": 264,
+    "cp_15_min": 255,
+    "cp_20_min": 254,
+    "cp_30_min": 252,
+    "cp_40_min": 244
+  },
+  "5530045": {
+    "zwiftid": 5530045,
+    "name": "MarkB",
+    "cp_5_sec": 0,
+    "cp_15_sec": 810,
+    "cp_30_sec": 635,
+    "cp_1_min": 516,
+    "cp_2_min": 445,
+    "cp_3_min": 0,
+    "cp_5_min": 363,
+    "cp_10_min": 0,
+    "cp_12_min": 0,
+    "cp_15_min": 0,
+    "cp_20_min": 299,
+    "cp_30_min": 0,
+    "cp_40_min": 283
+  },
+  "2508033": {
+    "zwiftid": 2508033,
+    "name": "JoshN",
+    "cp_5_sec": 810,
+    "cp_15_sec": 781,
+    "cp_30_sec": 679,
+    "cp_1_min": 475,
+    "cp_2_min": 0,
+    "cp_3_min": 338,
+    "cp_5_min": 320,
+    "cp_10_min": 307,
+    "cp_12_min": 298,
+    "cp_15_min": 283,
+    "cp_20_min": 279,
+    "cp_30_min": 271,
+    "cp_40_min": 261
+  }
+}

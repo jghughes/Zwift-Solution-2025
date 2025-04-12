@@ -179,10 +179,10 @@ def main() -> None:
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
 
-    from handy_utilities import get_all_zwiftriders, get_all_zwiftriders_cp_data
+    from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 
 
-    dict_of_zwiftrideritem = get_all_zwiftriders()
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
@@ -200,7 +200,7 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    zwiftrider_cp_items = get_all_zwiftriders_cp_data()
+    zwiftrider_cp_items = read_dict_of_cpdata()
 
     zwiftrider_cp_items = add_zwift_cp_and_w_prime_to_rider_criticalpower_items(zwiftrider_cp_items)
 
