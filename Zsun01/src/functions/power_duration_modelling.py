@@ -207,15 +207,16 @@ def main():
     joshn ='2508033'
     richardm ='1193'
     markb ='5530045'
+    davek="3147366"
 
 
-    rider_id = joshn
+    rider_id = davek
     raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fitting()
 
     # do modelling
 
     cp, awc, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-    summary = f"Critical power model: CP={round(cp)}W  W'={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
+    summary = f"Critical power model: CP={round(cp)}W  AWC={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
     logger.info(f"\n{summary}")
 
     constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
@@ -236,8 +237,8 @@ def main():
 
     # Define xdata for predictions
 
-    xdata_test = [60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
-    row_titles = ["1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "60min", "75min", "90min", "2hour", "3hour", "4hour"]
+    xdata_test = [30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
+    row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "60min", "75min", "90min", "2hour", "3hour", "4hour"]
 
     y_pred_cp_model = [cp_w_prime_model(x, cp, awc) for x in xdata_test]
     y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]

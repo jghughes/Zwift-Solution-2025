@@ -28,7 +28,8 @@
     "awc": 12600.513594651391,
     "inverse_const": 501.5920997441646,
     "inverse_exp": 0.09591057563488498,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.574925",
+    "model_applied": "inverse"
   },
   "2508033": {
     "zwiftid": 2508033,
@@ -59,7 +60,8 @@
     "awc": 21823.274423230927,
     "inverse_const": 861.8460595967131,
     "inverse_exp": 0.16144286004791933,
-    "preferred_model": "cp"
+    "generated": "2025-04-13T15:00:03.579918",
+    "model_applied": "cp"
   },
   "1193": {
     "zwiftid": 1193,
@@ -90,7 +92,8 @@
     "awc": 10504.615470424642,
     "inverse_const": 610.0862834042154,
     "inverse_exp": 0.1513527726718986,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.583194",
+    "model_applied": "inverse"
   },
   "5134": {
     "zwiftid": 5134,
@@ -121,7 +124,8 @@
     "awc": 15336.66666485565,
     "inverse_const": 1098.1669360777494,
     "inverse_exp": 0.1982568043421587,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.586145",
+    "model_applied": "inverse"
   },
   "9011": {
     "zwiftid": 9011,
@@ -152,7 +156,8 @@
     "awc": 10293.589743589739,
     "inverse_const": 615.149438608221,
     "inverse_exp": 0.14588785722451356,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.589140",
+    "model_applied": "inverse"
   },
   "11526": {
     "zwiftid": 11526,
@@ -183,7 +188,8 @@
     "awc": 15947.435903089132,
     "inverse_const": 1069.46069807284,
     "inverse_exp": 0.20708473026618537,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.592140",
+    "model_applied": "inverse"
   },
   "183277": {
     "zwiftid": 183277,
@@ -214,7 +220,8 @@
     "awc": 5466.282059427541,
     "inverse_const": 349.96393090939955,
     "inverse_exp": 0.10099394497470648,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.594139",
+    "model_applied": "inverse"
   },
   "383480": {
     "zwiftid": 383480,
@@ -245,7 +252,8 @@
     "awc": 22215.769273615984,
     "inverse_const": 6028.3074747694445,
     "inverse_exp": 0.5561566094401287,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.598141",
+    "model_applied": "inverse"
   },
   "384442": {
     "zwiftid": 384442,
@@ -276,7 +284,8 @@
     "awc": 12925.897388454943,
     "inverse_const": 1000.4842747161016,
     "inverse_exp": 0.21212061088880657,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.601192",
+    "model_applied": "inverse"
   },
   "480698": {
     "zwiftid": 480698,
@@ -307,7 +316,8 @@
     "awc": 12355.12822654274,
     "inverse_const": 917.1625553188055,
     "inverse_exp": 0.19054241413502535,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.603193",
+    "model_applied": "inverse"
   },
   "991817": {
     "zwiftid": 991817,
@@ -338,7 +348,8 @@
     "awc": 8876.538476805381,
     "inverse_const": 732.6595565610982,
     "inverse_exp": 0.19352046871671325,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.606192",
+    "model_applied": "inverse"
   },
   "1024413": {
     "zwiftid": 1024413,
@@ -369,7 +380,8 @@
     "awc": 8902.692613539784,
     "inverse_const": 522.8907835501343,
     "inverse_exp": 0.10550767424908516,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.609199",
+    "model_applied": "inverse"
   },
   "1713736": {
     "zwiftid": 1713736,
@@ -400,7 +412,8 @@
     "awc": 11031.794820508496,
     "inverse_const": 815.6759322526442,
     "inverse_exp": 0.15939926454732062,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.612142",
+    "model_applied": "inverse"
   },
   "2398312": {
     "zwiftid": 2398312,
@@ -431,7 +444,8 @@
     "awc": 8656.538507876096,
     "inverse_const": 565.1387348707997,
     "inverse_exp": 0.12040230844707879,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.615142",
+    "model_applied": "inverse"
   },
   "2682791": {
     "zwiftid": 2682791,
@@ -462,7 +476,8 @@
     "awc": 7975.512850317878,
     "inverse_const": 510.4824079439922,
     "inverse_exp": 0.12344669755843572,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.618140",
+    "model_applied": "inverse"
   },
   "3147366": {
     "zwiftid": 3147366,
@@ -493,7 +508,8 @@
     "awc": 22068.333437718178,
     "inverse_const": 1313.480596541873,
     "inverse_exp": 0.21237075705248556,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.620140",
+    "model_applied": "inverse"
   },
   "5421258": {
     "zwiftid": 5421258,
@@ -524,7 +540,8 @@
     "awc": 14205.512844924724,
     "inverse_const": 1015.2011699542345,
     "inverse_exp": 0.13855651499834104,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.623193",
+    "model_applied": "inverse"
   },
   "5490373": {
     "zwiftid": 5490373,
@@ -555,7 +572,8 @@
     "awc": 10760.128179867012,
     "inverse_const": 745.6727187855828,
     "inverse_exp": 0.1428757262879541,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.625192",
+    "model_applied": "inverse"
   },
   "5530045": {
     "zwiftid": 5530045,
@@ -586,7 +604,8 @@
     "awc": 19909.743618882774,
     "inverse_const": 1284.0636205600138,
     "inverse_exp": 0.20921601390199637,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.628194",
+    "model_applied": "inverse"
   },
   "5569057": {
     "zwiftid": 5569057,
@@ -617,7 +636,8 @@
     "awc": 19129.615234444693,
     "inverse_const": 1272.4180331910222,
     "inverse_exp": 0.21253933212364146,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.630147",
+    "model_applied": "inverse"
   },
   "6142432": {
     "zwiftid": 6142432,
@@ -648,6 +668,7 @@
     "awc": 9321.9232204116,
     "inverse_const": 650.9522666594822,
     "inverse_exp": 0.14866052830551643,
-    "preferred_model": "inverse"
+    "generated": "2025-04-13T15:00:03.633194",
+    "model_applied": "inverse"
   }
 }

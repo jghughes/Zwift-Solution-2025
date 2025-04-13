@@ -397,7 +397,8 @@ class ZwiftRiderCriticalPowerItem:
     awc: float = 0.0
     inverse_const: float = 0.0 
     inverse_exp: float = 0.0
-    preferred_model: str = "inverse" # Inverse Exponential model "inverse "or Critical Power Model "cp"
+    generated : str = ""
+    model_applied: str = "inverse" # Inverse Exponential model "inverse "or Critical Power Model "cp"
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -578,6 +579,7 @@ class ZwiftRiderCriticalPowerItem:
             awc=item.awc,
             inverse_const=item.inverse_const,
             inverse_exp=item.inverse_exp,
+            generated=item.generated,
         )
 
     @staticmethod
@@ -620,6 +622,7 @@ class ZwiftRiderCriticalPowerItem:
             awc=dto.awc or 0.0,
             inverse_const=dto.inverse_const or 0.0,
             inverse_exp=dto.inverse_exp or 0.0,
+            generated=dto.generated or "",
         )
 
   

@@ -33,7 +33,8 @@ CP_ALIAS            = "cp"
 AWC_ALIAS       = "awc"
 INVERSE_CONST_ALIAS = "inverse_const"
 INVERSE_EXP_ALIAS   = "inverse_exp"
-PREFERRED_MODEL_ALIAS = "preferred_model"
+MODEL_APPLIED_ALIAS = "model_applied"
+GENERATED_ALIAS = "generated"
 
 # Define the serialization alias map
 serialization_alias_map: dict[str, str] = {
@@ -65,7 +66,8 @@ serialization_alias_map: dict[str, str] = {
     "awc": AWC_ALIAS,
     "inverse_const": INVERSE_CONST_ALIAS,
     "inverse_exp": INVERSE_EXP_ALIAS,
-    "preferred_model": PREFERRED_MODEL_ALIAS
+    "model_applied": MODEL_APPLIED_ALIAS,
+    "generated": GENERATED_ALIAS
 }
 
 # Define the validation alias choices map
@@ -98,7 +100,8 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "awc": AliasChoices("awc"),
     "inverse_const": AliasChoices("inverse_const"),
     "inverse_exp": AliasChoices("inverse_exp"),
-    "preferred_model": AliasChoices("preferred_model"),
+    "model_applied": AliasChoices("model_applied"),
+    "generated": AliasChoices("generated")
 }
 
 # Define the Pydantic ConfigDict
@@ -145,6 +148,7 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     awc: Optional[float] = 0.0  # W' (work capacity above critical power)
     inverse_const: Optional[float] = 0.0  # Inverse model constant
     inverse_exp: Optional[float] = 0.0  # Inverse model exponent
-    preferred_model: Optional[str] = "" # Inverse Exponential model "inverse", or Critical Power Model "cp"
+    model_applied: Optional[str] = "" # Inverse Exponential model "inverse", or Critical Power Model "cp"
+    generated: Optional[str] = ""  # time stamp of when the data was generated
 
     model_config = preferred_config_dict
