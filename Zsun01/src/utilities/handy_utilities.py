@@ -8,24 +8,23 @@ import os
 from zwiftracing_app_post_dto import ZwiftRacingAppPostDTO
 
 # Module-level constants
-ZWIFTRIDER_FILE_NAME = "zwiftrider_dictionary.json"
-ZWIFTRIDER_DIR_PATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+CPDATA_FILE_NAME = "betel_cp_data.json"
+ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-CPDATA_FILE_NAME = "betel_for_jgh_josh_markb.json"
-CPDATA_DIR_PATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+INPUT_CP_DATA_FOR_JGH_JOSH_FILENAME = "input_cp_data_for_jgh_josh.json"
+INPUT_CP_DATA_FOR_ZSUN_FILENAME = "input_cp_data_for_Zsun.json"
+INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-ZWIFTRACERAPP_FILES_DIR_PATH = "C:/Users/johng/holding_pen/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
-ZWIFTRACERAPP_DATA_FILE_NAME = "raw_zwiftracing_app_data_dictionary.json"
-ZWIFTRACERAPP_DATA_DIR_PATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-OUTPUT_FILE_NAME = "raw_betel_cp_data.json"
-OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffFromDaveK/zsun_everything_April_2025/"
+OUTPUT_FILE_NAME = "betel_cp_data.json"
+OUTPUT_DIR_PATH = ZSUN01_PROJECT_DATA_DIRPATH
 
 
 def read_dict_of_zwiftriders(
-    file_name: Optional[str] = ZWIFTRIDER_FILE_NAME,
-    dir_path: Optional[str] = ZWIFTRIDER_DIR_PATH
+    file_name: Optional[str] = RIDERDATA_FILE_NAME,
+    dir_path: Optional[str] = ZSUN01_PROJECT_DATA_DIRPATH
 ) -> Dict[str, ZwiftRiderItem]:
     """
     Retrieve all Zwift riders from a JSON file and convert them to ZwiftRiderItem instances.
@@ -50,7 +49,7 @@ def read_dict_of_zwiftriders(
 
 def read_dict_of_cpdata(
     file_name: Optional[str] = CPDATA_FILE_NAME,
-    dir_path: Optional[str] = CPDATA_DIR_PATH
+    dir_path: Optional[str] = ZSUN01_PROJECT_DATA_DIRPATH
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Retrieve all Zwift riders' critical power data from a JSON file and convert them to ZwiftRiderCriticalPowerItem instances.
@@ -73,8 +72,30 @@ def read_dict_of_cpdata(
     }
 
 
-def read_collection_of_zwiftracerapp_files(
-    dir_path: Optional[str] = ZWIFTRACERAPP_FILES_DIR_PATH
+def write_dict_of_cpdata(
+    data: Dict[str, ZwiftRiderCriticalPowerItem],
+    file_name: Optional[str] = OUTPUT_FILE_NAME,
+    dir_path: Optional[str] = OUTPUT_DIR_PATH
+) -> None:
+    """
+    Serialize a dictionary of ZwiftRiderCriticalPowerItem instances and write it to a JSON file.
+
+    Args:
+        data (Dict[str, ZwiftRiderCriticalPowerItem]): The data to serialize.
+        file_name (Optional[str]): The name of the file to write.
+        dir_path (Optional[str]): The directory path where the file will be written.
+    """
+    serialized_data = JghSerialization.serialise(data)
+
+    os.makedirs(dir_path, exist_ok=True)
+
+    file_path = os.path.join(dir_path, file_name)
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json_file.write(serialized_data)
+
+
+def read_all_zwiftracerapp_files_in_folder(
+    dir_path: Optional[str] = ZSUNDATA_FROM_DAVEK_DIRPATH
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Retrieve all Zwift Racing App data from JSON files in a directory and convert them
@@ -103,90 +124,23 @@ def read_collection_of_zwiftracerapp_files(
 
     return dict(sorted(result.items(), key=lambda item: int(item[0])))
 
-
-def read_dict_of_zwiftracerapp_data(
-    file_name: Optional[str] = ZWIFTRACERAPP_DATA_FILE_NAME,
-    dir_path: Optional[str] = ZWIFTRACERAPP_DATA_DIR_PATH
-) -> Dict[str, ZwiftRiderCriticalPowerItem]:
-    """
-    Retrieve all Zwift Racing App data from a single JSON dictionary file and convert
-    them to ZwiftRiderCriticalPowerItem instances.
-
-    Args:
-        file_name (Optional[str]): The name of the file to read.
-        dir_path (Optional[str]): The directory path where the file is located.
-
-    Returns:
-        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary of ZwiftRiderCriticalPowerItem instances.
-    """
-    inputjson = read_text(dir_path, file_name)
-
-    dict_of_zwiftracing_dto = JghSerialization.validate(inputjson, Dict[str, ZwiftRacingAppPostDTO])
-    dict_of_zwiftracing_dto = cast(Dict[str, ZwiftRacingAppPostDTO], dict_of_zwiftracing_dto)
-
-    return dict(sorted({
-        key: ZwiftRiderCriticalPowerItem.from_zwift_racing_app_DTO(dto)
-        for key, dto in dict_of_zwiftracing_dto.items()
-    }.items(), key=lambda item: int(item[0])))
-
-
-def write_dict_of_cpdata(
-    data: Dict[str, ZwiftRiderCriticalPowerItem],
-    file_name: Optional[str] = OUTPUT_FILE_NAME,
-    dir_path: Optional[str] = OUTPUT_DIR_PATH
-) -> None:
-    """
-    Serialize a dictionary of ZwiftRiderCriticalPowerItem instances and write it to a JSON file.
-
-    Args:
-        data (Dict[str, ZwiftRiderCriticalPowerItem]): The data to serialize.
-        file_name (Optional[str]): The name of the file to write.
-        dir_path (Optional[str]): The directory path where the file will be written.
-    """
-    serialized_data = JghSerialization.serialise(data)
-
-    os.makedirs(dir_path, exist_ok=True)
-
-    file_path = os.path.join(dir_path, file_name)
-    with open(file_path, 'w', encoding='utf-8') as json_file:
-        json_file.write(serialized_data)
-
-
 #illustration of the function
-if __name__ == "__main__":
-
-    betelIDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "58160", "1024413", "991817", "1713736", "2398312", "2508033", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"]
+def main():
+    johnh_and_joshn_IDs = ["58160", "2508033"] 
+    other_betel_IDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "991817", "1713736", "2398312", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
 
     # Example usage
-    zwiftracing_app_data_dict = read_dict_of_zwiftracerapp_data()
 
-    # Instantiate a new dict that only includes the betelIDs
-    zwiftracing_app_data_for_betels = {
-        key: value
-        for key, value in zwiftracing_app_data_dict.items()
-        if key in betelIDs
-    }
 
-    me_josh_markb = read_dict_of_cpdata()
+    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder()
+    jgh_and_josh_cp_dict = read_dict_of_cpdata(INPUT_CP_DATA_FOR_JGH_JOSH_FILENAME, INPUT_CP_DATA_DIRPATH)
 
-    # For each item in me_josh_markb, overwrite the matching cp_data attributes
-    for key, cp_item in me_josh_markb.items():
-        if key in zwiftracing_app_data_consolidated:
-            # Overwrite the power data attributes
-            consolidated_item = zwiftracing_app_data_consolidated[key]
-            consolidated_item.cp_5_sec = cp_item.cp_5_sec
-            consolidated_item.cp_15_sec = cp_item.cp_15_sec
-            consolidated_item.cp_30_sec = cp_item.cp_30_sec
-            consolidated_item.cp_1_min = cp_item.cp_1_min
-            consolidated_item.cp_2_min = cp_item.cp_2_min
-            consolidated_item.cp_3_min = cp_item.cp_3_min
-            consolidated_item.cp_5_min = cp_item.cp_5_min
-            consolidated_item.cp_10_min = cp_item.cp_10_min
-            consolidated_item.cp_12_min = cp_item.cp_12_min
-            consolidated_item.cp_15_min = cp_item.cp_15_min
-            consolidated_item.cp_20_min = cp_item.cp_20_min
-            consolidated_item.cp_30_min = cp_item.cp_30_min
-            consolidated_item.cp_40_min = cp_item.cp_40_min
+    zsun_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in other_betel_IDs}
 
-    # Serialize and write the data to a file
-    write_dict_of_cpdata(zwiftracing_app_data_consolidated)
+    combined_cp_dict_for_betel = {**jgh_and_josh_cp_dict, **zsun_cp_dict_for_betel}
+
+    write_dict_of_cpdata(combined_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+
+
+if __name__ == "__main__":
+    main()
