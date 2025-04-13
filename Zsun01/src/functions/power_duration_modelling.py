@@ -199,7 +199,7 @@ def main():
     # get zwift 90-day rider data
 
     riders = read_dict_of_zwiftriders()
-    riders_cp_data = read_dict_of_cpdata()
+    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json")
 
     barryb ='5490373' 
     johnh ='58160'

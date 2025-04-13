@@ -2,7 +2,6 @@ from typing import  List, Dict, Tuple
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
-from jgh_power_duration_modelling import generate_model_fitted_zwiftrider_cp_metrics
 import logging
 
 
@@ -204,31 +203,30 @@ def main() -> None:
                 rider.name, 
                 z.speed_kph,
                 z.pull_duration,
-                z.pull_wkg,
-                z.p1_w, 
-                z.p2_w, 
-                z.p3_w, 
-                z.p4_w, 
-                z.p__w,
-                z.pull_w_over_ftp,
-                z.ftp_intensity_factor, 
-                # z.cp_intensity_factor
-                z.cp, 
-                z.awc
+                round(z.pull_wkg,1),
+                round(z.p1_w), 
+                round(z.p2_w), 
+                round(z.p3_w), 
+                round(z.p4_w), 
+                round(z.p__w),
+                round(z.pull_w_over_ftp,1),
+                round(z.ftp_intensity_factor,2), 
+                round(z.cp), 
+                round(z.awc/1_000)
             ])
         headers = ["rider", 
             "kph",
-            "sec", 
-            "wkg",
-            "p1", 
-            "p2", 
-            "p3", 
-            "p4", 
-            "p+", 
+            "pull(s)", 
+            "pull(wkg)",
+            "p1(W)", 
+            "p2(W)", 
+            "p3(W)", 
+            "p4(W)", 
+            "p+(W)", 
             "pull(%ftp)",
-            "IF(ftp)", 
-            "zwift_cp", 
-            "zwift_W_prime",
+            "IF(np/ftp)", 
+            "cp(W)", 
+            "awc(kJ)",
         ]
         logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
@@ -236,18 +234,17 @@ def main() -> None:
 
     zwiftriders_zwift_cp_data = read_dict_of_cpdata()
 
-    zwiftriders_cp_models = generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data)
-
+    davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    scottm : ZwiftRiderItem = dict_of_zwiftrideritem['11526'] # markb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
     joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
-    markb : ZwiftRiderItem = dict_of_zwiftrideritem['5530045'] # markb
     
-    pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0]
-    pull_durations_sec = [120.0, 60.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
+    pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0]
+    pull_durations_sec = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0]
+    riders : list[ZwiftRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
@@ -255,17 +252,9 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-
-
-
     rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftriders_zwift_cp_data)
 
-    log_results_answer_items("Comparative rider metrics [RiderAnswerItem]:", rider_answer_items_with_cp_and_w_prime, logger)
-
-
-    logger.info(zwiftriders_zwift_cp_data['2508033'].map_to_int_float_equivalent())
-    # logger.info(zwiftriders_zwift_cp_data['58160'].map_to_int_float_equivalent())
-
+    log_results_answer_items("7-riders @40kph", rider_answer_items_with_cp_and_w_prime, logger)
 
 
 if __name__ == "__main__":

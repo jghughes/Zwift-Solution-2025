@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\functions\power_duration_modelling.py</StartupFile>
+    <StartupFile>src\jgh_formulae06.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -42,6 +42,7 @@
   <ItemGroup>
     <Content Include="appsettings.json" />
     <Content Include="data\betel_cp_data.json" />
+    <Content Include="data\extracted_input_cp_data_for_betel.json" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">
@@ -53,7 +54,7 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="data\zwiftinsider_stuff.py" />
+    <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="tools\tool02.py" />
     <Compile Include="tools\tool01.py" />
     <Compile Include="setup.py" />

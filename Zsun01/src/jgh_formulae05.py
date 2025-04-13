@@ -1,7 +1,6 @@
 from typing import Dict, List
 from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
-import logging
 
 
 def populate_rider_exertions(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderExertionItem]]:
@@ -68,15 +67,16 @@ def main() -> None:
 
     dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
+    davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
     joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
-    pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0]
-    pull_durations_sec = [120.0, 60.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
+    pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0, 40.0]
+    pull_durations_sec = [120.0, 120.0, 60.0, 30.0, 30.0, 30.0]
+    riders : list[ZwiftRiderItem] = [davek, barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
 
