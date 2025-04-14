@@ -1,66 +1,120 @@
-from datetime import datetime
-from tabulate import tabulate
-import matplotlib.pyplot as plt
-from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
-from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata, write_dict_of_cpdata
+from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata, read_all_zwiftracerapp_files_in_folder
+
 import logging
 from jgh_logging import jgh_configure_logging
 
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
+def main():
+    """
+    Process raw Zwift Racing App data files for Zsun club members to extract and
+    consolidate critical power (CP) data for Betel riders.
 
-logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    This script performs the following steps:
+    1. Reads raw CP data from independent files for each Zsun member.
+    2. Filters the data to include only Betel riders based on their Zwift IDs.
+    3. Reads additional CP data for a subset of Betel riders from a separate file.
+    4. Overwrites or adds the additional CP data to the filtered Betel rider data.
+    5. Cleans up the names of Betel riders to ensure consistent formatting.
+    6. Writes the consolidated and cleaned CP data for Betel riders to a JSON file.
 
-# get zwift 90-day rider data
+    The consolidated data is subsequently used in `tool04` to generate populated
+    CP data for all Betel riders.
 
-riders = read_dict_of_zwiftriders()
-riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    Module-Level Constants:
+        - INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES: The filename
+          of the additional CP data file for Betel riders.
+        - INPUT_CP_DATA_DIRPATH: The directory path where the additional CP data
+          file is located.
+        - INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH: The directory path containing raw
+          CP data files for Zsun members.
+        - OUTPUT_FILE_NAME: The filename for the consolidated CP data output.
+        - OUTPUT_DIR_PATH: The directory path where the consolidated CP data
+          output will be written.
 
-# Process each rider in the riders_cp_data dictionary
-for rider_id, rider_cp_data in riders_cp_data.items():
-    # Export raw CP data for best fitting
-    raw_xy_data = rider_cp_data.export_cp_data_for_best_fitting()
+    Dependencies:
+        - Requires `handy_utilities` for reading and writing CP data.
+        - Uses `ZwiftRiderCriticalPowerDTO` for data validation and processing.
 
-    # Perform CP-W' model fitting
-    cp, awc, r_squared, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
+    Returns:
+        None
+    """
+    # configure logging
 
-    # Perform inverse model fitting
-    constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    # Update the rider's CP data with the model results
-    rider_cp_data.cp = cp
-    rider_cp_data.awc = awc
-    rider_cp_data.inverse_const = constant
-    rider_cp_data.inverse_exp = exponent
+    # Module-level constants
 
-    # Determine the preferred model
-    if rider_id == '2508033':  # Example: JoshN prefers the CP model
-        model_applied = "cp"
-    else:
-        model_applied = "inverse"
+    INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
+    INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    rider_cp_data.model_applied = model_applied
+    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
-    # Generate predictions for test x-data
-    xdata_test = [
-        5, 15, 30, 60, 90, 120, 150, 180, 300, 420, 600, 720, 900, 1200,
-        1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
-    ]
+    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel.json"
+    OUTPUT_DIR_PATH = INPUT_CP_DATA_DIRPATH
 
-    if rider_cp_data.model_applied == "cp":
-        y_pred = [cp_w_prime_model(x, cp, awc) for x in xdata_test]
-    else:
-        y_pred = [inverse_model(x, constant, exponent) for x in xdata_test]
+    betel_IDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "58160", "1024413", "991817", "1713736", "2398312", "2508033"  "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
 
-    # Convert y_pred to a dictionary and import it into the rider's CP data
-    y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}
-    rider_cp_data.import_cp_data(y_pred_dict)
-    # str of timestamp in ISO format
-    rider_cp_data.generated = datetime.now().isoformat()
+    # do work
 
-# Write the updated CP data for all riders to a file
-write_dict_of_cpdata(
-    riders_cp_data,
-    "populated_cp_data_for_betel.json",
-    "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-)
+    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder(INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+
+    raw_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in betel_IDs}
+
+    jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+
+    # Overwrite/add the items in raw_cp_dict_for_betel with all the items in jgh_cp_dict
+
+    raw_cp_dict_for_betel.update(jgh_cp_dict)
+
+    # function to make prttty names 
+
+    def clean_name(old_name: str) -> str:
+        """
+        Cleans up a given name according to the following rules:
+        1. Trim spaces from the old name and replace any contained commas or dots with spaces.
+        2. If the old name has only one word, capitalize the first letter of the word.
+        3. If the old name has more than one word, concatenate the first word (with the first letter capitalized)
+           with the capitalized first letter of the second word.
+
+        Args:
+            old_name (str): The original name to be cleaned.
+
+        Returns:
+            str: The cleaned-up new name.
+        """
+        # Step 1: Trim spaces and replace commas or dots with spaces
+        old_name = old_name.strip().replace(",", " ").replace(".", " ")
+
+        # Step 2: Split the name into words
+        name_parts = old_name.split()
+
+        # Step 3: Determine the new name
+        if len(name_parts) == 1:
+            # If the old name has only one word, capitalize the first letter
+            new_name = name_parts[0][0].upper() + name_parts[0][1:]
+        elif len(name_parts) > 1:
+            # If the old name has more than one word, concatenate the first word
+            # (with only the first letter capitalized) with the capitalized first letter of the second word
+            new_name = name_parts[0][0].upper() + name_parts[0][1:] + name_parts[1][0].upper()
+        else:
+            # Handle edge cases where the name might be empty
+            new_name = "Unknown"
+
+        return new_name
+
+    # Clean up names in each ZwiftRiderCriticalPowerItem
+
+    for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
+        # Clean up the name
+        rider_cp_data.name = clean_name(rider_cp_data.name)
+        # Update the rider's name in the dictionary
+        raw_cp_dict_for_betel[rider_id] = rider_cp_data
+
+    # Write the cleaned-up data to a file
+
+    write_dict_of_cpdata(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+
+if __name__ == "__main__":
+    main()
+

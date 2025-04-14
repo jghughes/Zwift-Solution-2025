@@ -1,4 +1,5 @@
 import json
+# this tool is used to add new entries to the zwiftrider_dictionary.json file
 
 # Load the JSON data from the file
 with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftrider_dictionary.json', 'r') as file:

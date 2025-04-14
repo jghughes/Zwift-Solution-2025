@@ -1,5 +1,7 @@
 import json
 
+# this tool is to delete some entries from the zwiftrider_dictionary.json file
+
 # Load the JSON data from the file
 with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftrider_dictionary_v2.json', 'r') as file:
     data = json.load(file)

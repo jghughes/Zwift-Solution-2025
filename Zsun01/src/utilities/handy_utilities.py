@@ -12,11 +12,11 @@ RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
 CPDATA_FILE_NAME = "betel_cp_data.json"
 ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-INPUT_CP_DATA_FOR_JGH_JOSH_FILENAME = "input_cp_data_for_jgh_josh.json"
-INPUT_CP_DATA_FOR_ZSUN_FILENAME = "input_cp_data_for_Zsun.json"
+INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
+INPU_CPDATA_FILENAME_ORIGINATING_FROM_ZWIFTRACINGAPP = "input_cp_data_for_Zsun.json"
 INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
 OUTPUT_FILE_NAME = "betel_cp_data.json"
 OUTPUT_DIR_PATH = ZSUN01_PROJECT_DATA_DIRPATH
@@ -95,7 +95,7 @@ def write_dict_of_cpdata(
 
 
 def read_all_zwiftracerapp_files_in_folder(
-    dir_path: Optional[str] = ZSUNDATA_FROM_DAVEK_DIRPATH
+    dir_path: Optional[str] = INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Retrieve all Zwift Racing App data from JSON files in a directory and convert them
@@ -126,20 +126,19 @@ def read_all_zwiftracerapp_files_in_folder(
 
 #illustration of the function
 def main():
-    johnh_and_joshn_IDs = ["58160", "2508033"] 
-    other_betel_IDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "991817", "1713736", "2398312", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
+    betel_IDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "58160", "1024413", "991817", "1713736", "2398312", "2508033"  "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
 
     # Example usage
 
 
-    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder()
-    jgh_and_josh_cp_dict = read_dict_of_cpdata(INPUT_CP_DATA_FOR_JGH_JOSH_FILENAME, INPUT_CP_DATA_DIRPATH)
+    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder(INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
-    zsun_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in other_betel_IDs}
+    zsun_raw_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in betel_IDs}
 
-    combined_cp_dict_for_betel = {**jgh_and_josh_cp_dict, **zsun_cp_dict_for_betel}
+    combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_dict_of_cpdata(combined_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_dict_of_cpdata(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
 
 if __name__ == "__main__":
