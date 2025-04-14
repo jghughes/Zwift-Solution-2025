@@ -2,7 +2,7 @@ from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
-from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata, write_dict_of_cpdata
+from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
 

@@ -185,7 +185,7 @@ def main() -> None:
     dict_of_zwiftrideritem = read_dict_of_zwiftriders()
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
     joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm

@@ -114,7 +114,7 @@ class ZwiftRiderItem():
                 "velo_rating": 1294,
             },
             "johnh": {
-                "zwiftid": 58160,
+                "zwiftid": 1884456,
                 "name": "John H",
                 "weight": 75.4,
                 "height": 174,

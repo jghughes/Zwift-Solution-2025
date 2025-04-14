@@ -83,7 +83,7 @@ def main() -> None:
 
     davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['58160'] # johnh
+    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh 1884456
     lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
 
     pull_speeds_kph = [44.0, 40.0, 38.0, 36.0]
