@@ -243,10 +243,10 @@ def main() -> None:
     richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
     
     pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0]
-    pull_durations_sec = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0]
+    pull_durations = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0]
     riders : list[ZwiftRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
 
-    work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speeds_kph)
+    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
     rider_exertions = populate_rider_exertions(work_assignments)
 

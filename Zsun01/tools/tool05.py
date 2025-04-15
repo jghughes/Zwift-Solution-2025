@@ -50,7 +50,8 @@ def main():
     # get zwift 90-day rider data
 
     riders = read_dict_of_zwiftriders()
-    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV2.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    # riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     barryb ='5490373' 
     johnh ='1884456'
@@ -60,9 +61,13 @@ def main():
     markb ='5530045'
     davek="3147366"
 
+    # choose a rider to model
 
-    rider_id = davek
-    raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fitting()
+    rider_id = johnh
+
+    # extract raw data for modelling
+
+    raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fit_modelling()
 
     # do modelling
 

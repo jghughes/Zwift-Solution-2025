@@ -1,12 +1,12 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
-
 from zwiftrider_dto import ZwiftRiderDTO 
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
 from zwiftracing_app_post_dto import ZwiftRacingAppPostDTO
-
+from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
+
 
 @dataclass(frozen=True, eq=True) # immutable and hashable
 class ZwiftRiderItem():
@@ -357,10 +357,11 @@ class ZwiftRiderItem():
             velo_rating=dto.velo_rating or 0
         )
 
+
 @dataclass
 class ZwiftRiderCriticalPowerItem:
     """
-    A data class representing a zwiftrider's critical power data.
+    A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
 
     Attributes:
@@ -371,34 +372,111 @@ class ZwiftRiderCriticalPowerItem:
 
     zwiftid: int = 0
     name: str = ""
-    cp_5_sec: float = 0.0
-    cp_15_sec: float = 0.0
-    cp_30_sec: float = 0.0
-    cp_1_min: float = 0.0
-    cp_2_min: float = 0.0
-    cp_90_sec: float = 0.0
-    cp_3_min: float = 0.0
-    cp_5_min: float = 0.0
-    cp_7_min: float = 0.0
-    cp_10_min: float = 0.0
-    cp_12_min: float = 0.0
-    cp_15_min: float = 0.0
-    cp_20_min: float = 0.0
-    cp_30_min: float = 0.0
-    cp_40_min: float = 0.0
-    cp_50_min: float = 0.0
-    cp_1_hour: float = 0.0
-    cp_75_min: float = 0.0
-    cp_90_min: float = 0.0
-    cp_2_hour: float = 0.0
-    cp_3_hour: float = 0.0
-    cp_4_hour: float = 0.0
+    cp_1: float = 0.0
+    cp_2: float = 0.0
+    cp_3: float = 0.0
+    cp_4: float = 0.0
+    cp_5: float = 0.0
+    cp_6: float = 0.0
+    cp_7: float = 0.0
+    cp_8: float = 0.0
+    cp_9: float = 0.0
+    cp_10: float = 0.0
+    cp_11: float = 0.0
+    cp_12: float = 0.0
+    cp_13: float = 0.0
+    cp_14: float = 0.0
+    cp_15: float = 0.0
+    cp_16: float = 0.0
+    cp_17: float = 0.0
+    cp_18: float = 0.0
+    cp_19: float = 0.0
+    cp_20: float = 0.0
+    cp_21: float = 0.0
+    cp_22: float = 0.0
+    cp_23: float = 0.0
+    cp_24: float = 0.0
+    cp_25: float = 0.0
+    cp_26: float = 0.0
+    cp_27: float = 0.0
+    cp_28: float = 0.0
+    cp_29: float = 0.0
+    cp_30: float = 0.0
+    cp_35: float = 0.0
+    cp_40: float = 0.0
+    cp_45: float = 0.0
+    cp_50: float = 0.0
+    cp_55: float = 0.0
+    cp_60: float = 0.0
+    cp_70: float = 0.0
+    cp_80: float = 0.0
+    cp_90: float = 0.0
+    cp_100: float = 0.0
+    cp_110: float = 0.0
+    cp_120: float = 0.0
+    cp_150: float = 0.0
+    cp_180: float = 0.0
+    cp_210: float = 0.0
+    cp_240: float = 0.0
+    cp_270: float = 0.0
+    cp_300: float = 0.0
+    cp_330: float = 0.0
+    cp_360: float = 0.0
+    cp_390: float = 0.0
+    cp_420: float = 0.0
+    cp_450: float = 0.0
+    cp_480: float = 0.0
+    cp_510: float = 0.0
+    cp_540: float = 0.0
+    cp_570: float = 0.0
+    cp_600: float = 0.0
+    cp_660: float = 0.0
+    cp_720: float = 0.0
+    cp_780: float = 0.0
+    cp_840: float = 0.0
+    cp_900: float = 0.0
+    cp_960: float = 0.0
+    cp_1020: float = 0.0
+    cp_1080: float = 0.0
+    cp_1140: float = 0.0
+    cp_1200: float = 0.0
+    cp_1320: float = 0.0
+    cp_1440: float = 0.0
+    cp_1560: float = 0.0
+    cp_1680: float = 0.0
+    cp_1800: float = 0.0
+    cp_1920: float = 0.0
+    cp_2040: float = 0.0
+    cp_2160: float = 0.0
+    cp_2280: float = 0.0
+    cp_2400: float = 0.0
+    cp_2520: float = 0.0
+    cp_2640: float = 0.0
+    cp_2760: float = 0.0
+    cp_2880: float = 0.0
+    cp_3000: float = 0.0
+    cp_3120: float = 0.0
+    cp_3240: float = 0.0
+    cp_3360: float = 0.0
+    cp_3480: float = 0.0
+    cp_3600: float = 0.0
+    cp_3900: float = 0.0
+    cp_4200: float = 0.0
+    cp_4500: float = 0.0
+    cp_4800: float = 0.0
+    cp_5100: float = 0.0
+    cp_5400: float = 0.0
+    cp_5700: float = 0.0
+    cp_6000: float = 0.0
+    cp_6300: float = 0.0
+    cp_6600: float = 0.0
+    cp_7200: float = 0.0
     cp: float = 0.0
     awc: float = 0.0
-    inverse_const: float = 0.0 
+    inverse_const: float = 0.0
     inverse_exp: float = 0.0
-    generated : str = ""
-    model_applied: str = "inverse" # Inverse Exponential model "inverse "or Critical Power Model "cp"
+    generated: str = ""
+    model_applied: str = "inverse"  # Inverse Exponential model "inverse" or Critical Power Model "cp"
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -410,9 +488,13 @@ class ZwiftRiderCriticalPowerItem:
             [int]: A list of x ordinates (time intervals in seconds).
         """
         answer: list[int] = [
-            5, 15, 30, 60, 90, 120, 180, 300, 420,
-            600, 720, 900, 1200, 1800, 2400, 3000,
-            3600, 4500, 5400, 7200, 10800, 14400
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 40, 45, 50, 55, 60, 70, 80, 
+            90, 100, 110, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 
+            450, 480, 510, 540, 570, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 
+            1140, 1200, 1320, 1440, 1560, 1680, 1800, 1920, 2040, 2160, 2280, 2400, 
+            2520, 2640, 2760, 2880, 3000, 3120, 3240, 3360, 3480, 3600, 3900, 4200, 
+            4500, 4800, 5100, 5400, 5700, 6000, 6300, 6600
         ]
         return answer;
 
@@ -425,28 +507,105 @@ class ZwiftRiderCriticalPowerItem:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
         answer = {
-            5: self.cp_5_sec,
-            15: self.cp_15_sec,
-            30: self.cp_30_sec,
-            60: self.cp_1_min,
-            90: self.cp_90_sec,
-            120: self.cp_2_min,
-            180: self.cp_3_min,
-            300: self.cp_5_min,
-            420: self.cp_7_min,
-            600: self.cp_10_min,
-            720: self.cp_12_min,
-            900: self.cp_15_min,
-            1200: self.cp_20_min,
-            1800: self.cp_30_min,
-            2400: self.cp_40_min,
-            3000: self.cp_50_min,
-            3600: self.cp_1_hour,
-            4500: self.cp_75_min,
-            5400: self.cp_90_min,
-            7200: self.cp_2_hour,
-            10800: self.cp_3_hour,
-            14400: self.cp_4_hour,
+            1: self.cp_1,
+            2: self.cp_2,
+            3: self.cp_3,
+            4: self.cp_4,
+            5: self.cp_5,
+            6: self.cp_6,
+            7: self.cp_7,
+            8: self.cp_8,
+            9: self.cp_9,
+            10: self.cp_10,
+            11: self.cp_11,
+            12: self.cp_12,
+            13: self.cp_13,
+            14: self.cp_14,
+            15: self.cp_15,
+            16: self.cp_16,
+            17: self.cp_17,
+            18: self.cp_18,
+            19: self.cp_19,
+            20: self.cp_20,
+            21: self.cp_21,
+            22: self.cp_22,
+            23: self.cp_23,
+            24: self.cp_24,
+            25: self.cp_25,
+            26: self.cp_26,
+            27: self.cp_27,
+            28: self.cp_28,
+            29: self.cp_29,
+            30: self.cp_30,
+            35: self.cp_35,
+            40: self.cp_40,
+            45: self.cp_45,
+            50: self.cp_50,
+            55: self.cp_55,
+            60: self.cp_60,
+            70: self.cp_70,
+            80: self.cp_80,
+            90: self.cp_90,
+            100: self.cp_100,
+            110: self.cp_110,
+            120: self.cp_120,
+            150: self.cp_150,
+            180: self.cp_180,
+            210: self.cp_210,
+            240: self.cp_240,
+            270: self.cp_270,
+            300: self.cp_300,
+            330: self.cp_330,
+            360: self.cp_360,
+            390: self.cp_390,
+            420: self.cp_420,
+            450: self.cp_450,
+            480: self.cp_480,
+            510: self.cp_510,
+            540: self.cp_540,
+            570: self.cp_570,
+            600: self.cp_600,
+            660: self.cp_660,
+            720: self.cp_720,
+            780: self.cp_780,
+            840: self.cp_840,
+            900: self.cp_900,
+            960: self.cp_960,
+            1020: self.cp_1020,
+            1080: self.cp_1080,
+            1140: self.cp_1140,
+            1200: self.cp_1200,
+            1320: self.cp_1320,
+            1440: self.cp_1440,
+            1560: self.cp_1560,
+            1680: self.cp_1680,
+            1800: self.cp_1800,
+            1920: self.cp_1920,
+            2040: self.cp_2040,
+            2160: self.cp_2160,
+            2280: self.cp_2280,
+            2400: self.cp_2400,
+            2520: self.cp_2520,
+            2640: self.cp_2640,
+            2760: self.cp_2760,
+            2880: self.cp_2880,
+            3000: self.cp_3000,
+            3120: self.cp_3120,
+            3240: self.cp_3240,
+            3360: self.cp_3360,
+            3480: self.cp_3480,
+            3600: self.cp_3600,
+            3900: self.cp_3900,
+            4200: self.cp_4200,
+            4500: self.cp_4500,
+            4800: self.cp_4800,
+            5100: self.cp_5100,
+            5400: self.cp_5400,
+            5700: self.cp_5700,
+            6000: self.cp_6000,
+            6300: self.cp_6300,
+            6600: self.cp_6600,
+            7200: self.cp_7200,
         }
 
         # Filter out zero values (because they amount to invalid datapoints)
@@ -458,7 +617,7 @@ class ZwiftRiderCriticalPowerItem:
 
         return answer
 
-    def export_cp_data_for_best_fitting(self) -> Dict[int, float]:
+    def export_cp_data_for_best_fit_modelling(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -466,28 +625,106 @@ class ZwiftRiderCriticalPowerItem:
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
-        # cp and awc are not included as they are not time-based attributes
-
         answer = {
-            60: self.cp_1_min,
-            90: self.cp_90_sec,
-            120: self.cp_2_min,
-            180: self.cp_3_min,
-            300: self.cp_5_min,
-            420: self.cp_7_min,
-            600: self.cp_10_min,
-            720: self.cp_12_min,
-            900: self.cp_15_min,
-            1200: self.cp_20_min,
-            1800: self.cp_30_min,
-            2400: self.cp_40_min,
-            # 3000: self.cp_50_min,
-            # 3600: self.cp_1_hour,
-            # 4500: self.cp_75_min,
-            # 5400: self.cp_90_min,
-            # 7200: self.cp_2_hour,
-            # 10800: self.cp_3_hour,
-            # 14400: self.cp_4_hour,
+            1: self.cp_1,
+            2: self.cp_2,
+            3: self.cp_3,
+            4: self.cp_4,
+            5: self.cp_5,
+            6: self.cp_6,
+            7: self.cp_7,
+            8: self.cp_8,
+            9: self.cp_9,
+            10: self.cp_10,
+            11: self.cp_11,
+            12: self.cp_12,
+            13: self.cp_13,
+            14: self.cp_14,
+            15: self.cp_15,
+            16: self.cp_16,
+            17: self.cp_17,
+            18: self.cp_18,
+            19: self.cp_19,
+            20: self.cp_20,
+            21: self.cp_21,
+            22: self.cp_22,
+            23: self.cp_23,
+            24: self.cp_24,
+            25: self.cp_25,
+            26: self.cp_26,
+            27: self.cp_27,
+            28: self.cp_28,
+            29: self.cp_29,
+            30: self.cp_30,
+            35: self.cp_35,
+            40: self.cp_40,
+            45: self.cp_45,
+            50: self.cp_50,
+            55: self.cp_55,
+            60: self.cp_60,
+            70: self.cp_70,
+            80: self.cp_80,
+            90: self.cp_90,
+            100: self.cp_100,
+            110: self.cp_110,
+            120: self.cp_120,
+            150: self.cp_150,
+            180: self.cp_180,
+            210: self.cp_210,
+            240: self.cp_240,
+            270: self.cp_270,
+            300: self.cp_300,
+            330: self.cp_330,
+            360: self.cp_360,
+            390: self.cp_390,
+            420: self.cp_420,
+            450: self.cp_450,
+            480: self.cp_480,
+            510: self.cp_510,
+            540: self.cp_540,
+            570: self.cp_570,
+            600: self.cp_600,
+            660: self.cp_660,
+            720: self.cp_720,
+            780: self.cp_780,
+            840: self.cp_840,
+            900: self.cp_900,
+            960: self.cp_960,
+            1020: self.cp_1020,
+            1080: self.cp_1080,
+            1140: self.cp_1140,
+            1200: self.cp_1200,
+            1320: self.cp_1320,
+            1440: self.cp_1440,
+            1560: self.cp_1560,
+            1680: self.cp_1680,
+            1800: self.cp_1800,
+            1920: self.cp_1920,
+            2040: self.cp_2040,
+            2160: self.cp_2160,
+            2280: self.cp_2280,
+            2400: self.cp_2400,
+            2520: self.cp_2520,
+            2640: self.cp_2640,
+            2760: self.cp_2760,
+            2880: self.cp_2880,
+            3000: self.cp_3000,
+            3120: self.cp_3120,
+            3240: self.cp_3240,
+            3360: self.cp_3360,
+            3480: self.cp_3480,
+            3600: self.cp_3600,
+            3900: self.cp_3900,
+            4200: self.cp_4200,
+            4500: self.cp_4500,
+            4800: self.cp_4800,
+            5100: self.cp_5100,
+            5400: self.cp_5400,
+            5700: self.cp_5700,
+            6000: self.cp_6000,
+            6300: self.cp_6300,
+            6600: self.cp_6600,
+            7200: self.cp_7200,
         }
 
         # Filter out zero values (because they amount to invalid datapoints)
@@ -498,6 +735,7 @@ class ZwiftRiderCriticalPowerItem:
             answer = dict(sorted(answer.items(), key=lambda item: item[0]))
 
         return answer
+
 
     def import_cp_data(self, input_data: Dict[int, float]) -> None:
         """
@@ -510,34 +748,110 @@ class ZwiftRiderCriticalPowerItem:
             and values are the corresponding critical power values.
         """
         mapping = {
-            5: "cp_5_sec",
-            15: "cp_15_sec",
-            30: "cp_30_sec",
-            60: "cp_1_min",
-            90: "cp_90_sec",
-            120: "cp_2_min",
-            180: "cp_3_min",
-            300: "cp_5_min",
-            420: "cp_7_min",
-            600: "cp_10_min",
-            720: "cp_12_min",
-            900: "cp_15_min",
-            1200: "cp_20_min",
-            1800: "cp_30_min",
-            2400: "cp_40_min",
-            3000: "cp_50_min",
-            3600: "cp_1_hour",
-            4500: "cp_75_min",
-            5400: "cp_90_min",
-            7200: "cp_2_hour",
-            10800: "cp_3_hour",
-            14400: "cp_4_hour",
+            1: "cp_1",
+            2: "cp_2",
+            3: "cp_3",
+            4: "cp_4",
+            5: "cp_5",
+            6: "cp_6",
+            7: "cp_7",
+            8: "cp_8",
+            9: "cp_9",
+            10: "cp_10",
+            11: "cp_11",
+            12: "cp_12",
+            13: "cp_13",
+            14: "cp_14",
+            15: "cp_15",
+            16: "cp_16",
+            17: "cp_17",
+            18: "cp_18",
+            19: "cp_19",
+            20: "cp_20",
+            21: "cp_21",
+            22: "cp_22",
+            23: "cp_23",
+            24: "cp_24",
+            25: "cp_25",
+            26: "cp_26",
+            27: "cp_27",
+            28: "cp_28",
+            29: "cp_29",
+            30: "cp_30",
+            35: "cp_35",
+            40: "cp_40",
+            45: "cp_45",
+            50: "cp_50",
+            55: "cp_55",
+            60: "cp_60",
+            70: "cp_70",
+            80: "cp_80",
+            90: "cp_90",
+            100: "cp_100",
+            110: "cp_110",
+            120: "cp_120",
+            150: "cp_150",
+            180: "cp_180",
+            210: "cp_210",
+            240: "cp_240",
+            270: "cp_270",
+            300: "cp_300",
+            330: "cp_330",
+            360: "cp_360",
+            390: "cp_390",
+            420: "cp_420",
+            450: "cp_450",
+            480: "cp_480",
+            510: "cp_510",
+            540: "cp_540",
+            570: "cp_570",
+            600: "cp_600",
+            660: "cp_660",
+            720: "cp_720",
+            780: "cp_780",
+            840: "cp_840",
+            900: "cp_900",
+            960: "cp_960",
+            1020: "cp_1020",
+            1080: "cp_1080",
+            1140: "cp_1140",
+            1200: "cp_1200",
+            1320: "cp_1320",
+            1440: "cp_1440",
+            1560: "cp_1560",
+            1680: "cp_1680",
+            1800: "cp_1800",
+            1920: "cp_1920",
+            2040: "cp_2040",
+            2160: "cp_2160",
+            2280: "cp_2280",
+            2400: "cp_2400",
+            2520: "cp_2520",
+            2640: "cp_2640",
+            2760: "cp_2760",
+            2880: "cp_2880",
+            3000: "cp_3000",
+            3120: "cp_3120",
+            3240: "cp_3240",
+            3360: "cp_3360",
+            3480: "cp_3480",
+            3600: "cp_3600",
+            3900: "cp_3900",
+            4200: "cp_4200",
+            4500: "cp_4500",
+            4800: "cp_4800",
+            5100: "cp_5100",
+            5400: "cp_5400",
+            5700: "cp_5700",
+            6000: "cp_6000",
+            6300: "cp_6300",
+            6600: "cp_6600",
+            7200: "cp_7200",
         }
 
         for key, value in input_data.items():
             if key in mapping:
                 setattr(self, mapping[key], value)
-
 
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDTO:
@@ -551,35 +865,112 @@ class ZwiftRiderCriticalPowerItem:
             ZwiftRiderCriticalPowerDTO: The corresponding data transfer object.
         """
         return ZwiftRiderCriticalPowerDTO(
-            zwiftid=item.zwiftid,
-            name=item.name,
-            cp_5_sec=item.cp_5_sec,
-            cp_15_sec=item.cp_15_sec,
-            cp_30_sec=item.cp_30_sec,
-            cp_1_min=item.cp_1_min,
-            cp_2_min=item.cp_2_min,
-            cp_90_sec=item.cp_90_sec,
-            cp_3_min=item.cp_3_min,
-            cp_5_min=item.cp_5_min,
-            cp_7_min=item.cp_7_min,
-            cp_10_min=item.cp_10_min,
-            cp_12_min=item.cp_12_min,
-            cp_15_min=item.cp_15_min,
-            cp_20_min=item.cp_20_min,
-            cp_30_min=item.cp_30_min,
-            cp_40_min=item.cp_40_min,
-            cp_50_min=item.cp_50_min,
-            cp_1_hour=item.cp_1_hour,
-            cp_75_min=item.cp_75_min,
-            cp_90_min=item.cp_90_min,
-            cp_2_hour=item.cp_2_hour,
-            cp_3_hour=item.cp_3_hour,
-            cp_4_hour=item.cp_4_hour,
-            cp=item.cp,
-            awc=item.awc,
-            inverse_const=item.inverse_const,
-            inverse_exp=item.inverse_exp,
-            generated=item.generated,
+            zwiftid        = item.zwiftid,
+            name           = item.name,
+            cp_1           = item.cp_1,
+            cp_2           = item.cp_2,
+            cp_3           = item.cp_3,
+            cp_4           = item.cp_4,
+            cp_5           = item.cp_5,
+            cp_6           = item.cp_6,
+            cp_7           = item.cp_7,
+            cp_8           = item.cp_8,
+            cp_9           = item.cp_9,
+            cp_10          = item.cp_10,
+            cp_11          = item.cp_11,
+            cp_13          = item.cp_13,
+            cp_14          = item.cp_14,
+            cp_15          = item.cp_15,
+            cp_16          = item.cp_16,
+            cp_17          = item.cp_17,
+            cp_18          = item.cp_18,
+            cp_19          = item.cp_19,
+            cp_20          = item.cp_20,
+            cp_21          = item.cp_21,
+            cp_22          = item.cp_22,
+            cp_23          = item.cp_23,
+            cp_24          = item.cp_24,
+            cp_25          = item.cp_25,
+            cp_26          = item.cp_26,
+            cp_27          = item.cp_27,
+            cp_28          = item.cp_28,
+            cp_29          = item.cp_29,
+            cp_30          = item.cp_30,
+            cp_35          = item.cp_35,
+            cp_40          = item.cp_40,
+            cp_45          = item.cp_45,
+            cp_50          = item.cp_50,
+            cp_55          = item.cp_55,
+            cp_60          = item.cp_60,
+            cp_70          = item.cp_70,
+            cp_80          = item.cp_80,
+            cp_90          = item.cp_90,
+            cp_100         = item.cp_100,
+            cp_110         = item.cp_110,
+            cp_120         = item.cp_120,
+            cp_150         = item.cp_150,
+            cp_180         = item.cp_180,
+            cp_210         = item.cp_210,
+            cp_240         = item.cp_240,
+            cp_270         = item.cp_270,
+            cp_300         = item.cp_300,
+            cp_330         = item.cp_330,
+            cp_360         = item.cp_360,
+            cp_390         = item.cp_390,
+            cp_420         = item.cp_420,
+            cp_450         = item.cp_450,
+            cp_480         = item.cp_480,
+            cp_510         = item.cp_510,
+            cp_540         = item.cp_540,
+            cp_570         = item.cp_570,
+            cp_600         = item.cp_600,
+            cp_660         = item.cp_660,
+            cp_720         = item.cp_720,
+            cp_780         = item.cp_780,
+            cp_840         = item.cp_840,
+            cp_900         = item.cp_900,
+            cp_960         = item.cp_960,
+            cp_1020        = item.cp_1020,
+            cp_1080        = item.cp_1080,
+            cp_1140        = item.cp_1140,
+            cp_1200        = item.cp_1200,
+            cp_1320        = item.cp_1320,
+            cp_1440        = item.cp_1440,
+            cp_1560        = item.cp_1560,
+            cp_1680        = item.cp_1680,
+            cp_1800        = item.cp_1800,
+            cp_1920        = item.cp_1920,
+            cp_2040        = item.cp_2040,
+            cp_2160        = item.cp_2160,
+            cp_2280        = item.cp_2280,
+            cp_2400        = item.cp_2400,
+            cp_2520        = item.cp_2520,
+            cp_2640        = item.cp_2640,
+            cp_2760        = item.cp_2760,
+            cp_2880        = item.cp_2880,
+            cp_3000        = item.cp_3000,
+            cp_3120        = item.cp_3120,
+            cp_3240        = item.cp_3240,
+            cp_3360        = item.cp_3360,
+            cp_3480        = item.cp_3480,
+            cp_3600        = item.cp_3600,
+            cp_3900        = item.cp_3900,
+            cp_4200        = item.cp_4200,
+            cp_4500        = item.cp_4500,
+            cp_4800        = item.cp_4800,
+            cp_5100        = item.cp_5100,
+            cp_5400        = item.cp_5400,
+            cp_5700        = item.cp_5700,
+            cp_6000        = item.cp_6000,
+            cp_6300        = item.cp_6300,
+            cp_6600        = item.cp_6600,
+            cp_7200        = item.cp_7200,
+            cp             = item.cp,
+            awc            = item.awc,
+            inverse_const  = item.inverse_const,
+            inverse_exp    = item.inverse_exp,
+            generated      = item.generated,
+            model_applied  = item.model_applied
         )
 
     @staticmethod
@@ -594,38 +985,114 @@ class ZwiftRiderCriticalPowerItem:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
         """
         return ZwiftRiderCriticalPowerItem(
-            zwiftid=dto.zwiftid or 0,
-            name=dto.name or "",
-            cp_5_sec=dto.cp_5_sec or 0.0,
-            cp_15_sec=dto.cp_15_sec or 0.0,
-            cp_30_sec=dto.cp_30_sec or 0.0,
-            cp_1_min=dto.cp_1_min or 0.0,
-            cp_2_min=dto.cp_2_min or 0.0,
-            cp_90_sec=dto.cp_90_sec or 0.0,
-            cp_3_min=dto.cp_3_min or 0.0,
-            cp_5_min=dto.cp_5_min or 0.0,
-            cp_7_min=dto.cp_7_min or 0.0,
-            cp_10_min=dto.cp_10_min or 0.0,
-            cp_12_min=dto.cp_12_min or 0.0,
-            cp_15_min=dto.cp_15_min or 0.0,
-            cp_20_min=dto.cp_20_min or 0.0,
-            cp_30_min=dto.cp_30_min or 0.0,
-            cp_40_min=dto.cp_40_min or 0.0,
-            cp_50_min=dto.cp_50_min or 0.0,
-            cp_1_hour=dto.cp_1_hour or 0.0,
-            cp_75_min=dto.cp_75_min or 0.0,
-            cp_90_min=dto.cp_90_min or 0.0,
-            cp_2_hour=dto.cp_2_hour or 0.0,
-            cp_3_hour=dto.cp_3_hour or 0.0,
-            cp_4_hour=dto.cp_4_hour or 0.0,
-            cp=dto.cp or 0.0,
-            awc=dto.awc or 0.0,
-            inverse_const=dto.inverse_const or 0.0,
-            inverse_exp=dto.inverse_exp or 0.0,
-            generated=dto.generated or "",
+            zwiftid        = dto.zwiftid or 0,
+            name           = dto.name or "",
+            cp_1           = dto.cp_1 or 0.0,
+            cp_2           = dto.cp_2 or 0.0,
+            cp_3           = dto.cp_3 or 0.0,
+            cp_4           = dto.cp_4 or 0.0,
+            cp_5           = dto.cp_5 or 0.0,
+            cp_6           = dto.cp_6 or 0.0,
+            cp_7           = dto.cp_7 or 0.0,
+            cp_8           = dto.cp_8 or 0.0,
+            cp_9           = dto.cp_9 or 0.0,
+            cp_10          = dto.cp_10 or 0.0,
+            cp_11          = dto.cp_11 or 0.0,
+            cp_13          = dto.cp_13 or 0.0,
+            cp_14          = dto.cp_14 or 0.0,
+            cp_15          = dto.cp_15 or 0.0,
+            cp_16          = dto.cp_16 or 0.0,
+            cp_17          = dto.cp_17 or 0.0,
+            cp_18          = dto.cp_18 or 0.0,
+            cp_19          = dto.cp_19 or 0.0,
+            cp_20          = dto.cp_20 or 0.0,
+            cp_21          = dto.cp_21 or 0.0,
+            cp_22          = dto.cp_22 or 0.0,
+            cp_23          = dto.cp_23 or 0.0,
+            cp_24          = dto.cp_24 or 0.0,
+            cp_25          = dto.cp_25 or 0.0,
+            cp_26          = dto.cp_26 or 0.0,
+            cp_27          = dto.cp_27 or 0.0,
+            cp_28          = dto.cp_28 or 0.0,
+            cp_29          = dto.cp_29 or 0.0,
+            cp_30          = dto.cp_30 or 0.0,
+            cp_35          = dto.cp_35 or 0.0,
+            cp_40          = dto.cp_40 or 0.0,
+            cp_45          = dto.cp_45 or 0.0,
+            cp_50          = dto.cp_50 or 0.0,
+            cp_55          = dto.cp_55 or 0.0,
+            cp_60          = dto.cp_60 or 0.0,
+            cp_70          = dto.cp_70 or 0.0,
+            cp_80          = dto.cp_80 or 0.0,
+            cp_90          = dto.cp_90 or 0.0,
+            cp_100         = dto.cp_100 or 0.0,
+            cp_110         = dto.cp_110 or 0.0,
+            cp_120         = dto.cp_120 or 0.0,
+            cp_150         = dto.cp_150 or 0.0,
+            cp_180         = dto.cp_180 or 0.0,
+            cp_210         = dto.cp_210 or 0.0,
+            cp_240         = dto.cp_240 or 0.0,
+            cp_270         = dto.cp_270 or 0.0,
+            cp_300         = dto.cp_300 or 0.0,
+            cp_330         = dto.cp_330 or 0.0,
+            cp_360         = dto.cp_360 or 0.0,
+            cp_390         = dto.cp_390 or 0.0,
+            cp_420         = dto.cp_420 or 0.0,
+            cp_450         = dto.cp_450 or 0.0,
+            cp_480         = dto.cp_480 or 0.0,
+            cp_510         = dto.cp_510 or 0.0,
+            cp_540         = dto.cp_540 or 0.0,
+            cp_570         = dto.cp_570 or 0.0,
+            cp_600         = dto.cp_600 or 0.0,
+            cp_660         = dto.cp_660 or 0.0,
+            cp_720         = dto.cp_720 or 0.0,
+            cp_780         = dto.cp_780 or 0.0,
+            cp_840         = dto.cp_840 or 0.0,
+            cp_900         = dto.cp_900 or 0.0,
+            cp_960         = dto.cp_960 or 0.0,
+            cp_1020        = dto.cp_1020 or 0.0,
+            cp_1080        = dto.cp_1080 or 0.0,
+            cp_1140        = dto.cp_1140 or 0.0,
+            cp_1200        = dto.cp_1200 or 0.0,
+            cp_1320        = dto.cp_1320 or 0.0,
+            cp_1440        = dto.cp_1440 or 0.0,
+            cp_1560        = dto.cp_1560 or 0.0,
+            cp_1680        = dto.cp_1680 or 0.0,
+            cp_1800        = dto.cp_1800 or 0.0,
+            cp_1920        = dto.cp_1920 or 0.0,
+            cp_2040        = dto.cp_2040 or 0.0,
+            cp_2160        = dto.cp_2160 or 0.0,
+            cp_2280        = dto.cp_2280 or 0.0,
+            cp_2400        = dto.cp_2400 or 0.0,
+            cp_2520        = dto.cp_2520 or 0.0,
+            cp_2640        = dto.cp_2640 or 0.0,
+            cp_2760        = dto.cp_2760 or 0.0,
+            cp_2880        = dto.cp_2880 or 0.0,
+            cp_3000        = dto.cp_3000 or 0.0,
+            cp_3120        = dto.cp_3120 or 0.0,
+            cp_3240        = dto.cp_3240 or 0.0,
+            cp_3360        = dto.cp_3360 or 0.0,
+            cp_3480        = dto.cp_3480 or 0.0,
+            cp_3600        = dto.cp_3600 or 0.0,
+            cp_3900        = dto.cp_3900 or 0.0,
+            cp_4200        = dto.cp_4200 or 0.0,
+            cp_4500        = dto.cp_4500 or 0.0,
+            cp_4800        = dto.cp_4800 or 0.0,
+            cp_5100        = dto.cp_5100 or 0.0,
+            cp_5400        = dto.cp_5400 or 0.0,
+            cp_5700        = dto.cp_5700 or 0.0,
+            cp_6000        = dto.cp_6000 or 0.0,
+            cp_6300        = dto.cp_6300 or 0.0,
+            cp_6600        = dto.cp_6600 or 0.0,
+            cp_7200        = dto.cp_7200 or 0.0,
+            cp             = dto.cp or 0.0,
+            awc            = dto.awc or 0.0,
+            inverse_const  = dto.inverse_const or 0.0,
+            inverse_exp    = dto.inverse_exp or 0.0,
+            generated      = dto.generated or "",
+            model_applied  = dto.model_applied or "inverse"  # Inverse Exponential model "inverse" or Critical Power Model "cp"
         )
 
-  
     @staticmethod
     def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftRiderCriticalPowerItem":
         """
@@ -638,21 +1105,45 @@ class ZwiftRiderCriticalPowerItem:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
         """
         return ZwiftRiderCriticalPowerItem(
-            zwiftid=int(dto.riderId) if dto.riderId else 0,
-            name=dto.name or "",
-            cp_5_sec=dto.power.w5 if dto.power and dto.power.w5 else 0.0,
-            cp_15_sec=dto.power.w15 if dto.power and dto.power.w15 else 0.0,
-            cp_30_sec=dto.power.w30 if dto.power and dto.power.w30 else 0.0,
-            cp_1_min=dto.power.w60 if dto.power and dto.power.w60 else 0.0,
-            cp_2_min=dto.power.w120 if dto.power and dto.power.w120 else 0.0,
-            cp_5_min=dto.power.w300 if dto.power and dto.power.w300 else 0.0,
-            cp_20_min=dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            cp=dto.power.CP if dto.power and dto.power.CP else 0.0,
-            awc=dto.power.AWC if dto.power and dto.power.AWC else 0.0
+            zwiftid   = int(dto.riderId) if dto.riderId else 0,
+            name      = dto.name or "",
+            cp_5      = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
+            cp_15     = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
+            cp_30     = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
+            cp_60     = dto.power.w60 if dto.power and dto.power.w60 else 0.0,
+            cp_120    = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
+            cp_300    = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
+            cp_1200   = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
+            cp        = dto.power.CP if dto.power and dto.power.CP else 0.0,
+            awc       = dto.power.AWC if dto.power and dto.power.AWC else 0.0
         )
 
+    @staticmethod
+    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPowerCpGraphDTO) -> "ZwiftRiderCriticalPowerItem":
+        """
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCpGraphDTO.
 
-@dataclass
+        Args:
+            dto (ZwiftPowerCpGraphDTO): The data transfer object to convert.
+
+        Returns:
+            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+        """
+        # Extract efforts from the "90days" key, if available
+        efforts_90days = dto.efforts.get("90days", []) if dto.efforts else []
+
+        # Map efforts to a dictionary of time (x) to power (y)
+        cp_data = {effort.x: float(effort.y) for effort in efforts_90days if effort.x and effort.y}
+
+        # Create an instance of ZwiftRiderCriticalPowerItem
+        critical_power_item = ZwiftRiderCriticalPowerItem()
+
+        critical_power_item.import_cp_data(cp_data)
+
+        return critical_power_item
+
+
+@dataclass(frozen=True, eq=True) 
 class RiderTeamItem:
     """
     """
@@ -668,11 +1159,11 @@ class RiderTeamItem:
         team = RiderTeamItem(riders_working=riders, riders_resting=[])
         return team
 
-    def sort_riders() -> None:
+    def sort_riders(self) -> None:
         riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
         riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-    def demote_rider_from_working_to_resting(rider: ZwiftRiderItem) -> None:
+    def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
         riders_resting.append(rider)
         riders_working.remove(rider)
         sort_riders()
@@ -698,6 +1189,7 @@ class RiderExertionItem:
     wattage: float = 0
     kilojoules: float = 0
 
+
 @dataclass
 class RiderAnswerItem():
     cp                    : float = 0
@@ -713,6 +1205,7 @@ class RiderAnswerItem():
     p__w                  : float = 0
     ftp_intensity_factor  : float = 0
     cp_intensity_factor   : float = 0
+
     
 @dataclass
 class RiderAnswerDisplayObject():
@@ -733,6 +1226,7 @@ class RiderAnswerDisplayObject():
     p1_4                  : str   = ""
     ftp_intensity_factor  : float = 0
     cp_intensity_factor   : float = 0
+
     
 @dataclass(frozen=True, eq=True)
 class RiderAggregateEffortItem:
@@ -745,6 +1239,7 @@ class RiderAggregateEffortItem:
     position_at_peak_wattage: int = 0
     total_kilojoules_at_weighted_watts: float = 0
     total_kilojoules_at_normalized_watts: float = 0
+
 
 @dataclass(frozen=True, eq=True) # immutable and hashable
 class RiderStressItem():

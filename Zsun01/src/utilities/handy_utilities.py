@@ -3,11 +3,13 @@ from jgh_read_write import read_text
 from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
+from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
 import os
 from zwiftracing_app_post_dto import ZwiftRacingAppPostDTO
 
 # Module-level constants
+
 RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
 CPDATA_FILE_NAME = "betel_cp_data.json"
 ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -19,7 +21,6 @@ INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
 OUTPUT_FILE_NAME = "betel_cp_data.json"
-OUTPUT_DIR_PATH = ZSUN01_PROJECT_DATA_DIRPATH
 
 
 def read_dict_of_zwiftriders(
@@ -72,11 +73,7 @@ def read_dict_of_cpdata(
     }
 
 
-def write_dict_of_cpdata(
-    data: Dict[str, ZwiftRiderCriticalPowerItem],
-    file_name: Optional[str] = OUTPUT_FILE_NAME,
-    dir_path: Optional[str] = OUTPUT_DIR_PATH
-) -> None:
+def write_dict_of_cpdata(data: Dict[str, ZwiftRiderCriticalPowerItem], file_name: str, dir_path: str) -> None:
     """
     Serialize a dictionary of ZwiftRiderCriticalPowerItem instances and write it to a JSON file.
 
@@ -110,6 +107,8 @@ def read_all_zwiftracerapp_files_in_folder(
     result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
     for file_name in os.listdir(dir_path):
+        if not dir_path or not file_name:
+            raise ValueError("Both 'dir_path' and 'file_name' must be valid non-empty strings.")
         file_path = os.path.join(dir_path, file_name)
 
         if os.path.isfile(file_path):
@@ -124,14 +123,54 @@ def read_all_zwiftracerapp_files_in_folder(
 
     return dict(sorted(result.items(), key=lambda item: int(item[0])))
 
-#illustration of the function
+
+def read_all_zwiftpower_cp_graph_files_in_folder(betel_IDs: list[str], dir_path: str) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+    """
+    Retrieve all ZwiftPower data from JSON files in a directory and convert them
+    to ZwiftRiderCriticalPowerItem instances.
+
+    Args:
+        dir_path (Optional[str]): The directory path where the files are located.
+
+    Returns:
+        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary of ZwiftRiderCriticalPowerItem instances.
+    """
+    result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
+
+    for file_name in os.listdir(dir_path):
+        if not dir_path or not file_name:
+            raise ValueError("Both 'dir_path' and 'file_name' must be valid non-empty strings.")
+        #if filename not in betel_IDs: skip
+        if not file_name.endswith(".json"):
+            continue
+        if file_name[:-5] not in betel_IDs: # Remove the ".json" extension
+            continue
+
+        file_path = os.path.join(dir_path, file_name)
+
+        if os.path.isfile(file_path):
+            inputjson = read_text(dir_path, file_name)
+            cp_graph_dto = JghSerialization.validate(inputjson, ZwiftPowerCpGraphDTO)
+            cp_graph_dto = cast(ZwiftPowerCpGraphDTO, cp_graph_dto)
+
+            if file_name[:-5]:
+                result[file_name[:-5]] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(
+                    cp_graph_dto
+                )
+
+    return dict(sorted(result.items(), key=lambda item: int(item[0])))
+
+
 def main():
+
+
     betel_IDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1884456", "1024413", "991817", "1713736", "2398312", "2508033"  "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
 
     # Example usage
 
 
     zsun_cp_dict = read_all_zwiftracerapp_files_in_folder(INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+
     jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     zsun_raw_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in betel_IDs}

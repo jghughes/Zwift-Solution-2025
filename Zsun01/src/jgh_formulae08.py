@@ -140,11 +140,11 @@ def main() -> None:
         # [42.5, 42.5, 42.5, 42.5],
         # [45.0, 45.0, 45.0, 45.0]
     ]
-    pull_durations_sec = [120.0, 30.0, 30.0, 30.0]
+    pull_durations = [120.0, 30.0, 30.0, 30.0]
     riders : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
 
     for i, pull_speed in enumerate(pull_speeds_kph):
-        work_assignments = populate_rider_work_assignments(riders, pull_durations_sec, pull_speed)
+        work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speed)
         rider_exertions = populate_rider_exertions(work_assignments)
         rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_exertions)
         rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
@@ -153,7 +153,7 @@ def main() -> None:
         average_speed = next(iter(rider_aggregate_efforts.values())).average_speed #careful. formula only valid when speed is constant, as it is in this case
         total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
 
-        table_heading= f"\nPull durations={pull_durations_sec}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
+        table_heading= f"\nPull durations={pull_durations}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
         log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
 
         log_rider_stress_metrics(f"", rider_stress_metrics, logger)

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Union
 
 
 class ZwiftPowerCpGraphDTO(BaseModel):
@@ -38,11 +38,11 @@ class ZwiftPowerCpGraphDTO(BaseModel):
 
         Attributes:
             name (str): The name of the effort (e.g., "Last 30 days").
-            effort_id (str): The identifier for the effort (e.g., "30days").
+            effort_id (Union[str, int]): The identifier for the effort (e.g., "30days"), or the int ID of the event.
             hide (bool): Whether the effort is hidden.
         """
         name:      Optional[str] = ""
-        effort_id: Optional[str] = ""
+        effort_id: Optional[Union[str,int]] = ""
         hide:      Optional[bool] = False
 
     class EffortItemDTO(BaseModel):

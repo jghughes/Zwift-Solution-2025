@@ -2,7 +2,7 @@ from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
 from zwiftrider_related_items import ZwiftRiderItem, RiderWorkAssignmentItem, RiderExertionItem, ZwiftRiderCriticalPowerItem
 
-def translate_efforts_to_wattages_per_second_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
+def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
     """
     Generate rider power datapoints for one hour.
 
@@ -48,15 +48,15 @@ def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_exert
     Returns:
         Dict[int, float]: CriticalPower curve data for the rider where int is the number of seconds of the timespan and float is the wattage.
     """
-    wattage_datapoints = translate_efforts_to_wattages_per_second_for_one_hour(rider_exertions[rider])
+    wattage_datapoints = translate_efforts_to_wattages_perond_for_one_hour(rider_exertions[rider])
 
-    powercurve_datapoints = distill_cp_metrics_from_wattages_per_second(wattage_datapoints, cp_test_duration_specs)
+    powercurve_datapoints = distill_cp_metrics_from_wattages_perond(wattage_datapoints, cp_test_duration_specs)
 
     # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
     critical_power_curve = CriticalPowerCurveItem(
-        cp_5_sec=powercurve_datapoints.get(5, 0.0),
-        cp_15_sec=powercurve_datapoints.get(15, 0.0),
-        cp_30_sec=powercurve_datapoints.get(30, 0.0),
+        cp_5=powercurve_datapoints.get(5, 0.0),
+        cp_15=powercurve_datapoints.get(15, 0.0),
+        cp_30=powercurve_datapoints.get(30, 0.0),
         cp_1_min=powercurve_datapoints.get(60, 0.0),
         cp_2_min=powercurve_datapoints.get(120, 0.0),
         cp_3_min=powercurve_datapoints.get(180, 0.0),
@@ -101,13 +101,13 @@ def main() -> None:
         # [42.5, 42.5, 42.5, 42.5],
         # [45.0, 45.0, 45.0, 45.0]
     ]
-    pull_durations_sec = [120.0, 90.0, 60.0, 30.0]
+    pull_durations = [120.0, 90.0, 60.0, 30.0]
     riders : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
 
     cp_test_duration_specs: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
 
     for i, pull_speed_scenario in enumerate(pull_speeds_kph):
-        work_assignments : Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]] = populate_rider_work_assignments(riders, pull_durations_sec, pull_speed_scenario)
+        work_assignments : Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]] = populate_rider_work_assignments(riders, pull_durations, pull_speed_scenario)
 
         #log work assignments for riders
         # for rider in riders:
@@ -126,7 +126,7 @@ def main() -> None:
         # Generate dict of riders with rider power datapoints for one hour
         wattage_datapoints : Dict[ZwiftRiderItem, List[Tuple[int, float]]] = {}
         for rider in riders:
-            wattage_datapoints[rider] = translate_efforts_to_wattages_per_second_for_one_hour(rider_exertions[rider])
+            wattage_datapoints[rider] = translate_efforts_to_wattages_perond_for_one_hour(rider_exertions[rider])
             # #log the rider power datapoints for the first 30 datapoints for each rider
             # logger.info(f"\n{rider.name}")
             # for datapoint in wattage_datapoints[rider][:30]:
@@ -156,7 +156,7 @@ def main() -> None:
         # average_speed = next(iter(rider_aggregate_efforts.values())).average_speed #  #careful. formula below only valid when speed is constant, as it is in this case
         # total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
 
-        # table_heading= f"\nPull durations={pull_durations_sec}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
+        # table_heading= f"\nPull durations={pull_durations}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
         # log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
 
         # log_rider_stress_metrics(f"", rider_stress_metrics, logger)
