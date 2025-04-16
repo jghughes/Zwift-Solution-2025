@@ -63,11 +63,11 @@ def main():
         rider_cp_data.inverse_const = constant
         rider_cp_data.inverse_exp = exponent
 
-        # Determine the preferred model
-        if rider_id == '2508033':  # Example: JoshN prefers the CP model
-            model_applied = "cp"
-        else:
-            model_applied = "inverse"
+        # # Determine the preferred model
+        # if rider_id == '2508033':  # Example: JoshN prefers the CP model
+        #     model_applied = "cp"
+        # else:
+        model_applied = "inverse"
 
         rider_cp_data.model_applied = model_applied
 

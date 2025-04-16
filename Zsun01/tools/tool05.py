@@ -60,10 +60,15 @@ def main():
     richardm ='1193'
     markb ='5530045'
     davek="3147366"
+    husky="5134"
+    scottm="11526"
+    timr= "5421258"
 
     # choose a rider to model
 
-    rider_id = johnh
+    rider_id = markb
+
+
 
     # extract raw data for modelling
 
@@ -88,7 +93,7 @@ def main():
         )
     ]
     headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
-    logger.info("\nComparison of Predicted Values:")
+    logger.info(f"\nComparison of Predicted Values: {riders[rider_id].name}")
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
     # Define xdata for predictions
@@ -106,7 +111,7 @@ def main():
     ]
     headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
 
-    logger.info("\nPredicted Values for Specified xdata:")
+    logger.info(f"\nPredicted Values for Specified xdata: {riders[rider_id].name}")
     logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
     logger.info("\nModelling completed. Thank you.\n")
 

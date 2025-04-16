@@ -1,3 +1,4 @@
+from math import log
 from handy_utilities import write_dict_of_cpdata, read_all_zwiftpower_cp_graph_files_in_folder, read_dict_of_zwiftriders
 
 
@@ -64,6 +65,17 @@ def main():
             logger.warning(f"Rider ID {rider_id} not found in zwiftriders data.")
 
     write_dict_of_cpdata(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+
+    from tabulate import tabulate
+
+    # log all the x and y data for all riders in pretty tables
+
+    for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
+        cp_data = rider_cp_data.export_cp_data()  # Export critical power data as a dictionary
+        table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
+        table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
+
+        logger.info(f"Critical Power Data for Rider ID: {rider_id}  Rider Name: {rider_cp_data.name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
 
 if __name__ == "__main__":
     main()
