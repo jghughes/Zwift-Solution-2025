@@ -49,7 +49,7 @@ def main():
     # Process each rider in the riders_cp_data dictionary
     for rider_id, rider_cp_data in riders_cp_data.items():
         # Export raw CP data for best fitting
-        raw_xy_data = rider_cp_data.export_cp_data_for_best_fitting()
+        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
 
         # Perform CP-W' model fitting
         cp, awc, r_squared, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)

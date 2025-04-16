@@ -45,7 +45,10 @@ def main():
 
     from handy_utilities import read_dict_of_zwiftriders
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
+    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh

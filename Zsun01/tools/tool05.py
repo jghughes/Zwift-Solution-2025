@@ -47,9 +47,17 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    # get zwift 90-day rider data
+    # get rider profiles
 
-    riders = read_dict_of_zwiftriders()
+    from handy_utilities import read_dict_of_zwiftriders
+
+    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+
+    # get rider CP data
+
     riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV2.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
     # riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
@@ -128,7 +136,7 @@ def main():
     plt.plot(xdata, ydata_pred2, color='green', label=summary2)
     plt.xlabel('Duration (s)')
     plt.ylabel('Power (W)')
-    plt.title(f'{riders[rider_id].name}')
+    plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')
     plt.xticks(xdata)  
     plt.legend()
     plt.show()

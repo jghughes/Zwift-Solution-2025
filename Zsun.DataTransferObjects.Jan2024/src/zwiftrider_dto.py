@@ -34,12 +34,12 @@ serialization_alias_map: dict[str, str] = {
 # that mean the same thing.
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwiftid": AliasChoices("zwiftid"),
-    "name": AliasChoices("name"),
+    "zwiftid": AliasChoices("zwiftid", "zwift_id"),
+    "name": AliasChoices("name", "zwift_name"),
     "weight": AliasChoices("weight"),
     "height": AliasChoices("height"),
     "gender": AliasChoices("gender"),
-    "ftp": AliasChoices("ftp"),
+    "ftp": AliasChoices("ftp", "zftp"),
     "zwift_racing_score": AliasChoices("zwift_racing_score"),
     "velo_rating": AliasChoices("velo_rating"),
 }

@@ -1,4 +1,4 @@
-from handy_utilities import read_dict_of_zwiftriders, read_all_zwiftracerapp_files_in_folder
+from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftracing_files_in_folder
 from zwiftrider_related_items import ZwiftRiderItem
 
 import logging
@@ -55,8 +55,16 @@ def main():
     betel_IDs = ["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "1884456", "991817", "1713736", "2398312", "2508033", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"]
 
     # do work
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
-    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder(INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+
+    from handy_utilities import read_dict_of_zwiftriders
+
+    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+
+
+    zsun_cp_dict = read_many_zwiftracing_files_in_folder([], INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     # Separate Betel IDs into found and not found lists
     betel_found = []

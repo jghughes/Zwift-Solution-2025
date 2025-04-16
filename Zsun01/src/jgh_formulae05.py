@@ -38,7 +38,6 @@ def main() -> None:
     logger = logging.getLogger(__name__)
 
     from jgh_formulae04 import populate_rider_work_assignments
-    from handy_utilities import read_dict_of_zwiftriders
 
     def log_results_exertions(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
         from tabulate import tabulate
@@ -65,7 +64,12 @@ def main() -> None:
         ]
         logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders()
+    from handy_utilities import read_dict_of_zwiftriders
+
+    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb

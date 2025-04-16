@@ -1,4 +1,4 @@
-from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata, read_all_zwiftracerapp_files_in_folder
+from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata, read_many_zwiftracing_files_in_folder
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -57,15 +57,13 @@ def main():
 
     # do work
 
-    zsun_cp_dict = read_all_zwiftracerapp_files_in_folder(INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
-
-    raw_cp_dict_for_betel = {key: value for key, value in zsun_cp_dict.items() if key in betel_IDs}
+    betel_cp_dict = read_many_zwiftracing_files_in_folder(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     # Overwrite/add the items in raw_cp_dict_for_betel with all the items in jgh_cp_dict
 
-    raw_cp_dict_for_betel.update(jgh_cp_dict)
+    betel_cp_dict.update(jgh_cp_dict)
 
     # function to make prttty names 
 
@@ -105,15 +103,15 @@ def main():
 
     # Clean up names in each ZwiftRiderCriticalPowerItem
 
-    for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
+    for rider_id, rider_cp_data in betel_cp_dict.items():
         # Clean up the name
         rider_cp_data.name = clean_name(rider_cp_data.name)
         # Update the rider's name in the dictionary
-        raw_cp_dict_for_betel[rider_id] = rider_cp_data
+        betel_cp_dict[rider_id] = rider_cp_data
 
     # Write the cleaned-up data to a file
 
-    write_dict_of_cpdata(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_cpdata(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
     main()

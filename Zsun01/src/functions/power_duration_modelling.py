@@ -187,5 +187,6 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
 # Example usage of the functions
 def main():
     pass
+
 if __name__ == "__main__":
     main()

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from dataclasses import dataclass, field, asdict
 from zwiftrider_dto import ZwiftRiderDTO 
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
-from zwiftracing_app_post_dto import ZwiftRacingAppPostDTO
+from zwiftracing_dto import ZwiftRacingAppPostDTO
 from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
@@ -1143,35 +1143,35 @@ class ZwiftRiderCriticalPowerItem:
         return critical_power_item
 
 
-@dataclass(frozen=True, eq=True) 
-class RiderTeamItem:
-    """
-    """
-    riders_working: list[ZwiftRiderItem] = field(default_factory=list)
-    riders_resting: list[ZwiftRiderItem] = field(default_factory=list)
+# @dataclass(frozen=True, eq=True) 
+# class RiderTeamItem:
+#     """
+#     """
+#     riders_working: list[ZwiftRiderItem] = field(default_factory=list)
+#     riders_resting: list[ZwiftRiderItem] = field(default_factory=list)
 
-    @staticmethod
-    def create(riders: list[ZwiftRiderItem]) -> "RiderTeamItem":
-        riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
-        # assign rank to rank attr sarting with 1
-        for i, rider in enumerate(riders):
-            rider.rank = i + 1
-        team = RiderTeamItem(riders_working=riders, riders_resting=[])
-        return team
+#     @staticmethod
+#     def create(riders: list[ZwiftRiderItem]) -> "RiderTeamItem":
+#         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
+#         # assign rank to rank attr sarting with 1
+#         for i, rider in enumerate(riders):
+#             rider.rank = i + 1
+#         team = RiderTeamItem(riders_working=riders, riders_resting=[])
+#         return team
 
-    def sort_riders(self) -> None:
-        riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
-        riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
+#     def sort_riders(self) -> None:
+#         riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
+#         riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-    def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
-        riders_resting.append(rider)
-        riders_working.remove(rider)
-        sort_riders()
+#     def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
+#         riders_resting.append(rider)
+#         riders_working.remove(rider)
+#         sort_riders()
 
-    def promote_rider_from_resting_to_working(self, rider: ZwiftRiderItem) -> None:
-        riders_working.append(rider)
-        riders_resting.remove(rider)
-        sort_riders()
+#     def promote_rider_from_resting_to_working(self, rider: ZwiftRiderItem) -> None:
+#         riders_working.append(rider)
+#         riders_resting.remove(rider)
+#         sort_riders()
 
 
 @dataclass(frozen=True, eq=True) 
