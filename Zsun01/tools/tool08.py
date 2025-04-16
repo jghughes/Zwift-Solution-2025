@@ -1,5 +1,6 @@
 from math import log
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder, read_dict_of_zwiftriders
+from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
+from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 
 
 # Module-level constants
@@ -46,43 +47,46 @@ def main():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     
-    betel_IDs = ["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "1884456", "991817", "1713736", "2398312", "2508033", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"]
-
     # do work
 
-    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_betel = read_many_zwiftpower_cp_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_the_world = read_many_zwiftpower_cp_graph_files_in_folder([], INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 
-    from handy_utilities import read_dict_of_zwiftriders
+    for rider_id, rider_cp_data in raw_cp_dict_for_the_world.items():
 
-    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
-    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
-
-    for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
         rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank
-        if rider_id in dict_of_zwiftrideritem:
-            rider_cp_data.name = dict_of_zwiftrideritem[rider_id].name
-        else:
-            logger.warning(f"Rider ID {rider_id} not found in zwiftriders data.")
+        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
 
-    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV2.json"
-    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+        # do modelling
 
-    write_dict_of_cpdata(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+        cp, awc, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
+        summary = f"Critical power model: CP={round(cp)}W  AWC={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
+        logger.info(f"/n{summary}")
 
-    from tabulate import tabulate
+        constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+        summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
+        logger.info(f"/n{summary2}")
 
-    # log all the x and y data for all riders in pretty tables
 
-    for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
-        cp_data = rider_cp_data.export_cp_data()  # Export critical power data as a dictionary
-        table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
-        table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
+        rider_cp_data.model_applied = "cp" if r_squared > r_squared2 else "inverse"
+        logger.info(f"Model applied: {rider_cp_data.model_applied}")
 
-        logger.info(f"Critical Power Data for Rider ID: {rider_id}  Rider Name: {rider_cp_data.name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
+    # OUTPUT_FILE_NAME = "rubbish_v1.json"
+    # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+
+    # write_dict_of_cpdata(raw_cp_dict_for_the_world, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+
+    # from tabulate import tabulate
+
+    # # log all the x and y data for all riders in pretty tables
+
+    # for rider_id, rider_cp_data in raw_cp_dict_for_the_world.items():
+    #     cp_data = rider_cp_data.export_cp_data()  # Export critical power data as a dictionary
+    #     table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
+    #     table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
+
+    #     logger.info(f"Critical Power Data for Rider ID: {rider_id}  Rider Name: {rider_cp_data.name}/n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
 
 if __name__ == "__main__":
     main()

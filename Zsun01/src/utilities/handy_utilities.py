@@ -1,3 +1,4 @@
+import os
 from typing import Dict, cast, Optional
 from jgh_read_write import read_text
 from jgh_serialization import JghSerialization
@@ -5,8 +6,14 @@ from zwiftrider_dto import ZwiftRiderDTO
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
 from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
-import os
 from zwiftracing_dto import ZwiftRacingAppPostDTO
+
+import logging
+from jgh_logging import jgh_configure_logging
+jgh_configure_logging("appsettings.json")
+logger = logging.getLogger(__name__)
+logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
 
 def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
     """
@@ -136,6 +143,8 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: list[str], dir_path: 
 
         # go ahead and process the file
 
+        logger.debug(f"Processing file: {file_name}")
+
         file_path = os.path.join(dir_path, file_name)
 
         if os.path.isfile(file_path):
@@ -148,7 +157,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: list[str], dir_path: 
 
     return dict(sorted(result.items(), key=lambda item: int(item[0])))
 
-def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: list[str], dir_path: str) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Retrieve many individual ZwiftPower cp_power_graph JSON files in a directory and convert them
     to a dict of ZwiftRiderCriticalPowerItem instances. If riderIDs is None, all files are processed.
@@ -156,24 +165,50 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: list[str], dir_path:
     of the dict is zwiftID. The data transfer object is ZwiftPowerCpGraphDTO.
 
     Args:
+        riderIDs (Optional[list[str]]): List of rider IDs to filter, or None to process all files.
         dir_path (str): The directory path where the files are located.
 
     Returns:
         Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary of ZwiftRiderCriticalPowerItem instances.
     """
+    # Raise an error if dir_path parameter is not minimally satisfactory
+
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+
+    # Raise an error if the directory does not exist
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+
     result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
-    for file_name in os.listdir(dir_path):
-        if not dir_path or not file_name:
-            raise ValueError("Both 'dir_path' and 'file_name' must be valid non-empty strings.")
+    for entry in os.listdir(dir_path):
 
-        # if riderIDs is none, go ahead and download all files. Otherwise, skip files that are not in riderIDs
+        #log file name
+        logger.debug(f"Processing file: {entry}")
 
-        if riderIDs and (not file_name.endswith(".json") or file_name[:-5] not in riderIDs):
+
+
+
+        # Check if the entry is a valid JSON file. if not skip it.
+        if not entry.endswith(".json"):
             continue
 
-        # go ahead and process the file
+        file_name = entry
 
+        # Skip the file if riderIDs is provided but is empty
+        if riderIDs is not None and not riderIDs:
+            continue
+
+        # Skip the file if riderIDs is provided and the file name (without .json) is not in riderIDs
+        if riderIDs and file_name[:-5] not in riderIDs:
+            continue
+
+    
+        # Process the file
         file_path = os.path.join(dir_path, file_name)
 
         if os.path.isfile(file_path):
@@ -185,7 +220,6 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: list[str], dir_path:
                 result[file_name[:-5]] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(dto)
 
     return dict(sorted(result.items(), key=lambda item: int(item[0])))
-
 
 def main():
 
@@ -204,6 +238,22 @@ def main():
 
     write_dict_of_cpdata(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
+def main02():
+    # configure logging
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    betel_IDs = ["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "1884456", "991817", "1713736", "2398312", "2508033", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"]
+
+    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    raw_cp_dict_for_the_world = read_many_zwiftpower_cp_graph_files_in_folder(None, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+
+    # logger.info(f"raw_cp_dict_for_the_world={raw_cp_dict_for_the_world}")
 
 if __name__ == "__main__":
-    main()
+    main02()

@@ -101,7 +101,7 @@ def main():
         )
     ]
     headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
-    logger.info(f"\nComparison of Predicted Values: {riders[rider_id].name}")
+    logger.info(f"\nComparison of Predicted Values: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
     # Define xdata for predictions
@@ -119,7 +119,7 @@ def main():
     ]
     headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
 
-    logger.info(f"\nPredicted Values for Specified xdata: {riders[rider_id].name}")
+    logger.info(f"\nPredicted Values for Specified xdata: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
     logger.info("\nModelling completed. Thank you.\n")
 

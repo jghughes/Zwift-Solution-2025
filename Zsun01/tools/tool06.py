@@ -44,13 +44,7 @@ def main():
     logging.getLogger('matplotlib').setLevel(logging.WARNING)  # interesting messages, but not a deluge of INFO
 
     # Module-level constants
-    INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
-    INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
-
-    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel.json"
-    OUTPUT_DIR_PATH = INPUT_CP_DATA_DIRPATH
 
     betel_IDs = ["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "1884456", "991817", "1713736", "2398312", "2508033", "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"]
 
