@@ -60,9 +60,9 @@ class ZwiftPowerCpGraphDTO(BaseModel):
         date: Optional[int] = 0
         zid:  Optional[str] = ""
 
-    info:                          Optional[List[InfoItemDTO]] = Field(default_factory=list)
-    efforts:                       Optional[Dict[str, List[EffortItemDTO]]] = Field(default_factory=dict)
-    events:                        Optional[Dict[str, Any]] = Field(default_factory=dict)
+    info:                          Optional[Union[List[InfoItemDTO], Any]] = Field(default_factory=list)
+    efforts:                       Optional[Union[Dict[str, List[EffortItemDTO]],Any]] = Field(default_factory=dict)
+    events:                        Optional[Union[Dict[str, Any],Any]] = Field(default_factory=dict)
     zwiftpower_watts_last_updated: Optional[str] = ""
 
     model_config = ConfigDict(

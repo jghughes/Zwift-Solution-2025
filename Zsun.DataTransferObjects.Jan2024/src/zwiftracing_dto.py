@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional, Union, Any
 
 
 class ZwiftRacingAppPostDTO(BaseModel):
@@ -40,7 +40,7 @@ class ZwiftRacingAppPostDTO(BaseModel):
     weight:     Optional[float] = 0.0  # Weight of the rider in kilograms
     zpCategory: Optional[str]   = ""   # ZwiftPower category
     zpFTP:      Optional[float] = 0.0  # ZwiftPower FTP (Functional Threshold Power)
-    power: Optional[PowerDTO] = None  # Power data of the rider
+    power:      Optional[Union[PowerDTO, Any]] = Field(default_factory=PowerDTO)  # Power data of the rider
 
     model_config = ConfigDict(
         alias_generator=None,      # No alias generator for this DTO
