@@ -102,8 +102,8 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
             zrs_cat               = calculate_zwift_zrs_cat(rider),
             zwiftftp_cat          = calculate_zwift_ftp_cat(rider),
             velo_cat              = make_pretty_velo_cat(rider),
-            zwift_cp              = round(item.cp),
-            zwift_w_prime         = round(item.awc),
+            zwift_cp              = round(item.critical_power),
+            zwift_w_prime         = round(item.anaerobic_work_capacity),
             ftp                   = round(rider.ftp),
             ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight),1),
             speed_kph             = round(item.speed_kph, 1),
@@ -161,7 +161,7 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftR
         "P1-4", 
         "ftp(%)", 
         "IF(ftp)", 
-        "IF(cp)",
+        "IF(critical_power)",
         "CP", 
         "W'" 
     ]

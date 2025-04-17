@@ -177,12 +177,12 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-
-# Extend the ZwiftRiderCriticalPowerDTO class
 class ZwiftRiderCriticalPowerDTO(BaseModel):
     """
-    A data transfer object representing a Zwift rider's critical power data.
+    A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
     """
+    model_config = preferred_config_dict
+
     zwiftid: Optional[int] = 0
     name: Optional[str] = ""
     cp_1: Optional[float] = 0.0
@@ -283,11 +283,10 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     cp_6300: Optional[float] = 0.0
     cp_6600: Optional[float] = 0.0
     cp_7200: Optional[float] = 0.0
-    cp         : Optional[float] = 0.0
-    awc        : Optional[float] = 0.0
-    inverse_const: Optional[float] = 0.0
-    inverse_exp  : Optional[float] = 0.0
-    model_applied: Optional[str] = ""
-    generated    : Optional[str] = ""
+    critical_power          : Optional[float] = 0.0
+    anaerobic_work_capacity : Optional[float] = 0.0
+    inverse_coefficient     : Optional[float] = 0.0
+    inverse_exponent        : Optional[float] = 0.0
+    model_applied           : Optional[str] = ""
+    generated               : Optional[str] = ""
 
-    model_config = preferred_config_dict

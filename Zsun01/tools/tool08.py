@@ -1,4 +1,3 @@
-from math import log
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
 from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 
@@ -8,36 +7,6 @@ from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelli
 
 
 def main():
-    """
-    Main function to process ZwiftPower critical power data for a predefined list of riders (Betel IDs).
-
-    This function performs the following tasks:
-    1. Configures logging for the application.
-    2. Reads critical power data from ZwiftPower JSON files in a specified directory.
-    3. Reads Zwift rider data from a predefined JSON file.
-    4. Updates the critical power data with rider names and ensures `zwiftid` is an integer.
-    5. Logs warnings for any rider IDs in the critical power data that are not found in the rider data.
-    6. Writes the processed critical power data to a JSON file in the specified output directory.
-
-    Module-level constants:
-        - `INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH`: Directory path for ZwiftPower critical power data files.
-        - `OUTPUT_FILE_NAME`: Name of the output JSON file.
-        - `OUTPUT_DIR_PATH`: Directory path for the output JSON file.
-        - `betel_IDs`: List of rider IDs to process.
-
-    Dependencies:
-        - `read_many_zwiftpower_cp_graph_files_in_folder`: Reads ZwiftPower critical power data files.
-        - `read_dict_of_zwiftriders`: Reads Zwift rider data.
-        - `write_dict_of_cpdata`: Writes processed critical power data to a JSON file.
-        - `jgh_configure_logging`: Configures logging for the application.
-
-    Raises:
-        - Logs warnings for missing rider IDs in the Zwift rider data.
-
-    Returns:
-        None
-    """
-
     # configure logging
 
     import logging
@@ -51,37 +20,76 @@ def main():
 
     INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_the_world = read_many_zwiftpower_cp_graph_files_in_folder([], INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_everybody_in_the_club = read_many_zwiftpower_cp_graph_files_in_folder(None, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 
-    for rider_id, rider_cp_data in raw_cp_dict_for_the_world.items():
+    logger.info(f"Successfully read, validated, and loaded {len(raw_cp_dict_for_everybody_in_the_club)} riders' critical power data from ZwiftPower JSON files in:- \nDir : {INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH}")
 
-        rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank
+    cp_count = 0
+    inverse_count = 0
+    skipped_modelling_count = 0
+    count_of_riders_with_poor_r_squared = 0
+    count_of_riders_with_poor_rmse = 0
+
+    r_squared_limit = .95
+    rmse_limit = 10.0
+
+
+    for rider_id, rider_cp_data in raw_cp_dict_for_everybody_in_the_club.items():
+
+        rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank in the rider_cp_data item
+
         raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
+
+        if len(raw_xy_data) < 2:
+            logger.warning(f"Rider ID {rider_cp_data.zwiftid} has less than 2 data points. Skipping modelling.")
+            skipped_modelling_count += 1
+            continue
 
         # do modelling
 
-        cp, awc, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-        summary = f"Critical power model: CP={round(cp)}W  AWC={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
-        logger.info(f"/n{summary}")
+        critical_power, anaerobic_work_capacity, r_squared, rmse, _  = do_modelling_with_cp_w_prime_model(raw_xy_data)
+        # summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(cp_w_prime_model(60*60, critical_power, anaerobic_work_capacity))}W"
+        # logger.info(f"/n{summary}")
 
-        constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
-        summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
-        logger.info(f"/n{summary2}")
+        constant, exponent, r_squared2, rmse2, _ = do_modelling_with_inverse_model(raw_xy_data)
+        # summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}   RMSE={round(rmse2)}W  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
+        # logger.info(f"/n{summary2}")
 
 
-        rider_cp_data.model_applied = "cp" if r_squared > r_squared2 else "inverse"
-        logger.info(f"Model applied: {rider_cp_data.model_applied}")
+        rider_cp_data.model_applied = "critical_power" if r_squared > r_squared2 else "inverse"
 
-    # OUTPUT_FILE_NAME = "rubbish_v1.json"
-    # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+        if max(r_squared, r_squared2) < r_squared_limit:
+            logger.warning(f"Rider ID {rider_cp_data.zwiftid} has R-squared values worse than {r_squared_limit} for both models.")
+            count_of_riders_with_poor_r_squared += 1
 
-    # write_dict_of_cpdata(raw_cp_dict_for_the_world, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+        if min(rmse, rmse2) > rmse_limit:
+            logger.warning(f"Rider ID {rider_cp_data.zwiftid} has RMSE values worse than than {rmse_limit} for both models.")
+            count_of_riders_with_poor_rmse += 1
 
-    # from tabulate import tabulate
+        if rider_cp_data.model_applied == "critical_power":
+            rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
+            cp_count += 1
 
-    # # log all the x and y data for all riders in pretty tables
+        if rider_cp_data.model_applied == "inverse":
+            rider_cp_data.inverse_coefficient = constant
+            rider_cp_data.inverse_exponent = exponent
+            inverse_count += 1
 
-    # for rider_id, rider_cp_data in raw_cp_dict_for_the_world.items():
+
+        logger.info(f"Rider ID {rider_cp_data.zwiftid} model preferred: {rider_cp_data.model_applied}")
+
+    logger.info(f"\nTotal riders on ZwiftPower from DaveK: {cp_count + inverse_count}\n\nCP model superior : {cp_count}\n\nInverse model superior : {inverse_count}\n\nInsufficient data : {skipped_modelling_count}\n\nR-squared value worse (less than) {r_squared_limit} : {count_of_riders_with_poor_r_squared}\n\nRMSE value worse (more than) {rmse_limit}W : {count_of_riders_with_poor_rmse}\n\n")
+
+    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV3.json"
+    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+
+    write_dict_of_cpdata(raw_cp_dict_for_everybody_in_the_club, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+
+    from tabulate import tabulate
+
+    # log all the x and y data for all riders in pretty tables
+
+    # for rider_id, rider_cp_data in raw_cp_dict_for_everybody_in_the_club.items():
     #     cp_data = rider_cp_data.export_cp_data()  # Export critical power data as a dictionary
     #     table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
     #     table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers

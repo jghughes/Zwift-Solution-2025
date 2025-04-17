@@ -60,12 +60,12 @@ class ZwiftPowerCpGraphDTO(BaseModel):
         date: Optional[int] = 0
         zid:  Optional[str] = ""
 
+    model_config = ConfigDict(
+        alias_generator=None,      # No alias generator for this DTO
+        populate_by_name=True      # Allow population by field names
+    )
     info:                          Optional[Union[List[InfoItemDTO], Any]] = Field(default_factory=list)
     efforts:                       Optional[Union[Dict[str, List[EffortItemDTO]],Any]] = Field(default_factory=dict)
     events:                        Optional[Union[Dict[str, Any],Any]] = Field(default_factory=dict)
     zwiftpower_watts_last_updated: Optional[str] = ""
 
-    model_config = ConfigDict(
-        alias_generator=None,      # No alias generator for this DTO
-        populate_by_name=True      # Allow population by field names
-    )

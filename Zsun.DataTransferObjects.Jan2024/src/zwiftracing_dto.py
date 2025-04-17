@@ -31,6 +31,10 @@ class ZwiftRacingAppPostDTO(BaseModel):
         CP:      Optional[float] = 0.0  # Critical Power
         AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
 
+    model_config = ConfigDict(
+        alias_generator=None,      # No alias generator for this DTO
+        populate_by_name=True      # Allow population by field names
+    )
     riderId:    Optional[str]   = ""   # Rider ID
     name:       Optional[str]   = ""   # Name of the rider
     gender:     Optional[str]   = ""   # Gender of the rider
@@ -42,9 +46,5 @@ class ZwiftRacingAppPostDTO(BaseModel):
     zpFTP:      Optional[float] = 0.0  # ZwiftPower FTP (Functional Threshold Power)
     power:      Optional[Union[PowerDTO, Any]] = Field(default_factory=PowerDTO)  # Power data of the rider
 
-    model_config = ConfigDict(
-        alias_generator=None,      # No alias generator for this DTO
-        populate_by_name=True      # Allow population by field names
-    )
 
 

@@ -50,7 +50,7 @@ def main():
 
     # do work
 
-    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
     raw_cp_dict_for_betel = read_many_zwiftpower_cp_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 

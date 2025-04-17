@@ -24,10 +24,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 0.0,
-    "awc": 0.0,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 0.0,
+    "anaerobic_work_capacity": 0.0,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "2508033": {
@@ -55,10 +55,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 0.0,
-    "awc": 0.0,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 0.0,
+    "anaerobic_work_capacity": 0.0,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "1193": {
@@ -86,10 +86,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 195.88715214656253,
-    "awc": 22338.975862962317,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 195.88715214656253,
+    "anaerobic_work_capacity": 22338.975862962317,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "5134": {
@@ -117,10 +117,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 273.6600807870149,
-    "awc": 20071.243325158797,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 273.6600807870149,
+    "anaerobic_work_capacity": 20071.243325158797,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "9011": {
@@ -148,10 +148,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 207.65162633527456,
-    "awc": 21242.81060197916,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 207.65162633527456,
+    "anaerobic_work_capacity": 21242.81060197916,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "11526": {
@@ -179,10 +179,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 240.31664294054474,
-    "awc": 28973.285529694163,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 240.31664294054474,
+    "anaerobic_work_capacity": 28973.285529694163,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "183277": {
@@ -210,10 +210,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 164.65765107728475,
-    "awc": 10773.62525523514,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 164.65765107728475,
+    "anaerobic_work_capacity": 10773.62525523514,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "383480": {
@@ -241,10 +241,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 186.17745819846238,
-    "awc": 17922.19579872859,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 186.17745819846238,
+    "anaerobic_work_capacity": 17922.19579872859,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "384442": {
@@ -272,10 +272,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 230.55354737427984,
-    "awc": 17883.260824392706,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 230.55354737427984,
+    "anaerobic_work_capacity": 17883.260824392706,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "480698": {
@@ -303,10 +303,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 244.14505886591033,
-    "awc": 15759.197359317308,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 244.14505886591033,
+    "anaerobic_work_capacity": 15759.197359317308,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "991817": {
@@ -334,10 +334,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 197.30858597837923,
-    "awc": 9273.7525786395,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 197.30858597837923,
+    "anaerobic_work_capacity": 9273.7525786395,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "1024413": {
@@ -365,10 +365,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 228.92167357186295,
-    "awc": 28107.958892170856,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 228.92167357186295,
+    "anaerobic_work_capacity": 28107.958892170856,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "1713736": {
@@ -396,10 +396,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 268.0478073976751,
-    "awc": 16123.008953972474,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 268.0478073976751,
+    "anaerobic_work_capacity": 16123.008953972474,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "2398312": {
@@ -427,10 +427,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 233.24064546095937,
-    "awc": 17883.00829237195,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 233.24064546095937,
+    "anaerobic_work_capacity": 17883.00829237195,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "2682791": {
@@ -458,10 +458,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 206.024206652098,
-    "awc": 15412.983480920437,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 206.024206652098,
+    "anaerobic_work_capacity": 15412.983480920437,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "3147366": {
@@ -489,10 +489,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 267.0071661988207,
-    "awc": 43938.20672177173,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 267.0071661988207,
+    "anaerobic_work_capacity": 43938.20672177173,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "5421258": {
@@ -520,10 +520,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 383.6791346471131,
-    "awc": 17476.016469482413,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 383.6791346471131,
+    "anaerobic_work_capacity": 17476.016469482413,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "5490373": {
@@ -551,10 +551,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 271.71426538225967,
-    "awc": 13830.15046641306,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 271.71426538225967,
+    "anaerobic_work_capacity": 13830.15046641306,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "5530045": {
@@ -582,10 +582,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 278.40731362445945,
-    "awc": 38039.22790035945,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 278.40731362445945,
+    "anaerobic_work_capacity": 38039.22790035945,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "5569057": {
@@ -613,10 +613,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 274.6058976334595,
-    "awc": 32076.124520084573,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 274.6058976334595,
+    "anaerobic_work_capacity": 32076.124520084573,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   },
   "6142432": {
@@ -644,10 +644,10 @@
     "cp_2_hour": 0.0,
     "cp_3_hour": 0.0,
     "cp_4_hour": 0.0,
-    "cp": 226.83180208403664,
-    "awc": 15362.249815696248,
-    "inverse_const": 0.0,
-    "inverse_exp": 0.0,
+    "critical_power": 226.83180208403664,
+    "anaerobic_work_capacity": 15362.249815696248,
+    "inverse_coefficient": 0.0,
+    "inverse_exponent": 0.0,
     "preferred_model": "inverse"
   }
 }

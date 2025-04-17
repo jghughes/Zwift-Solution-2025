@@ -71,12 +71,11 @@ def main():
     husky="5134"
     scottm="11526"
     timr= "5421258"
+    poor_model= "6925087"
 
     # choose a rider to model
 
-    rider_id = markb
-
-
+    rider_id = johnh
 
     # extract raw data for modelling
 
@@ -84,62 +83,62 @@ def main():
 
     # do modelling
 
-    cp, awc, r_squared, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-    summary = f"Critical power model: CP={round(cp)}W  AWC={round(awc/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, cp, awc))}W"
-    logger.info(f"\n{summary}")
+    # critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
+    # summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, critical_power, anaerobic_work_capacity))}W"
+    # logger.info(f"\n{summary}")
 
-    constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+    constant, exponent, r_squared2, rmse, answer2 = do_modelling_with_inverse_model(raw_xy_data)
     summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
     logger.info(f"\n{summary2}")
 
-    # Tabulate answers
+    # # Tabulate answers
 
-    table_data = [
-        [x, f"{y:.0f}", f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
-        for x, y, (_, y_pred_cp), (_, y_pred_inv) in zip(
-            raw_xy_data.keys(), raw_xy_data.values(), answer.values(), answer2.values()
-        )
-    ]
-    headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
-    logger.info(f"\nComparison of Predicted Values: {dict_of_zwiftrideritem[rider_id].name}")
-    logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
+    # table_data = [
+    #     [x, f"{y:.0f}", f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
+    #     for x, y, (_, y_pred_cp), (_, y_pred_inv) in zip(
+    #         raw_xy_data.keys(), raw_xy_data.values(), answer.values(), answer2.values()
+    #     )
+    # ]
+    # headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+    # logger.info(f"\nComparison of Predicted Values: {dict_of_zwiftrideritem[rider_id].name}")
+    # logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
-    # Define xdata for predictions
+    # # Define xdata for predictions
 
-    xdata_test = [30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
-    row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "1hour", "75min", "90min", "2hour", "3hour", "4hour"]
+    # xdata_test = [30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
+    # row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "1hour", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = [cp_w_prime_model(x, cp, awc) for x in xdata_test]
-    y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]
+    # y_pred_cp_model = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
+    # y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]
 
-    # Tabulate predictions
-    table_data_pred = [
-        [title, x, f"{y_inv:.0f}", f"{y_cp:.0f}"]
-        for title, x, y_inv, y_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
-    ]
-    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+    # # Tabulate predictions
+    # table_data_pred = [
+    #     [title, x, f"{y_inv:.0f}", f"{y_cp:.0f}"]
+    #     for title, x, y_inv, y_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
+    # ]
+    # headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
 
-    logger.info(f"\nPredicted Values for Specified xdata: {dict_of_zwiftrideritem[rider_id].name}")
-    logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
-    logger.info("\nModelling completed. Thank you.\n")
+    # logger.info(f"\nPredicted Values for Specified xdata: {dict_of_zwiftrideritem[rider_id].name}")
+    # logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
+    # logger.info("\nModelling completed. Thank you.\n")
 
-    # Plot answers
+    # # Plot answers
 
-    xdata = list(raw_xy_data.keys())
-    ydata = list(raw_xy_data.values())
-    ydata_pred = [value[1] for value in answer.values()]
-    ydata_pred2 = [value[1] for value in answer2.values()]
+    # xdata = list(raw_xy_data.keys())
+    # ydata = list(raw_xy_data.values())
+    # ydata_pred = [value[1] for value in answer.values()]
+    # ydata_pred2 = [value[1] for value in answer2.values()]
 
-    plt.figure(figsize=(10, 6))
-    plt.scatter(xdata, ydata, color='blue', label='Zwift 90-day data')
-    plt.plot(xdata, ydata_pred, color='red', label=summary)
-    plt.plot(xdata, ydata_pred2, color='green', label=summary2)
-    plt.xlabel('Duration (s)')
-    plt.ylabel('Power (W)')
-    plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')
-    plt.xticks(xdata)  
-    plt.legend()
-    plt.show()
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(xdata, ydata, color='blue', label='Zwift 90-day data')
+    # plt.plot(xdata, ydata_pred, color='red', label=summary)
+    # plt.plot(xdata, ydata_pred2, color='green', label=summary2)
+    # plt.xlabel('Duration (s)')
+    # plt.ylabel('Power (W)')
+    # plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')
+    # plt.xticks(xdata)  
+    # plt.legend()
+    # plt.show()
 
 if __name__ == "__main__":
     main()

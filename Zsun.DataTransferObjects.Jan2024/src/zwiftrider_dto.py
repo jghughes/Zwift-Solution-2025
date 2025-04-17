@@ -84,6 +84,7 @@ class ZwiftRiderDTO(BaseModel):
         zwift_racing_score : int    Zwift racing score.
         velo_rating        : int    Velo rating.
     """
+    model_config = preferred_config_dict
     zwiftid            : Optional[int]   = 0   # Zwift ID of the rider
     name               : Optional[str]   = ""  # Name of the rider
     weight             : Optional[float] = 0   # Weight of the rider in kilograms
@@ -92,7 +93,6 @@ class ZwiftRiderDTO(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
-    model_config = preferred_config_dict
 
 def main():
     import logging

@@ -471,19 +471,19 @@ class ZwiftRiderCriticalPowerItem:
     cp_6300: float = 0.0
     cp_6600: float = 0.0
     cp_7200: float = 0.0
-    cp: float = 0.0
-    awc: float = 0.0
-    inverse_const: float = 0.0
-    inverse_exp: float = 0.0
+    critical_power: float = 0.0
+    anaerobic_work_capacity: float = 0.0
+    inverse_coefficient: float = 0.0
+    inverse_exponent: float = 0.0
     generated: str = ""
-    model_applied: str = "inverse"  # Inverse Exponential model "inverse" or Critical Power Model "cp"
+    model_applied: str = ""  # Alternatives are "inverse" for Inverse-Exponential model "cp" for Critical Power Model
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
         """
         Returns a list of x ordinates for the critical power data.
         The x ordinates correspond to the time intervals for which
-        critical power data is available.
+        critical power data is theoretically available.
         Returns:
             [int]: A list of x ordinates (time intervals in seconds).
         """
@@ -626,49 +626,49 @@ class ZwiftRiderCriticalPowerItem:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
         answer = {
-            # 1: self.cp_1,
-            # 2: self.cp_2,
-            # 3: self.cp_3,
-            # 4: self.cp_4,
-            # 5: self.cp_5,
-            # 6: self.cp_6,
-            # 7: self.cp_7,
-            # 8: self.cp_8,
-            # 9: self.cp_9,
-            # 10: self.cp_10,
-            # 11: self.cp_11,
-            # 12: self.cp_12,
-            # 13: self.cp_13,
-            # 14: self.cp_14,
-            # 15: self.cp_15,
-            # 16: self.cp_16,
-            # 17: self.cp_17,
-            # 18: self.cp_18,
-            # 19: self.cp_19,
-            # 20: self.cp_20,
-            # 21: self.cp_21,
-            # 22: self.cp_22,
-            # 23: self.cp_23,
-            # 24: self.cp_24,
-            # 25: self.cp_25,
-            # 26: self.cp_26,
-            # 27: self.cp_27,
-            # 28: self.cp_28,
-            # 29: self.cp_29,
-            # 30: self.cp_30,
-            # 35: self.cp_35,
-            # 40: self.cp_40,
-            # 45: self.cp_45,
-            # 50: self.cp_50,
-            # 55: self.cp_55,
-            # 60: self.cp_60,
-            # 70: self.cp_70,
-            # 80: self.cp_80,
-            # 90: self.cp_90,
-            # 100: self.cp_100,
-            # 110: self.cp_110,
-            # 120: self.cp_120,
-            # 150: self.cp_150,
+            1: self.cp_1,
+            2: self.cp_2,
+            3: self.cp_3,
+            4: self.cp_4,
+            5: self.cp_5,
+            6: self.cp_6,
+            7: self.cp_7,
+            8: self.cp_8,
+            9: self.cp_9,
+            10: self.cp_10,
+            11: self.cp_11,
+            12: self.cp_12,
+            13: self.cp_13,
+            14: self.cp_14,
+            15: self.cp_15,
+            16: self.cp_16,
+            17: self.cp_17,
+            18: self.cp_18,
+            19: self.cp_19,
+            20: self.cp_20,
+            21: self.cp_21,
+            22: self.cp_22,
+            23: self.cp_23,
+            24: self.cp_24,
+            25: self.cp_25,
+            26: self.cp_26,
+            27: self.cp_27,
+            28: self.cp_28,
+            29: self.cp_29,
+            30: self.cp_30,
+            35: self.cp_35,
+            40: self.cp_40,
+            45: self.cp_45,
+            50: self.cp_50,
+            55: self.cp_55,
+            60: self.cp_60,
+            70: self.cp_70,
+            80: self.cp_80,
+            90: self.cp_90,
+            100: self.cp_100,
+            110: self.cp_110,
+            120: self.cp_120,
+            150: self.cp_150,
             180: self.cp_180,
             210: self.cp_210,
             240: self.cp_240,
@@ -704,27 +704,27 @@ class ZwiftRiderCriticalPowerItem:
             2160: self.cp_2160,
             2280: self.cp_2280,
             2400: self.cp_2400,
-            # 2520: self.cp_2520,
-            # 2640: self.cp_2640,
-            # 2760: self.cp_2760,
-            # 2880: self.cp_2880,
-            # 3000: self.cp_3000,
-            # 3120: self.cp_3120,
-            # 3240: self.cp_3240,
-            # 3360: self.cp_3360,
-            # 3480: self.cp_3480,
-            # 3600: self.cp_3600,
-            # 3900: self.cp_3900,
-            # 4200: self.cp_4200,
-            # 4500: self.cp_4500,
-            # 4800: self.cp_4800,
-            # 5100: self.cp_5100,
-            # 5400: self.cp_5400,
-            # 5700: self.cp_5700,
-            # 6000: self.cp_6000,
-            # 6300: self.cp_6300,
-            # 6600: self.cp_6600,
-            # 7200: self.cp_7200,
+            2520: self.cp_2520,
+            2640: self.cp_2640,
+            2760: self.cp_2760,
+            2880: self.cp_2880,
+            3000: self.cp_3000,
+            3120: self.cp_3120,
+            3240: self.cp_3240,
+            3360: self.cp_3360,
+            3480: self.cp_3480,
+            3600: self.cp_3600,
+            3900: self.cp_3900,
+            4200: self.cp_4200,
+            4500: self.cp_4500,
+            4800: self.cp_4800,
+            5100: self.cp_5100,
+            5400: self.cp_5400,
+            5700: self.cp_5700,
+            6000: self.cp_6000,
+            6300: self.cp_6300,
+            6600: self.cp_6600,
+            7200: self.cp_7200,
         }
 
         # Filter out zero values (because they amount to invalid datapoints)
@@ -965,10 +965,10 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = item.cp_6300,
             cp_6600        = item.cp_6600,
             cp_7200        = item.cp_7200,
-            cp             = item.cp,
-            awc            = item.awc,
-            inverse_const  = item.inverse_const,
-            inverse_exp    = item.inverse_exp,
+            critical_power             = item.critical_power,
+            anaerobic_work_capacity            = item.anaerobic_work_capacity,
+            inverse_coefficient  = item.inverse_coefficient,
+            inverse_exponent    = item.inverse_exponent,
             generated      = item.generated,
             model_applied  = item.model_applied
         )
@@ -1085,18 +1085,21 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = dto.cp_6300 or 0.0,
             cp_6600        = dto.cp_6600 or 0.0,
             cp_7200        = dto.cp_7200 or 0.0,
-            cp             = dto.cp or 0.0,
-            awc            = dto.awc or 0.0,
-            inverse_const  = dto.inverse_const or 0.0,
-            inverse_exp    = dto.inverse_exp or 0.0,
-            generated      = dto.generated or "",
-            model_applied  = dto.model_applied or "inverse"  # Inverse Exponential model "inverse" or Critical Power Model "cp"
+            critical_power          = dto.critical_power or 0.0,
+            anaerobic_work_capacity = dto.anaerobic_work_capacity or 0.0,
+            inverse_coefficient     = dto.inverse_coefficient or 0.0,
+            inverse_exponent        = dto.inverse_exponent or 0.0,
+            generated               = dto.generated or "",
+            model_applied           = dto.model_applied or ""  # Inverse Exponential model "inverse" or Critical Power Model "critical_power"
         )
 
     @staticmethod
     def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftRiderCriticalPowerItem":
         """
         Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRacingAppPostDTO.
+        The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
+        Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
+        critical power and other derivatives 
 
         Args:
             dto (ZwiftRacingAppPostDTO): The data transfer object to convert.
@@ -1114,8 +1117,8 @@ class ZwiftRiderCriticalPowerItem:
             cp_120    = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
             cp_300    = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp_1200   = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            cp        = dto.power.CP if dto.power and dto.power.CP else 0.0,
-            awc       = dto.power.AWC if dto.power and dto.power.AWC else 0.0
+            critical_power          = dto.power.CP if dto.power and dto.power.CP else 0.0,
+            anaerobic_work_capacity = dto.power.AWC if dto.power and dto.power.AWC else 0.0
         )
 
     @staticmethod
@@ -1192,8 +1195,8 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    cp                    : float = 0
-    awc               : float = 0
+    critical_power                    : float = 0
+    anaerobic_work_capacity               : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0

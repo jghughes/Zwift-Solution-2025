@@ -314,7 +314,7 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
             inputjson = read_text(dir_path, file_name)
 
             file_count += 1
-            logger.debug(f"{file_count} processing : {file_name}")
+            # logger.debug(f"{file_count} processing : {file_name}")
 
             try:
 

@@ -52,20 +52,20 @@ def main():
         raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
 
         # Perform CP-W' model fitting
-        cp, awc, r_squared, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
+        critical_power, anaerobic_work_capacity, r_squared, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
         # Perform inverse model fitting
         constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
 
         # Update the rider's CP data with the model results
-        rider_cp_data.cp = cp
-        rider_cp_data.awc = awc
-        rider_cp_data.inverse_const = constant
-        rider_cp_data.inverse_exp = exponent
+        rider_cp_data.critical_power = critical_power
+        rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
+        rider_cp_data.inverse_coefficient = constant
+        rider_cp_data.inverse_exponent = exponent
 
         # # Determine the preferred model
         # if rider_id == '2508033':  # Example: JoshN prefers the CP model
-        #     model_applied = "cp"
+        #     model_applied = "critical_power"
         # else:
         model_applied = "inverse"
 
@@ -77,8 +77,8 @@ def main():
             1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
         ]
 
-        if rider_cp_data.model_applied == "cp":
-            y_pred = [cp_w_prime_model(x, cp, awc) for x in xdata_test]
+        if rider_cp_data.model_applied == "critical_power":
+            y_pred = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
         else:
             y_pred = [inverse_model(x, constant, exponent) for x in xdata_test]
 
