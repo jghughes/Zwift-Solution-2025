@@ -1,7 +1,7 @@
 {
   "1884456": {
     "zwiftid": 1884456,
-    "name": "JohnH",
+    "name": "John Hughes",
     "weight": 75.4,
     "height": 174,
     "gender": "m",
@@ -11,7 +11,7 @@
   },
   "3147366": {
     "zwiftid": 3147366,
-    "name": "DaveK",
+    "name": "Dave Konicek",
     "weight": 73.4,
     "height": 182,
     "gender": "m",
@@ -19,9 +19,19 @@
     "zwift_racing_score": 744,
     "velo_rating": 1897
   },
+  "11741": {
+    "zwiftid": 11741,
+    "name": "Tom Bick",
+    "weight": 78.5,
+    "height": 180,
+    "gender": "m",
+    "ftp": 303,
+    "zwift_racing_score": 586,
+    "velo_rating": 1585
+  },
   "5421258": {
     "zwiftid": 5421258,
-    "name": "TimR",
+    "name": "Tim Reid",
     "weight": 79.8,
     "height": 185,
     "gender": "m",
@@ -31,7 +41,7 @@
   },
   "9011": {
     "zwiftid": 9011,
-    "name": "BryanB",
+    "name": "Bryan Bumpas",
     "weight": 53.5,
     "height": 162,
     "gender": "m",
@@ -41,7 +51,7 @@
   },
   "5134": {
     "zwiftid": 5134,
-    "name": "HuskyC",
+    "name": "Husky Crone",
     "weight": 75.5,
     "height": 178,
     "gender": "m",
@@ -51,7 +61,7 @@
   },
   "11526": {
     "zwiftid": 11526,
-    "name": "ScottM",
+    "name": "Scott McVeigh",
     "weight": 78,
     "height": 165,
     "gender": "m",
@@ -61,7 +71,7 @@
   },
   "5530045": {
     "zwiftid": 5530045,
-    "name": "MarkB",
+    "name": "Mark Brezinsky",
     "weight": 91.6,
     "height": 185,
     "gender": "m",
@@ -71,7 +81,7 @@
   },
   "6142432": {
     "zwiftid": 6142432,
-    "name": "SteveS",
+    "name": "Steve Seiler",
     "weight": 71.7,
     "height": 170,
     "gender": "m",
@@ -81,7 +91,7 @@
   },
   "5569057": {
     "zwiftid": 5569057,
-    "name": "CoryC",
+    "name": "Cory Cook",
     "weight": 90.7,
     "height": 186,
     "gender": "m",
@@ -91,7 +101,7 @@
   },
   "5490373": {
     "zwiftid": 5490373,
-    "name": "BarryB",
+    "name": "Barry Beck",
     "weight": 77,
     "height": 176,
     "gender": "m",
@@ -101,7 +111,7 @@
   },
   "1024413": {
     "zwiftid": 1024413,
-    "name": "MattS",
+    "name": "Matt Steeve",
     "weight": 76.8,
     "height": 180,
     "gender": "m",
@@ -111,7 +121,7 @@
   },
   "480698": {
     "zwiftid": 480698,
-    "name": "BrentH",
+    "name": "Brent Huser",
     "weight": 75.6,
     "height": 180,
     "gender": "m",
@@ -121,7 +131,7 @@
   },
   "183277": {
     "zwiftid": 183277,
-    "name": "GiaoN",
+    "name": "Giao Nguyen",
     "weight": 67.1,
     "height": 165,
     "gender": "m",
@@ -131,7 +141,7 @@
   },
   "2508033": {
     "zwiftid": 2508033,
-    "name": "JoshN",
+    "name": "Josh Neall",
     "weight": 101,
     "height": 178,
     "gender": "m",
@@ -141,7 +151,7 @@
   },
   "384442": {
     "zwiftid": 384442,
-    "name": "RolandS",
+    "name": "Roland Segal",
     "weight": 90.0,
     "height": 173,
     "gender": "m",
@@ -151,7 +161,7 @@
   },
   "1713736": {
     "zwiftid": 1713736,
-    "name": "EdH",
+    "name": "Ed Hudak",
     "weight": 107.5,
     "height": 188,
     "gender": "m",
@@ -161,7 +171,7 @@
   },
   "1193": {
     "zwiftid": 1193,
-    "name": "RichardM",
+    "name": "Richard Mann",
     "weight": 93,
     "height": 178,
     "gender": "m",
@@ -171,7 +181,7 @@
   },
   "991817": {
     "zwiftid": 991817,
-    "name": "BrandiS",
+    "name": "Brandi Steeve",
     "weight": 61.5,
     "height": 167,
     "gender": "f",
@@ -181,7 +191,7 @@
   },
   "2682791": {
     "zwiftid": 2682791,
-    "name": "SelenaS",
+    "name": "Selena Shaikh",
     "weight": 63,
     "height": 171,
     "gender": "f",
@@ -191,7 +201,7 @@
   },
   "2398312": {
     "zwiftid": 2398312,
-    "name": "KristenD",
+    "name": "Kristen DeMoulin",
     "weight": 71.2,
     "height": 178,
     "gender": "f",
@@ -201,12 +211,32 @@
   },
   "383480": {
     "zwiftid": 383480,
-    "name": "LynseyS",
+    "name": "Lynsey Segal",
     "weight": 63.5,
     "height": 165,
     "gender": "f",
     "ftp": 201,
     "zwift_racing_score": 327,
     "velo_rating": 915
+  },
+  "1707548": {
+    "zwiftid": 1707548,
+    "name": "Meridith Leubner",
+    "weight": 59,
+    "height": 157,
+    "gender": "f",
+    "ftp": 220,
+    "zwift_racing_score": 401,
+    "velo_rating": 1297
+  },
+  "1657744": {
+    "zwiftid": 1657744,
+    "name": "Melissa Warwick",
+    "weight": 59,
+    "height": 175,
+    "gender": "f",
+    "ftp": 213,
+    "zwift_racing_score": 354,
+    "velo_rating": 1087
   }
 }

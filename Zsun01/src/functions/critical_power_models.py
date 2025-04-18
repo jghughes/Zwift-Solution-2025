@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import NDArray
 from sklearn.metrics import r2_score, mean_squared_error
 from scipy.optimize import curve_fit
 from typing import Tuple, Dict
@@ -28,26 +29,38 @@ def inverse_model(x: float, a: float, b: float) -> float:
         raise ValueError("Input x must be non-zero to avoid division by zero.")
     return a * (1 / (x ** b))
 
-# def inverse_model_numpy(x: np.ndarray, a: float, b: float) -> np.ndarray:
-#     """
-#     A decay function that computes a * (1 / (x ** b)) for NumPy arrays.
-#     Handles zero values in the array by replacing them with a small epsilon value.
+def inverse_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+    """
+    A decay function that computes a * (1 / (x ** b)) for NumPy arrays.
+    Handles zero values in the array by replacing them with a small epsilon value.
 
-#     Args:
-#         x (np.ndarray): The input array.
-#         a (float): Coefficient.
-#         b (float): Exponent.
+    Args:
+        x (NDArray[np.float64]): The input array.
+        a (float): Coefficient.
+        b (float): Exponent.
 
-#     Returns:
-#         np.ndarray: The computed values of the decay function.
-#     """
-#     epsilon = 1e-10  # A small value to replace zeros
-#     x_safe = np.where(x == 0, epsilon, x)  # Replace zeros with epsilon
-#     return a * (1 / (x_safe ** b))
+    Returns:
+        NDArray[np.float64]: The computed values of the decay function.
+    """
+    epsilon = 1e-10  # A small value to replace zeros
+    x_safe = np.where(x == 0, epsilon, x)  # Replace zeros with epsilon
+    return a * (1 / (x_safe ** b))
 
-def inverse_model_numpy_masked(x: np.ndarray, a: float, b: float) -> np.ndarray:
+def inverse_model_numpy_masked(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+    """
+    A decay function that computes a * (1 / (x ** b)) for NumPy arrays.
+    Handles zero values in the array by masking them and computing only for non-zero values.
+
+    Args:
+        x (NDArray[np.float64]): The input array.
+        a (float): Coefficient.
+        b (float): Exponent.
+
+    Returns:
+        NDArray[np.float64]: The computed values of the decay function.
+    """
     mask = x != 0  # Create a mask for non-zero values
-    result = np.zeros_like(x)  # Initialize result array with zeros
+    result = np.zeros_like(x, dtype=np.float64)  # Initialize result array with zeros
     result[mask] = a * (1 / (x[mask] ** b))  # Compute only for non-zero values
     return result
 
@@ -115,46 +128,43 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
 def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Perform modeling using an inverse model y = a * x^b, where b is typically negative (decay function).
+
     Args:
-        x (List[float]): The list of x values (time in seconds).
-        y (List[float]): The list of y values (power in watts).
+        raw_xy_data (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
+
     Returns:
-        Tuple[float, float, float, List[float]]: The values of a and b, the R-squared value, and the predicted y values
-        based on the best fit curve.
+        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of a and b, the R-squared value,
+        the RMSE, and a dictionary combining the original data and predicted values.
     """
-
-    # remove all elements from the dict raw_xy_data where either the key is zero or the value is zero
-
+    # Remove all elements from the dict raw_xy_data where either the key is zero or the value is zero
     raw_xy_data = {k: v for k, v in raw_xy_data.items() if k != 0 and v != 0}
 
-    # raise an error if the dict contains less than 2 elements
+    # Raise an error if the dict contains less than 2 elements
     if len(raw_xy_data) < 2:
         raise ValueError("The input dictionary must contain at least 2 elements.")
 
-    xdata: np.ndarray = np.array(list(raw_xy_data.keys()), dtype=float)
-    ydata: np.ndarray = np.array(list(raw_xy_data.values()), dtype=float)
-
-    
-
-
+    # Convert keys and values of raw_xy_data to NumPy arrays (intrinsically floats)
+    xdata: NDArray[np.float64] = np.array(list(raw_xy_data.keys()))
+    ydata: NDArray[np.float64] = np.array(list(raw_xy_data.values()))
 
     # Perform curve fitting using the inverse model
     popt, _ = curve_fit(inverse_model_numpy_masked, xdata, ydata)
-    a, b = popt  # a is the coefficient, b is the exponent
-    
+    a , b = popt  # a is the coefficient, b is the exponent
+
     # Calculate the predicted y values based on the fitted parameters
     ydata_pred = inverse_model_numpy_masked(xdata, a, b)
-    
+
     # Calculate the R-squared value
-    r2 : float = r2_score(ydata, ydata_pred)
+    r2: float = r2_score(ydata, ydata_pred)
 
     # Calculate the root mean square error (RMSE)
-    rmse : float = np.sqrt(mean_squared_error(ydata, ydata_pred)) 
+    rmse: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
-    # Recombine the original data and predicted values into a dictionary
+    # Recombine the original x,y data and predicted y_data values into a dictionary
     result: Dict[int, Tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
+
     return a, b, r2, rmse, result
 
 def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]

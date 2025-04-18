@@ -26,6 +26,7 @@ def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
     return average_watts
 
+
 def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the normalized power for a list of efforts.
@@ -85,6 +86,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     normalized_watts = mean_power_4 ** 0.25
 
     return normalized_watts
+
 
 def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]) -> Dict[ZwiftRiderItem, RiderAnswerItem]:
 
@@ -172,10 +174,10 @@ def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[Zwif
     """
     for rider, answer_item in rider_answer_items.items():
         rider_id_str = str(rider.zwiftid).strip()
-        logging.debug(f"Looking for rider ID: {rider_id_str} in zwiftriders_zwift_cp_data")
+        # logging.debug(f"Looking for rider ID: {rider_id_str} in zwiftriders_zwift_cp_data")
         rider_cp_item = zwiftriders_zwift_cp_data.get(rider_id_str, None) # because keyed on zwiftid
         if rider_cp_item:
-            logging.debug(f"Found rider ID: {rider_id_str}")
+            # logging.debug(f"Found rider ID: {rider_id_str}")
             answer_item.critical_power = rider_cp_item.critical_power
             answer_item.anaerobic_work_capacity = rider_cp_item.anaerobic_work_capacity
         else:
@@ -225,8 +227,8 @@ def main() -> None:
             "p+(W)", 
             "pull(%ftp)",
             "IF(np/ftp)", 
-            "critical_power(W)", 
-            "anaerobic_work_capacity(kJ)",
+            "cp(W)", 
+            "awc(kJ)",
         ]
         logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 

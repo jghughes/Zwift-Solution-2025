@@ -30,7 +30,6 @@ def populate_rider_exertions(rider_work_assignments: Dict[ZwiftRiderItem, List[R
     return rider_workloads
 
 
-
 def main() -> None:
     import logging
     from jgh_logging import jgh_configure_logging

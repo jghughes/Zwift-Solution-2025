@@ -40,6 +40,7 @@ def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRi
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
+    # do work
 
     inputjson = read_text(dir_path, file_name)
 
@@ -76,7 +77,7 @@ def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderCr
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
-
+    # do work
 
     inputjson = read_text(dir_path, file_name)
 
@@ -97,6 +98,20 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftRiderCriticalPowerItem], file_name
         file_name (str): The name of the file to write.
         dir_path (str): The directory path where the file will be written.
     """
+    # Raise an error if dir_path parameter is not minimally satisfactory
+
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+
+    # Raise an error if the directory does not exist
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+
+    # do work
+
     serialized_data = JghSerialization.serialise(data)
 
     os.makedirs(dir_path, exist_ok=True)
@@ -104,6 +119,8 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftRiderCriticalPowerItem], file_name
     file_path = os.path.join(dir_path, file_name)
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json_file.write(serialized_data)
+
+    logger.debug(f"File saved : {file_name}")
 
 def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
@@ -240,7 +257,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
             file_count += 1
 
-            logger.debug(f"{file_count} processing : {file_name}")
+            # logger.debug(f"{file_count} processing : {file_name}")
 
             try:
 

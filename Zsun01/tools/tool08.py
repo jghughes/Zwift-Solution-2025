@@ -1,5 +1,5 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
-from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power_models import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 
 
 # Module-level constants

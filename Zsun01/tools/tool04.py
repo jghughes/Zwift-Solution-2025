@@ -1,7 +1,7 @@
 from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
-from power_duration_modelling import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power_models import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -29,7 +29,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `power_duration_modelling` for curve fitting and predictions.
+        - Uses `critical_power_models` for curve fitting and predictions.
         - Requires `matplotlib` for plotting (though not used in this script).
 
     Constants:
@@ -44,7 +44,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_cpdata("input_cp_data_for_betel_from_zwiftpower.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     # Process each rider in the riders_cp_data dictionary
     for rider_id, rider_cp_data in riders_cp_data.items():
@@ -63,10 +63,6 @@ def main():
         rider_cp_data.inverse_coefficient = constant
         rider_cp_data.inverse_exponent = exponent
 
-        # # Determine the preferred model
-        # if rider_id == '2508033':  # Example: JoshN prefers the CP model
-        #     model_applied = "critical_power"
-        # else:
         model_applied = "inverse"
 
         rider_cp_data.model_applied = model_applied
@@ -77,10 +73,9 @@ def main():
             1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
         ]
 
-        if rider_cp_data.model_applied == "critical_power":
-            y_pred = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
-        else:
-            y_pred = [inverse_model(x, constant, exponent) for x in xdata_test]
+        y_pred = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
+
+        # y_pred = [inverse_model(x, constant, exponent) for x in xdata_test]
 
         # Convert y_pred to a dictionary and import it into the rider's CP data
         y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}
@@ -91,7 +86,7 @@ def main():
     # Write the updated CP data for all riders to a file
     write_dict_of_cpdata(
         riders_cp_data,
-        "populated_cp_data_for_betel.json",
+        "populated_cp_data_for_betel_rubbish.json",
         "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
     )
 
