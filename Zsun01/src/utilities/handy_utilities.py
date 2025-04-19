@@ -278,9 +278,11 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
     Retrieve many individual ZwiftPower cp_power_graph JSON files in a directory and convert them
-    to a dict of ZwiftRiderCriticalPowerItem instances. If riderIDs is None, all files are processed.
+    to a dict of ZwiftRiderCriticalPowerItem instances. If "riderIDs" parameter is None, all files 
+    in the specified directory are processed.
     Otherwise, only files with filenames the same as in riderIDs are processed. The key 
-    of the dict is zwiftID. The data transfer object is ZwiftPowerCpGraphDTO.
+    of the resulting dict of items the aforementioned filename/zwiftID. 
+    The data transfer object used to read the JSON from ZwiftPower is ZwiftPowerCpGraphDTO.
 
     Args:
         riderIDs (Optional[list[str]]): List of rider IDs to filter, or None to process all files.
@@ -303,32 +305,39 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
 
     result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
+    # exit if riderIDs list is provided but is inadvertently empty
+    if riderIDs is not None and not riderIDs:
+        return result
+
     file_count = 0
     error_count = 0
+    logger.debug(f"\nProcessing zwift riders: \n{riderIDs}\n\n")
 
     for entry in os.listdir(dir_path):
 
-        # Check if the entry is a valid JSON file. if not skip it.
+        # Check if the entry is a valid JSON file. if not its a subdir or an irrelevant file. hop over it.
         if not entry.endswith(".json"):
             continue
 
         file_name = entry
 
-        # Skip the file if riderIDs is provided but is empty
-        if riderIDs is not None and not riderIDs:
-            continue
-
-        # Skip the file if riderIDs is provided and the file name (without .json) is not in riderIDs
+        # If a list of riderIDs is provided, check if the file name (without .json) is on the list. if not, hop over it.
         if riderIDs and file_name[:-5] not in riderIDs:
             continue
     
         # Go ahead and process the file
+        logger.debug(f"\nAh ha. Success. We have found a file. On we go. File_name is:-\n{file_name} ")
 
         file_path = os.path.join(dir_path, file_name)
+        logger.debug(f"\nAh ha. Success. We have found a file_path. On we go. File_path is:-\n{file_path} ")
 
         if os.path.isfile(file_path):
 
+            logger.debug(f"\nReading the file.....")
+
             inputjson = read_text(dir_path, file_name)
+
+            logger.debug(f"\n|nRaw input JSON for Richard Mann: \n\n{inputjson}\n\n")
 
             file_count += 1
             # logger.debug(f"{file_count} processing : {file_name}")
@@ -336,6 +345,9 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
             try:
 
                 dto = JghSerialization.validate(inputjson, ZwiftPowerCpGraphDTO)
+
+                logger.debug(f"\n\nValidated ZwiftPowerCpGraphDTO for Richard Mann: \n\n{dto}\n\n")
+
 
             except Exception:
                 error_count += 1
@@ -346,6 +358,8 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
 
             if file_name[:-5]:
                 result[file_name[:-5]] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(dto)
+                logger.debug(f"\n\nMapped ZwiftRiderCriticalPowerItem for Richard Mann: \n\n{dto}\n\n")
+
 
     return dict(sorted(result.items(), key=lambda item: int(item[0])))
 
@@ -376,8 +390,7 @@ def main02():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-
-    _ = read_many_zwiftpower_cp_graph_files_in_folder(None, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    _ = read_many_zwiftpower_cp_graph_files_in_folder(["1193"], INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()

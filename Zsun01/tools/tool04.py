@@ -1,7 +1,8 @@
 from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
-from critical_power_models import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+import numpy as np
+from critical_power_models import cp_w_prime_model, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -52,10 +53,10 @@ def main():
         raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
 
         # Perform CP-W' model fitting
-        critical_power, anaerobic_work_capacity, r_squared, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
+        critical_power, anaerobic_work_capacity, r_squared, rms, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
         # Perform inverse model fitting
-        constant, exponent, r_squared2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+        constant, exponent, r_squared2, rms2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
 
         # Update the rider's CP data with the model results
         rider_cp_data.critical_power = critical_power
@@ -68,14 +69,12 @@ def main():
         rider_cp_data.model_applied = model_applied
 
         # Generate predictions for test x-data
-        xdata_test = [
+        xdata_test = np.array([
             5, 15, 30, 60, 90, 120, 150, 180, 300, 420, 600, 720, 900, 1200,
             1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
-        ]
+        ])
 
-        y_pred = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
-
-        # y_pred = [inverse_model(x, constant, exponent) for x in xdata_test]
+        y_pred = inverse_model_numpy(xdata_test, constant, exponent)
 
         # Convert y_pred to a dictionary and import it into the rider's CP data
         y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}

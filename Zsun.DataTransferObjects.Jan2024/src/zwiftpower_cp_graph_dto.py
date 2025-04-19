@@ -4,23 +4,22 @@ from typing import Optional, Dict, List, Any, Union
 
 class ZwiftPowerCpGraphDTO(BaseModel):
     """
-    A data transfer object representing a Zwift Power Graph JSON object.
+    A data transfer object representing a Zwift Power Graph JSON object. The property
+    names in the class and its nested classes precisely match the names in the JSON
+    from ZwiftPower.
 
     Each rider in ZwiftPower is represented as a standalone file, scraped from the
     ZwiftPower website by DaveK. The name of each file corresponds to the ZwiftID
-    of the rider. There is no ID contained in the file to tie back to the rider.
+    of the rider. There is no ID contained in the file that ties back to the rider.
+    You have to rely on the filename.
 
     This DTO focuses on the power data contained in the `efforts` dictionary. The
-    dictionary has three keys:
+    dictionary has three keys (str):
     - "30days": A list of efforts over the last 30 days.
     - "90days": A list of efforts over the last 90 days.
-    - The integer ID of the most recent event.
+    - or a wrapped int ID for the most recent event.
 
-    Each key contains a list of `EffortItemDTO` objects. This DTO is primarily
-    interested in the "90days" data. For each `EffortItemDTO`, only the following
-    fields are relevant:
-    - `x`: Time in seconds.
-    - `y`: Power in watts.
+    Each key contains a list of `EffortItemDTO` objects. 
 
     Attributes:
         info (List[InfoItemDTO]): A list of metadata items about the rider's efforts.
@@ -34,7 +33,7 @@ class ZwiftPowerCpGraphDTO(BaseModel):
 
     class InfoItemDTO(BaseModel):
         """
-        Represents an item in the 'info' list.
+        Represents a line-item in the 'info' list. A nested class.
 
         Attributes:
             name (str): The name of the effort (e.g., "Last 30 days").
@@ -47,7 +46,8 @@ class ZwiftPowerCpGraphDTO(BaseModel):
 
     class EffortItemDTO(BaseModel):
         """
-        Represents an item in the 'efforts' dictionary.
+        Represents a line-item in the lists that are the values of the three
+        keys in the 'efforts' dictionary. A nested class.
 
         Attributes:
             x (int): The X coordinate (time in seconds).

@@ -64,7 +64,7 @@ def inverse_model_numpy_masked(x: NDArray[np.float64], a: float, b: float) -> ND
     result[mask] = a * (1 / (x[mask] ** b))  # Compute only for non-zero values
     return result
 
-def cp_w_prime_model(x: float, a: float, b: float) -> float:
+def cp_w_prime_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
     Compute power as a function of CP and W' using the formula (a * x + b) / x.
 
@@ -148,11 +148,11 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     ydata: NDArray[np.float64] = np.array(list(raw_xy_data.values()))
 
     # Perform curve fitting using the inverse model
-    popt, _ = curve_fit(inverse_model_numpy_masked, xdata, ydata)
+    popt, _ = curve_fit(inverse_model_numpy, xdata, ydata)
     a , b = popt  # a is the coefficient, b is the exponent
 
     # Calculate the predicted y values based on the fitted parameters
-    ydata_pred = inverse_model_numpy_masked(xdata, a, b)
+    ydata_pred = inverse_model_numpy(xdata, a, b)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
