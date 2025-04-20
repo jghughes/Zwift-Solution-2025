@@ -196,6 +196,7 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     cp_9: Optional[float] = 0.0
     cp_10: Optional[float] = 0.0
     cp_11: Optional[float] = 0.0
+    cp_12: Optional[float] = 0.0
     cp_13: Optional[float] = 0.0
     cp_14: Optional[float] = 0.0
     cp_15: Optional[float] = 0.0

@@ -72,7 +72,7 @@
     <Compile Include="src\jgh_formulae08.py" />
     <Compile Include="src\jgh_formulae09.py" />
     <Compile Include="src\ttt_solution.py" />
-    <Compile Include="src\functions\critical_power_models.py">
+    <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_critical_power_models.py" />

@@ -2,7 +2,8 @@ from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
-from critical_power_models import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from numpy.typing import NDArray
+from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -49,10 +50,22 @@ def main():
 
     # Process each rider in the riders_cp_data dictionary
     for rider_id, rider_cp_data in riders_cp_data.items():
-        # Export raw CP data for best fitting
+
+        # Import raw CP data for best fitting
+
         raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
 
+        # log pretty table of input data
+        # table_data = [
+        #     [x, round(y)]
+        #     for x, y in raw_xy_data.items()
+        # ]
+        # headers = ["xdata (s)", "ydata (W)"]
+        # logger.debug("\n" + tabulate(table_data, headers=headers, tablefmt="grid"))
+
+
         # Perform CP-W' model fitting
+
         critical_power, anaerobic_work_capacity, r_squared, rms, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
         # Perform inverse model fitting
@@ -61,33 +74,52 @@ def main():
         # Update the rider's CP data with the model results
         rider_cp_data.critical_power = critical_power
         rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
+        model_applied = "cp"
+
         # rider_cp_data.inverse_coefficient = constant
         # rider_cp_data.inverse_exponent = exponent
-
-        model_applied = "inverse"
+        # model_applied = "inverse"
 
         rider_cp_data.model_applied = model_applied
 
         # Generate predictions for test x-data
-        xdata_test = np.array([
-            5, 15, 30, 60, 90, 120, 150, 180, 300, 420, 600, 720, 900, 1200,
-            1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
-        ])
 
-        y_pred = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
+        # Convert keys and values of raw_xy_data to NumPy arrays
+        xdata: NDArray[np.float64] = np.array(list(raw_xy_data.keys()), dtype=float)
+        ydata: NDArray[np.float64] = np.array(list(raw_xy_data.values()), dtype=float)
+
+
+
+        y_pred = cp_w_prime_model_numpy(xdata, critical_power, anaerobic_work_capacity)
+
+
+        # Prepare data for the table
+        table_data = [
+            [x, round(y), round(y_pred_val)]
+            for x, y, y_pred_val in zip(xdata, ydata, y_pred)
+        ]
+        headers = ["xdata (s)", "ydata (W)", "y_pred (W)"]
+
+        # Log the table
+        logger.debug("\n" + tabulate(table_data, headers=headers, tablefmt="grid"))
+
+
+
 
         # Convert y_pred to a dictionary and import it into the rider's CP data
-        y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}
-        rider_cp_data.import_cp_data(y_pred_dict)
-        # str of timestamp in ISO format
-        rider_cp_data.generated = datetime.now().isoformat()
+
+        # y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}
+        # rider_cp_data.import_cp_data(y_pred_dict)
+        # # str of timestamp in ISO format
+        # rider_cp_data.generated = datetime.now().isoformat()
 
     # Write the updated CP data for all riders to a file
-    write_dict_of_cpdata(
-        riders_cp_data,
-        "populated_cp_data_for_betel_rubbish.json",
-        "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-    )
+
+    # write_dict_of_cpdata(
+    #     riders_cp_data,
+    #     "populated_cp_data_for_betel_rubbish.json",
+    #     "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+    # )
 
 if __name__ == "__main__":
     main()

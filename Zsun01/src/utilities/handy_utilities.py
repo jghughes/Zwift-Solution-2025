@@ -17,12 +17,14 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages,
 
 def get_betel_zwift_ids() -> List[str]:
 
-    file_name = "betel_rider_zwift_ids.json"
+    file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, set[str])
-    answer = cast(list[str], answer)
+    riders = read_dict_of_zwiftriders(file_name, dir_path)
+
+    # extract list of zwiftIds from the riders
+    answer = [str(rider.zwiftid) for rider in riders.values()]
+
     return answer
 
 def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
