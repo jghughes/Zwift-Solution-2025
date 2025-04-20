@@ -5,6 +5,13 @@ from scipy.optimize import curve_fit
 from typing import Tuple, Dict
 from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
 
+import logging
+from jgh_logging import jgh_configure_logging
+jgh_configure_logging("appsettings.json")
+logger = logging.getLogger(__name__)
+logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+
 # def inverse_model(x: float, a: float, b: float) -> float:
 #     """
 #     A decay function that computes a * (1 / (x ** b)).
@@ -37,27 +44,29 @@ def inverse_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[n
 
     Returns:
         NDArray[np.float64]: The computed values of the decay function.
-    """
-    epsilon = 1e-10  # A small value to replace zeros
-    x_safe = np.where(x == 0, epsilon, x)  # Replace zeros with epsilon
-    return a * (1 / (x_safe ** b))
 
-def inverse_model_numpy_masked(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+    Raises:
+        ValueError: If x contains zero values to avoid division by zero.
     """
-    A decay function that computes a * (1 / (x ** b)) for NumPy arrays.
-    Handles zero values in the array by masking them and computing only for non-zero values.
 
-    Args:
-        x (NDArray[np.float64]): The input array.
-        a (float): Coefficient.
-        b (float): Exponent.
+    if np.any(x == 0):
+        raise ValueError("Input x must not contain zero values to avoid division by zero.")
 
-    Returns:
-        NDArray[np.float64]: The computed values of the decay function.
-    """
-    mask = x != 0  # Create a mask for non-zero values
-    result = np.zeros_like(x, dtype=np.float64)  # Initialize result array with zeros
-    result[mask] = a * (1 / (x[mask] ** b))  # Compute only for non-zero values
+    # # Log inputs for debugging
+    # logger = logging.getLogger(__name__)
+    # logger.debug(f"x: {x}")
+    # logger.debug(f"a (coefficient): {a}")
+    # logger.debug(f"b (exponent): {b}")
+
+    # if x  is less than one, replace it with 1
+    x = np.where(x < 1, 1, x)
+
+    # Compute the result
+    result = a * (1 / (x ** b))
+
+    # # Log the result
+    # logger.debug(f"result: {result}")
+
     return result
 
 def cp_w_prime_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
@@ -65,17 +74,36 @@ def cp_w_prime_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArra
     Compute power as a function of CP and W' using the formula (a * x + b) / x.
 
     Args:
-        x (float): Duration (seconds). Must be non-zero.
+        x (NDArray[np.float64]): Duration (seconds). Must be non-zero.
         a (float): Coefficient for the linear term, critical_power.
         b (float): Constant term, W'
 
     Returns:
-        float: Computed power value.
+        NDArray[np.float64]: Computed power values.
 
     Raises:
-        ValueError: If x is zero, to avoid division by zero.
+        ValueError: If x contains zero values to avoid division by zero.
     """
-    return (a * x + b) / x
+
+    if np.any(x == 0):
+        raise ValueError("Input x must not contain zero values to avoid division by zero.")
+
+    # # Log inputs for debugging
+    # logger = logging.getLogger(__name__)
+    # logger.debug(f"x: {x}")
+    # logger.debug(f"a (critical_power): {a}")
+    # logger.debug(f"b (anaerobic_work_capacity): {b}")
+
+    # if x  is less than one, replace it with 1
+    x = np.where(x < 1, 1, x)
+
+    # Compute the result
+    result = (a * x + b) / x
+
+    # # Log the result
+    # logger.debug(f"result: {result}")
+
+    return result
 
 def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
@@ -330,8 +358,51 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
     return modeled_data
 
 # Example usage of the functions
-def main():
-    pass
+def main_test_cp_w_prime_model_numpy():
+    # # a. Test with Valid Inputs
+    x = np.array([300, 3600, 7200], dtype=np.float64)
+
+    a = 240  # Critical power
+    b = 1000  # Anaerobic work capacity
+    # result = cp_w_prime_model_numpy(x, a, b)
+    # print("CP-W' Model Result:")
+    # print (f"{result}")
+
+    # b. Test with Zero Values in x
+
+    x = np.array([0, 30, 60], dtype=np.float64)
+    try:
+        result = cp_w_prime_model_numpy(x, a, b)
+    except ValueError as e:
+        print(e)     
+
+    # c. Test with Small Values in x
+
+    x = np.array([1e-10, 30, 60], dtype=np.float64)
+    result = cp_w_prime_model_numpy(x, a, b)
+    print(result)
+
+def main_test_inverse_model_numpy():
+
+        # a. Test with Valid Inputs
+        x = np.array([300, 3600, 7200], dtype=np.float64)
+        a = 633.23 # Coefficient
+        b = -0.1406 # Exponent
+        _ = inverse_model_numpy(x, a, b)
+        # b. Test with Zero Values in x
+
+        x = np.array([0, 30, 60], dtype=np.float64)
+        try:
+            _ = inverse_model_numpy(x, a, b)
+        except ValueError as e:
+            print(e)     
+
+        # c. Test with Small Values in x
+
+        x = np.array([1e-10, 30, 60], dtype=np.float64)
+        _ = inverse_model_numpy(x, a, b)
+
 
 if __name__ == "__main__":
-    main()
+    # main_test_cp_w_prime_model_numpy()
+    main_test_inverse_model_numpy()
