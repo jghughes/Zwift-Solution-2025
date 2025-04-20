@@ -2,7 +2,7 @@ from datetime import datetime
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
-from critical_power_models import cp_w_prime_model, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power_models import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -45,7 +45,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    riders_cp_data = read_dict_of_cpdata("input_cp_data_for_betel_from_zwiftpower.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     # Process each rider in the riders_cp_data dictionary
     for rider_id, rider_cp_data in riders_cp_data.items():
@@ -56,13 +56,13 @@ def main():
         critical_power, anaerobic_work_capacity, r_squared, rms, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
         # Perform inverse model fitting
-        constant, exponent, r_squared2, rms2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+        # constant, exponent, r_squared2, rms2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
 
         # Update the rider's CP data with the model results
         rider_cp_data.critical_power = critical_power
         rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
-        rider_cp_data.inverse_coefficient = constant
-        rider_cp_data.inverse_exponent = exponent
+        # rider_cp_data.inverse_coefficient = constant
+        # rider_cp_data.inverse_exponent = exponent
 
         model_applied = "inverse"
 
@@ -74,7 +74,7 @@ def main():
             1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400
         ])
 
-        y_pred = inverse_model_numpy(xdata_test, constant, exponent)
+        y_pred = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
 
         # Convert y_pred to a dictionary and import it into the rider's CP data
         y_pred_dict = {int(x): round(y, 0) for x, y in zip(xdata_test, y_pred)}

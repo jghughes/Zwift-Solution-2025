@@ -21,7 +21,7 @@ def get_betel_zwift_ids() -> List[str]:
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, list[str])
+    answer = JghSerialization.validate(inputjson, set[str])
     answer = cast(list[str], answer)
     return answer
 
@@ -410,8 +410,6 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
         answer[zwiftID] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(dto)
 
     return answer
-
-
 
 def main():
 

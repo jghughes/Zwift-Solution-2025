@@ -1,6 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_cp_graph_files_in_folder, write_dict_of_cpdata 
+from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_cp_graph_files_in_folder, write_dict_of_cpdata, get_betel_zwift_ids
 
 def main():
     """
@@ -8,7 +8,7 @@ def main():
     and stored in INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH.
 
     Write the consolidated data as a dict and serialise and save for storage in the Zsun01 project folder
-    named "input_cp_data_for_betel_from_zwiftpower.json". THis file is subsequently used in `tool04` to 
+    named "input_cp_data_for_betel_from_zwiftpower.json". This file is subsequently used in `tool04` to 
     do cp data modelling and curve fitting to generate the modelled data stored in "betel_cp_data.json"
 
     Dependencies:
@@ -31,7 +31,7 @@ def main():
 
     # do work
 
-    betel_IDs =["1884456", "2508033", "11741", "1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1024413", "1884456" "991817", "1713736", "2398312", "2508033"  "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432", "1657744", "1707548"] 
+    betel_IDs = get_betel_zwift_ids()
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 

@@ -5,29 +5,25 @@ from scipy.optimize import curve_fit
 from typing import Tuple, Dict
 from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
 
+# def inverse_model(x: float, a: float, b: float) -> float:
+#     """
+#     A decay function that computes a * (1 / (x ** b)).
+#     Guards against division by zero by checking if x is zero.
 
-def linear_model(x : float, a : float, b: float):
-    return a * x + b
+#     Args:
+#         x (float): The input value (must be non-zero).
+#         a (float): Coefficient.
+#         b (float): Exponent.
 
-def inverse_model(x: float, a: float, b: float) -> float:
-    """
-    A decay function that computes a * (1 / (x ** b)).
-    Guards against division by zero by checking if x is zero.
+#     Returns:
+#         float: The computed value of the decay function.
 
-    Args:
-        x (float): The input value (must be non-zero).
-        a (float): Coefficient.
-        b (float): Exponent.
-
-    Returns:
-        float: The computed value of the decay function.
-
-    Raises:
-        ValueError: If x is zero, to avoid division by zero.
-    """
-    if x == 0:
-        raise ValueError("Input x must be non-zero to avoid division by zero.")
-    return a * (1 / (x ** b))
+#     Raises:
+#         ValueError: If x is zero, to avoid division by zero.
+#     """
+#     if x == 0:
+#         raise ValueError("Input x must be non-zero to avoid division by zero.")
+#     return a * (1 / (x ** b))
 
 def inverse_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
@@ -95,12 +91,12 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
         and a dictionary combining the original data and predicted values.
     """
     # Convert keys and values of raw_xy_data to NumPy arrays
-    xdata: np.ndarray = np.array(list(raw_xy_data.keys()), dtype=float)
-    ydata: np.ndarray = np.array(list(raw_xy_data.values()), dtype=float)
+    xdata: NDArray[np.float64] = np.array(list(raw_xy_data.keys()), dtype=float)
+    ydata: NDArray[np.float64] = np.array(list(raw_xy_data.values()), dtype=float)
 
     # Perform linear regression between duration and work using curve_fit
     # In the model, x stands for duration, and x * y is work (duration * power)
-    popt, _ = curve_fit(linear_model, xdata, xdata * ydata)
+    popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, xdata * ydata)
 
     # Extract the optimal parameters: critical_power (critical power) and anaerobic_work_capacity (anaerobic work capacity)
     # critical_power, anaerobic_work_capacity = popt
@@ -109,7 +105,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
     anaerobic_work_capacity: float = float(popt[1])
 
     # Use the cp_w_prime_model to calculate predicted y values based on the fitted parameters
-    ydata_pred: np.ndarray = cp_w_prime_model(xdata, critical_power, anaerobic_work_capacity)
+    ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, critical_power, anaerobic_work_capacity)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
@@ -127,14 +123,14 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
 
 def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
-    Perform modeling using an inverse model y = a * x^b, where b is typically negative (decay function).
+    Perform modeling using an inverse model y = coefficient * x^exponent, where exponent is typically negative (decay function).
 
     Args:
         raw_xy_data (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
 
     Returns:
-        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of a and b, the R-squared value,
-        the RMSE, and a dictionary combining the original data and predicted values.
+        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of coefficient and exponent, the R-squared value,
+        the RMSE, and coefficient dictionary combining the original data and predicted values.
     """
     # Remove all elements from the dict raw_xy_data where either the key is zero or the value is zero
     raw_xy_data = {k: v for k, v in raw_xy_data.items() if k != 0 and v != 0}
@@ -149,10 +145,12 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
 
     # Perform curve fitting using the inverse model
     popt, _ = curve_fit(inverse_model_numpy, xdata, ydata)
-    a , b = popt  # a is the coefficient, b is the exponent
+
+    coefficient: float = float(popt[0])
+    exponent: float = float(popt[1])
 
     # Calculate the predicted y values based on the fitted parameters
-    ydata_pred = inverse_model_numpy(xdata, a, b)
+    ydata_pred = inverse_model_numpy(xdata, coefficient, exponent)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
@@ -160,12 +158,12 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     # Calculate the root mean square error (RMSE)
     rmse: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
-    # Recombine the original x,y data and predicted y_data values into a dictionary
+    # Recombine the original x,y data and predicted y_data values into coefficient dictionary
     result: Dict[int, Tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 
-    return a, b, r2, rmse, result
+    return coefficient, exponent, r2, rmse, result
 
 def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
@@ -306,19 +304,19 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
         )
 
         # Perform modeling with CP-W' model
-        rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_cp_data_for_best_fitting()
-        critical_power, anaerobic_work_capacity, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
+        rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_cp_data_for_best_fit_modelling()
+        critical_power, anaerobic_work_capacity, _, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
         modeled_rider_cp_item.critical_power = critical_power
         modeled_rider_cp_item.anaerobic_work_capacity = anaerobic_work_capacity
 
         # Perform modeling with inverse model
-        constant, exponent, _, _ = do_modelling_with_inverse_model(rider_cp_interval_data)
+        constant, exponent, _, _, _ = do_modelling_with_inverse_model(rider_cp_interval_data)
         modeled_rider_cp_item.inverse_coefficient = constant
         modeled_rider_cp_item.inverse_exponent = exponent
 
         # Calculate the predicted y values based on the fitted parameters from the inverse model
-        x_ordinates = ZwiftRiderCriticalPowerItem.export_x_ordinates()
-        y_ordinates_inverse_model = [inverse_model(x_ordinate, constant, exponent) for x_ordinate in x_ordinates]
+        x_ordinates = np.array(ZwiftRiderCriticalPowerItem.export_x_ordinates())
+        y_ordinates_inverse_model = inverse_model_numpy(x_ordinates, constant, exponent)
 
         # Zip the x_ordinates and y_pred_inverse_model together into a dict[int, float]
         generated_cp_data = dict(zip(x_ordinates, y_ordinates_inverse_model))
