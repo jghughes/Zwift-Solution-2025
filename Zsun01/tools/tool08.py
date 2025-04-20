@@ -1,5 +1,5 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
-from critical_power_models import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 
 
 # Module-level constants
@@ -10,6 +10,7 @@ def main():
     # configure logging
 
     import logging
+    import numpy as np
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
@@ -45,15 +46,25 @@ def main():
             skipped_modelling_count += 1
             continue
 
-        # do modelling
+        # do CP modelling
+    
+        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
-        critical_power, anaerobic_work_capacity, r_squared, rmse, _  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-        # summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(cp_w_prime_model(60*60, critical_power, anaerobic_work_capacity))}W"
-        # logger.info(f"/n{summary}")
+        p1hour= cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
-        constant, exponent, r_squared2, rmse2, _ = do_modelling_with_inverse_model(raw_xy_data)
-        # summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}   RMSE={round(rmse2)}W  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
-        # logger.info(f"/n{summary2}")
+        summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour[0])}W"
+
+        logger.info(f"\n{summary}")
+
+        # do Inverse modelling
+
+        coefficient, exponent, r_squared2, rmse2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+
+        p1hour= inverse_model_numpy(np.array([60*60]), coefficient, exponent)
+
+        summary2 = f"Inverse model: c={round(coefficient,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  RMSE={round(rmse2)}W P_1hour={round(p1hour[0])}W"
+
+        logger.info(f"\n{summary2}")
 
 
         rider_cp_data.model_applied = "critical_power" if r_squared > r_squared2 else "inverse"
@@ -71,7 +82,7 @@ def main():
             cp_count += 1
 
         if rider_cp_data.model_applied == "inverse":
-            rider_cp_data.inverse_coefficient = constant
+            rider_cp_data.inverse_coefficient = coefficient
             rider_cp_data.inverse_exponent = exponent
             inverse_count += 1
 

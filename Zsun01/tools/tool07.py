@@ -8,7 +8,8 @@ from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_
 
 def main():
     """
-    Main function to process ZwiftPower critical power data for a predefined list of riders (Betel IDs).
+    Main function to process ZwiftPower the voluminous cp data for a shortlist of riders,
+    in this caes Betel riders.
 
     This function performs the following tasks:
     1. Configures logging for the application.
@@ -47,13 +48,10 @@ def main():
 
     
     betel_IDs = get_betel_zwift_ids()
-    # do work
 
     INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
     raw_cp_dict_for_betel = read_many_zwiftpower_cp_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
-
-    from handy_utilities import read_dict_of_zwiftriders
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"

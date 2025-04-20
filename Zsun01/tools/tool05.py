@@ -5,37 +5,38 @@ import logging
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-from critical_power_models import cp_w_prime_model, inverse_model, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from jgh_logging import jgh_configure_logging
 
 def main():
     """
-    Perform one-off power-duration modeling for a specific Zwift rider using two models:
+    Perform one-off power-duration modeling for a selected Zwift rider using two models:
     the Critical Power (CP) model and the Inverse model. The script calculates
-    model parameters, evaluates model performance, and generates predictions.
+    model parameters, evaluates model statistical accuracy, and generates 
+    predictions for illustrative purposes.
 
     The results include:
-    - Model parameters (e.g., CP, AWC, constant, exponent).
-    - R-squared values for model performance.
+    - Model parameters (e.g., CP, AWC, coefficient, exponent).
+    - R-squared and RMSE values for model performance.
     - Predicted power values for specified durations.
     - A comparison of raw data and predicted values.
     - A plot visualizing the raw data and model predictions.
 
     Steps:
-    1. Load Zwift rider data and critical power data.
+    1. Load Zwift rider profiles (written manually by JGH). Load critical power data consolidated from ZwiftPower files from DaveK.
     2. Perform modeling using the CP-W' model and the Inverse model.
     3. Log model parameters and R-squared values.
     4. Generate tables comparing raw data and predicted values.
-    5. Generate predictions for specified durations.
+    5. Generate predictions for some selected durations for illustration.
     6. Plot raw data and model predictions.
 
     Note:
     - The script processes data for a specific rider, identified by their Zwift ID.
-    - The Zwift ID of the rider to process is set in the `rider_id` variable.
+    - The Zwift ID of the rider to process is set in the variable `rider_id` below.
 
     Dependencies:
     - Requires the `handy_utilities` module for reading rider data.
-    - Uses `critical_power_models` for modeling functions.
+    - Uses `critical_power` for modeling functions.
     - Requires `matplotlib` for plotting and `tabulate` for table generation.
 
     Returns:
@@ -58,8 +59,8 @@ def main():
 
     # get rider CP data
 
-    # riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV2.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
-    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    # riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     barryb ='5490373' 
     johnh ='1884456'
@@ -75,20 +76,30 @@ def main():
 
     # choose a rider to model
 
-    rider_id = johnh
+    rider_id = davek
 
     # extract raw data for modelling
 
     raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fit_modelling()
 
-    # do modelling
-
+    # do CP modelling
+    
     critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
-    summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  P_1hour={round(cp_w_prime_model(60*60, critical_power, anaerobic_work_capacity))}W"
+
+    p1hour= cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
+
+    summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour[0])}W"
+
     logger.info(f"\n{summary}")
 
-    constant, exponent, r_squared2, rmse, answer2 = do_modelling_with_inverse_model(raw_xy_data)
-    summary2 = f"Inverse model: c={round(constant,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  P_1hour={round(inverse_model(60*60, constant, exponent))}W"
+    # do Inverse modelling
+
+    coefficient, exponent, r_squared2, rmse2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+
+    p1hour= inverse_model_numpy(np.array([60*60]), coefficient, exponent)
+
+    summary2 = f"Inverse model: c={round(coefficient,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  RMSE={round(rmse2)}W P_1hour={round(p1hour[0])}W"
+
     logger.info(f"\n{summary2}")
 
     # # Tabulate answers
@@ -105,20 +116,20 @@ def main():
 
     # # Define xdata for predictions
 
-    xdata_test = [30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400]    
+    xdata_test = np.array([30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400])
     row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "1hour", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = [cp_w_prime_model(x, critical_power, anaerobic_work_capacity) for x in xdata_test]
-    y_pred_inverse_model = [inverse_model(x, constant, exponent) for x in xdata_test]
+    y_pred_cp_model = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
+    y_pred_inverse_model = inverse_model_numpy(xdata_test, coefficient, exponent)
 
     # # Tabulate predictions
     table_data_pred = [
-        [title, x, f"{y_inv:.0f}", f"{y_cp:.0f}"]
-        for title, x, y_inv, y_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
+        [title, x, f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
+        for title, x, y_pred_inv, y_pred_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
     ]
-    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse model)", "y_pred (CP model)"]
 
-    logger.info(f"\nPredicted Values for Specified xdata: {dict_of_zwiftrideritem[rider_id].name}")
+    logger.info(f"\nPredicted Values for selected xdata points: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
     logger.info("\nModelling completed. Thank you.\n")
 

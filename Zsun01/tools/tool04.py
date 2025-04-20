@@ -3,7 +3,7 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
-from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, inverse_model_numpy_masked, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power import do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -74,7 +74,7 @@ def main():
         # Update the rider's CP data with the model results
         rider_cp_data.critical_power = critical_power
         rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
-        model_applied = "cp"
+        # model_applied = "cp"
 
         rider_cp_data.inverse_coefficient = constant
         rider_cp_data.inverse_exponent = exponent

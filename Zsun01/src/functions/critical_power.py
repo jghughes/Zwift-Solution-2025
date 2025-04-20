@@ -4,6 +4,7 @@ from sklearn.metrics import r2_score, mean_squared_error
 from scipy.optimize import curve_fit
 from typing import Tuple, Dict
 from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
+from tabulate import tabulate
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -12,33 +13,13 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 
-# def inverse_model(x: float, a: float, b: float) -> float:
-#     """
-#     A decay function that computes a * (1 / (x ** b)).
-#     Guards against division by zero by checking if x is zero.
-
-#     Args:
-#         x (float): The input value (must be non-zero).
-#         a (float): Coefficient.
-#         b (float): Exponent.
-
-#     Returns:
-#         float: The computed value of the decay function.
-
-#     Raises:
-#         ValueError: If x is zero, to avoid division by zero.
-#     """
-#     if x == 0:
-#         raise ValueError("Input x must be non-zero to avoid division by zero.")
-#     return a * (1 / (x ** b))
-
-def inverse_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+def inverse_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
-    A decay function that computes a * (1 / (x ** b)) for NumPy arrays.
+    A decay function that computes a * (1 / (xdata ** b)) for NumPy arrays.
     Handles zero values in the array by replacing them with a small epsilon value.
 
     Args:
-        x (NDArray[np.float64]): The input array.
+        xdata (NDArray[np.float64]): The input array.
         a (float): Coefficient.
         b (float): Exponent.
 
@@ -46,35 +27,22 @@ def inverse_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[n
         NDArray[np.float64]: The computed values of the decay function.
 
     Raises:
-        ValueError: If x contains zero values to avoid division by zero.
+        ValueError: If xdata contains zero values to avoid division by zero.
     """
 
-    if np.any(x == 0):
-        raise ValueError("Input x must not contain zero values to avoid division by zero.")
+    if np.any(xdata < 1):
+        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
 
-    # # Log inputs for debugging
-    # logger = logging.getLogger(__name__)
-    # logger.debug(f"x: {x}")
-    # logger.debug(f"a (coefficient): {a}")
-    # logger.debug(f"b (exponent): {b}")
-
-    # if x  is less than one, replace it with 1
-    x = np.where(x < 1, 1, x)
-
-    # Compute the result
-    result = a * (1 / (x ** b))
-
-    # # Log the result
-    # logger.debug(f"result: {result}")
+    result = a * (1 / (xdata ** b))
 
     return result
 
-def cp_w_prime_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
-    Compute power as a function of CP and W' using the formula (a * x + b) / x.
+    Compute power as a function of CP and W' using the formula (a * xdata + b) / xdata.
 
     Args:
-        x (NDArray[np.float64]): Duration (seconds). Must be non-zero.
+        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero.
         a (float): Coefficient for the linear term, critical_power.
         b (float): Constant term, W'
 
@@ -82,33 +50,20 @@ def cp_w_prime_model_numpy(x: NDArray[np.float64], a: float, b: float) -> NDArra
         NDArray[np.float64]: Computed power values.
 
     Raises:
-        ValueError: If x contains zero values to avoid division by zero.
+        ValueError: If xdata contains zero values to avoid division by zero.
     """
 
-    if np.any(x == 0):
-        raise ValueError("Input x must not contain zero values to avoid division by zero.")
+    if np.any(xdata < 1):
+        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
 
-    # # Log inputs for debugging
-    # logger = logging.getLogger(__name__)
-    # logger.debug(f"x: {x}")
-    # logger.debug(f"a (critical_power): {a}")
-    # logger.debug(f"b (anaerobic_work_capacity): {b}")
-
-    # if x  is less than one, replace it with 1
-    x = np.where(x < 1, 1, x)
-
-    # Compute the result
-    result = (a * x + b) / x
-
-    # # Log the result
-    # logger.debug(f"result: {result}")
+    result = (a * xdata + b) / xdata
 
     return result
 
 def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
-    Estimate critical_power and w' using the formula x * y = critical_power * x + w'. x_axis is time in seconds and y_axis is power in watts.
+    Estimate critical_power and w' using the formula xdata * y = critical_power * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
     critical_power is the critical power, and w' is the anaerobic work capacity.
 
     Args:
@@ -123,11 +78,13 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
     ydata: NDArray[np.float64] = np.array(list(raw_xy_data.values()), dtype=float)
 
     # Perform linear regression between duration and work using curve_fit
-    # In the model, x stands for duration, and x * y is work (duration * power)
-    popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, xdata * ydata)
+    # In the model, xdata stands for duration, and xdata * y is work (duration * power)
+    popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, ydata, p0=[250, 10_000])
 
     # Extract the optimal parameters: critical_power (critical power) and anaerobic_work_capacity (anaerobic work capacity)
     # critical_power, anaerobic_work_capacity = popt
+
+    logger.debug(f"Fitted parameters: {popt}")
 
     critical_power: float = float(popt[0])
     anaerobic_work_capacity: float = float(popt[1])
@@ -151,7 +108,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[f
 
 def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
-    Perform modeling using an inverse model y = coefficient * x^exponent, where exponent is typically negative (decay function).
+    Perform modeling using an inverse model y = coefficient * xdata^exponent, where exponent is typically negative (decay function).
 
     Args:
         raw_xy_data (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
@@ -186,7 +143,7 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     # Calculate the root mean square error (RMSE)
     rmse: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
-    # Recombine the original x,y data and predicted y_data values into coefficient dictionary
+    # Recombine the original xdata,y data and predicted y_data values into coefficient dictionary
     result: Dict[int, Tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
@@ -357,52 +314,127 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
 
     return modeled_data
 
-# Example usage of the functions
-def main_test_cp_w_prime_model_numpy():
-    # # a. Test with Valid Inputs
-    x = np.array([300, 3600, 7200], dtype=np.float64)
+# tests
 
+def test_cp_w_prime_model_numpy():
+
+    # # a. Test with Valid Inputs (jgh)
+    xdata = np.array([30, 300, 1200, 1800, 2400], dtype=np.float64)
     a = 240  # Critical power
-    b = 1000  # Anaerobic work capacity
-    # result = cp_w_prime_model_numpy(x, a, b)
-    # print("CP-W' Model Result:")
-    # print (f"{result}")
+    b = 10000  # Anaerobic work capacity
+    result = cp_w_prime_model_numpy(xdata, a, b)
+    logger.debug(f"\nCP-W' Model Result: y_pred\n\n{result}\n")
 
-    # b. Test with Zero Values in x
+    # # b. Test with Zero Values in xdata
 
-    x = np.array([0, 30, 60], dtype=np.float64)
-    try:
-        result = cp_w_prime_model_numpy(x, a, b)
-    except ValueError as e:
-        print(e)     
+    # xdata = np.array([0, 30, 60], dtype=np.float64)
+    # try:
+    #     result = cp_w_prime_model_numpy(xdata, a, b)
+    # except ValueError as e:
+    #     logger.debug(e)     
 
-    # c. Test with Small Values in x
+    # # c. Test with Small Values in xdata
 
-    x = np.array([1e-10, 30, 60], dtype=np.float64)
-    result = cp_w_prime_model_numpy(x, a, b)
-    print(result)
+    # xdata = np.array([1e-10, 30, 300], dtype=np.float64)
+    # result = cp_w_prime_model_numpy(xdata, a, b)
+    # logger.debug(result)
 
-def main_test_inverse_model_numpy():
+def test_inverse_model_numpy():
 
-        # a. Test with Valid Inputs
-        x = np.array([300, 3600, 7200], dtype=np.float64)
-        a = 633.23 # Coefficient
-        b = -0.1406 # Exponent
-        _ = inverse_model_numpy(x, a, b)
-        # b. Test with Zero Values in x
+        a = 654.0 # Coefficient
+        b = 0.1314 # Negative exponent
 
-        x = np.array([0, 30, 60], dtype=np.float64)
-        try:
-            _ = inverse_model_numpy(x, a, b)
-        except ValueError as e:
-            print(e)     
+        # # a. Test with Valid Inputs (jgh)
+        xdata = np.array([30, 300, 1200, 1800, 2400], dtype=np.float64)
+        result = inverse_model_numpy(xdata, a, b)
+        logger.debug(f"\nInverse Model Result: y_pred\n\n{result}\n")
 
-        # c. Test with Small Values in x
+        # # b. Test with Small Values in xdata
 
-        x = np.array([1e-10, 30, 60], dtype=np.float64)
-        _ = inverse_model_numpy(x, a, b)
+        # xdata = np.array([1e-10, 30, 60], dtype=np.float64)
+        # result = inverse_model_numpy(xdata, a, b)
+        # logger.debug("Inverse Model Result: small value in xdata inputs")
+        # logger.debug (f"{result}")
 
+        # # c. Test with Zero Values in xdata
+
+        # xdata = np.array([0, 30, 60], dtype=np.float64)
+        # logger.debug("Inverse Model Result: zero value in xdata inputs")
+        # try:
+        #     result = inverse_model_numpy(xdata, a, b)
+        # except ValueError as e:
+        #     logger.debug(e)     
+
+def test_do_modelling_with_inverse_model():
+    # Sample data
+    raw_xy_data = {
+        30: 425.0,
+        300: 292.0,
+        1200: 254.0,
+        1800: 252.0,
+        2400: 244.0
+    }
+
+    #do work
+    coefficient, exponent, r2, rmse, result = do_modelling_with_inverse_model(raw_xy_data)
+    # Prepare data for the summary table
+    summary_table = [
+        ["Coefficient", round(coefficient, 4)],
+        ["Exponent", round(exponent, 4)],
+        ["R-squared", round(r2, 2)],
+        ["RMSE", round(rmse)]
+    ]
+
+    # Log the summary table
+    logger.info("\nSummary of Inverse Model results:\n" + tabulate(summary_table, headers=["Metric", "Value"], tablefmt="simple"))
+
+    # Prepare data for the detailed result table
+    result_table = [
+        [x, round(y[0]), round(y[1])]
+        for x, y in result.items()
+    ]
+    headers = ["xdata (s)", "ydata (W)", "y_pred (W)"]
+
+    # Log the detailed result table
+    logger.info("\n" + tabulate(result_table, headers=headers, tablefmt="simple"))
+
+def test_do_modelling_with_cp_w_prime_model():
+    # Sample data
+    raw_xy_data = {
+        30: 425.0,
+        300: 292.0,
+        1200: 254.0,
+        1800: 252.0,
+        2400: 244.0
+    }
+
+    #do work
+    critical_power, anaerobic_work_capacity, r2, rmse, result = do_modelling_with_cp_w_prime_model(raw_xy_data)
+
+    # Prepare data for the summary table
+    summary_table = [
+        ["Critical Power (W)", round(critical_power)],
+        ["Anaerobic Work Capacity (kJ)", round(anaerobic_work_capacity)/1000],
+        ["R-squared", round(r2, 2)],
+        ["RMSE", round(rmse)]
+    ]
+
+    # Log the summary table
+    logger.info("\nSummary of CP_w_prime model results:\n" + tabulate(summary_table, headers=["Metric", "Value"], tablefmt="simple"))
+
+    # Prepare data for the detailed result table
+    result_table = [
+        [x, round(y[0]), round(y[1])]
+        for x, y in result.items()
+    ]
+    headers = ["xdata (s)", "ydata (W)", "y_pred (W)"]
+
+    # Log the detailed result table
+    logger.info("\n" + tabulate(result_table, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
-    # main_test_cp_w_prime_model_numpy()
-    main_test_inverse_model_numpy()
+    test_inverse_model_numpy()
+    test_cp_w_prime_model_numpy()
+    test_do_modelling_with_inverse_model()
+    test_do_modelling_with_cp_w_prime_model()
+
