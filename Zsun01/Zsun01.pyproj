@@ -42,6 +42,7 @@
   <ItemGroup>
     <Content Include="appsettings.json" />
     <Content Include="data\betel_cp_data.json" />
+    <Content Include="data\betel_rider_zwift_ids.json" />
     <Content Include="data\input_cp_data_for_betel_from_zwiftpower.json" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
@@ -54,7 +55,6 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="data\betel_ids.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="tools\rubbish.py" />
     <Compile Include="tools\rubbish02.py" />

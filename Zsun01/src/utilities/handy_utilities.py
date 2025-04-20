@@ -1,5 +1,5 @@
 import os
-from typing import Dict, cast, Optional
+from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
@@ -15,6 +15,15 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
+def get_betel_zwift_ids() -> List[str]:
+
+    file_name = "betel_rider_zwift_ids.json"
+    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    inputjson = read_text(dir_path, file_name)
+    answer = JghSerialization.validate(inputjson, list[str])
+    answer = cast(list[str], answer)
+    return answer
 
 def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
     """
@@ -45,12 +54,12 @@ def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRi
 
     inputjson = read_text(dir_path, file_name)
 
-    dto_dict = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDTO])
-    dto_dict = cast(Dict[str, ZwiftRiderDTO], dto_dict)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDTO])
+    answer = cast(Dict[str, ZwiftRiderDTO], answer)
 
     return {
         key: ZwiftRiderItem.from_dataTransferObject(dto)
-        for key, dto in dto_dict.items()
+        for key, dto in answer.items()
     }
 
 def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderCriticalPowerItem]:
@@ -82,12 +91,12 @@ def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderCr
 
     inputjson = read_text(dir_path, file_name)
 
-    dto_dict = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderCriticalPowerDTO])
-    dto_dict = cast(Dict[str, ZwiftRiderCriticalPowerDTO], dto_dict)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderCriticalPowerDTO])
+    answer = cast(Dict[str, ZwiftRiderCriticalPowerDTO], answer)
 
     return {
         key: ZwiftRiderCriticalPowerItem.from_dataTransferObject(dto)
-        for key, dto in dto_dict.items()
+        for key, dto in answer.items()
     }
 
 def write_dict_of_cpdata(data: Dict[str, ZwiftRiderCriticalPowerItem], file_name: str, dir_path: str) -> None:
@@ -406,13 +415,10 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
 
 def main():
 
-    from betel_ids import get_betel_ids
-
-
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
 
-    zsun_raw_cp_dict_for_betel = read_many_zwiftracing_files_in_folder(get_betel_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    zsun_raw_cp_dict_for_betel = read_many_zwiftracing_files_in_folder(get_betel_zwift_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
@@ -432,11 +438,9 @@ def main02():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    from betel_ids import get_betel_ids
-
 
     INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_cp_graph_files_in_folder(get_betel_ids(), INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    _ = read_many_zwiftpower_cp_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()

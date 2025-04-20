@@ -34,9 +34,7 @@ def is_valid_filename(filename: str, required_extension: str) -> bool:
     """
     return filename.endswith(required_extension) and "/" not in filename
 
-
-def raise_exception_if_invalid(
-    dirpath: str, filename: str, required_extension: str, must_read_not_write: bool) -> bool:
+def raise_exception_if_invalid(dirpath: str, filename: str, required_extension: str, must_read_not_write: bool) -> bool:
     """
     Validates the directory path and filename, ensuring they meet specified criteria.
 
@@ -88,24 +86,24 @@ def help_select_filepaths_in_folder(file_names: Optional[list[str]], file_extens
     with the specified extension are returned.
 
     Args:
-        file_names (Optional[list[str]]): A list of file names (without extensions) to filter the file paths.
-                                          If None or empty, all file paths with the specified extension are returned.
-        file_extension (str): The file extension to filter by (e.g., ".json").
-        dir_path (str): The directory path where the files are located.
+    file_names (Optional[list[str]]): A list of file names (without extensions) to filter the file paths.
+                                    If None or empty, all file paths with the specified extension are returned.
+    file_extension (str): The file extension to filter by (e.g., ".json").
+    dir_path (str): The directory path where the files are located.
 
     Returns:
-        list[str]: A list of file paths that match the specified criteria.
+    list[str]: A list of file paths that match the specified criteria.
 
     Raises:
-        ValueError: If `dir_path` is not a valid non-empty string.
-        FileNotFoundError: If the specified directory does not exist.
+    ValueError: If `dir_path` is not a valid non-empty string.
+    FileNotFoundError: If the specified directory does not exist.
 
     Example:
-        >>> help_select_filepaths_in_folder(["file1", "file2"], ".json", "/path/to/dir")
-        ['/path/to/dir/file1.json', '/path/to/dir/file2.json']
+    >>> help_select_filepaths_in_folder(["file1", "file2"], ".json", "/path/to/dir")
+    ['/path/to/dir/file1.json', '/path/to/dir/file2.json']
 
-        >>> help_select_filepaths_in_folder(None, ".json", "/path/to/dir")
-        ['/path/to/dir/file1.json', '/path/to/dir/file2.json', '/path/to/dir/file3.json']
+    >>> help_select_filepaths_in_folder(None, ".json", "/path/to/dir")
+    ['/path/to/dir/file1.json', '/path/to/dir/file2.json', '/path/to/dir/file3.json']
     """
 
     if not dir_path:
@@ -132,24 +130,6 @@ def help_select_filepaths_in_folder(file_names: Optional[list[str]], file_extens
     return filtered_file_paths
 
 
-def read_filepath_as_text(filepath: str) -> str:
-    """
-    Reads the content of a file as text.
-    Args:
-        filepath (str): The path to the file to read.
-    Returns:
-        str: The content of the file as a string.
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If there is an error reading the file.
-    """
-    try:
-        with open(filepath, "r", encoding="utf-8") as my_file:
-            return my_file.read()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {filepath}")
-    except IOError as e:
-        raise IOError(f"Error reading file {filepath}: {e}")
 
 def read_text(dirpath: str, filename: str) -> str:
     """
@@ -175,6 +155,24 @@ def read_text(dirpath: str, filename: str) -> str:
     except IOError as e:
         raise IOError(f"Error reading file {input_filepath}: {e}")
 
+def read_filepath_as_text(filepath: str) -> str:
+    """
+    Reads the content of a file as text.
+    Args:
+        filepath (str): The path to the file to read.
+    Returns:
+        str: The content of the file as a string.
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If there is an error reading the file.
+    """
+    try:
+        with open(filepath, "r", encoding="utf-8") as my_file:
+            return my_file.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {filepath}")
+    except IOError as e:
+        raise IOError(f"Error reading file {filepath}: {e}")
 
 def write_csv(dirpath: str, filename: str, items: List[Dict[str, Any]]) -> None:
     """
