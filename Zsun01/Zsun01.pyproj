@@ -54,6 +54,7 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="data\betel_ids.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="tools\rubbish.py" />
     <Compile Include="tools\rubbish02.py" />

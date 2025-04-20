@@ -1,12 +1,13 @@
 import os
 from typing import Dict, cast, Optional
-from jgh_read_write import read_text
+from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
 from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
 from zwiftracing_dto import ZwiftRacingAppPostDTO
+
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -122,18 +123,89 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftRiderCriticalPowerItem], file_name
 
     logger.debug(f"File saved : {file_name}")
 
-def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
-    Retrieve many individual ZwiftRacing JSON data files in a directory and convert them
-    to a dict of ZwiftRiderCriticalPowerItem instances. The key of the dicts is zwiftID.  
-    The data transfer object is ZwiftRacingAppPostDTO.
+    Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
+    of `ZwiftRiderCriticalPowerItem` instances. The key of the dictionary is the `zwiftID` extracted
+    from the filename (without the extension).
+
+    If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
+    is `None`, all JSON files in the directory are processed.
 
     Args:
-        dir_path (str): The directory path where the files are located.
+        riderIDs (Optional[list[str]]): A list of rider IDs to filter the files. If `None`, all files
+                                        in the directory are processed.
+        dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary of ZwiftRiderCriticalPowerItem instances.
+        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary where the keys are `zwiftID` strings
+                                                and the values are `ZwiftRiderCriticalPowerItem` instances.
+
+    Raises:
+        ValueError: If `dir_path` is not a valid non-empty string.
+        FileNotFoundError: If the specified directory does not exist.
+
+    Example:
+        >>> riderIDs = ["1193", "5134"]
+        >>> dir_path = "/path/to/zwiftracing/files"
+        >>> answer = read_many_zwiftracing_files_in_folder(riderIDs, dir_path)
+        >>> print(answer)
+        {
+            "1193": ZwiftRiderCriticalPowerItem(...),
+            "5134": ZwiftRiderCriticalPowerItem(...)
+        }
     """
+    
+    answer: Dict[str, ZwiftRiderCriticalPowerItem] = {}
+
+    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+
+    file_count = 0
+    error_count = 0
+
+    for file_path in file_paths:
+
+        inputjson = read_filepath_as_text(file_path)
+
+        file_count += 1
+
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppPostDTO)
+            dto = cast(ZwiftRacingAppPostDTO, dto)
+        except Exception:
+            error_count += 1
+            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            continue
+
+        file_name = os.path.basename(file_path)
+
+        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+
+        logger.debug(f"{file_count} processing : {file_name}")
+
+        answer[zwiftID] = ZwiftRiderCriticalPowerItem.from_zwift_racing_app_DTO(dto)
+
+    return answer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # Raise an error if dir_path parameter is not minimally satisfactory
 
@@ -147,7 +219,7 @@ def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_pat
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
-    result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
+    answer: Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
     file_count = 0
     error_count = 0
@@ -193,183 +265,154 @@ def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_pat
             dto = cast(ZwiftRacingAppPostDTO, dto)
 
             if dto.riderId:
-                result[dto.riderId] = ZwiftRiderCriticalPowerItem.from_zwift_racing_app_DTO(
+                answer[dto.riderId] = ZwiftRiderCriticalPowerItem.from_zwift_racing_app_DTO(
                     dto
                 )
 
-    return dict(sorted(result.items(), key=lambda item: int(item[0])))
+    return dict(sorted(answer.items(), key=lambda item: int(item[0])))
 
-def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderItem]:
+def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRiderItem]:
     """
-    Retrieve many individual ZwiftPower profile JSON files in a directory and convert them
-    to a dict of ZwiftRiderItem instances. If riderIDs is None, all files are processed.
-    Otherwise, only files with filenames the same as in riderIDs are processed. The key 
-    of the dict is zwiftID. The data transfer object is ZwiftRacingAppPostDTO.
+    Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
+    of `ZwiftRiderCriticalPowerItem` instances. The key of the dictionary is the `zwiftID` extracted
+    from the filename (without the extension).
+
+    If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
+    is `None`, all JSON files in the directory are processed.
 
     Args:
-        dir_path (str): The directory path where the files are located.
+        riderIDs (Optional[list[str]]): A list of rider IDs to filter the files. If `None`, all files
+                                        in the directory are processed.
+        dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftRiderItem]: A dictionary of ZwiftRiderItem instances.
+        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary where the keys are `zwiftID` strings
+                                                and the values are `ZwiftRiderCriticalPowerItem` instances.
+
+    Raises:
+        ValueError: If `dir_path` is not a valid non-empty string.
+        FileNotFoundError: If the specified directory does not exist.
+
+    Example:
+        >>> riderIDs = ["1193", "5134"]
+        >>> dir_path = "/path/to/zwiftpower/files"
+        >>> answer = read_many_zwiftpower_cp_graph_files_in_folder(riderIDs, dir_path)
+        >>> print(answer)
+        {
+            "1193": ZwiftRiderCriticalPowerItem(...),
+            "5134": ZwiftRiderCriticalPowerItem(...)
+        }
     """
 
-    # Raise an error if dir_path parameter is not minimally satisfactory
+    answer: Dict[str, ZwiftRiderItem] = {}
 
-    if not dir_path:
-        raise ValueError("dir_path must be a valid string.")
-
-    if not dir_path.strip():
-        raise ValueError("dir_path must be a valid non-empty string.")
-
-    # Raise an error if the directory does not exist
-    if not os.path.exists(dir_path):
-        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
-
-    result: Dict[str, ZwiftRiderItem] = {}
+    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
     file_count = 0
     error_count = 0
 
-    for entry in os.listdir(dir_path):
+    for file_path in file_paths:
 
-        # Check if the entry is a valid JSON file. if not skip it.
-        if not entry.endswith(".json"):
-            continue
+        inputjson = read_filepath_as_text(file_path)
 
-        file_name = entry
+        file_count += 1
 
-        # Skip the file if riderIDs is provided but is empty
-        if riderIDs is not None and not riderIDs:
-            continue
-
-        # Skip the file if riderIDs is provided and the file name (without .json) is not in riderIDs
-        if riderIDs and file_name[:-5] not in riderIDs:
-            continue
-    
-        # Go ahead and process the file
-
-
-        file_path = os.path.join(dir_path, file_name)
-
-        if os.path.isfile(file_path):
-
-            inputjson = read_text(dir_path, file_name)
-
-            file_count += 1
-
-            # logger.debug(f"{file_count} processing : {file_name}")
-
-            try:
-
-                dto = JghSerialization.validate(inputjson, ZwiftRiderDTO)
-
-            except Exception:
-                error_count += 1
-                logger.error(f"     {error_count} serialisation error. Skipping file: {file_name}")
-                continue
-
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftRiderDTO)
             dto = cast(ZwiftRiderDTO, dto)
+        except Exception:
+            error_count += 1
+            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            continue
 
-            if dto.zwiftid:
-                result[str(dto.zwiftid)] = ZwiftRiderItem.from_dataTransferObject(dto)
 
-    return dict(sorted(result.items(), key=lambda item: int(item[0])))
+        file_name = os.path.basename(file_path)
 
-def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: Optional[str]) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+
+        logger.debug(f"{file_count} processing : {file_name}")
+
+        answer[zwiftID] = ZwiftRiderItem.from_dataTransferObject(dto)
+
+    return answer
+
+def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRiderCriticalPowerItem]:
     """
-    Retrieve many individual ZwiftPower cp_power_graph JSON files in a directory and convert them
-    to a dict of ZwiftRiderCriticalPowerItem instances. If "riderIDs" parameter is None, all files 
-    in the specified directory are processed.
-    Otherwise, only files with filenames the same as in riderIDs are processed. The key 
-    of the resulting dict of items the aforementioned filename/zwiftID. 
-    The data transfer object used to read the JSON from ZwiftPower is ZwiftPowerCpGraphDTO.
+    Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
+    of `ZwiftRiderCriticalPowerItem` instances. The key of the dictionary is the `zwiftID` extracted
+    from the filename (without the extension).
+
+    If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
+    is `None`, all JSON files in the directory are processed.
 
     Args:
-        riderIDs (Optional[list[str]]): List of rider IDs to filter, or None to process all files.
-        dir_path (str): The directory path where the files are located.
+        riderIDs (Optional[list[str]]): A list of rider IDs to filter the files. If `None`, all files
+                                        in the directory are processed.
+        dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary of ZwiftRiderCriticalPowerItem instances.
+        Dict[str, ZwiftRiderCriticalPowerItem]: A dictionary where the keys are `zwiftID` strings
+                                                and the values are `ZwiftRiderCriticalPowerItem` instances.
+
+    Raises:
+        ValueError: If `dir_path` is not a valid non-empty string.
+        FileNotFoundError: If the specified directory does not exist.
+
+    Example:
+        >>> riderIDs = ["1193", "5134"]
+        >>> dir_path = "/path/to/zwiftpower/files"
+        >>> result = read_many_zwiftpower_cp_graph_files_in_folder(riderIDs, dir_path)
+        >>> print(result)
+        {
+            "1193": ZwiftRiderCriticalPowerItem(...),
+            "5134": ZwiftRiderCriticalPowerItem(...)
+        }
     """
-    # Raise an error if dir_path parameter is not minimally satisfactory
 
-    if not dir_path:
-        raise ValueError("dir_path must be a valid string.")
 
-    if not dir_path.strip():
-        raise ValueError("dir_path must be a valid non-empty string.")
 
-    # Raise an error if the directory does not exist
-    if not os.path.exists(dir_path):
-        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+    answer: Dict[str, ZwiftRiderCriticalPowerItem] = {}
 
-    result: Dict[str, ZwiftRiderCriticalPowerItem] = {}
-
-    # exit if riderIDs list is provided but is inadvertently empty
-    if riderIDs is not None and not riderIDs:
-        return result
+    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
     file_count = 0
     error_count = 0
-    logger.debug(f"\nProcessing zwift riders: \n{riderIDs}\n\n")
 
-    for entry in os.listdir(dir_path):
+    for file_path in file_paths:
 
-        # Check if the entry is a valid JSON file. if not its a subdir or an irrelevant file. hop over it.
-        if not entry.endswith(".json"):
-            continue
+        inputjson = read_filepath_as_text(file_path)
 
-        file_name = entry
+        file_count += 1
 
-        # If a list of riderIDs is provided, check if the file name (without .json) is on the list. if not, hop over it.
-        if riderIDs and file_name[:-5] not in riderIDs:
-            continue
-    
-        # Go ahead and process the file
-        logger.debug(f"\nAh ha. Success. We have found a file. On we go. File_name is:-\n{file_name} ")
-
-        file_path = os.path.join(dir_path, file_name)
-        logger.debug(f"\nAh ha. Success. We have found a file_path. On we go. File_path is:-\n{file_path} ")
-
-        if os.path.isfile(file_path):
-
-            logger.debug(f"\nReading the file.....")
-
-            inputjson = read_text(dir_path, file_name)
-
-            logger.debug(f"\n|nRaw input JSON for Richard Mann: \n\n{inputjson}\n\n")
-
-            file_count += 1
-            # logger.debug(f"{file_count} processing : {file_name}")
-
-            try:
-
-                dto = JghSerialization.validate(inputjson, ZwiftPowerCpGraphDTO)
-
-                logger.debug(f"\n\nValidated ZwiftPowerCpGraphDTO for Richard Mann: \n\n{dto}\n\n")
-
-
-            except Exception:
-                error_count += 1
-                logger.error(f"     {error_count} serialisation error. Skipping file: {file_name}")
-                continue
-
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftPowerCpGraphDTO)
             dto = cast(ZwiftPowerCpGraphDTO, dto)
+        except Exception:
+            error_count += 1
+            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            continue
 
-            if file_name[:-5]:
-                result[file_name[:-5]] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(dto)
-                logger.debug(f"\n\nMapped ZwiftRiderCriticalPowerItem for Richard Mann: \n\n{dto}\n\n")
+        file_name = os.path.basename(file_path)
+
+        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+
+        logger.debug(f"{file_count} processing : {file_name}")
+
+        answer[zwiftID] = ZwiftRiderCriticalPowerItem.from_zwiftpower_cp_graph_DTO(dto)
+
+    return answer
 
 
-    return dict(sorted(result.items(), key=lambda item: int(item[0])))
 
 def main():
 
+    from betel_ids import get_betel_ids
+
+
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
-    riderIDs =["1193", "5134", "9011", "11526", "183277", "383480", "384442", "480698", "1884456", "1024413", "991817", "1713736", "2398312", "2508033"  "2682791", "3147366", "5421258", "5490373", "5530045", "5569057", "6142432"] 
 
-    zsun_raw_cp_dict_for_betel = read_many_zwiftracing_files_in_folder(riderIDs,INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    zsun_raw_cp_dict_for_betel = read_many_zwiftracing_files_in_folder(get_betel_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
@@ -389,8 +432,11 @@ def main02():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
+    from betel_ids import get_betel_ids
+
+
     INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_cp_graph_files_in_folder(["1193"], INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    _ = read_many_zwiftpower_cp_graph_files_in_folder(get_betel_ids(), INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()
