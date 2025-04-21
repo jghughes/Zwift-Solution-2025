@@ -370,117 +370,121 @@ class ZwiftRiderCriticalPowerItem:
         cp_*      : float  Critical power values for various durations.
     """
 
-    zwiftid: int = 0
-    name: str = ""
-    cp_1: float = 0.0
-    cp_2: float = 0.0
-    cp_3: float = 0.0
-    cp_4: float = 0.0
-    cp_5: float = 0.0
-    cp_6: float = 0.0
-    cp_7: float = 0.0
-    cp_8: float = 0.0
-    cp_9: float = 0.0
-    cp_10: float = 0.0
-    cp_11: float = 0.0
-    cp_12: float = 0.0
-    cp_13: float = 0.0
-    cp_14: float = 0.0
-    cp_15: float = 0.0
-    cp_16: float = 0.0
-    cp_17: float = 0.0
-    cp_18: float = 0.0
-    cp_19: float = 0.0
-    cp_20: float = 0.0
-    cp_21: float = 0.0
-    cp_22: float = 0.0
-    cp_23: float = 0.0
-    cp_24: float = 0.0
-    cp_25: float = 0.0
-    cp_26: float = 0.0
-    cp_27: float = 0.0
-    cp_28: float = 0.0
-    cp_29: float = 0.0
-    cp_30: float = 0.0
-    cp_35: float = 0.0
-    cp_40: float = 0.0
-    cp_45: float = 0.0
-    cp_50: float = 0.0
-    cp_55: float = 0.0
-    cp_60: float = 0.0
-    cp_70: float = 0.0
-    cp_80: float = 0.0
-    cp_90: float = 0.0
-    cp_100: float = 0.0
-    cp_110: float = 0.0
-    cp_120: float = 0.0
-    cp_150: float = 0.0
-    cp_180: float = 0.0
-    cp_210: float = 0.0
-    cp_240: float = 0.0
-    cp_270: float = 0.0
-    cp_300: float = 0.0
-    cp_330: float = 0.0
-    cp_360: float = 0.0
-    cp_390: float = 0.0
-    cp_420: float = 0.0
-    cp_450: float = 0.0
-    cp_480: float = 0.0
-    cp_510: float = 0.0
-    cp_540: float = 0.0
-    cp_570: float = 0.0
-    cp_600: float = 0.0
-    cp_660: float = 0.0
-    cp_720: float = 0.0
-    cp_780: float = 0.0
-    cp_840: float = 0.0
-    cp_900: float = 0.0
-    cp_960: float = 0.0
-    cp_1020: float = 0.0
-    cp_1080: float = 0.0
-    cp_1140: float = 0.0
-    cp_1200: float = 0.0
-    cp_1320: float = 0.0
-    cp_1440: float = 0.0
-    cp_1560: float = 0.0
-    cp_1680: float = 0.0
-    cp_1800: float = 0.0
-    cp_1920: float = 0.0
-    cp_2040: float = 0.0
-    cp_2160: float = 0.0
-    cp_2280: float = 0.0
-    cp_2400: float = 0.0
-    cp_2520: float = 0.0
-    cp_2640: float = 0.0
-    cp_2760: float = 0.0
-    cp_2880: float = 0.0
-    cp_3000: float = 0.0
-    cp_3120: float = 0.0
-    cp_3240: float = 0.0
-    cp_3360: float = 0.0
-    cp_3480: float = 0.0
-    cp_3600: float = 0.0
-    cp_3900: float = 0.0
-    cp_4200: float = 0.0
-    cp_4500: float = 0.0
-    cp_4800: float = 0.0
-    cp_5100: float = 0.0
-    cp_5400: float = 0.0
-    cp_5700: float = 0.0
-    cp_6000: float = 0.0
-    cp_6300: float = 0.0
-    cp_6600: float = 0.0
-    cp_7200: float = 0.0
-    critical_power: float = 0.0
-    anaerobic_work_capacity: float = 0.0
-    critical_power_model_r_squared: float = 0.0
-    critical_power_p_1hour_predicted: float = 0.0
-    inverse_coefficient: float = 0.0
-    inverse_exponent: float = 0.0
-    inverse_power_model_r_squared: float = 0.0
-    inverse_power_p_1hour_predicted: float = 0.0
-    model_applied: str = ""  # Alternatives are "inverse" for Inverse-Exponential model "cp" for Critical Power Model
-    timestamp: str = ""  # Timestamp when the models were timestamp
+    zwiftid   : int   = 0
+    name      : str   = ""
+    cp_1      : float = 0.0
+    cp_2      : float = 0.0
+    cp_3      : float = 0.0
+    cp_4      : float = 0.0
+    cp_5      : float = 0.0
+    cp_6      : float = 0.0
+    cp_7      : float = 0.0
+    cp_8      : float = 0.0
+    cp_9      : float = 0.0
+    cp_10     : float = 0.0
+    cp_11     : float = 0.0
+    cp_12     : float = 0.0
+    cp_13     : float = 0.0
+    cp_14     : float = 0.0
+    cp_15     : float = 0.0
+    cp_16     : float = 0.0
+    cp_17     : float = 0.0
+    cp_18     : float = 0.0
+    cp_19     : float = 0.0
+    cp_20     : float = 0.0
+    cp_21     : float = 0.0
+    cp_22     : float = 0.0
+    cp_23     : float = 0.0
+    cp_24     : float = 0.0
+    cp_25     : float = 0.0
+    cp_26     : float = 0.0
+    cp_27     : float = 0.0
+    cp_28     : float = 0.0
+    cp_29     : float = 0.0
+    cp_30     : float = 0.0
+    cp_35     : float = 0.0
+    cp_40     : float = 0.0
+    cp_45     : float = 0.0
+    cp_50     : float = 0.0
+    cp_55     : float = 0.0
+    cp_60     : float = 0.0
+    cp_70     : float = 0.0
+    cp_80     : float = 0.0
+    cp_90     : float = 0.0
+    cp_100    : float = 0.0
+    cp_110    : float = 0.0
+    cp_120    : float = 0.0
+    cp_150    : float = 0.0
+    cp_180    : float = 0.0
+    cp_210    : float = 0.0
+    cp_240    : float = 0.0
+    cp_270    : float = 0.0
+    cp_300    : float = 0.0
+    cp_330    : float = 0.0
+    cp_360    : float = 0.0
+    cp_390    : float = 0.0
+    cp_420    : float = 0.0
+    cp_450    : float = 0.0
+    cp_480    : float = 0.0
+    cp_510    : float = 0.0
+    cp_540    : float = 0.0
+    cp_570    : float = 0.0
+    cp_600    : float = 0.0
+    cp_660    : float = 0.0
+    cp_720    : float = 0.0
+    cp_780    : float = 0.0
+    cp_840    : float = 0.0
+    cp_900    : float = 0.0
+    cp_960    : float = 0.0
+    cp_1020   : float = 0.0
+    cp_1080   : float = 0.0
+    cp_1140   : float = 0.0
+    cp_1200   : float = 0.0
+    cp_1320   : float = 0.0
+    cp_1440   : float = 0.0
+    cp_1560   : float = 0.0
+    cp_1680   : float = 0.0
+    cp_1800   : float = 0.0
+    cp_1920   : float = 0.0
+    cp_2040   : float = 0.0
+    cp_2160   : float = 0.0
+    cp_2280   : float = 0.0
+    cp_2400   : float = 0.0
+    cp_2520   : float = 0.0
+    cp_2640   : float = 0.0
+    cp_2760   : float = 0.0
+    cp_2880   : float = 0.0
+    cp_3000   : float = 0.0
+    cp_3120   : float = 0.0
+    cp_3240   : float = 0.0
+    cp_3360   : float = 0.0
+    cp_3480   : float = 0.0
+    cp_3600   : float = 0.0
+    cp_3900   : float = 0.0
+    cp_4200   : float = 0.0
+    cp_4500   : float = 0.0
+    cp_4800   : float = 0.0
+    cp_5100   : float = 0.0
+    cp_5400   : float = 0.0
+    cp_5700   : float = 0.0
+    cp_6000   : float = 0.0
+    cp_6300   : float = 0.0
+    cp_6600   : float = 0.0
+    cp_7200   : float = 0.0
+    cp_model_cp            : float = 0.0
+    cp_model_w_prime       : float = 0.0
+    cp_model_r_squared     : float = 0.0
+    cp_model_p_5min_extrapolated : float = 0.0
+    cp_model_p_1hour_extrapolated: float = 0.0
+    decay_model_coefficient            : float = 0.0
+    decay_model_exponent               : float = 0.0
+    decay_model_r_squared              : float = 0.0
+    decay_model_p_5min_extrapolated    : float = 0.0
+    decay_model_p_1hour_extrapolated   : float = 0.0
+    combined_model_r_squared           : float = 0.0
+    combined_model_p_5min_extrapolated : float = 0.0
+    combined_model_p_1hour_extrapolated: float = 0.0
+    when_models_generated                          : str   = ""  # when the models were fitted
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -501,6 +505,7 @@ class ZwiftRiderCriticalPowerItem:
             4500, 4800, 5100, 5400, 5700, 6000, 6300, 6600, 7200
         ]
         return answer;
+
 
     def export_cp_data(self) -> Dict[int, float]:
         """
@@ -621,6 +626,7 @@ class ZwiftRiderCriticalPowerItem:
 
         return answer
 
+
     def export_cp_data_for_best_fit_modelling(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
@@ -630,20 +636,30 @@ class ZwiftRiderCriticalPowerItem:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        # based on empirical testting, for reliable curve estimation, do not export data 
-        # less than 300sec (5min) and more than 2400sec (40min)
+        # For cross comparison, I am including all the x-ordinates
+        # visible in the Zwift feed, ZwiftPower, and behind the scenes on ZWiftRacing app.
+        # To significantly improve the R_squared for the CP, W' model in particular, I am further including
+        # all the invisible CP datapoints in the raw ZwiftPower data scraped by Dave Koniek
+        # between 10 min and 40 min. Then by eye, I add a smatterring of other CP datapoints
+        # to fill in some of the gaps in the number line of the x-ordinates on the chart.
+        # By eyeballing people's CP data, I have found that the CP data for some people is spurious 
+        # in the very low x-ordinates and sparse for others beyond 40 min. For these and other reasons,
+        # many people have poor r_squared results, especially for the cp_data model. The inverse decay model
+        # is genrally by far superior for the CP data, but the CP data model is still useful for the W' data. 
+        # Please don't change these selections. These are what I am going with.
+        # Dated : Easter Monday, April 21st 2025
 
         answer = {
             # 1: self.cp_1,
             # 2: self.cp_2,
             # 3: self.cp_3,
             # 4: self.cp_4,
-            # 5: self.cp_5,
+            5: self.cp_5,
             # 6: self.cp_6,
             # 7: self.cp_7,
             # 8: self.cp_8,
             # 9: self.cp_9,
-            10: self.cp_10,
+            # 10: self.cp_10,
             # 11: self.cp_11,
             # 12: self.cp_12,
             # 13: self.cp_13,
@@ -653,44 +669,44 @@ class ZwiftRiderCriticalPowerItem:
             # 17: self.cp_17,
             # 18: self.cp_18,
             # 19: self.cp_19,
-            20: self.cp_20,
+            # 20: self.cp_20,
             # 21: self.cp_21,
             # 22: self.cp_22,
             # 23: self.cp_23,
             # 24: self.cp_24,
-            25: self.cp_25,
+            # 25: self.cp_25,
             # 26: self.cp_26,
             # 27: self.cp_27,
             # 28: self.cp_28,
             # 29: self.cp_29,
             30: self.cp_30,
             # 35: self.cp_35,
-            40: self.cp_40,
+            # 40: self.cp_40,
             # 45: self.cp_45,
-            50: self.cp_50,
+            # 50: self.cp_50,
             # 55: self.cp_55,
             60: self.cp_60,
-            70: self.cp_70,
-            80: self.cp_80,
-            90: self.cp_90,
-            100: self.cp_100,
-            110: self.cp_110,
+            # 70: self.cp_70,
+            # 80: self.cp_80,
+            # 90: self.cp_90,
+            # 100: self.cp_100,
+            # 110: self.cp_110,
             120: self.cp_120,
-            150: self.cp_150,
+            # 150: self.cp_150,
             180: self.cp_180,
-            210: self.cp_210,
+            # 210: self.cp_210,
             240: self.cp_240,
-            270: self.cp_270,
+            # 270: self.cp_270,
             300: self.cp_300,
-            330: self.cp_330,
+            # 330: self.cp_330,
             360: self.cp_360,
-            390: self.cp_390,
+            # 390: self.cp_390,
             420: self.cp_420,
-            450: self.cp_450,
+            # 450: self.cp_450,
             480: self.cp_480,
-            510: self.cp_510,
+            # 510: self.cp_510,
             540: self.cp_540,
-            570: self.cp_570,
+            # 570: self.cp_570,
             600: self.cp_600,
             660: self.cp_660,
             720: self.cp_720,
@@ -714,14 +730,14 @@ class ZwiftRiderCriticalPowerItem:
             2400: self.cp_2400,
             # 2520: self.cp_2520,
             # 2640: self.cp_2640,
-            # 2760: self.cp_2760,
+            2760: self.cp_2760,
             # 2880: self.cp_2880,
-            # 3000: self.cp_3000,
+            3000: self.cp_3000,
             # 3120: self.cp_3120,
             # 3240: self.cp_3240,
             # 3360: self.cp_3360,
             # 3480: self.cp_3480,
-            # 3600: self.cp_3600,
+            3600: self.cp_3600,
             # 3900: self.cp_3900,
             # 4200: self.cp_4200,
             # 4500: self.cp_4500,
@@ -861,6 +877,7 @@ class ZwiftRiderCriticalPowerItem:
             if key in mapping:
                 setattr(self, mapping[key], value)
 
+
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDTO:
         """
@@ -974,13 +991,21 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = item.cp_6300,
             cp_6600        = item.cp_6600,
             cp_7200        = item.cp_7200,
-            critical_power             = item.critical_power,
-            anaerobic_work_capacity            = item.anaerobic_work_capacity,
-            inverse_coefficient  = item.inverse_coefficient,
-            inverse_exponent    = item.inverse_exponent,
-            timestamp      = item.timestamp,
-            model_applied  = item.model_applied
-        )
+            cp_model_cp            = item.cp_model_cp,
+            cp_model_w_prime       = item.cp_model_w_prime,
+            cp_model_r_squared     = item.cp_model_r_squared,
+            cp_model_p_5min_extrapolated = item.cp_model_p_5min_extrapolated,
+            cp_model_p_1hour_extrapolated= item.cp_model_p_1hour_extrapolated,
+            decay_model_coefficient            = item.decay_model_coefficient,
+            decay_model_exponent               = item.decay_model_exponent,
+            decay_model_r_squared              = item.decay_model_r_squared,
+            decay_model_p_5min_extrapolated    = item.decay_model_p_5min_extrapolated,
+            decay_model_p_1hour_extrapolated   = item.decay_model_p_1hour_extrapolated,
+            combined_model_r_squared           = item.combined_model_r_squared,
+            combined_model_p_5min_extrapolated = item.combined_model_p_5min_extrapolated,
+            combined_model_p_1hour_extrapolated= item.combined_model_p_1hour_extrapolated,
+            when_models_generated                          = item.when_models_generated)
+
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDTO) -> "ZwiftRiderCriticalPowerItem":
@@ -1095,13 +1120,22 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = dto.cp_6300 or 0.0,
             cp_6600        = dto.cp_6600 or 0.0,
             cp_7200        = dto.cp_7200 or 0.0,
-            critical_power          = dto.critical_power or 0.0,
-            anaerobic_work_capacity = dto.anaerobic_work_capacity or 0.0,
-            inverse_coefficient     = dto.inverse_coefficient or 0.0,
-            inverse_exponent        = dto.inverse_exponent or 0.0,
-            timestamp               = dto.timestamp or "",
-            model_applied           = dto.model_applied or ""  # Inverse Exponential model "inverse" or Critical Power Model "critical_power"
-        )
+            cp_model_cp             = dto.cp_model_cp or 0.0,
+            cp_model_w_prime        = dto.cp_model_w_prime or 0.0,
+            cp_model_r_squared      = dto.cp_model_r_squared or 0.0,
+            cp_model_p_5min_extrapolated  = dto.cp_model_p_5min_extrapolated or 0.0,
+            cp_model_p_1hour_extrapolated = dto.cp_model_p_1hour_extrapolated or 0.0,
+            decay_model_coefficient             = dto.decay_model_coefficient or 0.0,
+            decay_model_exponent                = dto.decay_model_exponent or 0.0,
+            decay_model_r_squared               = dto.decay_model_r_squared or 0.0,
+            decay_model_p_5min_extrapolated     = dto.decay_model_p_5min_extrapolated or 0.0,
+            decay_model_p_1hour_extrapolated    = dto.decay_model_p_1hour_extrapolated or 0.0,
+            combined_model_r_squared            = dto.combined_model_r_squared or 0.0,
+            combined_model_p_5min_extrapolated  = dto.combined_model_p_5min_extrapolated or 0.0,
+            combined_model_p_1hour_extrapolated = dto.combined_model_p_1hour_extrapolated or 0.0,
+            when_models_generated                           = dto.when_models_generated or ""
+          )
+
 
     @staticmethod
     def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftRiderCriticalPowerItem":
@@ -1118,18 +1152,18 @@ class ZwiftRiderCriticalPowerItem:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
         """
         return ZwiftRiderCriticalPowerItem(
-            zwiftid   = int(dto.riderId) if dto.riderId else 0,
-            name      = dto.name or "",
-            cp_5      = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
-            cp_15     = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
-            cp_30     = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
-            cp_60     = dto.power.w60 if dto.power and dto.power.w60 else 0.0,
-            cp_120    = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
-            cp_300    = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
-            cp_1200   = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            critical_power          = dto.power.CP if dto.power and dto.power.CP else 0.0,
-            anaerobic_work_capacity = dto.power.AWC if dto.power and dto.power.AWC else 0.0
-        )
+            zwiftid                  = int(dto.riderId) if dto.riderId else 0,
+            name                     = dto.name or "",
+            cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
+            cp_15                    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
+            cp_30                    = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
+            cp_60                    = dto.power.w60 if dto.power and dto.power.w60 else 0.0,
+            cp_120                   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
+            cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
+            cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
+            cp_model_cp      = dto.power.CP if dto.power and dto.power.CP else 0.0,
+            cp_model_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
+            )
 
     @staticmethod
     def from_zwiftpower_cp_graph_DTO(dto: ZwiftPowerCpGraphDTO) -> "ZwiftRiderCriticalPowerItem":
@@ -1205,8 +1239,8 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    critical_power                    : float = 0
-    anaerobic_work_capacity               : float = 0
+    cp_model_cp                    : float = 0
+    cp_model_w_prime              : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0

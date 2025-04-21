@@ -1,5 +1,5 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
-import  critical_power as cp
+import  cp_model_cp as cp
 from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
 
 # Module-level constants
@@ -32,7 +32,7 @@ def main():
     count_of_riders_with_poor_rmse = 0
     count_of_riders_with_high_fidelity_cp_data = 0
 
-    r_squared_limit = .98
+    r_squared_limit = .95
     rmse_limit = 10.0
 
     riders_with_high_cp_fidelity : list[ZwiftRiderCriticalPowerItem] = []
@@ -51,16 +51,16 @@ def main():
 
         # do CP modelling
     
-        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
-        p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
+        cp_model_cp, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
+        p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), cp_model_cp, anaerobic_work_capacity)
 
-        rider_cp_data.critical_power = critical_power
-        rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
-        rider_cp_data.critical_power_model_r_squared = r_squared
-        rider_cp_data.critical_power_p_1hour_predicted = p1hour_data[0]
+        rider_cp_data.cp_model_cp = cp_model_cp
+        rider_cp_data.cp_model_w_prime= anaerobic_work_capacity
+        rider_cp_data.cp_model_r_squared = r_squared
+        rider_cp_data.cp_model_p_1hour_extrapolated = p1hour_data[0]
 
 
-        summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour_data[0])}W"
+        summary = f"Critical power model: CP={round(cp_model_cp)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour_data[0])}W"
 
         logger.info(f"\n{summary}")
 
@@ -68,10 +68,10 @@ def main():
 
         coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_inverse_model(raw_xy_data)
         p2hour_data= cp.inverse_model_numpy(np.array([60*60]), coefficient, exponent)
-        rider_cp_data.inverse_coefficient = coefficient
-        rider_cp_data.inverse_exponent = exponent
-        rider_cp_data.inverse_power_model_r_squared = r_squared2
-        rider_cp_data.inverse_power_p_1hour_predicted = p2hour_data[0]
+        rider_cp_data.decay_model_coefficient = coefficient
+        rider_cp_data.decay_model_exponent = exponent
+        rider_cp_data.decay_model_r_squared = r_squared2
+        rider_cp_data.decay_model_p_1hour_extrapolated = p2hour_data[0]
 
         summary2 = f"Inverse model: c={round(coefficient,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  RMSE={round(rmse2)}W P_1hour={round(p2hour_data[0])}W"
 
@@ -80,7 +80,7 @@ def main():
         # do Combined modelling
 
 
-        rider_cp_data.model_applied = "critical_power" if r_squared > r_squared2 else "inverse"
+        rider_cp_data.model_applied = "cp_model_cp" if r_squared > r_squared2 else "inverse"
 
         if max(r_squared, r_squared2) < r_squared_limit:
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has R-squared values worse than {r_squared_limit} for both models.")
@@ -90,16 +90,16 @@ def main():
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has RMSE values worse than than {rmse_limit} for both models.")
             count_of_riders_with_poor_rmse += 1
 
-        if rider_cp_data.model_applied == "critical_power":
-            rider_cp_data.anaerobic_work_capacity = anaerobic_work_capacity
+        if rider_cp_data.model_applied == "cp_model_cp":
+            rider_cp_data.cp_model_w_prime= anaerobic_work_capacity
             cp_count += 1
 
         if rider_cp_data.model_applied == "inverse":
-            rider_cp_data.inverse_coefficient = coefficient
-            rider_cp_data.inverse_exponent = exponent
+            rider_cp_data.decay_model_coefficient = coefficient
+            rider_cp_data.decay_model_exponent = exponent
             inverse_count += 1
 
-        if rider_cp_data.model_applied == "critical_power":
+        if rider_cp_data.model_applied == "cp_model_cp":
             if r_squared >= r_squared_limit:
                 riders_with_high_cp_fidelity.append(rider_cp_data)
                 count_of_riders_with_high_fidelity_cp_data += 1
@@ -113,7 +113,7 @@ def main():
     # for  riders_with_high_cp_fidelity, write out the zwiftID, name, cp, and r_squared. sorted by name
     riders_with_high_cp_fidelity.sort(key=lambda x: x.name)
     for rider in riders_with_high_cp_fidelity:
-        logger.info(f"Rider ID {rider.zwiftid} :  CP = {round(rider.critical_power)}W  P60min = {round(rider.critical_power_p_1hour_predicted)}W  r_squared = {round(rider.critical_power_model_r_squared,2)}")
+        logger.info(f"Rider ID {rider.zwiftid} :  CP = {round(rider.cp_model_cp)}W  P60min = {round(rider.cp_model_p_1hour_extrapolated)}W  r_squared = {round(rider.cp_model_r_squared,2)}")
 
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV3.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"

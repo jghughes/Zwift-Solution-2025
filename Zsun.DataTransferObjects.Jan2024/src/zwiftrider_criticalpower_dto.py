@@ -1,5 +1,5 @@
 # Local application imports
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, model_serializer
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 from typing import Optional
 from jgh_read_write import *
 from jgh_serialization import *
@@ -16,6 +16,7 @@ serialization_alias_map: dict[str, str] = {
     "cp_9": "cp_9",
     "cp_10": "cp_10",
     "cp_11": "cp_11",
+    "cp_12": "cp_12",
     "cp_13": "cp_13",
     "cp_14": "cp_14",
     "cp_16": "cp_16",
@@ -83,7 +84,21 @@ serialization_alias_map: dict[str, str] = {
     "cp_6000": "cp_6000",
     "cp_6300": "cp_6300",
     "cp_6600": "cp_6600",
-}
+    "cp_7200": "cp_7200",
+    "cp_model_cp"                     : "cp_model_cp",
+    "cp_model_w_prime"            : "cp_model_w_prime",
+    "cp_model_r_squared"     : "cp_model_r_squared",
+    "cp_model_p_5min_extrapolated" : "cp_model_p_5min_extrapolated",
+    "cp_model_p_1hour_extrapolated": "cp_model_p_1hour_extrapolated",
+    "decay_model_coefficient"            : "decay_model_coefficient",
+    "decay_model_exponent"               : "decay_model_exponent",
+    "decay_model_r_squared"              : "decay_model_r_squared",
+    "decay_model_p_5min_extrapolated"    : "decay_model_p_5min_extrapolated",
+    "decay_model_p_1hour_extrapolated"   : "decay_model_p_1hour_extrapolated",
+    "combined_model_r_squared"           : "combined_model_r_squared",
+    "combined_model_p_5min_extrapolated" : "combined_model_p_5min_extrapolated",
+    "combined_model_p_1hour_extrapolated": "combined_model_p_1hour_extrapolated",
+    "when_models_generated"                          : "when_models_generated",    }
 
 # Define the validation alias choices map
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -97,6 +112,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "cp_9": AliasChoices("cp_9"),
     "cp_10": AliasChoices("cp_10"),
     "cp_11": AliasChoices("cp_11"),
+    "cp_12": AliasChoices("cp_12"),
     "cp_13": AliasChoices("cp_13"),
     "cp_14": AliasChoices("cp_14"),
     "cp_16": AliasChoices("cp_16"),
@@ -164,6 +180,21 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "cp_6000": AliasChoices("cp_6000"),
     "cp_6300": AliasChoices("cp_6300"),
     "cp_6600": AliasChoices("cp_6600"),
+    "cp_7200": AliasChoices("cp_7200"),
+    "cp_model_cp"            : AliasChoices("cp_model_cp"),
+    "cp_model_w_prime"            : AliasChoices("cp_model_w_prime"),
+    "cp_model_r_squared"     : AliasChoices("cp_model_r_squared"),
+    "cp_model_p_5min_extrapolated" : AliasChoices("cp_model_p_5min_extrapolated"),
+    "cp_model_p_1hour_extrapolated": AliasChoices("cp_model_p_1hour_extrapolated"),
+    "decay_model_coefficient"            : AliasChoices("decay_model_coefficient"),
+    "decay_model_exponent"               : AliasChoices("decay_model_exponent"),
+    "decay_model_r_squared"              : AliasChoices("decay_model_r_squared"),
+    "decay_model_p_5min_extrapolated"    : AliasChoices("decay_model_p_5min_extrapolated"),
+    "decay_model_p_1hour_extrapolated"   : AliasChoices("decay_model_p_1hour_extrapolated"),
+    "combined_model_r_squared"           : AliasChoices("combined_model_r_squared"),
+    "combined_model_p_5min_extrapolated" : AliasChoices("combined_model_p_5min_extrapolated"),
+    "combined_model_p_1hour_extrapolated": AliasChoices("combined_model_p_1hour_extrapolated"),
+    "when_models_generated"                          : AliasChoices("when_models_generated"),
 }
 
 # Define the Pydantic ConfigDict
@@ -284,10 +315,17 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     cp_6300: Optional[float] = 0.0
     cp_6600: Optional[float] = 0.0
     cp_7200: Optional[float] = 0.0
-    critical_power          : Optional[float] = 0.0
-    anaerobic_work_capacity : Optional[float] = 0.0
-    inverse_coefficient     : Optional[float] = 0.0
-    inverse_exponent        : Optional[float] = 0.0
-    model_applied        : Optional[str] = ""
-    timestamp               : Optional[str] = ""
-
+    cp_model_cp                     : Optional[float] = 0.0
+    cp_model_w_prime           : Optional[float] = 0.0
+    cp_model_r_squared     : Optional[float] = 0.0
+    cp_model_p_5min_extrapolated : Optional[float] = 0.0
+    cp_model_p_1hour_extrapolated: Optional[float] = 0.0
+    decay_model_coefficient            : Optional[float] = 0.0
+    decay_model_exponent               : Optional[float] = 0.0
+    decay_model_r_squared              : Optional[float] = 0.0
+    decay_model_p_5min_extrapolated    : Optional[float] = 0.0
+    decay_model_p_1hour_extrapolated   : Optional[float] = 0.0
+    combined_model_r_squared           : Optional[float] = 0.0
+    combined_model_p_5min_extrapolated : Optional[float] = 0.0
+    combined_model_p_1hour_extrapolated: Optional[float] = 0.0
+    when_models_generated                          : Optional[str]   = ""

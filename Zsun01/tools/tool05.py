@@ -5,7 +5,7 @@ import logging
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model, combined_model_numpy
+from cp_model_cp import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model, combined_model_numpy
 from jgh_logging import jgh_configure_logging
 
 def main():
@@ -36,7 +36,7 @@ def main():
 
     Dependencies:
     - Requires the `handy_utilities` module for reading rider data.
-    - Uses `critical_power` for modeling functions.
+    - Uses `cp_model_cp` for modeling functions.
     - Requires `matplotlib` for plotting and `tabulate` for table generation.
 
     Returns:
@@ -67,7 +67,7 @@ def main():
     lynseys ='383480' #ftp 201
     joshn ='2508033' #ftp 260
     richardm ='1193' # ftp 200
-    markb ='5530045' #ftp 229
+    markb ='5530045' #ftp 280
     davek="3147366" #ftp 276 cp 278
     husky="5134" #ftp 268
     scottm="11526" #ftp 247
@@ -80,7 +80,7 @@ def main():
 
     # choose a rider to model
 
-    rider_id = davek
+    rider_id = markb
 
 
     # extract raw data for modelling
@@ -89,11 +89,11 @@ def main():
 
     # do CP modelling
     
-    critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
+    cp_model_cp, anaerobic_work_capacity, r_squared, rmse, answer  = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
-    p1hour= cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
+    p1hour= cp_w_prime_model_numpy(np.array([60*60]), cp_model_cp, anaerobic_work_capacity)
 
-    summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour[0])}W"
+    summary  =  f"Critical power model: CP = {round(cp_model_cp)}W  AWC = {round(anaerobic_work_capacity/1_000)}kJ  R_squared = {round(r_squared,2)}  RMSE = {round(rmse)}W  P_1hour = {round(p1hour[0])}W"
 
     logger.info(f"\n{summary}")
 
@@ -103,7 +103,7 @@ def main():
 
     p1hour= inverse_model_numpy(np.array([60*60]), coefficient, exponent)
 
-    summary2 = f"Inverse model: c={round(coefficient,0)}  e={round(exponent,4)}  R_squared={round(r_squared2,2)}  RMSE={round(rmse2)}W P_1hour={round(p1hour[0])}W"
+    summary2 = f"Inverse model: c = {round(coefficient,0)}  e = {round(exponent,4)}  R_squared = {round(r_squared2,2)}  RMSE = {round(rmse2)}W P_1hour = {round(p1hour[0])}W"
 
     logger.info(f"\n{summary2}")
 
@@ -124,9 +124,9 @@ def main():
     xdata_test = np.array([30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400])
     row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "1hour", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
+    y_pred_cp_model = cp_w_prime_model_numpy(xdata_test, cp_model_cp, anaerobic_work_capacity)
     y_pred_inverse_model = inverse_model_numpy(xdata_test, coefficient, exponent)
-    y_pred_combined_model = combined_model_numpy(xdata_test, critical_power, anaerobic_work_capacity, coefficient, exponent)
+    y_pred_combined_model = combined_model_numpy(xdata_test, cp_model_cp, anaerobic_work_capacity, coefficient, exponent)
 
     # # Tabulate predictions
     table_data_pred = [
@@ -146,16 +146,16 @@ def main():
     ydata_pred = [value[1] for value in answer.values()]
     ydata_pred2 = [value[1] for value in answer2.values()]
 
-    y_pred_combined_model = combined_model_numpy(np.array(xdata), critical_power, anaerobic_work_capacity, coefficient, exponent)
-    p1hour = combined_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity, coefficient, exponent)
+    y_pred_combined_model = combined_model_numpy(np.array(xdata), cp_model_cp, anaerobic_work_capacity, coefficient, exponent)
+    p1hour = combined_model_numpy(np.array([60*60]), cp_model_cp, anaerobic_work_capacity, coefficient, exponent)
 
     ydata_pred3 = [float(value) for value in y_pred_combined_model]
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata, ydata, color='blue', label='Zwift 90-day data')
+    plt.scatter(xdata, ydata, color='blue', label='ZwiftPower 90-day cp data')
     plt.plot(xdata, ydata_pred, color='red', label=summary)
     plt.plot(xdata, ydata_pred2, color='green', label=summary2)
-    plt.plot(xdata, ydata_pred3, color='purple', label=f"combined  P_1hour={round(p1hour[0])}W")
+    plt.plot(xdata, ydata_pred3, color='purple', label=f"combined model : P_1hour = {round(p1hour[0])}W versus FTP = {dict_of_zwiftrideritem[rider_id].ftp}W")
     plt.xlabel('Duration (s)')
     plt.ylabel('Power (W)')
     plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')

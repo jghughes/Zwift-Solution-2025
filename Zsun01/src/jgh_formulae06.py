@@ -143,7 +143,7 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
         p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
         p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp = extract_pull_metrics(exertions)
         rider_answer_item = RiderAnswerItem(
-            critical_power  = 0,
+            cp_model_cp  = 0,
             anaerobic_work_capacity= 0,
             speed_kph = p1_speed_kph,
             pull_duration = pull_duration,
@@ -178,8 +178,8 @@ def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[Zwif
         rider_cp_item = zwiftriders_zwift_cp_data.get(rider_id_str, None) # because keyed on zwiftid
         if rider_cp_item:
             # logging.debug(f"Found rider ID: {rider_id_str}")
-            answer_item.critical_power = rider_cp_item.critical_power
-            answer_item.anaerobic_work_capacity = rider_cp_item.anaerobic_work_capacity
+            answer_item.cp_model_cp = rider_cp_item.cp_model_cp
+            answer_item.cp_model_w_prime= rider_cp_item.anaerobic_work_capacity
         else:
             logging.debug(f"Rider ID: {rider_id_str} not found in zwiftriders_zwift_cp_data")
     return rider_answer_items
@@ -213,7 +213,7 @@ def main() -> None:
                 round(z.p__w),
                 round(z.pull_w_over_ftp,1),
                 round(z.ftp_intensity_factor,2), 
-                round(z.critical_power), 
+                round(z.cp_model_cp), 
                 round(z.anaerobic_work_capacity/1_000)
             ])
         headers = ["rider", 
