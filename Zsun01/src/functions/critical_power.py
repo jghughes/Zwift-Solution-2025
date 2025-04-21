@@ -60,6 +60,36 @@ def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> ND
 
     return result
 
+def combined_model_numpy(xdata: NDArray[np.float64], a_cp: float, b_cp: float, a_inv: float, b_inv: float) -> NDArray[np.float64]:
+    """
+    Compute the average of the predictions from cp_w_prime_model_numpy and inverse_model_numpy.
+
+    Args:
+        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero and >= 1.
+        a_cp (float): Coefficient for cp_w_prime_model_numpy (critical power).
+        b_cp (float): Constant term for cp_w_prime_model_numpy (anaerobic work capacity).
+        a_inv (float): Coefficient for inverse_model_numpy.
+        b_inv (float): Exponent for inverse_model_numpy.
+
+    Returns:
+        NDArray[np.float64]: The average of the predictions from both models.
+    """
+    # Ensure xdata is valid
+    if np.any(xdata < 1):
+        raise ValueError("Input xdata must not contain values less than 1.")
+
+    # Compute predictions from cp_w_prime_model_numpy
+    y_pred_cp = (a_cp * xdata + b_cp) / xdata
+
+    # Compute predictions from inverse_model_numpy
+    y_pred_inv = a_inv * (1 / (xdata ** b_inv))
+
+    # Compute the average of the two models
+    y_pred_avg = (y_pred_cp + y_pred_inv) / 2
+
+    return y_pred_avg
+
+
 def do_modelling_with_cp_w_prime_model(raw_xy_data: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
@@ -149,6 +179,7 @@ def do_modelling_with_inverse_model(raw_xy_data: Dict[int, float]) -> Tuple[floa
     }
 
     return coefficient, exponent, r2, rmse, result
+
 
 def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
 ) -> Dict[str, ZwiftRiderCriticalPowerItem]:

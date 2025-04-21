@@ -5,7 +5,7 @@ import logging
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from critical_power import cp_w_prime_model_numpy, inverse_model_numpy, do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model, combined_model_numpy
 from jgh_logging import jgh_configure_logging
 
 def main():
@@ -62,21 +62,26 @@ def main():
     riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
     # riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
-    barryb ='5490373' 
-    johnh ='1884456'
-    lynseys ='383480'
-    joshn ='2508033'
-    richardm ='1193'
-    markb ='5530045'
-    davek="3147366"
-    husky="5134"
-    scottm="11526"
-    timr= "5421258"
-    poor_model= "6925087"
+    barryb ='5490373' #ftp 273
+    johnh ='1884456' #ftp 240
+    lynseys ='383480' #ftp 201
+    joshn ='2508033' #ftp 260
+    richardm ='1193' # ftp 200
+    markb ='5530045' #ftp 229
+    davek="3147366" #ftp 276 cp 278
+    husky="5134" #ftp 268
+    scottm="11526" #ftp 247
+    timr= "5421258" #ftp 380
+    tom_bick= "11741" #ftp 303 cp 298
+    meridith_leubner ="1707548" #ftp 220
+    melissa_warwick = "1657744" #ftp 213
+    brandi_steeve = "991817" #ftp 196
+    selena = "2682791" #ftp 214
 
     # choose a rider to model
 
-    rider_id = davek
+    rider_id = brandi_steeve
+
 
     # extract raw data for modelling
 
@@ -122,12 +127,14 @@ def main():
     y_pred_cp_model = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
     y_pred_inverse_model = inverse_model_numpy(xdata_test, coefficient, exponent)
 
+    y_pred_combined_model = combined_model_numpy(xdata_test, critical_power, anaerobic_work_capacity, coefficient, exponent)
+
     # # Tabulate predictions
     table_data_pred = [
-        [title, x, f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
-        for title, x, y_pred_inv, y_pred_cp in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model)
+        [title, x, f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}", f"{y_pred_comb:.0f}"]
+        for title, x, y_pred_inv, y_pred_cp, y_pred_comb in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model, y_pred_combined_model)
     ]
-    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse model)", "y_pred (CP model)"]
+    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse model)", "y_pred (CP model)", "y_pred (Combined model)"]
 
     logger.info(f"\nPredicted Values for selected xdata points: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
@@ -140,10 +147,16 @@ def main():
     ydata_pred = [value[1] for value in answer.values()]
     ydata_pred2 = [value[1] for value in answer2.values()]
 
+    y_pred_combined_model = combined_model_numpy(np.array(xdata), critical_power, anaerobic_work_capacity, coefficient, exponent)
+    p1hour = combined_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity, coefficient, exponent)
+
+    ydata_pred3 = [float(value) for value in y_pred_combined_model]
+
     plt.figure(figsize=(10, 6))
     plt.scatter(xdata, ydata, color='blue', label='Zwift 90-day data')
     plt.plot(xdata, ydata_pred, color='red', label=summary)
     plt.plot(xdata, ydata_pred2, color='green', label=summary2)
+    plt.plot(xdata, ydata_pred3, color='purple', label=f"combined  P_1hour={round(p1hour[0])}W")
     plt.xlabel('Duration (s)')
     plt.ylabel('Power (W)')
     plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')
