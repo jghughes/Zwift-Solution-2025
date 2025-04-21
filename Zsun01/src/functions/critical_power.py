@@ -315,7 +315,7 @@ def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[
             anaerobic_work_capacity=rider_cp_item.anaerobic_work_capacity,
             inverse_coefficient=rider_cp_item.inverse_coefficient,
             inverse_exponent=rider_cp_item.inverse_exponent,
-            generated=rider_cp_item.generated,
+            timestamp=rider_cp_item.timestamp,
             model_applied=rider_cp_item.model_applied
         )
 

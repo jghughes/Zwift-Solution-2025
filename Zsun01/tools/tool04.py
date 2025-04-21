@@ -23,7 +23,7 @@ def main():
        - Determines the preferred model for each rider.
        - Generates predicted CP data for specified durations.
        - Imports the predicted CP data into the rider's profile.
-       - Adds a timestamp indicating when the data was generated.
+       - Adds a timestamp indicating when the data was .
     3. Writes the updated CP data for all riders to a JSON file.
 
     The output file serves as the foundation for subsequent calculations and
@@ -97,7 +97,7 @@ def main():
 
         y_pred_dict = {int(x): round(y[1], 0) for x, y in answer2.items()}
         rider_cp_data.import_cp_data(y_pred_dict)
-        rider_cp_data.generated = datetime.now().isoformat()
+        rider_cp_data. = datetime.now().isoformat()
 
     # Write the updated CP data for all riders to a file
 

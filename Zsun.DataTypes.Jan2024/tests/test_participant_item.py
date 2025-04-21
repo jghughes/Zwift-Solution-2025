@@ -89,7 +89,7 @@ class Test_PersonItem(unittest.TestCase):
             self.assertEqual(dto.recording_mode_enum, "mode1")
             self.assertEqual(dto.touched_by, "tester")
             logger.info(f"TEST OUTCOME: PASS:\n\tThe input object was:-\n{item}")
-            logger.info(f"\n\tThe output object generated was:-\n{dto}")
+            logger.info(f"\n\tThe output object  was:-\n{dto}")
         except AssertionError as e:
             logger.error(f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_to_dataTransferObject:-\n\n{e}")
             raise
@@ -150,7 +150,7 @@ class Test_PersonItem(unittest.TestCase):
             self.assertEqual(item.originating_item_guid, "origin_guid")
             self.assertEqual(item.guid, "test_guid")
             logger.info(f"TEST OUTCOME: PASS:\n\tThe input object was:-\n{dto}")
-            logger.info(f"\n\tThe output object generated was:-\n{item}")
+            logger.info(f"\n\tThe output object  was:-\n{item}")
         except AssertionError as e:
             logger.error(f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_from_dataTransferObject:-\n\n{e}")
             raise

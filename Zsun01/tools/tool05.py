@@ -80,7 +80,7 @@ def main():
 
     # choose a rider to model
 
-    rider_id = brandi_steeve
+    rider_id = davek
 
 
     # extract raw data for modelling
@@ -126,7 +126,6 @@ def main():
 
     y_pred_cp_model = cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
     y_pred_inverse_model = inverse_model_numpy(xdata_test, coefficient, exponent)
-
     y_pred_combined_model = combined_model_numpy(xdata_test, critical_power, anaerobic_work_capacity, coefficient, exponent)
 
     # # Tabulate predictions

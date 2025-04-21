@@ -1,5 +1,5 @@
 # Local application imports
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, model_serializer
 from typing import Optional
 from jgh_read_write import *
 from jgh_serialization import *
@@ -288,6 +288,6 @@ class ZwiftRiderCriticalPowerDTO(BaseModel):
     anaerobic_work_capacity : Optional[float] = 0.0
     inverse_coefficient     : Optional[float] = 0.0
     inverse_exponent        : Optional[float] = 0.0
-    model_applied           : Optional[str] = ""
-    generated               : Optional[str] = ""
+    model_applied        : Optional[str] = ""
+    timestamp               : Optional[str] = ""
 

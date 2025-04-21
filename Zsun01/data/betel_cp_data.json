@@ -28,7 +28,7 @@
     "anaerobic_work_capacity": 12600.513594651391,
     "inverse_coefficient": 501.5920997441646,
     "inverse_exponent": 0.09591057563488498,
-    "generated": "2025-04-13T15:00:03.574925",
+    "": "2025-04-13T15:00:03.574925",
     "model_applied": "inverse"
   },
   "2508033": {
@@ -60,7 +60,7 @@
     "anaerobic_work_capacity": 21823.274423230927,
     "inverse_coefficient": 861.8460595967131,
     "inverse_exponent": 0.16144286004791933,
-    "generated": "2025-04-13T15:00:03.579918",
+    "": "2025-04-13T15:00:03.579918",
     "model_applied": "critical_power"
   },
   "1193": {
@@ -92,7 +92,7 @@
     "anaerobic_work_capacity": 10504.615470424642,
     "inverse_coefficient": 610.0862834042154,
     "inverse_exponent": 0.1513527726718986,
-    "generated": "2025-04-13T15:00:03.583194",
+    "": "2025-04-13T15:00:03.583194",
     "model_applied": "inverse"
   },
   "5134": {
@@ -124,7 +124,7 @@
     "anaerobic_work_capacity": 15336.66666485565,
     "inverse_coefficient": 1098.1669360777494,
     "inverse_exponent": 0.1982568043421587,
-    "generated": "2025-04-13T15:00:03.586145",
+    "": "2025-04-13T15:00:03.586145",
     "model_applied": "inverse"
   },
   "9011": {
@@ -156,7 +156,7 @@
     "anaerobic_work_capacity": 10293.589743589739,
     "inverse_coefficient": 615.149438608221,
     "inverse_exponent": 0.14588785722451356,
-    "generated": "2025-04-13T15:00:03.589140",
+    "": "2025-04-13T15:00:03.589140",
     "model_applied": "inverse"
   },
   "11526": {
@@ -188,7 +188,7 @@
     "anaerobic_work_capacity": 15947.435903089132,
     "inverse_coefficient": 1069.46069807284,
     "inverse_exponent": 0.20708473026618537,
-    "generated": "2025-04-13T15:00:03.592140",
+    "": "2025-04-13T15:00:03.592140",
     "model_applied": "inverse"
   },
   "183277": {
@@ -220,7 +220,7 @@
     "anaerobic_work_capacity": 5466.282059427541,
     "inverse_coefficient": 349.96393090939955,
     "inverse_exponent": 0.10099394497470648,
-    "generated": "2025-04-13T15:00:03.594139",
+    "": "2025-04-13T15:00:03.594139",
     "model_applied": "inverse"
   },
   "383480": {
@@ -252,7 +252,7 @@
     "anaerobic_work_capacity": 22215.769273615984,
     "inverse_coefficient": 6028.3074747694445,
     "inverse_exponent": 0.5561566094401287,
-    "generated": "2025-04-13T15:00:03.598141",
+    "": "2025-04-13T15:00:03.598141",
     "model_applied": "inverse"
   },
   "384442": {
@@ -284,7 +284,7 @@
     "anaerobic_work_capacity": 12925.897388454943,
     "inverse_coefficient": 1000.4842747161016,
     "inverse_exponent": 0.21212061088880657,
-    "generated": "2025-04-13T15:00:03.601192",
+    "": "2025-04-13T15:00:03.601192",
     "model_applied": "inverse"
   },
   "480698": {
@@ -316,7 +316,7 @@
     "anaerobic_work_capacity": 12355.12822654274,
     "inverse_coefficient": 917.1625553188055,
     "inverse_exponent": 0.19054241413502535,
-    "generated": "2025-04-13T15:00:03.603193",
+    "": "2025-04-13T15:00:03.603193",
     "model_applied": "inverse"
   },
   "991817": {
@@ -348,7 +348,7 @@
     "anaerobic_work_capacity": 8876.538476805381,
     "inverse_coefficient": 732.6595565610982,
     "inverse_exponent": 0.19352046871671325,
-    "generated": "2025-04-13T15:00:03.606192",
+    "": "2025-04-13T15:00:03.606192",
     "model_applied": "inverse"
   },
   "1024413": {
@@ -380,7 +380,7 @@
     "anaerobic_work_capacity": 8902.692613539784,
     "inverse_coefficient": 522.8907835501343,
     "inverse_exponent": 0.10550767424908516,
-    "generated": "2025-04-13T15:00:03.609199",
+    "": "2025-04-13T15:00:03.609199",
     "model_applied": "inverse"
   },
   "1713736": {
@@ -412,7 +412,7 @@
     "anaerobic_work_capacity": 11031.794820508496,
     "inverse_coefficient": 815.6759322526442,
     "inverse_exponent": 0.15939926454732062,
-    "generated": "2025-04-13T15:00:03.612142",
+    "": "2025-04-13T15:00:03.612142",
     "model_applied": "inverse"
   },
   "2398312": {
@@ -444,7 +444,7 @@
     "anaerobic_work_capacity": 8656.538507876096,
     "inverse_coefficient": 565.1387348707997,
     "inverse_exponent": 0.12040230844707879,
-    "generated": "2025-04-13T15:00:03.615142",
+    "": "2025-04-13T15:00:03.615142",
     "model_applied": "inverse"
   },
   "2682791": {
@@ -476,7 +476,7 @@
     "anaerobic_work_capacity": 7975.512850317878,
     "inverse_coefficient": 510.4824079439922,
     "inverse_exponent": 0.12344669755843572,
-    "generated": "2025-04-13T15:00:03.618140",
+    "": "2025-04-13T15:00:03.618140",
     "model_applied": "inverse"
   },
   "3147366": {
@@ -508,7 +508,7 @@
     "anaerobic_work_capacity": 22068.333437718178,
     "inverse_coefficient": 1313.480596541873,
     "inverse_exponent": 0.21237075705248556,
-    "generated": "2025-04-13T15:00:03.620140",
+    "": "2025-04-13T15:00:03.620140",
     "model_applied": "inverse"
   },
   "5421258": {
@@ -540,7 +540,7 @@
     "anaerobic_work_capacity": 14205.512844924724,
     "inverse_coefficient": 1015.2011699542345,
     "inverse_exponent": 0.13855651499834104,
-    "generated": "2025-04-13T15:00:03.623193",
+    "": "2025-04-13T15:00:03.623193",
     "model_applied": "inverse"
   },
   "5490373": {
@@ -572,7 +572,7 @@
     "anaerobic_work_capacity": 10760.128179867012,
     "inverse_coefficient": 745.6727187855828,
     "inverse_exponent": 0.1428757262879541,
-    "generated": "2025-04-13T15:00:03.625192",
+    "": "2025-04-13T15:00:03.625192",
     "model_applied": "inverse"
   },
   "5530045": {
@@ -604,7 +604,7 @@
     "anaerobic_work_capacity": 19909.743618882774,
     "inverse_coefficient": 1284.0636205600138,
     "inverse_exponent": 0.20921601390199637,
-    "generated": "2025-04-13T15:00:03.628194",
+    "": "2025-04-13T15:00:03.628194",
     "model_applied": "inverse"
   },
   "5569057": {
@@ -636,7 +636,7 @@
     "anaerobic_work_capacity": 19129.615234444693,
     "inverse_coefficient": 1272.4180331910222,
     "inverse_exponent": 0.21253933212364146,
-    "generated": "2025-04-13T15:00:03.630147",
+    "": "2025-04-13T15:00:03.630147",
     "model_applied": "inverse"
   },
   "6142432": {
@@ -668,7 +668,7 @@
     "anaerobic_work_capacity": 9321.9232204116,
     "inverse_coefficient": 650.9522666594822,
     "inverse_exponent": 0.14866052830551643,
-    "generated": "2025-04-13T15:00:03.633194",
+    "": "2025-04-13T15:00:03.633194",
     "model_applied": "inverse"
   }
 }

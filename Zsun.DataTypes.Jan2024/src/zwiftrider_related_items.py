@@ -1,6 +1,6 @@
 from typing import Dict
 from dataclasses import dataclass
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass,  asdict
 from zwiftrider_dto import ZwiftRiderDTO 
 from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
 from zwiftracing_dto import ZwiftRacingAppPostDTO
@@ -473,10 +473,14 @@ class ZwiftRiderCriticalPowerItem:
     cp_7200: float = 0.0
     critical_power: float = 0.0
     anaerobic_work_capacity: float = 0.0
+    critical_power_model_r_squared: float = 0.0
+    critical_power_p_1hour_predicted: float = 0.0
     inverse_coefficient: float = 0.0
     inverse_exponent: float = 0.0
-    generated: str = ""
+    inverse_power_model_r_squared: float = 0.0
+    inverse_power_p_1hour_predicted: float = 0.0
     model_applied: str = ""  # Alternatives are "inverse" for Inverse-Exponential model "cp" for Critical Power Model
+    timestamp: str = ""  # Timestamp when the models were timestamp
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -625,6 +629,10 @@ class ZwiftRiderCriticalPowerItem:
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
+
+        # based on empirical testting, for reliable curve estimation, do not export data 
+        # less than 300sec (5min) and more than 2400sec (40min)
+
         answer = {
             # 1: self.cp_1,
             # 2: self.cp_2,
@@ -633,46 +641,46 @@ class ZwiftRiderCriticalPowerItem:
             # 5: self.cp_5,
             # 6: self.cp_6,
             # 7: self.cp_7,
-            # # 8: self.cp_8,
-            # # 9: self.cp_9,
-            # 10: self.cp_10,
+            # 8: self.cp_8,
+            # 9: self.cp_9,
+            10: self.cp_10,
             # 11: self.cp_11,
             # 12: self.cp_12,
             # 13: self.cp_13,
             # 14: self.cp_14,
-            # 15: self.cp_15,
+            15: self.cp_15,
             # 16: self.cp_16,
             # 17: self.cp_17,
             # 18: self.cp_18,
             # 19: self.cp_19,
-            # 20: self.cp_20,
+            20: self.cp_20,
             # 21: self.cp_21,
             # 22: self.cp_22,
             # 23: self.cp_23,
             # 24: self.cp_24,
-            # 25: self.cp_25,
+            25: self.cp_25,
             # 26: self.cp_26,
             # 27: self.cp_27,
             # 28: self.cp_28,
             # 29: self.cp_29,
-            # 30: self.cp_30,
+            30: self.cp_30,
             # 35: self.cp_35,
-            # 40: self.cp_40,
+            40: self.cp_40,
             # 45: self.cp_45,
-            # 50: self.cp_50,
+            50: self.cp_50,
             # 55: self.cp_55,
-            # 60: self.cp_60,
-            # 70: self.cp_70,
-            # 80: self.cp_80,
-            # 90: self.cp_90,
-            # 100: self.cp_100,
-            # 110: self.cp_110,
-            # 120: self.cp_120,
-            # 150: self.cp_150,
-            # 180: self.cp_180,
-            # 210: self.cp_210,
-            # 240: self.cp_240,
-            # 270: self.cp_270,
+            60: self.cp_60,
+            70: self.cp_70,
+            80: self.cp_80,
+            90: self.cp_90,
+            100: self.cp_100,
+            110: self.cp_110,
+            120: self.cp_120,
+            150: self.cp_150,
+            180: self.cp_180,
+            210: self.cp_210,
+            240: self.cp_240,
+            270: self.cp_270,
             300: self.cp_300,
             330: self.cp_330,
             360: self.cp_360,
@@ -970,7 +978,7 @@ class ZwiftRiderCriticalPowerItem:
             anaerobic_work_capacity            = item.anaerobic_work_capacity,
             inverse_coefficient  = item.inverse_coefficient,
             inverse_exponent    = item.inverse_exponent,
-            generated      = item.generated,
+            timestamp      = item.timestamp,
             model_applied  = item.model_applied
         )
 
@@ -1091,7 +1099,7 @@ class ZwiftRiderCriticalPowerItem:
             anaerobic_work_capacity = dto.anaerobic_work_capacity or 0.0,
             inverse_coefficient     = dto.inverse_coefficient or 0.0,
             inverse_exponent        = dto.inverse_exponent or 0.0,
-            generated               = dto.generated or "",
+            timestamp               = dto.timestamp or "",
             model_applied           = dto.model_applied or ""  # Inverse Exponential model "inverse" or Critical Power Model "critical_power"
         )
 

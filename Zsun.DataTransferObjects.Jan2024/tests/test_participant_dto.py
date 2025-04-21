@@ -106,7 +106,7 @@ class Test_PersonDto(unittest.TestCase):
             self.assertIn('"originating_item_guid": "origin_guid"', json_str)
             self.assertIn('"guid": "test_guid"', json_str)
             logger.info(
-                f"TEST OUTCOME: PASS:\n\tSerialization succeeded.\n\tThe JSON generated was:\n\t{json_str}"
+                f"TEST OUTCOME: PASS:\n\tSerialization succeeded.\n\tThe JSON  was:\n\t{json_str}"
             )
         except AssertionError as e:
             logger.error(f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_serialization:-\n{e}")
@@ -173,7 +173,7 @@ class Test_PersonDto(unittest.TestCase):
             self.assertEqual(dto.originating_item_guid, "origin_guid")
             self.assertEqual(dto.guid, "test_guid")
             logger.info(
-                f"TEST OUTCOME: PASS:\n\tDeserialization succeeded.\n\tThe object generated was:\n\t{dto}"
+                f"TEST OUTCOME: PASS:\n\tDeserialization succeeded.\n\tThe object  was:\n\t{dto}"
             )
         except AssertionError as e:
             logger.error(f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_deserialization:-\n\n{e}")
@@ -220,8 +220,8 @@ class Test_PersonDto(unittest.TestCase):
                 json_str, ParticipantDataTransferObject
             )
             self.assertEqual(test_instance, test_instance_roundtripped)
-            logger.info(f"TEST OUTCOME: PASS:\n\tRound-trip succeeded.\n\tThe JSON generated was:\n\t{json_str}")
-            logger.info(f"\n\tThe object generated was:\n\t{test_instance_roundtripped}")
+            logger.info(f"TEST OUTCOME: PASS:\n\tRound-trip succeeded.\n\tThe JSON  was:\n\t{json_str}")
+            logger.info(f"\n\tThe object  was:\n\t{test_instance_roundtripped}")
         except AssertionError as e:
             logger.error(f"TEST OUTCOME FAIL:\n\tAn assertion failed in test_round_trip:-\n\n{e}")
             raise
@@ -269,7 +269,7 @@ class Test_PersonDto(unittest.TestCase):
             self.assertEqual(dto.originating_item_guid, "")
             self.assertEqual(dto.guid, "")
             logger.info(
-                f"TEST OUTCOME: PASS:\n\tDeserialization with missing and superfluous fields succeeded.\n\tThe object generated was:\n\t{dto}")
+                f"TEST OUTCOME: PASS:\n\tDeserialization with missing and superfluous fields succeeded.\n\tThe object  was:\n\t{dto}")
         except AssertionError as e:
             logger.error(
                 f"FAIL. An assertion failed in test_deserialization_with_missing_and_superfluous_fields:-\n\n{e}")
@@ -335,7 +335,7 @@ class Test_PersonDto(unittest.TestCase):
             self.assertEqual(dto.originating_item_guid, "origin_guid")
             self.assertEqual(dto.guid, "test_guid")
             logger.info(
-                f"TEST OUTCOME: PASS:\n\tDeserialization with invalid types succeeded.\n\tThe object generated was:\n\t{dto}"
+                f"TEST OUTCOME: PASS:\n\tDeserialization with invalid types succeeded.\n\tThe object  was:\n\t{dto}"
             )
         except AssertionError as e:
             logger.error(

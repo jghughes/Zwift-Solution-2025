@@ -43,7 +43,7 @@ joanna.zwift_id = 99999999
 joe_as_object = joe.to_equivalentobject()
 
 # Given an object that can be used to serialise the ClubMemberItem as JSON i.e. is a valid dict[str, str], use the object to instantiate a new ClubMemberItem.
-# In an integrated system, this object will most likely have generated in the first place by member.to_equivalentobject() 
+# In an integrated system, this object will most likely have  in the first place by member.to_equivalentobject() 
 # This is a simulation of the process of receiving a python dictionary from somewhere, anywhere and using it to create a member.
 
 joe = ClubMemberItem.from_equivalentobject(joe_as_object)
