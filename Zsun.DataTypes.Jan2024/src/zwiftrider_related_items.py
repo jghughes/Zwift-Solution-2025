@@ -471,11 +471,11 @@ class ZwiftRiderCriticalPowerItem:
     cp_6300   : float = 0.0
     cp_6600   : float = 0.0
     cp_7200   : float = 0.0
-    cp_model_cp            : float = 0.0
-    cp_model_w_prime       : float = 0.0
-    cp_model_r_squared     : float = 0.0
-    cp_model_p_5min_extrapolated : float = 0.0
-    cp_model_p_1hour_extrapolated: float = 0.0
+    cp_model_cp                        : float = 0.0
+    cp_model_w_prime                   : float = 0.0
+    cp_model_r_squared                 : float = 0.0
+    cp_model_p_5min_extrapolated       : float = 0.0
+    cp_model_p_1hour_extrapolated      : float = 0.0
     decay_model_coefficient            : float = 0.0
     decay_model_exponent               : float = 0.0
     decay_model_r_squared              : float = 0.0
@@ -484,7 +484,7 @@ class ZwiftRiderCriticalPowerItem:
     combined_model_r_squared           : float = 0.0
     combined_model_p_5min_extrapolated : float = 0.0
     combined_model_p_1hour_extrapolated: float = 0.0
-    when_models_generated                          : str   = ""  # when the models were fitted
+    when_models_generated              : str   = ""  # when the models were fitted
 
     @classmethod
     def export_x_ordinates(cls) -> list[int]:
@@ -991,11 +991,11 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = item.cp_6300,
             cp_6600        = item.cp_6600,
             cp_7200        = item.cp_7200,
-            cp_model_cp            = item.cp_model_cp,
-            cp_model_w_prime       = item.cp_model_w_prime,
-            cp_model_r_squared     = item.cp_model_r_squared,
-            cp_model_p_5min_extrapolated = item.cp_model_p_5min_extrapolated,
-            cp_model_p_1hour_extrapolated= item.cp_model_p_1hour_extrapolated,
+            cp_model_cp                        = item.cp_model_cp,
+            cp_model_w_prime                   = item.cp_model_w_prime,
+            cp_model_r_squared                 = item.cp_model_r_squared,
+            cp_model_p_5min_extrapolated       = item.cp_model_p_5min_extrapolated,
+            cp_model_p_1hour_extrapolated      = item.cp_model_p_1hour_extrapolated,
             decay_model_coefficient            = item.decay_model_coefficient,
             decay_model_exponent               = item.decay_model_exponent,
             decay_model_r_squared              = item.decay_model_r_squared,
@@ -1004,7 +1004,8 @@ class ZwiftRiderCriticalPowerItem:
             combined_model_r_squared           = item.combined_model_r_squared,
             combined_model_p_5min_extrapolated = item.combined_model_p_5min_extrapolated,
             combined_model_p_1hour_extrapolated= item.combined_model_p_1hour_extrapolated,
-            when_models_generated                          = item.when_models_generated)
+            when_models_generated              = item.when_models_generated
+            )
 
 
     @staticmethod
@@ -1120,11 +1121,11 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = dto.cp_6300 or 0.0,
             cp_6600        = dto.cp_6600 or 0.0,
             cp_7200        = dto.cp_7200 or 0.0,
-            cp_model_cp             = dto.cp_model_cp or 0.0,
-            cp_model_w_prime        = dto.cp_model_w_prime or 0.0,
-            cp_model_r_squared      = dto.cp_model_r_squared or 0.0,
-            cp_model_p_5min_extrapolated  = dto.cp_model_p_5min_extrapolated or 0.0,
-            cp_model_p_1hour_extrapolated = dto.cp_model_p_1hour_extrapolated or 0.0,
+            cp_model_cp                         = dto.cp_model_cp or 0.0,
+            cp_model_w_prime                    = dto.cp_model_w_prime or 0.0,
+            cp_model_r_squared                  = dto.cp_model_r_squared or 0.0,
+            cp_model_p_5min_extrapolated        = dto.cp_model_p_5min_extrapolated or 0.0,
+            cp_model_p_1hour_extrapolated       = dto.cp_model_p_1hour_extrapolated or 0.0,
             decay_model_coefficient             = dto.decay_model_coefficient or 0.0,
             decay_model_exponent                = dto.decay_model_exponent or 0.0,
             decay_model_r_squared               = dto.decay_model_r_squared or 0.0,
@@ -1133,7 +1134,7 @@ class ZwiftRiderCriticalPowerItem:
             combined_model_r_squared            = dto.combined_model_r_squared or 0.0,
             combined_model_p_5min_extrapolated  = dto.combined_model_p_5min_extrapolated or 0.0,
             combined_model_p_1hour_extrapolated = dto.combined_model_p_1hour_extrapolated or 0.0,
-            when_models_generated                           = dto.when_models_generated or ""
+            when_models_generated               = dto.when_models_generated or ""
           )
 
 
