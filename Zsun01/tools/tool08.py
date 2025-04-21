@@ -1,5 +1,5 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
-import  cp_model_cp as cp
+import critical_power as cp
 from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
 
 # Module-level constants
@@ -51,16 +51,16 @@ def main():
 
         # do CP modelling
     
-        cp_model_cp, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
-        p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), cp_model_cp, anaerobic_work_capacity)
+        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
+        p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
-        rider_cp_data.cp_model_cp = cp_model_cp
+        rider_cp_data.cp_model_cp = critical_power
         rider_cp_data.cp_model_w_prime= anaerobic_work_capacity
         rider_cp_data.cp_model_r_squared = r_squared
         rider_cp_data.cp_model_p_1hour_extrapolated = p1hour_data[0]
 
 
-        summary = f"Critical power model: CP={round(cp_model_cp)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour_data[0])}W"
+        summary = f"Critical power model: CP={round(critical_power)}W  AWC={round(anaerobic_work_capacity/1_000)}kJ  R_squared={round(r_squared,2)}  RMSE={round(rmse)}W  P_1hour={round(p1hour_data[0])}W"
 
         logger.info(f"\n{summary}")
 
@@ -80,7 +80,7 @@ def main():
         # do Combined modelling
 
 
-        rider_cp_data.model_applied = "cp_model_cp" if r_squared > r_squared2 else "inverse"
+        rider_cp_data.when_models_generated = "critical_power" if r_squared > r_squared2 else "inverse"
 
         if max(r_squared, r_squared2) < r_squared_limit:
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has R-squared values worse than {r_squared_limit} for both models.")
@@ -90,21 +90,21 @@ def main():
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has RMSE values worse than than {rmse_limit} for both models.")
             count_of_riders_with_poor_rmse += 1
 
-        if rider_cp_data.model_applied == "cp_model_cp":
+        if rider_cp_data.when_models_generated == "critical_power":
             rider_cp_data.cp_model_w_prime= anaerobic_work_capacity
             cp_count += 1
 
-        if rider_cp_data.model_applied == "inverse":
+        if rider_cp_data.when_models_generated == "inverse":
             rider_cp_data.decay_model_coefficient = coefficient
             rider_cp_data.decay_model_exponent = exponent
             inverse_count += 1
 
-        if rider_cp_data.model_applied == "cp_model_cp":
+        if rider_cp_data.when_models_generated == "critical_power":
             if r_squared >= r_squared_limit:
                 riders_with_high_cp_fidelity.append(rider_cp_data)
                 count_of_riders_with_high_fidelity_cp_data += 1
 
-        logger.info(f"Rider ID {rider_cp_data.zwiftid} model preferred: {rider_cp_data.model_applied}")
+        logger.info(f"Rider ID {rider_cp_data.zwiftid} model preferred: {rider_cp_data.when_models_generated}")
 
     logger.info(f"\nTotal riders on ZwiftPower from DaveK: {cp_count + inverse_count}\n\nCP model superior : {cp_count}\n\nInverse model superior : {inverse_count}\n\nInsufficient data : {skipped_modelling_count}\n\nR-squared value worse (less than) {r_squared_limit} : {count_of_riders_with_poor_r_squared}\n\nRMSE value worse (more than) {rmse_limit}W : {count_of_riders_with_poor_rmse}\n\n")
 
