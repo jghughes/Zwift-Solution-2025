@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\zwiftrider_criticalpower_dto.py</StartupFile>
+    <StartupFile>src\zwiftrider_cp_dto.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -40,7 +40,7 @@
     <Compile Include="src\zwiftrider_dto.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\zwiftrider_criticalpower_dto.py" />
+    <Compile Include="src\zwiftrider_cp_dto.py" />
     <Compile Include="tests\test_app_settings_dto.py" />
     <Compile Include="tests\test_participant_dto.py" />
   </ItemGroup>

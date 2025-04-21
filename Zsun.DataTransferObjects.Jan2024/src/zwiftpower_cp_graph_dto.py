@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, Dict, List, Any, Union
 
 
-class ZwiftPowerCpGraphDTO(BaseModel):
+class ZwiftPowerCriticalPowerGraphDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object. The property
     names in the class and its nested classes precisely match the names in the JSON

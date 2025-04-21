@@ -88,6 +88,7 @@
     </Compile>
     <Compile Include="tools\tool07.py" />
     <Compile Include="tools\tool08.py" />
+    <Compile Include="tools\tool09.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -2,9 +2,9 @@ from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
 from zwiftrider_dto import ZwiftRiderDTO 
-from zwiftrider_criticalpower_dto import ZwiftRiderCriticalPowerDTO
+from zwiftrider_cp_dto import ZwiftRiderCriticalPowerDTO
 from zwiftracing_dto import ZwiftRacingAppPostDTO
-from zwiftpower_cp_graph_dto import ZwiftPowerCpGraphDTO
+from zwiftpower_cp_graph_dto import ZwiftPowerCriticalPowerGraphDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
 
@@ -1167,12 +1167,12 @@ class ZwiftRiderCriticalPowerItem:
             )
 
     @staticmethod
-    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPowerCpGraphDTO) -> "ZwiftRiderCriticalPowerItem":
+    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPowerCriticalPowerGraphDTO) -> "ZwiftRiderCriticalPowerItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCpGraphDTO.
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCriticalPowerGraphDTO.
 
         Args:
-            dto (ZwiftPowerCpGraphDTO): The data transfer object to convert.
+            dto (ZwiftPowerCriticalPowerGraphDTO): The data transfer object to convert.
 
         Returns:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
