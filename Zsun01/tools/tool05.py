@@ -73,6 +73,8 @@ def main():
     scottm="11526" #ftp 247
     timr= "5421258" #ftp 380
     tom_bick= "11741" #ftp 303 cp 298
+    bryan_bumpas = "9011" #ftp 214
+    matt_steeve = "1024413"
     meridith_leubner ="1707548" #ftp 220
     melissa_warwick = "1657744" #ftp 213
     brandi_steeve = "991817" #ftp 196
@@ -80,7 +82,7 @@ def main():
 
     # choose a rider to model
 
-    rider_id = meridith_leubner
+    rider_id = bryan_bumpas
 
 
     # determine cp and w_prime
@@ -94,7 +96,7 @@ def main():
     logger.info(f"\n{summary_cp_w_prime}")
 
 
-    # determine pull zone
+    # determine some sensible pull power targets
 
     raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_data_for_pull_zone_modelling()
 

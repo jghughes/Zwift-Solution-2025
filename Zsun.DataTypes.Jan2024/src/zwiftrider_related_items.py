@@ -372,6 +372,19 @@ class ZwiftRiderCriticalPowerItem:
 
     zwiftid   : int   = 0
     name      : str   = ""
+    cp_model_cp_watts           : float = 0.0
+    cp_model_w_prime            : float = 0.0
+    ftp_model_coefficient       : float = 0.0
+    ftp_model_exponent          : float = 0.0
+    ftp_model_r_squared         : float = 0.0
+    ftp_model_ftp_watts         : float = 0.0
+    pull_model_coefficient      : float = 0.0
+    pull_model_exponent         : float = 0.0
+    pull_model_r_squared        : float = 0.0
+    pull_model_short_pull_watts : float = 0.0
+    pull_model_medium_pull_watts: float = 0.0
+    pull_model_long_pull_watts  : float = 0.0
+    when_models_generated       : str   = ""  # when the models were fitted
     cp_1      : float = 0.0
     cp_2      : float = 0.0
     cp_3      : float = 0.0
@@ -471,20 +484,6 @@ class ZwiftRiderCriticalPowerItem:
     cp_6300   : float = 0.0
     cp_6600   : float = 0.0
     cp_7200   : float = 0.0
-    cp_model_cp                        : float = 0.0
-    cp_model_w_prime                   : float = 0.0
-    cp_model_r_squared                 : float = 0.0
-    cp_model_p_5min_extrapolated       : float = 0.0
-    cp_model_p_1hour_extrapolated      : float = 0.0
-    decay_model_coefficient            : float = 0.0
-    decay_model_exponent               : float = 0.0
-    decay_model_r_squared              : float = 0.0
-    decay_model_p_5min_extrapolated    : float = 0.0
-    decay_model_p_1hour_extrapolated   : float = 0.0
-    combined_model_r_squared           : float = 0.0
-    combined_model_p_5min_extrapolated : float = 0.0
-    combined_model_p_1hour_extrapolated: float = 0.0
-    when_models_generated              : str   = ""  # when the models were fitted
 
     @classmethod
     def export_zwiftpower_x_ordinates(cls) -> list[int]:
@@ -1143,6 +1142,19 @@ class ZwiftRiderCriticalPowerItem:
         return ZwiftRiderCriticalPowerDTO(
             zwiftid        = item.zwiftid,
             name           = item.name,
+            cp_model_cp_watts           = item.cp_model_cp_watts,
+            pull_model_short_pull_watts = item.pull_model_short_pull_watts,
+            pull_model_medium_pull_watts= item.pull_model_medium_pull_watts,
+            pull_model_long_pull_watts  = item.pull_model_long_pull_watts,
+            ftp_model_ftp_watts         = item.ftp_model_ftp_watts,
+            cp_model_w_prime            = item.cp_model_w_prime,
+            ftp_model_coefficient       = item.ftp_model_coefficient,
+            ftp_model_exponent          = item.ftp_model_exponent,
+            ftp_model_r_squared         = item.ftp_model_r_squared,
+            pull_model_coefficient      = item.pull_model_coefficient,
+            pull_model_exponent         = item.pull_model_exponent,
+            pull_model_r_squared        = item.pull_model_r_squared,
+            when_models_generated       = item.when_models_generated,
             cp_1           = item.cp_1,
             cp_2           = item.cp_2,
             cp_3           = item.cp_3,
@@ -1242,20 +1254,8 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = item.cp_6300,
             cp_6600        = item.cp_6600,
             cp_7200        = item.cp_7200,
-            cp_model_cp                        = item.cp_model_cp,
-            cp_model_w_prime                   = item.cp_model_w_prime,
-            cp_model_r_squared                 = item.cp_model_r_squared,
-            cp_model_p_5min_extrapolated       = item.cp_model_p_5min_extrapolated,
-            cp_model_p_1hour_extrapolated      = item.cp_model_p_1hour_extrapolated,
-            decay_model_coefficient            = item.decay_model_coefficient,
-            decay_model_exponent               = item.decay_model_exponent,
-            decay_model_r_squared              = item.decay_model_r_squared,
-            decay_model_p_5min_extrapolated    = item.decay_model_p_5min_extrapolated,
-            decay_model_p_1hour_extrapolated   = item.decay_model_p_1hour_extrapolated,
-            combined_model_r_squared           = item.combined_model_r_squared,
-            combined_model_p_5min_extrapolated = item.combined_model_p_5min_extrapolated,
-            combined_model_p_1hour_extrapolated= item.combined_model_p_1hour_extrapolated,
-            when_models_generated              = item.when_models_generated
+
+
             )
 
 
@@ -1271,8 +1271,21 @@ class ZwiftRiderCriticalPowerItem:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
         """
         return ZwiftRiderCriticalPowerItem(
-            zwiftid        = dto.zwiftid or 0,
-            name           = dto.name or "",
+            zwiftid                     = dto.zwiftid or 0,
+            name                        = dto.name or "",
+            cp_model_cp_watts           = dto.cp_model_cp_watts or 0.0,
+            pull_model_short_pull_watts = dto.pull_model_short_pull_watts or 0.0,
+            pull_model_medium_pull_watts= dto.pull_model_medium_pull_watts or 0.0,
+            pull_model_long_pull_watts  = dto.pull_model_long_pull_watts or 0.0,
+            ftp_model_ftp_watts         = dto.ftp_model_ftp_watts or 0.0,
+            cp_model_w_prime            = dto.cp_model_w_prime or 0.0,
+            ftp_model_coefficient       = dto.ftp_model_coefficient or 0.0,
+            ftp_model_exponent          = dto.ftp_model_exponent or 0.0,
+            ftp_model_r_squared         = dto.ftp_model_r_squared or 0.0,
+            pull_model_coefficient      = dto.pull_model_coefficient or 0.0,
+            pull_model_exponent         = dto.pull_model_exponent or 0.0,
+            pull_model_r_squared        = dto.pull_model_r_squared or 0.0,
+            when_models_generated       = dto.when_models_generated or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
             cp_3           = dto.cp_3 or 0.0,
@@ -1372,20 +1385,6 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = dto.cp_6300 or 0.0,
             cp_6600        = dto.cp_6600 or 0.0,
             cp_7200        = dto.cp_7200 or 0.0,
-            cp_model_cp                         = dto.cp_model_cp or 0.0,
-            cp_model_w_prime                    = dto.cp_model_w_prime or 0.0,
-            cp_model_r_squared                  = dto.cp_model_r_squared or 0.0,
-            cp_model_p_5min_extrapolated        = dto.cp_model_p_5min_extrapolated or 0.0,
-            cp_model_p_1hour_extrapolated       = dto.cp_model_p_1hour_extrapolated or 0.0,
-            decay_model_coefficient             = dto.decay_model_coefficient or 0.0,
-            decay_model_exponent                = dto.decay_model_exponent or 0.0,
-            decay_model_r_squared               = dto.decay_model_r_squared or 0.0,
-            decay_model_p_5min_extrapolated     = dto.decay_model_p_5min_extrapolated or 0.0,
-            decay_model_p_1hour_extrapolated    = dto.decay_model_p_1hour_extrapolated or 0.0,
-            combined_model_r_squared            = dto.combined_model_r_squared or 0.0,
-            combined_model_p_5min_extrapolated  = dto.combined_model_p_5min_extrapolated or 0.0,
-            combined_model_p_1hour_extrapolated = dto.combined_model_p_1hour_extrapolated or 0.0,
-            when_models_generated               = dto.when_models_generated or ""
           )
 
 
@@ -1413,7 +1412,7 @@ class ZwiftRiderCriticalPowerItem:
             cp_120                   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
             cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            cp_model_cp      = dto.power.CP if dto.power and dto.power.CP else 0.0,
+            cp_model_cp_watts      = dto.power.CP if dto.power and dto.power.CP else 0.0,
             cp_model_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
             )
 
@@ -1491,7 +1490,7 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    cp_model_cp                    : float = 0
+    cp_model_cp_watts                    : float = 0
     cp_model_w_prime              : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
