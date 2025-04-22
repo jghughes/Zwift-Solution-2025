@@ -696,16 +696,16 @@ class ZwiftRiderCriticalPowerItem:
             480: self.cp_480,
             510: self.cp_510,
             540: self.cp_540,
-            # 570: self.cp_570,
-            # 600: self.cp_600,
-            # 660: self.cp_660,
-            # 720: self.cp_720,
-            # 780: self.cp_780,
-            # 840: self.cp_840,
-            # 900: self.cp_900,
-            # 960: self.cp_960,
-            # 1020: self.cp_1020,
-            # 1080: self.cp_1080,
+            570: self.cp_570,
+            600: self.cp_600,
+            660: self.cp_660,
+            720: self.cp_720,
+            780: self.cp_780,
+            840: self.cp_840,
+            900: self.cp_900,
+            960: self.cp_960,
+            1020: self.cp_1020,
+            1080: self.cp_1080,
             # 1140: self.cp_1140,
             # 1200: self.cp_1200,
             # 1320: self.cp_1320,
@@ -750,6 +750,7 @@ class ZwiftRiderCriticalPowerItem:
 
         return answer
 
+
     def export_zwiftpower_90day_best_data_for_pull_zone_modelling(self) -> Dict[int, float]:
         """
         Is this case we will do a model to individually determine the 
@@ -760,7 +761,7 @@ class ZwiftRiderCriticalPowerItem:
 
         Dated : Easter Monday, April 21st 2025
 
-        Map each ZwiftPower datapoint to a dictionary entry where the key is the number of seconds
+        Map each datapoint to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
@@ -890,7 +891,7 @@ class ZwiftRiderCriticalPowerItem:
 
         Dated : Easter Monday, April 21st 2025
 
-        Map each ZwiftPower datapoint to a dictionary entry where the key is the number of seconds
+        Map each datapoint to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
