@@ -42,16 +42,16 @@ def main():
 
         rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank in the rider_cp_data item
 
-        raw_xy_data_sprint = rider_cp_data.export_cp_data_for_best_fit_modelling_sprint()
+        raw_xy_data_cp = rider_cp_data.export_zwiftpower_data_for_cp_w_prime_modelling()
 
-        if len(raw_xy_data_sprint) < 2:
+        if len(raw_xy_data_cp) < 2:
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has less than 2 data points. Skipping modelling.")
             skipped_modelling_count += 1
             continue
 
         # do CP modelling
     
-        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_sprint)
+        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
         p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
         rider_cp_data.cp_model_cp = critical_power
@@ -66,7 +66,7 @@ def main():
 
         # do Inverse modelling
 
-        coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_decay_model(raw_xy_data_sprint)
+        coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_decay_model(raw_xy_data_cp)
         p2hour_data= cp.decay_model_numpy(np.array([60*60]), coefficient, exponent)
         rider_cp_data.decay_model_coefficient = coefficient
         rider_cp_data.decay_model_exponent = exponent
@@ -125,7 +125,7 @@ def main():
     # log all the x and y data for all riders in pretty tables
 
     # for rider_id, rider_cp_data in raw_cp_dict_for_everybody_in_the_club.items():
-    #     cp_data = rider_cp_data.export_cp_data()  # Export critical power data as a dictionary
+    #     cp_data = rider_cp_data.export_zwiftpower_cp_graph_data()  # Export critical power data as a dictionary
     #     table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
     #     table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
 

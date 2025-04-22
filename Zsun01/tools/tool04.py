@@ -53,7 +53,7 @@ def main():
 
         # Import raw CP data for best fitting
 
-        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling_sprint()
+        raw_xy_data = rider_cp_data.export_zwiftpower_data_for_cp_w_prime_modelling()
 
         # log pretty table of input data
         # table_data = [

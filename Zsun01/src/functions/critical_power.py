@@ -3,7 +3,6 @@ from numpy.typing import NDArray
 from sklearn.metrics import r2_score, mean_squared_error
 from scipy.optimize import curve_fit
 from typing import Tuple, Dict
-from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
 from tabulate import tabulate
 
 import logging
@@ -11,6 +10,78 @@ from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+
+
+def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+    """
+    Compute power as a function of CP and W' using the formula (a * xdata + b) / xdata.
+
+    Args:
+        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero.
+        a (float): Coefficient for the linear term, cp_model_cp.
+        b (float): Constant term, W'
+
+    Returns:
+        NDArray[np.float64]: Computed power values.
+
+    Raises:
+        ValueError: If xdata contains zero values to avoid division by zero.
+    """
+
+    if np.any(xdata < 1):
+        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
+
+    result = (a * xdata + b) / xdata
+
+    return result
+
+
+def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
+    """
+    Estimate critical power and anaerobic work capacity from duration and power data.
+    Estimate cp_model_cp and w' using the formula xdata * y = cp_model_cp * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
+    cp_model_cp is the critical power, and w' is the anaerobic work capacity.
+
+    Args:
+        raw_xy_data_cp (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
+
+    Returns:
+        Tuple[float, float, float, Dict[int, Tuple[float, float]]]: The values of cp_model_cp and w', the R-squared value,
+        and a dictionary combining the original data and predicted values.
+    """
+    # Convert keys and values of raw_xy_data_cp to NumPy arrays
+    xdata: NDArray[np.float64] = np.array(list(raw_xy_data_cp.keys()), dtype=float)
+    ydata: NDArray[np.float64] = np.array(list(raw_xy_data_cp.values()), dtype=float)
+
+    # Perform linear regression between duration and work using curve_fit
+    # In the model, xdata stands for duration, and xdata * y is work (duration * power)
+    popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, ydata, p0=[250, 10_000])
+
+    # Extract the optimal parameters: cp_model_cp (critical power) and cp_model_w_prime(anaerobic work capacity)
+    # cp_model_cp, cp_model_w_prime= popt
+
+    logger.debug(f"Fitted parameters: {popt}")
+
+    cp_model_cp: float = float(popt[0])
+    anaerobic_work_capacity: float = float(popt[1])
+
+    # Use the cp_w_prime_model to calculate predicted y values based on the fitted parameters
+    ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, cp_model_cp, anaerobic_work_capacity)
+
+    # Calculate the R-squared value
+    r2: float = r2_score(ydata, ydata_pred)
+
+    # # Calculate the root mean square error (RMSE)
+    rmse_cp : float = np.sqrt(mean_squared_error(ydata, ydata_pred)) 
+
+
+    # Recombine the original data and predicted values into a dictionary
+    result: Dict[int, Tuple[float, float]] = {
+        int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
+    }
+
+    return cp_model_cp, anaerobic_work_capacity, r2, rmse_cp, result
 
 
 def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
@@ -37,153 +108,50 @@ def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray
 
     return result
 
-def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
+
+def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
-    Compute power as a function of CP and W' using the formula (a * xdata + b) / xdata.
+    Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
 
     Args:
-        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero.
-        a (float): Coefficient for the linear term, cp_model_cp.
-        b (float): Constant term, W'
+        raw_xy_data_cp (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
 
     Returns:
-        NDArray[np.float64]: Computed power values.
-
-    Raises:
-        ValueError: If xdata contains zero values to avoid division by zero.
+        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of coefficient_ftp and exponent_ftp, the R-squared value,
+        the RMSE, and coefficient_ftp dictionary combining the original data and predicted values.
     """
-
-    if np.any(xdata < 1):
-        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
-
-    result = (a * xdata + b) / xdata
-
-    return result
-
-def combined_model_numpy(xdata: NDArray[np.float64], a_cp: float, b_cp: float, a_inv: float, b_inv: float) -> NDArray[np.float64]:
-    """
-    Compute the average of the predictions from cp_w_prime_model_numpy and decay_model_numpy.
-
-    Args:
-        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero and >= 1.
-        a_cp (float): Coefficient for cp_w_prime_model_numpy (critical power).
-        b_cp (float): Constant term for cp_w_prime_model_numpy (anaerobic work capacity).
-        a_inv (float): Coefficient for decay_model_numpy.
-        b_inv (float): Exponent for decay_model_numpy.
-
-    Returns:
-        NDArray[np.float64]: The average of the predictions from both models.
-    """
-    # Ensure xdata is valid
-    if np.any(xdata < 1):
-        raise ValueError("Input xdata must not contain values less than 1.")
-
-    # Compute predictions from cp_w_prime_model_numpy
-    y_pred_cp = (a_cp * xdata + b_cp) / xdata
-
-    # Compute predictions from decay_model_numpy
-    y_pred_inv = a_inv * (1 / (xdata ** b_inv))
-
-    if xdata < 300:
-        return y_pred_cp
-    elif xdata >= 300:
-        return y_pred_inv
-
-    # # Compute the average of the two models
-    # y_pred_avg = (y_pred_cp + y_pred_inv) / 2
-
-    # return y_pred_avg
-
-
-def do_modelling_with_cp_w_prime_model(raw_xy_data_sprint: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
-    """
-    Estimate critical power and anaerobic work capacity from duration and power data.
-    Estimate cp_model_cp and w' using the formula xdata * y = cp_model_cp * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
-    cp_model_cp is the critical power, and w' is the anaerobic work capacity.
-
-    Args:
-        raw_xy_data_sprint (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
-
-    Returns:
-        Tuple[float, float, float, Dict[int, Tuple[float, float]]]: The values of cp_model_cp and w', the R-squared value,
-        and a dictionary combining the original data and predicted values.
-    """
-    # Convert keys and values of raw_xy_data_sprint to NumPy arrays
-    xdata: NDArray[np.float64] = np.array(list(raw_xy_data_sprint.keys()), dtype=float)
-    ydata: NDArray[np.float64] = np.array(list(raw_xy_data_sprint.values()), dtype=float)
-
-    # Perform linear regression between duration and work using curve_fit
-    # In the model, xdata stands for duration, and xdata * y is work (duration * power)
-    popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, ydata, p0=[250, 10_000])
-
-    # Extract the optimal parameters: cp_model_cp (critical power) and cp_model_w_prime(anaerobic work capacity)
-    # cp_model_cp, cp_model_w_prime= popt
-
-    logger.debug(f"Fitted parameters: {popt}")
-
-    cp_model_cp: float = float(popt[0])
-    anaerobic_work_capacity: float = float(popt[1])
-
-    # Use the cp_w_prime_model to calculate predicted y values based on the fitted parameters
-    ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, cp_model_cp, anaerobic_work_capacity)
-
-    # Calculate the R-squared value
-    r2: float = r2_score(ydata, ydata_pred)
-
-    # # Calculate the root mean square error (RMSE)
-    rmse : float = np.sqrt(mean_squared_error(ydata, ydata_pred)) 
-
-
-    # Recombine the original data and predicted values into a dictionary
-    result: Dict[int, Tuple[float, float]] = {
-        int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
-    }
-
-    return cp_model_cp, anaerobic_work_capacity, r2, rmse, result
-
-def do_modelling_with_decay_model(raw_xy_data_sprint: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
-    """
-    Perform modeling using an inverse model y = coefficient * xdata^exponent, where exponent is typically negative (decay function).
-
-    Args:
-        raw_xy_data_sprint (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
-
-    Returns:
-        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of coefficient and exponent, the R-squared value,
-        the RMSE, and coefficient dictionary combining the original data and predicted values.
-    """
-    # Remove all elements from the dict raw_xy_data_sprint where either the key is zero or the value is zero
-    raw_xy_data_sprint = {k: v for k, v in raw_xy_data_sprint.items() if k != 0 and v != 0}
+    # Remove all elements from the dict raw_xy_data_cp where either the key is zero or the value is zero
+    raw_xy_data_cp = {k: v for k, v in raw_xy_data_cp.items() if k != 0 and v != 0}
 
     # Raise an error if the dict contains less than 2 elements
-    if len(raw_xy_data_sprint) < 2:
+    if len(raw_xy_data_cp) < 2:
         raise ValueError("The input dictionary must contain at least 2 elements.")
 
-    # Convert keys and values of raw_xy_data_sprint to NumPy arrays (intrinsically floats)
-    xdata: NDArray[np.float64] = np.array(list(raw_xy_data_sprint.keys()))
-    ydata: NDArray[np.float64] = np.array(list(raw_xy_data_sprint.values()))
+    # Convert keys and values of raw_xy_data_cp to NumPy arrays (intrinsically floats)
+    xdata: NDArray[np.float64] = np.array(list(raw_xy_data_cp.keys()))
+    ydata: NDArray[np.float64] = np.array(list(raw_xy_data_cp.values()))
 
     # Perform curve fitting using the inverse model
     popt, _ = curve_fit(decay_model_numpy, xdata, ydata)
 
-    coefficient: float = float(popt[0])
-    exponent: float = float(popt[1])
+    coefficient_ftp: float = float(popt[0])
+    exponent_ftp: float = float(popt[1])
 
     # Calculate the predicted y values based on the fitted parameters
-    ydata_pred = decay_model_numpy(xdata, coefficient, exponent)
+    ydata_pred = decay_model_numpy(xdata, coefficient_ftp, exponent_ftp)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
 
     # Calculate the root mean square error (RMSE)
-    rmse: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
+    rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
-    # Recombine the original xdata,y data and predicted y_data values into coefficient dictionary
+    # Recombine the original xdata,y data and predicted y_data values into coefficient_ftp dictionary
     result: Dict[int, Tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 
-    return coefficient, exponent, r2, rmse, result
+    return coefficient_ftp, exponent_ftp, r2, rmse_cp, result
 
 
 # def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
@@ -325,19 +293,19 @@ def do_modelling_with_decay_model(raw_xy_data_sprint: Dict[int, float]) -> Tuple
 #         )
 
 #         # Perform modeling with CP-W' model
-#         rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_cp_data_for_best_fit_modelling_sprint()
+#         rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_zwiftpower_data_for_cp_w_prime_modelling()
 #         cp_model_cp, anaerobic_work_capacity, _, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
 #         modeled_rider_cp_item.cp_model_cp = cp_model_cp
 #         modeled_rider_cp_item.cp_model_w_prime= anaerobic_work_capacity
 
 #         # Perform modeling with inverse model
-#         constant, exponent, _, _, _ = do_modelling_with_decay_model(rider_cp_interval_data)
+#         constant, exponent_ftp, _, _, _ = do_modelling_with_decay_model(rider_cp_interval_data)
 #         modeled_rider_cp_item.decay_model_coefficient = constant
-#         modeled_rider_cp_item.decay_model_exponent = exponent
+#         modeled_rider_cp_item.decay_model_exponent = exponent_ftp
 
 #         # Calculate the predicted y values based on the fitted parameters from the inverse model
-#         x_ordinates = np.array(ZwiftRiderCriticalPowerItem.export_x_ordinates())
-#         y_ordinates_inverse_model = decay_model_numpy(x_ordinates, constant, exponent)
+#         x_ordinates = np.array(ZwiftRiderCriticalPowerItem.export_zwiftpower_x_ordinates())
+#         y_ordinates_inverse_model = decay_model_numpy(x_ordinates, constant, exponent_ftp)
 
 #         # Zip the x_ordinates and y_pred_decay_model together into a dict[int, float]
 #         generated_cp_data = dict(zip(x_ordinates, y_ordinates_inverse_model))
@@ -378,7 +346,7 @@ def test_cp_w_prime_model_numpy():
 def test_decay_model_numpy():
 
         a = 654.0 # Coefficient
-        b = 0.1314 # Negative exponent
+        b = 0.1314 # Negative exponent_ftp
 
         # # a. Test with Valid Inputs (jgh)
         xdata = np.array([30, 300, 1200, 1800, 2400], dtype=np.float64)
@@ -403,7 +371,7 @@ def test_decay_model_numpy():
 
 def test_do_modelling_with_decay_model():
     # Sample data
-    raw_xy_data_sprint = {
+    raw_xy_data_cp = {
         30: 425.0,
         300: 292.0,
         1200: 254.0,
@@ -412,13 +380,13 @@ def test_do_modelling_with_decay_model():
     }
 
     #do work
-    coefficient, exponent, r2, rmse, result = do_modelling_with_decay_model(raw_xy_data_sprint)
+    coefficient_ftp, exponent_ftp, r2, rmse_cp, result = do_modelling_with_decay_model(raw_xy_data_cp)
     # Prepare data for the summary table
     summary_table = [
-        ["Coefficient", round(coefficient, 4)],
-        ["Exponent", round(exponent, 4)],
+        ["Coefficient", round(coefficient_ftp, 4)],
+        ["Exponent", round(exponent_ftp, 4)],
         ["R-squared", round(r2, 2)],
-        ["RMSE", round(rmse)]
+        ["RMSE", round(rmse_cp)]
     ]
 
     # Log the summary table
@@ -436,7 +404,7 @@ def test_do_modelling_with_decay_model():
 
 def test_do_modelling_with_cp_w_prime_model():
     # Sample data
-    raw_xy_data_sprint = {
+    raw_xy_data_cp = {
         30: 425.0,
         300: 292.0,
         1200: 254.0,
@@ -445,14 +413,14 @@ def test_do_modelling_with_cp_w_prime_model():
     }
 
     #do work
-    cp_model_cp, anaerobic_work_capacity, r2, rmse, result = do_modelling_with_cp_w_prime_model(raw_xy_data_sprint)
+    cp_model_cp, anaerobic_work_capacity, r2, rmse_cp, result = do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
 
     # Prepare data for the summary table
     summary_table = [
         ["Critical Power (W)", round(cp_model_cp)],
         ["Anaerobic Work Capacity (kJ)", round(anaerobic_work_capacity)/1000],
         ["R-squared", round(r2, 2)],
-        ["RMSE", round(rmse)]
+        ["RMSE", round(rmse_cp)]
     ]
 
     # Log the summary table
