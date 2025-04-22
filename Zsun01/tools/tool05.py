@@ -85,39 +85,39 @@ def main():
 
     # extract raw data for modelling
 
-    raw_xy_data = riders_cp_data[rider_id].export_cp_data_for_best_fit_modelling()
+    raw_xy_data_sprint = riders_cp_data[rider_id].export_cp_data_for_best_fit_modelling_sprint()
 
     # do CP modelling
     
-    critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
+    critical_power, anaerobic_work_capacity, r_squared, rmse, answer_sprint  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_sprint)
 
     p5min= cp.cp_w_prime_model_numpy(np.array([5*60]), critical_power, anaerobic_work_capacity)
-    p1hour= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
-    summary  =  f"CP model: CP = {round(critical_power)}W  W' = {round(anaerobic_work_capacity/1_000)}kJ  R_squared = {round(r_squared,2)}  P60m = {round(p1hour[0])}W  P5m = {round(p5min[0])}W"
+    summary_sprint  =  f"CP model: CP = {round(critical_power)}W  W' = {round(anaerobic_work_capacity/1_000)}kJ  R_squared = {round(r_squared,2)}  P5m = {round(p5min[0])}W"
 
-    logger.info(f"\n{summary}")
+    logger.info(f"\n{summary_sprint}")
 
-    # do Inverse modelling
+    # do Decay modelling
 
-    coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_inverse_model(raw_xy_data)
+    raw_xy_data_endurance = riders_cp_data[rider_id].export_cp_data_for_best_fit_modelling_endurance()
 
-    p5min= cp.inverse_model_numpy(np.array([5*60]), coefficient, exponent)
-    p1hour= cp.inverse_model_numpy(np.array([60*60]), coefficient, exponent)
+    coefficient, exponent, r_squared2, rmse2, answer_endurance = cp.do_modelling_with_decay_model(raw_xy_data_endurance)
 
-    summary2 = f"Decay model: c = {round(coefficient,0)}  e = {round(exponent,4)}  R_squared = {round(r_squared2,2)} P60m = {round(p1hour[0])}W  P5m = {round(p5min[0])}W"
+    p1hour= cp.decay_model_numpy(np.array([60*60]), coefficient, exponent)
 
-    logger.info(f"\n{summary2}")
+    summary_endurance = f"Decay model: c = {round(coefficient,0)}  e = {round(exponent,4)}  R_squared = {round(r_squared2,2)} P60m = {round(p1hour[0])}W"
+
+    logger.info(f"\n{summary_endurance}")
 
     # # Tabulate answers
 
     table_data = [
-        [x, f"{y:.0f}", f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}"]
-        for x, y, (_, y_pred_cp), (_, y_pred_inv) in zip(
-            raw_xy_data.keys(), raw_xy_data.values(), answer.values(), answer2.values()
+        [x, f"{y:.0f}", f"{y_pred_decay:.0f}", f"{y_pred_cp:.0f}"]
+        for x, y, (_, y_pred_cp), (_, y_pred_decay) in zip(
+            raw_xy_data_sprint.keys(), raw_xy_data_sprint.values(), answer_sprint.values(), answer_endurance.values()
         )
     ]
-    headers = ["x (s)", "y (Raw)", "y_pred (Inverse Model)", "y_pred (CP Model)"]
+    headers = ["x (s)", "y (Raw)", "y_pred - endurance", "y_pred - sprint"]
     logger.info(f"\nComparison of Predicted Values: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
@@ -126,17 +126,17 @@ def main():
     xdata_test = np.array([30, 60, 120, 150, 180, 300, 420, 600, 720, 900, 1200, 1800, 2400, 3000, 3600, 4500, 5400, 7200, 10800, 14400])
     row_titles = ["30s", "1min", "2min", "90s", "3min", "5min", "7min", "10min", "12min", "15min", "20min", "30min", "40min", "50min", "1hour", "75min", "90min", "2hour", "3hour", "4hour"]
 
-    y_pred_cp_model = cp.cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
-    y_pred_inverse_model = cp.inverse_model_numpy(xdata_test, coefficient, exponent)
-    y_pred_combined_model = cp.combined_model_numpy(xdata_test, critical_power, anaerobic_work_capacity, coefficient, exponent)
+    y_pred_sprint_test = cp.cp_w_prime_model_numpy(xdata_test, critical_power, anaerobic_work_capacity)
+    y_pred_endurance_test = cp.decay_model_numpy(xdata_test, coefficient, exponent)
+    y_pred_combined_model_test = cp.combined_model_numpy(xdata_test, critical_power, anaerobic_work_capacity, coefficient, exponent)
 
 
     # # Tabulate predictions
     table_data_pred = [
-        [title, x, f"{y_pred_inv:.0f}", f"{y_pred_cp:.0f}", f"{y_pred_comb:.0f}"]
-        for title, x, y_pred_inv, y_pred_cp, y_pred_comb in zip(row_titles, xdata_test, y_pred_inverse_model, y_pred_cp_model, y_pred_combined_model)
+        [title, x, f"{y_pred_decay:.0f}", f"{y_pred_cp:.0f}", f"{y_pred_comb:.0f}"]
+        for title, x, y_pred_decay, y_pred_cp, y_pred_comb in zip(row_titles, xdata_test, y_pred_endurance_test, y_pred_sprint_test, y_pred_combined_model_test)
     ]
-    headers_pred = ["Row Title", "x (s)", "y_pred (Inverse model)", "y_pred (CP model)", "y_pred (Combined model)"]
+    headers_pred = ["Row Title", "x (s)", "y_pred (endurance)", "y_pred (sprint)", "y_pred (combined)"]
 
     logger.info(f"\nPredicted Values for selected xdata points: {dict_of_zwiftrideritem[rider_id].name}")
     logger.info("\n" + tabulate(table_data_pred, headers=headers_pred, tablefmt="simple"))
@@ -144,26 +144,34 @@ def main():
 
     # # Plot answers
 
-    xdata = list(raw_xy_data.keys())
-    ydata = list(raw_xy_data.values())
-    ydata_pred = [value[1] for value in answer.values()]
-    ydata_pred2 = [value[1] for value in answer2.values()]
+    xdata_sprint = list(raw_xy_data_sprint.keys())
+    ydata_sprint = list(raw_xy_data_sprint.values())
 
-    y_pred_combined_model = cp.combined_model_numpy(np.array(xdata), critical_power, anaerobic_work_capacity, coefficient, exponent)
+    xdata_endurance = list(raw_xy_data_endurance.keys())
+    ydata_endurance = list(raw_xy_data_endurance.values())
 
-    ydata_pred3 = [float(value) for value in y_pred_combined_model]
-    r_squared3: float = r2_score(ydata, ydata_pred3)
+    ydata_pred_sprint = [value[1] for value in answer_sprint.values()]
+    ydata_pred_endurance = [value[1] for value in answer_endurance.values()]
+
+    xdata_combined = np.array(xdata_sprint) + np.array(xdata_endurance)
+    ydata_combined = np.array(ydata_sprint) + np.array(ydata_endurance)
+
+    y_pred_combined_model_test = cp.combined_model_numpy(np.array(xdata_sprint), critical_power, anaerobic_work_capacity, coefficient, exponent)
+
+    ydata_pred_combined = [float(value) for value in y_pred_combined_model_test]
+    r_squared_combined: float = r2_score(ydata_combined, ydata_pred_combined)
     p1hour = cp.combined_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity, coefficient, exponent)
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata, ydata, color='blue', label='ZwiftPower 90-day cp data')
-    plt.plot(xdata, ydata_pred, color='red', label=summary)
-    plt.plot(xdata, ydata_pred2, color='green', label=summary2)
-    plt.plot(xdata, ydata_pred3, color='purple', label=f"Combined model : R_squared = {round(r_squared3,2)}  P60m = {round(p1hour[0])}W  zFTP = {dict_of_zwiftrideritem[rider_id].ftp}W")
+    plt.scatter(xdata_sprint, ydata_sprint, color='blue', label='ZwiftPower 90-day cp data - sprint')
+    plt.scatter(xdata_endurance, ydata_endurance, color='black', label='ZwiftPower 90-day cp data - endurance')
+    plt.plot(xdata_sprint, ydata_pred_sprint, color='red', label=summary_sprint)
+    plt.plot(xdata_endurance, ydata_pred_endurance, color='pink', label=summary_endurance)
+    plt.plot(xdata_combined, ydata_pred_combined, color='purple', label=f"Combined model : R_squared = {round(r_squared_combined,2)}  P60m = {round(p1hour[0])}W  zFTP = {dict_of_zwiftrideritem[rider_id].ftp}W")
     plt.xlabel('Duration (s)')
     plt.ylabel('Power (W)')
     plt.title(f'{dict_of_zwiftrideritem[rider_id].name}')
-    plt.xticks(xdata)  
+    plt.xticks(xdata_sprint)  
     plt.legend()
     plt.show()
 

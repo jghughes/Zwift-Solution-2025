@@ -3,7 +3,7 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
-from cp_model_cp import do_modelling_with_cp_w_prime_model, do_modelling_with_inverse_model
+from cp_model_cp import do_modelling_with_cp_w_prime_model, do_modelling_with_decay_model
 from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
 import logging
 from jgh_logging import jgh_configure_logging
@@ -53,7 +53,7 @@ def main():
 
         # Import raw CP data for best fitting
 
-        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
+        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling_sprint()
 
         # log pretty table of input data
         # table_data = [
@@ -69,7 +69,7 @@ def main():
         cp_model_cp, anaerobic_work_capacity, r_squared, rms, answer = do_modelling_with_cp_w_prime_model(raw_xy_data)
 
         # Perform inverse model fitting
-        constant, exponent, r_squared2, rms2, answer2 = do_modelling_with_inverse_model(raw_xy_data)
+        constant, exponent, r_squared2, rms2, answer2 = do_modelling_with_decay_model(raw_xy_data)
 
         # Update the rider's CP data with the model results
         rider_cp_data.cp_model_cp = cp_model_cp

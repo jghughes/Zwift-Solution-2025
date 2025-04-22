@@ -42,16 +42,16 @@ def main():
 
         rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank in the rider_cp_data item
 
-        raw_xy_data = rider_cp_data.export_cp_data_for_best_fit_modelling()
+        raw_xy_data_sprint = rider_cp_data.export_cp_data_for_best_fit_modelling_sprint()
 
-        if len(raw_xy_data) < 2:
+        if len(raw_xy_data_sprint) < 2:
             logger.warning(f"Rider ID {rider_cp_data.zwiftid} has less than 2 data points. Skipping modelling.")
             skipped_modelling_count += 1
             continue
 
         # do CP modelling
     
-        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data)
+        critical_power, anaerobic_work_capacity, r_squared, rmse, answer  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_sprint)
         p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
         rider_cp_data.cp_model_cp = critical_power
@@ -66,8 +66,8 @@ def main():
 
         # do Inverse modelling
 
-        coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_inverse_model(raw_xy_data)
-        p2hour_data= cp.inverse_model_numpy(np.array([60*60]), coefficient, exponent)
+        coefficient, exponent, r_squared2, rmse2, answer2 = cp.do_modelling_with_decay_model(raw_xy_data_sprint)
+        p2hour_data= cp.decay_model_numpy(np.array([60*60]), coefficient, exponent)
         rider_cp_data.decay_model_coefficient = coefficient
         rider_cp_data.decay_model_exponent = exponent
         rider_cp_data.decay_model_r_squared = r_squared2

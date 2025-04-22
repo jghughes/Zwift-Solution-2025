@@ -627,7 +627,7 @@ class ZwiftRiderCriticalPowerItem:
         return answer
 
 
-    def export_cp_data_for_best_fit_modelling(self) -> Dict[int, float]:
+    def export_cp_data_for_best_fit_modelling_sprint(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -659,12 +659,144 @@ class ZwiftRiderCriticalPowerItem:
             # 7: self.cp_7,
             # 8: self.cp_8,
             # 9: self.cp_9,
-            # 10: self.cp_10,
+            10: self.cp_10,
             # 11: self.cp_11,
             # 12: self.cp_12,
             # 13: self.cp_13,
             # 14: self.cp_14,
             15: self.cp_15,
+            # 16: self.cp_16,
+            # 17: self.cp_17,
+            # 18: self.cp_18,
+            # 19: self.cp_19,
+            20: self.cp_20,
+            # 21: self.cp_21,
+            # 22: self.cp_22,
+            # 23: self.cp_23,
+            # 24: self.cp_24,
+            25: self.cp_25,
+            # 26: self.cp_26,
+            # 27: self.cp_27,
+            # 28: self.cp_28,
+            # 29: self.cp_29,
+            30: self.cp_30,
+            # 35: self.cp_35,
+            # 40: self.cp_40,
+            45: self.cp_45,
+            # 50: self.cp_50,
+            # 55: self.cp_55,
+            60: self.cp_60,
+            # 70: self.cp_70,
+            80: self.cp_80,
+            # 90: self.cp_90,
+            100: self.cp_100,
+            # 110: self.cp_110,
+            120: self.cp_120,
+            150: self.cp_150,
+            180: self.cp_180,
+            210: self.cp_210,
+            240: self.cp_240,
+            270: self.cp_270,
+            300: self.cp_300,
+            # # 330: self.cp_330,
+            # 360: self.cp_360,
+            # # 390: self.cp_390,
+            # 420: self.cp_420,
+            # # 450: self.cp_450,
+            # 480: self.cp_480,
+            # # 510: self.cp_510,
+            # 540: self.cp_540,
+            # # 570: self.cp_570,
+            # 600: self.cp_600,
+            # 660: self.cp_660,
+            # 720: self.cp_720,
+            # 780: self.cp_780,
+            # 840: self.cp_840,
+            # 900: self.cp_900,
+            # 960: self.cp_960,
+            # 1020: self.cp_1020,
+            # 1080: self.cp_1080,
+            # 1140: self.cp_1140,
+            # 1200: self.cp_1200,
+            # 1320: self.cp_1320,
+            # 1440: self.cp_1440,
+            # 1560: self.cp_1560,
+            # 1680: self.cp_1680,
+            # 1800: self.cp_1800,
+            # 1920: self.cp_1920,
+            # 2040: self.cp_2040,
+            # 2160: self.cp_2160,
+            # 2280: self.cp_2280,
+            # 2400: self.cp_2400,
+            # # 2520: self.cp_2520,
+            # # 2640: self.cp_2640,
+            # 2760: self.cp_2760,
+            # # 2880: self.cp_2880,
+            # 3000: self.cp_3000,
+            # # 3120: self.cp_3120,
+            # # 3240: self.cp_3240,
+            # # 3360: self.cp_3360,
+            # # 3480: self.cp_3480,
+            # 3600: self.cp_3600,
+            # 3900: self.cp_3900,
+            # 4200: self.cp_4200,
+            # 4500: self.cp_4500,
+            # 4800: self.cp_4800,
+            # 5100: self.cp_5100,
+            # 5400: self.cp_5400,
+            # 5700: self.cp_5700,
+            # 6000: self.cp_6000,
+            # 6300: self.cp_6300,
+            # 6600: self.cp_6600,
+            # 7200: self.cp_7200,
+        }
+
+        # Filter out zero values (because they amount to invalid datapoints)
+        answer = {k: v for k, v in answer.items() if v != 0}
+
+        # Sort by key (if the dictionary is not empty)
+        if answer:
+            answer = dict(sorted(answer.items(), key=lambda item: item[0]))
+
+        return answer
+    def export_cp_data_for_best_fit_modelling_endurance(self) -> Dict[int, float]:
+        """
+        Map each attribute to a dictionary entry where the key is the number of seconds
+        corresponding to the attribute name and the value is the attribute's value.
+
+        Returns:
+            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+        """
+
+        # For cross comparison, I am including all the x-ordinates
+        # visible in the Zwift feed, ZwiftPower, and behind the scenes on ZWiftRacing app.
+        # To significantly improve the R_squared for the CP, W' model in particular, I am further including
+        # all the invisible CP datapoints in the raw ZwiftPower data scraped by Dave Koniek
+        # between 10 min and 40 min. Then by eye, I add a smatterring of other CP datapoints
+        # to fill in some of the gaps in the number line of the x-ordinates on the chart.
+        # By eyeballing people's CP data, I have found that the CP data for some people is spurious 
+        # in the very low x-ordinates and sparse for others beyond 40 min. For these and other reasons,
+        # many people have poor r_squared results, especially for the cp_data model. The inverse decay model
+        # is genrally by far superior for the CP data, but the CP data model is still useful for the W' data. 
+        # Please don't change these selections. These are what I am going with.
+        # Dated : Easter Monday, April 21st 2025
+
+        answer = {
+            # 1: self.cp_1,
+            # 2: self.cp_2,
+            # 3: self.cp_3,
+            # 4: self.cp_4,
+            # 5: self.cp_5,
+            # 6: self.cp_6,
+            # 7: self.cp_7,
+            # 8: self.cp_8,
+            # 9: self.cp_9,
+            # 10: self.cp_10,
+            # 11: self.cp_11,
+            # 12: self.cp_12,
+            # 13: self.cp_13,
+            # 14: self.cp_14,
+            # # 15: self.cp_15,
             # 16: self.cp_16,
             # 17: self.cp_17,
             # 18: self.cp_18,
@@ -679,23 +811,23 @@ class ZwiftRiderCriticalPowerItem:
             # 27: self.cp_27,
             # 28: self.cp_28,
             # 29: self.cp_29,
-            30: self.cp_30,
+            # 30: self.cp_30,
             # 35: self.cp_35,
             # 40: self.cp_40,
             # 45: self.cp_45,
             # 50: self.cp_50,
             # 55: self.cp_55,
-            60: self.cp_60,
+            # 60: self.cp_60,
             # 70: self.cp_70,
             # 80: self.cp_80,
             # 90: self.cp_90,
             # 100: self.cp_100,
             # 110: self.cp_110,
-            120: self.cp_120,
+            # 120: self.cp_120,
             # 150: self.cp_150,
-            180: self.cp_180,
+            # 180: self.cp_180,
             # 210: self.cp_210,
-            240: self.cp_240,
+            # 240: self.cp_240,
             # 270: self.cp_270,
             300: self.cp_300,
             # 330: self.cp_330,
@@ -707,7 +839,6 @@ class ZwiftRiderCriticalPowerItem:
             # 510: self.cp_510,
             540: self.cp_540,
             # 570: self.cp_570,
-            600: self.cp_600,
             660: self.cp_660,
             720: self.cp_720,
             780: self.cp_780,
@@ -728,15 +859,15 @@ class ZwiftRiderCriticalPowerItem:
             2160: self.cp_2160,
             2280: self.cp_2280,
             2400: self.cp_2400,
-            # 2520: self.cp_2520,
-            # 2640: self.cp_2640,
+            2520: self.cp_2520,
+            2640: self.cp_2640,
             2760: self.cp_2760,
-            # 2880: self.cp_2880,
+            2880: self.cp_2880,
             3000: self.cp_3000,
-            # 3120: self.cp_3120,
-            # 3240: self.cp_3240,
-            # 3360: self.cp_3360,
-            # 3480: self.cp_3480,
+            3120: self.cp_3120,
+            3240: self.cp_3240,
+            3360: self.cp_3360,
+            3480: self.cp_3480,
             3600: self.cp_3600,
             # 3900: self.cp_3900,
             # 4200: self.cp_4200,
