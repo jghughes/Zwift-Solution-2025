@@ -96,7 +96,7 @@ def main():
         # Convert y_pred to a dictionary and import it into the rider's CP data
 
         y_pred_dict = {int(x): round(y[1], 0) for x, y in answer2.items()}
-        rider_cp_data.import_cp_data(y_pred_dict)
+        rider_cp_data.import_zwiftpower_graph_data(y_pred_dict)
         rider_cp_data. = datetime.now().isoformat()
 
     # Write the updated CP data for all riders to a file

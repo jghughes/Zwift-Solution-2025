@@ -87,7 +87,7 @@ def main():
 
     # determine cp and w_prime
 
-    raw_xy_data_cp = riders_cp_data[rider_id].export_zwiftpower_90day_best_data_for_cp_w_prime_modelling()
+    raw_xy_data_cp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
 
     critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
 
@@ -98,7 +98,7 @@ def main():
 
     # determine some sensible pull power targets
 
-    raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_data_for_pull_zone_modelling()
+    raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
 
     coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_modelling_with_decay_model(raw_xy_data_pull)
 
@@ -113,7 +113,7 @@ def main():
 
     # determine ftp
 
-    raw_xy_data_ftp = riders_cp_data[rider_id].export_zwiftpower_90day_best_data_for_ftp_modelling()
+    raw_xy_data_ftp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_ftp_modelling()
 
     coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_modelling_with_decay_model(raw_xy_data_ftp)
 

@@ -93,21 +93,22 @@ class ZwiftRiderPowerDTO(BaseModel):
     """
     model_config = preferred_config_dict
 
-    zwiftid: Optional[int] = 0
-    name: Optional[str] = ""
-    cp_watts           : float = 0.0
-    pull_short_watts : float = 0.0
-    pull_medium_watts: float = 0.0
-    pull_long_watts  : float = 0.0
-    ftp_watts         : float = 0.0
+    zwiftid             : Optional[int] = 0
+    name                : Optional[str] = ""
+    adjustment_watts    : float = 0.0
+    cp_watts            : float = 0.0
+    pull_short_watts    : float = 0.0
+    pull_medium_watts   : float = 0.0
+    pull_long_watts     : float = 0.0
+    ftp_watts           : float = 0.0
     cp_w_prime            : float = 0.0
     ftp_coefficient       : float = 0.0
     ftp_exponent          : float = 0.0
-    ftp_r_squared         : float = 0.0
     pull_coefficient      : float = 0.0
     pull_exponent         : float = 0.0
+    ftp_r_squared         : float = 0.0
     pull_r_squared        : float = 0.0
-    when_models_fitted       : str   = "" 
+    when_models_fitted    : str   = "" 
 
 
 def main():

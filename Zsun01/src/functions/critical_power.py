@@ -311,7 +311,7 @@ def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
 #         generated_cp_data = dict(zip(x_ordinates, y_ordinates_inverse_model))
 
 #         # Add the y_pred_inverse_model_dict to the modeled_rider_cp_item
-#         modeled_rider_cp_item.import_cp_data(generated_cp_data)
+#         modeled_rider_cp_item.import_zwiftpower_graph_data(generated_cp_data)
 
 #         # Add the modeled rider_cp_item to the new dictionary
 #         modeled_data[rider_id] = modeled_rider_cp_item

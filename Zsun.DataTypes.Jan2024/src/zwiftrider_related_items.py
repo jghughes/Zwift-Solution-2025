@@ -491,7 +491,7 @@ class ZwiftPower90DayBestGraphItem:
         return answer;
 
 
-    def export_zwiftpower_cp_graph_data(self) -> Dict[int, float]:
+    def export_zwiftpower_graph_data(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -611,7 +611,7 @@ class ZwiftPower90DayBestGraphItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_data_for_cp_w_prime_modelling(self) -> Dict[int, float]:
+    def export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling(self) -> Dict[int, float]:
         """
         Zwift doesn't explicitly use CP, although they do have zMap which generally
         appears to be around P_5 minutes. zMap is used as a criterion for race categories.
@@ -735,7 +735,7 @@ class ZwiftPower90DayBestGraphItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_data_for_pull_zone_modelling(self) -> Dict[int, float]:
+    def export_zwiftpower_90day_best_graph_for_pull_zone_modelling(self) -> Dict[int, float]:
         """
         Is this case we will do a model to individually determine the 
         peak limit for pulling. The TTT calculator uses 1.3x FTP.  
@@ -864,7 +864,7 @@ class ZwiftPower90DayBestGraphItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_data_for_ftp_modelling(self) -> Dict[int, float]:
+    def export_zwiftpower_90day_best_graph_for_ftp_modelling(self) -> Dict[int, float]:
         """
 
         Zwift doesn't use FTP per se. They use black magic to come up with zFTP.
@@ -996,7 +996,7 @@ class ZwiftPower90DayBestGraphItem:
         return answer
 
 
-    def import_cp_data(self, input_data: Dict[int, float]) -> None:
+    def import_zwiftpower_graph_data(self, input_data: Dict[int, float]) -> None:
         """
         Update the attributes of the instance based on the input_data dictionary.
         For each key in input_data, if the key corresponds to an attribute in self,
@@ -1374,7 +1374,7 @@ class ZwiftPower90DayBestGraphItem:
             )
 
     @staticmethod
-    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPower90DayBestDataDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPower90DayBestDataDTO) -> "ZwiftPower90DayBestGraphItem":
         """
         Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestDataDTO.
 
@@ -1393,7 +1393,7 @@ class ZwiftPower90DayBestGraphItem:
         # Create an instance of ZwiftPower90DayBestGraphItem
         critical_power_item = ZwiftPower90DayBestGraphItem()
 
-        critical_power_item.import_cp_data(cp_data)
+        critical_power_item.import_zwiftpower_graph_data(cp_data)
 
         return critical_power_item
 
@@ -1401,6 +1401,7 @@ class ZwiftPower90DayBestGraphItem:
 class ZwiftRiderPowerItem:
     zwiftid              : int   = 0
     name                 : str   = ""
+    adjustment_watts     : float = 0.0
     cp_watts             : float = 0.0
     pull_short_watts     : float = 0.0
     pull_medium_watts    : float = 0.0
@@ -1409,9 +1410,9 @@ class ZwiftRiderPowerItem:
     cp_w_prime           : float = 0.0
     ftp_coefficient      : float = 0.0
     ftp_exponent         : float = 0.0
-    ftp_r_squared        : float = 0.0
     pull_coefficient     : float = 0.0
     pull_exponent        : float = 0.0
+    ftp_r_squared        : float = 0.0
     pull_r_squared       : float = 0.0
     when_models_fitted   : str   = ""
 
@@ -1420,6 +1421,7 @@ class ZwiftRiderPowerItem:
         return ZwiftRiderPowerDTO(
             zwiftid               = item.zwiftid,
             name                  = item.name,
+            adjustment_watts       = item.adjustment_watts,
             cp_watts              = item.cp_watts,
             pull_short_watts      = item.pull_short_watts,
             pull_medium_watts     = item.pull_medium_watts,
@@ -1428,9 +1430,9 @@ class ZwiftRiderPowerItem:
             cp_w_prime            = item.cp_w_prime,
             ftp_coefficient       = item.ftp_coefficient,
             ftp_exponent          = item.ftp_exponent,
-            ftp_r_squared         = item.ftp_r_squared,
             pull_coefficient      = item.pull_coefficient,
             pull_exponent         = item.pull_exponent,
+            ftp_r_squared         = item.ftp_r_squared,
             pull_r_squared        = item.pull_r_squared,
             when_models_fitted    = item.when_models_fitted,
             )
@@ -1441,6 +1443,7 @@ class ZwiftRiderPowerItem:
         return ZwiftRiderPowerItem(
             zwiftid               = dto.zwiftid or 0,
             name                  = dto.name or "",
+            adjustment_watts      = dto.adjustment_watts or 0.0,
             cp_watts              = dto.cp_watts or 0.0,
             pull_short_watts      = dto.pull_short_watts or 0.0,
             pull_medium_watts     = dto.pull_medium_watts or 0.0,
@@ -1449,9 +1452,9 @@ class ZwiftRiderPowerItem:
             cp_w_prime            = dto.cp_w_prime or 0.0,
             ftp_coefficient       = dto.ftp_coefficient or 0.0,
             ftp_exponent          = dto.ftp_exponent or 0.0,
-            ftp_r_squared         = dto.ftp_r_squared or 0.0,
             pull_coefficient      = dto.pull_coefficient or 0.0,
             pull_exponent         = dto.pull_exponent or 0.0,
+            ftp_r_squared         = dto.ftp_r_squared or 0.0,
             pull_r_squared        = dto.pull_r_squared or 0.0,
             when_models_fitted    = dto.when_models_fitted or "",
           )

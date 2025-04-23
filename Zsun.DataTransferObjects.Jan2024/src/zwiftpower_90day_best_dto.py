@@ -209,6 +209,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
+
 class ZwiftPower90DayBestDataDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object. The property

@@ -306,7 +306,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
     Example:
         >>> riderIDs = ["1193", "5134"]
         >>> dir_path = "/path/to/zwiftpower/files"
-        >>> answer = read_many_zwiftpower_cp_graph_files_in_folder(riderIDs, dir_path)
+        >>> answer = read_many_zwiftpower_graph_files_in_folder(riderIDs, dir_path)
         >>> print(answer)
         {
             "1193": ZwiftPower90DayBestGraphItem(...),
@@ -346,7 +346,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
     return answer
 
-def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
+def read_many_zwiftpower_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
     """
     Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -371,7 +371,7 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
     Example:
         >>> riderIDs = ["1193", "5134"]
         >>> dir_path = "/path/to/zwiftpower/files"
-        >>> result = read_many_zwiftpower_cp_graph_files_in_folder(riderIDs, dir_path)
+        >>> result = read_many_zwiftpower_graph_files_in_folder(riderIDs, dir_path)
         >>> print(result)
         {
             "1193": ZwiftPower90DayBestGraphItem(...),
@@ -408,7 +408,7 @@ def read_many_zwiftpower_cp_graph_files_in_folder(riderIDs: Optional[list[str]],
 
         logger.debug(f"{file_count} processing : {file_name}")
 
-        answer[zwiftID] = ZwiftPower90DayBestGraphItem.from_zwiftpower_cp_graph_DTO(dto)
+        answer[zwiftID] = ZwiftPower90DayBestGraphItem.from_ZwiftPower90DayBestDataDTO(dto)
 
     return answer
 
@@ -438,8 +438,8 @@ def main02():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 
-    INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_cp_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_CPDATA_FROM_DAVEK_DIRPATH)
+    INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    _ = read_many_zwiftpower_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()
