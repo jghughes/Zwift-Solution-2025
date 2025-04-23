@@ -3,7 +3,7 @@ from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
-from zwiftrider_cp_dto import ZwiftRiderCriticalPowerDTO
+from zwiftrider_cp_dto import ZwiftPowerCriticalPowerGraphFlattenedDTO
 from zwiftpower_cp_graph_dto import ZwiftPowerCriticalPowerGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftRiderCriticalPowerItem
 from zwiftracing_dto import ZwiftRacingAppPostDTO
@@ -68,7 +68,7 @@ def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderCr
     """
     Retrieve a compndium of Zwift riders critical power data from a JSON file 
     in thr format of a duct and convert them to a dict of ZwiftRiderCriticalPowerItem instances.
-    The key of both dicts is zwiftID. The data transfer object is ZwiftRiderCriticalPowerDTO.
+    The key of both dicts is zwiftID. The data transfer object is ZwiftPowerCriticalPowerGraphFlattenedDTO.
 
     Args:
         file_name (str): The name of the file to read.
@@ -93,8 +93,8 @@ def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderCr
 
     inputjson = read_text(dir_path, file_name)
 
-    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderCriticalPowerDTO])
-    answer = cast(Dict[str, ZwiftRiderCriticalPowerDTO], answer)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftPowerCriticalPowerGraphFlattenedDTO])
+    answer = cast(Dict[str, ZwiftPowerCriticalPowerGraphFlattenedDTO], answer)
 
     return {
         key: ZwiftRiderCriticalPowerItem.from_dataTransferObject(dto)

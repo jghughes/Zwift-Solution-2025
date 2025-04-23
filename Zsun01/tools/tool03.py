@@ -13,7 +13,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `ZwiftRiderCriticalPowerDTO` for data validation and processing.
+        - Uses `ZwiftPowerCriticalPowerGraphFlattenedDTO` for data validation and processing.
 
     Returns:
         None

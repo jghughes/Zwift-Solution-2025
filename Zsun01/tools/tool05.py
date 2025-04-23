@@ -82,7 +82,7 @@ def main():
 
     # choose a rider to model
 
-    rider_id = bryan_bumpas
+    rider_id = davek
 
 
     # determine cp and w_prime

@@ -2,7 +2,7 @@ from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
 from zwiftrider_dto import ZwiftRiderDTO 
-from zwiftrider_cp_dto import ZwiftRiderCriticalPowerDTO
+from zwiftrider_cp_dto import ZwiftPowerCriticalPowerGraphFlattenedDTO
 from zwiftracing_dto import ZwiftRacingAppPostDTO
 from zwiftpower_cp_graph_dto import ZwiftPowerCriticalPowerGraphDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
@@ -1129,17 +1129,17 @@ class ZwiftRiderCriticalPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftRiderCriticalPowerDTO:
+    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftPowerCriticalPowerGraphFlattenedDTO:
         """
-        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftRiderCriticalPowerDTO.
+        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftPowerCriticalPowerGraphFlattenedDTO.
 
         Args:
             item (ZwiftRiderCriticalPowerItem): The ZwiftRiderCriticalPowerItem instance to convert.
 
         Returns:
-            ZwiftRiderCriticalPowerDTO: The corresponding data transfer object.
+            ZwiftPowerCriticalPowerGraphFlattenedDTO: The corresponding data transfer object.
         """
-        return ZwiftRiderCriticalPowerDTO(
+        return ZwiftPowerCriticalPowerGraphFlattenedDTO(
             zwiftid        = item.zwiftid,
             name           = item.name,
             cp_model_cp_watts           = item.cp_model_cp_watts,
@@ -1260,12 +1260,12 @@ class ZwiftRiderCriticalPowerItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderCriticalPowerDTO) -> "ZwiftRiderCriticalPowerItem":
+    def from_dataTransferObject(dto: ZwiftPowerCriticalPowerGraphFlattenedDTO) -> "ZwiftRiderCriticalPowerItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRiderCriticalPowerDTO.
+        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCriticalPowerGraphFlattenedDTO.
 
         Args:
-            dto (ZwiftRiderCriticalPowerDTO): The data transfer object to convert.
+            dto (ZwiftPowerCriticalPowerGraphFlattenedDTO): The data transfer object to convert.
 
         Returns:
             ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
