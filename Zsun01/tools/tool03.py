@@ -13,7 +13,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `ZwiftPowerCriticalPowerGraphFlattenedDTO` for data validation and processing.
+        - Uses `ZwiftPower90DayBestGraphDTO` for data validation and processing.
 
     Returns:
         None
@@ -75,7 +75,7 @@ def main():
 
         return new_name
 
-    # Clean up names in each ZwiftRiderCriticalPowerItem
+    # Clean up names in each ZwiftPower90DayBestGraphItem
 
     for rider_id, rider_cp_data in betel_cp_dict.items():
         rider_cp_data.zwiftid = int(rider_id) # write filename into zwiftId field

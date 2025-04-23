@@ -1,14 +1,13 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
-from zwiftrider_dto import ZwiftRiderDTO 
-from zwiftrider_cp_dto import ZwiftPowerCriticalPowerGraphFlattenedDTO
+from zwiftrider_dto import ZwiftRiderDTO, ZwiftRiderPowerDTO
+from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPower90DayBestDataDTO
 from zwiftracing_dto import ZwiftRacingAppPostDTO
-from zwiftpower_cp_graph_dto import ZwiftPowerCriticalPowerGraphDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 
 
-@dataclass(frozen=True, eq=True) # immutable and hashable
+@dataclass(frozen=True, eq=True) # immutable and hashable, we use this as a dictionary key everywhere
 class ZwiftRiderItem():
     """
     A frozen data class representing a Zwift rider.
@@ -357,9 +356,8 @@ class ZwiftRiderItem():
             velo_rating=dto.velo_rating or 0
         )
 
-
 @dataclass
-class ZwiftRiderCriticalPowerItem:
+class ZwiftPower90DayBestGraphItem:
     """
     A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -372,19 +370,6 @@ class ZwiftRiderCriticalPowerItem:
 
     zwiftid   : int   = 0
     name      : str   = ""
-    cp_model_cp_watts           : float = 0.0
-    cp_model_w_prime            : float = 0.0
-    ftp_model_coefficient       : float = 0.0
-    ftp_model_exponent          : float = 0.0
-    ftp_model_r_squared         : float = 0.0
-    ftp_model_ftp_watts         : float = 0.0
-    pull_model_coefficient      : float = 0.0
-    pull_model_exponent         : float = 0.0
-    pull_model_r_squared        : float = 0.0
-    pull_model_short_pull_watts : float = 0.0
-    pull_model_medium_pull_watts: float = 0.0
-    pull_model_long_pull_watts  : float = 0.0
-    when_models_generated       : str   = ""  # when the models were fitted
     cp_1      : float = 0.0
     cp_2      : float = 0.0
     cp_3      : float = 0.0
@@ -1129,32 +1114,19 @@ class ZwiftRiderCriticalPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderCriticalPowerItem") -> ZwiftPowerCriticalPowerGraphFlattenedDTO:
+    def to_dataTransferObject(item: "ZwiftPower90DayBestGraphItem") -> ZwiftPower90DayBestGraphDTO:
         """
-        Convert a ZwiftRiderCriticalPowerItem instance to a ZwiftPowerCriticalPowerGraphFlattenedDTO.
+        Convert a ZwiftPower90DayBestGraphItem instance to a ZwiftPower90DayBestGraphDTO.
 
         Args:
-            item (ZwiftRiderCriticalPowerItem): The ZwiftRiderCriticalPowerItem instance to convert.
+            item (ZwiftPower90DayBestGraphItem): The ZwiftPower90DayBestGraphItem instance to convert.
 
         Returns:
-            ZwiftPowerCriticalPowerGraphFlattenedDTO: The corresponding data transfer object.
+            ZwiftPower90DayBestGraphDTO: The corresponding data transfer object.
         """
-        return ZwiftPowerCriticalPowerGraphFlattenedDTO(
+        return ZwiftPower90DayBestGraphDTO(
             zwiftid        = item.zwiftid,
             name           = item.name,
-            cp_model_cp_watts           = item.cp_model_cp_watts,
-            pull_model_short_pull_watts = item.pull_model_short_pull_watts,
-            pull_model_medium_pull_watts= item.pull_model_medium_pull_watts,
-            pull_model_long_pull_watts  = item.pull_model_long_pull_watts,
-            ftp_model_ftp_watts         = item.ftp_model_ftp_watts,
-            cp_model_w_prime            = item.cp_model_w_prime,
-            ftp_model_coefficient       = item.ftp_model_coefficient,
-            ftp_model_exponent          = item.ftp_model_exponent,
-            ftp_model_r_squared         = item.ftp_model_r_squared,
-            pull_model_coefficient      = item.pull_model_coefficient,
-            pull_model_exponent         = item.pull_model_exponent,
-            pull_model_r_squared        = item.pull_model_r_squared,
-            when_models_generated       = item.when_models_generated,
             cp_1           = item.cp_1,
             cp_2           = item.cp_2,
             cp_3           = item.cp_3,
@@ -1254,38 +1226,23 @@ class ZwiftRiderCriticalPowerItem:
             cp_6300        = item.cp_6300,
             cp_6600        = item.cp_6600,
             cp_7200        = item.cp_7200,
-
-
             )
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftPowerCriticalPowerGraphFlattenedDTO) -> "ZwiftRiderCriticalPowerItem":
+    def from_dataTransferObject(dto: ZwiftPower90DayBestGraphDTO) -> "ZwiftPower90DayBestGraphItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCriticalPowerGraphFlattenedDTO.
+        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestGraphDTO.
 
         Args:
-            dto (ZwiftPowerCriticalPowerGraphFlattenedDTO): The data transfer object to convert.
+            dto (ZwiftPower90DayBestGraphDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
         """
-        return ZwiftRiderCriticalPowerItem(
+        return ZwiftPower90DayBestGraphItem(
             zwiftid                     = dto.zwiftid or 0,
             name                        = dto.name or "",
-            cp_model_cp_watts           = dto.cp_model_cp_watts or 0.0,
-            pull_model_short_pull_watts = dto.pull_model_short_pull_watts or 0.0,
-            pull_model_medium_pull_watts= dto.pull_model_medium_pull_watts or 0.0,
-            pull_model_long_pull_watts  = dto.pull_model_long_pull_watts or 0.0,
-            ftp_model_ftp_watts         = dto.ftp_model_ftp_watts or 0.0,
-            cp_model_w_prime            = dto.cp_model_w_prime or 0.0,
-            ftp_model_coefficient       = dto.ftp_model_coefficient or 0.0,
-            ftp_model_exponent          = dto.ftp_model_exponent or 0.0,
-            ftp_model_r_squared         = dto.ftp_model_r_squared or 0.0,
-            pull_model_coefficient      = dto.pull_model_coefficient or 0.0,
-            pull_model_exponent         = dto.pull_model_exponent or 0.0,
-            pull_model_r_squared        = dto.pull_model_r_squared or 0.0,
-            when_models_generated       = dto.when_models_generated or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
             cp_3           = dto.cp_3 or 0.0,
@@ -1389,9 +1346,9 @@ class ZwiftRiderCriticalPowerItem:
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftRiderCriticalPowerItem":
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftPower90DayBestGraphItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftRacingAppPostDTO.
+        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppPostDTO.
         The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
         Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
         critical power and other derivatives 
@@ -1400,9 +1357,9 @@ class ZwiftRiderCriticalPowerItem:
             dto (ZwiftRacingAppPostDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
         """
-        return ZwiftRiderCriticalPowerItem(
+        return ZwiftPower90DayBestGraphItem(
             zwiftid                  = int(dto.riderId) if dto.riderId else 0,
             name                     = dto.name or "",
             cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
@@ -1412,20 +1369,20 @@ class ZwiftRiderCriticalPowerItem:
             cp_120                   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
             cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            cp_model_cp_watts      = dto.power.CP if dto.power and dto.power.CP else 0.0,
-            cp_model_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
+            cp_watts      = dto.power.CP if dto.power and dto.power.CP else 0.0,
+            cp_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
             )
 
     @staticmethod
-    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPowerCriticalPowerGraphDTO) -> "ZwiftRiderCriticalPowerItem":
+    def from_zwiftpower_cp_graph_DTO(dto: ZwiftPower90DayBestDataDTO) -> "ZwiftPower90DayBestGraphItem":
         """
-        Create a ZwiftRiderCriticalPowerItem instance from a ZwiftPowerCriticalPowerGraphDTO.
+        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestDataDTO.
 
         Args:
-            dto (ZwiftPowerCriticalPowerGraphDTO): The data transfer object to convert.
+            dto (ZwiftPower90DayBestDataDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftRiderCriticalPowerItem: The corresponding ZwiftRiderCriticalPowerItem instance.
+            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
         """
         # Extract efforts from the "90days" key, if available
         efforts_90days = dto.efforts.get("90days", []) if dto.efforts else []
@@ -1433,13 +1390,71 @@ class ZwiftRiderCriticalPowerItem:
         # Map efforts to a dictionary of time (x) to power (y)
         cp_data = {effort.x: float(effort.y) for effort in efforts_90days if effort.x and effort.y}
 
-        # Create an instance of ZwiftRiderCriticalPowerItem
-        critical_power_item = ZwiftRiderCriticalPowerItem()
+        # Create an instance of ZwiftPower90DayBestGraphItem
+        critical_power_item = ZwiftPower90DayBestGraphItem()
 
         critical_power_item.import_cp_data(cp_data)
 
         return critical_power_item
 
+@dataclass
+class ZwiftRiderPowerItem:
+    zwiftid              : int   = 0
+    name                 : str   = ""
+    cp_watts             : float = 0.0
+    pull_short_watts     : float = 0.0
+    pull_medium_watts    : float = 0.0
+    pull_long_watts      : float = 0.0
+    ftp_watts            : float = 0.0
+    cp_w_prime           : float = 0.0
+    ftp_coefficient      : float = 0.0
+    ftp_exponent         : float = 0.0
+    ftp_r_squared        : float = 0.0
+    pull_coefficient     : float = 0.0
+    pull_exponent        : float = 0.0
+    pull_r_squared       : float = 0.0
+    when_models_fitted   : str   = ""
+
+    @staticmethod
+    def to_dataTransferObject(item: "ZwiftRiderPowerItem") -> ZwiftRiderPowerDTO:
+        return ZwiftRiderPowerDTO(
+            zwiftid               = item.zwiftid,
+            name                  = item.name,
+            cp_watts              = item.cp_watts,
+            pull_short_watts      = item.pull_short_watts,
+            pull_medium_watts     = item.pull_medium_watts,
+            pull_long_watts       = item.pull_long_watts,
+            ftp_watts             = item.ftp_watts,
+            cp_w_prime            = item.cp_w_prime,
+            ftp_coefficient       = item.ftp_coefficient,
+            ftp_exponent          = item.ftp_exponent,
+            ftp_r_squared         = item.ftp_r_squared,
+            pull_coefficient      = item.pull_coefficient,
+            pull_exponent         = item.pull_exponent,
+            pull_r_squared        = item.pull_r_squared,
+            when_models_fitted    = item.when_models_fitted,
+            )
+
+
+    @staticmethod
+    def from_dataTransferObject(dto: ZwiftRiderPowerDTO) -> "ZwiftRiderPowerItem":
+        return ZwiftRiderPowerItem(
+            zwiftid               = dto.zwiftid or 0,
+            name                  = dto.name or "",
+            cp_watts              = dto.cp_watts or 0.0,
+            pull_short_watts      = dto.pull_short_watts or 0.0,
+            pull_medium_watts     = dto.pull_medium_watts or 0.0,
+            pull_long_watts       = dto.pull_long_watts or 0.0,
+            ftp_watts             = dto.ftp_watts or 0.0,
+            cp_w_prime            = dto.cp_w_prime or 0.0,
+            ftp_coefficient       = dto.ftp_coefficient or 0.0,
+            ftp_exponent          = dto.ftp_exponent or 0.0,
+            ftp_r_squared         = dto.ftp_r_squared or 0.0,
+            pull_coefficient      = dto.pull_coefficient or 0.0,
+            pull_exponent         = dto.pull_exponent or 0.0,
+            pull_r_squared        = dto.pull_r_squared or 0.0,
+            when_models_fitted    = dto.when_models_fitted or "",
+          )
 
 # @dataclass(frozen=True, eq=True) 
 # class RiderTeamItem:
@@ -1490,8 +1505,8 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    cp_model_cp_watts                    : float = 0
-    cp_model_w_prime              : float = 0
+    cp_watts                    : float = 0
+    cp_w_prime              : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0

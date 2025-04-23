@@ -16,7 +16,6 @@ FTP_ALIAS = "ftp"
 ZWIFT_RACING_SCORE_ALIAS = "zwift_racing_score"
 VELO_RATING_ALIAS = "velo_rating"
 
-# Define the serialization alias map using the constants
 serialization_alias_map: dict[str, str] = {
     "zwiftid": ZWIFTID_ALIAS,
     "name": NAME_ALIAS,
@@ -27,11 +26,6 @@ serialization_alias_map: dict[str, str] = {
     "zwift_racing_score": ZWIFT_RACING_SCORE_ALIAS,
     "velo_rating": VELO_RATING_ALIAS,
 }
-
-
-# Define the validation alias choices map. for now, they are only the attribute names. 
-# more may added later to optionally handle JSON from varying sources with varying field names
-# that mean the same thing.
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwiftid": AliasChoices("zwiftid", "zwift_id"),
@@ -44,7 +38,6 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "velo_rating": AliasChoices("velo_rating"),
 }
 
-# Define the Pydantic ConfigDict
 configdictV1 = ConfigDict(
         alias_generator=AliasGenerator(
             alias=None,
@@ -52,7 +45,6 @@ configdictV1 = ConfigDict(
             validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
 
 preferred_config_dict = configdictV1
-
 
 class ZwiftRiderDTO(BaseModel):
     """
@@ -93,6 +85,30 @@ class ZwiftRiderDTO(BaseModel):
     ftp                : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
+
+
+class ZwiftRiderPowerDTO(BaseModel):
+    """
+    A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
+    """
+    model_config = preferred_config_dict
+
+    zwiftid: Optional[int] = 0
+    name: Optional[str] = ""
+    cp_watts           : float = 0.0
+    pull_short_watts : float = 0.0
+    pull_medium_watts: float = 0.0
+    pull_long_watts  : float = 0.0
+    ftp_watts         : float = 0.0
+    cp_w_prime            : float = 0.0
+    ftp_coefficient       : float = 0.0
+    ftp_exponent          : float = 0.0
+    ftp_r_squared         : float = 0.0
+    pull_coefficient      : float = 0.0
+    pull_exponent         : float = 0.0
+    pull_r_squared        : float = 0.0
+    when_models_fitted       : str   = "" 
+
 
 def main():
     import logging

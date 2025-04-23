@@ -6,19 +6,19 @@ from jgh_serialization import *
 serialization_alias_map: dict[str, str] = {
     "zwiftid"                     : "zwiftid",
     "name"                        : "name",
-    "cp_model_cp_watts"           : "cp_model_cp_watts",
-    "pull_model_short_pull_watts" : "pull_model_short_pull_watts",
-    "pull_model_medium_pull_watts": "pull_model_medium_pull_watts",
-    "pull_model_long_pull_watts"  : "pull_model_long_pull_watts",
-    "ftp_model_ftp_watts"         : "ftp_model_ftp_watts",
-    "cp_model_w_prime"            : "cp_model_w_prime",
-    "ftp_model_coefficient"       : "ftp_model_coefficient",
-    "ftp_model_exponent"          : "ftp_model_exponent",
-    "ftp_model_r_squared"         : "ftp_model_r_squared",
-    "pull_model_coefficient"      : "pull_model_coefficient",
-    "pull_model_exponent"         : "pull_model_exponent",
-    "pull_model_r_squared"        : "pull_model_r_squared",
-    "when_models_generated"       : "when_models_generated",
+    "cp_watts"           : "cp_watts",
+    "pull_short_watts" : "pull_short_watts",
+    "pull_medium_watts": "pull_medium_watts",
+    "pull_long_watts"  : "pull_long_watts",
+    "ftp_watts"         : "ftp_watts",
+    "cp_w_prime"            : "cp_w_prime",
+    "ftp_coefficient"       : "ftp_coefficient",
+    "ftp_exponent"          : "ftp_exponent",
+    "ftp_r_squared"         : "ftp_r_squared",
+    "pull_coefficient"      : "pull_coefficient",
+    "pull_exponent"         : "pull_exponent",
+    "pull_r_squared"        : "pull_r_squared",
+    "when_models_fitted"       : "when_models_fitted",
     "cp_1": "cp_1",
     "cp_2": "cp_2",
     "cp_3": "cp_3",
@@ -104,19 +104,19 @@ serialization_alias_map: dict[str, str] = {
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwiftid"                     : AliasChoices("zwiftid"),
     "name"                        : AliasChoices("name"),
-    "cp_model_cp_watts"           : AliasChoices("cp_model_cp_watts"),
-    "pull_model_short_pull_watts" : AliasChoices("pull_model_short_pull_watts"),
-    "pull_model_medium_pull_watts": AliasChoices("pull_model_medium_pull_watts"),
-    "pull_model_long_pull_watts"  : AliasChoices("pull_model_long_pull_watts"),
-    "ftp_model_ftp_watts"         : AliasChoices("ftp_model_ftp_watts"),
-    "cp_model_w_prime"            : AliasChoices("cp_model_w_prime"),
-    "ftp_model_coefficient"       : AliasChoices("ftp_model_coefficient"),
-    "ftp_model_exponent"          : AliasChoices("ftp_model_exponent"),
-    "ftp_model_r_squared"         : AliasChoices("ftp_model_r_squared"),
-    "pull_model_coefficient"      : AliasChoices("pull_model_coefficient"),
-    "pull_model_exponent"         : AliasChoices("pull_model_exponent"),
-    "pull_model_r_squared"        : AliasChoices("pull_model_r_squared"),
-    "when_models_generated"       : AliasChoices("when_models_generated"),
+    "cp_watts"           : AliasChoices("cp_watts"),
+    "pull_short_watts" : AliasChoices("pull_short_watts"),
+    "pull_medium_watts": AliasChoices("pull_medium_watts"),
+    "pull_long_watts"  : AliasChoices("pull_long_watts"),
+    "ftp_watts"         : AliasChoices("ftp_watts"),
+    "cp_w_prime"            : AliasChoices("cp_w_prime"),
+    "ftp_coefficient"       : AliasChoices("ftp_coefficient"),
+    "ftp_exponent"          : AliasChoices("ftp_exponent"),
+    "ftp_r_squared"         : AliasChoices("ftp_r_squared"),
+    "pull_coefficient"      : AliasChoices("pull_coefficient"),
+    "pull_exponent"         : AliasChoices("pull_exponent"),
+    "pull_r_squared"        : AliasChoices("pull_r_squared"),
+    "when_models_fitted"       : AliasChoices("when_models_fitted"),
     "cp_1": AliasChoices("cp_1"),
     "cp_2": AliasChoices("cp_2"),
     "cp_3": AliasChoices("cp_3"),
@@ -209,8 +209,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-
-class ZwiftPowerCriticalPowerGraphDTO(BaseModel):
+class ZwiftPower90DayBestDataDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object. The property
     names in the class and its nested classes precisely match the names in the JSON
@@ -278,7 +277,7 @@ class ZwiftPowerCriticalPowerGraphDTO(BaseModel):
     zwiftpower_watts_last_updated: Optional[str] = ""
 
 
-class ZwiftPowerCriticalPowerGraphFlattenedDTO(BaseModel):
+class ZwiftPower90DayBestGraphDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
     """
@@ -387,24 +386,3 @@ class ZwiftPowerCriticalPowerGraphFlattenedDTO(BaseModel):
     cp_7200: Optional[float] = 0.0
 
 
-class ZwiftRiderPowerCoefficientsDTO(BaseModel):
-    """
-    A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
-    """
-    model_config = preferred_config_dict
-
-    zwiftid: Optional[int] = 0
-    name: Optional[str] = ""
-    cp_model_cp_watts           : float = 0.0
-    pull_model_short_pull_watts : float = 0.0
-    pull_model_medium_pull_watts: float = 0.0
-    pull_model_long_pull_watts  : float = 0.0
-    ftp_model_ftp_watts         : float = 0.0
-    cp_model_w_prime            : float = 0.0
-    ftp_model_coefficient       : float = 0.0
-    ftp_model_exponent          : float = 0.0
-    ftp_model_r_squared         : float = 0.0
-    pull_model_coefficient      : float = 0.0
-    pull_model_exponent         : float = 0.0
-    pull_model_r_squared        : float = 0.0
-    when_models_generated       : str   = ""  # when the models were fitted

@@ -19,7 +19,7 @@ def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> ND
 
     Args:
         xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero.
-        a (float): Coefficient for the linear term, cp_model_cp_watts.
+        a (float): Coefficient for the linear term, cp_watts.
         b (float): Constant term, W'
 
     Returns:
@@ -40,14 +40,14 @@ def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> ND
 def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
-    Estimate cp_model_cp_watts and w' using the formula xdata * y = cp_model_cp_watts * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
-    cp_model_cp_watts is the critical power, and w' is the anaerobic work capacity.
+    Estimate cp_watts and w' using the formula xdata * y = cp_watts * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
+    cp_watts is the critical power, and w' is the anaerobic work capacity.
 
     Args:
         raw_xy_data_cp (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
 
     Returns:
-        Tuple[float, float, float, Dict[int, Tuple[float, float]]]: The values of cp_model_cp_watts and w', the R-squared value,
+        Tuple[float, float, float, Dict[int, Tuple[float, float]]]: The values of cp_watts and w', the R-squared value,
         and a dictionary combining the original data and predicted values.
     """
     # Convert keys and values of raw_xy_data_cp to NumPy arrays
@@ -58,16 +58,16 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
     # In the model, xdata stands for duration, and xdata * y is work (duration * power)
     popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, ydata, p0=[250, 10_000])
 
-    # Extract the optimal parameters: cp_model_cp_watts (critical power) and cp_model_w_prime(anaerobic work capacity)
-    # cp_model_cp_watts, cp_model_w_prime= popt
+    # Extract the optimal parameters: cp_watts (critical power) and cp_w_prime(anaerobic work capacity)
+    # cp_watts, cp_w_prime= popt
 
     logger.debug(f"Fitted parameters: {popt}")
 
-    cp_model_cp_watts: float = float(popt[0])
+    cp_watts: float = float(popt[0])
     anaerobic_work_capacity: float = float(popt[1])
 
     # Use the cp_w_prime_model to calculate predicted y values based on the fitted parameters
-    ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, cp_model_cp_watts, anaerobic_work_capacity)
+    ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, cp_watts, anaerobic_work_capacity)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)
@@ -81,7 +81,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 
-    return cp_model_cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
+    return cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
 
 
 def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
@@ -154,10 +154,10 @@ def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
     return coefficient_ftp, exponent_ftp, r2, rmse_cp, result
 
 
-# def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftRiderCriticalPowerItem]
-# ) -> Dict[str, ZwiftRiderCriticalPowerItem]:
+# def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftPower90DayBestGraphItem]
+# ) -> Dict[str, ZwiftPower90DayBestGraphItem]:
 #     """
-#     Perform model fitting on ZwiftRiderCriticalPowerItem instances to calculate critical power (CP), 
+#     Perform model fitting on ZwiftPower90DayBestGraphItem instances to calculate critical power (CP), 
 #     anaerobic work capacity (W'), and parameters for the inverse model, and then populate a neew item
 #     the item accoridng to the fitted parameters of the inverse model. The intended purpose of this 
 #     function is to import the database of ZSun riders and their CP data obtained from Zwiftor ZwiftPower
@@ -166,23 +166,23 @@ def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
 #     capable of achieving in a solo effort.
 
 #     Args:
-#         zwiftriders_zwift_cp_data (Dict[str, ZwiftRiderCriticalPowerItem]): 
+#         zwiftriders_zwift_cp_data (Dict[str, ZwiftPower90DayBestGraphItem]): 
 #             A dictionary where the key is the rider's Zwift ID (as a string) and the value is a 
-#             ZwiftRiderCriticalPowerItem instance containing critical power data.
+#             ZwiftPower90DayBestGraphItem instance containing critical power data.
 
 #     Returns:
-#         Dict[str, ZwiftRiderCriticalPowerItem]: 
-#             A new dictionary of ZwiftRiderCriticalPowerItem instances with calculated CP, W', 
+#         Dict[str, ZwiftPower90DayBestGraphItem]: 
+#             A new dictionary of ZwiftPower90DayBestGraphItem instances with calculated CP, W', 
 #             inverse model parameters, and imported predicted critical power data.
 #     """
 
 #     # Create a new dictionary to store the modeled data
-#     modeled_data : Dict[str, ZwiftRiderCriticalPowerItem] = {}
+#     modeled_data : Dict[str, ZwiftPower90DayBestGraphItem] = {}
 
-#     # Iterate through each ZwiftRiderCriticalPowerItem instance in the input dictionary
+#     # Iterate through each ZwiftPower90DayBestGraphItem instance in the input dictionary
 #     for rider_id, rider_cp_item in zwiftriders_zwift_cp_data.items():
 #         # Create a copy of the current rider_cp_item to avoid modifying the original
-#         modeled_rider_cp_item = ZwiftRiderCriticalPowerItem(
+#         modeled_rider_cp_item = ZwiftPower90DayBestGraphItem(
 #             zwiftid=rider_cp_item.zwiftid,
 #             name=rider_cp_item.name,
 #             cp_1=rider_cp_item.cp_1,
@@ -284,27 +284,27 @@ def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
 #             cp_6300=rider_cp_item.cp_6300,
 #             cp_6600=rider_cp_item.cp_6600,
 #             cp_7200=rider_cp_item.cp_7200,
-#             cp_model_cp_watts=rider_cp_item.cp_model_cp_watts,
+#             cp_watts=rider_cp_item.cp_watts,
 #             anaerobic_work_capacity=rider_cp_item.anaerobic_work_capacity,
-#             ftp_model_coefficient=rider_cp_item.ftp_model_coefficient,
-#             ftp_model_exponent=rider_cp_item.ftp_model_exponent,
+#             ftp_coefficient=rider_cp_item.ftp_coefficient,
+#             ftp_exponent=rider_cp_item.ftp_exponent,
 #             timestamp=rider_cp_item.timestamp,
 #             model_applied=rider_cp_item.model_applied
 #         )
 
 #         # Perform modeling with CP-W' model
 #         rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_zwiftpower_data_for_cp_w_prime_modelling()
-#         cp_model_cp_watts, anaerobic_work_capacity, _, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
-#         modeled_rider_cp_item.cp_model_cp_watts = cp_model_cp_watts
-#         modeled_rider_cp_item.cp_model_w_prime= anaerobic_work_capacity
+#         cp_watts, anaerobic_work_capacity, _, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
+#         modeled_rider_cp_item.cp_watts = cp_watts
+#         modeled_rider_cp_item.cp_w_prime= anaerobic_work_capacity
 
 #         # Perform modeling with inverse model
 #         constant, exponent_ftp, _, _, _ = do_modelling_with_decay_model(rider_cp_interval_data)
-#         modeled_rider_cp_item.ftp_model_coefficient = constant
-#         modeled_rider_cp_item.ftp_model_exponent = exponent_ftp
+#         modeled_rider_cp_item.ftp_coefficient = constant
+#         modeled_rider_cp_item.ftp_exponent = exponent_ftp
 
 #         # Calculate the predicted y values based on the fitted parameters from the inverse model
-#         x_ordinates = np.array(ZwiftRiderCriticalPowerItem.export_zwiftpower_x_ordinates())
+#         x_ordinates = np.array(ZwiftPower90DayBestGraphItem.export_zwiftpower_x_ordinates())
 #         y_ordinates_inverse_model = decay_model_numpy(x_ordinates, constant, exponent_ftp)
 
 #         # Zip the x_ordinates and y_pred_decay_model together into a dict[int, float]
@@ -413,11 +413,11 @@ def test_do_modelling_with_cp_w_prime_model():
     }
 
     #do work
-    cp_model_cp_watts, anaerobic_work_capacity, r2, rmse_cp, result = do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
+    cp_watts, anaerobic_work_capacity, r2, rmse_cp, result = do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
 
     # Prepare data for the summary table
     summary_table = [
-        ["Critical Power (W)", round(cp_model_cp_watts)],
+        ["Critical Power (W)", round(cp_watts)],
         ["Anaerobic Work Capacity (kJ)", round(anaerobic_work_capacity)/1000],
         ["R-squared", round(r2, 2)],
         ["RMSE", round(rmse_cp)]

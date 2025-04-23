@@ -1,6 +1,6 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_cp_graph_files_in_folder
 import critical_power as cp
-from zwiftrider_related_items import ZwiftRiderCriticalPowerItem
+from zwiftrider_related_items import ZwiftPower90DayBestGraphItem
 from datetime import datetime
 
 # Module-level constants
@@ -36,7 +36,7 @@ def main():
     r_squared_limit = .95
     rmse_limit = 10.0
 
-    riders_with_high_cp_fidelity : list[ZwiftRiderCriticalPowerItem] = []
+    riders_with_high_cp_fidelity : list[ZwiftPower90DayBestGraphItem] = []
 
 
     for rider_id, rider in raw_cp_dict_for_everybody_in_the_club.items():
@@ -52,8 +52,8 @@ def main():
         critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
         p1hour_data= cp.cp_w_prime_model_numpy(np.array([60*60]), critical_power, anaerobic_work_capacity)
 
-        rider.cp_model_cp_watts = critical_power
-        rider.cp_model_w_prime= anaerobic_work_capacity
+        rider.cp_watts = critical_power
+        rider.cp_w_prime= anaerobic_work_capacity
         rider.cp_model_r_squared = r_squared_cp
         rider.cp_model_p_1hour_extrapolated = p1hour_data[0]
 
@@ -79,11 +79,11 @@ def main():
 
         coefficient, exponent, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_modelling_with_decay_model(raw_xy_data_ftp)
         ftp= cp.decay_model_numpy(np.array([60*60]), coefficient, exponent)
-        rider.ftp_model_coefficient = coefficient
-        rider.ftp_model_exponent = exponent
-        rider.ftp_model_r_squared = r_squared_ftp
-        rider.ftp_model_ftp_watts = ftp[0]
-        rider.when_models_generated = datetime.now().isoformat()
+        rider.ftp_coefficient = coefficient
+        rider.ftp_exponent = exponent
+        rider.ftp_r_squared = r_squared_ftp
+        rider.ftp_watts = ftp[0]
+        rider.when_models_fitted = datetime.now().isoformat()
 
         summary_ftp = f"FTP model: FTP = {round(ftp[0])}W  R_squared = {round(r_squared_ftp,2)}"
 
@@ -98,21 +98,21 @@ def main():
             logger.warning(f"Rider ID {rider.zwiftid} has RMSE values worse than than {rmse_limit} for both models.")
             count_of_riders_with_poor_rmse += 1
 
-        if rider.when_models_generated == "critical_power":
-            rider.cp_model_w_prime= anaerobic_work_capacity
+        if rider.when_models_fitted == "critical_power":
+            rider.cp_w_prime= anaerobic_work_capacity
             cp_count += 1
 
-        if rider.when_models_generated == "inverse":
-            rider.ftp_model_coefficient = coefficient
-            rider.ftp_model_exponent = exponent
+        if rider.when_models_fitted == "inverse":
+            rider.ftp_coefficient = coefficient
+            rider.ftp_exponent = exponent
             inverse_count += 1
 
-        if rider.when_models_generated == "critical_power":
+        if rider.when_models_fitted == "critical_power":
             if r_squared_cp >= r_squared_limit:
                 riders_with_high_cp_fidelity.append(rider)
                 count_of_riders_with_high_fidelity_cp_data += 1
 
-        logger.info(f"Rider ID {rider.zwiftid} model preferred: {rider.when_models_generated}")
+        logger.info(f"Rider ID {rider.zwiftid} model preferred: {rider.when_models_fitted}")
 
     logger.info(f"\nTotal riders on ZwiftPower from DaveK: {cp_count + inverse_count}\n\nCP model superior : {cp_count}\n\nInverse model superior : {inverse_count}\n\nInsufficient data : {skipped_modelling_count}\n\nR-squared value worse (less than) {r_squared_limit} : {count_of_riders_with_poor_r_squared}\n\n")
 
@@ -121,7 +121,7 @@ def main():
     # for  riders_with_high_cp_fidelity, write out the zwiftID, name, cp, and r_squared_cp. sorted by name
     riders_with_high_cp_fidelity.sort(key=lambda x: x.name)
     for rider in riders_with_high_cp_fidelity:
-        logger.info(f"Rider ID {rider.zwiftid} :  CP = {round(rider.cp_model_cp_watts)}W  FTP = {round(rider.cp_model_p_1hour_extrapolated)}W  r_squared_cp = {round(rider.cp_model_r_squared,2)}")
+        logger.info(f"Rider ID {rider.zwiftid} :  CP = {round(rider.cp_watts)}W  FTP = {round(rider.cp_model_p_1hour_extrapolated)}W  r_squared_cp = {round(rider.cp_model_r_squared,2)}")
 
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel_rubbish.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
