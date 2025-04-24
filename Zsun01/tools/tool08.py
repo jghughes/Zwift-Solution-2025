@@ -1,6 +1,6 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel
-import critical_power as critical_power
-from zwiftrider_related_items import ZwiftRiderPowerItem
+import critical_power as cp
+from zwiftrider_related_items import ZwiftRiderItem
 from datetime import datetime
 
 # Module-level constants
@@ -73,50 +73,26 @@ def main():
 
         # do power modelling
     
-        critical_power, anaerobic_work_capacity, _, _, _  = critical_power.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
-        coefficient_pull, exponent_pull, r_squared_pull, _, _ = critical_power.do_curve_fit_with_decay_model(raw_xy_data_pull)
-        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = critical_power.do_curve_fit_with_decay_model(raw_xy_data_ftp)
+        critical_power, anaerobic_work_capacity, _, _, _  = cp.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+        coefficient_pull, exponent_pull, r_squared_pull, _, _ = cp.do_curve_fit_with_decay_model(raw_xy_data_pull)
+        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = cp.do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
-        pull_short = critical_power.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
-        pull_medium = critical_power.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
-        pull_long = critical_power.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
-        ftp = critical_power.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
+        pull_short = cp.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
+        pull_medium = cp.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
+        pull_long = cp.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
+        ftp = cp.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
 
         # load results into answer
 
-        power_item = ZwiftRiderPowerItem(zwiftid=int(rider_id), name=rider.name)
-        power_item.cp_watts = critical_power
-        power_item.pull_short_watts = pull_short[0]
-        power_item.pull_medium_watts = pull_medium[0]
-        power_item.pull_long_watts = pull_long[0]
-        power_item.ftp_watts = ftp[0]
-        power_item.adjustment_watts = 0
-        power_item.critical_power_w_prime = anaerobic_work_capacity
-        power_item.ftp_curve_coefficient = coefficient_ftp
-        power_item.ftp_curve_exponent = exponent_ftp
-        power_item.pull_curve_coefficient = coefficient_pull
-        power_item.pull_curve_exponent = exponent_pull
-        power_item.ftp_r_squared = r_squared_ftp
-        power_item.pull_r_squared = r_squared_pull
-        power_item.when_curves_fitted = datetime.now().isoformat()
-
         # log summary of everything
 
-        # summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
-        # summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
-        # summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
+        summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
+        summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
+        summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
 
-        # logger.info(f"\n{summary_cp_w_prime}")
-        # logger.info(f"\n{summary_pull}")
-        # logger.info(f"\n{summary_ftp}")
-
-        # if r_squared_pull < r_squared_limit:
-        #     logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for pull range: {r_squared_pull}")
-        #     count_of_riders_with_poor_pull_r_squared += 1
-        
-        # if r_squared_ftp < r_squared_limit:
-        #     logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for ftp range: {r_squared_ftp}")
-        #     count_of_riders_with_poor_ftp_r_squared += 1
+        logger.info(f"\n{summary_cp_w_prime}")
+        logger.info(f"{summary_pull}")
+        logger.info(f"{summary_ftp}")
 
         if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
             zwiftIds_with_high_fidelity.append(rider.zwiftid)
