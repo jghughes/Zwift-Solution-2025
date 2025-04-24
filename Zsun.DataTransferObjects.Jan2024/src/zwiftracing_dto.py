@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, Union, Any
 
 
-class ZwiftRacingAppPostDTO(BaseModel):
+class ZwiftRacingAppDTO(BaseModel):
     """
     A data transfer object representing a Zwift Racing App JSON object that contains
     post-processed data originating from ZwiftPower. This DTO ignores much of the

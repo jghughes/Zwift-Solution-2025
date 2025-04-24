@@ -1,5 +1,5 @@
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel
-import critical_power as cp
+import critical_power as critical_power
 from zwiftrider_related_items import ZwiftRiderPowerItem
 from datetime import datetime
 
@@ -59,7 +59,7 @@ def main():
         
         # succeess - on we go
 
-        # obtain raw xy data for the various ranges - cp, pull, and ftp
+        # obtain raw xy data for the various ranges - critical_power, pull, and ftp
 
         raw_xy_data_cp = rider.export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
         raw_xy_data_pull = rider.export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
@@ -73,14 +73,14 @@ def main():
 
         # do power modelling
     
-        critical_power, anaerobic_work_capacity, _, _, _  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
-        coefficient_pull, exponent_pull, r_squared_pull, _, _ = cp.do_modelling_with_decay_model(raw_xy_data_pull)
-        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = cp.do_modelling_with_decay_model(raw_xy_data_ftp)
+        critical_power, anaerobic_work_capacity, _, _, _  = critical_power.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+        coefficient_pull, exponent_pull, r_squared_pull, _, _ = critical_power.do_curve_fit_with_decay_model(raw_xy_data_pull)
+        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = critical_power.do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
-        pull_short = cp.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
-        pull_medium = cp.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
-        pull_long = cp.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
-        ftp = cp.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
+        pull_short = critical_power.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
+        pull_medium = critical_power.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
+        pull_long = critical_power.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
+        ftp = critical_power.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
 
         # load results into answer
 
@@ -91,14 +91,14 @@ def main():
         power_item.pull_long_watts = pull_long[0]
         power_item.ftp_watts = ftp[0]
         power_item.adjustment_watts = 0
-        power_item.cp_w_prime = anaerobic_work_capacity
-        power_item.ftp_coefficient = coefficient_ftp
-        power_item.ftp_exponent = exponent_ftp
-        power_item.pull_coefficient = coefficient_pull
-        power_item.pull_exponent = exponent_pull
+        power_item.critical_power_w_prime = anaerobic_work_capacity
+        power_item.ftp_curve_coefficient = coefficient_ftp
+        power_item.ftp_curve_exponent = exponent_ftp
+        power_item.pull_curve_coefficient = coefficient_pull
+        power_item.pull_curve_exponent = exponent_pull
         power_item.ftp_r_squared = r_squared_ftp
         power_item.pull_r_squared = r_squared_pull
-        power_item.when_models_fitted = datetime.now().isoformat()
+        power_item.when_curves_fitted = datetime.now().isoformat()
 
         # log summary of everything
 
@@ -132,7 +132,7 @@ def main():
     logger.info(f"Riders with lower fidelity models [r_squared < {r_squared_limit}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
     logger.info(f"Riders with high fidelity models [r_squared > {r_squared_limit}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)\n\n")
 
-    # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, cp, and r_squared_cp. sorted by name
+    # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, critical_power, and r_squared_cp. sorted by name
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwiftid in zwiftIds_with_high_fidelity:
         logger.info(f"Rider ID {zwiftid}")

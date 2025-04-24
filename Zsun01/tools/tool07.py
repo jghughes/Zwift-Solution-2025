@@ -8,7 +8,7 @@ from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_fil
 
 def main():
     """
-    Main function to process ZwiftPower the voluminous cp data for a shortlist of riders,
+    Main function to process ZwiftPower the voluminous critical_power data for a shortlist of riders,
     in this caes Betel riders.
 
     This function performs the following tasks:

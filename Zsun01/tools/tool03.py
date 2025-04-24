@@ -9,7 +9,7 @@ def main():
 
     Write the consolidated data as a dict and serialise and save for storage in the Zsun01 project folder
     named "input_cp_data_for_betel_from_zwiftpower.json". This file is subsequently used in `tool04` to 
-    do cp data modelling and curve fitting to generate the modelled data stored in "betel_cp_data.json"
+    do critical_power data modelling and curve fitting to generate the modelled data stored in "betel_cp_data.json"
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.

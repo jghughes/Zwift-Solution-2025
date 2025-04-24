@@ -1,11 +1,13 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
+import numpy as np
+# from numpy.typing import NDArray
 from zwiftrider_dto import ZwiftRiderDTO 
-from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPower90DayBestDataDTO
-from zwiftracing_dto import ZwiftRacingAppPostDTO
+from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerImportDTO
+from zwiftracing_dto import ZwiftRacingAppDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
-
+from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True) # immutable and hashable, we use this as a dictionary key everywhere
 class ZwiftRiderItem():
@@ -14,50 +16,40 @@ class ZwiftRiderItem():
     Can be used as a cache key or dictionary key, or in a set.
 
     Attributes:
-        zwiftid            : int    The Zwift ID of the rider.
-        name               : str    The name of the rider.
-        weight             : float  The weight of the rider in kilograms.
-        height             : float  The height of the rider in centimeters.
-        gender             : Gender The gender of the rider.
-        zftp                : float  Functional Threshold Power in watts.
-        zwift_racing_score : int    Zwift racing score.
-        velo_rating        : int    Velo rating.
-
-    Methods:
-        make_identifier(
-            zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
-            zftp: float, zwift_racing_score: int, velo_rating: int
-        ) -> str:
-            Generate a unique key based on all the parameters that define
-            an instance of the class as used in the ctor for the frozen class.
-
-        get_identifier() -> str:
-            Generate a unique key for the current ZwiftRiderItem instance.
-
-        calculate_strength() -> float:
-            Calculate the strength of the rider based on FTP and weight.
-
-        calculate_kph_riding_alone(power: float) -> float:
-            Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.
-
-        calculate_wattage_riding_alone(speed: float) -> float:
-            Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
-
-        calculate_wattage_riding_in_the_peloton(speed: float, position: int) -> float:
-            Calculate the wattage required for a rider given their speed and position in the peloton.
-
-        calculate_speed_riding_in_the_peloton(power: float, position: int) -> float:
-            Calculate the speed (km/h) for a rider given their power output (watts) and position in the peloton.
+        zwiftid                : int     The Zwift ID of the rider.
+        name                   : str     The name of the rider.
+        weight                 : float   The weight of the rider in kilograms.
+        height                 : float   The height of the rider in centimeters.
+        gender                 : str     The gender of the rider.
+        zftp                   : float   Functional Threshold Power in watts.
+        zwift_racing_score     : int     Zwift racing score.
+        velo_rating            : int     Velo rating.
+        pull_adjustment_watts  : float   Adjustment watts for pulling.
+        critical_power         : float   Critical power in watts.
+        critical_power_w_prime : float   Work capacity above critical power (W') in kilojoules.
+        ftp_curve_coefficient  : float   Coefficient for the FTP curve model.
+        ftp_curve_exponent     : float   Exponent for the FTP curve model.
+        pull_curve_coefficient : float   Coefficient for the pull curve model.
+        pull_curve_exponent    : float   Exponent for the pull curve model.
+        when_curves_fitted     : str     Timestamp indicating when the curves were fitted.
     """    
     
-    zwiftid            : int    = 0             # Zwift ID of the rider
-    name               : str    = ""            # Name of the rider
-    weight             : float  = 0             # Weight of the rider in kilograms
-    height             : float  = 0             # Height of the rider in centimeters
-    gender             : str = ""               # Gender of the rider
-    zftp                : float  = 0             # Functional Threshold Power in watts
-    zwift_racing_score : int    = 0             # Zwift racing score
-    velo_rating        : int    = 0             # Velo rating
+    zwiftid                : int     = 0       # Zwift ID of the rider
+    name                   : str     = ""      # Name of the rider
+    weight                 : float   = 0       # Weight of the rider in kilograms
+    height                 : float   = 0       # Height of the rider in centimeters
+    gender                 : str     = ""      # Gender of the rider
+    zftp                   : float   = 0       # Functional Threshold Power in watts
+    zwift_racing_score     : int     = 0       # Zwift racing score
+    velo_rating            : int     = 0       # Velo rating
+    pull_adjustment_watts  : float   = 0.0     # Adjustment watts for pulling
+    critical_power         : float   = 0.0     # Critical power in watts
+    critical_power_w_prime : float   = 0.0     # Work capacity above critical power (W') in kilojoules
+    ftp_curve_coefficient  : float   = 0.0     # Coefficient for the FTP curve model
+    ftp_curve_exponent     : float   = 0.0     # Exponent for the FTP curve model
+    pull_curve_coefficient : float   = 0.0     # Coefficient for the pull curve model
+    pull_curve_exponent    : float   = 0.0     # Exponent for the pull curve model
+    when_curves_fitted     : str     = ""      # Timestamp indicating when the curves were fitted
 
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders
@@ -312,6 +304,57 @@ class ZwiftRiderItem():
         
         return round(speed_kph, 3)
 
+    def get_critical_power_watts(self) -> float:
+        return self.critical_power
+
+    def get_anaerobic_work_capacity_kj(self) -> float:
+        return self.critical_power_w_prime / 1_000.0
+
+    def get_30sec_watts(self) -> float:
+
+        pull_short = decay_model_numpy(np.array([300]), self.pull_curve_coefficient, self.pull_curve_exponent)
+
+        answer =  pull_short[0] + self.pull_adjustment_watts
+
+        return answer
+
+    def get_1_minute_watts(self) -> float:
+
+        pull_medium = decay_model_numpy(np.array([600]), self.pull_curve_coefficient, self.pull_curve_exponent)
+
+        answer =  pull_medium[0] + self.pull_adjustment_watts
+
+        return answer
+
+    def get_2_minute_watts(self) -> float:
+
+        pull_long = decay_model_numpy(np.array([1200]), self.pull_curve_coefficient, self.pull_curve_exponent)
+
+        answer =  pull_long[0] + self.pull_adjustment_watts
+
+        return answer
+
+    def get_3_minute_watts(self) -> float:
+
+        # same as 2 minute because this is for beasts who can withstand more time at the front 
+        # at the same power
+        pull_long = decay_model_numpy(np.array([1200]), self.pull_curve_coefficient, self.pull_curve_exponent)
+
+        answer =  pull_long[0] + self.pull_adjustment_watts
+
+        return answer
+
+    def get_ftp_60_minute_watts(self) -> float:
+
+        ftp = decay_model_numpy(np.array([3_600]), self.ftp_curve_coefficient, self.ftp_curve_exponent)
+
+        answer =  ftp[0]
+
+        return answer
+
+    def get_when_models_fitted(self) -> str:
+        return self.when_curves_fitted
+
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDTO:
         """
@@ -324,16 +367,23 @@ class ZwiftRiderItem():
             ZwiftRiderDTO: The corresponding data transfer object.
         """
         return ZwiftRiderDTO(
-            zwiftid=item.zwiftid,
-            name=item.name,
-            weight=item.weight,
-            height=item.height,
-            gender=item.gender,
-            zftp=item.zftp,
-            zwift_racing_score=item.zwift_racing_score,
-            velo_rating=item.velo_rating
+            zwiftid                = item.zwiftid,
+            name                   = item.name,
+            weight                 = item.weight,
+            height                 = item.height,
+            gender                 = item.gender,
+            zftp                   = item.zftp,
+            zwift_racing_score     = item.zwift_racing_score,
+            velo_rating            = item.velo_rating,
+            pull_adjustment_watts  = item.pull_adjustment_watts,
+            critical_power         = item.critical_power,
+            critical_power_w_prime = item.critical_power_w_prime,
+            ftp_curve_coefficient  = item.ftp_curve_coefficient,
+            ftp_curve_exponent     = item.ftp_curve_exponent,
+            pull_curve_coefficient = item.pull_curve_coefficient,
+            pull_curve_exponent    = item.pull_curve_exponent,
+            when_curves_fitted     = item.when_curves_fitted
         )
-
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRiderDTO) -> "ZwiftRiderItem":
         """
@@ -346,14 +396,22 @@ class ZwiftRiderItem():
             ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
         """
         return ZwiftRiderItem(
-            zwiftid=dto.zwiftid or 0,
-            name=dto.name or "",
-            weight=dto.weight or 0,
-            height=dto.height or 0,
-            gender=dto.gender or "",
-            zftp=dto.zftp or 0,
-            zwift_racing_score=dto.zwift_racing_score or 0,
-            velo_rating=dto.velo_rating or 0
+            zwiftid                = dto.zwiftid or 0,
+            name                   = dto.name or "",
+            weight                 = dto.weight or 0,
+            height                 = dto.height or 0,
+            gender                 = dto.gender or "",
+            zftp                   = dto.zftp or 0,
+            zwift_racing_score     = dto.zwift_racing_score or 0,
+            velo_rating            = dto.velo_rating or 0,
+            pull_adjustment_watts  = dto.pull_adjustment_watts or 0.0,
+            critical_power         = dto.critical_power or 0.0,
+            critical_power_w_prime = dto.critical_power_w_prime or 0.0,
+            ftp_curve_coefficient  = dto.ftp_curve_coefficient or 0.0,
+            ftp_curve_exponent     = dto.ftp_curve_exponent or 0.0,
+            pull_curve_coefficient = dto.pull_curve_coefficient or 0.0,
+            pull_curve_exponent    = dto.pull_curve_exponent or 0.0,
+            when_curves_fitted     = dto.when_curves_fitted or ""
         )
 
 @dataclass
@@ -1344,15 +1402,15 @@ class ZwiftPower90DayBestGraphItem:
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppPostDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppDTO) -> "ZwiftPower90DayBestGraphItem":
         """
-        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppPostDTO.
+        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppDTO.
         The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
         Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
         critical power and other derivatives 
 
         Args:
-            dto (ZwiftRacingAppPostDTO): The data transfer object to convert.
+            dto (ZwiftRacingAppDTO): The data transfer object to convert.
 
         Returns:
             ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
@@ -1368,11 +1426,11 @@ class ZwiftPower90DayBestGraphItem:
             cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
             cp_watts      = dto.power.CP if dto.power and dto.power.CP else 0.0,
-            cp_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
+            critical_power_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
             )
 
     @staticmethod
-    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPower90DayBestDataDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerImportDTO) -> "ZwiftPower90DayBestGraphItem":
         """
         Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestDataDTO.
 
@@ -1446,7 +1504,7 @@ class RiderExertionItem:
 @dataclass
 class RiderAnswerItem():
     cp_watts                    : float = 0
-    cp_w_prime              : float = 0
+    critical_power_w_prime              : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0

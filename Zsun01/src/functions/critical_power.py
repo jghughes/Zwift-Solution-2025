@@ -5,144 +5,10 @@ from scipy.optimize import curve_fit
 from typing import Tuple, Dict
 from tabulate import tabulate
 from typing import Dict
-from dataclasses import dataclass
-from dataclasses import dataclass
-from zwiftrider_dto import ZwiftRiderPowerDTO
-import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-
-@dataclass
-class ZwiftRiderPowerItem:
-    zwiftid              : int   = 0
-    name                 : str   = ""
-    cp                   : float = 0.0
-    cp_w_prime           : float = 0.0
-    ftp_coefficient      : float = 0.0
-    ftp_exponent         : float = 0.0
-    pull_coefficient     : float = 0.0
-    pull_exponent        : float = 0.0
-    ftp_r_squared        : float = 0.0
-    pull_r_squared       : float = 0.0
-    when_models_fitted   : str   = ""
-
-    def get_critical_power_watts(self) -> float:
-        return self.cp
-
-    def get_anaerobic_work_capacity_kj(self) -> float:
-        return self.cp_w_prime / 1_000.0
-
-    def get_30sec_watts(self) -> float:
-
-        pull_short = decay_model_numpy(np.array([300]), self.pull_coefficient, self.pull_exponent)
-
-        answer =  pull_short[0]
-
-        return answer
-
-    def get_1_minute_watts(self) -> float:
-
-        pull_medium = decay_model_numpy(np.array([600]), self.pull_coefficient, self.pull_exponent)
-
-        answer =  pull_medium[0]
-
-        return answer
-
-    def get_2_minute_watts(self) -> float:
-
-        pull_long = decay_model_numpy(np.array([1200]), self.pull_coefficient, self.pull_exponent)
-
-        answer =  pull_long[0]
-
-        return answer
-
-    def get_3_minute_watts(self) -> float:
-
-        # same as 2 minute because this is for beasts
-        pull_long = decay_model_numpy(np.array([1200]), self.pull_coefficient, self.pull_exponent)
-
-        answer =  pull_long[0]
-
-        return answer
-
-    def get_ftp_60_minute_watts(self) -> float:
-
-        ftp = decay_model_numpy(np.array([3_600]), self.ftp_coefficient, self.ftp_exponent)
-
-        answer =  ftp[0]
-
-        return answer
-
-    def get_pull_r_squared(self) -> float:
-        return self.pull_r_squared
-
-    def get_ftp_r_squared(self) -> float:
-        return self.ftp_r_squared
-
-    def get_when_models_fitted(self) -> str:
-        return self.when_models_fitted
+from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 
 
-    @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderPowerItem") -> ZwiftRiderPowerDTO:
-        return ZwiftRiderPowerDTO(
-            zwiftid               = item.zwiftid,
-            name                  = item.name,
-            cp                    = item.cp,
-            cp_w_prime            = item.cp_w_prime,
-            ftp_coefficient       = item.ftp_coefficient,
-            ftp_exponent          = item.ftp_exponent,
-            pull_coefficient      = item.pull_coefficient,
-            pull_exponent         = item.pull_exponent,
-            ftp_r_squared         = item.ftp_r_squared,
-            pull_r_squared        = item.pull_r_squared,
-            when_models_fitted    = item.when_models_fitted,
-            )
-
-
-    @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderPowerDTO) -> "ZwiftRiderPowerItem":
-        return ZwiftRiderPowerItem(
-            zwiftid               = dto.zwiftid or 0,
-            name                  = dto.name or "",
-            cp                    = dto.cp or 0.0,
-            cp_w_prime            = dto.cp_w_prime or 0.0,
-            ftp_coefficient       = dto.ftp_coefficient or 0.0,
-            ftp_exponent          = dto.ftp_exponent or 0.0,
-            pull_coefficient      = dto.pull_coefficient or 0.0,
-            pull_exponent         = dto.pull_exponent or 0.0,
-            ftp_r_squared         = dto.ftp_r_squared or 0.0,
-            pull_r_squared        = dto.pull_r_squared or 0.0,
-            when_models_fitted    = dto.when_models_fitted or "",
-          )
-
-def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
-    """
-    Compute power as a function of CP and W' using the formula (a * xdata + b) / xdata.
-
-    Args:
-        xdata (NDArray[np.float64]): Duration (seconds). Must be non-zero.
-        a (float): Coefficient for the linear term, cp_watts.
-        b (float): Constant term, W'
-
-    Returns:
-        NDArray[np.float64]: Computed power values.
-
-    Raises:
-        ValueError: If xdata contains zero values to avoid division by zero.
-    """
-
-    if np.any(xdata < 1):
-        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
-
-    result = (a * xdata + b) / xdata
-
-    return result
-
-
-def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
+def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
     Estimate cp_watts and w' using the formula xdata * y = cp_watts * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
@@ -163,8 +29,8 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
     # In the model, xdata stands for duration, and xdata * y is work (duration * power)
     popt, _ = curve_fit(cp_w_prime_model_numpy, xdata, ydata, p0=[250, 10_000])
 
-    # Extract the optimal parameters: cp_watts (critical power) and cp_w_prime(anaerobic work capacity)
-    # cp_watts, cp_w_prime= popt
+    # Extract the optimal parameters: cp_watts (critical power) and critical_power_w_prime(anaerobic work capacity)
+    # cp_watts, critical_power_w_prime= popt
 
     # logger.debug(f"Fitted parameters: {popt}")
 
@@ -189,32 +55,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
     return cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
 
 
-def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
-    """
-    A decay function that computes a * (1 / (xdata ** b)) for NumPy arrays.
-    Handles zero values in the array by replacing them with a small epsilon value.
-
-    Args:
-        xdata (NDArray[np.float64]): The input array.
-        a (float): Coefficient.
-        b (float): Exponent.
-
-    Returns:
-        NDArray[np.float64]: The computed values of the decay function.
-
-    Raises:
-        ValueError: If xdata contains zero values to avoid division by zero.
-    """
-
-    if np.any(xdata < 1):
-        raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
-
-    result = a * (1 / (xdata ** b))
-
-    return result
-
-
-def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
+def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
 
@@ -258,170 +99,6 @@ def do_modelling_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
 
     return coefficient_ftp, exponent_ftp, r2, rmse_cp, result
 
-
-# def generate_model_fitted_zwiftrider_cp_metrics(zwiftriders_zwift_cp_data: Dict[str, ZwiftPower90DayBestGraphItem]
-# ) -> Dict[str, ZwiftPower90DayBestGraphItem]:
-#     """
-#     Perform model fitting on ZwiftPower90DayBestGraphItem instances to calculate critical power (CP), 
-#     anaerobic work capacity (W'), and parameters for the inverse model, and then populate a neew item
-#     the item accoridng to the fitted parameters of the inverse model. The intended purpose of this 
-#     function is to import the database of ZSun riders and their CP data obtained from Zwiftor ZwiftPower
-#     and then to generate a new database of modeled CP data for each rider. This new database serves 
-#     as a benchmark for comparing exertion and work rate of riders in a paceline with what they are 
-#     capable of achieving in a solo effort.
-
-#     Args:
-#         zwiftriders_zwift_cp_data (Dict[str, ZwiftPower90DayBestGraphItem]): 
-#             A dictionary where the key is the rider's Zwift ID (as a string) and the value is a 
-#             ZwiftPower90DayBestGraphItem instance containing critical power data.
-
-#     Returns:
-#         Dict[str, ZwiftPower90DayBestGraphItem]: 
-#             A new dictionary of ZwiftPower90DayBestGraphItem instances with calculated CP, W', 
-#             inverse model parameters, and imported predicted critical power data.
-#     """
-
-#     # Create a new dictionary to store the modeled data
-#     modeled_data : Dict[str, ZwiftPower90DayBestGraphItem] = {}
-
-#     # Iterate through each ZwiftPower90DayBestGraphItem instance in the input dictionary
-#     for rider_id, rider_cp_item in zwiftriders_zwift_cp_data.items():
-#         # Create a copy of the current rider_cp_item to avoid modifying the original
-#         modeled_rider_cp_item = ZwiftPower90DayBestGraphItem(
-#             zwiftid=rider_cp_item.zwiftid,
-#             name=rider_cp_item.name,
-#             cp_1=rider_cp_item.cp_1,
-#             cp_2=rider_cp_item.cp_2,
-#             cp_3=rider_cp_item.cp_3,
-#             cp_4=rider_cp_item.cp_4,
-#             cp_5=rider_cp_item.cp_5,
-#             cp_6=rider_cp_item.cp_6,
-#             cp_7=rider_cp_item.cp_7,
-#             cp_8=rider_cp_item.cp_8,
-#             cp_9=rider_cp_item.cp_9,
-#             cp_10=rider_cp_item.cp_10,
-#             cp_11=rider_cp_item.cp_11,
-#             cp_12=rider_cp_item.cp_12,
-#             cp_13=rider_cp_item.cp_13,
-#             cp_14=rider_cp_item.cp_14,
-#             cp_15=rider_cp_item.cp_15,
-#             cp_16=rider_cp_item.cp_16,
-#             cp_17=rider_cp_item.cp_17,
-#             cp_18=rider_cp_item.cp_18,
-#             cp_19=rider_cp_item.cp_19,
-#             cp_20=rider_cp_item.cp_20,
-#             cp_21=rider_cp_item.cp_21,
-#             cp_22=rider_cp_item.cp_22,
-#             cp_23=rider_cp_item.cp_23,
-#             cp_24=rider_cp_item.cp_24,
-#             cp_25=rider_cp_item.cp_25,
-#             cp_26=rider_cp_item.cp_26,
-#             cp_27=rider_cp_item.cp_27,
-#             cp_28=rider_cp_item.cp_28,
-#             cp_29=rider_cp_item.cp_29,
-#             cp_30=rider_cp_item.cp_30,
-#             cp_35=rider_cp_item.cp_35,
-#             cp_40=rider_cp_item.cp_40,
-#             cp_45=rider_cp_item.cp_45,
-#             cp_50=rider_cp_item.cp_50,
-#             cp_55=rider_cp_item.cp_55,
-#             cp_60=rider_cp_item.cp_60,
-#             cp_70=rider_cp_item.cp_70,
-#             cp_80=rider_cp_item.cp_80,
-#             cp_90=rider_cp_item.cp_90,
-#             cp_100=rider_cp_item.cp_100,
-#             cp_110=rider_cp_item.cp_110,
-#             cp_120=rider_cp_item.cp_120,
-#             cp_150=rider_cp_item.cp_150,
-#             cp_180=rider_cp_item.cp_180,
-#             cp_210=rider_cp_item.cp_210,
-#             cp_240=rider_cp_item.cp_240,
-#             cp_270=rider_cp_item.cp_270,
-#             cp_300=rider_cp_item.cp_300,
-#             cp_330=rider_cp_item.cp_330,
-#             cp_360=rider_cp_item.cp_360,
-#             cp_390=rider_cp_item.cp_390,
-#             cp_420=rider_cp_item.cp_420,
-#             cp_450=rider_cp_item.cp_450,
-#             cp_480=rider_cp_item.cp_480,
-#             cp_510=rider_cp_item.cp_510,
-#             cp_540=rider_cp_item.cp_540,
-#             cp_570=rider_cp_item.cp_570,
-#             cp_600=rider_cp_item.cp_600,
-#             cp_660=rider_cp_item.cp_660,
-#             cp_720=rider_cp_item.cp_720,
-#             cp_780=rider_cp_item.cp_780,
-#             cp_840=rider_cp_item.cp_840,
-#             cp_900=rider_cp_item.cp_900,
-#             cp_960=rider_cp_item.cp_960,
-#             cp_1020=rider_cp_item.cp_1020,
-#             cp_1080=rider_cp_item.cp_1080,
-#             cp_1140=rider_cp_item.cp_1140,
-#             cp_1200=rider_cp_item.cp_1200,
-#             cp_1320=rider_cp_item.cp_1320,
-#             cp_1440=rider_cp_item.cp_1440,
-#             cp_1560=rider_cp_item.cp_1560,
-#             cp_1680=rider_cp_item.cp_1680,
-#             cp_1800=rider_cp_item.cp_1800,
-#             cp_1920=rider_cp_item.cp_1920,
-#             cp_2040=rider_cp_item.cp_2040,
-#             cp_2160=rider_cp_item.cp_2160,
-#             cp_2280=rider_cp_item.cp_2280,
-#             cp_2400=rider_cp_item.cp_2400,
-#             cp_2520=rider_cp_item.cp_2520,
-#             cp_2640=rider_cp_item.cp_2640,
-#             cp_2760=rider_cp_item.cp_2760,
-#             cp_2880=rider_cp_item.cp_2880,
-#             cp_3000=rider_cp_item.cp_3000,
-#             cp_3120=rider_cp_item.cp_3120,
-#             cp_3240=rider_cp_item.cp_3240,
-#             cp_3360=rider_cp_item.cp_3360,
-#             cp_3480=rider_cp_item.cp_3480,
-#             cp_3600=rider_cp_item.cp_3600,
-#             cp_3900=rider_cp_item.cp_3900,
-#             cp_4200=rider_cp_item.cp_4200,
-#             cp_4500=rider_cp_item.cp_4500,
-#             cp_4800=rider_cp_item.cp_4800,
-#             cp_5100=rider_cp_item.cp_5100,
-#             cp_5400=rider_cp_item.cp_5400,
-#             cp_5700=rider_cp_item.cp_5700,
-#             cp_6000=rider_cp_item.cp_6000,
-#             cp_6300=rider_cp_item.cp_6300,
-#             cp_6600=rider_cp_item.cp_6600,
-#             cp_7200=rider_cp_item.cp_7200,
-#             cp_watts=rider_cp_item.cp_watts,
-#             anaerobic_work_capacity=rider_cp_item.anaerobic_work_capacity,
-#             ftp_coefficient=rider_cp_item.ftp_coefficient,
-#             ftp_exponent=rider_cp_item.ftp_exponent,
-#             timestamp=rider_cp_item.timestamp,
-#             model_applied=rider_cp_item.model_applied
-#         )
-
-#         # Perform modeling with CP-W' model
-#         rider_cp_interval_data: Dict[int, float] = rider_cp_item.export_zwiftpower_data_for_cp_w_prime_modelling()
-#         cp_watts, anaerobic_work_capacity, _, _, _ = do_modelling_with_cp_w_prime_model(rider_cp_interval_data)
-#         modeled_rider_cp_item.cp_watts = cp_watts
-#         modeled_rider_cp_item.cp_w_prime= anaerobic_work_capacity
-
-#         # Perform modeling with inverse model
-#         constant, exponent_ftp, _, _, _ = do_modelling_with_decay_model(rider_cp_interval_data)
-#         modeled_rider_cp_item.ftp_coefficient = constant
-#         modeled_rider_cp_item.ftp_exponent = exponent_ftp
-
-#         # Calculate the predicted y values based on the fitted parameters from the inverse model
-#         x_ordinates = np.array(ZwiftPower90DayBestGraphItem.export_zwiftpower_x_ordinates())
-#         y_ordinates_inverse_model = decay_model_numpy(x_ordinates, constant, exponent_ftp)
-
-#         # Zip the x_ordinates and y_pred_decay_model together into a dict[int, float]
-#         generated_cp_data = dict(zip(x_ordinates, y_ordinates_inverse_model))
-
-#         # Add the y_pred_inverse_model_dict to the modeled_rider_cp_item
-#         modeled_rider_cp_item.import_zwiftpower_graph_data(generated_cp_data)
-
-#         # Add the modeled rider_cp_item to the new dictionary
-#         modeled_data[rider_id] = modeled_rider_cp_item
-
-#     return modeled_data
 
 # tests
 
@@ -485,7 +162,7 @@ def test_do_modelling_with_decay_model():
     }
 
     #do work
-    coefficient_ftp, exponent_ftp, r2, rmse_cp, result = do_modelling_with_decay_model(raw_xy_data_cp)
+    coefficient_ftp, exponent_ftp, r2, rmse_cp, result = do_curve_fit_with_decay_model(raw_xy_data_cp)
     # Prepare data for the summary table
     summary_table = [
         ["Coefficient", round(coefficient_ftp, 4)],
@@ -518,7 +195,7 @@ def test_do_modelling_with_cp_w_prime_model():
     }
 
     #do work
-    cp_watts, anaerobic_work_capacity, r2, rmse_cp, result = do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
+    cp_watts, anaerobic_work_capacity, r2, rmse_cp, result = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
     # Prepare data for the summary table
     summary_table = [
@@ -542,6 +219,12 @@ def test_do_modelling_with_cp_w_prime_model():
     logger.info("\n" + tabulate(result_table, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
     test_decay_model_numpy()
     test_cp_w_prime_model_numpy()
     test_do_modelling_with_decay_model()

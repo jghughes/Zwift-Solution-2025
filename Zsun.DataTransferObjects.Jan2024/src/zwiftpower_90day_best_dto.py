@@ -11,14 +11,14 @@ serialization_alias_map: dict[str, str] = {
     "pull_medium_watts": "pull_medium_watts",
     "pull_long_watts"  : "pull_long_watts",
     "ftp_watts"         : "ftp_watts",
-    "cp_w_prime"            : "cp_w_prime",
-    "ftp_coefficient"       : "ftp_coefficient",
-    "ftp_exponent"          : "ftp_exponent",
+    "critical_power_w_prime"            : "critical_power_w_prime",
+    "ftp_curve_coefficient"       : "ftp_curve_coefficient",
+    "ftp_curve_exponent"          : "ftp_curve_exponent",
     "ftp_r_squared"         : "ftp_r_squared",
-    "pull_coefficient"      : "pull_coefficient",
-    "pull_exponent"         : "pull_exponent",
+    "pull_curve_coefficient"      : "pull_curve_coefficient",
+    "pull_curve_exponent"         : "pull_curve_exponent",
     "pull_r_squared"        : "pull_r_squared",
-    "when_models_fitted"       : "when_models_fitted",
+    "when_curves_fitted"       : "when_curves_fitted",
     "cp_1": "cp_1",
     "cp_2": "cp_2",
     "cp_3": "cp_3",
@@ -109,14 +109,14 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "pull_medium_watts": AliasChoices("pull_medium_watts"),
     "pull_long_watts"  : AliasChoices("pull_long_watts"),
     "ftp_watts"         : AliasChoices("ftp_watts"),
-    "cp_w_prime"            : AliasChoices("cp_w_prime"),
-    "ftp_coefficient"       : AliasChoices("ftp_coefficient"),
-    "ftp_exponent"          : AliasChoices("ftp_exponent"),
+    "critical_power_w_prime"            : AliasChoices("critical_power_w_prime"),
+    "ftp_curve_coefficient"       : AliasChoices("ftp_curve_coefficient"),
+    "ftp_curve_exponent"          : AliasChoices("ftp_curve_exponent"),
     "ftp_r_squared"         : AliasChoices("ftp_r_squared"),
-    "pull_coefficient"      : AliasChoices("pull_coefficient"),
-    "pull_exponent"         : AliasChoices("pull_exponent"),
+    "pull_curve_coefficient"      : AliasChoices("pull_curve_coefficient"),
+    "pull_curve_exponent"         : AliasChoices("pull_curve_exponent"),
     "pull_r_squared"        : AliasChoices("pull_r_squared"),
-    "when_models_fitted"       : AliasChoices("when_models_fitted"),
+    "when_curves_fitted"       : AliasChoices("when_curves_fitted"),
     "cp_1": AliasChoices("cp_1"),
     "cp_2": AliasChoices("cp_2"),
     "cp_3": AliasChoices("cp_3"),
@@ -209,8 +209,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-
-class ZwiftPower90DayBestDataDTO(BaseModel):
+class ZwiftPowerImportDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object. The property
     names in the class and its nested classes precisely match the names in the JSON

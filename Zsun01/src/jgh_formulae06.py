@@ -179,7 +179,7 @@ def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[Zwif
         if rider_cp_item:
             # logging.debug(f"Found rider ID: {rider_id_str}")
             answer_item.cp_watts = rider_cp_item.cp_watts
-            answer_item.cp_w_prime= rider_cp_item.anaerobic_work_capacity
+            answer_item.critical_power_w_prime= rider_cp_item.anaerobic_work_capacity
         else:
             logging.debug(f"Rider ID: {rider_id_str} not found in zwiftriders_zwift_cp_data")
     return rider_answer_items
@@ -227,7 +227,7 @@ def main() -> None:
             "p+(W)", 
             "pull(%ftp)",
             "IF(np/ftp)", 
-            "cp(W)", 
+            "critical_power(W)", 
             "awc(kJ)",
         ]
         logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))

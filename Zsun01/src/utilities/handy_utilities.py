@@ -5,7 +5,7 @@ from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
 from zwiftpower_90day_best_dto import ZwiftPower90DayBestDataDTO, ZwiftPower90DayBestGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftPower90DayBestGraphItem
-from zwiftracing_dto import ZwiftRacingAppPostDTO
+from zwiftracing_dto import ZwiftRacingAppDTO
 
 
 import logging
@@ -211,8 +211,8 @@ def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_pat
         file_count += 1
 
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppPostDTO)
-            dto = cast(ZwiftRacingAppPostDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
+            dto = cast(ZwiftRacingAppDTO, dto)
         except Exception:
             error_count += 1
             logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
@@ -296,14 +296,14 @@ def read_many_zwiftracing_files_in_folder(riderIDs: Optional[list[str]], dir_pat
 
             try:
 
-                dto = JghSerialization.validate(inputjson, ZwiftRacingAppPostDTO)
+                dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
 
             except Exception:
                 error_count += 1
                 logger.error(f"     {error_count} serialisation error. Skipping file: {file_name}")
                 continue
 
-            dto = cast(ZwiftRacingAppPostDTO, dto)
+            dto = cast(ZwiftRacingAppDTO, dto)
 
             if dto.riderId:
                 answer[dto.riderId] = ZwiftPower90DayBestGraphItem.from_zwift_racing_app_DTO(

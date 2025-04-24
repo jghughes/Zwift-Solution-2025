@@ -3,7 +3,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-import critical_power as cp
+import critical_power as critical_power
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
@@ -71,11 +71,11 @@ def main():
     joshn ='2508033' #ftp 260
     richardm ='1193' # ftp 200
     markb ='5530045' #ftp 280
-    davek="3147366" #ftp 276 cp 278
+    davek="3147366" #ftp 276 critical_power 278
     husky="5134" #ftp 268
     scottm="11526" #ftp 247
     timr= "5421258" #ftp 380
-    tom_bick= "11741" #ftp 303 cp 298
+    tom_bick= "11741" #ftp 303 critical_power 298
     bryan_bumpas = "9011" #ftp 214
     matt_steeve = "1024413"
     giao_nguyen = "183277" #ftp 189
@@ -86,48 +86,41 @@ def main():
 
     # choose a rider to model
 
-    rider_id = tom_bick
+    rider_id = joshn
 
 
-    # determine cp and w_prime
+    # model critical_power and w_prime
 
     raw_xy_data_cp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
 
-    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
+    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = critical_power.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
-
-
-    # determine some sensible pull power targets
+    # model pull power curve
 
     raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
 
-    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_modelling_with_decay_model(raw_xy_data_pull)
+    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = critical_power.do_curve_fit_with_decay_model(raw_xy_data_pull)
 
-    pull_short = cp.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
-    pull_medium = cp.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
-    pull_long = cp.decay_model_numpy(np.array([1200]), coefficient_pull, exponent_pull)
-
-
-    # determine ftp
+    # model ftp curve 
 
     raw_xy_data_ftp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_ftp_modelling()
 
-    coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_modelling_with_decay_model(raw_xy_data_ftp)
+    coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = critical_power.do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
     logger.info("\nModelling completed. Thank you.\n")
 
     # instantiate a power item to hold the results
 
-    pi = cp.ZwiftRiderPowerItem(zwiftid=int(rider_id), name=dict_of_zwiftrideritem[rider_id].name)
-    pi.cp = critical_power
-    pi.cp_w_prime = anaerobic_work_capacity
-    pi.ftp_coefficient = coefficient_ftp
-    pi.ftp_exponent = exponent_ftp
-    pi.pull_coefficient = coefficient_pull
-    pi.pull_exponent = exponent_pull
+    pi = critical_power.ZwiftRiderPowerItem(zwiftid=int(rider_id), name=dict_of_zwiftrideritem[rider_id].name)
+    pi.critical_power = critical_power
+    pi.critical_power_w_prime = anaerobic_work_capacity
+    pi.ftp_curve_coefficient = coefficient_ftp
+    pi.ftp_curve_exponent = exponent_ftp
+    pi.pull_curve_coefficient = coefficient_pull
+    pi.pull_curve_exponent = exponent_pull
     pi.ftp_r_squared = r_squared_ftp
     pi.pull_r_squared = r_squared_pull
-    pi.when_models_fitted = datetime.now().isoformat()
+    pi.when_curves_fitted = datetime.now().isoformat()
 
     # log pretty summaries
 
@@ -142,8 +135,6 @@ def main():
     summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(pi.get_ftp_r_squared(), 2)}]"
 
     logger.info(f"\n{summary_ftp}")
-
-
 
     # Plot answers
 
@@ -162,7 +153,7 @@ def main():
 
     plt.figure(figsize=(10, 6))
     plt.scatter(xdata_cp, ydata_cp, color='grey', label='critical power range')
-    plt.scatter(xdata_pull, ydata_pull, color='green', label='pull power range')
+    plt.scatter(xdata_pull, ydata_pull, color='orange', label='pull power range')
     plt.scatter(xdata_ftp, ydata_ftp, color='black', label='functional threshold range')
     plt.plot(xdata_cp, ydata_pred_cp, color='red', label=summary_cp_w_prime)
     plt.plot(xdata_pull, ydata_pred_pull, color='blue', label=summary_pull)
