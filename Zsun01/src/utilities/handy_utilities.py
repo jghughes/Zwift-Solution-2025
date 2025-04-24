@@ -3,7 +3,7 @@ from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zwiftrider_dto import ZwiftRiderDTO
-from zwiftpower_90day_best_dto import ZwiftPower90DayBestDataDTO, ZwiftPower90DayBestGraphDTO
+from zwiftpower_90day_best_dto import ZwiftPowerImportDTO, ZwiftPower90DayBestGraphDTO
 from zwiftrider_related_items import ZwiftRiderItem, ZwiftPower90DayBestGraphItem
 from zwiftracing_dto import ZwiftRacingAppDTO
 
@@ -426,8 +426,8 @@ def read_many_zwiftpower_graph_files_in_folder(riderIDs: Optional[list[str]], di
         file_count += 1
 
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPower90DayBestDataDTO)
-            dto = cast(ZwiftPower90DayBestDataDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerImportDTO)
+            dto = cast(ZwiftPowerImportDTO, dto)
         except Exception:
             error_count += 1
             logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")

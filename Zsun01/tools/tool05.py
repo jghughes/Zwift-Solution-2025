@@ -2,8 +2,9 @@ import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
+from zwiftrider_related_items import ZwiftRiderItem
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-import critical_power as critical_power
+import critical_power as cp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
@@ -93,34 +94,35 @@ def main():
 
     raw_xy_data_cp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
 
-    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = critical_power.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
     # model pull power curve
 
     raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
 
-    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = critical_power.do_curve_fit_with_decay_model(raw_xy_data_pull)
+    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_curve_fit_with_decay_model(raw_xy_data_pull)
 
     # model ftp curve 
 
     raw_xy_data_ftp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_ftp_modelling()
 
-    coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = critical_power.do_curve_fit_with_decay_model(raw_xy_data_ftp)
+    coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
     logger.info("\nModelling completed. Thank you.\n")
 
     # instantiate a power item to hold the results
 
-    pi = critical_power.ZwiftRiderPowerItem(zwiftid=int(rider_id), name=dict_of_zwiftrideritem[rider_id].name)
-    pi.critical_power = critical_power
-    pi.critical_power_w_prime = anaerobic_work_capacity
-    pi.ftp_curve_coefficient = coefficient_ftp
-    pi.ftp_curve_exponent = exponent_ftp
-    pi.pull_curve_coefficient = coefficient_pull
-    pi.pull_curve_exponent = exponent_pull
-    pi.ftp_r_squared = r_squared_ftp
-    pi.pull_r_squared = r_squared_pull
-    pi.when_curves_fitted = datetime.now().isoformat()
+    pi = ZwiftRiderItem(
+        zwiftid=int(rider_id),
+        name=dict_of_zwiftrideritem[rider_id].name,
+        critical_power=critical_power,
+        critical_power_w_prime=anaerobic_work_capacity,
+        ftp_curve_coefficient=coefficient_ftp,
+        ftp_curve_exponent=exponent_ftp,
+        pull_curve_coefficient=coefficient_pull,
+        pull_curve_exponent=exponent_pull,
+        when_curves_fitted=datetime.now().isoformat(),
+    )
 
     # log pretty summaries
 
@@ -128,11 +130,11 @@ def main():
 
     logger.info(f"\n{summary_cp_w_prime}")
 
-    summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pi.get_30sec_watts())} - {round(pi.get_1_minute_watts())} - {round(pi.get_2_minute_watts())}W  [r-squared {round(pi.get_pull_r_squared(), 2)}]"
+    summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pi.get_30sec_watts())} - {round(pi.get_1_minute_watts())} - {round(pi.get_2_minute_watts())}W  [r-squared {round(r_squared_pull, 2)}]"
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(pi.get_ftp_r_squared(), 2)}]"
+    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_ftp, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 
