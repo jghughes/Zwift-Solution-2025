@@ -26,6 +26,37 @@ def get_betel_zwift_ids() -> List[str]:
 
     return answer
 
+def get_betel(id : int) -> ZwiftRiderItem:
+    """
+    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZwiftRiderItem instance.
+    Args:
+        id (int): The ID of the rider to retrieve.
+    Returns:
+        ZwiftRiderItem: The ZwiftRiderItem instance for the specified rider.
+    """
+    file_name = "betel_rider_profiles.json"
+    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+    riders = read_dict_of_zwiftriders(file_name, dir_path)
+    # extract list of zwiftIds from the riders
+    answer = riders[str(id)]
+    return answer
+
+def get_zwift_rider(id : int) -> ZwiftRiderItem:
+    """
+    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZwiftRiderItem instance.
+    Args:
+        id (int): The ID of the rider to retrieve.
+    Returns:
+        ZwiftRiderItem: The ZwiftRiderItem instance for the specified rider.
+    """
+    file_name = "betel_rider_profiles.json"
+    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+    riders = read_dict_of_zwiftriders(file_name, dir_path)
+    # extract list of zwiftIds from the riders
+    answer = riders[str(id)]
+    return answer
+
+
 def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
     """
     Retrieve all Zwift riders from a JSON file and convert them to ZwiftRiderItem instances.
@@ -438,8 +469,8 @@ def main02():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 
-    INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH)
+    INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    _ = read_many_zwiftpower_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()

@@ -20,7 +20,7 @@ def main():
     6. Writes the processed critical power data to a JSON file in the specified output directory.
 
     Module-level constants:
-        - `INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH`: Directory path for ZwiftPower critical power data files.
+        - `INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH`: Directory path for ZwiftPower critical power data files.
         - `OUTPUT_FILE_NAME`: Name of the output JSON file.
         - `OUTPUT_DIR_PATH`: Directory path for the output JSON file.
         - `betel_IDs`: List of rider IDs to process.
@@ -49,9 +49,9 @@ def main():
     
     betel_IDs = get_betel_zwift_ids()
 
-    INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_betel = read_many_zwiftpower_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_betel = read_many_zwiftpower_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"

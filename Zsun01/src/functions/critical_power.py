@@ -4,14 +4,119 @@ from sklearn.metrics import r2_score, mean_squared_error
 from scipy.optimize import curve_fit
 from typing import Tuple, Dict
 from tabulate import tabulate
-
+from typing import Dict
+from dataclasses import dataclass
+from dataclasses import dataclass
+from zwiftrider_dto import ZwiftRiderPowerDTO
 import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
+@dataclass
+class ZwiftRiderPowerItem:
+    zwiftid              : int   = 0
+    name                 : str   = ""
+    cp                   : float = 0.0
+    cp_w_prime           : float = 0.0
+    ftp_coefficient      : float = 0.0
+    ftp_exponent         : float = 0.0
+    pull_coefficient     : float = 0.0
+    pull_exponent        : float = 0.0
+    ftp_r_squared        : float = 0.0
+    pull_r_squared       : float = 0.0
+    when_models_fitted   : str   = ""
 
+    def get_critical_power_watts(self) -> float:
+        return self.cp
+
+    def get_anaerobic_work_capacity_kj(self) -> float:
+        return self.cp_w_prime / 1_000.0
+
+    def get_30sec_watts(self) -> float:
+
+        pull_short = decay_model_numpy(np.array([300]), self.pull_coefficient, self.pull_exponent)
+
+        answer =  pull_short[0]
+
+        return answer
+
+    def get_1_minute_watts(self) -> float:
+
+        pull_medium = decay_model_numpy(np.array([600]), self.pull_coefficient, self.pull_exponent)
+
+        answer =  pull_medium[0]
+
+        return answer
+
+    def get_2_minute_watts(self) -> float:
+
+        pull_long = decay_model_numpy(np.array([1200]), self.pull_coefficient, self.pull_exponent)
+
+        answer =  pull_long[0]
+
+        return answer
+
+    def get_3_minute_watts(self) -> float:
+
+        # same as 2 minute because this is for beasts
+        pull_long = decay_model_numpy(np.array([1200]), self.pull_coefficient, self.pull_exponent)
+
+        answer =  pull_long[0]
+
+        return answer
+
+    def get_ftp_60_minute_watts(self) -> float:
+
+        ftp = decay_model_numpy(np.array([3_600]), self.ftp_coefficient, self.ftp_exponent)
+
+        answer =  ftp[0]
+
+        return answer
+
+    def get_pull_r_squared(self) -> float:
+        return self.pull_r_squared
+
+    def get_ftp_r_squared(self) -> float:
+        return self.ftp_r_squared
+
+    def get_when_models_fitted(self) -> str:
+        return self.when_models_fitted
+
+
+    @staticmethod
+    def to_dataTransferObject(item: "ZwiftRiderPowerItem") -> ZwiftRiderPowerDTO:
+        return ZwiftRiderPowerDTO(
+            zwiftid               = item.zwiftid,
+            name                  = item.name,
+            cp                    = item.cp,
+            cp_w_prime            = item.cp_w_prime,
+            ftp_coefficient       = item.ftp_coefficient,
+            ftp_exponent          = item.ftp_exponent,
+            pull_coefficient      = item.pull_coefficient,
+            pull_exponent         = item.pull_exponent,
+            ftp_r_squared         = item.ftp_r_squared,
+            pull_r_squared        = item.pull_r_squared,
+            when_models_fitted    = item.when_models_fitted,
+            )
+
+
+    @staticmethod
+    def from_dataTransferObject(dto: ZwiftRiderPowerDTO) -> "ZwiftRiderPowerItem":
+        return ZwiftRiderPowerItem(
+            zwiftid               = dto.zwiftid or 0,
+            name                  = dto.name or "",
+            cp                    = dto.cp or 0.0,
+            cp_w_prime            = dto.cp_w_prime or 0.0,
+            ftp_coefficient       = dto.ftp_coefficient or 0.0,
+            ftp_exponent          = dto.ftp_exponent or 0.0,
+            pull_coefficient      = dto.pull_coefficient or 0.0,
+            pull_exponent         = dto.pull_exponent or 0.0,
+            ftp_r_squared         = dto.ftp_r_squared or 0.0,
+            pull_r_squared        = dto.pull_r_squared or 0.0,
+            when_models_fitted    = dto.when_models_fitted or "",
+          )
 
 def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
@@ -61,7 +166,7 @@ def do_modelling_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
     # Extract the optimal parameters: cp_watts (critical power) and cp_w_prime(anaerobic work capacity)
     # cp_watts, cp_w_prime= popt
 
-    logger.debug(f"Fitted parameters: {popt}")
+    # logger.debug(f"Fitted parameters: {popt}")
 
     cp_watts: float = float(popt[0])
     anaerobic_work_capacity: float = float(popt[1])

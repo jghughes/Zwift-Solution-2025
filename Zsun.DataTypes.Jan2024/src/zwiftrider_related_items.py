@@ -1,7 +1,7 @@
 from typing import Dict
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
-from zwiftrider_dto import ZwiftRiderDTO, ZwiftRiderPowerDTO
+from zwiftrider_dto import ZwiftRiderDTO 
 from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPower90DayBestDataDTO
 from zwiftracing_dto import ZwiftRacingAppPostDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
@@ -19,14 +19,14 @@ class ZwiftRiderItem():
         weight             : float  The weight of the rider in kilograms.
         height             : float  The height of the rider in centimeters.
         gender             : Gender The gender of the rider.
-        ftp                : float  Functional Threshold Power in watts.
+        zftp                : float  Functional Threshold Power in watts.
         zwift_racing_score : int    Zwift racing score.
         velo_rating        : int    Velo rating.
 
     Methods:
         make_identifier(
             zwiftid: int, name: str, weight: float, height: float, gender: Gender, 
-            ftp: float, zwift_racing_score: int, velo_rating: int
+            zftp: float, zwift_racing_score: int, velo_rating: int
         ) -> str:
             Generate a unique key based on all the parameters that define
             an instance of the class as used in the ctor for the frozen class.
@@ -55,7 +55,7 @@ class ZwiftRiderItem():
     weight             : float  = 0             # Weight of the rider in kilograms
     height             : float  = 0             # Height of the rider in centimeters
     gender             : str = ""               # Gender of the rider
-    ftp                : float  = 0             # Functional Threshold Power in watts
+    zftp                : float  = 0             # Functional Threshold Power in watts
     zwift_racing_score : int    = 0             # Zwift racing score
     velo_rating        : int    = 0             # Velo rating
 
@@ -68,7 +68,7 @@ class ZwiftRiderItem():
                 "weight": 73.4,
                 "height": 182,
                 "gender": "m",
-                "ftp": 276,
+                "zftp": 276,
                 "zwift_racing_score": 744,
                 "velo_rating": 1897,
             },
@@ -78,7 +78,7 @@ class ZwiftRiderItem():
                 "weight": 75.5,
                 "height": 178,
                 "gender": "m",
-                "ftp": 268,
+                "zftp": 268,
                 "zwift_racing_score": 552,
                 "velo_rating": 1519,
             },
@@ -88,7 +88,7 @@ class ZwiftRiderItem():
                 "weight": 78,
                 "height": 165,
                 "gender": "m",
-                "ftp": 247,
+                "zftp": 247,
                 "zwift_racing_score": 509,
                 "velo_rating": 1537,
             },
@@ -98,7 +98,7 @@ class ZwiftRiderItem():
                 "weight": 91.6,
                 "height": 185,
                 "gender": "m",
-                "ftp": 229,
+                "zftp": 229,
                 "zwift_racing_score": 493,
                 "velo_rating": 1309,
             },
@@ -108,7 +108,7 @@ class ZwiftRiderItem():
                 "weight": 77,
                 "height": 176,
                 "gender": "m",
-                "ftp": 273,
+                "zftp": 273,
                 "zwift_racing_score": 444,
                 "velo_rating": 1294,
             },
@@ -118,7 +118,7 @@ class ZwiftRiderItem():
                 "weight": 75.4,
                 "height": 174,
                 "gender": "m",
-                "ftp": 233,
+                "zftp": 233,
                 "zwift_racing_score": 351,
                 "velo_rating": 1067,
             },
@@ -128,7 +128,7 @@ class ZwiftRiderItem():
                 "weight": 75.6,
                 "height": 180,
                 "gender": "m",
-                "ftp": 243,
+                "zftp": 243,
                 "zwift_racing_score": 335,
                 "velo_rating": 1078,
             },
@@ -138,7 +138,7 @@ class ZwiftRiderItem():
                 "weight": 101,
                 "height": 178,
                 "gender": "m",
-                "ftp": 260,
+                "zftp": 260,
                 "zwift_racing_score": 285,
                 "velo_rating": 942,
             },
@@ -148,7 +148,7 @@ class ZwiftRiderItem():
                 "weight": 107.5,
                 "height": 188,
                 "gender": "m",
-                "ftp": 274,
+                "zftp": 274,
                 "zwift_racing_score": 206,
                 "velo_rating": 748,
             },
@@ -158,7 +158,7 @@ class ZwiftRiderItem():
                 "weight": 93,
                 "height": 178,
                 "gender": "m",
-                "ftp": 200,
+                "zftp": 200,
                 "zwift_racing_score": 189,
                 "velo_rating": 628,
             },
@@ -168,7 +168,7 @@ class ZwiftRiderItem():
                 "weight": 63,
                 "height": 171,
                 "gender": "f",
-                "ftp": 214,
+                "zftp": 214,
                 "zwift_racing_score": 345,
                 "velo_rating": 1129,
             },
@@ -178,7 +178,7 @@ class ZwiftRiderItem():
                 "weight": 71.2,
                 "height": 178,
                 "gender": "f",
-                "ftp": 236,
+                "zftp": 236,
                 "zwift_racing_score": 338,
                 "velo_rating": 1035,
             },
@@ -188,7 +188,7 @@ class ZwiftRiderItem():
                 "weight": 63.5,
                 "height": 165,
                 "gender": "f",
-                "ftp": 201,
+                "zftp": 201,
                 "zwift_racing_score": 327,
                 "velo_rating": 915,
             }
@@ -196,7 +196,7 @@ class ZwiftRiderItem():
 
     @staticmethod
     def create(zwiftid: int, name: str, weight: float, height: float, gender: str, 
-        ftp: float, zwift_racing_score: int, velo_rating: int
+        zftp: float, zwift_racing_score: int, velo_rating: int
     ) -> 'ZwiftRiderItem':
         """
         Create a ZwiftRiderItem instance with the given parameters
@@ -207,7 +207,7 @@ class ZwiftRiderItem():
             weight             (float): The weight of the rider in kilograms.
             height             (float): The height of the rider in centimeters.
             gender             (Gender): The gender of the rider.
-            ftp                (float): Functional Threshold Power in watts.
+            zftp                (float): Functional Threshold Power in watts.
             zwift_racing_score (int)  : Zwift racing score.
             velo_rating        (int)  : Velo rating.
     
@@ -221,7 +221,7 @@ class ZwiftRiderItem():
             weight=weight,
             height=height,
             gender=gender,
-            ftp=ftp,
+            zftp=zftp,
             zwift_racing_score=zwift_racing_score,
             velo_rating=velo_rating
         )
@@ -329,7 +329,7 @@ class ZwiftRiderItem():
             weight=item.weight,
             height=item.height,
             gender=item.gender,
-            ftp=item.ftp,
+            zftp=item.zftp,
             zwift_racing_score=item.zwift_racing_score,
             velo_rating=item.velo_rating
         )
@@ -351,7 +351,7 @@ class ZwiftRiderItem():
             weight=dto.weight or 0,
             height=dto.height or 0,
             gender=dto.gender or "",
-            ftp=dto.ftp or 0,
+            zftp=dto.zftp or 0,
             zwift_racing_score=dto.zwift_racing_score or 0,
             velo_rating=dto.velo_rating or 0
         )
@@ -794,20 +794,20 @@ class ZwiftPower90DayBestGraphItem:
             # 90: self.cp_90,
             # 100: self.cp_100,
             # 110: self.cp_110,
-            # 120: self.cp_120,
-            # 150: self.cp_150,
-            # 180: self.cp_180,
-            # 210: self.cp_210,
-            # 240: self.cp_240,
-            # 270: self.cp_270,
-            # 300: self.cp_300,
-            # 330: self.cp_330,
-            # 360: self.cp_360,
-            # 390: self.cp_390,
-            # 420: self.cp_420,
-            # 450: self.cp_450,
-            # 480: self.cp_480,
-            # 510: self.cp_510,
+            120: self.cp_120,
+            150: self.cp_150,
+            180: self.cp_180,
+            210: self.cp_210,
+            240: self.cp_240,
+            270: self.cp_270,
+            300: self.cp_300,
+            330: self.cp_330,
+            360: self.cp_360,
+            390: self.cp_390,
+            420: self.cp_420,
+            450: self.cp_450,
+            480: self.cp_480,
+            510: self.cp_510,
             540: self.cp_540,
             570: self.cp_570,
             600: self.cp_600,
@@ -882,8 +882,6 @@ class ZwiftPower90DayBestGraphItem:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        # 
-
         answer = {
             # 1: self.cp_1,
             # 2: self.cp_2,
@@ -940,18 +938,18 @@ class ZwiftPower90DayBestGraphItem:
             # 450: self.cp_450,
             # 480: self.cp_480,
             # 510: self.cp_510,
-            # 540: self.cp_540,
-            # 570: self.cp_570,
-            # 600: self.cp_600,
-            # 660: self.cp_660,
-            # 720: self.cp_720,
-            # 780: self.cp_780,
-            # 840: self.cp_840,
-            # 900: self.cp_900,
-            # 960: self.cp_960,
-            # 1020: self.cp_1020,
-            # 1080: self.cp_1080,
-            # 1140: self.cp_1140,
+            540: self.cp_540,
+            570: self.cp_570,
+            600: self.cp_600,
+            660: self.cp_660,
+            720: self.cp_720,
+            780: self.cp_780,
+            840: self.cp_840,
+            900: self.cp_900,
+            960: self.cp_960,
+            1020: self.cp_1020,
+            1080: self.cp_1080,
+            1140: self.cp_1140,
             1200: self.cp_1200,
             1320: self.cp_1320,
             1440: self.cp_1440,
@@ -963,16 +961,16 @@ class ZwiftPower90DayBestGraphItem:
             2160: self.cp_2160,
             2280: self.cp_2280,
             2400: self.cp_2400,
-            2520: self.cp_2520,
-            2640: self.cp_2640,
-            2760: self.cp_2760,
-            2880: self.cp_2880,
-            3000: self.cp_3000,
-            3120: self.cp_3120,
-            3240: self.cp_3240,
-            3360: self.cp_3360,
-            3480: self.cp_3480,
-            3600: self.cp_3600,
+            # 2520: self.cp_2520,
+            # 2640: self.cp_2640,
+            # 2760: self.cp_2760,
+            # 2880: self.cp_2880,
+            # 3000: self.cp_3000,
+            # 3120: self.cp_3120,
+            # 3240: self.cp_3240,
+            # 3360: self.cp_3360,
+            # 3480: self.cp_3480,
+            # 3600: self.cp_3600,
             # 3900: self.cp_3900,
             # 4200: self.cp_4200,
             # 4500: self.cp_4500,
@@ -1397,67 +1395,6 @@ class ZwiftPower90DayBestGraphItem:
 
         return critical_power_item
 
-@dataclass
-class ZwiftRiderPowerItem:
-    zwiftid              : int   = 0
-    name                 : str   = ""
-    adjustment_watts     : float = 0.0
-    cp_watts             : float = 0.0
-    pull_short_watts     : float = 0.0
-    pull_medium_watts    : float = 0.0
-    pull_long_watts      : float = 0.0
-    ftp_watts            : float = 0.0
-    cp_w_prime           : float = 0.0
-    ftp_coefficient      : float = 0.0
-    ftp_exponent         : float = 0.0
-    pull_coefficient     : float = 0.0
-    pull_exponent        : float = 0.0
-    ftp_r_squared        : float = 0.0
-    pull_r_squared       : float = 0.0
-    when_models_fitted   : str   = ""
-
-    @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderPowerItem") -> ZwiftRiderPowerDTO:
-        return ZwiftRiderPowerDTO(
-            zwiftid               = item.zwiftid,
-            name                  = item.name,
-            adjustment_watts       = item.adjustment_watts,
-            cp_watts              = item.cp_watts,
-            pull_short_watts      = item.pull_short_watts,
-            pull_medium_watts     = item.pull_medium_watts,
-            pull_long_watts       = item.pull_long_watts,
-            ftp_watts             = item.ftp_watts,
-            cp_w_prime            = item.cp_w_prime,
-            ftp_coefficient       = item.ftp_coefficient,
-            ftp_exponent          = item.ftp_exponent,
-            pull_coefficient      = item.pull_coefficient,
-            pull_exponent         = item.pull_exponent,
-            ftp_r_squared         = item.ftp_r_squared,
-            pull_r_squared        = item.pull_r_squared,
-            when_models_fitted    = item.when_models_fitted,
-            )
-
-
-    @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderPowerDTO) -> "ZwiftRiderPowerItem":
-        return ZwiftRiderPowerItem(
-            zwiftid               = dto.zwiftid or 0,
-            name                  = dto.name or "",
-            adjustment_watts      = dto.adjustment_watts or 0.0,
-            cp_watts              = dto.cp_watts or 0.0,
-            pull_short_watts      = dto.pull_short_watts or 0.0,
-            pull_medium_watts     = dto.pull_medium_watts or 0.0,
-            pull_long_watts       = dto.pull_long_watts or 0.0,
-            ftp_watts             = dto.ftp_watts or 0.0,
-            cp_w_prime            = dto.cp_w_prime or 0.0,
-            ftp_coefficient       = dto.ftp_coefficient or 0.0,
-            ftp_exponent          = dto.ftp_exponent or 0.0,
-            pull_coefficient      = dto.pull_coefficient or 0.0,
-            pull_exponent         = dto.pull_exponent or 0.0,
-            ftp_r_squared         = dto.ftp_r_squared or 0.0,
-            pull_r_squared        = dto.pull_r_squared or 0.0,
-            when_models_fitted    = dto.when_models_fitted or "",
-          )
 
 # @dataclass(frozen=True, eq=True) 
 # class RiderTeamItem:
@@ -1533,7 +1470,7 @@ class RiderAnswerDisplayObject():
     velo_cat              : str   = ""
     zwift_cp              : float = 0
     zwift_w_prime         : float = 0
-    ftp                   : float = 0
+    zftp                   : float = 0
     ftp_wkg               : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
@@ -1559,7 +1496,7 @@ class RiderAggregateEffortItem:
 
 @dataclass(frozen=True, eq=True) # immutable and hashable
 class RiderStressItem():
-    ftp: float = 0
+    zftp: float = 0
     normalised_power: float = 0
     intensity_factor: float = 0
 
@@ -1633,21 +1570,21 @@ def main():
 
     # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
-    # at a given wattage (ftp=233) and tabulate neatly and log it.
+    # at a given wattage (zftp=233) and tabulate neatly and log it.
     rider_john = ZwiftRiderItem(
-        name=rider1.name, weight=rider1.weight, height=rider1.height, ftp=rider1.ftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
+        name=rider1.name, weight=rider1.weight, height=rider1.height, zftp=rider1.zftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
-    headers = ["Position", f"Speed (km/h) at FTP {rider_john.ftp}"]
+    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zftp}"]
 
     for position in positions:
         # Calculate the speed for the given position and FTP
-        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.ftp, position)
+        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zftp, position)
         table.append([position, speed])
 
     # Log the table
-    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.ftp}")
+    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zftp}")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 

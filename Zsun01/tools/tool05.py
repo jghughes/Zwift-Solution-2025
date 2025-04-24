@@ -1,11 +1,14 @@
 import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
-import logging
+from datetime import datetime
+from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
+import critical_power as cp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
-from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
-import critical_power as cp 
+
+
+import logging
 from jgh_logging import jgh_configure_logging
 
 def main():
@@ -75,6 +78,7 @@ def main():
     tom_bick= "11741" #ftp 303 cp 298
     bryan_bumpas = "9011" #ftp 214
     matt_steeve = "1024413"
+    giao_nguyen = "183277" #ftp 189
     meridith_leubner ="1707548" #ftp 220
     melissa_warwick = "1657744" #ftp 213
     brandi_steeve = "991817" #ftp 196
@@ -82,7 +86,7 @@ def main():
 
     # choose a rider to model
 
-    rider_id = davek
+    rider_id = tom_bick
 
 
     # determine cp and w_prime
@@ -91,9 +95,6 @@ def main():
 
     critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_modelling_with_cp_w_prime_model(raw_xy_data_cp)
 
-    summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
-
-    logger.info(f"\n{summary_cp_w_prime}")
 
 
     # determine some sensible pull power targets
@@ -104,11 +105,7 @@ def main():
 
     pull_short = cp.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
     pull_medium = cp.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
-    pull_long = cp.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
-
-    summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
-
-    logger.info(f"\n{summary_pull}")
+    pull_long = cp.decay_model_numpy(np.array([1200]), coefficient_pull, exponent_pull)
 
 
     # determine ftp
@@ -117,13 +114,36 @@ def main():
 
     coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_modelling_with_decay_model(raw_xy_data_ftp)
 
-    ftp = cp.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
+    logger.info("\nModelling completed. Thank you.\n")
 
-    summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
+    # instantiate a power item to hold the results
+
+    pi = cp.ZwiftRiderPowerItem(zwiftid=int(rider_id), name=dict_of_zwiftrideritem[rider_id].name)
+    pi.cp = critical_power
+    pi.cp_w_prime = anaerobic_work_capacity
+    pi.ftp_coefficient = coefficient_ftp
+    pi.ftp_exponent = exponent_ftp
+    pi.pull_coefficient = coefficient_pull
+    pi.pull_exponent = exponent_pull
+    pi.ftp_r_squared = r_squared_ftp
+    pi.pull_r_squared = r_squared_pull
+    pi.when_models_fitted = datetime.now().isoformat()
+
+    # log pretty summaries
+
+    summary_cp_w_prime  =  f"Critical Power = {round(pi.get_critical_power_watts())}W  Anaerobic Work Capacity = {round(pi.get_anaerobic_work_capacity_kj(), 1)}kJ"
+
+    logger.info(f"\n{summary_cp_w_prime}")
+
+    summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pi.get_30sec_watts())} - {round(pi.get_1_minute_watts())} - {round(pi.get_2_minute_watts())}W  [r-squared {round(pi.get_pull_r_squared(), 2)}]"
+
+    logger.info(f"\n{summary_pull}")
+
+    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(pi.get_ftp_r_squared(), 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 
-    logger.info("\nModelling completed. Thank you.\n")
+
 
     # Plot answers
 
@@ -142,10 +162,10 @@ def main():
 
     plt.figure(figsize=(10, 6))
     plt.scatter(xdata_cp, ydata_cp, color='grey', label='critical power range')
-    plt.scatter(xdata_pull, ydata_pull, color='brown', label='pull power range')
+    plt.scatter(xdata_pull, ydata_pull, color='green', label='pull power range')
     plt.scatter(xdata_ftp, ydata_ftp, color='black', label='functional threshold range')
     plt.plot(xdata_cp, ydata_pred_cp, color='red', label=summary_cp_w_prime)
-    plt.plot(xdata_pull, ydata_pred_pull, color='orange', label=summary_pull)
+    plt.plot(xdata_pull, ydata_pred_pull, color='blue', label=summary_pull)
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
     plt.xlabel('Duration (s)')
     plt.ylabel('ZwiftPower 90-day best (Watts)')

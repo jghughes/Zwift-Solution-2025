@@ -12,7 +12,7 @@ NAME_ALIAS = "name"
 WEIGHT_ALIAS = "weight"
 HEIGHT_ALIAS = "height"
 GENDER_ALIAS = "gender"
-FTP_ALIAS = "ftp"
+FTP_ALIAS = "zftp"
 ZWIFT_RACING_SCORE_ALIAS = "zwift_racing_score"
 VELO_RATING_ALIAS = "velo_rating"
 
@@ -22,7 +22,7 @@ serialization_alias_map: dict[str, str] = {
     "weight": WEIGHT_ALIAS,
     "height": HEIGHT_ALIAS,
     "gender": GENDER_ALIAS,
-    "ftp": FTP_ALIAS,
+    "zftp": FTP_ALIAS,
     "zwift_racing_score": ZWIFT_RACING_SCORE_ALIAS,
     "velo_rating": VELO_RATING_ALIAS,
 }
@@ -33,7 +33,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "weight": AliasChoices("weight"),
     "height": AliasChoices("height"),
     "gender": AliasChoices("gender"),
-    "ftp": AliasChoices("ftp", "zftp"),
+    "zftp": AliasChoices("zftp", "zftp"),
     "zwift_racing_score": AliasChoices("zwift_racing_score"),
     "velo_rating": AliasChoices("velo_rating"),
 }
@@ -72,7 +72,7 @@ class ZwiftRiderDTO(BaseModel):
         weight             : float  The weight of the rider in kilograms.
         height             : float  The height of the rider in centimeters.
         gender             : Gender The gender of the rider.
-        ftp                : float  Functional Threshold Power in watts.
+        zftp                : float  Functional Threshold Power in watts.
         zwift_racing_score : int    Zwift racing score.
         velo_rating        : int    Velo rating.
     """
@@ -82,7 +82,7 @@ class ZwiftRiderDTO(BaseModel):
     weight             : Optional[float] = 0   # Weight of the rider in kilograms
     height             : Optional[float] = 0   # Height of the rider in centimeters
     gender             : Optional[str]   = ""  # Gender of the rider, m or f
-    ftp                : Optional[float] = 0   # Functional Threshold Power in watts
+    zftp               : Optional[float] = 0   # Functional Threshold Power in watts
     zwift_racing_score : Optional[int]   = 0   # Zwift racing score
     velo_rating        : Optional[int]   = 0   # Velo rating
 
@@ -96,11 +96,7 @@ class ZwiftRiderPowerDTO(BaseModel):
     zwiftid             : Optional[int] = 0
     name                : Optional[str] = ""
     adjustment_watts    : float = 0.0
-    cp_watts            : float = 0.0
-    pull_short_watts    : float = 0.0
-    pull_medium_watts   : float = 0.0
-    pull_long_watts     : float = 0.0
-    ftp_watts           : float = 0.0
+    cp                  : float = 0.0
     cp_w_prime            : float = 0.0
     ftp_coefficient       : float = 0.0
     ftp_exponent          : float = 0.0

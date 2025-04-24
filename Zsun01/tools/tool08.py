@@ -1,6 +1,6 @@
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder
+from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel
 import critical_power as cp
-from zwiftrider_related_items import ZwiftPower90DayBestGraphItem, ZwiftRiderPowerItem
+from zwiftrider_related_items import ZwiftRiderPowerItem
 from datetime import datetime
 
 # Module-level constants
@@ -20,23 +20,26 @@ def main():
     
     # do work
 
-    INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_everybody_in_the_club = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH)
+    # raw_cp_dict_for_everybody = read_many_zwiftpower_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_everybody = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
-    logger.info(f"Successfully read, validated, and loaded {len(raw_cp_dict_for_everybody_in_the_club)} power graphs from ZwiftPower files in:- \nDir : {INPUT_ZWIFTPOWER_GRAPH_FROM_DAVEK_DIRPATH}\n\n")
+    logger.info(f"Successfully read, validated, and loaded {len(raw_cp_dict_for_everybody)} power graphs from ZwiftPower files in:- \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n\n")
 
     total_count = 0
     skipped_modelling_count = 0
-    count_of_riders_with_poor_ftp_r_squared = 0
-    count_of_riders_with_poor_pull_r_squared = 0
     count_of_riders_with_high_fidelity_models = 0
+    count_of_riders_with_low_fidelity_models = 0
 
     r_squared_limit = .90
 
-    riders_with_high_fidelity : list[int] = []
+    zwiftIds_with_high_fidelity : list[int] = []
+    zwiftids_with_low_fidelity : list[int] = []
 
-    for rider_id, rider in raw_cp_dict_for_everybody_in_the_club.items():
+    for rider_id, rider in raw_cp_dict_for_everybody.items():
+
+        rider.zwiftid = int(rider_id)
 
         total_count += 1
 
@@ -62,8 +65,8 @@ def main():
         raw_xy_data_pull = rider.export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
         raw_xy_data_ftp = rider.export_zwiftpower_90day_best_graph_for_ftp_modelling()
 
-        # skip riders where any of the three datasets contain less than 3 points
-        if len(raw_xy_data_cp) < 3 or len(raw_xy_data_pull) < 3 or len(raw_xy_data_ftp) < 3:
+        # skip riders where any of the three datasets contain less than 5 points
+        if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < 5 or len(raw_xy_data_ftp) < 5:
             logger.warning(f"Rider ID {rider.zwiftid} has insufficient data for modelling")
             skipped_modelling_count += 1
             continue
@@ -99,46 +102,53 @@ def main():
 
         # log summary of everything
 
-        summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
-        summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
-        summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
+        # summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
+        # summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
+        # summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
 
         # logger.info(f"\n{summary_cp_w_prime}")
         # logger.info(f"\n{summary_pull}")
         # logger.info(f"\n{summary_ftp}")
 
-        if r_squared_pull < r_squared_limit:
-            logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for pull range: {r_squared_pull}")
-            count_of_riders_with_poor_pull_r_squared += 1
+        # if r_squared_pull < r_squared_limit:
+        #     logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for pull range: {r_squared_pull}")
+        #     count_of_riders_with_poor_pull_r_squared += 1
         
-        if r_squared_ftp < r_squared_limit:
-            logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for ftp range: {r_squared_ftp}")
-            count_of_riders_with_poor_ftp_r_squared += 1
+        # if r_squared_ftp < r_squared_limit:
+        #     logger.warning(f"Rider ID {rider.zwiftid} has R-squared values worse than {r_squared_limit} for ftp range: {r_squared_ftp}")
+        #     count_of_riders_with_poor_ftp_r_squared += 1
 
         if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
-            riders_with_high_fidelity.append(rider.zwiftid)
+            zwiftIds_with_high_fidelity.append(rider.zwiftid)
             count_of_riders_with_high_fidelity_models += 1
+        else:
+            zwiftids_with_low_fidelity.append(rider.zwiftid)
+            count_of_riders_with_low_fidelity_models += 1
 
+    modelled_count = total_count - skipped_modelling_count
 
-    logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}\n\nInsufficient data : {skipped_modelling_count}\n\nR-squared value worse (less than) {r_squared_limit} : {count_of_riders_with_poor_ftp_r_squared}\n\n")
+    logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}")
 
-    logger.info(f"Riders with high fidelity graph : {count_of_riders_with_high_fidelity_models}\n\n")
+    logger.info(f"Riders with lower fidelity models [r_squared < {r_squared_limit}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
+    logger.info(f"Riders with high fidelity models [r_squared > {r_squared_limit}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)\n\n")
 
-    # # for  riders_with_high_fidelity, write out the zwiftID, name, cp, and r_squared_cp. sorted by name
-    # riders_with_high_fidelity.sort(key=lambda x: x)
-    # for rider in riders_with_high_fidelity:
-    #     logger.info(f"Rider ID {rider.zwiftid} :  CP = {round(rider.cp_watts)}W  FTP = {round(rider.cp_model_p_1hour_extrapolated)}W  r_squared_cp = {round(rider.cp_model_r_squared,2)}")
+    # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, cp, and r_squared_cp. sorted by name
+    zwiftIds_with_high_fidelity.sort(key=lambda x: x)
+    for zwiftid in zwiftIds_with_high_fidelity:
+        logger.info(f"Rider ID {zwiftid}")
+        # betel = get_betel(zwiftid)
+        # logger.info(f"Rider ID {zwiftid} : {betel.name}")
 
     # OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel_rubbish.json"
     # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    # write_dict_of_cpdata(raw_cp_dict_for_everybody_in_the_club, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    # write_dict_of_cpdata(raw_cp_dict_for_everybody, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
     # from tabulate import tabulate
 
     # log all the x and y data for all riders in pretty tables
 
-    # for rider_id, rider in raw_cp_dict_for_everybody_in_the_club.items():
+    # for rider_id, rider in raw_cp_dict_for_everybody.items():
     #     cp_data = rider.export_zwiftpower_graph_data()  # Export critical power data as a dictionary
     #     table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
     #     table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers

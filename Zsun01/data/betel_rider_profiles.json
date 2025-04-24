@@ -5,7 +5,7 @@
     "weight": 75.4,
     "height": 174,
     "gender": "m",
-    "ftp": 240,
+    "zftp": 240,
     "zwift_racing_score": 351,
     "velo_rating": 1067
   },
@@ -15,7 +15,7 @@
     "weight": 73.4,
     "height": 182,
     "gender": "m",
-    "ftp": 276,
+    "zftp": 276,
     "zwift_racing_score": 744,
     "velo_rating": 1897
   },
@@ -25,7 +25,7 @@
     "weight": 78.5,
     "height": 180,
     "gender": "m",
-    "ftp": 303,
+    "zftp": 303,
     "zwift_racing_score": 586,
     "velo_rating": 1585
   },
@@ -35,7 +35,7 @@
     "weight": 79.8,
     "height": 185,
     "gender": "m",
-    "ftp": 380,
+    "zftp": 380,
     "zwift_racing_score": 696,
     "velo_rating": 2061
   },
@@ -45,7 +45,7 @@
     "weight": 53.5,
     "height": 162,
     "gender": "m",
-    "ftp": 214,
+    "zftp": 214,
     "zwift_racing_score": 573,
     "velo_rating": 1593
   },
@@ -55,7 +55,7 @@
     "weight": 75.5,
     "height": 178,
     "gender": "m",
-    "ftp": 268,
+    "zftp": 268,
     "zwift_racing_score": 552,
     "velo_rating": 1519
   },
@@ -65,7 +65,7 @@
     "weight": 78,
     "height": 165,
     "gender": "m",
-    "ftp": 247,
+    "zftp": 247,
     "zwift_racing_score": 509,
     "velo_rating": 1537
   },
@@ -75,7 +75,7 @@
     "weight": 91.6,
     "height": 185,
     "gender": "m",
-    "ftp": 280,
+    "zftp": 280,
     "zwift_racing_score": 493,
     "velo_rating": 1309
   },
@@ -85,7 +85,7 @@
     "weight": 71.7,
     "height": 170,
     "gender": "m",
-    "ftp": 229,
+    "zftp": 229,
     "zwift_racing_score": 454,
     "velo_rating": 1222
   },
@@ -95,7 +95,7 @@
     "weight": 90.7,
     "height": 186,
     "gender": "m",
-    "ftp": 275,
+    "zftp": 275,
     "zwift_racing_score": 446,
     "velo_rating": 1256
   },
@@ -105,7 +105,7 @@
     "weight": 77,
     "height": 176,
     "gender": "m",
-    "ftp": 273,
+    "zftp": 273,
     "zwift_racing_score": 444,
     "velo_rating": 1294
   },
@@ -115,7 +115,7 @@
     "weight": 76.8,
     "height": 180,
     "gender": "m",
-    "ftp": 232,
+    "zftp": 232,
     "zwift_racing_score": 345,
     "velo_rating": 1015
   },
@@ -125,7 +125,7 @@
     "weight": 75.6,
     "height": 180,
     "gender": "m",
-    "ftp": 243,
+    "zftp": 243,
     "zwift_racing_score": 335,
     "velo_rating": 1078
   },
@@ -135,7 +135,7 @@
     "weight": 67.1,
     "height": 165,
     "gender": "m",
-    "ftp": 189,
+    "zftp": 189,
     "zwift_racing_score": 299,
     "velo_rating": 0
   },
@@ -145,7 +145,7 @@
     "weight": 101,
     "height": 178,
     "gender": "m",
-    "ftp": 260,
+    "zftp": 260,
     "zwift_racing_score": 285,
     "velo_rating": 942
   },
@@ -155,7 +155,7 @@
     "weight": 90.0,
     "height": 173,
     "gender": "m",
-    "ftp": 246,
+    "zftp": 246,
     "zwift_racing_score": 264,
     "velo_rating": 826
   },
@@ -165,7 +165,7 @@
     "weight": 107.5,
     "height": 188,
     "gender": "m",
-    "ftp": 274,
+    "zftp": 274,
     "zwift_racing_score": 206,
     "velo_rating": 748
   },
@@ -175,7 +175,7 @@
     "weight": 93,
     "height": 178,
     "gender": "m",
-    "ftp": 200,
+    "zftp": 200,
     "zwift_racing_score": 189,
     "velo_rating": 628
   },
@@ -185,7 +185,7 @@
     "weight": 61.5,
     "height": 167,
     "gender": "f",
-    "ftp": 196,
+    "zftp": 196,
     "zwift_racing_score": 378,
     "velo_rating": 1036
   },
@@ -195,7 +195,7 @@
     "weight": 63,
     "height": 171,
     "gender": "f",
-    "ftp": 214,
+    "zftp": 214,
     "zwift_racing_score": 345,
     "velo_rating": 1129
   },
@@ -205,7 +205,7 @@
     "weight": 71.2,
     "height": 178,
     "gender": "f",
-    "ftp": 236,
+    "zftp": 236,
     "zwift_racing_score": 338,
     "velo_rating": 1035
   },
@@ -215,7 +215,7 @@
     "weight": 63.5,
     "height": 165,
     "gender": "f",
-    "ftp": 201,
+    "zftp": 201,
     "zwift_racing_score": 327,
     "velo_rating": 915
   },
@@ -225,7 +225,7 @@
     "weight": 59,
     "height": 157,
     "gender": "f",
-    "ftp": 220,
+    "zftp": 220,
     "zwift_racing_score": 401,
     "velo_rating": 1297
   },
@@ -235,7 +235,7 @@
     "weight": 59,
     "height": 175,
     "gender": "f",
-    "ftp": 213,
+    "zftp": 213,
     "zwift_racing_score": 354,
     "velo_rating": 1087
   }
