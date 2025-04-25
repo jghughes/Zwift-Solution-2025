@@ -2,10 +2,21 @@ from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_fil
 import critical_power as cp
 from zwiftrider_related_items import ZwiftRiderItem
 from datetime import datetime
+from dataclasses import dataclass
+from dataclasses import dataclass,  asdict
 
-# Module-level constants
 
-
+@dataclass
+class CurveFittingResult:
+    zwiftid: int
+    name: str
+    ftp_watts: float
+    pull_watts: float
+    pull_percent : float
+    critical_power_watts: float
+    anaerobic_work_capacity_kJ: float
+    r_squared_pull: float
+    r_squared_ftp: float
 
 def main():
     # configure logging
@@ -17,7 +28,6 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    
     # do work
 
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
@@ -36,6 +46,8 @@ def main():
 
     zwiftIds_with_high_fidelity : list[int] = []
     zwiftids_with_low_fidelity : list[int] = []
+
+    all_results : list[CurveFittingResult] = []
 
     for rider_id, rider in raw_cp_dict_for_everybody.items():
 
@@ -84,7 +96,22 @@ def main():
 
         # load results into answer
 
-        # log summary of everything
+        #load results into a dataclass
+        result = CurveFittingResult(
+            zwiftid=rider.zwiftid,
+            name=rider.name,
+            ftp_watts= round(ftp[0]), 
+            pull_watts = round(pull_short[0]),
+            pull_percent = round(100*pull_short[0]/ftp[0]),
+            critical_power_watts=round(critical_power),
+            anaerobic_work_capacity_kJ=round((anaerobic_work_capacity/1_000.0),1),
+            r_squared_pull=round(r_squared_pull,2),
+            r_squared_ftp=round(r_squared_ftp,2),
+        )
+
+        all_results.append(result)
+
+        # log results for rider
 
         summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
         summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
@@ -114,6 +141,19 @@ def main():
         logger.info(f"Rider ID {zwiftid}")
         # betel = get_betel(zwiftid)
         # logger.info(f"Rider ID {zwiftid} : {betel.name}")
+
+    # load all_results into pandas dataframe, sort by ftp_watts, and write to csv file
+    import pandas as pd
+    df = pd.DataFrame([asdict(result) for result in all_results])
+    df = df.sort_values(by='ftp_watts', ascending=False)
+
+    #add a column for an index
+    df.insert(0, 'index', range(1, len(df) + 1))
+
+    # write to excel
+    OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
+    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=False)
 
     # OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel_rubbish.json"
     # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
