@@ -56,7 +56,6 @@ def get_zwift_rider(id : int) -> ZwiftRiderItem:
     answer = riders[str(id)]
     return answer
 
-
 def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
     """
     Retrieve all Zwift riders from a JSON file and convert them to ZwiftRiderItem instances.

@@ -44,12 +44,12 @@ serialization_alias_map: dict[str, str] = {
     }
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwiftid"               : AliasChoices("zwiftid", "zwift_id"),
+    "zwiftid"               : AliasChoices("zwiftid", "zwift_id", "riderId"),
     "name"                  : AliasChoices("name", "zwift_name"),
     "weight"                : AliasChoices("weight"),
     "height"                : AliasChoices("height"),
     "gender"                : AliasChoices("gender"),
-    "zftp"                  : AliasChoices("zftp", "zftp"),
+    "zftp"                  : AliasChoices("zftp", "zpFTP"),
     "zwift_racing_score"    : AliasChoices("zwift_racing_score"),
     "velo_rating"           : AliasChoices("velo_rating"),
     "pull_adjustment_watts" : AliasChoices("pull_adjustment_watts", "pull_adjustment"),

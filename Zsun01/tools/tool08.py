@@ -1,4 +1,4 @@
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel
+from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder
 import critical_power as cp
 from zwiftrider_related_items import ZwiftRiderItem
 from datetime import datetime
@@ -28,7 +28,11 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    # do work
+    # get all the data
+
+    INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+
+    raw_profiles_for_everybody = read_many_zwiftpower_profile_files_in_folder(None, INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH)
 
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
@@ -36,6 +40,8 @@ def main():
     raw_cp_dict_for_everybody = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
     logger.info(f"Successfully read, validated, and loaded {len(raw_cp_dict_for_everybody)} power graphs from ZwiftPower files in:- \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n\n")
+
+    # create a list of zwiftrider objects from the raw data
 
     total_count = 0
     skipped_modelling_count = 0
@@ -47,7 +53,7 @@ def main():
     zwiftIds_with_high_fidelity : list[int] = []
     zwiftids_with_low_fidelity : list[int] = []
 
-    all_results : list[CurveFittingResult] = []
+    power_curves_for_everybody : dict[str, CurveFittingResult] = {}
 
     for rider_id, rider in raw_cp_dict_for_everybody.items():
 
@@ -97,7 +103,7 @@ def main():
         # load results into answer
 
         #load results into a dataclass
-        result = CurveFittingResult(
+        curve = CurveFittingResult(
             zwiftid=rider.zwiftid,
             name=rider.name,
             ftp_watts= round(ftp[0]), 
@@ -109,7 +115,7 @@ def main():
             r_squared_ftp=round(r_squared_ftp,2),
         )
 
-        all_results.append(result)
+        power_curves_for_everybody[str(rider.zwiftid)] = curve
 
         # log results for rider
 
@@ -142,34 +148,30 @@ def main():
         # betel = get_betel(zwiftid)
         # logger.info(f"Rider ID {zwiftid} : {betel.name}")
 
-    # load all_results into pandas dataframe, sort by ftp_watts, and write to csv file
-    import pandas as pd
-    df = pd.DataFrame([asdict(result) for result in all_results])
-    df = df.sort_values(by='ftp_watts', ascending=False)
+    # load power_curves_for-everybody into pandas dataframe, sort by ftp_watts, and write to csv file
 
-    #add a column for an index
-    df.insert(0, 'index', range(1, len(df) + 1))
+    import pandas as pd
+    from dataclasses import asdict
+
+    # Create the first DataFrame from raw_profiles_for_everybody
+    df1 = pd.DataFrame([asdict(value) for value in raw_profiles_for_everybody.values()])
+
+    # Create the second DataFrame from power_curves_for_everybody
+    df2 = pd.DataFrame([asdict(value) for value in power_curves_for_everybody.values()])
+
+    # Merge the two DataFrames on the identifier columns
+    merged_df = pd.merge(df1, df2, left_on="zwiftid", right_on="zwiftid", suffixes=('_profile', '_power'))
+
+    # Sort the merged DataFrame by the "ftp_watts" column
+    merged_df = merged_df.sort_values(by="ftp_watts", ascending=False)
+
+    # # Add an index column
+    # merged_df.insert(0, 'index', range(1, len(merged_df) + 1))
 
     # write to excel
     OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=False)
-
-    # OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betel_rubbish.json"
-    # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-
-    # write_dict_of_cpdata(raw_cp_dict_for_everybody, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
-
-    # from tabulate import tabulate
-
-    # log all the x and y data for all riders in pretty tables
-
-    # for rider_id, rider in raw_cp_dict_for_everybody.items():
-    #     cp_data = rider.export_zwiftpower_graph_data()  # Export critical power data as a dictionary
-    #     table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
-    #     table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
-
-    #     logger.info(f"Critical Power Data for Rider ID: {rider_id}  Rider Name: {rider.name}/n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
+    merged_df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=True)
 
 if __name__ == "__main__":
     main()
