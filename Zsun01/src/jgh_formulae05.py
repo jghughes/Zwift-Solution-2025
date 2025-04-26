@@ -1,22 +1,22 @@
 from typing import Dict, List
-from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderWorkAssignmentItem
+from zwiftrider_related_items import ZsunRiderItem, RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 
 
-def populate_rider_exertions(rider_work_assignments: Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZwiftRiderItem, List[RiderExertionItem]]:
+def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZsunRiderItem, List[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
     Args:
         speed (float): The speed of the paceline.
-        rider_work_assignments (Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
+        rider_work_assignments (Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
 
     Returns:
-        Dict[ZwiftRiderItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
+        Dict[ZsunRiderItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of rider_exertions
     """
-    rider_workloads: Dict[ZwiftRiderItem, List[RiderExertionItem]] = {}
+    rider_workloads: Dict[ZsunRiderItem, List[RiderExertionItem]] = {}
     
     for rider, work_assignments in rider_work_assignments.items():
         rider_exertions: List[RiderExertionItem] = []
@@ -38,7 +38,7 @@ def main() -> None:
 
     from jgh_formulae04 import populate_rider_work_assignments
 
-    def log_results_exertions(test_description: str, result: Dict[ZwiftRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
+    def log_results_exertions(test_description: str, result: Dict[ZsunRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
         from tabulate import tabulate
         logger.info(test_description)
         table = []
@@ -70,16 +70,16 @@ def main() -> None:
 
     dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
+    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
     pull_speeds_kph = [40.0, 40.0, 40.0, 40.0, 40.0, 40.0]
     pull_durations = [120.0, 120.0, 60.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [davek, barryb, johnh, lynseys, joshn, richardm]
+    riders : list[ZsunRiderItem] = [davek, barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 

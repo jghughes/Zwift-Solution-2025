@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
-from zwiftrider_related_items import ZwiftRiderItem, RiderWorkAssignmentItem, RiderExertionItem, ZwiftPower90DayBestGraphItem
+from zwiftrider_related_items import ZsunRiderItem, RiderWorkAssignmentItem, RiderExertionItem, ZwiftPower90DayBestGraphItem
 
 def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
     """
@@ -36,13 +36,13 @@ def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertio
     
     return datapoints[:3600]  # Ensure the list is exactly 3600 elements long
 
-def translate_efforts_into_criticalpower_item(rider: ZwiftRiderItem, rider_exertions: Dict[ZwiftRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> ZwiftPower90DayBestGraphItem:
+def translate_efforts_into_criticalpower_item(rider: ZsunRiderItem, rider_exertions: Dict[ZsunRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> ZwiftPower90DayBestGraphItem:
     """
     Calculate the critical power curve for a single rider.
 
     Args:
-        rider (ZwiftRiderItem): The rider to process.
-        rider_exertions (Dict[ZwiftRiderItem, List[RiderExertionItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
+        rider (ZsunRiderItem): The rider to process.
+        rider_exertions (Dict[ZsunRiderItem, List[RiderExertionItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
         cp_test_duration_specs (List[int]): List of timespans for each of the desired datapoints in the power curve in seconds.
 
     Returns:
@@ -94,10 +94,10 @@ def main() -> None:
 
     dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['barryb']
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['johnh']
+    joshn : ZsunRiderItem = dict_of_zwiftrideritem['joshn']
+    richardm : ZsunRiderItem = dict_of_zwiftrideritem['richardm']
   
     pull_speeds_kph = [
         # [37.5, 37.5, 37.5, 37.5],
@@ -106,12 +106,12 @@ def main() -> None:
         # [45.0, 45.0, 45.0, 45.0]
     ]
     pull_durations = [120.0, 90.0, 60.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
+    riders : list[ZsunRiderItem] = [barryb, johnh, joshn, richardm]
 
     cp_test_duration_specs: List[int] = [5, 15, 30, 60, 120, 180, 300, 600, 720, 900, 1200, 1800, 2400, 3600]
 
     for i, pull_speed_scenario in enumerate(pull_speeds_kph):
-        work_assignments : Dict[ZwiftRiderItem, List[RiderWorkAssignmentItem]] = populate_rider_work_assignments(riders, pull_durations, pull_speed_scenario)
+        work_assignments : Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]] = populate_rider_work_assignments(riders, pull_durations, pull_speed_scenario)
 
         #log work assignments for riders
         # for rider in riders:
@@ -128,7 +128,7 @@ def main() -> None:
         #         logger.info(f"position: {effort.position} for {effort.duration}sec @{effort.speed}km/h  output: {effort.wattage:.1f}W")
 
         # Generate dict of riders with rider power datapoints for one hour
-        wattage_datapoints : Dict[ZwiftRiderItem, List[Tuple[int, float]]] = {}
+        wattage_datapoints : Dict[ZsunRiderItem, List[Tuple[int, float]]] = {}
         for rider in riders:
             wattage_datapoints[rider] = translate_efforts_to_wattages_perond_for_one_hour(rider_exertions[rider])
             # #log the rider power datapoints for the first 30 datapoints for each rider
@@ -137,7 +137,7 @@ def main() -> None:
             #     logger.info(f"{datapoint[0]}sec: {datapoint[1]:.1f}W")
 
         # Generate dict of riders with their critical power curve
-        dict_of_riders_and_their_criticalpower_curve: Dict[ZwiftRiderItem, ZwiftPower90DayBestGraphItem] = {}
+        dict_of_riders_and_their_criticalpower_curve: Dict[ZsunRiderItem, ZwiftPower90DayBestGraphItem] = {}
         with ThreadPoolExecutor() as executor:
             futures = {executor.submit(translate_efforts_into_criticalpower_item, rider, rider_exertions, cp_test_duration_specs): rider for rider in riders}
             for future in futures:

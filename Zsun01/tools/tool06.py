@@ -1,5 +1,5 @@
 from handy_utilities import read_many_zwiftracingapp_files_in_folder, get_betel_zwift_ids, read_dict_of_zwiftriders
-from zwiftrider_related_items import ZwiftRiderItem
+from zwiftrider_related_items import ZsunRiderItem
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -33,7 +33,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading Zwift rider and CP data.
-        - Uses `ZwiftRiderItem` for handling rider data.
+        - Uses `ZsunRiderItem` for handling rider data.
 
     Returns:
         None
@@ -67,7 +67,7 @@ def main():
             name = zsun_cp_dict[betel_id].name
             betel_found.append((betel_id, name))
         else:
-            name = dict_of_zwiftrideritem.get(betel_id, ZwiftRiderItem(name="Unknown")).name
+            name = dict_of_zwiftrideritem.get(betel_id, ZsunRiderItem(name="Unknown")).name
             betel_not_found.append((betel_id, name))
 
     # Sort both lists alphabetically by name

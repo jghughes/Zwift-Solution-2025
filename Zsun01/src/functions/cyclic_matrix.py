@@ -1,23 +1,23 @@
 from typing import List
-from zwiftrider_related_items import ZwiftRiderItem
+from zwiftrider_related_items import ZsunRiderItem
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.
 #   see populate_rider_work_assignments() in jgh_formulae04.py
 
-def generate_cyclic_matrix(riders: List[ZwiftRiderItem]) -> List[List[ZwiftRiderItem]]:
+def generate_cyclic_matrix(riders: List[ZsunRiderItem]) -> List[List[ZsunRiderItem]]:
     """
     Generates a cyclic matrix where each column is a cyclic permutation of the first column.
 
     Args:
-        riders (List[ZwiftRiderItem]): A list of ZwiftRiderItem objects.
+        riders (List[ZsunRiderItem]): A list of ZsunRiderItem objects.
 
     Returns:
-        List[List[ZwiftRiderItem]]: A 2D list representing the cyclic matrix.
+        List[List[ZsunRiderItem]]: A 2D list representing the cyclic matrix.
 
-    The function uses the provided list of ZwiftRiderItem objects to create the initial column.
+    The function uses the provided list of ZsunRiderItem objects to create the initial column.
     It then generates each subsequent column by cyclically shifting the elements of the initial column.
-    For example, if the list of riders contains ZwiftRiderItem objects (with names) 
+    For example, if the list of riders contains ZsunRiderItem objects (with names) 
     ['Barry B', 'John H', 'Lynsey S'], the resulting matrix will be:
 
     [
@@ -29,7 +29,7 @@ def generate_cyclic_matrix(riders: List[ZwiftRiderItem]) -> List[List[ZwiftRider
     n = len(riders)
     
     # Generate the cyclic matrix using simple iteration
-    matrix: List[List[ZwiftRiderItem]] = []
+    matrix: List[List[ZsunRiderItem]] = []
     for i in range(n):
         row = [riders[(i + j) % n] for j in range(n)]
         matrix.append(row)
@@ -50,9 +50,9 @@ def main():
 
     dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
+    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
 
     riders = [barryb, johnh, lynseys]
 

@@ -1,21 +1,21 @@
 from typing import Dict, List
 from dataclasses import dataclass
-from zwiftrider_related_items import ZwiftRiderItem, RiderExertionItem, RiderAggregateEffortItem
+from zwiftrider_related_items import ZsunRiderItem, RiderExertionItem, RiderAggregateEffortItem
 from jgh_formulae06 import calculate_normalized_watts
 import logging
 
 
-def calculate_rider_aggregate_efforts(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]) -> Dict[ZwiftRiderItem, RiderAggregateEffortItem]:
+def calculate_rider_aggregate_efforts(riders: Dict[ZsunRiderItem, List[RiderExertionItem]]) -> Dict[ZsunRiderItem, RiderAggregateEffortItem]:
     """
     Calculates aggregate_effort metrics for each rider across all his positions in a complete orbit of a paceline.
 
     Args:
-        riders (Dict[ZwiftRiderItem, List[RiderExertionItem]]): The dictionary of riders with their aggregate_effort workload line items.
+        riders (Dict[ZsunRiderItem, List[RiderExertionItem]]): The dictionary of riders with their aggregate_effort workload line items.
 
     Returns:
-        Dict[ZwiftRiderItem, RiderAggregateEffortItem]: A dictionary of riders with their aggregate_effort workload metrics.
+        Dict[ZsunRiderItem, RiderAggregateEffortItem]: A dictionary of riders with their aggregate_effort workload metrics.
     """
-    rider_aggregates: Dict[ZwiftRiderItem, RiderAggregateEffortItem] = {}
+    rider_aggregates: Dict[ZsunRiderItem, RiderAggregateEffortItem] = {}
 
     for rider, efforts in riders.items():
 
@@ -52,16 +52,16 @@ def calculate_rider_aggregate_efforts(riders: Dict[ZwiftRiderItem, List[RiderExe
     return rider_aggregates
 
 
-def calculate_rider_stress_metrics(riders: Dict[ZwiftRiderItem, RiderAggregateEffortItem]) -> Dict[ZwiftRiderItem, RiderStressItem]:
+def calculate_rider_stress_metrics(riders: Dict[ZsunRiderItem, RiderAggregateEffortItem]) -> Dict[ZsunRiderItem, RiderStressItem]:
     """
     Calculates stress metrics for each rider across all his positions in a complete orbit of a paceline.
 
     Args:
-        riders (Dict[ZwiftRiderItem, RiderAggregateEffortItem]): The dictionary of riders with their aggregate_effort workload metrics.
+        riders (Dict[ZsunRiderItem, RiderAggregateEffortItem]): The dictionary of riders with their aggregate_effort workload metrics.
     Returns:
-        Dict[ZwiftRiderItem, RiderStressItem]: A dictionary of riders with their stress metrics.
+        Dict[ZsunRiderItem, RiderStressItem]: A dictionary of riders with their stress metrics.
     """
-    rider_performance: Dict[ZwiftRiderItem, RiderStressItem] = {}
+    rider_performance: Dict[ZsunRiderItem, RiderStressItem] = {}
     for rider, aggregate_effort in riders.items():
 
         if rider.ftp == 0:
@@ -80,7 +80,7 @@ def calculate_rider_stress_metrics(riders: Dict[ZwiftRiderItem, RiderAggregateEf
     return rider_performance
 
 
-def log_rider_aggregate_efforts(test_description: str, result: Dict[ZwiftRiderItem, RiderAggregateEffortItem], logger: logging.Logger) -> None:
+def log_rider_aggregate_efforts(test_description: str, result: Dict[ZsunRiderItem, RiderAggregateEffortItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     table = []
     for rider, aggregate_effort in result.items():
@@ -101,7 +101,7 @@ def log_rider_aggregate_efforts(test_description: str, result: Dict[ZwiftRiderIt
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 
-def log_rider_stress_metrics(test_description: str, result: Dict[ZwiftRiderItem, RiderStressItem], logger: logging.Logger) -> None:
+def log_rider_stress_metrics(test_description: str, result: Dict[ZsunRiderItem, RiderStressItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     table = []
     for rider, performance in result.items():
@@ -134,10 +134,10 @@ def main() -> None:
     dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['barryb']
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['johnh']
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['joshn']
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['richardm']
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['barryb']
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['johnh']
+    joshn : ZsunRiderItem = dict_of_zwiftrideritem['joshn']
+    richardm : ZsunRiderItem = dict_of_zwiftrideritem['richardm']
     
     pull_speeds_kph = [
         # [37.5, 37.5, 37.5, 37.5],
@@ -146,7 +146,7 @@ def main() -> None:
         # [45.0, 45.0, 45.0, 45.0]
     ]
     pull_durations = [120.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, joshn, richardm]
+    riders : list[ZsunRiderItem] = [barryb, johnh, joshn, richardm]
 
     for i, pull_speed in enumerate(pull_speeds_kph):
         work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speed)

@@ -69,7 +69,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-class ZwiftRiderDTO(BaseModel):
+class ZsunRiderDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's particulars. The object
     can be round-tripped to and from JSON. The values of all attributes are
@@ -144,7 +144,7 @@ def main02():
     data = json.loads(input_json)
 
     # Validate and serialize
-    rider = ZwiftRiderDTO(**data)
+    rider = ZsunRiderDTO(**data)
     print(rider)  # Check the validated model
     print(rider.model_dump())  # Check the serialized output
 
@@ -160,7 +160,7 @@ def main():
 
     inputjson = read_text(directory_path, file_name)
 
-    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZwiftRiderDTO])
+    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZsunRiderDTO])
 
     # Convert the dictionary to a list of lists for tabulate
     table_data = [

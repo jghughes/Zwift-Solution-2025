@@ -3,14 +3,14 @@ from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
 import numpy as np
 # from numpy.typing import NDArray
-from zwiftrider_dto import ZwiftRiderDTO 
+from zsun_rider_dto import ZsunRiderDTO 
 from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerImportDTO
 from zwiftracing_dto import ZwiftRacingAppDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True) # immutable and hashable, we use this as a dictionary key everywhere
-class ZwiftRiderItem():
+class ZsunRiderItem():
     """
     A frozen data class representing a Zwift rider.
     Can be used as a cache key or dictionary key, or in a set.
@@ -189,9 +189,9 @@ class ZwiftRiderItem():
     @staticmethod
     def create(zwiftid: int, name: str, weight: float, height: float, gender: str, 
         zftp: float, zwift_racing_score: int, velo_rating: int
-    ) -> 'ZwiftRiderItem':
+    ) -> 'ZsunRiderItem':
         """
-        Create a ZwiftRiderItem instance with the given parameters
+        Create a ZsunRiderItem instance with the given parameters
 
         Args:
            zwiftid            (int)  : The Zwift ID of the rider.
@@ -204,10 +204,10 @@ class ZwiftRiderItem():
             velo_rating        (int)  : Velo rating.
     
         Returns:
-            ZwiftRiderItem: A ZwiftRiderItem instance with the given parameters.
+            ZsunRiderItem: A ZsunRiderItem instance with the given parameters.
         """
 
-        instance = ZwiftRiderItem(
+        instance = ZsunRiderItem(
             zwiftid=zwiftid,
             name=name,
             weight=weight,
@@ -261,7 +261,7 @@ class ZwiftRiderItem():
         in the peloton.
 
         Args:
-        rider (ZwiftRiderItem): The rider object.
+        rider (ZsunRiderItem): The rider object.
         speed (float): The speed in km/h.
         position (int): The position in the peloton.
 
@@ -356,17 +356,17 @@ class ZwiftRiderItem():
         return self.when_curves_fitted
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftRiderItem") -> ZwiftRiderDTO:
+    def to_dataTransferObject(item: "ZsunRiderItem") -> ZsunRiderDTO:
         """
-        Convert a ZwiftRiderItem instance to a ZwiftRiderDTO.
+        Convert a ZsunRiderItem instance to a ZsunRiderDTO.
 
         Args:
-            item (ZwiftRiderItem): The ZwiftRiderItem instance to convert.
+            item (ZsunRiderItem): The ZsunRiderItem instance to convert.
 
         Returns:
-            ZwiftRiderDTO: The corresponding data transfer object.
+            ZsunRiderDTO: The corresponding data transfer object.
         """
-        return ZwiftRiderDTO(
+        return ZsunRiderDTO(
             zwiftid                = item.zwiftid,
             name                   = item.name,
             weight                 = item.weight,
@@ -385,17 +385,17 @@ class ZwiftRiderItem():
             when_curves_fitted     = item.when_curves_fitted
         )
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftRiderDTO) -> "ZwiftRiderItem":
+    def from_dataTransferObject(dto: ZsunRiderDTO) -> "ZsunRiderItem":
         """
-        Create a ZwiftRiderItem instance from a ZwiftRiderDTO.
+        Create a ZsunRiderItem instance from a ZsunRiderDTO.
 
         Args:
-            dto (ZwiftRiderDTO): The data transfer object to convert.
+            dto (ZsunRiderDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftRiderItem: The corresponding ZwiftRiderItem instance.
+            ZsunRiderItem: The corresponding ZsunRiderItem instance.
         """
-        return ZwiftRiderItem(
+        return ZsunRiderItem(
             zwiftid                = dto.zwiftid or 0,
             name                   = dto.name or "",
             weight                 = dto.weight or 0,
@@ -1458,11 +1458,11 @@ class ZwiftPower90DayBestGraphItem:
 # class RiderTeamItem:
 #     """
 #     """
-#     riders_working: list[ZwiftRiderItem] = field(default_factory=list)
-#     riders_resting: list[ZwiftRiderItem] = field(default_factory=list)
+#     riders_working: list[ZsunRiderItem] = field(default_factory=list)
+#     riders_resting: list[ZsunRiderItem] = field(default_factory=list)
 
 #     @staticmethod
-#     def create(riders: list[ZwiftRiderItem]) -> "RiderTeamItem":
+#     def create(riders: list[ZsunRiderItem]) -> "RiderTeamItem":
 #         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
 #         # assign rank to rank attr sarting with 1
 #         for i, rider in enumerate(riders):
@@ -1474,12 +1474,12 @@ class ZwiftPower90DayBestGraphItem:
 #         riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
 #         riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
 
-#     def demote_rider_from_working_to_resting(self, rider: ZwiftRiderItem) -> None:
+#     def demote_rider_from_working_to_resting(self, rider: ZsunRiderItem) -> None:
 #         riders_resting.append(rider)
 #         riders_working.remove(rider)
 #         sort_riders()
 
-#     def promote_rider_from_resting_to_working(self, rider: ZwiftRiderItem) -> None:
+#     def promote_rider_from_resting_to_working(self, rider: ZsunRiderItem) -> None:
 #         riders_working.append(rider)
 #         riders_resting.remove(rider)
 #         sort_riders()
@@ -1574,11 +1574,11 @@ def main():
     from tabulate import tabulate
     from typing import List, Union
 
-    # # example: Instantiate ZwiftRiderItem using the example from Config 
+    # # example: Instantiate ZsunRiderItem using the example from Config 
     # # i.e.how we could do it from a JSON file
-    example_data = ZwiftRiderItem.Config.json_schema_extra["johnh"]
-    example_rider = ZwiftRiderDTO.model_validate(example_data)
-    rider1 = ZwiftRiderItem.from_dataTransferObject(example_rider)
+    example_data = ZsunRiderItem.Config.json_schema_extra["johnh"]
+    example_rider = ZsunRiderDTO.model_validate(example_data)
+    rider1 = ZsunRiderItem.from_dataTransferObject(example_rider)
 
     # Log the instantiated object using a table
     rider_attrs = asdict(rider1)    
@@ -1588,9 +1588,9 @@ def main():
     # example : instantiate examples of two riders of differing ability. for each of them 
     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
     # position 1 and position 5. tabulate the results in a table and log it.
-    example_data = ZwiftRiderItem.Config.json_schema_extra["markb"]
-    example_rider = ZwiftRiderDTO.model_validate(example_data)
-    rider2 = ZwiftRiderItem.from_dataTransferObject(example_rider)
+    example_data = ZsunRiderItem.Config.json_schema_extra["markb"]
+    example_rider = ZsunRiderDTO.model_validate(example_data)
+    rider2 = ZsunRiderItem.from_dataTransferObject(example_rider)
 
     riders = [rider1, rider2]
     table: List[List[Union[str, float]]] = []
@@ -1629,7 +1629,7 @@ def main():
     # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
     # at a given wattage (zftp=233) and tabulate neatly and log it.
-    rider_john = ZwiftRiderItem(
+    rider_john = ZsunRiderItem(
         name=rider1.name, weight=rider1.weight, height=rider1.height, zftp=rider1.zftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
 
     positions = range(1, 6)

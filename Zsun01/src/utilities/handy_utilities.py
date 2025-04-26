@@ -2,9 +2,9 @@ import os
 from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
-from zwiftrider_dto import ZwiftRiderDTO
+from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_90day_best_dto import ZwiftPowerImportDTO, ZwiftPower90DayBestGraphDTO
-from zwiftrider_related_items import ZwiftRiderItem, ZwiftPower90DayBestGraphItem
+from zwiftrider_related_items import ZsunRiderItem, ZwiftPower90DayBestGraphItem
 from zwiftracing_dto import ZwiftRacingAppDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 
@@ -27,13 +27,13 @@ def get_betel_zwift_ids() -> List[str]:
 
     return answer
 
-def get_betel(id : int) -> ZwiftRiderItem:
+def get_betel(id : int) -> ZsunRiderItem:
     """
-    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZwiftRiderItem instance.
+    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZsunRiderItem instance.
     Args:
         id (int): The ID of the rider to retrieve.
     Returns:
-        ZwiftRiderItem: The ZwiftRiderItem instance for the specified rider.
+        ZsunRiderItem: The ZsunRiderItem instance for the specified rider.
     """
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -42,13 +42,13 @@ def get_betel(id : int) -> ZwiftRiderItem:
     answer = riders[str(id)]
     return answer
 
-def get_zwift_rider(id : int) -> ZwiftRiderItem:
+def get_zwift_rider(id : int) -> ZsunRiderItem:
     """
-    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZwiftRiderItem instance.
+    Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZsunRiderItem instance.
     Args:
         id (int): The ID of the rider to retrieve.
     Returns:
-        ZwiftRiderItem: The ZwiftRiderItem instance for the specified rider.
+        ZsunRiderItem: The ZsunRiderItem instance for the specified rider.
     """
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -57,17 +57,17 @@ def get_zwift_rider(id : int) -> ZwiftRiderItem:
     answer = riders[str(id)]
     return answer
 
-def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRiderItem]:
+def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZsunRiderItem]:
     """
-    Retrieve all Zwift riders from a JSON file and convert them to ZwiftRiderItem instances.
-    The data transfer object is ZwiftRiderDTO.
+    Retrieve all Zwift riders from a JSON file and convert them to ZsunRiderItem instances.
+    The data transfer object is ZsunRiderDTO.
 
     Args:
         file_name (str): The name of the file to read.
         dir_path (str): The directory path where the file is located.
 
     Returns:
-        Dict[str, ZwiftRiderItem]: A dictionary of ZwiftRiderItem instances.
+        Dict[str, ZsunRiderItem]: A dictionary of ZsunRiderItem instances.
     """
 
     # Raise an error if dir_path parameter is not minimally satisfactory
@@ -86,11 +86,11 @@ def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZwiftRi
 
     inputjson = read_text(dir_path, file_name)
 
-    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftRiderDTO])
-    answer = cast(Dict[str, ZwiftRiderDTO], answer)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZsunRiderDTO])
+    answer = cast(Dict[str, ZsunRiderDTO], answer)
 
     return {
-        key: ZwiftRiderItem.from_dataTransferObject(dto)
+        key: ZsunRiderItem.from_dataTransferObject(dto)
         for key, dto in answer.items()
     }
 

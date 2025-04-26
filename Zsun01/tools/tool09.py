@@ -2,7 +2,7 @@
 
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder, read_many_zwiftracingapp_files_in_folder
 import critical_power as cp
-from zwiftrider_related_items import ZwiftRiderItem
+from zwiftrider_related_items import ZsunRiderItem
 from datetime import datetime
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict

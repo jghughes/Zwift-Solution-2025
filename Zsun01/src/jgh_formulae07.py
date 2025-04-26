@@ -1,14 +1,14 @@
 from typing import  Dict, Tuple
-from zwiftrider_related_items import ZwiftRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
+from zwiftrider_related_items import ZsunRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
 from jgh_formulae06 import add_zwift_cp_and_w_prime_to_rider_answer_items, add_zwift_cp_and_w_prime_to_rider_criticalpower_items
 import logging
 
 
-def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswerItem]) -> Dict[ZwiftRiderItem, RiderAnswerDisplayObject]:
+def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswerItem]) -> Dict[ZsunRiderItem, RiderAnswerDisplayObject]:
 
-    answer: Dict[ZwiftRiderItem, RiderAnswerDisplayObject] = {}
+    answer: Dict[ZsunRiderItem, RiderAnswerDisplayObject] = {}
 
-    def calculate_zwift_zrs_cat(rider: ZwiftRiderItem) -> str:
+    def calculate_zwift_zrs_cat(rider: ZsunRiderItem) -> str:
         if rider.zwift_racing_score < 180:
             return "E"
         elif rider.zwift_racing_score < 350:
@@ -20,7 +20,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
         else:
             return "A"
 
-    def calculate_zwift_ftp_cat(rider: ZwiftRiderItem)-> str:
+    def calculate_zwift_ftp_cat(rider: ZsunRiderItem)-> str:
 
         wkg = rider.ftp/rider.weight if rider.weight != 0 else 0
 
@@ -36,9 +36,9 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
     def calculate_wkg(watts: float, weight : float)-> float:
         return rider.ftp/rider.weight if rider.weight != 0 else 0
 
-    def make_pretty_velo_cat(rider: ZwiftRiderItem) -> str:
+    def make_pretty_velo_cat(rider: ZsunRiderItem) -> str:
 
-        def calculate_velo_cat(rider: ZwiftRiderItem) -> Tuple[int, str]:
+        def calculate_velo_cat(rider: ZsunRiderItem) -> Tuple[int, str]:
             if rider.gender == "f":
                 if rider.velo_rating >= 1450:
                     return 1, "Diamond"
@@ -85,7 +85,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
         velo_rank, velo_name = calculate_velo_cat(rider)
         return f"{velo_rank}-{velo_name}"
 
-    def make_pretty_cat_descriptor(rider: ZwiftRiderItem) -> str:
+    def make_pretty_cat_descriptor(rider: ZsunRiderItem) -> str:
         answer = f"{rider.zwift_racing_score} {round(calculate_wkg(rider.ftp, rider.weight), 2)} {calculate_zwift_ftp_cat(rider)} {make_pretty_velo_cat(rider)}"
         # answer = f"zrs={rider.zwift_racing_score} ftp={round(calculate_wkg(rider.ftp, rider.weight), 2)} cat={calculate_zwift_ftp_cat(rider)} cat={make_pretty_velo_cat(rider)}"
         # answer = f"{rider.zwift_racing_score}({calculate_zwift_zrs_cat(rider)}) {round(calculate_wkg(rider.ftp, rider.weight), 1)}({calculate_zwift_ftp_cat(rider)}) {make_pretty_velo_cat(rider)}"
@@ -118,7 +118,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZwiftRiderItem, RiderAnswe
 
     return answer
 
-def log_results_answer_displayobjects(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerDisplayObject], logger: logging.Logger) -> None:
+def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
    
@@ -174,7 +174,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZwiftRiderItem
+    from zwiftrider_related_items import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
@@ -190,15 +190,15 @@ def main() -> None:
 
     zwiftriders_zwift_cp_data = read_dict_of_cpdata(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
 
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
+    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
 
     pull_speeds_kph = [42.0, 42.0, 42.0, 42.0, 42.0]
     pull_durations = [30.0, 30.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
+    riders : list[ZsunRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 

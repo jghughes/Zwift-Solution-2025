@@ -34,7 +34,7 @@ invalid_count: int = 0
 class SolutionLineItem(BaseModel):
 
     rank : int = 1
-    rider : ZwiftRiderItem
+    rider : ZsunRiderItem
     pull_duration : float = 0.0
     pull_speed : float = 0.0
     pull_watts: float = 0.0
@@ -51,7 +51,7 @@ class Solution(BaseModel):
     total_time : float = 0
     lineitems : list[SolutionLineItem] = []
     
-def validate_wattage(duration: int, speed: float, riders: List[ZwiftRiderItem]) -> bool:
+def validate_wattage(duration: int, speed: float, riders: List[ZsunRiderItem]) -> bool:
     for rider in riders:
         interval = RiderPeriodOfEffort.get_or_create(rider, duration, speed, 0, 1)
         max_allowed_wattage = MAX_POWER_INTENSITY * rider.ftp
@@ -59,14 +59,14 @@ def validate_wattage(duration: int, speed: float, riders: List[ZwiftRiderItem]) 
             return False
     return True
 
-def calculate_total_combinations(riders: List[ZwiftRiderItem], num_periods: int) -> int:
+def calculate_total_combinations(riders: List[ZsunRiderItem], num_periods: int) -> int:
     total_combinations: int = 0
     for team_size in range(1, len(riders) + 1):
         combinations: int = comb(len(riders), team_size) * (len(VALID_DURATIONS) ** num_periods)
         total_combinations += combinations
     return total_combinations
 
-def explore_rotations(riders: List[ZwiftRiderItem], speeds: List[float], current_periods: List[TttWorkPeriod] = [], depth: int = 0) -> None:
+def explore_rotations(riders: List[ZsunRiderItem], speeds: List[float], current_periods: List[TttWorkPeriod] = [], depth: int = 0) -> None:
     global inspected_count, valid_count, invalid_count
     # indent: str = "  " * depth
     if len(current_periods) == len(speeds):
@@ -118,17 +118,17 @@ def explore_rotations(riders: List[ZwiftRiderItem], speeds: List[float], current
     # Recursive reduction: explore rotations with one less rider
     if len(riders) > 1:
         for i in range(len(riders)):
-            new_riders: List[ZwiftRiderItem] = riders[:i] + riders[i+1:]
+            new_riders: List[ZsunRiderItem] = riders[:i] + riders[i+1:]
             # logger.info(f"{indent}Exploring rotation with one less rider: {riders[i].name}")
             explore_rotations(new_riders, speeds, current_periods, depth + 1)
 
 def main() -> None:
     # Example riders
-    riders: List[ZwiftRiderItem] = [
-        # ZwiftRiderItem(name="Rider_01", weight=70, height=175, gender=Gender.MALE, ftp=300, zwift_racing_score=600, velo_rating=1500),
-        # ZwiftRiderItem(name="Rider_02", weight=68, height=178, gender=Gender.MALE, ftp=290, zwift_racing_score=610, velo_rating=1520),
-        # ZwiftRiderItem(name="Rider_03", weight=72, height=180, gender=Gender.MALE, ftp=310, zwift_racing_score=620, velo_rating=1540),
-        ZwiftRiderItem(name="Rider_04", weight=75, height=174, gender=Gender.MALE, ftp=230, zwift_racing_score=590, velo_rating=1180),
+    riders: List[ZsunRiderItem] = [
+        # ZsunRiderItem(name="Rider_01", weight=70, height=175, gender=Gender.MALE, ftp=300, zwift_racing_score=600, velo_rating=1500),
+        # ZsunRiderItem(name="Rider_02", weight=68, height=178, gender=Gender.MALE, ftp=290, zwift_racing_score=610, velo_rating=1520),
+        # ZsunRiderItem(name="Rider_03", weight=72, height=180, gender=Gender.MALE, ftp=310, zwift_racing_score=620, velo_rating=1540),
+        ZsunRiderItem(name="Rider_04", weight=75, height=174, gender=Gender.MALE, ftp=230, zwift_racing_score=590, velo_rating=1180),
     ]
 
     # Define speeds for each period

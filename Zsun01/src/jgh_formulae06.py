@@ -1,6 +1,6 @@
 from typing import  List, Dict, Tuple
 from handy_utilities import read_dict_of_cpdata
-from zwiftrider_related_items import ZwiftRiderItem, ZwiftPower90DayBestGraphItem, RiderExertionItem, RiderAnswerItem
+from zwiftrider_related_items import ZsunRiderItem, ZwiftPower90DayBestGraphItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
 import logging
 
@@ -88,7 +88,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionItem]]) -> Dict[ZwiftRiderItem, RiderAnswerItem]:
+def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionItem]]) -> Dict[ZsunRiderItem, RiderAnswerItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
         if not exertions:
@@ -127,7 +127,7 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
 
         return p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp
  
-    def calculate_ftp_intensity_factor(rider: ZwiftRiderItem, items: List[RiderExertionItem]) -> float:
+    def calculate_ftp_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
         if not items:
             return 0
         if rider.ftp == 0:
@@ -135,9 +135,9 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
         ftp_intensity_factor = calculate_normalized_watts(items)/rider.ftp if rider.ftp != 0 else 0
         return ftp_intensity_factor
 
-        answer: Dict[ZwiftRiderItem, RiderAnswerItem] = {}
+        answer: Dict[ZsunRiderItem, RiderAnswerItem] = {}
 
-    answer : Dict[ZwiftRiderItem, RiderAnswerItem] = {}
+    answer : Dict[ZsunRiderItem, RiderAnswerItem] = {}
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
@@ -162,15 +162,15 @@ def populate_rider_answeritems(riders: Dict[ZwiftRiderItem, List[RiderExertionIt
     return answer
 
 
-def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZwiftRiderItem, RiderAnswerItem], zwiftriders_zwift_cp_data: Dict[str, ZwiftPower90DayBestGraphItem]
-) -> Dict[ZwiftRiderItem, RiderAnswerItem]:
+def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZsunRiderItem, RiderAnswerItem], zwiftriders_zwift_cp_data: Dict[str, ZwiftPower90DayBestGraphItem]
+) -> Dict[ZsunRiderItem, RiderAnswerItem]:
     """
     Populate zwift critical power and W' in the the rider answer items.
     Args:
-        rider_answer_items (Dict[ZwiftRiderItem, RiderAnswerItem]): The rider answer items.
+        rider_answer_items (Dict[ZsunRiderItem, RiderAnswerItem]): The rider answer items.
         zwiftriders_zwift_cp_data (Dict[str, ZwiftPower90DayBestGraphItem]): The critical power items. Key is str(zwiftid).
     Returns:
-        Dict[ZwiftRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
+        Dict[ZsunRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
     """
     for rider, answer_item in rider_answer_items.items():
         rider_id_str = str(rider.zwiftid).strip()
@@ -192,11 +192,11 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZwiftRiderItem
+    from zwiftrider_related_items import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
 
-    def log_results_answer_items(test_description: str, result: Dict[ZwiftRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
+    def log_results_answer_items(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
         from tabulate import tabulate
         logger.info(test_description)
         table = []
@@ -243,17 +243,17 @@ def main() -> None:
 
     zwiftriders_zwift_cp_data = read_dict_of_cpdata(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
 
-    davek : ZwiftRiderItem = dict_of_zwiftrideritem['3147366'] # davek
-    barryb : ZwiftRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    scottm : ZwiftRiderItem = dict_of_zwiftrideritem['11526'] # markb
-    johnh : ZwiftRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZwiftRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    joshn : ZwiftRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    richardm : ZwiftRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
+    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
+    scottm : ZsunRiderItem = dict_of_zwiftrideritem['11526'] # markb
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
+    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
+    richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
     
     pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0]
     pull_durations = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0]
-    riders : list[ZwiftRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
+    riders : list[ZsunRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
