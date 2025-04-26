@@ -4,7 +4,7 @@ from dataclasses import dataclass,  asdict
 import numpy as np
 # from numpy.typing import NDArray
 from zsun_rider_dto import ZsunRiderDTO 
-from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerImportDTO
+from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerGraphInformationDTO
 from zwiftracing_dto import ZwiftRacingAppDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from jgh_power_curve_fit_models import decay_model_numpy
@@ -1430,7 +1430,7 @@ class ZwiftPower90DayBestGraphItem:
             )
 
     @staticmethod
-    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerImportDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerGraphInformationDTO) -> "ZwiftPower90DayBestGraphItem":
         """
         Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestDataDTO.
 

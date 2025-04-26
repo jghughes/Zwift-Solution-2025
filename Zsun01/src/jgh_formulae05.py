@@ -1,5 +1,5 @@
 from typing import Dict, List
-from zwiftrider_related_items import ZsunRiderItem, RiderExertionItem, RiderWorkAssignmentItem
+from zsun_rider_item import ZsunRiderItem, RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 
 

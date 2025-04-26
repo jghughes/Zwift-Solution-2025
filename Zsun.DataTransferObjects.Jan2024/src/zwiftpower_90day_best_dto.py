@@ -209,7 +209,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-class ZwiftPowerImportDTO(BaseModel):
+class ZwiftPowerGraphInformationDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object. The property
     names in the class and its nested classes precisely match the names in the JSON

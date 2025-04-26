@@ -1,5 +1,5 @@
 from typing import Dict, List
-from zwiftrider_related_items import ZsunRiderItem, RiderWorkAssignmentItem
+from zsun_rider_item import ZsunRiderItem, RiderWorkAssignmentItem
 
 def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
     """

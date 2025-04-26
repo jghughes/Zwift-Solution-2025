@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
-from zwiftrider_related_items import ZsunRiderItem
+from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
 import critical_power as cp
 from tabulate import tabulate

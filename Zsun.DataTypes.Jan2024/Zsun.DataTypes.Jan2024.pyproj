@@ -35,7 +35,8 @@
     <Compile Include="src\participant_item.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\zwiftrider_related_items.py" />
+    <Compile Include="src\zsun_rider_item.py" />
+    <Compile Include="src\zwiftpower_profile_item.py" />
     <Compile Include="tests\test_participant_item.py" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 from typing import List
-from zwiftrider_related_items import ZsunRiderItem
+from zsun_rider_item import ZsunRiderItem
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.

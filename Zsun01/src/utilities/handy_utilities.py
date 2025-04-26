@@ -3,8 +3,8 @@ from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
-from zwiftpower_90day_best_dto import ZwiftPowerImportDTO, ZwiftPower90DayBestGraphDTO
-from zwiftrider_related_items import ZsunRiderItem, ZwiftPower90DayBestGraphItem
+from zwiftpower_90day_best_dto import ZwiftPowerGraphInformationDTO, ZwiftPower90DayBestGraphDTO
+from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem
 from zwiftracing_dto import ZwiftRacingAppDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 
@@ -435,7 +435,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
         zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
 
-        logger.debug(f"{file_count} processing : {file_name}")
+        # logger.debug(f"{file_count} processing : {file_name}")
 
         answer[zwiftID] = dto
 
@@ -490,8 +490,8 @@ def read_many_zwiftpower_graph_files_in_folder(riderIDs: Optional[list[str]], di
         file_count += 1
 
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerImportDTO)
-            dto = cast(ZwiftPowerImportDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerGraphInformationDTO)
+            dto = cast(ZwiftPowerGraphInformationDTO, dto)
         except Exception:
             error_count += 1
             logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")

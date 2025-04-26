@@ -1,5 +1,5 @@
 from handy_utilities import read_many_zwiftracingapp_files_in_folder, get_betel_zwift_ids, read_dict_of_zwiftriders
-from zwiftrider_related_items import ZsunRiderItem
+from zsun_rider_item import ZsunRiderItem
 
 import logging
 from jgh_logging import jgh_configure_logging

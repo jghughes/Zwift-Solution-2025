@@ -1,6 +1,6 @@
 from typing import  List, Dict, Tuple
 from handy_utilities import read_dict_of_cpdata
-from zwiftrider_related_items import ZsunRiderItem, ZwiftPower90DayBestGraphItem, RiderExertionItem, RiderAnswerItem
+from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem, RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
 import logging
 
@@ -192,7 +192,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZsunRiderItem
+    from zsun_rider_item import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
 

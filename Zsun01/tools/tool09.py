@@ -2,7 +2,7 @@
 
 from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder, read_many_zwiftracingapp_files_in_folder
 import critical_power as cp
-from zwiftrider_related_items import ZsunRiderItem
+from zsun_rider_item import ZsunRiderItem
 from datetime import datetime
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
@@ -37,14 +37,14 @@ def main():
     INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    # raw_zwiftracingapp_profiles = read_many_zwiftracingapp_files_in_folder(None, INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH)
+    raw_zwiftracingapp_profiles = read_many_zwiftracingapp_files_in_folder(None, INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH)
     raw_profiles_for_everybody = read_many_zwiftpower_profile_files_in_folder(None, INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH)
-    # raw_cp_dict_for_everybody = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_everybody = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
 
-    # logger.info(f"Imported {len(raw_zwiftracingapp_profiles)} zwiftracingapp profile files from:- \nDir : {INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH}\n")
+    logger.info(f"Imported {len(raw_zwiftracingapp_profiles)} zwiftracingapp profile files from:- \nDir : {INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH}\n")
     logger.info(f"Imported {len(raw_profiles_for_everybody)} zwiftpower profile files from:- \nDir : {INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH}\n")
-    # logger.info(f"Imported {len(raw_cp_dict_for_everybody)} ZwiftPower graphs from:- \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n")
+    logger.info(f"Imported {len(raw_cp_dict_for_everybody)} ZwiftPower graphs from:- \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n")
 
 
 if __name__ == "__main__":

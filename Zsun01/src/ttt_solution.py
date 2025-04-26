@@ -1,7 +1,7 @@
 import logging
 
 from jgh_logging import jgh_configure_logging
-from zwiftrider_related_items import RiderRotationItem
+from zsun_rider_item import RiderRotationItem
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Set
 from zwiftrider_item import *

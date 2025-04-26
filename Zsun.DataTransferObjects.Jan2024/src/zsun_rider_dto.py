@@ -5,43 +5,6 @@ from jgh_read_write import *
 from jgh_serialization import *
 
 
-# Define constants for all the serialization_alias_map - for now, they are the same as the attribute names
-ZWIFTID_ALIAS             = "zwiftid"
-NAME_ALIAS                = "name"
-WEIGHT_ALIAS              = "weight"
-HEIGHT_ALIAS              = "height"
-GENDER_ALIAS              = "gender"
-FTP_ALIAS                 = "zftp"
-ZWIFT_RACING_SCORE_ALIAS  = "zwift_racing_score"
-VELO_RATING_ALIAS         = "velo_rating"
-PULL_ADJUSTMENT_ALIAS     = "pull_adjustment_watts"
-CP_ALIAS                  = "critical_power"
-CP_W_PRIME_ALIAS          = "critical_power_w_prime"
-FTP_COEFFICIENT_ALIAS     = "ftp_curve_coefficient"
-FTP_EXPONENT_ALIAS        = "ftp_curve_exponent"
-PULL_COEFFICIENT_ALIAS    = "pull_curve_coefficient"
-PULL_EXPONENT_ALIAS       = "pull_curve_exponent"
-WHEN_MODELS_FITTED_ALIAS  = "when_curves_fitted"
-
-serialization_alias_map: dict[str, str] = {
-    "zwiftid"               : ZWIFTID_ALIAS,
-    "name"                  : NAME_ALIAS,
-    "weight"                : WEIGHT_ALIAS,
-    "height"                : HEIGHT_ALIAS,
-    "gender"                : GENDER_ALIAS,
-    "zftp"                  : FTP_ALIAS,
-    "zwift_racing_score"    : ZWIFT_RACING_SCORE_ALIAS,
-    "velo_rating"           : VELO_RATING_ALIAS,
-    "pull_adjustment_watts" : PULL_ADJUSTMENT_ALIAS,
-    "critical_power"        : CP_ALIAS,
-    "critical_power_w_prime": CP_W_PRIME_ALIAS,
-    "ftp_curve_coefficient" : FTP_COEFFICIENT_ALIAS,
-    "ftp_curve_exponent"    : FTP_EXPONENT_ALIAS,
-    "pull_curve_coefficient": PULL_COEFFICIENT_ALIAS,
-    "pull_curve_exponent"   : PULL_EXPONENT_ALIAS,
-    "when_curves_fitted"    : WHEN_MODELS_FITTED_ALIAS,
-    }
-
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwiftid"               : AliasChoices("zwiftid", "zwift_id", "riderId"),
     "name"                  : AliasChoices("name", "zwift_name"),
@@ -64,7 +27,6 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 configdictV1 = ConfigDict(
         alias_generator=AliasGenerator(
             alias=None,
-            serialization_alias=lambda field_name: serialization_alias_map.get(field_name, field_name), 
             validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
 
 preferred_config_dict = configdictV1

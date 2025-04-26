@@ -1,5 +1,5 @@
 from typing import  Dict, Tuple
-from zwiftrider_related_items import ZsunRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
+from zsun_rider_item import ZsunRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
 from jgh_formulae06 import add_zwift_cp_and_w_prime_to_rider_answer_items, add_zwift_cp_and_w_prime_to_rider_criticalpower_items
 import logging
 
@@ -174,7 +174,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zwiftrider_related_items import ZsunRiderItem
+    from zsun_rider_item import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
