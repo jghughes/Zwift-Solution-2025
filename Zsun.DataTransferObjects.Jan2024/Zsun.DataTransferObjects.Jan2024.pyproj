@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>src\zwiftrider_dto.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -37,6 +36,7 @@
     </Compile>
     <Compile Include="src\participant_dto.py" />
     <Compile Include="src\zwiftpower_90day_best_dto.py" />
+    <Compile Include="src\zwiftpower_profile_dto.py" />
     <Compile Include="src\zwiftracing_dto.py" />
     <Compile Include="src\zwiftrider_dto.py">
       <SubType>Code</SubType>

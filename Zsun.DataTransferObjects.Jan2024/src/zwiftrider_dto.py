@@ -1,6 +1,5 @@
 # Local application imports
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
-from typing import Optional
 from tabulate import tabulate
 from jgh_read_write import *
 from jgh_serialization import *
@@ -124,7 +123,30 @@ class ZwiftRiderDTO(BaseModel):
     ftp_curve_exponent     : Optional[float] = 0.0
     pull_curve_coefficient : Optional[float] = 0.0
     pull_curve_exponent    : Optional[float] = 0.0
-    when_curves_fitted     : str             = ""
+    when_curves_fitted     : Optional[str]   = ""
+
+
+def main02():
+    import json
+
+    # Simulate loading JSON data
+    input_json = '''
+    {
+        "zwiftid": 123,
+        "name": "null",
+        "weight": 70.5,
+        "height": 180,
+        "gender": "m",
+        "zftp": null,
+        "strava_profile": null
+    }
+    '''
+    data = json.loads(input_json)
+
+    # Validate and serialize
+    rider = ZwiftRiderDTO(**data)
+    print(rider)  # Check the validated model
+    print(rider.model_dump())  # Check the serialized output
 
 def main():
     import logging
@@ -150,5 +172,6 @@ def main():
     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
-    main()
+    main02()
+    # main()
 
