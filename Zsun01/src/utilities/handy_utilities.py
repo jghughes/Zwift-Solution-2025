@@ -5,7 +5,7 @@ from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_90day_best_dto import ZwiftPowerGraphInformationDTO, ZwiftPower90DayBestGraphDTO
 from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem
-from zwiftracing_dto import ZwiftRacingAppDTO
+from zwiftracing_dto import ZwiftRacingAppProfileDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 
 
@@ -164,7 +164,7 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftPower90DayBestGraphItem], file_nam
 
     logger.debug(f"File saved : {file_name}")
 
-def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRacingAppDTO]:
+def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRacingAppProfileDTO]:
     """
     Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -197,7 +197,7 @@ def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_
         }
     """
     
-    answer: Dict[str, ZwiftRacingAppDTO] = {}
+    answer: Dict[str, ZwiftRacingAppProfileDTO] = {}
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
@@ -211,8 +211,8 @@ def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_
         file_count += 1
 
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
-            dto = cast(ZwiftRacingAppDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
+            dto = cast(ZwiftRacingAppProfileDTO, dto)
         except Exception:
             error_count += 1
             logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
@@ -275,8 +275,8 @@ def read_many_zwiftracingapp_files_in_folderV2(riderIDs: Optional[list[str]], di
         file_count += 1
 
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
-            dto = cast(ZwiftRacingAppDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
+            dto = cast(ZwiftRacingAppProfileDTO, dto)
         except Exception:
             error_count += 1
             logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
@@ -360,14 +360,14 @@ def read_many_zwiftracingapp_files_in_folderV2(riderIDs: Optional[list[str]], di
 
             try:
 
-                dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
+                dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
 
             except Exception:
                 error_count += 1
                 logger.error(f"     {error_count} serialisation error. Skipping file: {file_name}")
                 continue
 
-            dto = cast(ZwiftRacingAppDTO, dto)
+            dto = cast(ZwiftRacingAppProfileDTO, dto)
 
             if dto.riderId:
                 answer[dto.riderId] = ZwiftPower90DayBestGraphItem.from_zwift_racing_app_DTO(

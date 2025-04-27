@@ -1,8 +1,15 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, Dict
 
 
-class ZwiftRacingAppDTO(BaseModel):
+configdictV1 = ConfigDict(
+        alias_generator=None,      # No alias generator for this DTO
+        populate_by_name=True      # Allow population by field names
+    )
+
+preferred_config_dict = configdictV1
+
+class ZwiftRacingAppProfileDTO(BaseModel):
     """
     A data transfer object representing a Zwift Racing App JSON object that contains
     post-processed data originating from ZwiftPower. This DTO ignores much of the
@@ -31,10 +38,32 @@ class ZwiftRacingAppDTO(BaseModel):
         CP:      Optional[float] = 0.0  # Critical Power
         AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
 
-    model_config = ConfigDict(
-        alias_generator=None,      # No alias generator for this DTO
-        populate_by_name=True      # Allow population by field names
-    )
+    class RaceDetailsDTO(BaseModel):
+        """
+        A data transfer object representing race details.
+
+        Attributes:
+            rating (float): The race rating (e.g., vELO rating).
+            date (int): The date of the race as a Unix timestamp.
+            mixed (MixedDTO): A nested object representing mixed category details.
+        """
+
+        class MixedDTO(BaseModel):
+            """
+            A nested model representing the mixed category details.
+
+            Attributes:
+                category (str): The name of the category (e.g., "Ruby").
+                number (int): The number associated with the category.
+            """
+            category: Optional[str] = None  # Name of the category
+            number: Optional[int] = None    # Number associated with the category
+
+        rating: Optional[float] = None  # Race rating
+        date: Optional[int] = None      # Date as a Unix timestamp
+        mixed: Optional[MixedDTO] = None  # Mixed category details
+
+    model_config = preferred_config_dict
     riderId:    Optional[str]   = ""   # Rider ID
     name:       Optional[str]   = ""   # Name of the rider
     gender:     Optional[str]   = ""   # Gender of the rider
@@ -45,6 +74,10 @@ class ZwiftRacingAppDTO(BaseModel):
     zpCategory: Optional[str]   = ""   # ZwiftPower category
     zpFTP:      Optional[float] = 0.0  # ZwiftPower FTP (Functional Threshold Power)
     power:      Optional[Union[PowerDTO, Any]] = Field(default_factory=PowerDTO)  # Power data of the rider
-
-
-
+    race:       Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
+            "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+            "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+            "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+            "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+        }
+    )

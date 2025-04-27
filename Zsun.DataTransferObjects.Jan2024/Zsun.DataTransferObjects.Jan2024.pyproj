@@ -31,13 +31,14 @@
     <Compile Include="src\app_settings_dto.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\omnibus_profile_dto.py" />
     <Compile Include="src\person_dto_starter_kit.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
     <Compile Include="src\zwiftpower_90day_best_dto.py" />
     <Compile Include="src\zwiftpower_profile_dto.py" />
-    <Compile Include="src\zwiftracing_dto.py" />
+    <Compile Include="src\zwiftracingapp_profile_dto.py" />
     <Compile Include="src\zsun_rider_dto.py">
       <SubType>Code</SubType>
     </Compile>

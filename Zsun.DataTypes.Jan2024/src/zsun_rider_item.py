@@ -5,7 +5,7 @@ import numpy as np
 # from numpy.typing import NDArray
 from zsun_rider_dto import ZsunRiderDTO 
 from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerGraphInformationDTO
-from zwiftracing_dto import ZwiftRacingAppDTO
+from zwiftracing_dto import ZwiftRacingAppProfileDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from jgh_power_curve_fit_models import decay_model_numpy
 
@@ -1402,15 +1402,15 @@ class ZwiftPower90DayBestGraphItem:
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPower90DayBestGraphItem":
         """
-        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppDTO.
+        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppProfileDTO.
         The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
         Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
         critical power and other derivatives 
 
         Args:
-            dto (ZwiftRacingAppDTO): The data transfer object to convert.
+            dto (ZwiftRacingAppProfileDTO): The data transfer object to convert.
 
         Returns:
             ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
