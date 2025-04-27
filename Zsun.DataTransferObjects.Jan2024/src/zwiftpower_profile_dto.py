@@ -44,3 +44,18 @@ class ZwiftPowerProfileDTO(BaseModel):
             return str(int(value))  # Handle integer values
         except (ValueError, TypeError):
             raise ValueError(f"Invalid value for numeric field: {value} in JSON element representing Zwift_id : {cls.zwift_id}")
+
+    # # Validator to sanitize string fields by removing invalid characters, reducing spaces, and stripping
+    # @field_validator("zwift_name", "profile_url", "team", "country", "profile_image", "strava_profile", mode="before")
+    # def sanitize_string_fields(cls, value):
+    #     if value is None:
+    #         return value
+    #     try:
+    #         # Encode to UTF-8 and decode back, ignoring invalid characters
+    #         sanitized_value = value.encode("utf-8", errors="ignore").decode("utf-8")
+    #         # Reduce multiple spaces to a single space
+    #         sanitized_value = re.sub(r'\s+', ' ', sanitized_value)
+    #         # Strip leading and trailing spaces
+    #         return sanitized_value.strip()
+    #     except Exception as e:
+    #         raise ValueError(f"Error sanitizing string field: {value}. Error: {e}")

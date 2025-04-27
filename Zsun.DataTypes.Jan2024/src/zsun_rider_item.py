@@ -5,7 +5,7 @@ import numpy as np
 # from numpy.typing import NDArray
 from zsun_rider_dto import ZsunRiderDTO 
 from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerGraphInformationDTO
-from zwiftracing_dto import ZwiftRacingAppProfileDTO
+from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from jgh_power_curve_fit_models import decay_model_numpy
 
@@ -384,6 +384,7 @@ class ZsunRiderItem():
             pull_curve_exponent    = item.pull_curve_exponent,
             when_curves_fitted     = item.when_curves_fitted
         )
+
     @staticmethod
     def from_dataTransferObject(dto: ZsunRiderDTO) -> "ZsunRiderItem":
         """

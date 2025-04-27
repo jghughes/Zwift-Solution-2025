@@ -5,7 +5,7 @@ from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_90day_best_dto import ZwiftPowerGraphInformationDTO, ZwiftPower90DayBestGraphDTO
 from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem
-from zwiftracing_dto import ZwiftRacingAppProfileDTO
+from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 
 
@@ -164,7 +164,7 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftPower90DayBestGraphItem], file_nam
 
     logger.debug(f"File saved : {file_name}")
 
-def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRacingAppProfileDTO]:
+def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRacingAppProfileDTO]:
     """
     Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -189,7 +189,7 @@ def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_
     Example:
         >>> riderIDs = ["1193", "5134"]
         >>> dir_path = "/path/to/zwiftracing/files"
-        >>> answer = read_many_zwiftracingapp_files_in_folder(riderIDs, dir_path)
+        >>> answer = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, dir_path)
         >>> print(answer)
         {
             "1193": ZwiftPower90DayBestGraphItem(...),
@@ -227,154 +227,6 @@ def read_many_zwiftracingapp_files_in_folder(riderIDs: Optional[list[str]], dir_
         answer[zwiftID] = dto
 
     return answer
-
-def read_many_zwiftracingapp_files_in_folderV2(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
-    """
-    Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
-    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
-    from the filename (without the extension).
-
-    If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
-    is `None`, all JSON files in the directory are processed.
-
-    Args:
-        riderIDs (Optional[list[str]]): A list of rider IDs to filter the files. If `None`, all files
-                                        in the directory are processed.
-        dir_path (str): The directory path where the JSON files are located.
-
-    Returns:
-        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwiftID` strings
-                                                and the values are `ZwiftPower90DayBestGraphItem` instances.
-
-    Raises:
-        ValueError: If `dir_path` is not a valid non-empty string.
-        FileNotFoundError: If the specified directory does not exist.
-
-    Example:
-        >>> riderIDs = ["1193", "5134"]
-        >>> dir_path = "/path/to/zwiftracing/files"
-        >>> answer = read_many_zwiftracingapp_files_in_folder(riderIDs, dir_path)
-        >>> print(answer)
-        {
-            "1193": ZwiftPower90DayBestGraphItem(...),
-            "5134": ZwiftPower90DayBestGraphItem(...)
-        }
-    """
-    
-    answer: Dict[str, ZwiftPower90DayBestGraphItem] = {}
-
-    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
-
-    file_count = 0
-    error_count = 0
-
-    for file_path in file_paths:
-
-        inputjson = read_filepath_as_text(file_path)
-
-        file_count += 1
-
-        try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
-            dto = cast(ZwiftRacingAppProfileDTO, dto)
-        except Exception:
-            error_count += 1
-            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
-            continue
-
-        file_name = os.path.basename(file_path)
-
-        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
-
-        logger.debug(f"{file_count} processing : {file_name}")
-
-        answer[zwiftID] = ZwiftPower90DayBestGraphItem.from_zwift_racing_app_DTO(dto)
-
-    return answer
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # Raise an error if dir_path parameter is not minimally satisfactory
-
-    if not dir_path:
-        raise ValueError("dir_path must be a valid string.")
-
-    if not dir_path.strip():
-        raise ValueError("dir_path must be a valid non-empty string.")
-
-    # Raise an error if the directory does not exist
-    if not os.path.exists(dir_path):
-        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
-
-    answer: Dict[str, ZwiftPower90DayBestGraphItem] = {}
-
-    file_count = 0
-    error_count = 0
-
-    for entry in os.listdir(dir_path):
-
-        # Check if the entry is a valid JSON file. if not skip it.
-        if not entry.endswith(".json"):
-            continue
-
-        file_name = entry
-
-        # Skip the file if riderIDs is provided but is empty
-        if riderIDs is not None and not riderIDs:
-            continue
-
-        # Skip the file if riderIDs is provided and the file name (without .json) is not in riderIDs
-        if riderIDs and file_name[:-5] not in riderIDs:
-            continue
-    
-        # Go ahead and process the file
-
-
-        file_path = os.path.join(dir_path, file_name)
-
-        if os.path.isfile(file_path):
-
-            inputjson = read_text(dir_path, file_name)
-
-            file_count += 1
-
-            # logger.debug(f"{file_count} processing : {file_name}")
-
-            try:
-
-                dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
-
-            except Exception:
-                error_count += 1
-                logger.error(f"     {error_count} serialisation error. Skipping file: {file_name}")
-                continue
-
-            dto = cast(ZwiftRacingAppProfileDTO, dto)
-
-            if dto.riderId:
-                answer[dto.riderId] = ZwiftPower90DayBestGraphItem.from_zwift_racing_app_DTO(
-                    dto
-                )
-
-    return dict(sorted(answer.items(), key=lambda item: int(item[0])))
 
 def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPowerProfileDTO]:
     """
@@ -512,7 +364,7 @@ def main():
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
 
-    zsun_raw_cp_dict_for_betel = read_many_zwiftracingapp_files_in_folder(get_betel_zwift_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    zsun_raw_cp_dict_for_betel = read_many_zwiftracingapp_profile_files_in_folder(get_betel_zwift_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
