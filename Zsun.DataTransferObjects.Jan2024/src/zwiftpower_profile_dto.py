@@ -1,6 +1,7 @@
 
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator
 from typing import Optional
+import re  # Ensure regex module is imported
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "age_group"               : AliasChoices("age_group", "age"),
@@ -15,24 +16,25 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 class ZwiftPowerProfileDTO(BaseModel):
-    model_config = preferred_config_dict
-    zwift_id: Optional[str] = None
-    profile_url: Optional[str] = None
-    zwift_name: Optional[str] = None
-    race_ranking: Optional[str] = None
-    zwift_racing_score: Optional[str] = None
-    zwift_racing_category: Optional[str] = None
-    team: Optional[str] = None
-    zftp: Optional[str] = None
-    weight: Optional[str] = None
-    age_group: Optional[str] = None
-    zpoints: Optional[str] = None
-    country: Optional[str] = None
-    profile_image: Optional[str] = None
-    strava_profile: Optional[str] = None
-    level: Optional[str] = None
+    model_config             = preferred_config_dict
 
-   # Combined validator for numeric fields
+    zwift_id                 : Optional[str] = ""  # Default value set to ""
+    profile_url              : Optional[str] = ""
+    zwift_name               : Optional[str] = ""
+    race_ranking             : Optional[str] = ""
+    zwift_racing_score       : Optional[str] = ""
+    zwift_racing_category    : Optional[str] = ""
+    team                     : Optional[str] = ""
+    zftp                     : Optional[str] = ""
+    weight                   : Optional[str] = ""
+    age_group                : Optional[str] = ""
+    zpoints                  : Optional[str] = ""
+    country                  : Optional[str] = ""
+    profile_image            : Optional[str] = ""
+    strava_profile           : Optional[str] = ""
+    level                    : Optional[str] = ""
+ 
+    # Combined validator for numeric fields
     @field_validator("zwift_id", "race_ranking", "zwift_racing_score", "zftp", "weight","zpoints", "level", mode="before")
     def validate_numeric_fields(cls, value):
         if value in {"--", "---", None}:
@@ -45,17 +47,21 @@ class ZwiftPowerProfileDTO(BaseModel):
         except (ValueError, TypeError):
             raise ValueError(f"Invalid value for numeric field: {value} in JSON element representing Zwift_id : {cls.zwift_id}")
 
-    # # Validator to sanitize string fields by removing invalid characters, reducing spaces, and stripping
-    # @field_validator("zwift_name", "profile_url", "team", "country", "profile_image", "strava_profile", mode="before")
-    # def sanitize_string_fields(cls, value):
-    #     if value is None:
-    #         return value
-    #     try:
-    #         # Encode to UTF-8 and decode back, ignoring invalid characters
-    #         sanitized_value = value.encode("utf-8", errors="ignore").decode("utf-8")
-    #         # Reduce multiple spaces to a single space
-    #         sanitized_value = re.sub(r'\s+', ' ', sanitized_value)
-    #         # Strip leading and trailing spaces
-    #         return sanitized_value.strip()
-    #     except Exception as e:
-    #         raise ValueError(f"Error sanitizing string field: {value}. Error: {e}")
+    # Validator to sanitize string fields by removing invalid characters, reducing spaces, and stripping
+
+    @field_validator("zwift_name", "profile_url", "team", "country", "profile_image", "strava_profile", mode="before")
+    def sanitize_string_fields(cls, value):
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            # If value is not a string, return it as-is or convert to string if needed
+            return value
+        try:
+            # Encode to UTF-8 and decode back, ignoring invalid characters
+            sanitized_value = value.encode("utf-8", errors="ignore").decode("utf-8")
+            # Reduce multiple spaces to a single space
+            sanitized_value = re.sub(r'\s+', ' ', sanitized_value)
+            # Strip leading and trailing spaces
+            return sanitized_value.strip()
+        except Exception as e:
+            raise ValueError(f"Error sanitizing string field. Details: {e}")

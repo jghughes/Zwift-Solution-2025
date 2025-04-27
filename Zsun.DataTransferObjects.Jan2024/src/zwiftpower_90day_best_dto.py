@@ -277,6 +277,22 @@ class ZwiftPowerGraphInformationDTO(BaseModel):
     zwiftpower_watts_last_updated: Optional[str] = ""
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class ZwiftPower90DayBestGraphDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
