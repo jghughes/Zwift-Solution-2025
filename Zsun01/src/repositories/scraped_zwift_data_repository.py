@@ -10,17 +10,13 @@ from zsun_rider_item import ZwiftPower90DayBestGraphItem
 
 
 @dataclass
-@dataclass
 class ScrapedZwiftDataRepository:
-    dict_of_zwift_profileDTO: defaultdict[str, ZwiftProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftProfileDTO))
-    dict_of_zwiftracingapp_profileDTO: defaultdict[str, ZwiftRacingAppProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileDTO))
-    dict_of_zwiftpower_profileDTO: defaultdict[str, ZwiftPowerProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileDTO))
-    dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestGraphItem] = field(default_factory=lambda: defaultdict(ZwiftPower90DayBestGraphItem))
-
-    dict_of_zwift_profileDTO:               defaultdict[str, ZwiftProfileDTO]  
-    dict_of_zwiftracingapp_profileDTO:      defaultdict[str, ZwiftRacingAppProfileDTO] 
-    dict_of_zwiftpower_profileDTO:          defaultdict[str, ZwiftPowerProfileDTO] 
-    dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestGraphItem]
+    
+    def __init__(self):
+        self.dict_of_zwift_profileDTO: defaultdict[str, ZwiftProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftProfileDTO))
+        self.dict_of_zwiftracingapp_profileDTO: defaultdict[str, ZwiftRacingAppProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileDTO))
+        self.dict_of_zwiftpower_profileDTO: defaultdict[str, ZwiftPowerProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileDTO))
+        self.dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestGraphItem] = field(default_factory=lambda: defaultdict(ZwiftPower90DayBestGraphItem))
 
     def populate_repository(
         self,
@@ -35,7 +31,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwiftpower_profileDTO          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
         self.dict_of_zwiftpower_90daybest_graph_item = read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
 
-            #Step 00: go through all four dicts and sanitise the names
+        # anitise all the names because they contain invalid characters such as emojis
 
 
         for key, profile in self.dict_of_zwift_profileDTO.items():

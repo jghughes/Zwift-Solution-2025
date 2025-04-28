@@ -20,10 +20,10 @@ class ZwiftPowerProfileDTO(BaseModel):
     profile_url              : Optional[str] = ""
     zwift_name               : Optional[str] = ""
     race_ranking             : Optional[str] = "" # wraps a float
-    zwift_racing_score       : Optional[str] = "" # wraps an in
+    zwift_racing_score       : Optional[str] = "" # wraps an int
     zwift_racing_category    : Optional[str] = ""
     team                     : Optional[str] = ""
-    zftp                     : Optional[str] = "" # wraps an in
+    zftp                     : Optional[str] = "" # wraps an int
     weight                   : Optional[str] = "" # wraps a float
     age_group                : Optional[str] = ""
     zpoints                  : Optional[str] = "" # wraps an int

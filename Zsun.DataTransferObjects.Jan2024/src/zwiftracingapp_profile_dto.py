@@ -2,8 +2,13 @@ from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, Alias
 from typing import Optional, Union, Any, Dict
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "age_group"               : AliasChoices("age_group", "age"),
+    "zwiftID"               : AliasChoices("zwiftID", "riderId"),
+    "agegroup_title"               : AliasChoices("agegroup_title", "age"),
     "fullname"               : AliasChoices("fullname", "name"),
+    "height_cm"               : AliasChoices("height_cm", "height"),
+    "weight_kg"               : AliasChoices("weight_kg", "weight"),
+    "zp_race_category"      : AliasChoices("zp_race_category", "zpCategory"),
+    "zp_FTP"      : AliasChoices("zp_FTP", "zpFTP"),
 }
 
 configdictV1 = ConfigDict(
@@ -32,17 +37,34 @@ class ZwiftRacingAppProfileDTO(BaseModel):
         wkg120:  Optional[float] = 0.0
         wkg300:  Optional[float] = 0.0
         wkg1200: Optional[float] = 0.0
-        w5:      Optional[int] = 0
-        w15:     Optional[int] = 0
-        w30:     Optional[int] = 0
-        w60:     Optional[int] = 0
-        w120:    Optional[int] = 0
-        w300:    Optional[int] = 0
-        w1200:   Optional[int] = 0
+        w5:      Optional[float] = 0
+        w15:     Optional[float] = 0
+        w30:     Optional[float] = 0
+        w60:     Optional[float] = 0
+        w120:    Optional[float] = 0
+        w300:    Optional[float] = 0
+        w1200:   Optional[float] = 0
         CP:      Optional[float] = 0.0  # Critical Power
         AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
         compoundScore: Optional[float] = 0.0  # Compound score
         powerRating: Optional[float] = 0.0  # Power rating
+
+        # Validator for all numeric fields
+        @field_validator(
+            "wkg5", "wkg15", "wkg30", "wkg60", "wkg120", "wkg300", "wkg1200",
+            "w5", "w15", "w30", "w60", "w120", "w300", "w1200",
+            "CP", "AWC", "compoundScore", "powerRating",
+            mode="before"
+        )
+        def validate_numeric_fields(cls, value):
+            if value is None:
+                return None
+            try:
+                # Check if the value is numeric
+                return float(value)
+            except (ValueError, TypeError):
+                # Return None for non-numeric values
+                return None
 
     class RaceDetailsDTO(BaseModel):
         """
@@ -69,32 +91,67 @@ class ZwiftRacingAppProfileDTO(BaseModel):
         date: Optional[int] = 0      # Date as a Unix timestamp
         mixed: Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
 
-    model_config = preferred_config_dict
-    riderId:    Optional[str]   = ""   # Rider ID
-    fullname:       Optional[str]   = ""   # Name of the rider
-    gender:     Optional[str]   = ""   # Gender of the rider
-    country:    Optional[str]   = ""   # Country of the rider
-    age_group:  Optional[str]   = ""   # Age category of the rider
-    height:     Optional[int] = 0  # Height of the rider in centimeters
-    weight:     Optional[int] = 0  # Weight of the rider in kilograms
-    zpCategory: Optional[str]  = ""   # ZwiftPower category, such as C or D
-    zpFTP:      Optional[int] = 0  # ZwiftPower FTP (Functional Threshold Power)
-    power:      Optional[Union[PowerDTO, Any]] = Field(default_factory=PowerDTO)  # Power data of the rider
-    race:       Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
-            "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-            "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-            "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-            "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO()}
-    )
+    model_config  = preferred_config_dict
+    zwiftID             : Optional[str]                      = ""   # Rider ID
+    fullname            : Optional[str]                      = ""   # Name of the rider
+    gender              : Optional[str]                      = ""   # Gender of the rider
+    country             : Optional[str]                      = ""   # Country of the rider
+    agegroup_title      : Optional[str]                      = ""   # Age category of the rider
+    height_cm           : Optional[float]                    = 0    # Height of the rider in centimeters
+    weight_kg           : Optional[float]                    = 0    # Weight of the rider in kilograms
+    zp_race_category    : Optional[str]                      = ""   # ZwiftPower category, such as C or D
+    zp_FTP              : Optional[float]                    = 0    # ZwiftPower FTP (Functional Threshold Power)
+    power               : Optional[Union[PowerDTO, Any]]     = Field(default_factory=PowerDTO)  # Power data of the rider
+    race                : Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
+                                "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                                "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                                "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                                "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO()})
 
-    #  # Validator for numeric fields
-    # @field_validator("height", "weight", "zpFTP", mode="before")
-    # def validate_numeric_fields(cls, value):
-    #     if value in {"--", "---", None}:
-    #         return None
-    #     try:
-    #         if "." in str(value):
-    #             return float(value)
-    #         return int(value)
-    #     except (ValueError, TypeError):
-    #         raise ValueError(f"Invalid value for numeric field: {value}")
+@field_validator("height_cm", "weight_kg", "zp_FTP", mode="before")
+def validate_numeric_fields(cls, value):
+    if value is None:
+        return None
+    try:
+        # Check if the value is numeric
+        return float(value)
+    except (ValueError, TypeError):
+        # Return None for non-numeric values
+        return None
+
+
+from pydantic import ValidationError
+
+data = {
+    "riderId": "28702",
+    "name": "Colin Locke (ZSUNR)",
+    "gender": "M",
+    "country": "au",
+    "age": "50+",
+    "height": 183,
+    "weight": 72,  # JSON key for weight
+    "zpCategory": "B",
+    "zpFTP": 279,
+    "power": None,
+    "race": {
+        "last": {
+            "rating": 0,
+            "date": 1730140200
+        },
+        "current": {
+            "rating": 0
+        },
+        "max30": {
+            "rating": 0
+        },
+        "max90": {
+            "rating": 0
+        }
+    }
+}
+
+try:
+    dto = ZwiftRacingAppProfileDTO(**data)
+    print(dto.json(by_alias=True))  # Serialize with aliases
+except ValidationError as e:
+    print(e.json())
