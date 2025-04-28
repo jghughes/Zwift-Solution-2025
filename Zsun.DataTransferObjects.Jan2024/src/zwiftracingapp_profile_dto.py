@@ -119,39 +119,3 @@ def validate_numeric_fields(cls, value):
         # Return None for non-numeric values
         return None
 
-
-from pydantic import ValidationError
-
-data = {
-    "riderId": "28702",
-    "name": "Colin Locke (ZSUNR)",
-    "gender": "M",
-    "country": "au",
-    "age": "50+",
-    "height": 183,
-    "weight": 72,  # JSON key for weight
-    "zpCategory": "B",
-    "zpFTP": 279,
-    "power": None,
-    "race": {
-        "last": {
-            "rating": 0,
-            "date": 1730140200
-        },
-        "current": {
-            "rating": 0
-        },
-        "max30": {
-            "rating": 0
-        },
-        "max90": {
-            "rating": 0
-        }
-    }
-}
-
-try:
-    dto = ZwiftRacingAppProfileDTO(**data)
-    print(dto.json(by_alias=True))  # Serialize with aliases
-except ValidationError as e:
-    print(e.json())

@@ -42,7 +42,7 @@ def main():
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
 
-    repository.populate_repository(betel_zwift_ids, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
 
 
     zwift_profiles = repository.dict_of_zwift_profileDTO
