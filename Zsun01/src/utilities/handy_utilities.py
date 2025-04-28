@@ -7,7 +7,8 @@ from zwiftpower_90day_best_dto import ZwiftPowerGraphInformationDTO, ZwiftPower9
 from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
-
+from zwift_profile_dto import ZwiftProfileDTO
+from collections import defaultdict
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -164,7 +165,40 @@ def write_dict_of_cpdata(data: Dict[str, ZwiftPower90DayBestGraphItem], file_nam
 
     logger.debug(f"File saved : {file_name}")
 
-def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftRacingAppProfileDTO]:
+def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileDTO]:
+    
+    answer: defaultdict[str, ZwiftProfileDTO] = defaultdict(ZwiftProfileDTO)
+
+    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+
+    file_count = 0
+    error_count = 0
+
+    for file_path in file_paths:
+
+        inputjson = read_filepath_as_text(file_path)
+
+        file_count += 1
+
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftProfileDTO)
+            dto = cast(ZwiftProfileDTO, dto)
+        except Exception:
+            error_count += 1
+            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            continue
+
+        file_name = os.path.basename(file_path)
+
+        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+
+        # logger.debug(f"{file_count} processing : {file_name}")
+
+        answer[zwiftID] = dto
+
+    return answer
+\
+def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftRacingAppProfileDTO]:
     """
     Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -197,7 +231,7 @@ def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str
         }
     """
     
-    answer: Dict[str, ZwiftRacingAppProfileDTO] = {}
+    answer: defaultdict[str, ZwiftRacingAppProfileDTO] = defaultdict(ZwiftRacingAppProfileDTO)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
@@ -228,7 +262,7 @@ def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str
 
     return answer
 
-def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPowerProfileDTO]:
+def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPowerProfileDTO]:
     """
     Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -253,7 +287,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
     Example:
         >>> riderIDs = ["1193", "5134"]
         >>> dir_path = "/path/to/zwiftpower/files"
-        >>> answer = read_many_zwiftpower_graph_files_in_folder(riderIDs, dir_path)
+        >>> answer = read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs, dir_path)
         >>> print(answer)
         {
             "1193": ZwiftPower90DayBestGraphItem(...),
@@ -261,7 +295,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
         }
     """
 
-    answer: Dict[str, ZwiftPowerProfileDTO] = {}
+    answer: defaultdict[str, ZwiftPowerProfileDTO] = defaultdict(ZwiftPowerProfileDTO)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
@@ -293,7 +327,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
     return answer
 
-def read_many_zwiftpower_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
+def read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPower90DayBestGraphItem]:
     """
     Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
     of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
@@ -318,17 +352,14 @@ def read_many_zwiftpower_graph_files_in_folder(riderIDs: Optional[list[str]], di
     Example:
         >>> riderIDs = ["1193", "5134"]
         >>> dir_path = "/path/to/zwiftpower/files"
-        >>> result = read_many_zwiftpower_graph_files_in_folder(riderIDs, dir_path)
+        >>> result = read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs, dir_path)
         >>> print(result)
         {
             "1193": ZwiftPower90DayBestGraphItem(...),
             "5134": ZwiftPower90DayBestGraphItem(...)
         }
     """
-
-
-
-    answer: Dict[str, ZwiftPower90DayBestGraphItem] = {}
+    answer: defaultdict[str, ZwiftPower90DayBestGraphItem] = defaultdict(ZwiftPower90DayBestGraphItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
 
@@ -386,7 +417,7 @@ def main02():
 
 
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    _ = read_many_zwiftpower_critical_power_graph_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
 if __name__ == "__main__":
     main02()

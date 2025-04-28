@@ -1,18 +1,19 @@
 # load Dave's critical_power data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Dict, Optional, List, Tuple, Any
+from collections import defaultdict
 import pandas as pd
 from dataclasses import asdict
+from jgh_sanitise_string import sanitise_string
 
 
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder, read_many_zwiftracingapp_profile_files_in_folder
+from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_critical_power_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder, read_many_zwiftracingapp_profile_files_in_folder, read_dict_of_zwiftriders
 import critical_power as cp
 from zsun_rider_item import ZsunRiderItem
 from datetime import datetime
 from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
 from omnibus_profile_dto import OmnibusProfileDTO  # Import the DTO class
-
-# configure logging
+from scraped_zwift_data_repository import ScrapedZwiftDataRepository# configure logging
 
 import logging
 import numpy as np
@@ -36,53 +37,158 @@ class CurveFittingResult:
 
 def main():
     # get all the data
-    INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
-    INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
-    
-    zwiftpower_profiles_for_everybody = read_many_zwiftpower_profile_files_in_folder(None, INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH)
-    logger.info(f"Imported {len(zwiftpower_profiles_for_everybody)} zwiftpower profile files from : - \nDir : {INPUT_ZWIFTPOWER_PROFILES_FROM_DAVEK_DIRPATH}\n")
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    zwiftpower_90daybest_graph_for_everybody = read_many_zwiftpower_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
-    logger.info(f"Imported {len(zwiftpower_90daybest_graph_for_everybody)} zwiftpower cp graphs from : - \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n")
+    betel_zwift_ids = get_betel_zwift_ids()
 
-    zwiftracingapp_profiles_for_everybody = read_many_zwiftracingapp_profile_files_in_folder(None, INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH)
-    logger.info(f"Imported {len(zwiftracingapp_profiles_for_everybody)} zwiftracingapp profile files from : - \nDir :{INPUT_ZWIFTRACINGAPP_PROFILES_FROM_DAVEK_DIRPATH}\n")
+    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
 
-    # Step 1: Find keys in zwiftpower_profiles_for_everybody not in zwiftpower_90daybest_graph_for_everybody
+    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+
+
+    zwift_profiles = repository.dict_of_zwift_profileDTO
+    zwiftracingapp_profiles = repository.dict_of_zwiftracingapp_profileDTO
+    zwiftpower_profiles = repository.dict_of_zwiftpower_profileDTO
+    zwiftpower_90daybest_cp = repository.dict_of_zwiftpower_90daybest_graph_item
+
+    logger.info(f"Imported {len(zwift_profiles)} zwift profile files from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(zwiftracingapp_profiles)} zwiftracingapp profile files from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(zwiftpower_profiles)} zwiftpower profile files from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(zwiftpower_90daybest_cp)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+
+    # check that the betel keys are in the zwiftpower_profiles dict
+
+    missing_betel_keys = [
+        key for key in betel_zwift_ids
+        if key not in zwiftpower_profiles
+        ]
+    logger.info(f"Step a: Found {len(missing_betel_keys)} Betel keys missing in zwiftpower_profiles.")
+
+    found_betel_keys = [
+        key for key in betel_zwift_ids
+        if key in zwiftpower_profiles
+        ]
+    logger.info(f"Step a: Found {len(found_betel_keys)} Betel keys in zwiftpower_profiles.")
+    for key in found_betel_keys:
+        name = zwiftpower_profiles[key].zwift_name
+        logger.info(f"Found Key: {key}, Name: {name}")
+
+
+    # check that the betel keys are in the zwiftpower_90daybest_cp dict
+
+    missing_betel_keys = [
+        key for key in betel_zwift_ids
+        if key not in zwiftpower_90daybest_cp
+        ]
+    logger.info(f"Step b: Found {len(missing_betel_keys)} Betel keys missing in zwiftpower_90daybest_cp.")
+
+    found_betel_keys = [
+        key for key in betel_zwift_ids
+        if key in zwiftpower_90daybest_cp
+        ]
+    logger.info(f"Step b: Found {len(found_betel_keys)} Betel keys in zwiftpower_90daybest_cp.")
+    # for key in found_betel_keys:
+    #     name = zwiftpower_profiles[key].zwift_name
+    #     logger.info(f"Found Key: {key}, Name: {name}")
+
+
+    # check that the betel keys are in the zwiftracingapp_profiles dict
+
+    missing_betel_keys = [
+        key for key in betel_zwift_ids
+        if key not in zwiftracingapp_profiles
+        ]
+    logger.info(f"Step c: Found {len(missing_betel_keys)} Betel keys missing in zwiftracingapp_profiles.")
+
+    found_betel_keys = [
+        key for key in betel_zwift_ids
+        if key in zwiftracingapp_profiles
+        ]
+    logger.info(f"Step c: Found {len(found_betel_keys)} Betel keys in zwiftracingapp_profiles.")
+    for key in found_betel_keys:
+        name = zwiftracingapp_profiles[key].fullname
+        logger.info(f"Found Key: {key}, Name: {name}")
+
+
+    # Step 1: Find keys in zwiftpower_profiles not in zwiftpower_90daybest_cp
     missing_keys_in_90daybest = [
-        key for key in zwiftpower_profiles_for_everybody.keys()
-        if key not in zwiftpower_90daybest_graph_for_everybody
+        key for key in zwiftpower_profiles.keys()
+        if key not in zwiftpower_90daybest_cp
     ]
-    logger.info(f"Step 1: Found {len(missing_keys_in_90daybest)} keys missing in zwiftpower_90daybest_graph_for_everybody.")
+    logger.info(f"Step 1: Found {len(missing_keys_in_90daybest)} keys missing in zwiftpower_90daybest_cp.")
     for key in missing_keys_in_90daybest:
-        name = zwiftpower_profiles_for_everybody[key].zwift_name
+        name = zwiftpower_profiles[key].zwift_name
         logger.info(f"Missing Key: {key}, Name: {name}")
 
-    # # Step 2: Find keys in zwiftpower_profiles_for_everybody not in zwiftracingapp_profiles_for_everybody
-    # missing_keys_in_racingapp = [
-    #     key for key in zwiftpower_profiles_for_everybody.keys()
-    #     if key not in zwiftracingapp_profiles_for_everybody
-    # ]
-    # logger.info(f"Step 2: Found {len(missing_keys_in_racingapp)} keys missing in zwiftracingapp_profiles_for_everybody.")
-    # for key in missing_keys_in_racingapp:
-    #     name = zwiftpower_profiles_for_everybody[key].zwift_name
-    #     logger.info(f"Missing Key: {key}, Name: {name}")
+    # Step 2: Find keys in zwiftpower_profiles not in zwiftracingapp_profiles
+    missing_keys_in_racingapp = [
+        key for key in zwiftpower_profiles.keys()
+        if key not in zwiftracingapp_profiles
+    ]
+    logger.info(f"Step 2: Found {len(missing_keys_in_racingapp)} keys missing in zwiftracingapp_profiles.")
+    for key in missing_keys_in_racingapp:
+        name = zwiftpower_profiles[key].zwift_name
+        logger.info(f"Missing Key: {key}, Name: {name}")
 
-    # # Step 3: Create a list of keys that exist in all three datasets
-    # list_of_valid_keys = [
-    #     key for key in zwiftpower_profiles_for_everybody.keys()
-    #     if key in zwiftpower_90daybest_graph_for_everybody and key in zwiftracingapp_profiles_for_everybody
-    # ]
-    # logger.info(f"Step 3: Found {len(list_of_valid_keys)} valid keys that exist in all three datasets.")
+    # Step 3: Create a list of keys that exist in all three datasets
+    list_of_valid_keys = [
+        key for key in zwiftpower_profiles.keys()
+        if key in zwiftpower_90daybest_cp and key in zwiftracingapp_profiles
+    ]
+    logger.info(f"Step 3: Found {len(list_of_valid_keys)} valid keys that exist in all three datasets.")
+    for key in list_of_valid_keys:
+        name = zwiftpower_profiles[key].zwift_name
+        logger.info(f"Found Key: {key}, Name: {name}")
+
+
+     # Step 4: Create a new dict of valid keys and zwiftpower_profiles, but the items in the dict must be sorted by name 
+    sorted_list_of_valid_keys = sorted(list_of_valid_keys, key=lambda k: zwiftpower_profiles[k].zwift_name)
+
+    # log the dict by key and name
+    for key in sorted_list_of_valid_keys:
+        name = zwiftpower_profiles[key].zwift_name
+        logger.info(f"Sorted Key: {key}, Name: {name}")
+
+
+     # check that the betel keys are in the zwiftracingapp_profiles dict
+
+    missing_betel_keys = [
+        key for key in betel_zwift_ids
+        if key not in sorted_list_of_valid_keys
+        ]
+    logger.info(f"Step c: Found {len(missing_betel_keys)} Betel keys missing in sorted_list_of_valid_keys.")
+
+    found_betel_keys = [
+        key for key in betel_zwift_ids
+        if key in sorted_list_of_valid_keys
+        ]
+    logger.info(f"Step c: Found {len(found_betel_keys)} Betel keys in sorted_list_of_valid_keys.")
+    for key in found_betel_keys:
+        name = zwiftracingapp_profiles[key].name
+        logger.info(f"Found Key: {key}, Name: {name}")
+
+
+
+
+
+
+
+
+
+
+
+
 
     # # Step 4: Instantiate and initialize a Dict[str, OmnibusProfileDTO]
-    # dict_of_valid_keys : Dict[str, OmnibusProfileDTO] = {}
-    # for key in list_of_valid_keys:
+    # dict_of_valid_keys : dict[str, OmnibusProfileDTO] = 
+    # for key, value in zwiftracingapp_profiles:
     #     # Create a new OmnibusProfileDTO instance
     #     omnibus_profile = OmnibusProfileDTO()
 
-    #     z = zwiftpower_profiles_for_everybody[key]
+    #     z = zwiftpower_profiles[key]
     #     # Directly assign values to attributes
     #     omnibus_profile.zwift_id = z.zwift_id
     #     omnibus_profile.profile_url = z.profile_url

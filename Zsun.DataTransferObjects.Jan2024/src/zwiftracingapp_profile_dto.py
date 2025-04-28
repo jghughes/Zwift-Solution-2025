@@ -1,11 +1,15 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
 from typing import Optional, Union, Any, Dict
 
+validation_alias_choices_map: dict[str, AliasChoices] = {
+    "age_group"               : AliasChoices("age_group", "age"),
+    "fullname"               : AliasChoices("fullname", "name"),
+}
 
 configdictV1 = ConfigDict(
-        alias_generator=None,      # No alias generator for this DTO
-        populate_by_name=True      # Allow population by field names
-    )
+        alias_generator=AliasGenerator(
+            alias=None,
+            validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
 
 preferred_config_dict = configdictV1
 
@@ -28,15 +32,17 @@ class ZwiftRacingAppProfileDTO(BaseModel):
         wkg120:  Optional[float] = 0.0
         wkg300:  Optional[float] = 0.0
         wkg1200: Optional[float] = 0.0
-        w5:      Optional[float] = 0.0
-        w15:     Optional[float] = 0.0
-        w30:     Optional[float] = 0.0
-        w60:     Optional[float] = 0.0
-        w120:    Optional[float] = 0.0
-        w300:    Optional[float] = 0.0
-        w1200:   Optional[float] = 0.0
+        w5:      Optional[int] = 0
+        w15:     Optional[int] = 0
+        w30:     Optional[int] = 0
+        w60:     Optional[int] = 0
+        w120:    Optional[int] = 0
+        w300:    Optional[int] = 0
+        w1200:   Optional[int] = 0
         CP:      Optional[float] = 0.0  # Critical Power
         AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
+        compoundScore: Optional[float] = 0.0  # Compound score
+        powerRating: Optional[float] = 0.0  # Power rating
 
     class RaceDetailsDTO(BaseModel):
         """
@@ -50,34 +56,45 @@ class ZwiftRacingAppProfileDTO(BaseModel):
 
         class MixedDTO(BaseModel):
             """
-            A nested model representing the mixed category details.
+            A nested model representing the velo race category details.
 
             Attributes:
                 category (str): The name of the category (e.g., "Ruby").
                 number (int): The number associated with the category.
             """
-            category: Optional[str] = None  # Name of the category
-            number: Optional[int] = None    # Number associated with the category
+            category: Optional[str] = ""  # Name of the velo category, eg copper
+            number: Optional[int] = 0    # Number associated with the velo category, eg 10
 
-        rating: Optional[float] = None  # Race rating
-        date: Optional[int] = None      # Date as a Unix timestamp
-        mixed: Optional[MixedDTO] = None  # Mixed category details
+        rating: Optional[float] = 0  # Race rating
+        date: Optional[int] = 0      # Date as a Unix timestamp
+        mixed: Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
 
     model_config = preferred_config_dict
     riderId:    Optional[str]   = ""   # Rider ID
-    name:       Optional[str]   = ""   # Name of the rider
+    fullname:       Optional[str]   = ""   # Name of the rider
     gender:     Optional[str]   = ""   # Gender of the rider
     country:    Optional[str]   = ""   # Country of the rider
-    age:        Optional[str]   = ""   # Age category of the rider
-    height:     Optional[float] = 0.0  # Height of the rider in centimeters
-    weight:     Optional[float] = 0.0  # Weight of the rider in kilograms
-    zpCategory: Optional[str]   = ""   # ZwiftPower category
-    zpFTP:      Optional[float] = 0.0  # ZwiftPower FTP (Functional Threshold Power)
+    age_group:  Optional[str]   = ""   # Age category of the rider
+    height:     Optional[int] = 0  # Height of the rider in centimeters
+    weight:     Optional[int] = 0  # Weight of the rider in kilograms
+    zpCategory: Optional[str]  = ""   # ZwiftPower category, such as C or D
+    zpFTP:      Optional[int] = 0  # ZwiftPower FTP (Functional Threshold Power)
     power:      Optional[Union[PowerDTO, Any]] = Field(default_factory=PowerDTO)  # Power data of the rider
     race:       Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
             "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
             "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
             "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-            "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-        }
+            "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO()}
     )
+
+    #  # Validator for numeric fields
+    # @field_validator("height", "weight", "zpFTP", mode="before")
+    # def validate_numeric_fields(cls, value):
+    #     if value in {"--", "---", None}:
+    #         return None
+    #     try:
+    #         if "." in str(value):
+    #             return float(value)
+    #         return int(value)
+    #     except (ValueError, TypeError):
+    #         raise ValueError(f"Invalid value for numeric field: {value}")

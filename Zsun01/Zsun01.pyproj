@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>tools\tool09.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -33,6 +33,7 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
+    <Folder Include="src\repositories\" />
     <Folder Include="tools\" />
     <Folder Include="src\" />
     <Folder Include="src\functions\" />
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="docs\zwiftinsider_stuff.py" />
+    <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="tools\rubbish.py" />
     <Compile Include="tools\rubbish02.py" />
     <Compile Include="tools\tool02.py" />

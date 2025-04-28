@@ -1,7 +1,6 @@
 
-from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 from typing import Optional
-import re  # Ensure regex module is imported
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "age_group"               : AliasChoices("age_group", "age"),
@@ -17,51 +16,19 @@ preferred_config_dict = configdictV1
 
 class ZwiftPowerProfileDTO(BaseModel):
     model_config             = preferred_config_dict
-
-    zwift_id                 : Optional[str] = ""  # Default value set to ""
+    zwift_id                 : Optional[str] = "" 
     profile_url              : Optional[str] = ""
     zwift_name               : Optional[str] = ""
-    race_ranking             : Optional[str] = ""
-    zwift_racing_score       : Optional[str] = ""
+    race_ranking             : Optional[str] = "" # wraps a float
+    zwift_racing_score       : Optional[str] = "" # wraps an in
     zwift_racing_category    : Optional[str] = ""
     team                     : Optional[str] = ""
-    zftp                     : Optional[str] = ""
-    weight                   : Optional[str] = ""
+    zftp                     : Optional[str] = "" # wraps an in
+    weight                   : Optional[str] = "" # wraps a float
     age_group                : Optional[str] = ""
-    zpoints                  : Optional[str] = ""
+    zpoints                  : Optional[str] = "" # wraps an int
     country                  : Optional[str] = ""
     profile_image            : Optional[str] = ""
     strava_profile           : Optional[str] = ""
-    level                    : Optional[str] = ""
- 
-    # Combined validator for numeric fields
-    @field_validator("zwift_id", "race_ranking", "zwift_racing_score", "zftp", "weight","zpoints", "level", mode="before")
-    def validate_numeric_fields(cls, value):
-        if value in {"--", "---", None}:
-            return None
-        try:
-            # Convert valid numeric strings to float or int and back to string
-            if "." in value:
-                return str(float(value))  # Handle float values
-            return str(int(value))  # Handle integer values
-        except (ValueError, TypeError):
-            raise ValueError(f"Invalid value for numeric field: {value} in JSON element representing Zwift_id : {cls.zwift_id}")
+    level                    : Optional[str] = "" # wraps an int
 
-    # Validator to sanitize string fields by removing invalid characters, reducing spaces, and stripping
-
-    @field_validator("zwift_name", "profile_url", "team", "country", "profile_image", "strava_profile", mode="before")
-    def sanitize_string_fields(cls, value):
-        if value is None:
-            return value
-        if not isinstance(value, str):
-            # If value is not a string, return it as-is or convert to string if needed
-            return value
-        try:
-            # Encode to UTF-8 and decode back, ignoring invalid characters
-            sanitized_value = value.encode("utf-8", errors="ignore").decode("utf-8")
-            # Reduce multiple spaces to a single space
-            sanitized_value = re.sub(r'\s+', ' ', sanitized_value)
-            # Strip leading and trailing spaces
-            return sanitized_value.strip()
-        except Exception as e:
-            raise ValueError(f"Error sanitizing string field. Details: {e}")
