@@ -1,6 +1,6 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
 from typing import Optional
-
+from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwiftID"               : AliasChoices("zwiftID", "id"),
@@ -81,3 +81,11 @@ class ZwiftProfileDTO(BaseModel):
             if value.lower() in {"false", "0", "no"}:
                 return False
         raise ValueError(f"Invalid value for boolean field: {value}")
+
+
+    # # Validator for all string fields
+    @field_validator("publicId", "firstName", "lastName", mode="before")
+    def sanitize_string_fields(cls, value):
+        if value is None:
+            return ""
+        return sanitise_string(value)

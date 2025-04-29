@@ -18,21 +18,26 @@ def is_valid_path(path: str) -> bool:
     Returns:
         bool: True if the path is valid, False otherwise.
     """
-    return "/" in path and not path.endswith("/")
+    return "/" in path and path.endswith("/")
 
 
-def is_valid_filename(filename: str, required_extension: str) -> bool:
+def is_valid_filename(filename: str, required_extension: Optional[str]) -> bool:
     """
-    Checks if filename is a string, ends with the specified required_extension, and does not contain any forward slashes.
+    Checks if filename is a string, optionally ends with the specified required_extension,
+    and does not contain any forward slashes.
 
     Args:
         filename (str): The filename to validate.
-        required_extension (str): The required file extension.
+        required_extension (Optional[str]): The required file extension. If None, the extension check is ignored.
 
     Returns:
         bool: True if the filename is valid, False otherwise.
     """
-    return filename.endswith(required_extension) and "/" not in filename
+    if "/" in filename:
+        return False
+    if required_extension is None:
+        return True
+    return filename.endswith(required_extension)
 
 def raise_exception_if_invalid(dirpath: str, filename: str, required_extension: str, must_read_not_write: bool) -> bool:
     """

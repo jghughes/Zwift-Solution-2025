@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
 from typing import Optional, Union, Any, Dict
+from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwiftID"               : AliasChoices("zwiftID", "riderId"),
@@ -87,9 +88,13 @@ class ZwiftRacingAppProfileDTO(BaseModel):
             category: Optional[str] = ""  # Name of the velo category, eg copper
             number: Optional[int] = 0    # Number associated with the velo category, eg 10
 
+
         rating: Optional[float] = 0  # Race rating
         date: Optional[int] = 0      # Date as a Unix timestamp
         mixed: Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
+
+
+
 
     model_config  = preferred_config_dict
     zwiftID             : Optional[str]                      = ""   # Rider ID
@@ -118,4 +123,15 @@ def validate_numeric_fields(cls, value):
     except (ValueError, TypeError):
         # Return None for non-numeric values
         return None
+
+    # Validator for all string fields in ZwiftRacingAppProfileDTO
+    @field_validator(
+        "zwiftID", "fullname", "gender", "country", "agegroup_title", "zp_race_category", mode="before"
+    )
+    def sanitize_string_fields(cls, value):
+        if value is None:
+            return ""
+        return sanitise_string(value)
+
+
 

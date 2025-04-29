@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional, Dict, List, Any, Union
 from jgh_read_write import *
 from jgh_serialization import *
-
+from jgh_sanitise_string import sanitise_string
 
 class ZwiftPowerGraphInformationDTO(BaseModel):
     """
@@ -146,3 +146,9 @@ class ZwiftPower90DayBestGraphDTO(BaseModel):
             return ""
         return str(value)
 
+    # Validator for all string fields
+    @field_validator("name", mode="before")
+    def sanitize_string_fields(cls, value):
+        if value is None:
+            return ""
+        return sanitise_string(value)

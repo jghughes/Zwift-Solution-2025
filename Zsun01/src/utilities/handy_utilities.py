@@ -197,7 +197,7 @@ def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_p
         answer[zwiftID] = dto
 
     return answer
-\
+
 def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftRacingAppProfileDTO]:
     """
     Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary

@@ -32,7 +32,8 @@ class CurveFittingResult:
     r_squared_ftp: float
 
 def main():
-    # get all the data
+    
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
@@ -40,20 +41,23 @@ def main():
 
     betel_zwift_ids = get_betel_zwift_ids()
 
-    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
+    rep : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
 
-    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    rep.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+
+    logger.info(f"Imported {len(rep.dict_of_zwift_profileDTO)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftracingapp_profileDTO)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftpower_profileDTO)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_graph_item)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    zwift_profiles = repository.dict_of_zwift_profileDTO
-    zwiftracingapp_profiles = repository.dict_of_zwiftracingapp_profileDTO
-    zwiftpower_profiles = repository.dict_of_zwiftpower_profileDTO
-    zwiftpower_90daybest_cp = repository.dict_of_zwiftpower_90daybest_graph_item
+    df = rep.get_dataframe_of_zwiftid_common_to_all([], [])
 
-    logger.info(f"Imported {len(zwift_profiles)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(zwiftracingapp_profiles)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(zwiftpower_profiles)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(zwiftpower_90daybest_cp)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+    rep.save_pretty_dataframe_of_zwiftid_commonality_to_excel(df, "zwiftid_commonality_across_sources.xlsx", OUTPUT_DIRPATH)
+
+
+
+
 
     # # check that the betel keys are in the zwiftpower_profiles dict
 
