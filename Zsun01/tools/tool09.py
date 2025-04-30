@@ -51,9 +51,9 @@ def main():
     logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_graph_item)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    df = rep.get_dataframe_of_zwiftid_common_to_all([], [])
+    df = rep.get_table_of_intersections_of_sets([], [])
 
-    rep.save_pretty_dataframe_of_zwiftid_commonality_to_excel(df, "zwiftid_commonality_across_sources.xlsx", OUTPUT_DIRPATH)
+    rep.save_dataframe_to_excel(df, "zwiftid_commonality_across_sources.xlsx", OUTPUT_DIRPATH)
 
 
 
