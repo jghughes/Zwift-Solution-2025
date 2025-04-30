@@ -77,10 +77,9 @@ class ScrapedZwiftDataRepository:
             )
             answer.append(row)
 
-        # Step 4: Create a pandas DataFrame
-        df = pd.DataFrame(
-            answer,
-            columns=[
+        answer.sort(key=lambda x: x[0])  # Sort by the first element (zwiftID)
+
+        df = pd.DataFrame(answer, columns=[
                 self.COL_ZWIFT_ID,
                 self.COL_IN_SAMPLE1,
                 self.COL_IN_SAMPLE2,
@@ -88,16 +87,8 @@ class ScrapedZwiftDataRepository:
                 self.COL_IN_ZWIFTRACINGAPP_PROFILES,
                 self.COL_IN_ZWIFTPOWER_PROFILES,
                 self.COL_IN_ZWIFTPOWER_90DAYBEST_GRAPHS,
-            ],
-        )
+            ],)
 
-        # order the dataframe by COL_ZWIFT_ID
-        df.sort_values(by=[self.COL_ZWIFT_ID], inplace=True)
-
-        # reset the index of the filtered DataFrame
-        df.reset_index(drop=True, inplace=True)
-
-        # Return the DataFrame
         return df
 
     def get_table_of_intersections_of_sets(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
@@ -143,10 +134,9 @@ class ScrapedZwiftDataRepository:
             )
             answer.append(row)
 
-        # Step 4: Create a pandas DataFrame
-        df = pd.DataFrame(
-            answer,
-            columns=[
+        answer.sort(key=lambda x: x[0])  # Sort by the first element (zwiftID)
+
+        df = pd.DataFrame(answer, columns=[
                 "zwiftID",
                 "in_sample1",
                 "in_sample2",
@@ -154,16 +144,8 @@ class ScrapedZwiftDataRepository:
                 "in_zwiftracingapp_profiles",
                 "in_zwiftpower_profiles",
                 "in_zwiftpower_90daybest_graphs",
-            ],
-        )
+            ],)
 
-         # order the dataframe by COL_ZWIFT_ID
-        df.sort_values(by=[self.COL_ZWIFT_ID], inplace=True)
-
-        # reset the index of the filtered DataFrame
-        df.reset_index(drop=True, inplace=True)
-
-        # Return the DataFrame
         return df
 
     def get_filtered_table_of_intersections_of_sets(
@@ -237,16 +219,6 @@ class ScrapedZwiftDataRepository:
         filtered_df = df_superset[
             df_superset.apply(lambda row: matches_template(row, template), axis=1)
         ]
-
-        # drop the two sample columns
-        filtered_df.drop(columns=[self.COL_IN_SAMPLE1, self.COL_IN_SAMPLE2], inplace=True)
-
-        # order the dataframe by COL_ZWIFT_ID
-        filtered_df.sort_values(by=[self.COL_ZWIFT_ID], inplace=True)
-
-        # reset the index of the filtered DataFrame
-        filtered_df.reset_index(drop=True, inplace=True)
-
 
         # return the filtered DataFrame
         return filtered_df

@@ -51,124 +51,24 @@ def main():
     logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_graph_item)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    df = rep.get_table_of_intersections_of_sets([], [])
+    df = rep.get_filtered_table_of_intersections_of_sets("y","y","y","y")
 
-    rep.save_dataframe_to_excel(df, "zwiftid_commonality_across_sources.xlsx", OUTPUT_DIRPATH)
-
-
-
+   # Step 3: Extract Zwift IDs from the DataFrame
+    zwift_ids : list[str] = df[ScrapedZwiftDataRepository.COL_ZWIFT_ID].tolist()
 
 
-    # # check that the betel keys are in the zwiftpower_profiles dict
-
-    # missing_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key not in zwiftpower_profiles
-    #     ]
-    # logger.info(f"Step a: Found {len(missing_betel_keys)} Betel keys missing in zwiftpower_profiles.")
-
-    # found_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key in zwiftpower_profiles
-    #     ]
-    # logger.info(f"Step a: Found {len(found_betel_keys)} Betel keys in zwiftpower_profiles.")
-    # for key in found_betel_keys:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Found Key: {key}, Name: {name}")
 
 
-    # # check that the betel keys are in the zwiftpower_90daybest_cp dict
 
-    # missing_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key not in zwiftpower_90daybest_cp
-    #     ]
-    # logger.info(f"Step b: Found {len(missing_betel_keys)} Betel keys missing in zwiftpower_90daybest_cp.")
+    # Step 4: Lookup corresponding entries in dict_of_zwift_profileDTO
+    zwift_profile_objects = [
+        rep.dict_of_zwift_profileDTO[zwift_id]
+        for zwift_id in zwift_ids
+        if zwift_id in rep.dict_of_zwift_profileDTO
+    ]
 
-    # found_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key in zwiftpower_90daybest_cp
-    #     ]
-    # logger.info(f"Step b: Found {len(found_betel_keys)} Betel keys in zwiftpower_90daybest_cp.")
-    # for key in found_betel_keys:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Found Key: {key}, Name: {name}")
-
-
-    # # check that the betel keys are in the zwiftracingapp_profiles dict
-
-    # missing_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key not in zwiftracingapp_profiles
-    #     ]
-    # logger.info(f"Step c: Found {len(missing_betel_keys)} Betel keys missing in zwiftracingapp_profiles.")
-
-    # found_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key in zwiftracingapp_profiles
-    #     ]
-    # logger.info(f"Step c: Found {len(found_betel_keys)} Betel keys in zwiftracingapp_profiles.")
-    # for key in found_betel_keys:
-    #     name = zwiftracingapp_profiles[key].fullname
-    #     logger.info(f"Found Key: {key}, Name: {name}")
-
-
-    # # Step 1: Find keys in zwiftpower_profiles not in zwiftpower_90daybest_cp
-    # missing_keys_in_90daybest = [
-    #     key for key in zwiftpower_profiles.keys()
-    #     if key not in zwiftpower_90daybest_cp
-    # ]
-    # logger.info(f"Step 1: Found {len(missing_keys_in_90daybest)} keys missing in zwiftpower_90daybest_cp.")
-    # for key in missing_keys_in_90daybest:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Missing Key: {key}, Name: {name}")
-
-    # # Step 2: Find keys in zwiftpower_profiles not in zwiftracingapp_profiles
-    # missing_keys_in_racingapp = [
-    #     key for key in zwiftpower_profiles.keys()
-    #     if key not in zwiftracingapp_profiles
-    # ]
-    # logger.info(f"Step 2: Found {len(missing_keys_in_racingapp)} keys missing in zwiftracingapp_profiles.")
-    # for key in missing_keys_in_racingapp:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Missing Key: {key}, Name: {name}")
-
-    # # Step 3: Create a list of keys that exist in all three datasets
-    # list_of_valid_keys = [
-    #     key for key in zwiftpower_profiles.keys()
-    #     if key in zwiftpower_90daybest_cp and key in zwiftracingapp_profiles
-    # ]
-    # logger.info(f"Step 3: Found {len(list_of_valid_keys)} valid keys that exist in all three datasets.")
-    # for key in list_of_valid_keys:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Found Key: {key}, Name: {name}")
-
-
-    #  # Step 4: Create a new dict of valid keys and zwiftpower_profiles, but the items in the dict must be sorted by name 
-    # sorted_list_of_valid_keys = sorted(list_of_valid_keys, key=lambda k: zwiftpower_profiles[k].zwift_name)
-
-    # # log the dict by key and name
-    # for key in sorted_list_of_valid_keys:
-    #     name = zwiftpower_profiles[key].zwift_name
-    #     logger.info(f"Sorted Key: {key}, Name: {name}")
-
-
-    #  # check that the betel keys are in the zwiftracingapp_profiles dict
-
-    # missing_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key not in sorted_list_of_valid_keys
-    #     ]
-    # logger.info(f"Step c: Found {len(missing_betel_keys)} Betel keys missing in sorted_list_of_valid_keys.")
-
-    # found_betel_keys = [
-    #     key for key in betel_zwift_ids
-    #     if key in sorted_list_of_valid_keys
-    #     ]
-    # logger.info(f"Step c: Found {len(found_betel_keys)} Betel keys in sorted_list_of_valid_keys.")
-    # for key in found_betel_keys:
-    #     name = zwiftracingapp_profiles[key].fullname
-    #     logger.info(f"Found Key: {key}, Name: {name}")
+    # Step 4a: Convert the objects to dictionaries using model_dump()
+    zwift_profiles : list[dict[str, Any]]= [profile.model_dump() for profile in zwift_profile_objects]
 
 
 
@@ -176,8 +76,15 @@ def main():
 
 
 
+    # Step 5: Create a new DataFrame containing these entries
+    df_profiles = pd.DataFrame(zwift_profiles)
 
+    # Step 6: Save the new DataFrame to an Excel file
+    output_file_name = "beautiful_zwift_profiles.xlsx"
+    output_file_path = OUTPUT_DIRPATH + output_file_name
+    df_profiles.to_excel(output_file_path, index=False, engine="openpyxl")
 
+    logger.info(f"Saved filtered Zwift profiles to: {output_file_path}")
 
 
 
