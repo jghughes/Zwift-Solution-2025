@@ -1,6 +1,7 @@
 # Local application imports
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 from tabulate import tabulate
+from typing import Optional
 from jgh_read_write import *
 from jgh_serialization import *
 
@@ -52,7 +53,7 @@ class ZsunRiderDTO(BaseModel):
         in all languages. Be aware of this when interfacing with other systems.
 
     Attributes:
-        zwiftid                : int     The Zwift ID of the rider.
+        zwiftid                : str     The Zwift ID of the rider.
         name                   : str     The name of the rider.
         weight                 : float   The weight of the rider in kilograms.
         height                 : float   The height of the rider in centimeters.
@@ -70,13 +71,16 @@ class ZsunRiderDTO(BaseModel):
         when_curves_fitted     : str     Timestamp indicating when the models were fitted.
     """
     model_config           = preferred_config_dict
-    zwiftid                : Optional[int]   = 0     # Zwift ID of the rider
+    zwiftid                : Optional[str]   = ""     # Zwift ID of the rider
     name                   : Optional[str]   = ""    # Name of the rider
     weight                 : Optional[float] = 0     # Weight of the rider in kilograms
     height                 : Optional[float] = 0     # Height of the rider in centimeters
     gender                 : Optional[str]   = ""    # Gender of the rider, m or f
+    age_years              : float           = 0       # Age of the rider in years
+    age_group              : str             = ""      # Age group of the rider
     zftp                   : Optional[float] = 0     # Functional Threshold Power in watts
     zwift_racing_score     : Optional[int]   = 0     # Zwift racing score
+    zwift_racing_category  : Optional[str]   = ""
     velo_rating            : Optional[int]   = 0     # Velo rating
     pull_adjustment_watts  : Optional[float] = 0.0
     critical_power         : Optional[float] = 0.0
@@ -94,7 +98,7 @@ def main02():
     # Simulate loading JSON data
     input_json = '''
     {
-        "zwiftid": 123,
+        "zwiftid": "123",
         "name": "null",
         "weight": 70.5,
         "height": 180,
@@ -110,28 +114,28 @@ def main02():
     print(rider)  # Check the validated model
     print(rider.model_dump())  # Check the serialized output
 
-def main():
-    import logging
-    from jgh_logging import jgh_configure_logging
-    # Configure logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
+# def main():
+#     import logging
+#     from jgh_logging import jgh_configure_logging
+#     # Configure logging
+#     jgh_configure_logging("appsettings.json")
+#     logger = logging.getLogger(__name__)
 
-    file_name = "zwiftrider_dictionary.json"
-    directory_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+#     file_name = "zwiftrider_dictionary.json"
+#     directory_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    inputjson = read_text(directory_path, file_name)
+#     inputjson = read_text(directory_path, file_name)
 
-    dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZsunRiderDTO])
+#     dict_of_zwiftriders = JghSerialization.validate(inputjson, dict[str, ZsunRiderDTO])
 
-    # Convert the dictionary to a list of lists for tabulate
-    table_data = [
-        [key] + list(vars(rider).values()) for key, rider in dict_of_zwiftriders.items()
-    ]
-    headers = ["ZwiftID", "Name", "Weight", "Height", "Gen", "FTP", "ZRScore", "Velo Rating"]
+#     # Convert the dictionary to a list of lists for tabulate
+#     table_data = [
+#         [key] + list(vars(rider).values()) for key, rider in dict_of_zwiftriders.items()
+#     ]
+#     headers = ["ZwiftID", "Name", "Weight", "Height", "Gen", "FTP", "ZRScore", "Velo Rating"]
 
-    # Log the table
-    logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
+#     # Log the table
+#     logger.info("\n" + tabulate(table_data, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
     main02()

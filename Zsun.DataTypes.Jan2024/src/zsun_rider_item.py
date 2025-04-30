@@ -16,7 +16,7 @@ class ZsunRiderItem():
     Can be used as a cache key or dictionary key, or in a set.
 
     Attributes:
-        zwiftid                : int     The Zwift ID of the rider.
+        zwiftid                : str     The Zwift ID of the rider.
         name                   : str     The name of the rider.
         weight                 : float   The weight of the rider in kilograms.
         height                 : float   The height of the rider in centimeters.
@@ -34,13 +34,16 @@ class ZsunRiderItem():
         when_curves_fitted     : str     Timestamp indicating when the curves were fitted.
     """    
     
-    zwiftid                : int     = 0       # Zwift ID of the rider
+    zwiftid                : str     = ""       # Zwift ID of the rider
     name                   : str     = ""      # Name of the rider
     weight                 : float   = 0       # Weight of the rider in kilograms
     height                 : float   = 0       # Height of the rider in centimeters
     gender                 : str     = ""      # Gender of the rider
+    age_years              : float     = 0       # Age of the rider in years
+    age_group              : str     = ""      # Age group of the rider
     zftp                   : float   = 0       # Functional Threshold Power in watts
     zwift_racing_score     : int     = 0       # Zwift racing score
+    zwift_racing_category  : str     = ""
     velo_rating            : int     = 0       # Velo rating
     pull_adjustment_watts  : float   = 0.0     # Adjustment watts for pulling
     critical_power         : float   = 0.0     # Critical power in watts
@@ -55,7 +58,7 @@ class ZsunRiderItem():
         # Define the extra JSON schema for the class in the form of a dictionary of riders
         json_schema_extra = {
             "davek": {
-                "zwiftid": 3147366,
+                "zwiftid": "3147366",
                 "name": "Dave K",
                 "weight": 73.4,
                 "height": 182,
@@ -65,7 +68,7 @@ class ZsunRiderItem():
                 "velo_rating": 1897,
             },
             "huskyc": {
-                "zwiftid": 5134,
+                "zwiftid": "5134",
                 "name": "Husky C",
                 "weight": 75.5,
                 "height": 178,
@@ -75,7 +78,7 @@ class ZsunRiderItem():
                 "velo_rating": 1519,
             },
             "scottm": {
-                "zwiftid": 11526,
+                "zwiftid": "11526",
                 "name": "Scott M",
                 "weight": 78,
                 "height": 165,
@@ -84,28 +87,8 @@ class ZsunRiderItem():
                 "zwift_racing_score": 509,
                 "velo_rating": 1537,
             },
-            "markb": {
-                "zwiftid": 5530045,
-                "name": "Mark B",
-                "weight": 91.6,
-                "height": 185,
-                "gender": "m",
-                "zftp": 229,
-                "zwift_racing_score": 493,
-                "velo_rating": 1309,
-            },
-            "barryb": {
-                "zwiftid": 5490373,
-                "name": "Barry B",
-                "weight": 77,
-                "height": 176,
-                "gender": "m",
-                "zftp": 273,
-                "zwift_racing_score": 444,
-                "velo_rating": 1294,
-            },
             "johnh": {
-                "zwiftid": 1884456,
+                "zwiftid": "1884456",
                 "name": "John H",
                 "weight": 75.4,
                 "height": 174,
@@ -114,18 +97,8 @@ class ZsunRiderItem():
                 "zwift_racing_score": 351,
                 "velo_rating": 1067,
             },
-            "brenth": {
-                "zwiftid": 480698,
-                "name": "Brent H",
-                "weight": 75.6,
-                "height": 180,
-                "gender": "m",
-                "zftp": 243,
-                "zwift_racing_score": 335,
-                "velo_rating": 1078,
-            },
             "joshn": {
-                "zwiftid": 2508033,
+                "zwiftid": "2508033",
                 "name": "Josh N",
                 "weight": 101,
                 "height": 178,
@@ -134,60 +107,10 @@ class ZsunRiderItem():
                 "zwift_racing_score": 285,
                 "velo_rating": 942,
             },
-            "edh": {
-                "zwiftid": 1713736,
-                "name": "Ed H",
-                "weight": 107.5,
-                "height": 188,
-                "gender": "m",
-                "zftp": 274,
-                "zwift_racing_score": 206,
-                "velo_rating": 748,
-            },
-            "richardm": {
-                "zwiftid": 1193,
-                "name": "Richard M",
-                "weight": 93,
-                "height": 178,
-                "gender": "m",
-                "zftp": 200,
-                "zwift_racing_score": 189,
-                "velo_rating": 628,
-            },
-            "selenas": {
-                "zwiftid": 2682791,
-                "name": "Selena S",
-                "weight": 63,
-                "height": 171,
-                "gender": "f",
-                "zftp": 214,
-                "zwift_racing_score": 345,
-                "velo_rating": 1129,
-            },
-            "kristend": {
-                "zwiftid": 2398312,
-                "name": "Kristen D",
-                "weight": 71.2,
-                "height": 178,
-                "gender": "f",
-                "zftp": 236,
-                "zwift_racing_score": 338,
-                "velo_rating": 1035,
-            },
-            "lynseys": {
-                "zwiftid": 383480,
-                "name": "Lynsey S",
-                "weight": 63.5,
-                "height": 165,
-                "gender": "f",
-                "zftp": 201,
-                "zwift_racing_score": 327,
-                "velo_rating": 915,
-            }
         }
 
     @staticmethod
-    def create(zwiftid: int, name: str, weight: float, height: float, gender: str, 
+    def create(zwiftid: str, name: str, weight: float, height: float, gender: str, 
         zftp: float, zwift_racing_score: int, velo_rating: int
     ) -> 'ZsunRiderItem':
         """
@@ -372,8 +295,11 @@ class ZsunRiderItem():
             weight                 = item.weight,
             height                 = item.height,
             gender                 = item.gender,
+            age_years              = item.age_years,
+            age_group              = item.age_group,
             zftp                   = item.zftp,
             zwift_racing_score     = item.zwift_racing_score,
+            zwift_racing_category  = item.zwift_racing_category,
             velo_rating            = item.velo_rating,
             pull_adjustment_watts  = item.pull_adjustment_watts,
             critical_power         = item.critical_power,
@@ -397,13 +323,16 @@ class ZsunRiderItem():
             ZsunRiderItem: The corresponding ZsunRiderItem instance.
         """
         return ZsunRiderItem(
-            zwiftid                = dto.zwiftid or 0,
+            zwiftid                = dto.zwiftid or "",
             name                   = dto.name or "",
             weight                 = dto.weight or 0,
             height                 = dto.height or 0,
             gender                 = dto.gender or "",
+            age_years              = dto.age_years or 0.0,
+            age_group              = dto.age_group or "",
             zftp                   = dto.zftp or 0,
             zwift_racing_score     = dto.zwift_racing_score or 0,
+            zwift_racing_category  = dto.zwift_racing_category or "",
             velo_rating            = dto.velo_rating or 0,
             pull_adjustment_watts  = dto.pull_adjustment_watts or 0.0,
             critical_power         = dto.critical_power or 0.0,
@@ -427,7 +356,7 @@ class ZwiftPower90DayBestGraphItem:
         cp_*      : float  Critical power values for various durations.
     """
 
-    zwiftid   : int   = 0
+    zwiftid   : str   = ""
     name      : str   = ""
     cp_1      : float = 0.0
     cp_2      : float = 0.0
@@ -1298,8 +1227,8 @@ class ZwiftPower90DayBestGraphItem:
             ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
         """
         return ZwiftPower90DayBestGraphItem(
-            zwiftid                     = dto.zwiftid or 0,
-            name                        = dto.name or "",
+            zwiftid        = dto.zwiftid or "",
+            name           = dto.name or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
             cp_3           = dto.cp_3 or 0.0,
@@ -1417,8 +1346,8 @@ class ZwiftPower90DayBestGraphItem:
             ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
         """
         return ZwiftPower90DayBestGraphItem(
-            zwiftid                  = int(dto.riderId) if dto.riderId else 0,
-            name                     = dto.name or "",
+            zwiftid                  = dto.zwiftID if dto.zwiftID else "",
+            name                     = dto.fullname or "",
             cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
             cp_15                    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
             cp_30                    = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
@@ -1426,8 +1355,6 @@ class ZwiftPower90DayBestGraphItem:
             cp_120                   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
             cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
             cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            cp_watts      = dto.power.CP if dto.power and dto.power.CP else 0.0,
-            critical_power_w_prime = dto.power.AWC if dto.power and dto.power.AWC else 0.0        
             )
 
     @staticmethod
@@ -1589,7 +1516,7 @@ def main():
     # example : instantiate examples of two riders of differing ability. for each of them 
     # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
     # position 1 and position 5. tabulate the results in a table and log it.
-    example_data = ZsunRiderItem.Config.json_schema_extra["markb"]
+    example_data = ZsunRiderItem.Config.json_schema_extra["davek"]
     example_rider = ZsunRiderDTO.model_validate(example_data)
     rider2 = ZsunRiderItem.from_dataTransferObject(example_rider)
 

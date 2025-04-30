@@ -1,242 +1,242 @@
 {
-  "1884456": {
-    "zwiftid": 1884456,
-    "name": "John Hughes",
-    "weight": 75.4,
-    "height": 174,
-    "gender": "m",
-    "zftp": 240,
-    "zwift_racing_score": 351,
-    "velo_rating": 1067
-  },
-  "3147366": {
-    "zwiftid": 3147366,
-    "name": "Dave Konicek",
-    "weight": 73.4,
-    "height": 182,
-    "gender": "m",
-    "zftp": 276,
-    "zwift_racing_score": 744,
-    "velo_rating": 1897
-  },
-  "11741": {
-    "zwiftid": 11741,
-    "name": "Tom Bick",
-    "weight": 78.5,
-    "height": 180,
-    "gender": "m",
-    "zftp": 303,
-    "zwift_racing_score": 586,
-    "velo_rating": 1585
-  },
-  "5421258": {
-    "zwiftid": 5421258,
-    "name": "Tim Reid",
-    "weight": 79.8,
-    "height": 185,
-    "gender": "m",
-    "zftp": 380,
-    "zwift_racing_score": 696,
-    "velo_rating": 2061
-  },
-  "9011": {
-    "zwiftid": 9011,
-    "name": "Bryan Bumpas",
-    "weight": 53.5,
-    "height": 162,
-    "gender": "m",
-    "zftp": 214,
-    "zwift_racing_score": 573,
-    "velo_rating": 1593
-  },
-  "5134": {
-    "zwiftid": 5134,
-    "name": "Husky Crone",
-    "weight": 75.5,
-    "height": 178,
-    "gender": "m",
-    "zftp": 268,
-    "zwift_racing_score": 552,
-    "velo_rating": 1519
-  },
-  "11526": {
-    "zwiftid": 11526,
-    "name": "Scott McVeigh",
-    "weight": 78,
-    "height": 165,
-    "gender": "m",
-    "zftp": 247,
-    "zwift_racing_score": 509,
-    "velo_rating": 1537
-  },
-  "5530045": {
-    "zwiftid": 5530045,
-    "name": "Mark Brezinski",
-    "weight": 91.6,
-    "height": 185,
-    "gender": "m",
-    "zftp": 280,
-    "zwift_racing_score": 493,
-    "velo_rating": 1309
-  },
-  "6142432": {
-    "zwiftid": 6142432,
-    "name": "Steve Seiler",
-    "weight": 71.7,
-    "height": 170,
-    "gender": "m",
-    "zftp": 229,
-    "zwift_racing_score": 454,
-    "velo_rating": 1222
-  },
-  "5569057": {
-    "zwiftid": 5569057,
-    "name": "Cory Cook",
-    "weight": 90.7,
-    "height": 186,
-    "gender": "m",
-    "zftp": 275,
-    "zwift_racing_score": 446,
-    "velo_rating": 1256
-  },
-  "5490373": {
-    "zwiftid": 5490373,
-    "name": "Barry Beck",
-    "weight": 77,
-    "height": 176,
-    "gender": "m",
-    "zftp": 273,
-    "zwift_racing_score": 444,
-    "velo_rating": 1294
-  },
-  "1024413": {
-    "zwiftid": 1024413,
-    "name": "Matt Steeve",
-    "weight": 76.8,
-    "height": 180,
-    "gender": "m",
-    "zftp": 232,
-    "zwift_racing_score": 345,
-    "velo_rating": 1015
-  },
-  "480698": {
-    "zwiftid": 480698,
-    "name": "Brent Huser",
-    "weight": 75.6,
-    "height": 180,
-    "gender": "m",
-    "zftp": 243,
-    "zwift_racing_score": 335,
-    "velo_rating": 1078
-  },
-  "183277": {
-    "zwiftid": 183277,
-    "name": "Giao Nguyen",
-    "weight": 67.1,
-    "height": 165,
-    "gender": "m",
-    "zftp": 189,
-    "zwift_racing_score": 299,
-    "velo_rating": 0
-  },
-  "2508033": {
-    "zwiftid": 2508033,
-    "name": "Josh Neall",
-    "weight": 101,
-    "height": 178,
-    "gender": "m",
-    "zftp": 260,
-    "zwift_racing_score": 285,
-    "velo_rating": 942
-  },
-  "384442": {
-    "zwiftid": 384442,
-    "name": "Roland Segal",
-    "weight": 90.0,
-    "height": 173,
-    "gender": "m",
-    "zftp": 246,
-    "zwift_racing_score": 264,
-    "velo_rating": 826
-  },
-  "1713736": {
-    "zwiftid": 1713736,
-    "name": "Ed Hudak",
-    "weight": 107.5,
-    "height": 188,
-    "gender": "m",
-    "zftp": 274,
-    "zwift_racing_score": 206,
-    "velo_rating": 748
-  },
-  "1193": {
-    "zwiftid": 1193,
-    "name": "Richard Mann",
-    "weight": 93,
-    "height": 178,
-    "gender": "m",
-    "zftp": 200,
-    "zwift_racing_score": 189,
-    "velo_rating": 628
-  },
-  "991817": {
-    "zwiftid": 991817,
-    "name": "Brandi Steeve",
-    "weight": 61.5,
-    "height": 167,
-    "gender": "f",
-    "zftp": 196,
-    "zwift_racing_score": 378,
-    "velo_rating": 1036
-  },
-  "2682791": {
-    "zwiftid": 2682791,
-    "name": "Selena Shaikh",
-    "weight": 63,
-    "height": 171,
-    "gender": "f",
-    "zftp": 214,
-    "zwift_racing_score": 345,
-    "velo_rating": 1129
-  },
-  "2398312": {
-    "zwiftid": 2398312,
-    "name": "Kristen DeMoulin",
-    "weight": 71.2,
-    "height": 178,
-    "gender": "f",
-    "zftp": 236,
-    "zwift_racing_score": 338,
-    "velo_rating": 1035
-  },
-  "383480": {
-    "zwiftid": 383480,
-    "name": "Lynsey Segal",
-    "weight": 63.5,
-    "height": 165,
-    "gender": "f",
-    "zftp": 201,
-    "zwift_racing_score": 327,
-    "velo_rating": 915
-  },
-  "1707548": {
-    "zwiftid": 1707548,
-    "name": "Meridith Leubner",
-    "weight": 59,
-    "height": 157,
-    "gender": "f",
-    "zftp": 220,
-    "zwift_racing_score": 401,
-    "velo_rating": 1297
-  },
-  "1657744": {
-    "zwiftid": 1657744,
-    "name": "Melissa Warwick",
-    "weight": 59,
-    "height": 175,
-    "gender": "f",
-    "zftp": 213,
-    "zwift_racing_score": 354,
-    "velo_rating": 1087
-  }
+    "1884456": {
+        "zwiftid": "1884456",
+        "name": "John Hughes",
+        "weight": 75.4,
+        "height": 174,
+        "gender": "m",
+        "zftp": 240,
+        "zwift_racing_score": 351,
+        "velo_rating": 1067
+    },
+    "3147366": {
+        "zwiftid": "3147366",
+        "name": "Dave Konicek",
+        "weight": 73.4,
+        "height": 182,
+        "gender": "m",
+        "zftp": 276,
+        "zwift_racing_score": 744,
+        "velo_rating": 1897
+    },
+    "11741": {
+        "zwiftid": "11741",
+        "name": "Tom Bick",
+        "weight": 78.5,
+        "height": 180,
+        "gender": "m",
+        "zftp": 303,
+        "zwift_racing_score": 586,
+        "velo_rating": 1585
+    },
+    "5421258": {
+        "zwiftid": "5421258",
+        "name": "Tim Reid",
+        "weight": 79.8,
+        "height": 185,
+        "gender": "m",
+        "zftp": 380,
+        "zwift_racing_score": 696,
+        "velo_rating": 2061
+    },
+    "9011": {
+        "zwiftid": "9011",
+        "name": "Bryan Bumpas",
+        "weight": 53.5,
+        "height": 162,
+        "gender": "m",
+        "zftp": 214,
+        "zwift_racing_score": 573,
+        "velo_rating": 1593
+    },
+    "5134": {
+        "zwiftid": "5134",
+        "name": "Husky Crone",
+        "weight": 75.5,
+        "height": 178,
+        "gender": "m",
+        "zftp": 268,
+        "zwift_racing_score": 552,
+        "velo_rating": 1519
+    },
+    "11526": {
+        "zwiftid": "11526",
+        "name": "Scott McVeigh",
+        "weight": 78,
+        "height": 165,
+        "gender": "m",
+        "zftp": 247,
+        "zwift_racing_score": 509,
+        "velo_rating": 1537
+    },
+    "5530045": {
+        "zwiftid": "5530045",
+        "name": "Mark Brezinski",
+        "weight": 91.6,
+        "height": 185,
+        "gender": "m",
+        "zftp": 280,
+        "zwift_racing_score": 493,
+        "velo_rating": 1309
+    },
+    "6142432": {
+        "zwiftid": "6142432",
+        "name": "Steve Seiler",
+        "weight": 71.7,
+        "height": 170,
+        "gender": "m",
+        "zftp": 229,
+        "zwift_racing_score": 454,
+        "velo_rating": 1222
+    },
+    "5569057": {
+        "zwiftid": "5569057",
+        "name": "Cory Cook",
+        "weight": 90.7,
+        "height": 186,
+        "gender": "m",
+        "zftp": 275,
+        "zwift_racing_score": 446,
+        "velo_rating": 1256
+    },
+    "5490373": {
+        "zwiftid": "5490373",
+        "name": "Barry Beck",
+        "weight": 77,
+        "height": 176,
+        "gender": "m",
+        "zftp": 273,
+        "zwift_racing_score": 444,
+        "velo_rating": 1294
+    },
+    "1024413": {
+        "zwiftid": "1024413",
+        "name": "Matt Steeve",
+        "weight": 76.8,
+        "height": 180,
+        "gender": "m",
+        "zftp": 232,
+        "zwift_racing_score": 345,
+        "velo_rating": 1015
+    },
+    "480698": {
+        "zwiftid": "480698",
+        "name": "Brent Huser",
+        "weight": 75.6,
+        "height": 180,
+        "gender": "m",
+        "zftp": 243,
+        "zwift_racing_score": 335,
+        "velo_rating": 1078
+    },
+    "183277": {
+        "zwiftid": "183277",
+        "name": "Giao Nguyen",
+        "weight": 67.1,
+        "height": 165,
+        "gender": "m",
+        "zftp": 189,
+        "zwift_racing_score": 299,
+        "velo_rating": 0
+    },
+    "2508033": {
+        "zwiftid": "2508033",
+        "name": "Josh Neall",
+        "weight": 101,
+        "height": 178,
+        "gender": "m",
+        "zftp": 260,
+        "zwift_racing_score": 285,
+        "velo_rating": 942
+    },
+    "384442": {
+        "zwiftid": "384442",
+        "name": "Roland Segal",
+        "weight": 90.0,
+        "height": 173,
+        "gender": "m",
+        "zftp": 246,
+        "zwift_racing_score": 264,
+        "velo_rating": 826
+    },
+    "1713736": {
+        "zwiftid": "1713736",
+        "name": "Ed Hudak",
+        "weight": 107.5,
+        "height": 188,
+        "gender": "m",
+        "zftp": 274,
+        "zwift_racing_score": 206,
+        "velo_rating": 748
+    },
+    "1193": {
+        "zwiftid": "1193",
+        "name": "Richard Mann",
+        "weight": 93,
+        "height": 178,
+        "gender": "m",
+        "zftp": 200,
+        "zwift_racing_score": 189,
+        "velo_rating": 628
+    },
+    "991817": {
+        "zwiftid": "991817",
+        "name": "Brandi Steeve",
+        "weight": 61.5,
+        "height": 167,
+        "gender": "f",
+        "zftp": 196,
+        "zwift_racing_score": 378,
+        "velo_rating": 1036
+    },
+    "2682791": {
+        "zwiftid": "2682791",
+        "name": "Selena Shaikh",
+        "weight": 63,
+        "height": 171,
+        "gender": "f",
+        "zftp": 214,
+        "zwift_racing_score": 345,
+        "velo_rating": 1129
+    },
+    "2398312": {
+        "zwiftid": "2398312",
+        "name": "Kristen DeMoulin",
+        "weight": 71.2,
+        "height": 178,
+        "gender": "f",
+        "zftp": 236,
+        "zwift_racing_score": 338,
+        "velo_rating": 1035
+    },
+    "383480": {
+        "zwiftid": "383480",
+        "name": "Lynsey Segal",
+        "weight": 63.5,
+        "height": 165,
+        "gender": "f",
+        "zftp": 201,
+        "zwift_racing_score": 327,
+        "velo_rating": 915
+    },
+    "1707548": {
+        "zwiftid": "1707548",
+        "name": "Meridith Leubner",
+        "weight": 59,
+        "height": 157,
+        "gender": "f",
+        "zftp": 220,
+        "zwift_racing_score": 401,
+        "velo_rating": 1297
+    },
+    "1657744": {
+        "zwiftid": "1657744",
+        "name": "Melissa Warwick",
+        "weight": 59,
+        "height": 175,
+        "gender": "f",
+        "zftp": 213,
+        "zwift_racing_score": 354,
+        "velo_rating": 1087
+    }
 }

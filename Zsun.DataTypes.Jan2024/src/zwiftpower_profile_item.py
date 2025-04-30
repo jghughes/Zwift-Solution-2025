@@ -4,7 +4,7 @@ from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 
 @dataclass
 class ZwiftPowerProfileItem:
-    zwift_id: Optional[int] = None  # Changed to int
+    zwift_id: Optional[str] = None  # Changed to int
     profile_url: Optional[str] = None
     zwift_name: Optional[str] = None
     race_ranking: Optional[float] = None  # Float
@@ -32,7 +32,7 @@ def from_dataTransferObject(dto: ZwiftPowerProfileDTO) -> "ZwiftPowerProfileItem
         ZwiftPowerProfileItem: The corresponding ZwiftPowerProfileItem instance.
     """
     return ZwiftPowerProfileItem(
-        zwift_id=int(dto.zwift_id) if dto.zwift_id is not None else 0,
+        zwift_id= dto.zwift_id if dto.zwift_id is not None else "",
         profile_url=dto.profile_url,
         zwift_name=dto.zwift_name,
         race_ranking=float(dto.race_ranking) if dto.race_ranking is not None else 0.0,
@@ -61,7 +61,7 @@ def to_dataTransferObject(item: "ZwiftPowerProfileItem") -> ZwiftPowerProfileDTO
         ZwiftPowerProfileDTO: The corresponding data transfer object.
     """
     return ZwiftPowerProfileDTO(
-            zwift_id=str(item.zwift_id),
+            zwift_id= item.zwift_id,
             profile_url=item.profile_url,
             zwift_name=item.zwift_name,
             race_ranking=str(item.race_ranking) if item.race_ranking is not None else None,

@@ -1,6 +1,6 @@
 {
     "1193": {
-        "zwiftid": 1193,
+        "zwiftid": "1193",
         "name": "Richard M",
         "cp_1": 851.0,
         "cp_2": 851.0,
@@ -109,7 +109,7 @@
         "model_applied": ""
     },
     "5134": {
-        "zwiftid": 5134,
+        "zwiftid": "5134",
         "name": "Husky C",
         "cp_1": 1000.0,
         "cp_2": 988.0,
@@ -218,7 +218,7 @@
         "model_applied": ""
     },
     "9011": {
-        "zwiftid": 9011,
+        "zwiftid": "9011",
         "name": "Bryan B",
         "cp_1": 640.0,
         "cp_2": 634.0,
@@ -327,7 +327,7 @@
         "model_applied": ""
     },
     "11526": {
-        "zwiftid": 11526,
+        "zwiftid": "11526",
         "name": "Scott M",
         "cp_1": 1009.0,
         "cp_2": 905.0,
@@ -436,7 +436,7 @@
         "model_applied": ""
     },
     "11741": {
-        "zwiftid": 11741,
+        "zwiftid": "11741",
         "name": "Tom B",
         "cp_1": 866.0,
         "cp_2": 839.0,
@@ -545,7 +545,7 @@
         "model_applied": ""
     },
     "183277": {
-        "zwiftid": 183277,
+        "zwiftid": "183277",
         "name": "Giao N",
         "cp_1": 363.0,
         "cp_2": 323.0,
@@ -654,7 +654,7 @@
         "model_applied": ""
     },
     "383480": {
-        "zwiftid": 383480,
+        "zwiftid": "383480",
         "name": "Lynsey S",
         "cp_1": 2000.0,
         "cp_2": 2000.0,
@@ -763,7 +763,7 @@
         "model_applied": ""
     },
     "384442": {
-        "zwiftid": 384442,
+        "zwiftid": "384442",
         "name": "Roland S",
         "cp_1": 799.0,
         "cp_2": 759.0,
@@ -872,7 +872,7 @@
         "model_applied": ""
     },
     "480698": {
-        "zwiftid": 480698,
+        "zwiftid": "480698",
         "name": "Brent H",
         "cp_1": 896.0,
         "cp_2": 896.0,
@@ -981,7 +981,7 @@
         "model_applied": ""
     },
     "1024413": {
-        "zwiftid": 1024413,
+        "zwiftid": "1024413",
         "name": "Matt S",
         "cp_1": 642.0,
         "cp_2": 641.0,
@@ -1090,7 +1090,7 @@
         "model_applied": ""
     },
     "1657744": {
-        "zwiftid": 1657744,
+        "zwiftid": "1657744",
         "name": "Melissa W",
         "cp_1": 850.0,
         "cp_2": 849.0,
@@ -1199,7 +1199,7 @@
         "model_applied": ""
     },
     "1707548": {
-        "zwiftid": 1707548,
+        "zwiftid": "1707548",
         "name": "Meridith L",
         "cp_1": 663.0,
         "cp_2": 649.0,
@@ -1308,7 +1308,7 @@
         "model_applied": ""
     },
     "1713736": {
-        "zwiftid": 1713736,
+        "zwiftid": "1713736",
         "name": "Ed H",
         "cp_1": 924.0,
         "cp_2": 904.0,
@@ -1417,7 +1417,7 @@
         "model_applied": ""
     },
     "1884456": {
-        "zwiftid": 1884456,
+        "zwiftid": "1884456",
         "name": "John H",
         "cp_1": 596.0,
         "cp_2": 596.0,
@@ -1526,7 +1526,7 @@
         "model_applied": ""
     },
     "2398312": {
-        "zwiftid": 2398312,
+        "zwiftid": "2398312",
         "name": "Kristen D",
         "cp_1": 609.0,
         "cp_2": 567.0,
@@ -1635,7 +1635,7 @@
         "model_applied": ""
     },
     "2508033": {
-        "zwiftid": 2508033,
+        "zwiftid": "2508033",
         "name": "Josh N",
         "cp_1": 892.0,
         "cp_2": 889.0,
@@ -1744,7 +1744,7 @@
         "model_applied": ""
     },
     "3147366": {
-        "zwiftid": 3147366,
+        "zwiftid": "3147366",
         "name": "Dave K",
         "cp_1": 973.0,
         "cp_2": 956.0,
@@ -1853,7 +1853,7 @@
         "model_applied": ""
     },
     "5421258": {
-        "zwiftid": 5421258,
+        "zwiftid": "5421258",
         "name": "Tim R",
         "cp_1": 1118.0,
         "cp_2": 1091.0,
@@ -1962,7 +1962,7 @@
         "model_applied": ""
     },
     "5490373": {
-        "zwiftid": 5490373,
+        "zwiftid": "5490373",
         "name": "Barry B",
         "cp_1": 877.0,
         "cp_2": 862.0,
@@ -2071,7 +2071,7 @@
         "model_applied": ""
     },
     "5530045": {
-        "zwiftid": 5530045,
+        "zwiftid": "5530045",
         "name": "Mark B",
         "cp_1": 1405.0,
         "cp_2": 1126.0,
@@ -2180,7 +2180,7 @@
         "model_applied": ""
     },
     "5569057": {
-        "zwiftid": 5569057,
+        "zwiftid": "5569057",
         "name": "Cory C",
         "cp_1": 1083.0,
         "cp_2": 1060.0,
@@ -2289,7 +2289,7 @@
         "model_applied": ""
     },
     "6142432": {
-        "zwiftid": 6142432,
+        "zwiftid": "6142432",
         "name": "Steve S",
         "cp_1": 693.0,
         "cp_2": 691.0,
