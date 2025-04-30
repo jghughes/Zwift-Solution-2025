@@ -1,4 +1,4 @@
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_critical_power_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder
+from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_critical_power_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder
 import critical_power as cp
 from zsun_rider_item import ZsunRiderItem
 from datetime import datetime

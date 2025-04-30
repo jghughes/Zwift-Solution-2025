@@ -1,10 +1,10 @@
 import logging
 
 from jgh_logging import jgh_configure_logging
-from zsun_rider_item import RiderRotationItem
+from computation_classes import *
+from zsun_rider_item import ZsunRiderItem
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Set
-from zwiftrider_item import *
 from math import comb
 
 # Configure logging

@@ -24,7 +24,7 @@ def main() -> None:
     import matplotlib.pyplot as plt
     from scipy.optimize import curve_fit
     from sklearn.jgh_cp_dict import r2_score
-    from handy_utilities import read_dict_of_cpdata
+    from handy_utilities import read_dict_of_90day_best_cp_data
 
     # Suppress matplotlib font matching logs.
     # This provides privided interesting logging messages, but suppresses a deluge of font matching messages
@@ -37,11 +37,11 @@ def main() -> None:
 
     dict_of_zwiftrideritem = read_dict_of_zwiftdict_of_zwiftrideritem(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    from handy_utilities import read_dict_of_cpdata
+    from handy_utilities import read_dict_of_90day_best_cp_data
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/Zwift-Solution-2025/Zsun01/data/"
-    jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+    jgh_cp_dict = read_dict_of_90day_best_cp_data(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
 
     barryb ='5490373' 

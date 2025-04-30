@@ -1,6 +1,8 @@
 from typing import  Dict, Tuple
-from zsun_rider_item import ZsunRiderItem, RiderAnswerItem, RiderAnswerDisplayObject
-from jgh_formulae06 import add_zwift_cp_and_w_prime_to_rider_answer_items, add_zwift_cp_and_w_prime_to_rider_criticalpower_items
+from zsun_rider_item import ZsunRiderItem
+from computation_classes import *
+
+from jgh_formulae06 import *
 import logging
 
 
@@ -179,7 +181,7 @@ def main() -> None:
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems
 
-    from handy_utilities import read_dict_of_zwiftriders, read_dict_of_cpdata
+    from handy_utilities import read_dict_of_zwiftriders, read_dict_of_90day_best_cp_data
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -188,7 +190,7 @@ def main() -> None:
 
     CPDATA_FILE_NAME = "betel_cp_data.json"
 
-    zwiftriders_zwift_cp_data = read_dict_of_cpdata(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
+    zwiftriders_zwift_cp_data = read_dict_of_90day_best_cp_data(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
 
     barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh

@@ -1,6 +1,7 @@
 from typing import  List, Dict, Tuple
-from handy_utilities import read_dict_of_cpdata
-from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem, RiderExertionItem, RiderAnswerItem
+from zsun_rider_item import ZsunRiderItem
+from computation_classes import *
+
 from rolling_average import calculate_rolling_averages
 import logging
 
@@ -241,7 +242,7 @@ def main() -> None:
 
     CPDATA_FILE_NAME = "betel_cp_data.json"
 
-    zwiftriders_zwift_cp_data = read_dict_of_cpdata(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
+    zwiftriders_zwift_cp_data = read_dict_of_90day_best_cp_data(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
 
     davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb

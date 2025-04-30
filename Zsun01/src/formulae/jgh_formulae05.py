@@ -1,7 +1,7 @@
 from typing import Dict, List
-from zsun_rider_item import ZsunRiderItem, RiderExertionItem, RiderWorkAssignmentItem
+from zsun_rider_item import ZsunRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
-
+from computation_classes import *
 
 def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZsunRiderItem, List[RiderExertionItem]]:
     """

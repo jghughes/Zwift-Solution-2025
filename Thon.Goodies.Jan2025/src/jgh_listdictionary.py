@@ -697,94 +697,94 @@ class JghListDictionary(Generic[TKey, TValue]):
 
  # example usage of the JghListDictionary class
 
-def main():
+# def main():
 
-    # Configure logging
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
+#     # Configure logging
+#     import logging
+#     from jgh_logging import jgh_configure_logging
+#     jgh_configure_logging("appsettings.json")
+#     logger = logging.getLogger(__name__)
 
-    # Create an instance of JghListDictionary
-    dictionary = JghListDictionary[str, int]()
+#     # Create an instance of JghListDictionary
+#     dictionary = JghListDictionary[str, int]()
 
-    # Add keys and values with multiple occurrences of the same value
-    dictionary.insert_key("fruits")
-    dictionary.append_value_to_list("fruits", 1)
-    dictionary.append_value_to_list("fruits", 2)
-    dictionary.append_value_to_list("fruits", 3)
-    dictionary.append_value_to_list("fruits", 2)  # Duplicate value
+#     # Add keys and values with multiple occurrences of the same value
+#     dictionary.insert_key("fruits")
+#     dictionary.append_value_to_list("fruits", 1)
+#     dictionary.append_value_to_list("fruits", 2)
+#     dictionary.append_value_to_list("fruits", 3)
+#     dictionary.append_value_to_list("fruits", 2)  # Duplicate value
 
-    dictionary.insert_key("vegetables")
-    dictionary.append_value_to_list("vegetables", 2)  # Same value in different key
-    dictionary.append_value_to_list("vegetables", 4)
-    dictionary.append_value_to_list("vegetables", 5)
+#     dictionary.insert_key("vegetables")
+#     dictionary.append_value_to_list("vegetables", 2)  # Same value in different key
+#     dictionary.append_value_to_list("vegetables", 4)
+#     dictionary.append_value_to_list("vegetables", 5)
 
-    dictionary.insert_key("grains")
-    dictionary.append_value_to_list("grains", 2)  # Same value in different key
-    dictionary.append_value_to_list("grains", 6)
-
-
+#     dictionary.insert_key("grains")
+#     dictionary.append_value_to_list("grains", 2)  # Same value in different key
+#     dictionary.append_value_to_list("grains", 6)
 
 
 
 
 
 
-    # Retrieve values for a given key
-    fruits = dictionary.get_values("fruits")
-    logger.info("Fruits:", fruits)
 
-    # Retrieve all keys
-    keys = dictionary.get_keys()
-    logger.info("Keys:", keys)
 
-    # Check if a key exists
-    contains_fruits = dictionary.contains_key("fruits")
-    logger.info("Contains 'fruits' key:", contains_fruits)
+#     # Retrieve values for a given key
+#     fruits = dictionary.get_values("fruits")
+#     logger.info("Fruits:", fruits)
 
-    # Check if a value exists in a given key
-    contains_value = dictionary.contains_value_in_list("fruits", 2)
-    logger.info("Contains value 2 in 'fruits':", contains_value)
+#     # Retrieve all keys
+#     keys = dictionary.get_keys()
+#     logger.info("Keys:", keys)
 
-    # Retrieve all key-value pairs
-    key_value_pairs = dictionary.get_key_value_pairs_from_everywhere()
-    logger.info("All key-value pairs:", key_value_pairs)
+#     # Check if a key exists
+#     contains_fruits = dictionary.contains_key("fruits")
+#     logger.info("Contains 'fruits' key:", contains_fruits)
 
-    # Count the number of occurrences of a value across all keys
-    value_to_count = 2
-    count, keys_with_value = dictionary.remove_value_from_all_lists(value_to_count)
-    logger.info(f"Number of occurrences of value {value_to_count}:", count)
-    logger.info(f"Keys with value {value_to_count}:", keys_with_value)
+#     # Check if a value exists in a given key
+#     contains_value = dictionary.contains_value_in_list("fruits", 2)
+#     logger.info("Contains value 2 in 'fruits':", contains_value)
 
-    # Remove all occurrences of a value across all keys
-    removed_count, keys_with_removed_value = dictionary.remove_value_from_all_lists(
-        value_to_count
-    )
-    logger.info(f"Number of occurrences of value {value_to_count} removed:", removed_count)
-    logger.info(
-        f"Keys from which value {value_to_count} was removed:", keys_with_removed_value
-    )
+#     # Retrieve all key-value pairs
+#     key_value_pairs = dictionary.get_key_value_pairs_from_everywhere()
+#     logger.info("All key-value pairs:", key_value_pairs)
 
-    # Check the dictionary after removal
-    logger.info("Dictionary after removing value 2:", dictionary.backingstore_dict)
+#     # Count the number of occurrences of a value across all keys
+#     value_to_count = 2
+#     count, keys_with_value = dictionary.remove_value_from_all_lists(value_to_count)
+#     logger.info(f"Number of occurrences of value {value_to_count}:", count)
+#     logger.info(f"Keys with value {value_to_count}:", keys_with_value)
 
-    # Clear all values for a given key
-    dictionary.clear_all_values_from_list("vegetables")
-    logger.info(
-        "Vegetables after clearing values:",
-        dictionary.get_values("vegetables"),
-    )
+#     # Remove all occurrences of a value across all keys
+#     removed_count, keys_with_removed_value = dictionary.remove_value_from_all_lists(
+#         value_to_count
+#     )
+#     logger.info(f"Number of occurrences of value {value_to_count} removed:", removed_count)
+#     logger.info(
+#         f"Keys from which value {value_to_count} was removed:", keys_with_removed_value
+#     )
 
-    # Clear all entries in the dictionary and get the original counts
-    original_keys_count, original_values_count = (
-        dictionary.clear_everything_everywhere()
-    )
-    logger.info("Original number of keys:", original_keys_count)
-    logger.info("Original number of values:", original_values_count)
-    logger.info("Dictionary after clearing everything:", dictionary.backingstore_dict)
+#     # Check the dictionary after removal
+#     logger.info("Dictionary after removing value 2:", dictionary.backingstore_dict)
 
-if __name__ == "__main__":
-    import logging
-    logger = logging.getLogger(__name__)
-    main()
+#     # Clear all values for a given key
+#     dictionary.clear_all_values_from_list("vegetables")
+#     logger.info(
+#         "Vegetables after clearing values:",
+#         dictionary.get_values("vegetables"),
+#     )
+
+#     # Clear all entries in the dictionary and get the original counts
+#     original_keys_count, original_values_count = (
+#         dictionary.clear_everything_everywhere()
+#     )
+#     logger.info("Original number of keys:", original_keys_count)
+#     logger.info("Original number of values:", original_values_count)
+#     logger.info("Dictionary after clearing everything:", dictionary.backingstore_dict)
+
+# if __name__ == "__main__":
+#     import logging
+#     logger = logging.getLogger(__name__)
+#     main()

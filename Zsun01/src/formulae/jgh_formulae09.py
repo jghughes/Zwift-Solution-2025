@@ -1,6 +1,8 @@
 from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
-from zsun_rider_item import ZsunRiderItem, RiderWorkAssignmentItem, RiderExertionItem, ZwiftPower90DayBestGraphItem
+from zsun_rider_item import ZsunRiderItem, 
+from computation_classes import  RiderWorkAssignmentItem, RiderExertionItem 
+from zwiftpower_90day_best_item import ZwiftPower90DayBestGraphItem
 
 def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
     """

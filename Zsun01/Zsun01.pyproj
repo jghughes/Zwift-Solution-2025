@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>tools\rubbish03.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -33,6 +33,8 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
+    <Folder Include="src\classes\" />
+    <Folder Include="src\formulae\" />
     <Folder Include="src\repositories\" />
     <Folder Include="tools\" />
     <Folder Include="src\" />
@@ -57,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="docs\zwiftinsider_stuff.py" />
+    <Compile Include="src\classes\computation_classes.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="tools\rubbish.py" />
     <Compile Include="tools\rubbish02.py" />
@@ -65,16 +68,16 @@
     <Compile Include="tools\tool01.py" />
     <Compile Include="setup.py" />
     <Compile Include="src\functions\rolling_average.py" />
-    <Compile Include="src\jgh_formulae06.py" />
+    <Compile Include="src\formulae\jgh_formulae06.py" />
     <Compile Include="src\utilities\handy_utilities.py" />
     <Compile Include="src\functions\cyclic_matrix.py" />
     <Compile Include="src\functions\cyclic_paceline_algebra.py" />
-    <Compile Include="src\jgh_formulae04.py" />
-    <Compile Include="src\jgh_formulae05.py" />
-    <Compile Include="src\jgh_formulae07.py" />
-    <Compile Include="src\jgh_formulae08.py" />
-    <Compile Include="src\jgh_formulae09.py" />
-    <Compile Include="src\ttt_solution.py" />
+    <Compile Include="src\formulae\jgh_formulae04.py" />
+    <Compile Include="src\formulae\jgh_formulae05.py" />
+    <Compile Include="src\formulae\jgh_formulae07.py" />
+    <Compile Include="src\formulae\jgh_formulae08.py" />
+    <Compile Include="src\formulae\jgh_formulae09.py" />
+    <Compile Include="src\formulae\ttt_solution.py" />
     <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>
     </Compile>

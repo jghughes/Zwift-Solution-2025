@@ -4,7 +4,8 @@ from jgh_read_write import read_text, read_filepath_as_text, help_select_filepat
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_90day_best_dto import ZwiftPowerGraphInformationDTO, ZwiftPower90DayBestGraphDTO
-from zsun_rider_item import ZsunRiderItem, ZwiftPower90DayBestGraphItem
+from zsun_rider_item import ZsunRiderItem
+from zwiftpower_90day_best_item import ZwiftPower90DayBestGraphItem
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
@@ -95,7 +96,7 @@ def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZsunRid
         for key, dto in answer.items()
     }
 
-def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
+def read_dict_of_90day_best_cp_data(file_name: str, dir_path: str) -> Dict[str, ZwiftPower90DayBestGraphItem]:
     """
     Retrieve a compndium of Zwift riders critical power data from a JSON file 
     in thr format of a duct and convert them to a dict of ZwiftPower90DayBestGraphItem instances.
@@ -132,7 +133,7 @@ def read_dict_of_cpdata(file_name: str, dir_path: str) -> Dict[str, ZwiftPower90
         for key, dto in answer.items()
     }
 
-def write_dict_of_cpdata(data: Dict[str, ZwiftPower90DayBestGraphItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_90day_best_cp_data(data: Dict[str, ZwiftPower90DayBestGraphItem], file_name: str, dir_path: str) -> None:
     """
     Serialize a dictionary of ZwiftPower90DayBestGraphItem instances and write it to a JSON file.
 
@@ -400,11 +401,11 @@ def main():
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    jgh_cp_dict = read_dict_of_cpdata(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+    jgh_cp_dict = read_dict_of_90day_best_cp_data(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_dict_of_cpdata(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_dict_of_90day_best_cp_data(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
 def main02():
     # configure logging

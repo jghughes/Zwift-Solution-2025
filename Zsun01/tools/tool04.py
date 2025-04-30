@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 from cp_watts import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
-from handy_utilities import read_dict_of_cpdata, write_dict_of_cpdata
+from handy_utilities import read_dict_of_90day_best_cp_data, write_dict_of_90day_best_cp_data
 import logging
 from jgh_logging import jgh_configure_logging
 
@@ -46,7 +46,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    riders_cp_data = read_dict_of_cpdata("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_90day_best_cp_data("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     # Process each rider in the riders_cp_data dictionary
     for rider_id, rider_cp_data in riders_cp_data.items():
@@ -101,7 +101,7 @@ def main():
 
     # Write the updated CP data for all riders to a file
 
-    write_dict_of_cpdata(
+    write_dict_of_90day_best_cp_data(
         riders_cp_data,
         "populated_cp_data_for_betel_rubbish.json",
         "C:/Users/johng/holding_pen/StuffForZsun/Betel/"

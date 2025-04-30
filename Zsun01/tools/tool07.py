@@ -1,5 +1,5 @@
 from math import log
-from handy_utilities import write_dict_of_cpdata, read_many_zwiftpower_critical_power_graph_files_in_folder, read_dict_of_zwiftriders,get_betel_zwift_ids
+from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_critical_power_graph_files_in_folder, read_dict_of_zwiftriders,get_betel_zwift_ids
 
 
 # Module-level constants
@@ -28,7 +28,7 @@ def main():
     Dependencies:
         - `read_many_zwiftpower_critical_power_graph_files_in_folder`: Reads ZwiftPower critical power data files.
         - `read_dict_of_zwiftriders`: Reads Zwift rider data.
-        - `write_dict_of_cpdata`: Writes processed critical power data to a JSON file.
+        - `write_dict_of_90day_best_cp_data`: Writes processed critical power data to a JSON file.
         - `jgh_configure_logging`: Configures logging for the application.
 
     Raises:
@@ -68,7 +68,7 @@ def main():
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV2.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    write_dict_of_cpdata(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_90day_best_cp_data(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
     from tabulate import tabulate
 

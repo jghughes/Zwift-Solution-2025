@@ -229,5 +229,5 @@ def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight:
 #     logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
 #     logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

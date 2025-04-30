@@ -1,6 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_critical_power_graph_files_in_folder, write_dict_of_cpdata, get_betel_zwift_ids
+from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_critical_power_graph_files_in_folder, write_dict_of_90day_best_cp_data, get_betel_zwift_ids
 
 def main():
     """
@@ -90,7 +90,7 @@ def main():
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    write_dict_of_cpdata(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_90day_best_cp_data(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
     main()

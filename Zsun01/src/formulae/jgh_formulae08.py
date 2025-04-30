@@ -1,6 +1,6 @@
 from typing import Dict, List
-from dataclasses import dataclass
-from zsun_rider_item import ZsunRiderItem, RiderExertionItem, RiderAggregateEffortItem
+from zsun_rider_item import ZsunRiderItem 
+from computation_classes import  RiderExertionItem, RiderAggregateEffortItem
 from jgh_formulae06 import calculate_normalized_watts
 import logging
 
