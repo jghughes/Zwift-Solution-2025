@@ -1,44 +1,12 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional, Dict, List, Any, Union, get_origin, get_args
-from jgh_read_write import *
-from jgh_serialization import *
-from jgh_sanitise_string import sanitise_string
+from pydantic import BaseModel
+from typing import Optional
 
-class ZwiftPowerGraphInformationDTO(BaseModel):
-    """
-    A data transfer object representing a Zwift Power Graph JSON object.
-    """
-
-    class InfoItemDTO(BaseModel):
-        """
-        Represents a line-item in the 'info' list. A nested class.
-        """
-        name      : Optional[str]         = ""    # Name of the item
-        effort_id : Optional[Union[str, int]] = ""    # Effort ID (string or integer)
-        hide      : Optional[bool]        = False # Whether to hide the item
-
-    class EffortItemDTO(BaseModel):
-        """
-        Represents a line-item in the lists that are the values of the three
-        keys in the 'efforts' dictionary. A nested class.
-        """
-        x    : Optional[int] = 0    # X-coordinate
-        y    : Optional[int] = 0    # Y-coordinate
-        date : Optional[int] = 0    # Date as a Unix timestamp
-        zid  : Optional[str] = ""   # Zwift ID
-
-    info                          : Optional[Union[List[InfoItemDTO], Any]] = Field(default_factory=list)  # List of InfoItemDTO
-    efforts                       : Optional[Union[Dict[str, List[EffortItemDTO]], Any]] = Field(default_factory=dict)  # Efforts dictionary
-    events                        : Optional[Union[Dict[str, Any], Any]] = Field(default_factory=dict)  # Events dictionary
-    zwiftpower_watts_last_updated : Optional[str] = ""  # Last updated timestamp for ZwiftPower watts
-
-
-class ZwiftPower90DayBestGraphDTO(BaseModel):
+# this class is only intended for exported data originating from ZwiftPower that has been flattened by JGH
+class ZwiftPower90DayBestPowerDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
     """
-    zwiftid : Optional[str]  = ""   # Unique identifier for the rider
-    name    : Optional[str]  = ""   # Rider's name (sanitize for emojis and special characters)
+    zwift_id : Optional[str]  = ""   
     cp_1    : Optional[float] = 0.0
     cp_2    : Optional[float] = 0.0
     cp_3    : Optional[float] = 0.0
@@ -139,33 +107,4 @@ class ZwiftPower90DayBestGraphDTO(BaseModel):
     cp_6600 : Optional[float] = 0.0
     cp_7200 : Optional[float] = 0.0
 
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-    )
-    def validate_float_fields(cls, value):
-        if value is None:
-            return None
-        try:
-            # Check if the value is numeric and can be cast to a float
-            return float(value)
-        except (ValueError, TypeError):
-            # Return None for non-float values
-            return None
-
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-        mode="before"
-    )
-    def sanitise_string_fields(cls, value):
-        if value is None:
-            return ""
-        return sanitise_string(value)
 

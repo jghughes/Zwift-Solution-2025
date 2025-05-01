@@ -1,15 +1,15 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
-from typing import Optional, Union, get_origin, get_args
+from typing import Optional
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwift_id"               : AliasChoices("zwift_id", "id"),
-    "public_id"               : AliasChoices("public_id", "publicId"),
+    "public_id"              : AliasChoices("public_id", "publicId"),
     "first_name"             : AliasChoices("first_name", "firstName"),
     "last_name"              : AliasChoices("last_name", "lastName"),
-    "age_years"               : AliasChoices("age_years", "age"),
-    "height_mm"               : AliasChoices("height_mm","height"),
-    "weight_grams"               : AliasChoices("weight_grams","weight"),
+    "age_years"              : AliasChoices("age_years", "age"),
+    "height_mm"              : AliasChoices("height_mm","height"),
+    "weight_grams"           : AliasChoices("weight_grams","weight"),
 }
 
 configdictV1 = ConfigDict(
@@ -18,7 +18,6 @@ configdictV1 = ConfigDict(
             validation_alias=lambda field_name: validation_alias_choices_map.get(field_name, field_name)))
 
 preferred_config_dict = configdictV1
-
 
 class ZwiftProfileDTO(BaseModel):
     """
@@ -58,22 +57,9 @@ class ZwiftProfileDTO(BaseModel):
             return str(value)
         return value
 
-
-    # Validator for float fields
-    @field_validator("age_years", "height_mm", "weight_grams", "ftp", mode="before")
-    def validate_float_fields(cls, value):
-        if value is None:
-            return None
-        try:
-            # Check if the value is numeric and can be cast to a float
-            return float(value)
-        except (ValueError, TypeError):
-            # Return None for non-float values
-            return None
-
-    # Validator for string fields
-    @field_validator("public_id", "first_name", "last_name", mode="before")
-    def sanitise_string_fields(cls, value):
+    # Validator for string fields - get rid of emojis and other unwanted characters
+    @field_validator("first_name", "last_name", mode="before")
+    def sanitise_string_field(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)
@@ -110,6 +96,8 @@ def main():
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
+    logger.info(f"Successfully processed {file_count} files")
+    logger.info(f"Encountered {error_count} errors during processing")
 
 if __name__ == "__main__":
     main()

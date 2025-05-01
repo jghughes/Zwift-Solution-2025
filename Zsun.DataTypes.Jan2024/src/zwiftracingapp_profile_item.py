@@ -10,7 +10,7 @@ class ZwiftRacingAppProfileItem:
     fullname: Optional[str] = None
     gender: Optional[str] = None
     country: Optional[str] = None
-    agegroup_title: Optional[str] = None
+    agegroup: Optional[str] = None
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     zp_race_category: Optional[str] = None
@@ -35,11 +35,11 @@ class ZwiftRacingAppProfileItem:
             ZwiftRacingAppProfileItem: The corresponding ZwiftRacingAppProfileItem instance.
         """
         return ZwiftRacingAppProfileItem(
-            zwift_id=dto.zwiftID,
+            zwift_id=dto.zwift_id,
             fullname=dto.fullname,
             gender=dto.gender,
             country=dto.country,
-            agegroup_title=dto.agegroup_title,
+            agegroup=dto.agegroup,
             height_cm=dto.height_cm,
             weight_kg=dto.weight_kg,
             zp_race_category=dto.zp_race_category,
@@ -60,11 +60,11 @@ class ZwiftRacingAppProfileItem:
             ZwiftRacingAppProfileDTO: The corresponding data transfer object.
         """
         return ZwiftRacingAppProfileDTO(
-            zwiftID=item.zwift_id,
+            zwift_id=item.zwift_id,
             fullname=item.fullname,
             gender=item.gender,
             country=item.country,
-            agegroup_title=item.agegroup_title,
+            agegroup=item.agegroup,
             height_cm=item.height_cm,
             weight_kg=item.weight_kg,
             zp_race_category=item.zp_race_category,

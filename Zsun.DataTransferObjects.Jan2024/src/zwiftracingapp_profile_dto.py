@@ -3,13 +3,13 @@ from typing import Optional, Union, Any, Dict, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwiftID"               : AliasChoices("zwiftID", "riderId"),
-    "agegroup_title"               : AliasChoices("agegroup_title", "age"),
+    "zwift_id"               : AliasChoices("zwift_id", "riderId"),
+    "agegroup"               : AliasChoices("agegroup", "age"),
     "fullname"               : AliasChoices("fullname", "name"),
-    "height_cm"               : AliasChoices("height_cm", "height"),
-    "weight_kg"               : AliasChoices("weight_kg", "weight"),
-    "zp_race_category"      : AliasChoices("zp_race_category", "zpCategory"),
-    "zp_FTP"      : AliasChoices("zp_FTP", "zpFTP"),
+    "height_cm"              : AliasChoices("height_cm", "height"),
+    "weight_kg"              : AliasChoices("weight_kg", "weight"),
+    "zp_race_category"       : AliasChoices("zp_race_category", "zpCategory"),
+    "zp_FTP"                 : AliasChoices("zp_FTP", "zpFTP"),
 }
 
 configdictV1 = ConfigDict(
@@ -94,50 +94,69 @@ class ZwiftRacingAppProfileDTO(BaseModel):
         mixed   : Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
 
     model_config  = preferred_config_dict
-    zwiftID             : Optional[str]                      = ""   # Rider ID
+    zwift_id            : Optional[str]                      = ""   # Rider ID
     fullname            : Optional[str]                      = ""   # Name of the rider
-    gender              : Optional[str]                      = ""   # Gender of the rider
+    gender              : Optional[str]                      = ""   # Gender of the rider "M" or "F"
     country             : Optional[str]                      = ""   # Country of the rider
-    agegroup_title      : Optional[str]                      = ""   # Age category of the rider
+    agegroup            : Optional[str]                      = ""   # Age category of the rider eg 50+
     height_cm           : Optional[float]                    = 0    # Height of the rider in centimeters
     weight_kg           : Optional[float]                    = 0    # Weight of the rider in kilograms
     zp_race_category    : Optional[str]                      = ""   # ZwiftPower category, such as C or D
     zp_FTP              : Optional[float]                    = 0    # ZwiftPower FTP (Functional Threshold Power)
-    power               : Optional[Union[PowerDTO, Any]]     = Field(default_factory=PowerDTO)  # Power data of the rider
+    power               : Optional[Union[PowerDTO, Any]]                  = Field(default_factory=PowerDTO)  # Power data of the rider
     race                : Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
                                 "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO()})
 
-    @field_validator(
-    *[
-        field
-        for field, field_type in __annotations__.items()
-        if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
-    ],
-    )
-    def validate_float_fields(cls, value):
-        if value is None:
-            return None
-        try:
-            # Check if the value is numeric and can be cast to a float
-            return float(value)
-        except (ValueError, TypeError):
-            # Return None for non-float values
-            return None
 
-
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-        mode="before"
-    )
-    def sanitise_string_fields(cls, value):
+    # Validator for string fields - get rid of emojis and other unwanted characters
+    @field_validator("fullname", mode="before")
+    def sanitise_string_field(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)
+
+def main():
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+
+    import os
+    from typing import cast
+    from jgh_read_write import read_filepath_as_text, help_select_filepaths_in_folder
+    from jgh_serialization import JghSerialization
+
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+
+    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFTRACINGAPP_PROFILES_DIRPATH)
+    logger.info(f"Found {len(file_paths)} files in {ZWIFTRACINGAPP_PROFILES_DIRPATH}")
+    file_count = 0
+    error_count = 0
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.info(f"Processing file: {file_name}")
+        inputjson = read_filepath_as_text(file_path)
+        file_count += 1
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
+            dto = cast(ZwiftRacingAppProfileDTO, dto)
+        except Exception as e:
+            error_count += 1
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
+            continue
+    
+    logger.info(f"Successfully processed {file_count} files")
+    logger.info(f"Encountered {error_count} errors during processing")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
 

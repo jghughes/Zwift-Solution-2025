@@ -1,6 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_critical_power_graph_files_in_folder, write_dict_of_90day_best_cp_data, get_betel_zwift_ids
+from handy_utilities import read_dict_of_zwiftriders, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_90day_best_cp_data, get_betel_zwift_ids
 
 def main():
     """
@@ -13,7 +13,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `ZwiftPower90DayBestGraphDTO` for data validation and processing.
+        - Uses `ZwiftPower90DayBestPowerDTO` for data validation and processing.
 
     Returns:
         None
@@ -35,7 +35,7 @@ def main():
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    betel_cp_dict = read_many_zwiftpower_critical_power_graph_files_in_folder(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    betel_cp_dict = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     logger.debug(f"loaded cp_data for {len(betel_cp_dict)} riders")
 
@@ -75,7 +75,7 @@ def main():
 
         return new_name
 
-    # Clean up names in each ZwiftPower90DayBestGraphItem
+    # Clean up names in each ZwiftPower90DayBestPowerItem
 
     for rider_id, rider_cp_data in betel_cp_dict.items():
         rider_cp_data.zwiftid = int(rider_id) # write filename into zwiftId field

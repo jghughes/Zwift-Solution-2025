@@ -1,5 +1,5 @@
 from math import log
-from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_critical_power_graph_files_in_folder, read_dict_of_zwiftriders,get_betel_zwift_ids
+from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_bestpower_files_in_folder, read_dict_of_zwiftriders,get_betel_zwift_ids
 
 
 # Module-level constants
@@ -26,7 +26,7 @@ def main():
         - `betel_IDs`: List of rider IDs to process.
 
     Dependencies:
-        - `read_many_zwiftpower_critical_power_graph_files_in_folder`: Reads ZwiftPower critical power data files.
+        - `read_many_zwiftpower_bestpower_files_in_folder`: Reads ZwiftPower critical power data files.
         - `read_dict_of_zwiftriders`: Reads Zwift rider data.
         - `write_dict_of_90day_best_cp_data`: Writes processed critical power data to a JSON file.
         - `jgh_configure_logging`: Configures logging for the application.
@@ -51,7 +51,7 @@ def main():
 
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_betel = read_many_zwiftpower_critical_power_graph_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"

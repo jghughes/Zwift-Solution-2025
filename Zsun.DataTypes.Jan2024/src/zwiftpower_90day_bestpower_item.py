@@ -1,11 +1,11 @@
 from typing import Dict
 from dataclasses import dataclass
 # from numpy.typing import NDArray
-from zwiftpower_90day_best_dto import ZwiftPower90DayBestGraphDTO, ZwiftPowerGraphInformationDTO
+from zwiftpower_90day_best_dto import ZwiftPower90DayBestPowerDTO, ZwiftPowerBestPowerDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 @dataclass
-class ZwiftPower90DayBestGraphItem:
+class ZwiftPower90DayBestPowerItem:
     """
     A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -17,7 +17,6 @@ class ZwiftPower90DayBestGraphItem:
     """
 
     zwift_id   : str   = ""
-    name      : str   = ""
     cp_1      : float = 0.0
     cp_2      : float = 0.0
     cp_3      : float = 0.0
@@ -760,19 +759,18 @@ class ZwiftPower90DayBestGraphItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftPower90DayBestGraphItem") -> ZwiftPower90DayBestGraphDTO:
+    def to_dataTransferObject(item: "ZwiftPower90DayBestPowerItem") -> ZwiftPower90DayBestPowerDTO:
         """
-        Convert a ZwiftPower90DayBestGraphItem instance to a ZwiftPower90DayBestGraphDTO.
+        Convert a ZwiftPower90DayBestPowerItem instance to a ZwiftPower90DayBestPowerDTO.
 
         Args:
-            item (ZwiftPower90DayBestGraphItem): The ZwiftPower90DayBestGraphItem instance to convert.
+            item (ZwiftPower90DayBestPowerItem): The ZwiftPower90DayBestPowerItem instance to convert.
 
         Returns:
-            ZwiftPower90DayBestGraphDTO: The corresponding data transfer object.
+            ZwiftPower90DayBestPowerDTO: The corresponding data transfer object.
         """
-        return ZwiftPower90DayBestGraphDTO(
-            zwiftid        = item.zwift_id,
-            name           = item.name,
+        return ZwiftPower90DayBestPowerDTO(
+            zwift_id        = item.zwift_id,
             cp_1           = item.cp_1,
             cp_2           = item.cp_2,
             cp_3           = item.cp_3,
@@ -876,17 +874,17 @@ class ZwiftPower90DayBestGraphItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftPower90DayBestGraphDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_dataTransferObject(dto: ZwiftPower90DayBestPowerDTO) -> "ZwiftPower90DayBestPowerItem":
         """
-        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestGraphDTO.
+        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftPower90DayBestPowerDTO.
 
         Args:
-            dto (ZwiftPower90DayBestGraphDTO): The data transfer object to convert.
+            dto (ZwiftPower90DayBestPowerDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
+            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
         """
-        return ZwiftPower90DayBestGraphItem(
+        return ZwiftPower90DayBestPowerItem(
             zwift_id        = dto.zwiftid or "",
             name           = dto.name or "",
             cp_1           = dto.cp_1 or 0.0,
@@ -992,9 +990,9 @@ class ZwiftPower90DayBestGraphItem:
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPower90DayBestPowerItem":
         """
-        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftRacingAppProfileDTO.
+        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftRacingAppProfileDTO.
         The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
         Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
         critical power and other derivatives 
@@ -1003,9 +1001,9 @@ class ZwiftPower90DayBestGraphItem:
             dto (ZwiftRacingAppProfileDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
+            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
         """
-        return ZwiftPower90DayBestGraphItem(
+        return ZwiftPower90DayBestPowerItem(
             zwift_id                  = dto.zwiftID if dto.zwiftID else "",
             name                     = dto.fullname or "",
             cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
@@ -1018,15 +1016,15 @@ class ZwiftPower90DayBestGraphItem:
             )
 
     @staticmethod
-    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerGraphInformationDTO) -> "ZwiftPower90DayBestGraphItem":
+    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerBestPowerDTO) -> "ZwiftPower90DayBestPowerItem":
         """
-        Create a ZwiftPower90DayBestGraphItem instance from a ZwiftPower90DayBestDataDTO.
+        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftPower90DayBestDataDTO.
 
         Args:
             dto (ZwiftPower90DayBestDataDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftPower90DayBestGraphItem: The corresponding ZwiftPower90DayBestGraphItem instance.
+            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
         """
         # Extract efforts from the "90days" key, if available
         efforts_90days = dto.efforts.get("90days", []) if dto.efforts else []
@@ -1034,8 +1032,8 @@ class ZwiftPower90DayBestGraphItem:
         # Map efforts to a dictionary of time (x) to power (y)
         cp_data = {effort.x: float(effort.y) for effort in efforts_90days if effort.x and effort.y}
 
-        # Create an instance of ZwiftPower90DayBestGraphItem
-        critical_power_item = ZwiftPower90DayBestGraphItem()
+        # Create an instance of ZwiftPower90DayBestPowerItem
+        critical_power_item = ZwiftPower90DayBestPowerItem()
 
         critical_power_item.import_zwiftpower_graph_data(cp_data)
 

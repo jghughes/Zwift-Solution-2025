@@ -5,7 +5,7 @@ from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftpower_90day_best_item import ZwiftPower90DayBestGraphItem
+from zwiftpower_90day_best_item import ZwiftPower90DayBestPowerItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
 
@@ -25,7 +25,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwift_profileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
         self.dict_of_zwiftracingapp_profileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
         self.dict_of_zwiftpower_profileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
-        self.dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestGraphItem] = field(default_factory=lambda: defaultdict(ZwiftPower90DayBestGraphItem))
+        self.dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestPowerItem] = field(default_factory=lambda: defaultdict(ZwiftPower90DayBestPowerItem))
 
     def populate_repository(
         self,
@@ -38,7 +38,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwift_profileitem               = read_many_zwift_profile_files_in_folder(riderIDs, zwift_profile_dir_path)
         self.dict_of_zwiftracingapp_profileitem      = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, zwiftracingapp_profile_dir_path)
         self.dict_of_zwiftpower_profileitem          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
-        self.dict_of_zwiftpower_90daybest_graph_item = read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
+        self.dict_of_zwiftpower_90daybest_graph_item = read_many_zwiftpower_bestpower_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """

@@ -1,4 +1,4 @@
-from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_critical_power_graph_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder
+from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_bestpower_files_in_folder, get_betel_zwift_ids, get_betel, read_many_zwiftpower_profile_files_in_folder
 import critical_power as cp
 from zsun_rider_item import ZsunRiderItem
 from datetime import datetime
@@ -36,7 +36,7 @@ def main():
 
     INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    raw_cp_dict_for_everybody = read_many_zwiftpower_critical_power_graph_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    raw_cp_dict_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(None, INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
 
     logger.info(f"Successfully read, validated, and loaded {len(raw_cp_dict_for_everybody)} power graphs from ZwiftPower files in:- \nDir : {INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH}\n\n")
 
