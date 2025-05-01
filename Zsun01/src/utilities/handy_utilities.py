@@ -103,7 +103,7 @@ def read_dict_of_90day_best_cp_data(file_name: str, dir_path: str) -> Dict[str, 
     """
     Retrieve a compndium of Zwift riders critical power data from a JSON file 
     in thr format of a duct and convert them to a dict of ZwiftPower90DayBestGraphItem instances.
-    The key of both dicts is zwiftID. The data transfer object is ZwiftPower90DayBestGraphDTO.
+    The key of both dicts is zwift_id. The data transfer object is ZwiftPower90DayBestGraphDTO.
 
     Args:
         file_name (str): The name of the file to read.
@@ -174,29 +174,33 @@ def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_p
     answer: defaultdict[str, ZwiftProfileItem] = defaultdict(ZwiftProfileItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
     for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.info(f"Processing file: {file_name}")
+
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
             dto = JghSerialization.validate(inputjson, ZwiftProfileDTO)
             dto = cast(ZwiftProfileDTO, dto)
-        except Exception:
+        except Exception as e:
             error_count += 1
-            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        file_name = os.path.basename(file_path)
-        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
         item = ZwiftProfileItem.from_dataTransferObject(dto)
-        answer[zwiftID] = item
+        answer[zwift_id] = item
 
     return answer
 
 def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftRacingAppProfileItem]:
     """
     Retrieve multiple ZwiftRacing JSON data files from a directory and convert them into a dictionary
-    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
+    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwift_id` extracted
     from the filename (without the extension).
 
     If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
@@ -208,7 +212,7 @@ def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str
         dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwiftID` strings
+        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwift_id` strings
                                                 and the values are `ZwiftPower90DayBestGraphItem` instances.
 
     Raises:
@@ -229,30 +233,33 @@ def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str
     answer: defaultdict[str, ZwiftRacingAppProfileItem] = defaultdict(ZwiftRacingAppProfileItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.info(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
             dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
             dto = cast(ZwiftRacingAppProfileDTO, dto)
-        except Exception:
+        except Exception as e:
             error_count += 1
-            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        file_name = os.path.basename(file_path)
-        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
         item = ZwiftRacingAppProfileItem.from_dataTransferObject(dto)
-        answer[zwiftID] = item
+        answer[zwift_id] = item
 
     return answer
 
 def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPowerProfileItem]:
     """
     Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
-    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
+    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwift_id` extracted
     from the filename (without the extension).
 
     If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
@@ -264,7 +271,7 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
         dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwiftID` strings
+        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwift_id` strings
                                                 and the values are `ZwiftPower90DayBestGraphItem` instances.
 
     Raises:
@@ -285,31 +292,34 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
     answer: defaultdict[str, ZwiftPowerProfileItem] = defaultdict(ZwiftPowerProfileItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}")
+
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.info(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
             dto = JghSerialization.validate(inputjson, ZwiftPowerProfileDTO)
             dto = cast(ZwiftPowerProfileDTO, dto)
-        except Exception:
+        except Exception as e:
             error_count += 1
-            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-
-        file_name = os.path.basename(file_path)
-        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
         item = ZwiftPowerProfileItem.from_dataTransferObject(dto)
-        answer[zwiftID] = item
+        answer[zwift_id] = item
 
     return answer
 
 def read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPower90DayBestGraphItem]:
     """
     Retrieve multiple ZwiftPower CP graph JSON files from a directory and convert them into a dictionary
-    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwiftID` extracted
+    of `ZwiftPower90DayBestGraphItem` instances. The key of the dictionary is the `zwift_id` extracted
     from the filename (without the extension).
 
     If `riderIDs` is provided, only files matching the specified rider IDs are processed. If `riderIDs`
@@ -321,7 +331,7 @@ def read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs: Optional
         dir_path (str): The directory path where the JSON files are located.
 
     Returns:
-        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwiftID` strings
+        Dict[str, ZwiftPower90DayBestGraphItem]: A dictionary where the keys are `zwift_id` strings
                                                 and the values are `ZwiftPower90DayBestGraphItem` instances.
 
     Raises:
@@ -341,22 +351,25 @@ def read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs: Optional
     answer: defaultdict[str, ZwiftPower90DayBestGraphItem] = defaultdict(ZwiftPower90DayBestGraphItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.info(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
             dto = JghSerialization.validate(inputjson, ZwiftPowerGraphInformationDTO)
             dto = cast(ZwiftPowerGraphInformationDTO, dto)
-        except Exception:
+        except Exception as e:
             error_count += 1
-            logger.error(f"{error_count} serialisation error. Skipping file:- |n{file_path}")
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        file_name = os.path.basename(file_path)
-        zwiftID, _ = os.path.splitext(file_name)  # Safely remove the extension
-        answer[zwiftID] = ZwiftPower90DayBestGraphItem.from_ZwiftPower90DayBestDataDTO(dto)
+        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
+        answer[zwift_id] = ZwiftPower90DayBestGraphItem.from_ZwiftPower90DayBestDataDTO(dto)
 
     return answer
 

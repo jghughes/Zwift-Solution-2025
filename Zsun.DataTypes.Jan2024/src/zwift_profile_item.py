@@ -31,10 +31,10 @@ class ZwiftProfileItem:
             ZwiftProfileItem: The corresponding ZwiftProfileItem instance.
         """
         return ZwiftProfileItem(
-            zwift_id=dto.zwiftID,
-            public_id=dto.publicId,
-            first_name=dto.firstName,
-            last_name=dto.lastName,
+            zwift_id=dto.zwift_id,
+            public_id=dto.public_id,
+            first_name=dto.first_name,
+            last_name=dto.last_name,
             male=dto.male,
             age_years=dto.age_years,
             height_mm=dto.height_mm,
@@ -57,10 +57,10 @@ class ZwiftProfileItem:
             ZwiftProfileDTO: The corresponding data transfer object.
         """
         return ZwiftProfileDTO(
-            zwiftID=item.zwift_id,
-            publicId=item.public_id,
-            firstName=item.first_name,
-            lastName=item.last_name,
+            zwift_id=item.zwift_id,
+            public_id=item.public_id,
+            first_name=item.first_name,
+            last_name=item.last_name,
             male=item.male,
             age_years=item.age_years,
             height_mm=item.height_mm,
