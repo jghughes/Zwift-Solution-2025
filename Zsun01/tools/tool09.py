@@ -39,99 +39,69 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    betel_zwift_ids = get_betel_zwift_ids()
 
     rep : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
 
     rep.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
 
-    logger.info(f"Imported {len(rep.dict_of_zwift_profileDTO)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftracingapp_profileDTO)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftpower_profileDTO)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_graph_item)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwift_profileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftracingapp_profileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftpower_profileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_poweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    df = rep.get_filtered_table_of_intersections_of_sets("y","y","y","y")
+    zwift_ids = rep.get_filtered_list_of_intersections_of_sets("y","y","y","y")
 
-   # Step 3: Extract Zwift IDs from the DataFrame
-    zwift_ids : list[str] = df[ScrapedZwiftDataRepository.COL_ZWIFT_ID].tolist()
-
-    # Step 4: Lookup corresponding entries in dict_of_zwift_profileDTO
-    profile_objects = [
-        rep.dict_of_zwift_profileDTO[zwift_id]
+    zwift_profiles = [
+        rep.dict_of_zwift_profileitem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwift_profileDTO
+        if zwift_id in rep.dict_of_zwift_profileitem
     ]
-
-    profiles_as_attr_dicts : list[dict[str, Any]]= [profile.model_dump() for profile in profile_objects]
-
-    df = pd.DataFrame(profiles_as_attr_dicts)
-
-    output_file_name = "beautiful_zwift_profiles.xlsx"
+    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
+    df = pd.DataFrame(items_as_attr_dicts)
+    output_file_name = "candidate_zwift_profiles.xlsx"
     output_file_path = OUTPUT_DIRPATH + output_file_name
     df.to_excel(output_file_path, index=False, engine="openpyxl")
+    logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
-    logger.info(f"Saved {len(profile_objects)} zwift profiles to: {output_file_path}")
-
-
-    # Step 5: Lookup corresponding entries in dict_of_zwiftpower_profileDTO
-    profile_objects = [
-        rep.dict_of_zwiftpower_profileDTO[zwift_id]
+    items = [
+        rep.dict_of_zwiftracingapp_profileitem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftpower_profileDTO
+        if zwift_id in rep.dict_of_zwiftracingapp_profileitem
     ]
-
-    profiles_as_attr_dicts : list[dict[str, Any]]= [profile.model_dump() for profile in profile_objects]
-
-    df = pd.DataFrame(profiles_as_attr_dicts)
-
-    output_file_name = "beautiful_zwiftpower_profiles.xlsx"
+    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    df = pd.DataFrame(items_as_attr_dicts)
+    output_file_name = "candidate_zwiftracingapp_profiles.xlsx"
     output_file_path = OUTPUT_DIRPATH + output_file_name
     df.to_excel(output_file_path, index=False, engine="openpyxl")
+    logger.info(f"Saved {len(items)} zwiftracingapp profiles to: {output_file_path}")
 
-    logger.info(f"Saved {len(profile_objects)} zwiftpower profiles to: {output_file_path}")
 
 
-    # Step 6: Lookup corresponding entries in dict_of_zwiftracingapp_profileDTO
-    profile_objects = [
-        rep.dict_of_zwiftracingapp_profileDTO[zwift_id]
+    items = [
+        rep.dict_of_zwiftpower_profileitem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftracingapp_profileDTO
+        if zwift_id in rep.dict_of_zwiftpower_profileitem
     ]
-
-    profiles_as_attr_dicts : list[dict[str, Any]]= [profile.model_dump() for profile in profile_objects]
-
-    df = pd.DataFrame(profiles_as_attr_dicts)
-
-    output_file_name = "beautiful_zwiftracingapp_profiles.xlsx"
+    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    df = pd.DataFrame(items_as_attr_dicts)
+    output_file_name = "candidate_zwiftpower_profiles.xlsx"
     output_file_path = OUTPUT_DIRPATH + output_file_name
     df.to_excel(output_file_path, index=False, engine="openpyxl")
+    logger.info(f"Saved {len(items)} zwiftpower profiles to: {output_file_path}")
 
-    logger.info(f"Saved {len(profile_objects)} zwiftracingapp profiles to: {output_file_path}")
 
-    # Step 7: Lookup corresponding entries in dict_of_zwiftpower_90daybest_graph_item
-    profile_objects = [
-        rep.dict_of_zwiftpower_90daybest_graph_item[zwift_id]
+    items = [
+        rep.dict_of_zwiftpower_90daybest_poweritem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftpower_90daybest_graph_item
+        if zwift_id in rep.dict_of_zwiftpower_90daybest_poweritem
     ]
-
-    profiles_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in profile_objects]
-
-    df = pd.DataFrame(profiles_as_attr_dicts)
-
-    output_file_name = "beautiful_zwiftpower_90day_bests.xlsx"
+    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    df = pd.DataFrame(items_as_attr_dicts)
+    output_file_name = "candidate_zwiftpower_90day_bests.xlsx"
     output_file_path = OUTPUT_DIRPATH + output_file_name
     df.to_excel(output_file_path, index=False, engine="openpyxl")
-
-    logger.info(f"Saved {len(profile_objects)} zwiftpower 90day bests to: {output_file_path}")
-
-
-
-
-
-
-
+    logger.info(f"Saved {len(items)} zwiftpower 90day bests to: {output_file_path}")
 
 
 
