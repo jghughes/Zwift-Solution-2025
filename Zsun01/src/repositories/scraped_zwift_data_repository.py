@@ -5,8 +5,9 @@ from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftpower_90day_best_item import ZwiftPower90DayBestPowerItem
+from zwiftpower_90day_bestpower_item import ZwiftPower90DayBestPowerItem
 import pandas as pd
+import numpy as np
 from jgh_read_write import raise_exception_if_invalid
 
 
@@ -104,25 +105,28 @@ class ScrapedZwiftDataRepository:
             pd.DataFrame: A DataFrame with columns indicating the presence of Zwift IDs in all datasets.
         """
         # Step 1: Create sets for all datasets
-        sets_to_check = [
-            set(self.dict_of_zwift_profileitem.keys()),
-            set(self.dict_of_zwiftracingapp_profileitem.keys()),
-            set(self.dict_of_zwiftpower_profileitem.keys()),
-            set(self.dict_of_zwiftpower_90daybest_graph_item.keys())
-        ]
+        #create four separate list [str] of keys of each dataset
+        zwift_profiles = list(self.dict_of_zwift_profileitem.keys())
+        zwiftracingapp_profiles = list(self.dict_of_zwiftracingapp_profileitem.keys())
+        zwiftpower_profiles = list(self.dict_of_zwiftpower_profileitem.keys())
+        zwiftpower_90daybest_graphs = list(self.dict_of_zwiftpower_90daybest_graph_item.keys())
+        
+        intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_profiles) & set(zwiftpower_90daybest_graphs)
 
         # Include sample1 and sample2 in the criterion only if they are not empty
         if sample1:
-            sets_to_check.append(set(sample1))
+            intersection = intersection & set(sample1)
+
         if sample2:
-            sets_to_check.append(set(sample2))
+            intersection = intersection & set(sample2)
+
+
 
         # Step 2: Find Zwift IDs common to all datasets
-        common_zwiftIDs = set.intersection(**sets_to_check)
 
         # Step 3: Populate the answer list
         answer: list[tuple[str, str, str, str, str, str, str]] = []
-        for key in common_zwiftIDs:
+        for key in intersection:
             row = (
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
@@ -296,20 +300,33 @@ def main():
 ] # betel, only two of whom are in all the datasets - dave and scott
 
     # get the superset - should be more than 1500
-    df_common_to_all = rep.get_table_of_superset_of_sets_by_id(sample1, sample2)
-
-
-    # Call the method to get the DataFrame of Zwift IDs common to all datasets
-    # df_common_to_all = rep.get_table_of_intersections_of_sets(sample1, sample2)
+    df = rep.get_table_of_superset_of_sets_by_id(sample1, sample2)
 
     # Display the resulting DataFrame
-    print("DataFrame of Zwift IDs common to all datasets:")
-    print(df_common_to_all)
+    print("DataFrame of superset of Zwift IDs in all datasets including samples:")
+    print(df)
 
     # Optionally, save the DataFrame to an Excel file for verification
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    OUTPUT_FILENAME = "zwiftid_common_to_all_including_samples.xlsx"
-    rep.save_dataframe_to_excel(df_common_to_all, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    OUTPUT_FILENAME = "beautiful_superset_of_zwiftids_in__all_datasets_including_samples.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+
+    # Call the method to get the DataFrame of the intersection of datasets - should be tiny
+    df = rep.get_table_of_intersections_of_sets(sample1, sample2)
+
+    # Display the resulting DataFrame
+    print("DataFrame of intesection of Zwift IDs in all datasets including samples:")
+    print(df)
+
+    # Optionally, save the DataFrame to an Excel file for verification
+    OUTPUT_FILENAME2 = "beautiful_intersection_of_zwiftids_in__all_datasets_including_samples.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
+
+
+
+
+
+
 
 
 
@@ -362,6 +379,6 @@ def main2():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
 
-    main2()
+    # main2()
