@@ -1,5 +1,5 @@
 from math import log
-from handy_utilities import write_dict_of_90day_best_cp_data, read_many_zwiftpower_bestpower_files_in_folder, read_dict_of_zwiftriders,get_betel_zwift_ids
+from handy_utilities import write_dict_of_90day_bestpower_items, read_many_zwiftpower_bestpower_files_in_folder, read_dict_of_zsunrider_items,get_betel_zwift_ids
 
 
 # Module-level constants
@@ -27,8 +27,8 @@ def main():
 
     Dependencies:
         - `read_many_zwiftpower_bestpower_files_in_folder`: Reads ZwiftPower critical power data files.
-        - `read_dict_of_zwiftriders`: Reads Zwift rider data.
-        - `write_dict_of_90day_best_cp_data`: Writes processed critical power data to a JSON file.
+        - `read_dict_of_zsunrider_items`: Reads Zwift rider data.
+        - `write_dict_of_90day_bestpower_items`: Writes processed critical power data to a JSON file.
         - `jgh_configure_logging`: Configures logging for the application.
 
     Raises:
@@ -56,7 +56,7 @@ def main():
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_dict_of_zsunrider_items(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
         rider_cp_data.zwiftid = int(rider_id) # Ensure zwiftid is an integer and fill in the blank
@@ -68,7 +68,7 @@ def main():
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV2.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    write_dict_of_90day_best_cp_data(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_90day_bestpower_items(raw_cp_dict_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
     from tabulate import tabulate
 

@@ -42,6 +42,19 @@ class ZwiftPowerProfileDTO(BaseModel):
             return ""
         return sanitise_string(value)
 
+    @field_validator("race_ranking", "zwift_racing_score", "zftp", "weight", "zpoints", "level", mode="before")
+    def sanitise_wrapped_numerics(cls, value):
+        if value is None:
+            return "0"
+        try:
+            # Attempt to cast the value to a float
+            float(value)
+            # If the cast succeeds, return the string unchanged
+            return value
+        except ValueError:
+            # If the cast fails, return "0"
+            return "0"
+
 def main():
 
     import logging

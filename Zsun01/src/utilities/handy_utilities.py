@@ -26,7 +26,7 @@ def get_betel_zwift_ids() -> List[str]:
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    riders = read_dict_of_zwiftriders(file_name, dir_path)
+    riders = read_dict_of_zsunrider_items(file_name, dir_path)
 
     # extract list of zwiftIds from the riders
     answer = [str(rider.zwift_id) for rider in riders.values()]
@@ -43,12 +43,12 @@ def get_betel(id : int) -> ZsunRiderItem:
     """
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zwiftriders(file_name, dir_path)
+    riders = read_dict_of_zsunrider_items(file_name, dir_path)
     # extract list of zwiftIds from the riders
     answer = riders[str(id)]
     return answer
 
-def get_zwift_rider(id : int) -> ZsunRiderItem:
+def get_zsun_rider(id : int) -> ZsunRiderItem:
     """
     Retrieve a specific Zwift rider by their ID from the JSON file and convert it to a ZsunRiderItem instance.
     Args:
@@ -58,12 +58,12 @@ def get_zwift_rider(id : int) -> ZsunRiderItem:
     """
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zwiftriders(file_name, dir_path)
+    riders = read_dict_of_zsunrider_items(file_name, dir_path)
     # extract list of zwiftIds from the riders
     answer = riders[str(id)]
     return answer
 
-def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZsunRiderItem]:
+def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> Dict[str, ZsunRiderItem]:
     """
     Retrieve all Zwift riders from a JSON file and convert them to ZsunRiderItem instances.
     The data transfer object is ZsunRiderDTO.
@@ -100,7 +100,7 @@ def read_dict_of_zwiftriders(file_name: str, dir_path: str) -> Dict[str, ZsunRid
         for key, dto in answer.items()
     }
 
-def read_dict_of_90day_best_cp_data(file_name: str, dir_path: str) -> Dict[str, ZwiftPower90DayBestPowerItem]:
+def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, ZwiftPower90DayBestPowerItem]:
     """
     Retrieve a compndium of Zwift riders critical power data from a JSON file 
     in thr format of a duct and convert them to a dict of ZwiftPower90DayBestPowerItem instances.
@@ -137,7 +137,7 @@ def read_dict_of_90day_best_cp_data(file_name: str, dir_path: str) -> Dict[str, 
         for key, dto in answer.items()
     }
 
-def write_dict_of_90day_best_cp_data(data: Dict[str, ZwiftPower90DayBestPowerItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_90day_bestpower_items(data: Dict[str, ZwiftPower90DayBestPowerItem], file_name: str, dir_path: str) -> None:
     """
     Serialize a dictionary of ZwiftPower90DayBestPowerItem instances and write it to a JSON file.
 
@@ -384,11 +384,11 @@ def main():
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    jgh_cp_dict = read_dict_of_90day_best_cp_data(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+    jgh_cp_dict = read_dict_of_90day_bestpower_items(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_dict_of_90day_best_cp_data(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_dict_of_90day_bestpower_items(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
 def main02():
     # configure logging
@@ -399,9 +399,22 @@ def main02():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-    _ = read_many_zwiftpower_bestpower_files_in_folder(get_betel_zwift_ids(), INPUT_ZWIFTPOWER_GRAPHS_FROM_DAVEK_DIRPATH)
+    dict_of_zwift_profiles = read_many_zwift_profile_files_in_folder(None, ZWIFT_PROFILES_DIRPATH)
+    logger.info(f"Imported {len(dict_of_zwift_profiles)} zwift profile items")
+
+    dict_of_zwiftracingapp_profiles = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
+    logger.info(f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
+
+    dict_of_zwiftpower_profiles = read_many_zwiftpower_profile_files_in_folder(None, ZWIFTPOWER_PROFILES_DIRPATH)
+    logger.info(f"Imported {len(dict_of_zwiftpower_profiles)} zwiftpower profile items")
+
+    dict_of_zwiftpower_90day_bestpower = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
+    logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower bestpower info items")
 
 if __name__ == "__main__":
     main02()

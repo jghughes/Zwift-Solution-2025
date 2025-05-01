@@ -1,4 +1,4 @@
-from handy_utilities import read_many_zwiftracingapp_profile_files_in_folder, get_betel_zwift_ids, read_dict_of_zwiftriders
+from handy_utilities import read_many_zwiftracingapp_profile_files_in_folder, get_betel_zwift_ids, read_dict_of_zsunrider_items
 from zsun_rider_item import ZsunRiderItem
 
 import logging
@@ -53,7 +53,7 @@ def main():
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_dict_of_zsunrider_items(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
 
     zsun_cp_dict = read_many_zwiftracingapp_profile_files_in_folder([], INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)

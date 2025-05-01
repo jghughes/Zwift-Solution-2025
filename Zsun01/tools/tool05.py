@@ -3,7 +3,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunRiderItem
-from handy_utilities import read_dict_of_zwiftriders, read_dict_of_90day_best_cp_data
+from handy_utilities import read_dict_of_zsunrider_items, read_dict_of_90day_bestpower_items
 import critical_power as cp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
@@ -54,17 +54,17 @@ def main():
 
     # get rider profiles
 
-    from handy_utilities import read_dict_of_zwiftriders
+    from handy_utilities import read_dict_of_zsunrider_items
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_dict_of_zsunrider_items(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     # get rider CP data
 
-    riders_cp_data = read_dict_of_90day_best_cp_data("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
-    # riders_cp_data = read_dict_of_90day_best_cp_data("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    riders_cp_data = read_dict_of_90day_bestpower_items("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    # riders_cp_data = read_dict_of_90day_bestpower_items("extracted_input_cp_data_for_betel.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
 
     barryb ='5490373' #ftp 273
     johnh ='1884456' #ftp 240 zmap 292

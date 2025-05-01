@@ -1,7 +1,7 @@
 from typing import Dict
 from dataclasses import dataclass
-# from numpy.typing import NDArray
-from zwiftpower_90day_best_dto import ZwiftPower90DayBestPowerDTO, ZwiftPowerBestPowerDTO
+from zwiftpower_90day_bestpower_dto import ZwiftPower90DayBestPowerDTO
+from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 @dataclass
@@ -885,8 +885,7 @@ class ZwiftPower90DayBestPowerItem:
             ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
         """
         return ZwiftPower90DayBestPowerItem(
-            zwift_id        = dto.zwiftid or "",
-            name           = dto.name or "",
+            zwift_id        = dto.zwift_id or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
             cp_3           = dto.cp_3 or 0.0,
@@ -1004,8 +1003,7 @@ class ZwiftPower90DayBestPowerItem:
             ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
         """
         return ZwiftPower90DayBestPowerItem(
-            zwift_id                  = dto.zwiftID if dto.zwiftID else "",
-            name                     = dto.fullname or "",
+            zwift_id                  = dto.zwift_id if dto.zwift_id else "",
             cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
             cp_15                    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
             cp_30                    = dto.power.w30 if dto.power and dto.power.w30 else 0.0,

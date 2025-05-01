@@ -6,18 +6,18 @@ from zwift_profile_dto import ZwiftProfileDTO
 
 @dataclass
 class ZwiftProfileItem:
-    zwift_id: Optional[str] = None
-    public_id: Optional[str] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    male: Optional[bool] = None
-    age_years: Optional[float] = None
-    height_mm: Optional[float] = None
-    weight_grams: Optional[float] = None
-    zftp: Optional[float] = None
-    zwift_racing_score: Optional[float] = None
-    zwift_racing_category: Optional[str] = None
-    zwift_racing_category_women: Optional[str] = None
+    zwift_id                  : Optional[str]  = None
+    public_id                 : Optional[str]  = None
+    first_name                : Optional[str]  = None
+    last_name                 : Optional[str]  = None
+    male                      : Optional[bool] = None
+    age_years                 : Optional[float] = None
+    height_mm                 : Optional[float] = None
+    weight_grams              : Optional[float] = None
+    zftp                      : Optional[float] = None
+    zwift_racing_score        : Optional[float] = None
+    zwift_racing_category     : Optional[str]  = None
+    zwift_racing_category_women: Optional[str]  = None
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftProfileDTO) -> "ZwiftProfileItem":
@@ -31,18 +31,18 @@ class ZwiftProfileItem:
             ZwiftProfileItem: The corresponding ZwiftProfileItem instance.
         """
         return ZwiftProfileItem(
-            zwift_id=dto.zwift_id,
-            public_id=dto.public_id,
-            first_name=dto.first_name,
-            last_name=dto.last_name,
-            male=dto.male,
-            age_years=dto.age_years,
-            height_mm=dto.height_mm,
-            weight_grams=dto.weight_grams,
-            zftp=dto.ftp,
-            zwift_racing_score=dto.competitionMetrics.racingScore if dto.competitionMetrics else None,
-            zwift_racing_category=dto.competitionMetrics.category if dto.competitionMetrics else None,
-            zwift_racing_category_women=dto.competitionMetrics.categoryWomen if dto.competitionMetrics else None,
+            zwift_id                  = dto.zwift_id,
+            public_id                 = dto.public_id,
+            first_name                = dto.first_name,
+            last_name                 = dto.last_name,
+            male                      = dto.male,
+            age_years                 = dto.age_years,
+            height_mm                 = dto.height_mm,
+            weight_grams              = dto.weight_grams,
+            zftp                      = dto.ftp,
+            zwift_racing_score        = dto.competitionMetrics.racingScore if dto.competitionMetrics else None,
+            zwift_racing_category     = dto.competitionMetrics.category if dto.competitionMetrics else None,
+            zwift_racing_category_women = dto.competitionMetrics.categoryWomen if dto.competitionMetrics else None,
         )
 
     @staticmethod
@@ -57,18 +57,18 @@ class ZwiftProfileItem:
             ZwiftProfileDTO: The corresponding data transfer object.
         """
         return ZwiftProfileDTO(
-            zwift_id=item.zwift_id,
-            public_id=item.public_id,
-            first_name=item.first_name,
-            last_name=item.last_name,
-            male=item.male,
-            age_years=item.age_years,
-            height_mm=item.height_mm,
-            weight_grams=item.weight_grams,
-            ftp=item.zftp,
-            competitionMetrics=ZwiftProfileDTO.CompetitionMetricsDTO(
-                racingScore=item.zwift_racing_score,
-                category=item.zwift_racing_category,
-                categoryWomen=item.zwift_racing_category_women,
+            zwift_id                  = item.zwift_id,
+            public_id                 = item.public_id,
+            first_name                = item.first_name,
+            last_name                 = item.last_name,
+            male                      = item.male,
+            age_years                 = item.age_years,
+            height_mm                 = item.height_mm,
+            weight_grams              = item.weight_grams,
+            ftp                       = item.zftp,
+            competitionMetrics        = ZwiftProfileDTO.CompetitionMetricsDTO(
+                racingScore           = item.zwift_racing_score,
+                category              = item.zwift_racing_category,
+                categoryWomen         = item.zwift_racing_category_women,
             ),
         )

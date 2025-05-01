@@ -78,12 +78,12 @@ def main() -> None:
         ]
         logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
-    from handy_utilities import read_dict_of_zwiftriders
+    from handy_utilities import read_dict_of_zsunrider_items
 
     RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    dict_of_zwiftrideritem = read_dict_of_zwiftriders(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_dict_of_zsunrider_items(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
 
     davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
