@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
-from typing import Optional
+from typing import Optional, Union, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -33,13 +33,16 @@ class ZwiftPowerProfileDTO(BaseModel):
     strava_profile           : Optional[str] = ""
     level                    : Optional[str] = "" # wraps an int
 
-    # Validator for all string fields
     @field_validator(
-        "zwift_id", "profile_url", "zwift_name", "race_ranking", "zwift_racing_score",
-        "zwift_racing_category", "team", "zftp", "weight", "age_group", "zpoints",
-        "country", "profile_image", "strava_profile", "level", mode="before"
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
     )
-    def sanitize_string_fields(cls, value):
+    def sanitise_string_fields(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)
+

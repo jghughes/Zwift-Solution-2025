@@ -1,5 +1,5 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
-from typing import Optional
+from typing import Optional, Union, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -48,44 +48,32 @@ class ZwiftProfileDTO(BaseModel):
     ftp                 : Optional[float]                    = 0    # Functional Threshold Power (FTP) in watts (I don't know if this is the same as their zFTP)
     competitionMetrics  : Optional[CompetitionMetricsDTO]    = Field(default_factory=CompetitionMetricsDTO)
 
-    # Validator for numeric fields
-    @field_validator("age_years", "height_mm", "weight_grams", "ftp", mode="before")
-    def validate_numeric_fields(cls, value):
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+    )
+    def validate_float_fields(cls, value):
         if value is None:
             return None
         try:
-            # Check if the value is numeric
+            # Check if the value is numeric and can be cast to a float
             return float(value)
         except (ValueError, TypeError):
-            # Return None for non-numeric values
+            # Return None for non-float values
             return None
 
-    # Validator for zwiftID to convert int to str
-    @field_validator("zwiftID", mode="before")
-    def validate_zwiftID(cls, value):
-        if value is None:
-            return ""
-        return str(value)
-
-    # Validator for boolean fields
-    @field_validator("male", mode="before")
-    def validate_boolean_fields(cls, value):
-        if value is None:
-            return False  # Default to False if the value is None
-        if isinstance(value, bool):
-            return value  # Return the value if it's already a boolean
-        if isinstance(value, str):
-            # Convert common string representations of booleans
-            if value.lower() in {"true", "1", "yes"}:
-                return True
-            if value.lower() in {"false", "0", "no"}:
-                return False
-        raise ValueError(f"Invalid value for boolean field: {value}")
-
-
-    # # Validator for all string fields
-    @field_validator("publicId", "firstName", "lastName", mode="before")
-    def sanitize_string_fields(cls, value):
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
+    )
+    def sanitise_string_fields(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)

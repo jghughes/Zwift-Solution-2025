@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
-from typing import Optional, Union, Any, Dict
+from typing import Optional, Union, Any, Dict, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -50,22 +50,23 @@ class ZwiftRacingAppProfileDTO(BaseModel):
         compoundScore: Optional[float] = 0.0  # Compound score
         powerRating: Optional[float] = 0.0  # Power rating
 
-        # Validator for all numeric fields
         @field_validator(
-            "wkg5", "wkg15", "wkg30", "wkg60", "wkg120", "wkg300", "wkg1200",
-            "w5", "w15", "w30", "w60", "w120", "w300", "w1200",
-            "CP", "AWC", "compoundScore", "powerRating",
-            mode="before"
+            *[
+                field
+                for field, field_type in __annotations__.items()
+                if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+            ],
         )
-        def validate_numeric_fields(cls, value):
+        def validate_float_fields(cls, value):
             if value is None:
                 return None
             try:
-                # Check if the value is numeric
+                # Check if the value is numeric and can be cast to a float
                 return float(value)
             except (ValueError, TypeError):
-                # Return None for non-numeric values
+                # Return None for non-float values
                 return None
+
 
     class RaceDetailsDTO(BaseModel):
         """
@@ -88,13 +89,9 @@ class ZwiftRacingAppProfileDTO(BaseModel):
             category: Optional[str] = ""  # Name of the velo category, eg copper
             number: Optional[int] = 0    # Number associated with the velo category, eg 10
 
-
-        rating: Optional[float] = 0  # Race rating
-        date: Optional[int] = 0      # Date as a Unix timestamp
-        mixed: Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
-
-
-
+        rating  : Optional[float] = 0  # Race rating
+        date    : Optional[int] = 0      # Date as a Unix timestamp
+        mixed   : Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
 
     model_config  = preferred_config_dict
     zwiftID             : Optional[str]                      = ""   # Rider ID
@@ -113,25 +110,34 @@ class ZwiftRacingAppProfileDTO(BaseModel):
                                 "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO()})
 
-@field_validator("height_cm", "weight_kg", "zp_FTP", mode="before")
-def validate_numeric_fields(cls, value):
-    if value is None:
-        return None
-    try:
-        # Check if the value is numeric
-        return float(value)
-    except (ValueError, TypeError):
-        # Return None for non-numeric values
-        return None
-
-    # Validator for all string fields in ZwiftRacingAppProfileDTO
     @field_validator(
-        "zwiftID", "fullname", "gender", "country", "agegroup_title", "zp_race_category", mode="before"
+    *[
+        field
+        for field, field_type in __annotations__.items()
+        if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+    ],
     )
-    def sanitize_string_fields(cls, value):
+    def validate_float_fields(cls, value):
+        if value is None:
+            return None
+        try:
+            # Check if the value is numeric and can be cast to a float
+            return float(value)
+        except (ValueError, TypeError):
+            # Return None for non-float values
+            return None
+
+
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
+    )
+    def sanitise_string_fields(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)
-
-
 

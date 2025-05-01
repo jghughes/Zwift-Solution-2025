@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional, Dict, List, Any, Union
+from typing import Optional, Dict, List, Any, Union, get_origin, get_args
 from jgh_read_write import *
 from jgh_serialization import *
 from jgh_sanitise_string import sanitise_string
@@ -139,16 +139,33 @@ class ZwiftPower90DayBestGraphDTO(BaseModel):
     cp_6600 : Optional[float] = 0.0
     cp_7200 : Optional[float] = 0.0
 
-    # Validator for zwiftID to convert incoming int to str
-    @field_validator("zwiftid", mode="before")
-    def validate_zwiftID(cls, value):
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+    )
+    def validate_float_fields(cls, value):
         if value is None:
-            return ""
-        return str(value)
+            return None
+        try:
+            # Check if the value is numeric and can be cast to a float
+            return float(value)
+        except (ValueError, TypeError):
+            # Return None for non-float values
+            return None
 
-    # Validator for all string fields
-    @field_validator("name", mode="before")
-    def sanitize_string_fields(cls, value):
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
+    )
+    def sanitise_string_fields(cls, value):
         if value is None:
             return ""
         return sanitise_string(value)
+

@@ -2,10 +2,10 @@
 from dataclasses import dataclass, field 
 from collections import defaultdict
 from handy_utilities import *
-from zwift_profile_dto import ZwiftProfileDTO
-from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
-from zwiftpower_profile_dto import ZwiftPowerProfileDTO
-from zsun_rider_item import ZwiftPower90DayBestGraphItem
+from zwift_profile_item import ZwiftProfileItem
+from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
+from zwiftpower_profile_item import ZwiftPowerProfileItem
+from zwiftpower_90day_best_item import ZwiftPower90DayBestGraphItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
 
@@ -22,9 +22,9 @@ class ScrapedZwiftDataRepository:
     COL_IN_ZWIFTPOWER_90DAYBEST_GRAPHS = "in_zwiftpower_90daybest_graphs"
  
     def __init__(self):
-        self.dict_of_zwift_profileDTO: defaultdict[str, ZwiftProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftProfileDTO))
-        self.dict_of_zwiftracingapp_profileDTO: defaultdict[str, ZwiftRacingAppProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileDTO))
-        self.dict_of_zwiftpower_profileDTO: defaultdict[str, ZwiftPowerProfileDTO] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileDTO))
+        self.dict_of_zwift_profileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
+        self.dict_of_zwiftracingapp_profileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
+        self.dict_of_zwiftpower_profileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
         self.dict_of_zwiftpower_90daybest_graph_item: defaultdict[str, ZwiftPower90DayBestGraphItem] = field(default_factory=lambda: defaultdict(ZwiftPower90DayBestGraphItem))
 
     def populate_repository(
@@ -35,9 +35,9 @@ class ScrapedZwiftDataRepository:
         zwiftpower_profile_dir_path: str,
         zwiftpower_90daybest_dir_path: str
     ):
-        self.dict_of_zwift_profileDTO               = read_many_zwift_profile_files_in_folder(riderIDs, zwift_profile_dir_path)
-        self.dict_of_zwiftracingapp_profileDTO      = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, zwiftracingapp_profile_dir_path)
-        self.dict_of_zwiftpower_profileDTO          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
+        self.dict_of_zwift_profileitem               = read_many_zwift_profile_files_in_folder(riderIDs, zwift_profile_dir_path)
+        self.dict_of_zwiftracingapp_profileitem      = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, zwiftracingapp_profile_dir_path)
+        self.dict_of_zwiftpower_profileitem          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
         self.dict_of_zwiftpower_90daybest_graph_item = read_many_zwiftpower_critical_power_graph_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
@@ -56,9 +56,9 @@ class ScrapedZwiftDataRepository:
 
         # Step 2: Create a superset of all Zwift IDs - the zwift dataset is over a thousand, the others are half that. zwiftracing contains only 200 odd
         superset_of_zwiftID = set(sample1) | set(sample2) | \
-                              set(self.dict_of_zwift_profileDTO.keys()) | \
-                              set(self.dict_of_zwiftracingapp_profileDTO.keys()) | \
-                              set(self.dict_of_zwiftpower_profileDTO.keys()) | \
+                              set(self.dict_of_zwift_profileitem.keys()) | \
+                              set(self.dict_of_zwiftracingapp_profileitem.keys()) | \
+                              set(self.dict_of_zwiftpower_profileitem.keys()) | \
                               set(self.dict_of_zwiftpower_90daybest_graph_item.keys())
 
         # Optional: Log the size of the superset for debugging
@@ -70,9 +70,9 @@ class ScrapedZwiftDataRepository:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_zwift_profileDTO.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_zwiftracingapp_profileDTO.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_zwiftpower_profileDTO.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self.dict_of_zwift_profileitem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self.dict_of_zwiftracingapp_profileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self.dict_of_zwiftpower_profileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
                 "y" if key in self.dict_of_zwiftpower_90daybest_graph_item.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
@@ -105,9 +105,9 @@ class ScrapedZwiftDataRepository:
         """
         # Step 1: Create sets for all datasets
         sets_to_check = [
-            set(self.dict_of_zwift_profileDTO.keys()),
-            set(self.dict_of_zwiftracingapp_profileDTO.keys()),
-            set(self.dict_of_zwiftpower_profileDTO.keys()),
+            set(self.dict_of_zwift_profileitem.keys()),
+            set(self.dict_of_zwiftracingapp_profileitem.keys()),
+            set(self.dict_of_zwiftpower_profileitem.keys()),
             set(self.dict_of_zwiftpower_90daybest_graph_item.keys())
         ]
 
@@ -118,7 +118,7 @@ class ScrapedZwiftDataRepository:
             sets_to_check.append(set(sample2))
 
         # Step 2: Find Zwift IDs common to all datasets
-        common_zwiftIDs = set.intersection(*sets_to_check)
+        common_zwiftIDs = set.intersection(**sets_to_check)
 
         # Step 3: Populate the answer list
         answer: list[tuple[str, str, str, str, str, str, str]] = []
@@ -127,9 +127,9 @@ class ScrapedZwiftDataRepository:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_zwift_profileDTO.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_zwiftracingapp_profileDTO.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_zwiftpower_profileDTO.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self.dict_of_zwift_profileitem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self.dict_of_zwiftracingapp_profileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self.dict_of_zwiftpower_profileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
                 "y" if key in self.dict_of_zwiftpower_90daybest_graph_item.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)

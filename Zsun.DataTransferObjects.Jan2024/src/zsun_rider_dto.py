@@ -1,13 +1,14 @@
 # Local application imports
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 from tabulate import tabulate
-from typing import Optional
+from typing import Optional,  get_origin, get_args
 from jgh_read_write import *
 from jgh_serialization import *
+from jgh_sanitise_string import sanitise_string
 
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwiftid"               : AliasChoices("zwiftid", "zwift_id", "riderId"),
+    "zwift_id"               : AliasChoices("zwift_id","zwiftid", "riderId"),
     "name"                  : AliasChoices("name", "zwift_name"),
     "weight"                : AliasChoices("weight"),
     "height"                : AliasChoices("height"),
@@ -71,7 +72,7 @@ class ZsunRiderDTO(BaseModel):
         when_curves_fitted     : str     Timestamp indicating when the models were fitted.
     """
     model_config           = preferred_config_dict
-    zwiftid                : Optional[str]   = ""     # Zwift ID of the rider
+    zwift_id                : Optional[str]   = ""     # Zwift ID of the rider
     name                   : Optional[str]   = ""    # Name of the rider
     weight                 : Optional[float] = 0     # Weight of the rider in kilograms
     height                 : Optional[float] = 0     # Height of the rider in centimeters
@@ -90,6 +91,54 @@ class ZsunRiderDTO(BaseModel):
     pull_curve_coefficient : Optional[float] = 0.0
     pull_curve_exponent    : Optional[float] = 0.0
     when_curves_fitted     : Optional[str]   = ""
+
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and int in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
+    )
+    def validate_int_fields(cls, value):
+        if value is None:
+            return None
+        try:
+            # Check if the value is numeric and can be cast to an integer
+            return int(value)
+        except (ValueError, TypeError):
+            # Return None for non-integer values
+            return None
+
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+    )
+    def validate_float_fields(cls, value):
+        if value is None:
+            return None
+        try:
+            # Check if the value is numeric and can be cast to a float
+            return float(value)
+        except (ValueError, TypeError):
+            # Return None for non-float values
+            return None
+
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+        mode="before"
+    )
+    def sanitise_string_fields(cls, value):
+        if value is None:
+            return ""
+        return sanitise_string(value)
 
 
 def main02():
