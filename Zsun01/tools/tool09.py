@@ -1,12 +1,12 @@
 # load Dave's jgh_cp data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
-from typing import Dict, Optional, List, Tuple, Any
-from collections import defaultdict
+from typing import Any
+# from collections import defaultdict
 import pandas as pd
-import numpy as np
-from sympy import ZZ
+# import numpy as np
+# from sympy import ZZ
 
-from handy_utilities import get_betel_zwift_ids
-import jgh_cp as cp
+# from handy_utilities import get_betel_zwift_ids
+# import jgh_cp as cp
 from zsun_rider_item import ZsunRiderItem
 from dataclasses import dataclass,  asdict
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository# configure logging
@@ -124,59 +124,61 @@ def main():
     dict_of_zsun_riders : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
     
     for key in rep.dict_of_zwiftprofileitem:
-        zwift_profile = rep.dict_of_zwiftprofileitem[key]
-        if zwift_profile.zftp < 50 or zwift_profile.zwift_racing_score < 80:            
-            # logger.warning(f"Skipped: low zFTP or poor ZRS: {zwift_profile.first_name} {zwift_profile.last_name}")
+        z = rep.dict_of_zwiftprofileitem[key]
+        if z.zftp < 50 or z.zwift_racing_score < 80:            
+            # logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
             continue
         jgh_best_power = rep.dict_of_zwiftpowercurveof90daybestpoweritem[key]
         if jgh_best_power.cp_10 == 0:
-            # logger.warning(f"Skipped: no 90-day-best curve: {zwift_profile.first_name} {zwift_profile.last_name}")
+            # logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
             continue
 
-        velo_profile = rep.dict_of_zwiftracingappprofileitem[key]
-        velo_powerinfo = velo_profile.power
-
-        zp_profile = rep.dict_of_zwiftpowerprofileitem[key]
+        velo = rep.dict_of_zwiftracingappprofileitem[key]
+        velo_racedetails = velo.dict_of_racedetailsdto["max90"]
+        velo_mixed = velo_racedetails.mixed
+        
+        zp = rep.dict_of_zwiftpowerprofileitem[key]
 
         item = ZsunRiderItem(
-            zwift_id                   = zwift_profile.zwift_id or "",
-            name                       = f"{zwift_profile.last_name or ''}, {zwift_profile.first_name or ''}",
-            weight_kg                  = (zwift_profile.weight_grams or 0.0) / 1_000.0,
-            height_cm                  = (zwift_profile.height_mm or 0.0) / 10.0,
-            gender                     = "m" if zwift_profile.male else "f",
-            age_years                  = zwift_profile.age_years or 0.0,
-            agegroup                   = zp_profile.age_group or "",
-            zwift_zftp                 = zwift_profile.zftp or 0.0,
-            zwift_zrs                  = zwift_profile.zwift_racing_score or 0,
-            zwift_cat                  = zwift_profile.zwift_racing_category or "",
-            velo_score                  = velo_powerinfo.compoundScore or 0.0,
-            velo_cat_num                = velo_profile.race["90days"]. or 0,
-            velo_cat_name               = zra_powerinfo.categoryName or "",
-            velo_cp                     = zra_powerinfo.cp or 0.0,
-            velo_awc                    = zra_powerinfo.awc or 0.0,
-            # jgh_pull_adjustment_watts  = 
-            # jgh_cp                     = 
-            # jgh_w_prime                = 
-            # jgh_ftp_curve_coefficient  = 
-            # jgh_ftp_curve_exponent     = 
-            # jgh_pull_curve_coefficient = 
-            # jgh_pull_curve_exponent    = 
-            # jgh_when_curves_fitted     = 
+            zwift_id                   = z.zwift_id or "",
+            name                       = f"{z.last_name or ''}, {z.first_name or ''}",
+            weight_kg                  = (z.weight_grams or 0.0) / 1_000.0,
+            height_cm                  = (z.height_mm or 0.0) / 10.0,
+            gender                     = "m" if z.male else "f",
+            age_years                  = z.age_years or 0.0,
+            agegroup                   = zp.age_group or "",
+            zwift_zftp                 = z.zftp or 0.0,
+            zwift_zrs                  = z.zwift_racing_score or 0,
+            zwift_cat                  = z.zwift_racing_category or "",
+            velo_score                 = velo_racedetails.rating or 0.0,
+            velo_cat_num               = velo_mixed.number if velo_mixed and velo_mixed.number is not None else 0,
+            velo_cat_name              = velo_mixed.category if velo_mixed and velo_mixed.category is not None else "",
+            velo_cp                    = velo.powerdto.CP if velo.powerdto and velo.powerdto.CP is not None else 0.0,
+            velo_awc                   = velo.powerdto.AWC if velo.powerdto and velo.powerdto.AWC is not None else 0.0,
+            jgh_pull_adjustment_watts  = 0.0,
+            jgh_cp                     = 0.0,
+            jgh_w_prime                = 0.0,
+            jgh_ftp_curve_coefficient  = 0.0,
+            jgh_ftp_curve_exponent     = 0.0,
+            jgh_pull_curve_coefficient = 0.0,
+            jgh_pull_curve_exponent    = 0.0,
+            jgh_when_curves_fitted     = ""
         )
 
         dict_of_zsun_riders[key] = item
 
-    # logger.info(f"Step 4: Created dict_of_zsun_riders with {len(dict_of_zsun_riders)} entries.")
 
-    # sorted_profiles = sorted(dict_of_zsun_riders.values(), key=lambda profile: profile.zwift_name or "")
+    riders = sorted(dict_of_zsun_riders.values(), key=lambda profile: profile.zwift_zrs or "",reverse=True)
 
-    # df = pd.DataFrame([asdict(profile) for profile in sorted_profiles])
+    logger.info(f"Created a minimally valid subset of zsun riders:  {len(dict_of_zsun_riders)}")
 
-    # # Step 8: Save the DataFrame to an Excel file
-    # OUTPUT_FILE_NAME = "omnibus_zsun_profiles_from_zwiftpower_and_zwiftracingapp.xlsx"
-    # OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    # df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=True)
-    # logger.info(f"Step 5: Saved the DataFrame to : - \nFilepath: {OUTPUT_DIR_PATH + OUTPUT_FILE_NAME}")
+    df = pd.DataFrame([asdict(rider) for rider in riders])
+
+    # Step 8: Save the DataFrame to an Excel file
+    OUTPUT_FILE_NAME = "minimally_valid_zsun_riders.xlsx"
+    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=True)
+    logger.info(f"Saved the DataFrame to:  {OUTPUT_DIR_PATH + OUTPUT_FILE_NAME}")
 
 
 

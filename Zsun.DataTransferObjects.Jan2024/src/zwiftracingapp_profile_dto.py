@@ -10,6 +10,8 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
     "weight_kg"              : AliasChoices("weight_kg", "weight"),
     "zp_race_category"       : AliasChoices("zp_race_category", "zpCategory"),
     "zp_FTP"                 : AliasChoices("zp_FTP", "zpFTP"),
+    "powerdto"               : AliasChoices("powerdto", "power"),
+    "dict_of_racedetailsdto" : AliasChoices("dict_of_racedetailsdto", "race"),
 }
 
 configdictV1 = ConfigDict(
@@ -23,13 +25,13 @@ class ZwiftRacingAppProfileDTO(BaseModel):
     """
     A data transfer object representing a Zwift Racing App JSON object that contains
     post-processed data originating from ZwiftPower. This DTO ignores much of the
-    information in the Zwift Racing App JSON object. It only includes power-related
+    information in the Zwift Racing App JSON object. It only includes powerdto-related
     elements used for import by JGH.
     """
 
     class PowerDTO(BaseModel):
         """
-        A nested model representing the power data of the rider.
+        A nested model representing the powerdto data of the rider.
         """
         wkg5:    Optional[float] = 0.0
         wkg15:   Optional[float] = 0.0
@@ -70,17 +72,17 @@ class ZwiftRacingAppProfileDTO(BaseModel):
 
     class RaceDetailsDTO(BaseModel):
         """
-        A data transfer object representing race details.
+        A data transfer object representing dict_of_racedetailsdto details.
 
         Attributes:
-            rating (float): The race rating (e.g., vELO rating).
-            date (int): The date of the race as a Unix timestamp.
+            rating (float): The dict_of_racedetailsdto rating (e.g., vELO rating).
+            date (int): The date of the dict_of_racedetailsdto as a Unix timestamp.
             mixed (MixedDTO): A nested object representing mixed category details.
         """
 
         class MixedDTO(BaseModel):
             """
-            A nested model representing the velo race category details.
+            A nested model representing the velo dict_of_racedetailsdto category details.
 
             Attributes:
                 category (str): The name of the category (e.g., "Ruby").
@@ -103,8 +105,8 @@ class ZwiftRacingAppProfileDTO(BaseModel):
     weight_kg           : Optional[float]                    = 0    # Weight of the rider in kilograms
     zp_race_category    : Optional[str]                      = ""   # ZwiftPower category, such as C or D
     zp_FTP              : Optional[float]                    = 0    # ZwiftPower FTP (Functional Threshold Power)
-    power               : Optional[Union[PowerDTO, Any]]                  = Field(default_factory=PowerDTO)  # Power data of the rider
-    race                : Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
+    powerdto            : Optional[Union[PowerDTO, Any]]                     = Field(default_factory=PowerDTO)  # Power data of the rider
+    dict_of_racedetailsdto : Optional[Union[Dict[str, RaceDetailsDTO], Any]] = Field(default_factory=lambda: {
                                 "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
                                 "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),

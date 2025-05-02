@@ -1,5 +1,5 @@
 
-from dataclasses import dataclass, field 
+from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
@@ -411,8 +411,51 @@ def main2():
 
     print(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
+def main3():
+    # Define paths for testing
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    # Initialize the repository
+    rep = ScrapedZwiftDataRepository()
+
+    # Populate the repository with data
+    rep.populate_repository(
+        [],
+        zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
+        zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
+        zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
+        zwiftpower_90daybest_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+    )
+
+    # Example: get the superset - should be more than 1500
+    dict_of_velofiles = rep.get_dict_of_ZwiftRacingAppProfileItem([])
+
+    print(f"{dict_of_velofiles}")
+
+    # #convert to dict to list of values
+    # velo_files = list(dict_of_velofiles.values())
+
+    # print(f"Velo files: {len(velo_files)}")
+    # print(f"Velo files:\n{velo_files}")
+
+    # # Create a DataFrame from the list of velo files
+    # data = []
+    # for velo in velo_files:
+    #     # Assuming each velo object has a method to convert it to a dictionary
+    #     data.append(asdict(velo))  # Replace with the actual method to get a dictionary representation
+
+    # df = pd.DataFrame(data)
+
+    # print("DataFrame of all velo files:")
+    # print(df)
+    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    # OUTPUT_FILENAME = "beautiful_spreadsheet_of_all_velo_files.xlsx"
+    # rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 if __name__ == "__main__":
-    main()
-
+    # main()
     # main2()
+    main3()
