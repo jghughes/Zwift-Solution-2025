@@ -36,7 +36,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\zsun_rider_item.py" />
-    <Compile Include="src\zwiftpower_90day_bestpower_item.py" />
+    <Compile Include="src\zwiftpower_curve_of_90day_bestpower_item.py" />
     <Compile Include="src\zwiftpower_profile_item.py" />
     <Compile Include="src\zwiftracingapp_profile_item.py" />
     <Compile Include="src\zwift_profile_item.py" />

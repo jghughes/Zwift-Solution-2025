@@ -1,64 +1,51 @@
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict
+from typing import Dict
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 
 @dataclass
 class ZwiftRacingAppProfileItem:
-    zwift_id          : Optional[str]                                      = None
-    fullname          : Optional[str]                                      = None
-    gender            : Optional[str]                                      = None
-    country           : Optional[str]                                      = None
-    agegroup          : Optional[str]                                      = None
-    height_cm         : Optional[float]                                    = None
-    weight_kg         : Optional[float]                                    = None
-    zp_race_category  : Optional[str]                                      = None
-    zp_FTP            : Optional[float]                                    = None
-    power             : Optional[ZwiftRacingAppProfileDTO.PowerDTO]        = field(default_factory=ZwiftRacingAppProfileDTO.PowerDTO)
-    race              : Optional[Dict[str, ZwiftRacingAppProfileDTO.RaceDetailsDTO]] = field(default_factory=lambda: {
+    zwift_id          : str  = ""
+    fullname          : str  = ""
+    gender            : str  = ""
+    country           : str  = ""
+    agegroup          : str  = ""
+    height_cm         : float = 0.0
+    weight_kg         : float = 0.0
+    zp_race_category  : str  = ""
+    zp_FTP            : float = 0.0
+    power             : ZwiftRacingAppProfileDTO.PowerDTO = field(default_factory=ZwiftRacingAppProfileDTO.PowerDTO)
+    race              : Dict[str, ZwiftRacingAppProfileDTO.RaceDetailsDTO] = field(default_factory=lambda: {
         "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
         "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
         "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
         "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
-    })
-
+    })    
+    
     @staticmethod
     def from_dataTransferObject(dto: ZwiftRacingAppProfileDTO) -> "ZwiftRacingAppProfileItem":
-        """
-        Create a ZwiftRacingAppProfileItem instance from a ZwiftRacingAppProfileDTO.
-
-        Args:
-            dto (ZwiftRacingAppProfileDTO): The data transfer object to convert.
-
-        Returns:
-            ZwiftRacingAppProfileItem: The corresponding ZwiftRacingAppProfileItem instance.
-        """
         return ZwiftRacingAppProfileItem(
-            zwift_id         = dto.zwift_id,
-            fullname         = dto.fullname,
-            gender           = dto.gender,
-            country          = dto.country,
-            agegroup         = dto.agegroup,
-            height_cm        = dto.height_cm,
-            weight_kg        = dto.weight_kg,
-            zp_race_category = dto.zp_race_category,
-            zp_FTP           = dto.zp_FTP,
-            power            = dto.power,
-            race             = dto.race,
+            zwift_id         = dto.zwift_id or "",
+            fullname         = dto.fullname or "",
+            gender           = dto.gender or "",
+            country          = dto.country or "",
+            agegroup         = dto.agegroup or "",
+            height_cm        = dto.height_cm or 0.0,
+            weight_kg        = dto.weight_kg or 0.0,
+            zp_race_category = dto.zp_race_category or "",
+            zp_FTP           = dto.zp_FTP or 0.0,
+            power            = dto.power if dto.power is not None else ZwiftRacingAppProfileDTO.PowerDTO(),
+            race             = dto.race if dto.race is not None else {
+                "last": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                "current": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                "max30": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+                "max90": ZwiftRacingAppProfileDTO.RaceDetailsDTO(),
+            },
         )
 
     @staticmethod
     def to_dataTransferObject(item: "ZwiftRacingAppProfileItem") -> ZwiftRacingAppProfileDTO:
-        """
-        Convert a ZwiftRacingAppProfileItem instance to a ZwiftRacingAppProfileDTO.
-
-        Args:
-            item (ZwiftRacingAppProfileItem): The ZwiftRacingAppProfileItem instance to convert.
-
-        Returns:
-            ZwiftRacingAppProfileDTO: The corresponding data transfer object.
-        """
         return ZwiftRacingAppProfileDTO(
             zwift_id         = item.zwift_id,
             fullname         = item.fullname,

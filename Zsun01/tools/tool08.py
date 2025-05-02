@@ -61,7 +61,7 @@ def main():
         total_count += 1
 
         # skip riders with no data
-        datapoints = rider.export_zwiftpower_graph_data()
+        datapoints = rider.export_all_x_y_ordinates()
 
         if not datapoints:
             logger.warning(f"Rider ID {rider.zwiftid} has no datapoints")
@@ -78,9 +78,9 @@ def main():
 
         # obtain raw xy data for the various ranges - critical_power, pull, and ftp
 
-        raw_xy_data_cp = rider.export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
-        raw_xy_data_pull = rider.export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
-        raw_xy_data_ftp = rider.export_zwiftpower_90day_best_graph_for_ftp_modelling()
+        raw_xy_data_cp = rider.export_x_y_ordinates_for_cp_w_prime_modelling()
+        raw_xy_data_pull = rider.export_x_y_ordinates_for_pull_zone_modelling()
+        raw_xy_data_ftp = rider.export_x_y_ordinates_for_ftp_modelling()
 
         # skip riders where any of the three datasets contain less than 5 points
         if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < 5 or len(raw_xy_data_ftp) < 5:

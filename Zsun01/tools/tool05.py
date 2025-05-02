@@ -4,7 +4,7 @@ from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunrider_items, read_dict_of_90day_bestpower_items
-import critical_power as cp
+import jgh_cp as cp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
@@ -40,7 +40,7 @@ def main():
 
     Dependencies:
     - Requires the `handy_utilities` module for reading rider data.
-    - Uses `critical_power` for modeling functions.
+    - Uses `jgh_cp` for modeling functions.
     - Requires `matplotlib` for plotting and `tabulate` for table generation.
 
     Returns:
@@ -72,11 +72,11 @@ def main():
     joshn ='2508033' #ftp 260
     richardm ='1193' # ftp 200
     markb ='5530045' #ftp 280
-    davek="3147366" #ftp 276 critical_power 278
+    davek="3147366" #ftp 276 jgh_cp 278
     husky="5134" #ftp 268
     scottm="11526" #ftp 247
     timr= "5421258" #ftp 380
-    tom_bick= "11741" #ftp 303 critical_power 298
+    tom_bick= "11741" #ftp 303 jgh_cp 298
     bryan_bumpas = "9011" #ftp 214
     matt_steeve = "1024413"
     giao_nguyen = "183277" #ftp 189
@@ -90,21 +90,21 @@ def main():
     rider_id = joshn
 
 
-    # model critical_power and w_prime
+    # model jgh_cp and w_prime
 
-    raw_xy_data_cp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling()
+    raw_xy_data_cp = riders_cp_data[rider_id].export_x_y_ordinates_for_cp_w_prime_modelling()
 
-    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+    jgh_cp, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
     # model pull power curve
 
-    raw_xy_data_pull = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_pull_zone_modelling()
+    raw_xy_data_pull = riders_cp_data[rider_id].export_x_y_ordinates_for_pull_zone_modelling()
 
     coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_curve_fit_with_decay_model(raw_xy_data_pull)
 
     # model ftp curve 
 
-    raw_xy_data_ftp = riders_cp_data[rider_id].export_zwiftpower_90day_best_graph_for_ftp_modelling()
+    raw_xy_data_ftp = riders_cp_data[rider_id].export_x_y_ordinates_for_ftp_modelling()
 
     coefficient_ftp, exponent_ftp, r_squared_ftp, rmse_ftp, answer_ftp = cp.do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
@@ -113,15 +113,15 @@ def main():
     # instantiate a power item to hold the results
 
     pi = ZsunRiderItem(
-        zwiftid=int(rider_id),
+        zwift_id=rider_id,
         name=dict_of_zwiftrideritem[rider_id].name,
-        critical_power=critical_power,
-        critical_power_w_prime=anaerobic_work_capacity,
-        ftp_curve_coefficient=coefficient_ftp,
-        ftp_curve_exponent=exponent_ftp,
-        pull_curve_coefficient=coefficient_pull,
-        pull_curve_exponent=exponent_pull,
-        when_curves_fitted=datetime.now().isoformat(),
+        jgh_cp=jgh_cp,
+        jgh_w_prime=anaerobic_work_capacity,
+        jgh_ftp_curve_coefficient=coefficient_ftp,
+        jgh_ftp_curve_exponent=exponent_ftp,
+        jgh_pull_curve_coefficient=coefficient_pull,
+        jgh_pull_curve_exponent=exponent_pull,
+        jgh_when_curves_fitted=datetime.now().isoformat(),
     )
 
     # log pretty summaries

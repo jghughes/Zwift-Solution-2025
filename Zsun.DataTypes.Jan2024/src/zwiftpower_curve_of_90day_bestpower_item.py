@@ -1,11 +1,11 @@
 from typing import Dict
 from dataclasses import dataclass
-from zwiftpower_90day_bestpower_dto import ZwiftPower90DayBestPowerDTO
-from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
+from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
+from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 @dataclass
-class ZwiftPower90DayBestPowerItem:
+class ZwiftPowerCurveOf90DayBestPowerItem:
     """
     A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -118,7 +118,7 @@ class ZwiftPower90DayBestPowerItem:
     cp_7200   : float = 0.0
 
     @classmethod
-    def export_zwiftpower_x_ordinates(cls) -> list[int]:
+    def export_all_x_ordinates(cls) -> list[int]:
         """
         Returns a list of x ordinates for the critical power data.
         The x ordinates correspond to the time intervals for which
@@ -138,7 +138,7 @@ class ZwiftPower90DayBestPowerItem:
         return answer;
 
 
-    def export_zwiftpower_graph_data(self) -> Dict[int, float]:
+    def export_all_x_y_ordinates(self) -> Dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -258,7 +258,7 @@ class ZwiftPower90DayBestPowerItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_graph_for_cp_w_prime_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_cp_w_prime_modelling(self) -> Dict[int, float]:
         """
         Zwift doesn't explicitly use CP, although they do have zMap which generally
         appears to be around P_5 minutes. zMap is used as a criterion for race categories.
@@ -382,7 +382,7 @@ class ZwiftPower90DayBestPowerItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_graph_for_pull_zone_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_pull_zone_modelling(self) -> Dict[int, float]:
         """
         Is this case we will do a model to individually determine the 
         peak limit for pulling. The TTT calculator uses 1.3x FTP.  
@@ -511,7 +511,7 @@ class ZwiftPower90DayBestPowerItem:
         return answer
 
 
-    def export_zwiftpower_90day_best_graph_for_ftp_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_ftp_modelling(self) -> Dict[int, float]:
         """
 
         Zwift doesn't use FTP per se. They use black magic to come up with zFTP.
@@ -641,7 +641,7 @@ class ZwiftPower90DayBestPowerItem:
         return answer
 
 
-    def import_zwiftpower_graph_data(self, input_data: Dict[int, float]) -> None:
+    def import_x_y_ordinates(self, input_data: Dict[int, float]) -> None:
         """
         Update the attributes of the instance based on the input_data dictionary.
         For each key in input_data, if the key corresponds to an attribute in self,
@@ -759,17 +759,8 @@ class ZwiftPower90DayBestPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftPower90DayBestPowerItem") -> ZwiftPower90DayBestPowerDTO:
-        """
-        Convert a ZwiftPower90DayBestPowerItem instance to a ZwiftPower90DayBestPowerDTO.
-
-        Args:
-            item (ZwiftPower90DayBestPowerItem): The ZwiftPower90DayBestPowerItem instance to convert.
-
-        Returns:
-            ZwiftPower90DayBestPowerDTO: The corresponding data transfer object.
-        """
-        return ZwiftPower90DayBestPowerDTO(
+    def to_dataTransferObject(item: "ZwiftPowerCurveOf90DayBestPowerItem") -> ZwiftPowerCurveOf90DayBestPowerDTO:
+        return ZwiftPowerCurveOf90DayBestPowerDTO(
             zwift_id        = item.zwift_id,
             cp_1           = item.cp_1,
             cp_2           = item.cp_2,
@@ -874,17 +865,8 @@ class ZwiftPower90DayBestPowerItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftPower90DayBestPowerDTO) -> "ZwiftPower90DayBestPowerItem":
-        """
-        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftPower90DayBestPowerDTO.
-
-        Args:
-            dto (ZwiftPower90DayBestPowerDTO): The data transfer object to convert.
-
-        Returns:
-            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
-        """
-        return ZwiftPower90DayBestPowerItem(
+    def from_dataTransferObject(dto: ZwiftPowerCurveOf90DayBestPowerDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
+        return ZwiftPowerCurveOf90DayBestPowerItem(
             zwift_id        = dto.zwift_id or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
@@ -989,9 +971,9 @@ class ZwiftPower90DayBestPowerItem:
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPower90DayBestPowerItem":
+    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
         """
-        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftRacingAppProfileDTO.
+        Create a ZwiftPowerCurveOf90DayBestPowerItem instance from a ZwiftRacingAppProfileDTO.
         The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
         Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
         critical power and other derivatives 
@@ -1000,9 +982,9 @@ class ZwiftPower90DayBestPowerItem:
             dto (ZwiftRacingAppProfileDTO): The data transfer object to convert.
 
         Returns:
-            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
+            ZwiftPowerCurveOf90DayBestPowerItem: The corresponding ZwiftPowerCurveOf90DayBestPowerItem instance.
         """
-        return ZwiftPower90DayBestPowerItem(
+        return ZwiftPowerCurveOf90DayBestPowerItem(
             zwift_id                  = dto.zwift_id if dto.zwift_id else "",
             cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
             cp_15                    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
@@ -1014,27 +996,18 @@ class ZwiftPower90DayBestPowerItem:
             )
 
     @staticmethod
-    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerBestPowerDTO) -> "ZwiftPower90DayBestPowerItem":
-        """
-        Create a ZwiftPower90DayBestPowerItem instance from a ZwiftPower90DayBestDataDTO.
-
-        Args:
-            dto (ZwiftPower90DayBestDataDTO): The data transfer object to convert.
-
-        Returns:
-            ZwiftPower90DayBestPowerItem: The corresponding ZwiftPower90DayBestPowerItem instance.
-        """
+    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerCurvesOfBestPowerDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
         # Extract efforts from the "90days" key, if available
         efforts_90days = dto.efforts.get("90days", []) if dto.efforts else []
 
         # Map efforts to a dictionary of time (x) to power (y)
         cp_data = {effort.x: float(effort.y) for effort in efforts_90days if effort.x and effort.y}
 
-        # Create an instance of ZwiftPower90DayBestPowerItem
-        critical_power_item = ZwiftPower90DayBestPowerItem()
+        # Create an instance of ZwiftPowerCurveOf90DayBestPowerItem
+        best90days_item = ZwiftPowerCurveOf90DayBestPowerItem()
 
-        critical_power_item.import_zwiftpower_graph_data(cp_data)
+        best90days_item.import_x_y_ordinates(cp_data)
 
-        return critical_power_item
+        return best90days_item
 
 

@@ -1,30 +1,10 @@
-# Local application imports
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
-from tabulate import tabulate
-from typing import Optional,  get_origin, get_args
+from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
+from typing import Optional
 from jgh_read_write import *
 from jgh_serialization import *
-from jgh_sanitise_string import sanitise_string
 
 
-validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwift_id"              : AliasChoices("zwift_id","zwiftid", "riderId"),
-    "name"                  : AliasChoices("name", "zwift_name"),
-    "weight_kg"             : AliasChoices("weight_kg"),
-    "height_cm"             : AliasChoices("height_cm"),
-    "gender"                : AliasChoices("gender"),
-    "zftp"                  : AliasChoices("zftp", "zpFTP"),
-    "zwift_racing_score"    : AliasChoices("zwift_racing_score"),
-    "velo_rating"           : AliasChoices("velo_rating"),
-    "pull_adjustment_watts" : AliasChoices("pull_adjustment_watts", "pull_adjustment"),
-    "critical_power"        : AliasChoices("critical_power"),
-    "critical_power_w_prime": AliasChoices("critical_power_w_prime"),
-    "ftp_curve_coefficient" : AliasChoices("ftp_curve_coefficient"),
-    "ftp_curve_exponent"    : AliasChoices("ftp_curve_exponent"),
-    "pull_curve_coefficient": AliasChoices("pull_curve_coefficient"),
-    "pull_curve_exponent"   : AliasChoices("pull_curve_exponent"),
-    "when_curves_fitted"    : AliasChoices("when_curves_fitted"),
-}
+validation_alias_choices_map: dict[str, AliasChoices] = {}
 
 configdictV1 = ConfigDict(
         alias_generator=AliasGenerator(
@@ -34,112 +14,30 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 class ZsunRiderDTO(BaseModel):
-    """
-    A data transfer object representing a Zwift rider's particulars. The object
-    can be round-tripped to and from JSON. The values of all attributes are
-    preserved in the JSON serialization and deserialization.
-
-    This class derives from Pydantic's BaseModel, making it powerful for serialization
-    and validation (deserialization). Each attribute has a serialization_alias
-    and validation_alias. The serialization_alias governs the nomenclature of the
-    output of serialization. The validation_alias governs the input of JSON.
-    The validation_alias consists of a list of AliasChoices. The list must always
-    include a string copy of the attribute name. Additional AliasChoices enable
-    the data transfer object to interpret and validate (deserialize)
-    any envisaged range of variations in the JSON field names in source data
-    obtained from a third party. The name mapping is done in the AliasChoices list.
-
-    Note:
-        In Python, timestamps are in seconds since epoch. This is not the case 
-        in all languages. Be aware of this when interfacing with other systems.
-
-    Attributes:
-        zwiftid                : str     The Zwift ID of the rider.
-        name                   : str     The name of the rider.
-        weight_kg                 : float   The weight_kg of the rider in kilograms.
-        height_cm                 : float   The height_cm of the rider in centimeters.
-        gender                 : str     The gender of the rider ('m' for male, 'f' for female).
-        zftp                   : float   Functional Threshold Power (FTP) in watts.
-        zwift_racing_score     : int     The Zwift racing score of the rider.
-        velo_rating            : int     The Velo rating of the rider.
-        pull_adjustment_watts  : float   Adjustment watts for pulling.
-        critical_power         : float   Critical power in watts.
-        critical_power_w_prime : float   Critical power W' (work capacity above CP) in kilojoules.
-        ftp_curve_coefficient  : float   Coefficient for FTP modeling.
-        ftp_curve_exponent     : float   Exponent for FTP modeling.
-        pull_curve_coefficient : float   Coefficient for pull modeling.
-        pull_curve_exponent    : float   Exponent for pull modeling.
-        when_curves_fitted     : str     Timestamp indicating when the models were fitted.
-    """
-    model_config           = preferred_config_dict
-    zwift_id                : Optional[str]   = ""     # Zwift ID of the rider
-    name                   : Optional[str]   = ""    # Name of the rider
-    weight_kg                 : Optional[float] = 0     # Weight of the rider in kilograms
-    height_cm                 : Optional[float] = 0     # Height of the rider in centimeters
-    gender                 : Optional[str]   = ""    # Gender of the rider, m or f
-    age_years              : float           = 0       # Age of the rider in years
-    age_group              : str             = ""      # Age group of the rider
-    zftp                   : Optional[float] = 0     # Functional Threshold Power in watts
-    zwift_racing_score     : Optional[int]   = 0     # Zwift racing score
-    zwift_racing_category  : Optional[str]   = ""
-    velo_rating            : Optional[int]   = 0     # Velo rating
-    pull_adjustment_watts  : Optional[float] = 0.0
-    critical_power         : Optional[float] = 0.0
-    critical_power_w_prime : Optional[float] = 0.0
-    ftp_curve_coefficient  : Optional[float] = 0.0
-    ftp_curve_exponent     : Optional[float] = 0.0
-    pull_curve_coefficient : Optional[float] = 0.0
-    pull_curve_exponent    : Optional[float] = 0.0
-    when_curves_fitted     : Optional[str]   = ""
-
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and int in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-        mode="before"
-    )
-    def validate_int_fields(cls, value):
-        if value is None:
-            return None
-        try:
-            # Check if the value is numeric and can be cast to an integer
-            return int(value)
-        except (ValueError, TypeError):
-            # Return None for non-integer values
-            return None
-
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-    )
-    def validate_float_fields(cls, value):
-        if value is None:
-            return None
-        try:
-            # Check if the value is numeric and can be cast to a float
-            return float(value)
-        except (ValueError, TypeError):
-            # Return None for non-float values
-            return None
-
-    @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and str in get_args(field_type) and type(None) in get_args(field_type)
-        ],
-        mode="before"
-    )
-    def sanitise_string_fields(cls, value):
-        if value is None:
-            return ""
-        return sanitise_string(value)
-
+    model_config               = preferred_config_dict
+    zwift_id                   : Optional[str]   = ""    # Zwift ID of the rider
+    name                       : Optional[str]   = ""    # Name of the rider
+    weight_kg                  : Optional[float] = 0     # Weight of the rider in kilograms
+    height_cm                  : Optional[float] = 0     # Height of the rider in centimeters
+    gender                     : Optional[str]   = ""    # Gender of the rider, m or f
+    age_years                  : Optional[float] = 0     # Age of the rider in years
+    agegroup                   : Optional[str]   = ""    # Age group of the rider
+    zwift_zftp                 : Optional[float] = 0     # Functional Threshold Power in watts
+    zwift_zrs                  : Optional[float] = 0     # Zwift racing score
+    zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
+    velo_score                 : Optional[float] = 0.0   # Velo score typically over 1000
+    velo_cat_num               : Optional[int]   = 0     # Velo rating 1 to 10
+    velo_cat_name              : Optional[str]   = ""    # Copper, Silver, Gold etc
+    velo_cp                    : Optional[float] = 0.0   # Critical power in watts
+    velo_awc                   : Optional[float] = 0.0   # Anaerobic work capacity in kilojoules
+    jgh_pull_adjustment_watts  : Optional[float] = 0.0   # Adjustment watts for pulling
+    jgh_cp                     : Optional[float] = 0.0   # Critical power in watts
+    jgh_w_prime                : Optional[float] = 0.0   # Critical power W' in kilojoules
+    jgh_ftp_curve_coefficient  : Optional[float] = 0.0   # Coefficient for FTP modeling
+    jgh_ftp_curve_exponent     : Optional[float] = 0.0   # Exponent for FTP modeling
+    jgh_pull_curve_coefficient : Optional[float] = 0.0   # Coefficient for pull modeling
+    jgh_pull_curve_exponent    : Optional[float] = 0.0   # Exponent for pull modeling
+    jgh_when_curves_fitted     : Optional[str]   = ""    # Timestamp indicating when the models were fitted
 
 def main02():
     import json
@@ -152,8 +50,7 @@ def main02():
         "weight_kg": 70.5,
         "height_cm": 180,
         "gender": "m",
-        "zftp": null,
-        "strava_profile": null
+        "zwift_zftp": null,
     }
     '''
     data = json.loads(input_json)

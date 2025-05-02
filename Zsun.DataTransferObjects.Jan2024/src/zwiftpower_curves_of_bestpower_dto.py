@@ -4,7 +4,7 @@ from jgh_read_write import *
 from jgh_serialization import *
 
 # this class is used for input from DaveK source data.
-class ZwiftPowerBestPowerDTO(BaseModel):
+class ZwiftPowerCurvesOfBestPowerDTO(BaseModel):
     """
     A data transfer object representing a Zwift Power Graph JSON object.
     """
@@ -57,8 +57,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerBestPowerDTO)
-            dto = cast(ZwiftPowerBestPowerDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerCurvesOfBestPowerDTO)
+            dto = cast(ZwiftPowerCurvesOfBestPowerDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

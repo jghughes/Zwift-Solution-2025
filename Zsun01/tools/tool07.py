@@ -75,7 +75,7 @@ def main():
     # log all the x and y data for all riders in pretty tables
 
     for rider_id, rider_cp_data in raw_cp_dict_for_betel.items():
-        cp_data = rider_cp_data.export_zwiftpower_graph_data()  # Export critical power data as a dictionary
+        cp_data = rider_cp_data.export_all_x_y_ordinates()  # Export critical power data as a dictionary
         table_data = [[x, y] for x, y in cp_data.items()]  # Convert dictionary to a list of [x, y] pairs
         table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
 

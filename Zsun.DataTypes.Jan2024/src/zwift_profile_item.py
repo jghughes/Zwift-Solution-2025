@@ -1,61 +1,41 @@
 
 from dataclasses import dataclass
-from typing import Optional
 from zwift_profile_dto import ZwiftProfileDTO
-
 
 @dataclass
 class ZwiftProfileItem:
-    zwift_id                  : Optional[str]  = None
-    public_id                 : Optional[str]  = None
-    first_name                : Optional[str]  = None
-    last_name                 : Optional[str]  = None
-    male                      : Optional[bool] = None
-    age_years                 : Optional[float] = None
-    height_mm                 : Optional[float] = None
-    weight_grams              : Optional[float] = None
-    zftp                      : Optional[float] = None
-    zwift_racing_score        : Optional[float] = None
-    zwift_racing_category     : Optional[str]  = None
-    zwift_racing_category_women: Optional[str]  = None
+    zwift_id                  : str  = ""
+    public_id                 : str  = ""
+    first_name                : str  = ""
+    last_name                 : str  = ""
+    male                      : bool = False
+    age_years                 : float = 0.0
+    height_mm                 : float = 0.0
+    weight_grams              : float = 0.0
+    zftp                      : float = 0.0
+    zwift_racing_score        : float = 0.0
+    zwift_racing_category     : str  = ""
+    zwift_racing_category_women: str  = ""
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftProfileDTO) -> "ZwiftProfileItem":
-        """
-        Create a ZwiftProfileItem instance from a ZwiftProfileDTO.
-
-        Args:
-            dto (ZwiftProfileDTO): The data transfer object to convert.
-
-        Returns:
-            ZwiftProfileItem: The corresponding ZwiftProfileItem instance.
-        """
         return ZwiftProfileItem(
-            zwift_id                  = dto.zwift_id,
-            public_id                 = dto.public_id,
-            first_name                = dto.first_name,
-            last_name                 = dto.last_name,
-            male                      = dto.male,
-            age_years                 = dto.age_years,
-            height_mm                 = dto.height_mm,
-            weight_grams              = dto.weight_grams,
-            zftp                      = dto.ftp,
-            zwift_racing_score        = dto.competitionMetrics.racingScore if dto.competitionMetrics else None,
-            zwift_racing_category     = dto.competitionMetrics.category if dto.competitionMetrics else None,
-            zwift_racing_category_women = dto.competitionMetrics.categoryWomen if dto.competitionMetrics else None,
+            zwift_id                  = dto.zwift_id or "",
+            public_id                 = dto.public_id or "",
+            first_name                = dto.first_name or "",
+            last_name                 = dto.last_name or "",
+            male                      = dto.male if dto.male is not None else False,
+            age_years                 = dto.age_years or 0.0,
+            height_mm                 = dto.height_mm or 0.0,
+            weight_grams              = dto.weight_grams or 0.0,
+            zftp                      = dto.ftp or 0.0,
+            zwift_racing_score        = dto.competitionMetrics.racingScore if dto.competitionMetrics and dto.competitionMetrics.racingScore is not None else 0.0,
+            zwift_racing_category     = dto.competitionMetrics.category if dto.competitionMetrics and dto.competitionMetrics.category is not None else "",
+            zwift_racing_category_women = dto.competitionMetrics.categoryWomen if dto.competitionMetrics and dto.competitionMetrics.categoryWomen is not None else "",
         )
 
     @staticmethod
     def to_dataTransferObject(item: "ZwiftProfileItem") -> ZwiftProfileDTO:
-        """
-        Convert a ZwiftProfileItem instance to a ZwiftProfileDTO.
-
-        Args:
-            item (ZwiftProfileItem): The ZwiftProfileItem instance to convert.
-
-        Returns:
-            ZwiftProfileDTO: The corresponding data transfer object.
-        """
         return ZwiftProfileDTO(
             zwift_id                  = item.zwift_id,
             public_id                 = item.public_id,
