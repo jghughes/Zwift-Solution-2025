@@ -7,7 +7,7 @@ from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed,
 from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True) # immutable and hashable, we use this as a dictionary key everywhere
-class ZsunRiderItem():
+class ZsunRiderItem:
     """
     A frozen data class representing a Zwift rider.
     Can be used as a cache key or dictionary key, or in a set.
@@ -15,8 +15,8 @@ class ZsunRiderItem():
     Attributes:
         zwift_id                : str     The Zwift ID of the rider.
         name                   : str     The name of the rider.
-        weight                 : float   The weight of the rider in kilograms.
-        height                 : float   The height of the rider in centimeters.
+        weight_kg                 : float   The weight_kg of the rider in kilograms.
+        height_cm                 : float   The height_cm of the rider in centimeters.
         gender                 : str     The gender of the rider.
         zftp                   : float   Functional Threshold Power in watts.
         zwift_racing_score     : int     Zwift racing score.
@@ -33,8 +33,8 @@ class ZsunRiderItem():
     
     zwift_id                : str     = ""       # Zwift ID of the rider
     name                   : str     = ""      # Name of the rider
-    weight                 : float   = 0       # Weight of the rider in kilograms
-    height                 : float   = 0       # Height of the rider in centimeters
+    weight_kg                 : float   = 0       # Weight of the rider in kilograms
+    height_cm                 : float   = 0       # Height of the rider in centimeters
     gender                 : str     = ""      # Gender of the rider
     age_years              : float     = 0       # Age of the rider in years
     age_group              : str     = ""      # Age group of the rider
@@ -57,8 +57,8 @@ class ZsunRiderItem():
             "davek": {
                 "zwift_id": "3147366",
                 "name": "Dave K",
-                "weight": 73.4,
-                "height": 182,
+                "weight_kg": 73.4,
+                "height_cm": 182,
                 "gender": "m",
                 "zftp": 276,
                 "zwift_racing_score": 744,
@@ -67,8 +67,8 @@ class ZsunRiderItem():
             "huskyc": {
                 "zwift_id": "5134",
                 "name": "Husky C",
-                "weight": 75.5,
-                "height": 178,
+                "weight_kg": 75.5,
+                "height_cm": 178,
                 "gender": "m",
                 "zftp": 268,
                 "zwift_racing_score": 552,
@@ -77,8 +77,8 @@ class ZsunRiderItem():
             "scottm": {
                 "zwift_id": "11526",
                 "name": "Scott M",
-                "weight": 78,
-                "height": 165,
+                "weight_kg": 78,
+                "height_cm": 165,
                 "gender": "m",
                 "zftp": 247,
                 "zwift_racing_score": 509,
@@ -87,8 +87,8 @@ class ZsunRiderItem():
             "johnh": {
                 "zwift_id": "1884456",
                 "name": "John H",
-                "weight": 75.4,
-                "height": 174,
+                "weight_kg": 75.4,
+                "height_cm": 174,
                 "gender": "m",
                 "zftp": 233,
                 "zwift_racing_score": 351,
@@ -97,8 +97,8 @@ class ZsunRiderItem():
             "joshn": {
                 "zwift_id": "2508033",
                 "name": "Josh N",
-                "weight": 101,
-                "height": 178,
+                "weight_kg": 101,
+                "height_cm": 178,
                 "gender": "m",
                 "zftp": 260,
                 "zwift_racing_score": 285,
@@ -107,7 +107,7 @@ class ZsunRiderItem():
         }
 
     @staticmethod
-    def create(zwiftid: str, name: str, weight: float, height: float, gender: str, 
+    def create(zwiftid: str, name: str, weight_kg: float, height_cm: float, gender: str, 
         zftp: float, zwift_racing_score: int, velo_rating: int
     ) -> 'ZsunRiderItem':
         """
@@ -116,8 +116,8 @@ class ZsunRiderItem():
         Args:
            zwift_id            (int)  : The Zwift ID of the rider.
             name               (str)  : The name of the rider.
-            weight             (float): The weight of the rider in kilograms.
-            height             (float): The height of the rider in centimeters.
+            weight_kg             (float): The weight_kg of the rider in kilograms.
+            height_cm             (float): The height_cm of the rider in centimeters.
             gender             (Gender): The gender of the rider.
             zftp                (float): Functional Threshold Power in watts.
             zwift_racing_score (int)  : Zwift racing score.
@@ -130,8 +130,8 @@ class ZsunRiderItem():
         instance = ZsunRiderItem(
             zwift_id=zwiftid,
             name=name,
-            weight=weight,
-            height=height,
+            weight_kg=weight_kg,
+            height_cm=height_cm,
             gender=gender,
             zftp=zftp,
             zwift_racing_score=zwift_racing_score,
@@ -145,8 +145,8 @@ class ZsunRiderItem():
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
-        Estimate the speed (km/h) given the power (wattage), weight (kg), and 
-        height (cm) using the Newton-Raphson method.
+        Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
+        height_cm (cm) using the Newton-Raphson method.
 
         Args:
         power (float): The power in watts.
@@ -155,13 +155,13 @@ class ZsunRiderItem():
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(power, self.weight, self.height)
+        speed_kph = estimate_speed_from_wattage(power, self.weight_kg, self.height_cm)
         return speed_kph
 
     def calculate_wattage_riding_alone(self, speed: float) -> float:
         """
-        Calculate the power (P) as a function of speed (km/h), weight (kg), and 
-        height (cm).
+        Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
+        height_cm (cm).
 
         Args:
         speed (float): The speed in km/h.
@@ -170,7 +170,7 @@ class ZsunRiderItem():
         float: The calculated power in watts.
         """
         # Calculate the power using the estimate_watts_from_speed function
-        power = estimate_watts_from_speed(speed, self.weight, self.height)
+        power = estimate_watts_from_speed(speed, self.weight_kg, self.height_cm)
         return power
 
     def calculate_wattage_riding_in_the_peloton(
@@ -220,7 +220,7 @@ class ZsunRiderItem():
         adjusted_watts = power / power_factor
 
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(adjusted_watts, self.weight, self.height)
+        speed_kph = estimate_speed_from_wattage(adjusted_watts, self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
@@ -287,10 +287,10 @@ class ZsunRiderItem():
             ZsunRiderDTO: The corresponding data transfer object.
         """
         return ZsunRiderDTO(
-            zwiftid                = item.zwift_id,
+            zwift_id                = item.zwift_id,
             name                   = item.name,
-            weight                 = item.weight,
-            height                 = item.height,
+            weight_kg                = item.weight_kg,
+            height_cm                 = item.height_cm,
             gender                 = item.gender,
             age_years              = item.age_years,
             age_group              = item.age_group,
@@ -320,10 +320,10 @@ class ZsunRiderItem():
             ZsunRiderItem: The corresponding ZsunRiderItem instance.
         """
         return ZsunRiderItem(
-            zwift_id                = dto.zwiftid or "",
+            zwift_id               = dto.zwift_id or "",
             name                   = dto.name or "",
-            weight                 = dto.weight or 0,
-            height                 = dto.height or 0,
+            weight_kg              = dto.weight_kg or 0,
+            height_cm              = dto.height_cm or 0,
             gender                 = dto.gender or "",
             age_years              = dto.age_years or 0.0,
             age_group              = dto.age_group or "",
@@ -410,7 +410,7 @@ def main():
     # calculate speed for each position in the peloton from 1 to 5
     # at a given wattage (zftp=233) and tabulate neatly and log it.
     rider_john = ZsunRiderItem(
-        name=rider1.name, weight=rider1.weight, height=rider1.height, zftp=rider1.zftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
+        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zftp=rider1.zftp, gender=rider1.gender, velo_rating=rider1.velo_rating)
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []

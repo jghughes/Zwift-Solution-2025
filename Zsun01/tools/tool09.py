@@ -50,7 +50,7 @@ def main():
     logger.info(f"Imported {len(rep.dict_of_zwiftpower_90daybest_poweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    zwift_ids = rep.get_filtered_list_of_intersections_of_sets("y","y","y","y")
+    zwift_ids = rep.get_filtered_list_of_intersections_of_sets("y","y_or_n","y_or_n","y")
 
     zwift_profiles = [
         rep.dict_of_zwift_profileitem[zwift_id]
@@ -64,48 +64,44 @@ def main():
     df.to_excel(output_file_path, index=False, engine="openpyxl")
     logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
-    items = [
-        rep.dict_of_zwiftracingapp_profileitem[zwift_id]
-        for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftracingapp_profileitem
-    ]
-    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    df = pd.DataFrame(items_as_attr_dicts)
-    output_file_name = "candidate_zwiftracingapp_profiles.xlsx"
-    output_file_path = OUTPUT_DIRPATH + output_file_name
-    df.to_excel(output_file_path, index=False, engine="openpyxl")
-    logger.info(f"Saved {len(items)} zwiftracingapp profiles to: {output_file_path}")
+    # items = [
+    #     rep.dict_of_zwiftracingapp_profileitem[zwift_id]
+    #     for zwift_id in zwift_ids
+    #     if zwift_id in rep.dict_of_zwiftracingapp_profileitem
+    # ]
+    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    # df = pd.DataFrame(items_as_attr_dicts)
+    # output_file_name = "candidate_zwiftracingapp_profiles.xlsx"
+    # output_file_path = OUTPUT_DIRPATH + output_file_name
+    # df.to_excel(output_file_path, index=False, engine="openpyxl")
+    # logger.info(f"Saved {len(items)} zwiftracingapp profiles to: {output_file_path}")
 
 
 
-    items = [
-        rep.dict_of_zwiftpower_profileitem[zwift_id]
-        for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftpower_profileitem
-    ]
-    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    df = pd.DataFrame(items_as_attr_dicts)
-    output_file_name = "candidate_zwiftpower_profiles.xlsx"
-    output_file_path = OUTPUT_DIRPATH + output_file_name
-    df.to_excel(output_file_path, index=False, engine="openpyxl")
-    logger.info(f"Saved {len(items)} zwiftpower profiles to: {output_file_path}")
+    # items = [
+    #     rep.dict_of_zwiftpower_profileitem[zwift_id]
+    #     for zwift_id in zwift_ids
+    #     if zwift_id in rep.dict_of_zwiftpower_profileitem
+    # ]
+    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    # df = pd.DataFrame(items_as_attr_dicts)
+    # output_file_name = "candidate_zwiftpower_profiles.xlsx"
+    # output_file_path = OUTPUT_DIRPATH + output_file_name
+    # df.to_excel(output_file_path, index=False, engine="openpyxl")
+    # logger.info(f"Saved {len(items)} zwiftpower profiles to: {output_file_path}")
 
 
-    items = [
-        rep.dict_of_zwiftpower_90daybest_poweritem[zwift_id]
-        for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftpower_90daybest_poweritem
-    ]
-    items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    df = pd.DataFrame(items_as_attr_dicts)
-    output_file_name = "candidate_zwiftpower_90day_bests.xlsx"
-    output_file_path = OUTPUT_DIRPATH + output_file_name
-    df.to_excel(output_file_path, index=False, engine="openpyxl")
-    logger.info(f"Saved {len(items)} zwiftpower 90day bests to: {output_file_path}")
-
-
-
-
+    # items = [
+    #     rep.dict_of_zwiftpower_90daybest_poweritem[zwift_id]
+    #     for zwift_id in zwift_ids
+    #     if zwift_id in rep.dict_of_zwiftpower_90daybest_poweritem
+    # ]
+    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
+    # df = pd.DataFrame(items_as_attr_dicts)
+    # output_file_name = "candidate_zwiftpower_90day_bests.xlsx"
+    # output_file_path = OUTPUT_DIRPATH + output_file_name
+    # df.to_excel(output_file_path, index=False, engine="openpyxl")
+    # logger.info(f"Saved {len(items)} zwiftpower 90day bests to: {output_file_path}")
 
 
 
@@ -121,36 +117,53 @@ def main():
 
 
 
-    # # Step 4: Instantiate and initialize a Dict[str, OmnibusProfileDTO]
-    # dict_of_valid_keys : dict[str, OmnibusProfileDTO] = 
-    # for key, value in zwiftracingapp_profiles:
-    #     # Create a new OmnibusProfileDTO instance
-    #     omnibus_profile = OmnibusProfileDTO()
 
-    #     z = zwiftpower_profiles[key]
-    #     # Directly assign values to attributes
-    #     omnibus_profile.zwift_id = z.zwift_id
-    #     omnibus_profile.profile_url = z.profile_url
-    #     omnibus_profile.zwift_name = z.zwift_name
-    #     omnibus_profile.race_ranking = z.race_ranking
-    #     omnibus_profile.zwift_racing_score = z.zwift_racing_score
-    #     omnibus_profile.zwift_racing_category = z.zwift_racing_category
-    #     omnibus_profile.team = z.team
-    #     omnibus_profile.zftp = z.zftp
-    #     omnibus_profile.weight = z.weight
-    #     omnibus_profile.age_group = z.age_group
-    #     omnibus_profile.zpoints = z.zpoints
-    #     omnibus_profile.country = z.country
-    #     omnibus_profile.profile_image = z.profile_image
-    #     omnibus_profile.strava_profile = z.strava_profile
-    #     omnibus_profile.level = z.level
 
-    #     # Add the OmnibusProfileDTO to the dictionary
-    #     dict_of_valid_keys[key] = omnibus_profile
 
-    # logger.info(f"Step 4: Created dict_of_valid_keys with {len(dict_of_valid_keys)} entries.")
 
-    # sorted_profiles = sorted(dict_of_valid_keys.values(), key=lambda profile: profile.zwift_name or "")
+    # Step 4: Instantiate and initialize a Dict[str, OmnibusProfileDTO]
+    dict_of_zsun_riders : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
+    
+    for key in rep.dict_of_zwift_profileitem:
+        zwift_profile = rep.dict_of_zwift_profileitem[key]
+        if zwift_profile.zftp is None or zwift_profile.zftp < 100 or zwift_profile.zwift_racing_score is None or zwift_profile.zwift_racing_score < 50:            
+            logger.warning(f"{zwift_profile.first_name} {zwift_profile.last_name} has poor zFTP or poor ZRS. Skipped")
+            continue
+        zwift_power_best_power = rep.dict_of_zwiftpower_90daybest_poweritem[key]
+
+        if zwift_power_best_power.cp_10 == 0:
+            logger.warning(f"{zwift_profile.first_name} {zwift_profile.last_name} has no 90-day data.")
+            continue
+
+        zwift_racingapp_profile = rep.dict_of_zwiftracingapp_profileitem[key]
+        zwift_power_profile = rep.dict_of_zwiftpower_profileitem[key]
+        item = ZsunRiderItem(
+            zwift_id                = zwift_profile.zwift_id or "",
+            name                    = f"{zwift_profile.first_name or ''} {zwift_profile.last_name or ''}",
+            weight_kg               = (zwift_profile.weight_grams or 0.0)/1_000.0,
+            height_cm               = (zwift_profile.height_mm or 0.0)/10.0,
+            gender                  = zwift_profile.gender or "",
+            age_years               = zwift_profile.age_years or 0.0,
+            age_group               = zwift_profile.age_group or "",
+            zftp                    = zwift_profile.zftp or 0.0,
+            zwift_racing_score      = zwift_profile.zwift_racing_score or 0,
+            zwift_racing_category   = zwift_profile.zwift_racing_category or "",
+            velo_rating             = zwift_power_profile.velo_rating or 0,
+            pull_adjustment_watts   = zwift_power_profile.pull_adjustment_watts or 0.0,
+            critical_power          = zwift_power_best_power.critical_power or 0.0,
+            critical_power_w_prime  = zwift_power_best_power.critical_power_w_prime or 0.0,
+            ftp_curve_coefficient   = zwift_power_profile.ftp_curve_coefficient or 0.0,
+            ftp_curve_exponent      = zwift_power_profile.ftp_curve_exponent or 0.0,
+            pull_curve_coefficient  = zwift_power_profile.pull_curve_coefficient or 0.0,
+            pull_curve_exponent     = zwift_power_profile.pull_curve_exponent or 0.0,
+            when_curves_fitted      = zwift_power_profile.when_curves_fitted or ""
+        )
+
+        dict_of_zsun_riders[key] = item
+
+    # logger.info(f"Step 4: Created dict_of_zsun_riders with {len(dict_of_zsun_riders)} entries.")
+
+    # sorted_profiles = sorted(dict_of_zsun_riders.values(), key=lambda profile: profile.zwift_name or "")
 
     # df = pd.DataFrame([asdict(profile) for profile in sorted_profiles])
 

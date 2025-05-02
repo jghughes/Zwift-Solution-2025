@@ -8,10 +8,10 @@ from jgh_sanitise_string import sanitise_string
 
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
-    "zwift_id"               : AliasChoices("zwift_id","zwiftid", "riderId"),
+    "zwift_id"              : AliasChoices("zwift_id","zwiftid", "riderId"),
     "name"                  : AliasChoices("name", "zwift_name"),
-    "weight"                : AliasChoices("weight"),
-    "height"                : AliasChoices("height"),
+    "weight_kg"             : AliasChoices("weight_kg"),
+    "height_cm"             : AliasChoices("height_cm"),
     "gender"                : AliasChoices("gender"),
     "zftp"                  : AliasChoices("zftp", "zpFTP"),
     "zwift_racing_score"    : AliasChoices("zwift_racing_score"),
@@ -56,8 +56,8 @@ class ZsunRiderDTO(BaseModel):
     Attributes:
         zwiftid                : str     The Zwift ID of the rider.
         name                   : str     The name of the rider.
-        weight                 : float   The weight of the rider in kilograms.
-        height                 : float   The height of the rider in centimeters.
+        weight_kg                 : float   The weight_kg of the rider in kilograms.
+        height_cm                 : float   The height_cm of the rider in centimeters.
         gender                 : str     The gender of the rider ('m' for male, 'f' for female).
         zftp                   : float   Functional Threshold Power (FTP) in watts.
         zwift_racing_score     : int     The Zwift racing score of the rider.
@@ -74,8 +74,8 @@ class ZsunRiderDTO(BaseModel):
     model_config           = preferred_config_dict
     zwift_id                : Optional[str]   = ""     # Zwift ID of the rider
     name                   : Optional[str]   = ""    # Name of the rider
-    weight                 : Optional[float] = 0     # Weight of the rider in kilograms
-    height                 : Optional[float] = 0     # Height of the rider in centimeters
+    weight_kg                 : Optional[float] = 0     # Weight of the rider in kilograms
+    height_cm                 : Optional[float] = 0     # Height of the rider in centimeters
     gender                 : Optional[str]   = ""    # Gender of the rider, m or f
     age_years              : float           = 0       # Age of the rider in years
     age_group              : str             = ""      # Age group of the rider
@@ -149,8 +149,8 @@ def main02():
     {
         "zwiftid": "123",
         "name": "null",
-        "weight": 70.5,
-        "height": 180,
+        "weight_kg": 70.5,
+        "height_cm": 180,
         "gender": "m",
         "zftp": null,
         "strava_profile": null
