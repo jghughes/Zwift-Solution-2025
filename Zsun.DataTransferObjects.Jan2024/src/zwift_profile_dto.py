@@ -1,5 +1,5 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
-from typing import Optional
+from typing import Optional, Any
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -40,14 +40,14 @@ class ZwiftProfileDTO(BaseModel):
 
     # Validator for zwift_id to convert int to string
     @field_validator("zwift_id", mode="before")
-    def convert_int_to_str(cls, value):
+    def convert_int_to_str(cls, value : Any):
         if isinstance(value, int):
             return str(value)
         return value
 
     # Validator for string fields - get rid of emojis and other unwanted characters
     @field_validator("first_name", "last_name", mode="before")
-    def sanitise_string_field(cls, value):
+    def sanitise_string_field(cls, value: Any):
         if value is None:
             return ""
         return sanitise_string(value)

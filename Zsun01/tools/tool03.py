@@ -13,7 +13,7 @@ def main():
 
     Dependencies:
         - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `ZwiftPowerCurveOf90DayBestPowerDTO` for data validation and processing.
+        - Uses `JghFlattened90DayBestPowerCurveDTO` for data validation and processing.
 
     Returns:
         None
@@ -75,7 +75,7 @@ def main():
 
         return new_name
 
-    # Clean up names in each FlattenedVersionOfCurveOf90DayBestPowerItem
+    # Clean up names in each JghFlattened90DayBestPowerCurveItem
 
     for rider_id, rider_cp_data in betel_cp_dict.items():
         rider_cp_data.zwiftid = int(rider_id) # write filename into zwiftId field

@@ -46,7 +46,7 @@ def main():
     logger.info(f"Imported {len(rep.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(rep.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(rep.dict_of_zwiftpowerprofileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftpowercurveof90daybestpoweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+    logger.info(f"Imported {len(rep.dict_of_jghbestpoweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
     zwift_ids = rep.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
@@ -91,9 +91,9 @@ def main():
 
 
     # items = [
-    #     rep.dict_of_zwiftpowercurveof90daybestpoweritem[zwift_id]
+    #     rep.dict_of_jghbestpoweritem[zwift_id]
     #     for zwift_id in zwift_ids
-    #     if zwift_id in rep.dict_of_zwiftpowercurveof90daybestpoweritem
+    #     if zwift_id in rep.dict_of_jghbestpoweritem
     # ]
     # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
     # df = pd.DataFrame(items_as_attr_dicts)
@@ -128,7 +128,7 @@ def main():
         if z.zftp < 50 or z.zwift_racing_score < 80:            
             # logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
             continue
-        jgh_best_power = rep.dict_of_zwiftpowercurveof90daybestpoweritem[key]
+        jgh_best_power = rep.dict_of_jghbestpoweritem[key]
         if jgh_best_power.cp_10 == 0:
             # logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
             continue

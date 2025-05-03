@@ -3,16 +3,16 @@ from typing import Dict, cast, Optional, List
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
-from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO
-from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
+from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
+from jgh_bestpower_dto import JghBestPowerDTO
 from zsun_rider_item import ZsunRiderItem
-from zwiftpower_curve_of_90day_bestpower_item import FlattenedVersionOfCurveOf90DayBestPowerItem
+from jgh_bestpower_item import JghBestPowerItem
 from zwiftracingapp_profile_dto import *
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
 from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem, PowerItem, RaceDetailsItem
+from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem, PowerItem
 from zwift_profile_item import ZwiftProfileItem
 
 import logging
@@ -22,22 +22,16 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 def get_betel_zwift_ids() -> List[str]:
-
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
     riders = read_dict_of_zsunrider_items(file_name, dir_path)
-
-    # extract list of zwiftIds from the riders
     answer = [str(rider.zwift_id) for rider in riders.values()]
-
     return answer
 
 def get_betel(id : int) -> ZsunRiderItem:
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
     riders = read_dict_of_zsunrider_items(file_name, dir_path)
-    # extract list of zwiftIds from the riders
     answer = riders[str(id)]
     return answer
 
@@ -45,79 +39,51 @@ def get_zsun_rider(id : int) -> ZsunRiderItem:
     file_name = "betel_rider_profiles.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
     riders = read_dict_of_zsunrider_items(file_name, dir_path)
-    # extract list of zwiftIds from the riders
     answer = riders[str(id)]
     return answer
 
 def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> Dict[str, ZsunRiderItem]:
-    # Raise an error if dir_path parameter is not minimally satisfactory
-
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
-
     if not dir_path.strip():
         raise ValueError("dir_path must be a valid non-empty string.")
-
-    # Raise an error if the directory does not exist
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
-    # do work
-
     inputjson = read_text(dir_path, file_name)
-
     answer = JghSerialization.validate(inputjson, Dict[str, ZsunRiderDTO])
     answer = cast(Dict[str, ZsunRiderDTO], answer)
-
     return {
         key: ZsunRiderItem.from_dataTransferObject(dto)
         for key, dto in answer.items()
     }
 
-def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
-    # Raise an error if dir_path parameter is not minimally satisfactory
-
+def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, JghBestPowerItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
-
     if not dir_path.strip():
         raise ValueError("dir_path must be a valid non-empty string.")
-
-    # Raise an error if the directory does not exist
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
-
-    # do work
-
+    
     inputjson = read_text(dir_path, file_name)
-
-    answer = JghSerialization.validate(inputjson, Dict[str, ZwiftPowerCurveOf90DayBestPowerDTO])
-    answer = cast(Dict[str, ZwiftPowerCurveOf90DayBestPowerDTO], answer)
-
+    answer = JghSerialization.validate(inputjson, Dict[str, JghBestPowerDTO])
+    answer = cast(Dict[str, JghBestPowerDTO], answer)
     return {
-        key: FlattenedVersionOfCurveOf90DayBestPowerItem.from_dataTransferObject(dto)
+        key: JghBestPowerItem.from_dataTransferObject(dto)
         for key, dto in answer.items()
     }
 
-def write_dict_of_90day_bestpower_items(data: Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem], file_name: str, dir_path: str) -> None:
-    # Raise an error if dir_path parameter is not minimally satisfactory
-
+def write_dict_of_90day_bestpower_items(data: Dict[str, JghBestPowerItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
-
     if not dir_path.strip():
         raise ValueError("dir_path must be a valid non-empty string.")
-
-    # Raise an error if the directory does not exist
     if not os.path.exists(dir_path):
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
-    # do work
-
     serialized_data = JghSerialization.serialise(data)
-
     os.makedirs(dir_path, exist_ok=True)
-
     file_path = os.path.join(dir_path, file_name)
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json_file.write(serialized_data)
@@ -125,7 +91,7 @@ def write_dict_of_90day_bestpower_items(data: Dict[str, FlattenedVersionOfCurveO
     logger.debug(f"File saved : {file_name}")
 
 def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileItem]:
-    
+
     answer: defaultdict[str, ZwiftProfileItem] = defaultdict(ZwiftProfileItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
@@ -208,9 +174,9 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
     return answer
 
-def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
+def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, JghBestPowerItem]:
 
-    answer: defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem] = defaultdict(FlattenedVersionOfCurveOf90DayBestPowerItem)
+    answer: defaultdict[str, JghBestPowerItem] = defaultdict(JghBestPowerItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -223,15 +189,15 @@ def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]]
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerCurvesOfBestPowerDTO)
-            dto = cast(ZwiftPowerCurvesOfBestPowerDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerBestPowerDTO)
+            dto = cast(ZwiftPowerBestPowerDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        answer[zwift_id] = FlattenedVersionOfCurveOf90DayBestPowerItem.from_ZwiftPower90DayBestDataDTO(dto)
+        answer[zwift_id] = JghBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
 
     return answer
 
@@ -287,7 +253,6 @@ def main03():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
-
 
     dict_of_zwiftracingapp_profiles = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
 

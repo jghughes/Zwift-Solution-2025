@@ -5,7 +5,7 @@ from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftpower_curve_of_90day_bestpower_item import FlattenedVersionOfCurveOf90DayBestPowerItem
+from jgh_bestpower_item import JghBestPowerItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
 
@@ -25,7 +25,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwiftprofileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
         self.dict_of_zwiftracingappprofileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
         self.dict_of_zwiftpowerprofileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
-        self.dict_of_zwiftpowercurveof90daybestpoweritem: defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem] = field(default_factory=lambda: defaultdict(FlattenedVersionOfCurveOf90DayBestPowerItem))
+        self.dict_of_jghbestpoweritem: defaultdict[str, JghBestPowerItem] = field(default_factory=lambda: defaultdict(JghBestPowerItem))
 
     def populate_repository(
         self,
@@ -38,7 +38,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwiftprofileitem               = read_many_zwift_profile_files_in_folder(riderIDs, zwift_profile_dir_path)
         self.dict_of_zwiftracingappprofileitem      = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, zwiftracingapp_profile_dir_path)
         self.dict_of_zwiftpowerprofileitem          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
-        self.dict_of_zwiftpowercurveof90daybestpoweritem = read_many_zwiftpower_bestpower_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
+        self.dict_of_jghbestpoweritem               = read_many_zwiftpower_bestpower_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """
@@ -59,7 +59,7 @@ class ScrapedZwiftDataRepository:
                               set(self.dict_of_zwiftprofileitem.keys()) | \
                               set(self.dict_of_zwiftracingappprofileitem.keys()) | \
                               set(self.dict_of_zwiftpowerprofileitem.keys()) | \
-                              set(self.dict_of_zwiftpowercurveof90daybestpoweritem.keys())
+                              set(self.dict_of_jghbestpoweritem.keys())
 
         # Optional: Log the size of the superset for debugging
         logger.info(f"Total unique Zwift IDs in superset: {len(superset_of_zwiftID)}")
@@ -73,7 +73,7 @@ class ScrapedZwiftDataRepository:
                 "y" if key in self.dict_of_zwiftprofileitem.keys() else "n",  # col 3: in_zwift_profiles
                 "y" if key in self.dict_of_zwiftracingappprofileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
                 "y" if key in self.dict_of_zwiftpowerprofileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_zwiftpowercurveof90daybestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self.dict_of_jghbestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -108,7 +108,7 @@ class ScrapedZwiftDataRepository:
         zwift_profiles = list(self.dict_of_zwiftprofileitem.keys())
         zwiftracingapp_profiles = list(self.dict_of_zwiftracingappprofileitem.keys())
         zwiftpower_profiles = list(self.dict_of_zwiftpowerprofileitem.keys())
-        zwiftpower_90daybest_graphs = list(self.dict_of_zwiftpowercurveof90daybestpoweritem.keys())
+        zwiftpower_90daybest_graphs = list(self.dict_of_jghbestpoweritem.keys())
         
         intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_profiles) & set(zwiftpower_90daybest_graphs)
 
@@ -133,7 +133,7 @@ class ScrapedZwiftDataRepository:
                 "y" if key in self.dict_of_zwiftprofileitem.keys() else "n",  # col 3: in_zwift_profiles
                 "y" if key in self.dict_of_zwiftracingappprofileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
                 "y" if key in self.dict_of_zwiftpowerprofileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_zwiftpowercurveof90daybestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self.dict_of_jghbestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -268,8 +268,8 @@ class ScrapedZwiftDataRepository:
     def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftPowerProfileItem]:
         return {zwift_id: self.dict_of_zwiftpowerprofileitem[zwift_id] for zwift_id in zwift_ids}
 
-    def get_dict_of_ZwiftPowerCurveOf90DayBestPowerItem(self, zwift_ids: list[str]) -> dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
-        return {zwift_id: self.dict_of_zwiftpowercurveof90daybestpoweritem[zwift_id] for zwift_id in zwift_ids}
+    def get_dict_of_JghBestPowerItem(self, zwift_ids: list[str]) -> dict[str, JghBestPowerItem]:
+        return {zwift_id: self.dict_of_jghbestpoweritem[zwift_id] for zwift_id in zwift_ids}
 
     def save_dataframe_to_excel(self, df: pd.DataFrame, file_name: str, dir_path : str):
            # Validate the file name
@@ -357,7 +357,7 @@ def main():
     rep.save_dataframe_to_excel(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
 
 
-    # Example: get an intersection of all main sets and betel - should be tiny - 3 or 4
+    # Example: get an intersection of all main sets and betel - should be tiny - 4
     df = rep.get_table_of_intersections_of_sets(betel, [])
     print("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
     print(df)
@@ -406,7 +406,7 @@ def main2():
 
     # Optionally, save the filtered DataFrame to an Excel file for verification
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    OUTPUT_FILENAME = "zwiftid_matching_specified_boolean_filter_criteria.xlsx"
+    OUTPUT_FILENAME = "beautiful_matching_specified_boolean_filter_criteria.xlsx"
     rep.save_dataframe_to_excel(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
     print(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
@@ -431,31 +431,75 @@ def main3():
     )
 
     # Example: get the superset - should be more than 1500
-    dict_of_velofiles = rep.get_dict_of_ZwiftRacingAppProfileItem([])
+    dict_of_items = rep.get_dict_of_ZwiftProfileItem([])
+    print(f"Zwift profiles:\n{dict_of_items.values()}\n")
+    print(f"Zwift profiles: {len(dict_of_items.items())}\n")
 
-    print(f"{dict_of_velofiles}")
+    print(f"{dict_of_items}")
 
-    # #convert to dict to list of values
-    # velo_files = list(dict_of_velofiles.values())
+    #convert to dict to list of values
+    items = list(dict_of_items.values())
 
-    # print(f"Velo files: {len(velo_files)}")
-    # print(f"Velo files:\n{velo_files}")
+    # Create a DataFrame from the list of velo files
+    data = []
+    for item in items:
+        # Assuming each velo object has a method to convert it to a dictionary
+        data.append(asdict(item))  # Replace with the actual method to get a dictionary representation
 
-    # # Create a DataFrame from the list of velo files
-    # data = []
-    # for velo in velo_files:
-    #     # Assuming each velo object has a method to convert it to a dictionary
-    #     data.append(asdict(velo))  # Replace with the actual method to get a dictionary representation
+    df = pd.DataFrame(data)
 
-    # df = pd.DataFrame(data)
+    print("DataFrame of all Zwift profiles:")
+    print(df)
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Zwift_profiles.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
-    # print("DataFrame of all velo files:")
-    # print(df)
-    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    # OUTPUT_FILENAME = "beautiful_spreadsheet_of_all_velo_files.xlsx"
-    # rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+def main4():
+    # Define paths for testing
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    # Initialize the repository
+    rep = ScrapedZwiftDataRepository()
+
+    # Populate the repository with data
+    rep.populate_repository(
+        [],
+        zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
+        zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
+        zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
+        zwiftpower_90daybest_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+    )
+
+    # Example: get the superset - should be more than 1500
+    dict_of_items = rep.get_dict_of_ZwiftRacingAppProfileItem([])
+    print(f"ZwiftRacingApp profiles:\n{dict_of_items.values()}\n")
+    print(f"ZwiftRacingApp profiles: {len(dict_of_items.items())}\n")
+
+    print(f"{dict_of_items}")
+
+    #convert to dict to list of values
+    items = list(dict_of_items.values())
+
+    # Create a DataFrame from the list of velo files
+    data = []
+    for item in items:
+        # Assuming each velo object has a method to convert it to a dictionary
+        data.append(asdict(item))  # Replace with the actual method to get a dictionary representation
+
+    df = pd.DataFrame(data)
+
+    print("DataFrame of all ZwiftRacingApp profiles:")
+    print(df)
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftRacingApp_profiles.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+
 
 if __name__ == "__main__":
     # main()
     # main2()
-    main3()
+    # main3()
+    main4()

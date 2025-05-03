@@ -163,13 +163,13 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
     return answer
 
 
-def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZsunRiderItem, RiderAnswerItem], zwiftriders_zwift_cp_data: Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]
+def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZsunRiderItem, RiderAnswerItem], zwiftriders_zwift_cp_data: Dict[str, JghFlattened90DayBestPowerCurveItem]
 ) -> Dict[ZsunRiderItem, RiderAnswerItem]:
     """
     Populate zwift critical power and W' in the the rider answer items.
     Args:
         rider_answer_items (Dict[ZsunRiderItem, RiderAnswerItem]): The rider answer items.
-        zwiftriders_zwift_cp_data (Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]): The critical power items. Key is str(zwiftid).
+        zwiftriders_zwift_cp_data (Dict[str, JghFlattened90DayBestPowerCurveItem]): The critical power items. Key is str(zwiftid).
     Returns:
         Dict[ZsunRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
     """

@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 from dataclasses import dataclass
-from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
-from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO, EffortDTO
+from jgh_bestpower_dto import JghBestPowerDTO
+from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO, EffortDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 @dataclass
@@ -33,18 +33,8 @@ class EffortItem:
             zid  = item.zid,
     )
 
-
-
-
-
-
-
-
-
-
-
 @dataclass
-class FlattenedVersionOfCurveOf90DayBestPowerItem:
+class JghBestPowerItem:
     """
     A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -798,8 +788,8 @@ class FlattenedVersionOfCurveOf90DayBestPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "FlattenedVersionOfCurveOf90DayBestPowerItem") -> ZwiftPowerCurveOf90DayBestPowerDTO:
-        return ZwiftPowerCurveOf90DayBestPowerDTO(
+    def to_dataTransferObject(item: "JghBestPowerItem") -> JghBestPowerDTO:
+        return JghBestPowerDTO(
             zwift_id        = item.zwift_id,
             cp_1           = item.cp_1,
             cp_2           = item.cp_2,
@@ -904,10 +894,10 @@ class FlattenedVersionOfCurveOf90DayBestPowerItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZwiftPowerCurveOf90DayBestPowerDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+    def from_dataTransferObject(dto: Optional[JghBestPowerDTO]) -> "JghBestPowerItem":
         if dto is None:
-            return FlattenedVersionOfCurveOf90DayBestPowerItem()
-        return FlattenedVersionOfCurveOf90DayBestPowerItem(
+            return JghBestPowerItem()
+        return JghBestPowerItem(
             zwift_id        = dto.zwift_id or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
@@ -1010,12 +1000,11 @@ class FlattenedVersionOfCurveOf90DayBestPowerItem:
             cp_7200        = dto.cp_7200 or 0.0,
     )
 
-
     @staticmethod
-    def from_ZwiftRacingAppProfileDTO(dto: Optional[ZwiftRacingAppProfileDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+    def from_ZwiftRacingAppProfileDTO(dto: Optional[ZwiftRacingAppProfileDTO]) -> "JghBestPowerItem":
         if dto is None:
-            return FlattenedVersionOfCurveOf90DayBestPowerItem()
-        return FlattenedVersionOfCurveOf90DayBestPowerItem(
+            return JghBestPowerItem()
+        return JghBestPowerItem(
             zwift_id = dto.zwift_id if dto.zwift_id else "",
             cp_5     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
             cp_15    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
@@ -1027,9 +1016,9 @@ class FlattenedVersionOfCurveOf90DayBestPowerItem:
     )
 
     @staticmethod
-    def from_ZwiftPowerCurvesOfBestPowerDTO(dto: Optional[ZwiftPowerCurvesOfBestPowerDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+    def from_ZwiftPowerBestPowerDTO(dto: Optional[ZwiftPowerBestPowerDTO]) -> "JghBestPowerItem":
         if dto is None:
-            return FlattenedVersionOfCurveOf90DayBestPowerItem()
+            return JghBestPowerItem()
 
         xx = dto.efforts.get("90days", []) if dto.efforts else []
 
@@ -1037,7 +1026,7 @@ class FlattenedVersionOfCurveOf90DayBestPowerItem:
 
         cp_data = {effort.x: float(effort.y) for effort in effortItems if effort.x and effort.y}
 
-        flattened = FlattenedVersionOfCurveOf90DayBestPowerItem()
+        flattened = JghBestPowerItem()
 
         flattened.import_x_y_ordinates(cp_data)
 

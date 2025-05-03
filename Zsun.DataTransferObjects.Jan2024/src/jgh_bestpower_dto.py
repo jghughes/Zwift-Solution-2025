@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from typing import Optional
 
-# this class is only intended for exported data originating from ZwiftPower that has been flattened by JGH
-class ZwiftPowerCurveOf90DayBestPowerDTO(BaseModel):
+
+# this class is only intended for export of data prepared by JGH 
+class JghBestPowerDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
     """

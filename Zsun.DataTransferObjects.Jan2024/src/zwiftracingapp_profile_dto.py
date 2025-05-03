@@ -94,7 +94,7 @@ class ZwiftRacingAppProfileDTO(BaseModel):
 
     # Validator for string fields - get rid of emojis and other unwanted characters
     @field_validator("fullname", mode="before")
-    def sanitise_string_field(cls, value):
+    def sanitise_string_field(cls, value : Any):
         if value is None:
             return ""
         return sanitise_string(value)

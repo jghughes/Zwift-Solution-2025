@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
-from typing import Optional
+from typing import Optional, Any
 from jgh_sanitise_string import sanitise_string
 
 
@@ -37,13 +37,13 @@ class ZwiftPowerProfileDTO(BaseModel):
 
     # Validator for string fields - get rid of emojis and other unwanted characters
     @field_validator("zwift_name", mode="before")
-    def sanitise_string_field(cls, value):
+    def sanitise_string_field(cls, value : Any):
         if value is None:
             return ""
         return sanitise_string(value)
 
     @field_validator("race_ranking", "zwift_racing_score", "zftp", "weight", "zpoints", "level", mode="before")
-    def sanitise_wrapped_numerics(cls, value):
+    def sanitise_wrapped_numerics(cls, value : Any):
         if value is None:
             return "0"
         try:
