@@ -1,6 +1,34 @@
 
-from dataclasses import dataclass
-from zwift_profile_dto import ZwiftProfileDTO
+from dataclasses import dataclass, field
+from typing import Optional
+
+from zwift_profile_dto import ZwiftProfileDTO, CompetitionMetricsDTO
+
+@dataclass
+class CompetitionMetricsItem:
+    racingScore   : float = 0.0  # Racing score of the rider
+    category      : str   = ""   # Racing category of the rider
+    categoryWomen : str   = ""   # Racing category for women
+
+    @staticmethod
+    def from_dataTransferObject(dto: Optional[CompetitionMetricsDTO]) -> "CompetitionMetricsItem":
+        if dto is None:
+            return CompetitionMetricsItem()
+        return CompetitionMetricsItem(
+            racingScore=dto.racingScore or 0.0,
+            category=dto.category or "",
+            categoryWomen=dto.categoryWomen or "",
+        )
+
+    @staticmethod
+    def to_dataTransferObject(item: Optional["CompetitionMetricsItem"]) -> CompetitionMetricsDTO:
+        if item is None:
+            return CompetitionMetricsDTO()
+        return CompetitionMetricsDTO(
+            racingScore=item.racingScore,
+            category=item.category,
+            categoryWomen=item.categoryWomen,
+        )
 
 @dataclass
 class ZwiftProfileItem:
@@ -13,12 +41,12 @@ class ZwiftProfileItem:
     height_mm                 : float = 0.0
     weight_grams              : float = 0.0
     zftp                      : float = 0.0
-    zwift_racing_score        : float = 0.0
-    zwift_racing_category     : str  = ""
-    zwift_racing_category_women: str  = ""
+    competitionMetrics        : CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftProfileDTO) -> "ZwiftProfileItem":
+    def from_dataTransferObject(dto: Optional[ZwiftProfileDTO]) -> "ZwiftProfileItem":
+        if dto is None:
+            return ZwiftProfileItem()
         return ZwiftProfileItem(
             zwift_id                  = dto.zwift_id or "",
             public_id                 = dto.public_id or "",
@@ -29,13 +57,13 @@ class ZwiftProfileItem:
             height_mm                 = dto.height_mm or 0.0,
             weight_grams              = dto.weight_grams or 0.0,
             zftp                      = dto.ftp or 0.0,
-            zwift_racing_score        = dto.competitionMetrics.racingScore if dto.competitionMetrics and dto.competitionMetrics.racingScore is not None else 0.0,
-            zwift_racing_category     = dto.competitionMetrics.category if dto.competitionMetrics and dto.competitionMetrics.category is not None else "",
-            zwift_racing_category_women = dto.competitionMetrics.categoryWomen if dto.competitionMetrics and dto.competitionMetrics.categoryWomen is not None else "",
+            competitionMetrics        = CompetitionMetricsItem.from_dataTransferObject(dto.competitionMetrics),
         )
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftProfileItem") -> ZwiftProfileDTO:
+    def to_dataTransferObject(item: Optional["ZwiftProfileItem"]) -> ZwiftProfileDTO:
+        if item is None:
+            return ZwiftProfileDTO()
         return ZwiftProfileDTO(
             zwift_id                  = item.zwift_id,
             public_id                 = item.public_id,
@@ -46,9 +74,5 @@ class ZwiftProfileItem:
             height_mm                 = item.height_mm,
             weight_grams              = item.weight_grams,
             ftp                       = item.zftp,
-            competitionMetrics        = ZwiftProfileDTO.CompetitionMetricsDTO(
-                racingScore           = item.zwift_racing_score,
-                category              = item.zwift_racing_category,
-                categoryWomen         = item.zwift_racing_category_women,
-            ),
+            competitionMetrics        = CompetitionMetricsItem.to_dataTransferObject(item.competitionMetrics),
         )

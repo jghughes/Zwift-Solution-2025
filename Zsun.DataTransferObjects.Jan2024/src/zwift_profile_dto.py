@@ -19,25 +19,13 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
+class CompetitionMetricsDTO(BaseModel):
+    racingScore   : Optional[float] = 0.0
+    category      : Optional[str]  = ""
+    categoryWomen : Optional[str]  = ""
+
+
 class ZwiftProfileDTO(BaseModel):
-    """
-    A data transfer object representing a Zwift profile JSON object.
-    Only a subset of the fields is used, as the full profile contains many more attributes.
-    """
-
-    class CompetitionMetricsDTO(BaseModel):
-        """
-        A nested DTO for the competition metrics of a Zwift profile.
-
-        Attributes:
-            racingScore (float): The racing score of the rider.
-            category (str): The racing category of the rider.
-            categoryWomen (str): The racing category for women.
-        """
-        racingScore   : Optional[float] = 0.0
-        category      : Optional[str]  = ""
-        categoryWomen : Optional[str]  = ""
-
     model_config = preferred_config_dict
     zwift_id            : Optional[str]                      = "" # Unique identifier for the profile
     public_id           : Optional[str]                      = ""   # Public ID of the profile

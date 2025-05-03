@@ -1,11 +1,50 @@
-from typing import Dict
+from typing import Dict, Optional
 from dataclasses import dataclass
 from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
-from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO
+from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO, EffortDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
 
 @dataclass
-class ZwiftPowerCurveOf90DayBestPowerItem:
+class EffortItem:
+    x    : int = 0      # X-coordinate (must be int for dict key)
+    y    : float = 0.0  # Y-coordinate
+    date : int   = 0    # Date as a Unix timestamp
+    zid  : str   = ""   # Zwift ID
+
+    @staticmethod
+    def from_dataTransferObject(dto: Optional[EffortDTO]) -> "EffortItem":
+        if dto is None:
+            return EffortItem()
+        return EffortItem(
+            x    = dto.x or 0,
+            y    = float(dto.y or 0),  # Cast y to float
+            date = dto.date or 0,
+            zid  = dto.zid or "",
+    )
+
+    @staticmethod
+    def to_dataTransferObject(item: Optional["EffortItem"]) -> EffortDTO:
+        if item is None:
+            return EffortDTO()
+        return EffortDTO(
+            x    = item.x,
+            y    = int(item.y),  # Cast y back to int
+            date = item.date,
+            zid  = item.zid,
+    )
+
+
+
+
+
+
+
+
+
+
+
+@dataclass
+class FlattenedVersionOfCurveOf90DayBestPowerItem:
     """
     A data class representing a Zwift rider's critical power data.
     The object can be converted to and from a data transfer object (DTO).
@@ -759,7 +798,7 @@ class ZwiftPowerCurveOf90DayBestPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftPowerCurveOf90DayBestPowerItem") -> ZwiftPowerCurveOf90DayBestPowerDTO:
+    def to_dataTransferObject(item: "FlattenedVersionOfCurveOf90DayBestPowerItem") -> ZwiftPowerCurveOf90DayBestPowerDTO:
         return ZwiftPowerCurveOf90DayBestPowerDTO(
             zwift_id        = item.zwift_id,
             cp_1           = item.cp_1,
@@ -865,8 +904,10 @@ class ZwiftPowerCurveOf90DayBestPowerItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftPowerCurveOf90DayBestPowerDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
-        return ZwiftPowerCurveOf90DayBestPowerItem(
+    def from_dataTransferObject(dto: Optional[ZwiftPowerCurveOf90DayBestPowerDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+        if dto is None:
+            return FlattenedVersionOfCurveOf90DayBestPowerItem()
+        return FlattenedVersionOfCurveOf90DayBestPowerItem(
             zwift_id        = dto.zwift_id or "",
             cp_1           = dto.cp_1 or 0.0,
             cp_2           = dto.cp_2 or 0.0,
@@ -967,47 +1008,39 @@ class ZwiftPowerCurveOf90DayBestPowerItem:
             cp_6300        = dto.cp_6300 or 0.0,
             cp_6600        = dto.cp_6600 or 0.0,
             cp_7200        = dto.cp_7200 or 0.0,
-          )
+    )
 
 
     @staticmethod
-    def from_zwift_racing_app_DTO(dto: ZwiftRacingAppProfileDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
-        """
-        Create a ZwiftPowerCurveOf90DayBestPowerItem instance from a ZwiftRacingAppProfileDTO.
-        The ZwiftRacingApp seemingly stores just the CP values for 5, 15, 30, 60, 120, 300 and 1200 seconds.
-        Not sure how it derives these values, and not sure if it does or doesn't use them to derive 
-        critical power and other derivatives 
-
-        Args:
-            dto (ZwiftRacingAppProfileDTO): The data transfer object to convert.
-
-        Returns:
-            ZwiftPowerCurveOf90DayBestPowerItem: The corresponding ZwiftPowerCurveOf90DayBestPowerItem instance.
-        """
-        return ZwiftPowerCurveOf90DayBestPowerItem(
-            zwift_id                  = dto.zwift_id if dto.zwift_id else "",
-            cp_5                     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
-            cp_15                    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
-            cp_30                    = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
-            cp_60                    = dto.power.w60 if dto.power and dto.power.w60 else 0.0,
-            cp_120                   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
-            cp_300                   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
-            cp_1200                  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
-            )
+    def from_ZwiftRacingAppProfileDTO(dto: Optional[ZwiftRacingAppProfileDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+        if dto is None:
+            return FlattenedVersionOfCurveOf90DayBestPowerItem()
+        return FlattenedVersionOfCurveOf90DayBestPowerItem(
+            zwift_id = dto.zwift_id if dto.zwift_id else "",
+            cp_5     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
+            cp_15    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
+            cp_30    = dto.power.w30 if dto.power and dto.power.w30 else 0.0,
+            cp_60    = dto.power.w60 if dto.power and dto.power.w60 else 0.0,
+            cp_120   = dto.power.w120 if dto.power and dto.power.w120 else 0.0,
+            cp_300   = dto.power.w300 if dto.power and dto.power.w300 else 0.0,
+            cp_1200  = dto.power.w1200 if dto.power and dto.power.w1200 else 0.0,
+    )
 
     @staticmethod
-    def from_ZwiftPower90DayBestDataDTO(dto: ZwiftPowerCurvesOfBestPowerDTO) -> "ZwiftPowerCurveOf90DayBestPowerItem":
-        # Extract efforts from the "90days" key, if available
-        efforts_90days = dto.efforts.get("90days", []) if dto.efforts else []
+    def from_ZwiftPowerCurvesOfBestPowerDTO(dto: Optional[ZwiftPowerCurvesOfBestPowerDTO]) -> "FlattenedVersionOfCurveOf90DayBestPowerItem":
+        if dto is None:
+            return FlattenedVersionOfCurveOf90DayBestPowerItem()
 
-        # Map efforts to a dictionary of time (x) to power (y)
-        cp_data = {effort.x: float(effort.y) for effort in efforts_90days if effort.x and effort.y}
+        xx = dto.efforts.get("90days", []) if dto.efforts else []
 
-        # Create an instance of ZwiftPowerCurveOf90DayBestPowerItem
-        best90days_item = ZwiftPowerCurveOf90DayBestPowerItem()
+        effortItems = [EffortItem.from_dataTransferObject(effort) for effort in xx]
 
-        best90days_item.import_x_y_ordinates(cp_data)
+        cp_data = {effort.x: float(effort.y) for effort in effortItems if effort.x and effort.y}
 
-        return best90days_item
+        flattened = FlattenedVersionOfCurveOf90DayBestPowerItem()
+
+        flattened.import_x_y_ordinates(cp_data)
+
+        return flattened
 
 

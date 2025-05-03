@@ -5,7 +5,7 @@ from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftpower_curve_of_90day_bestpower_item import ZwiftPowerCurveOf90DayBestPowerItem
+from zwiftpower_curve_of_90day_bestpower_item import FlattenedVersionOfCurveOf90DayBestPowerItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
 
@@ -25,7 +25,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwiftprofileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
         self.dict_of_zwiftracingappprofileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
         self.dict_of_zwiftpowerprofileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
-        self.dict_of_zwiftpowercurveof90daybestpoweritem: defaultdict[str, ZwiftPowerCurveOf90DayBestPowerItem] = field(default_factory=lambda: defaultdict(ZwiftPowerCurveOf90DayBestPowerItem))
+        self.dict_of_zwiftpowercurveof90daybestpoweritem: defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem] = field(default_factory=lambda: defaultdict(FlattenedVersionOfCurveOf90DayBestPowerItem))
 
     def populate_repository(
         self,
@@ -268,7 +268,7 @@ class ScrapedZwiftDataRepository:
     def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftPowerProfileItem]:
         return {zwift_id: self.dict_of_zwiftpowerprofileitem[zwift_id] for zwift_id in zwift_ids}
 
-    def get_dict_of_ZwiftPowerCurveOf90DayBestPowerItem(self, zwift_ids: list[str]) -> dict[str, ZwiftPowerCurveOf90DayBestPowerItem]:
+    def get_dict_of_ZwiftPowerCurveOf90DayBestPowerItem(self, zwift_ids: list[str]) -> dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
         return {zwift_id: self.dict_of_zwiftpowercurveof90daybestpoweritem[zwift_id] for zwift_id in zwift_ids}
 
     def save_dataframe_to_excel(self, df: pd.DataFrame, file_name: str, dir_path : str):

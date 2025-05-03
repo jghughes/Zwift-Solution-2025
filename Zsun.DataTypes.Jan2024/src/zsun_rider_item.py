@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from dataclasses import dataclass,  asdict
+from typing import Optional
 import numpy as np
-# from numpy.typing import NDArray
 from zsun_rider_dto import ZsunRiderDTO 
 from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
 from jgh_power_curve_fit_models import decay_model_numpy
@@ -21,13 +20,13 @@ class ZsunRiderItem:
     age_years                  : float = 0.0   # Age of the rider in years
     agegroup                   : str   = ""    # Age group of the rider
     zwift_zftp                 : float = 0.0   # Functional Threshold Power in watts
-    zwift_zrs                  : float   = 0     # Zwift racing score
+    zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
-    velo_score             : float = 0.0   # Velo score typically over 1000
-    velo_cat_num                : int   = 0     # Velo rating 1 to 10
-    velo_cat_name               : str   = ""    # Copper, Silver, Gold etc
-    velo_cp                     : float = 0.0   # Critical power in watts
-    velo_awc                    : float = 0.0   # Anaerobic work capacity in kilojoules
+    velo_score                 : float = 0.0   # Velo score typically over 1000
+    velo_cat_num               : int   = 0     # Velo rating 1 to 10
+    velo_cat_name              : str   = ""    # Copper, Silver, Gold etc
+    velo_cp                    : float = 0.0   # Critical power in watts
+    velo_awc                   : float = 0.0   # Anaerobic work capacity in kilojoules
     jgh_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
     jgh_cp                     : float = 0.0   # Critical power in watts
     jgh_w_prime                : float = 0.0   # Critical power W' in kilojoules
@@ -262,7 +261,9 @@ class ZsunRiderItem:
         return self.jgh_when_curves_fitted
 
     @staticmethod
-    def to_dataTransferObject(item: "ZsunRiderItem") -> ZsunRiderDTO:
+    def to_dataTransferObject(item: Optional["ZsunRiderItem"]) -> ZsunRiderDTO:
+        if item is None:
+            return ZsunRiderDTO()
         return ZsunRiderDTO(
             zwift_id                   = item.zwift_id,
             name                       = item.name,
@@ -291,7 +292,9 @@ class ZsunRiderItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: ZsunRiderDTO) -> "ZsunRiderItem":
+    def from_dataTransferObject(dto: Optional[ZsunRiderDTO]) -> "ZsunRiderItem":
+        if dto is None:
+            return ZsunRiderItem()
         return ZsunRiderItem(
             zwift_id                   = dto.zwift_id or "",
             name                       = dto.name or "",

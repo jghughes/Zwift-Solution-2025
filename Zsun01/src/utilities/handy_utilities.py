@@ -6,7 +6,7 @@ from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO
 from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
 from zsun_rider_item import ZsunRiderItem
-from zwiftpower_curve_of_90day_bestpower_item import ZwiftPowerCurveOf90DayBestPowerItem
+from zwiftpower_curve_of_90day_bestpower_item import FlattenedVersionOfCurveOf90DayBestPowerItem
 from zwiftracingapp_profile_dto import *
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
@@ -74,7 +74,7 @@ def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> Dict[str, Zsu
         for key, dto in answer.items()
     }
 
-def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, ZwiftPowerCurveOf90DayBestPowerItem]:
+def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
     # Raise an error if dir_path parameter is not minimally satisfactory
 
     if not dir_path:
@@ -95,11 +95,11 @@ def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[st
     answer = cast(Dict[str, ZwiftPowerCurveOf90DayBestPowerDTO], answer)
 
     return {
-        key: ZwiftPowerCurveOf90DayBestPowerItem.from_dataTransferObject(dto)
+        key: FlattenedVersionOfCurveOf90DayBestPowerItem.from_dataTransferObject(dto)
         for key, dto in answer.items()
     }
 
-def write_dict_of_90day_bestpower_items(data: Dict[str, ZwiftPowerCurveOf90DayBestPowerItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_90day_bestpower_items(data: Dict[str, FlattenedVersionOfCurveOf90DayBestPowerItem], file_name: str, dir_path: str) -> None:
     # Raise an error if dir_path parameter is not minimally satisfactory
 
     if not dir_path:
@@ -208,9 +208,9 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
     return answer
 
-def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPowerCurveOf90DayBestPowerItem]:
+def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem]:
 
-    answer: defaultdict[str, ZwiftPowerCurveOf90DayBestPowerItem] = defaultdict(ZwiftPowerCurveOf90DayBestPowerItem)
+    answer: defaultdict[str, FlattenedVersionOfCurveOf90DayBestPowerItem] = defaultdict(FlattenedVersionOfCurveOf90DayBestPowerItem)
 
     file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -231,7 +231,7 @@ def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]]
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        answer[zwift_id] = ZwiftPowerCurveOf90DayBestPowerItem.from_ZwiftPower90DayBestDataDTO(dto)
+        answer[zwift_id] = FlattenedVersionOfCurveOf90DayBestPowerItem.from_ZwiftPower90DayBestDataDTO(dto)
 
     return answer
 
