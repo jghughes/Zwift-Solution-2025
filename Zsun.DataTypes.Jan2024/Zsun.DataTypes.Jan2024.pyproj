@@ -35,10 +35,6 @@
     <Compile Include="src\participant_item.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\v2.py" />
-    <Compile Include="src\v3.py" />
-    <Compile Include="src\v4.py" />
-    <Compile Include="src\v5.py" />
     <Compile Include="src\zsun_rider_item.py" />
     <Compile Include="src\zwiftpower_curve_of_90day_bestpower_item.py" />
     <Compile Include="src\zwiftpower_profile_item.py" />

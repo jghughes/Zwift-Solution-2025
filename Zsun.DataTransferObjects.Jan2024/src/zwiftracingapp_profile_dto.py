@@ -2,6 +2,73 @@ from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, Alias
 from typing import Optional, Union, Any, Dict, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
+
+class MixedDTO(BaseModel):
+    """
+    A nested model representing the velo dict_of_racedetailsdto category details.
+
+    Attributes:
+        category (str): The name of the category (e.g., "Ruby").
+        number (int): The number associated with the category eg. 4
+    """
+    category: Optional[str] = ""  # Name of the velo category, eg copper
+    number: Optional[int] = 0    # Number associated with the velo category, eg 10
+
+class RaceDetailsDTO(BaseModel):
+    """
+    A data transfer object representing dict_of_racedetailsdto details.
+
+    Attributes:
+        rating (float): The dict_of_racedetailsdto rating (e.g., vELO rating).
+        date (int): The date of the dict_of_racedetailsdto as a Unix timestamp.
+        mixed (MixedDTO): A nested object representing mixed category details.
+    """
+
+
+    rating  : Optional[float] = 0  # Race rating
+    date    : Optional[int] = 0      # Date as a Unix timestamp
+    mixed   : Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
+
+class PowerDTO(BaseModel):
+    """
+    A nested model representing the powerdto data of the rider.
+    """
+    wkg5:    Optional[float] = 0.0
+    wkg15:   Optional[float] = 0.0
+    wkg30:   Optional[float] = 0.0
+    wkg60:   Optional[float] = 0.0
+    wkg120:  Optional[float] = 0.0
+    wkg300:  Optional[float] = 0.0
+    wkg1200: Optional[float] = 0.0
+    w5:      Optional[float] = 0
+    w15:     Optional[float] = 0
+    w30:     Optional[float] = 0
+    w60:     Optional[float] = 0
+    w120:    Optional[float] = 0
+    w300:    Optional[float] = 0
+    w1200:   Optional[float] = 0
+    CP:      Optional[float] = 0.0  # Critical Power
+    AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
+    compoundScore: Optional[float] = 0.0  # Compound score
+    powerRating: Optional[float] = 0.0  # Power rating
+
+    @field_validator(
+        *[
+            field
+            for field, field_type in __annotations__.items()
+            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+        ],
+    )
+    def validate_float_fields(cls, value):
+        if value is None:
+            return None
+        try:
+            # Check if the value is numeric and can be cast to a float
+            return float(value)
+        except (ValueError, TypeError):
+            # Return None for non-float values
+            return None
+
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwift_id"               : AliasChoices("zwift_id", "riderId"),
     "agegroup"               : AliasChoices("agegroup", "age"),
@@ -28,72 +95,6 @@ class ZwiftRacingAppProfileDTO(BaseModel):
     information in the Zwift Racing App JSON object. It only includes powerdto-related
     elements used for import by JGH.
     """
-
-    class PowerDTO(BaseModel):
-        """
-        A nested model representing the powerdto data of the rider.
-        """
-        wkg5:    Optional[float] = 0.0
-        wkg15:   Optional[float] = 0.0
-        wkg30:   Optional[float] = 0.0
-        wkg60:   Optional[float] = 0.0
-        wkg120:  Optional[float] = 0.0
-        wkg300:  Optional[float] = 0.0
-        wkg1200: Optional[float] = 0.0
-        w5:      Optional[float] = 0
-        w15:     Optional[float] = 0
-        w30:     Optional[float] = 0
-        w60:     Optional[float] = 0
-        w120:    Optional[float] = 0
-        w300:    Optional[float] = 0
-        w1200:   Optional[float] = 0
-        CP:      Optional[float] = 0.0  # Critical Power
-        AWC:     Optional[float] = 0.0  # Anaerobic Work Capacity
-        compoundScore: Optional[float] = 0.0  # Compound score
-        powerRating: Optional[float] = 0.0  # Power rating
-
-        @field_validator(
-            *[
-                field
-                for field, field_type in __annotations__.items()
-                if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
-            ],
-        )
-        def validate_float_fields(cls, value):
-            if value is None:
-                return None
-            try:
-                # Check if the value is numeric and can be cast to a float
-                return float(value)
-            except (ValueError, TypeError):
-                # Return None for non-float values
-                return None
-
-
-    class RaceDetailsDTO(BaseModel):
-        """
-        A data transfer object representing dict_of_racedetailsdto details.
-
-        Attributes:
-            rating (float): The dict_of_racedetailsdto rating (e.g., vELO rating).
-            date (int): The date of the dict_of_racedetailsdto as a Unix timestamp.
-            mixed (MixedDTO): A nested object representing mixed category details.
-        """
-
-        class MixedDTO(BaseModel):
-            """
-            A nested model representing the velo dict_of_racedetailsdto category details.
-
-            Attributes:
-                category (str): The name of the category (e.g., "Ruby").
-                number (int): The number associated with the category.
-            """
-            category: Optional[str] = ""  # Name of the velo category, eg copper
-            number: Optional[int] = 0    # Number associated with the velo category, eg 10
-
-        rating  : Optional[float] = 0  # Race rating
-        date    : Optional[int] = 0      # Date as a Unix timestamp
-        mixed   : Optional[Union[MixedDTO, Any]] = Field(default_factory=MixedDTO)
 
     model_config  = preferred_config_dict
     zwift_id            : Optional[str]                      = ""   # Rider ID

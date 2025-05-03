@@ -7,12 +7,12 @@ from zwiftpower_curves_of_bestpower_dto import ZwiftPowerCurvesOfBestPowerDTO
 from zwiftpower_curve_of_90day_bestpower_dto import ZwiftPowerCurveOf90DayBestPowerDTO
 from zsun_rider_item import ZsunRiderItem
 from zwiftpower_curve_of_90day_bestpower_item import ZwiftPowerCurveOf90DayBestPowerItem
-from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
+from zwiftracingapp_profile_dto import *
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
 from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
+from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem, PowerItem, RaceDetailsItem
 from zwift_profile_item import ZwiftProfileItem
 
 import logging
@@ -293,9 +293,10 @@ def main03():
 
     logger.info (f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
     for zwift_id, item in dict_of_zwiftracingapp_profiles.items():
-       cp = item.powerdto.CP if item.powerdto.CP is not None else 0.0
-       awc = item.powerdto.AWC if item.powerdto.AWC is not None else 0.0
-       logger.info(f"{zwift_id} {item.fullname} zFTP = {round(item.zp_FTP)} Watts, CP = {round(cp)} Watts, AWC = {round(awc/1000)} kJ")
+        if not item.poweritem:  # Check if poweritem is None or evaluates to False
+            logger.warning(f"{zwift_id} {item.fullname} has no poweritem. Initializing with default values.")
+            item.poweritem = PowerItem()  # Initialize with a default PowerItem instance       
+        logger.info(f"{zwift_id} {item.fullname} zFTP = {round(item.zp_FTP)} Watts, CP = {round(item.poweritem.CP)} Watts, AWC = {round(item.poweritem.AWC/1000.0)} kJ")
 
 
 if __name__ == "__main__":
