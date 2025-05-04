@@ -29,16 +29,16 @@ class ScrapedZwiftDataRepository:
 
     def populate_repository(
         self,
-        riderIDs: Optional[list[str]],
+        file_names: Optional[list[str]],
         zwift_profile_dir_path: str,
         zwiftracingapp_profile_dir_path: str,
         zwiftpower_profile_dir_path: str,
         zwiftpower_90daybest_dir_path: str
     ):
-        self.dict_of_zwiftprofileitem               = read_many_zwift_profile_files_in_folder(riderIDs, zwift_profile_dir_path)
-        self.dict_of_zwiftracingappprofileitem      = read_many_zwiftracingapp_profile_files_in_folder(riderIDs, zwiftracingapp_profile_dir_path)
-        self.dict_of_zwiftpowerprofileitem          = read_many_zwiftpower_profile_files_in_folder(riderIDs, zwiftpower_profile_dir_path)
-        self.dict_of_jghbestpoweritem               = read_many_zwiftpower_bestpower_files_in_folder(riderIDs, zwiftpower_90daybest_dir_path)
+        self.dict_of_zwiftprofileitem               = read_many_zwift_profile_files_in_folder(file_names, zwift_profile_dir_path)
+        self.dict_of_zwiftracingappprofileitem      = read_many_zwiftracingapp_profile_files_in_folder(file_names, zwiftracingapp_profile_dir_path)
+        self.dict_of_zwiftpowerprofileitem          = read_many_zwiftpower_profile_files_in_folder(file_names, zwiftpower_profile_dir_path)
+        self.dict_of_jghbestpoweritem               = read_many_zwiftpower_bestpower_files_in_folder(file_names, zwiftpower_90daybest_dir_path)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """
@@ -259,16 +259,24 @@ class ScrapedZwiftDataRepository:
         df = self.get_table_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp)
         return df[self.COL_ZWIFT_ID].tolist()
  
-    def get_dict_of_ZwiftProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftProfileItem]:
-        return {zwift_id: self.dict_of_zwiftprofileitem[zwift_id] for zwift_id in zwift_ids}
+    def get_dict_of_ZwiftProfileItem(self, zwift_ids: Optional[list[str]]) -> dict[str, ZwiftProfileItem]:
+        if not zwift_ids:
+            return dict(self.dict_of_zwiftprofileitem)
+        return {zwift_id: self.dict_of_zwiftprofileitem[zwift_id] for zwift_id in zwift_ids if zwift_id in self.dict_of_zwiftprofileitem}
 
     def get_dict_of_ZwiftRacingAppProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftRacingAppProfileItem]:
+        if not zwift_ids:
+            return dict(self.dict_of_zwiftracingappprofileitem)
         return {zwift_id: self.dict_of_zwiftracingappprofileitem[zwift_id] for zwift_id in zwift_ids}
 
     def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftPowerProfileItem]:
+        if not zwift_ids:
+            return dict(self.dict_of_zwiftpowerprofileitem)
         return {zwift_id: self.dict_of_zwiftpowerprofileitem[zwift_id] for zwift_id in zwift_ids}
 
     def get_dict_of_JghBestPowerItem(self, zwift_ids: list[str]) -> dict[str, JghBestPowerItem]:
+        if not zwift_ids:
+            return dict(self.dict_of_jghbestpoweritem)
         return {zwift_id: self.dict_of_jghbestpoweritem[zwift_id] for zwift_id in zwift_ids}
 
     def save_dataframe_to_excel(self, df: pd.DataFrame, file_name: str, dir_path : str):
@@ -307,7 +315,7 @@ def main():
 
     # Populate the repository with data
     rep.populate_repository(
-        riderIDs=None,
+        file_names=None,
         zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
         zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
         zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
@@ -375,7 +383,7 @@ def main2():
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
     rep.populate_repository(
-        riderIDs=None,
+        file_names=None,
         zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
         zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
         zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
@@ -466,7 +474,7 @@ def main4():
 
     # Populate the repository with data
     rep.populate_repository(
-        [],
+        None,
         zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
         zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
         zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
@@ -498,8 +506,117 @@ def main4():
     rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 
+def main5():
+    # Define paths for testing
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    # Initialize the repository
+    rep = ScrapedZwiftDataRepository()
+
+    # Populate the repository with data
+    rep.populate_repository(
+        None,
+        zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
+        zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
+        zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
+        zwiftpower_90daybest_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+    )
+
+    # Example: get the superset - should be more than 1500
+    dict_of_items = rep.get_dict_of_ZwiftPowerProfileItem([])
+    print(f"ZwiftPower profiles:\n{dict_of_items.values()}\n")
+    print(f"ZwiftRower profiles: {len(dict_of_items.items())}\n")
+
+    print(f"{dict_of_items}")
+
+    #convert to dict to list of values
+    items = list(dict_of_items.values())
+
+    # Create a DataFrame from the list of velo files
+    data = []
+    for item in items:
+        # Assuming each velo object has a method to convert it to a dictionary
+        data.append(asdict(item))  # Replace with the actual method to get a dictionary representation
+
+    df = pd.DataFrame(data)
+
+    print("DataFrame of all ZwiftPower profiles:")
+    print(df)
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+
+
+
+
+
+
+
+def main6():
+    # Define paths for testing
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    # Initialize the repository
+    rep = ScrapedZwiftDataRepository()
+
+    # Populate the repository with data
+    rep.populate_repository(
+        None,
+        zwift_profile_dir_path=ZWIFT_PROFILES_DIRPATH,
+        zwiftracingapp_profile_dir_path=ZWIFTRACINGAPP_PROFILES_DIRPATH,
+        zwiftpower_profile_dir_path=ZWIFTPOWER_PROFILES_DIRPATH,
+        zwiftpower_90daybest_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+    )
+
+    # Example: get the superset - should be more than 1500
+    dict_of_items = rep.get_dict_of_JghBestPowerItem([])
+    print(f"Jgh best power curves:\n{dict_of_items.values()}\n")
+    print(f"Jgh best power curves: {len(dict_of_items.items())}\n")
+
+    print(f"{dict_of_items}")
+
+    #convert to dict to list of values
+    items = list(dict_of_items.values())
+
+    # Create a DataFrame from the list of velo files
+    data = []
+    for item in items:
+        # Assuming each velo object has a method to convert it to a dictionary
+        data.append(asdict(item))  # Replace with the actual method to get a dictionary representation
+
+    df = pd.DataFrame(data)
+
+    print("DataFrame of all Jgh best power curves:")
+    print(df)
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Jgh best power curves.xlsx"
+    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     # main()
     # main2()
     # main3()
-    main4()
+    # main4()
+    # main5()
+    main6()

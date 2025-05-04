@@ -90,11 +90,11 @@ def write_dict_of_90day_bestpower_items(data: Dict[str, JghBestPowerItem], file_
 
     logger.debug(f"File saved : {file_name}")
 
-def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileItem]:
+def read_many_zwift_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileItem]:
 
     answer: defaultdict[str, ZwiftProfileItem] = defaultdict(ZwiftProfileItem)
 
-    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
@@ -118,11 +118,11 @@ def read_many_zwift_profile_files_in_folder(riderIDs: Optional[list[str]], dir_p
 
     return answer
 
-def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftRacingAppProfileItem]:
+def read_many_zwiftracingapp_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftRacingAppProfileItem]:
     
     answer: defaultdict[str, ZwiftRacingAppProfileItem] = defaultdict(ZwiftRacingAppProfileItem)
 
-    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
@@ -146,10 +146,10 @@ def read_many_zwiftracingapp_profile_files_in_folder(riderIDs: Optional[list[str
 
     return answer
 
-def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPowerProfileItem]:
+def read_many_zwiftpower_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftPowerProfileItem]:
     answer: defaultdict[str, ZwiftPowerProfileItem] = defaultdict(ZwiftPowerProfileItem)
 
-    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
 
     file_count = 0
@@ -174,11 +174,11 @@ def read_many_zwiftpower_profile_files_in_folder(riderIDs: Optional[list[str]], 
 
     return answer
 
-def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]], dir_path: str) -> defaultdict[str, JghBestPowerItem]:
+def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, JghBestPowerItem]:
 
     answer: defaultdict[str, JghBestPowerItem] = defaultdict(JghBestPowerItem)
 
-    file_paths = help_select_filepaths_in_folder(riderIDs,".json", dir_path)
+    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
     file_count = 0
     error_count = 0
@@ -197,7 +197,10 @@ def read_many_zwiftpower_bestpower_files_in_folder(riderIDs: Optional[list[str]]
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        answer[zwift_id] = JghBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp = JghBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp.zwift_id = zwift_id  # zwift_id is obtained from the file name, this is the only place it is set
+        answer[zwift_id] = temp
+
 
     return answer
 
@@ -216,6 +219,7 @@ def main():
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
     write_dict_of_90day_bestpower_items(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+
 
 def main02():
     # configure logging
@@ -243,7 +247,30 @@ def main02():
     dict_of_zwiftpower_90day_bestpower = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
     logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower bestpower info items")
 
+
 def main03():
+    # configure logging
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+
+    my_dict = read_many_zwift_profile_files_in_folder(None, ZWIFT_PROFILES_DIRPATH)
+
+    logger.info (f"Imported {len(my_dict)} zwift profile items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Profile for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.last_name} zFTP = {round(item.zftp)} Watts, Height = {round(item.height_mm/10.0)} cm")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+
+def main04():
     # configure logging
 
     import logging
@@ -254,15 +281,60 @@ def main03():
 
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
-    dict_of_zwiftracingapp_profiles = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
+    my_dict = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
 
-    logger.info (f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
-    for zwift_id, item in dict_of_zwiftracingapp_profiles.items():
-        if not item.poweritem:  # Check if poweritem is None or evaluates to False
-            logger.warning(f"{zwift_id} {item.fullname} has no poweritem. Initializing with default values.")
-            item.poweritem = PowerItem()  # Initialize with a default PowerItem instance       
-        logger.info(f"{zwift_id} {item.fullname} zFTP = {round(item.zp_FTP)} Watts, CP = {round(item.poweritem.CP)} Watts, AWC = {round(item.poweritem.AWC/1000.0)} kJ")
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.fullname} country = {item.country}")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+
+def main05():
+    # configure logging
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+
+    my_dict = read_many_zwiftpower_profile_files_in_folder(None, ZWIFTPOWER_PROFILES_DIRPATH)
+
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.zwift_name}")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+
+def main06():
+    # configure logging
+
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+
+    my_dict = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
+
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} cp60 = {item.cp_60}")
+
+    logger.info(f"Imported {len(my_dict)} items")
 
 
 if __name__ == "__main__":
-    main03()
+    main06()

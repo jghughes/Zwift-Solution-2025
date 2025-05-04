@@ -125,36 +125,34 @@ def main():
     
     for key in rep.dict_of_zwiftprofileitem:
         z = rep.dict_of_zwiftprofileitem[key]
-        if z.zftp < 50 or z.zwift_racing_score < 80:            
-            # logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
+        if z.zftp < 50 or z.competitionMetrics.racingScore < 80:            
+            logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
             continue
         jgh_best_power = rep.dict_of_jghbestpoweritem[key]
         if jgh_best_power.cp_10 == 0:
-            # logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
+            logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
             continue
 
         velo = rep.dict_of_zwiftracingappprofileitem[key]
-        velo_racedetails = velo.dict_of_racedetailsdto["max90"]
-        velo_mixed = velo_racedetails.mixed
         
         zp = rep.dict_of_zwiftpowerprofileitem[key]
 
         item = ZsunRiderItem(
-            zwift_id                   = z.zwift_id or "",
+            zwift_id                   = z.zwift_id,
             name                       = f"{z.last_name or ''}, {z.first_name or ''}",
             weight_kg                  = (z.weight_grams or 0.0) / 1_000.0,
             height_cm                  = (z.height_mm or 0.0) / 10.0,
             gender                     = "m" if z.male else "f",
-            age_years                  = z.age_years or 0.0,
-            agegroup                   = zp.age_group or "",
-            zwift_zftp                 = z.zftp or 0.0,
-            zwift_zrs                  = z.zwift_racing_score or 0,
-            zwift_cat                  = z.zwift_racing_category or "",
-            velo_score                 = velo_racedetails.rating or 0.0,
-            velo_cat_num               = velo_mixed.number if velo_mixed and velo_mixed.number is not None else 0,
-            velo_cat_name              = velo_mixed.category if velo_mixed and velo_mixed.category is not None else "",
-            velo_cp                    = velo.powerdto.CP if velo.powerdto and velo.powerdto.CP is not None else 0.0,
-            velo_awc                   = velo.powerdto.AWC if velo.powerdto and velo.powerdto.AWC is not None else 0.0,
+            age_years                  = z.age_years,
+            agegroup                   = zp.age_group,
+            zwift_zftp                 = z.zftp,
+            zwift_zrs                  = z.competitionMetrics.racingScore,
+            zwift_cat                  = z.competitionMetrics.category,
+            velo_score                 = velo.raceitem.max90.rating,
+            velo_cat_num               = velo.raceitem.max90.mixed.number,
+            velo_cat_name              = velo.raceitem.max90.mixed.category,
+            velo_cp                    = velo.poweritem.CP,
+            velo_awc                   = velo.poweritem.AWC,
             jgh_pull_adjustment_watts  = 0.0,
             jgh_cp                     = 0.0,
             jgh_w_prime                = 0.0,
@@ -168,7 +166,7 @@ def main():
         dict_of_zsun_riders[key] = item
 
 
-    riders = sorted(dict_of_zsun_riders.values(), key=lambda profile: profile.zwift_zrs or "",reverse=True)
+    riders = dict_of_zsun_riders.values()
 
     logger.info(f"Created a minimally valid subset of zsun riders:  {len(dict_of_zsun_riders)}")
 

@@ -1,5 +1,7 @@
 from typing import Dict, Optional
 from dataclasses import dataclass
+
+from sqlalchemy import exists
 from jgh_bestpower_dto import JghBestPowerDTO
 from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO, EffortDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
@@ -1027,6 +1029,8 @@ class JghBestPowerItem:
         cp_data = {effort.x: float(effort.y) for effort in effortItems if effort.x and effort.y}
 
         flattened = JghBestPowerItem()
+
+        # flattened.zwift_id = dto.zwift_id if dto.zwift_id else "" #N.B. no such data exists in the DTO. we get it later from the file name
 
         flattened.import_x_y_ordinates(cp_data)
 
