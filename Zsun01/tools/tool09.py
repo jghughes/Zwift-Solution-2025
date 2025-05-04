@@ -1,12 +1,6 @@
 # load Dave's jgh_cp data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Any
-# from collections import defaultdict
 import pandas as pd
-# import numpy as np
-# from sympy import ZZ
-
-# from handy_utilities import get_betel_zwift_ids
-# import jgh_cp as cp
 from zsun_rider_item import ZsunRiderItem
 from dataclasses import dataclass,  asdict
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository# configure logging

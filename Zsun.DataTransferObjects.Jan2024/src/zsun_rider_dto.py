@@ -45,7 +45,7 @@ def main02():
     # Simulate loading JSON data
     input_json = '''
     {
-        "zwiftid": "123",
+        "zwift_id": "123",
         "name": "null",
         "weight_kg": 70.5,
         "height_cm": 180,

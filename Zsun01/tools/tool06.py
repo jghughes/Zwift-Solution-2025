@@ -5,39 +5,6 @@ import logging
 from jgh_logging import jgh_configure_logging
 
 def main():
-    """
-    Identify and categorize Betel rider IDs based on their presence in Zwift Racing App data.
-
-    This script performs the following steps:
-    1. Reads Zwift rider data and Zwift Racing App data.
-    2. Separates Betel rider IDs into two categories:
-       - Found: IDs present in the Zwift Racing App data.
-       - Not Found: IDs not present in the Zwift Racing App data.
-    3. For each Betel ID:
-       - If found, retrieves the rider's name from the Zwift Racing App data.
-       - If not found, attempts to retrieve the rider's name from Zwift rider data.
-       - Defaults the name to "Unknown" if it cannot be found.
-    4. Sorts both the found and not found lists alphabetically by rider name.
-    5. Prints the sorted lists of Betel IDs and their corresponding names.
-
-    Module-Level Constants:
-        - INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES: The filename
-          of the additional CP data file for Betel riders.
-        - INPUT_CP_DATA_DIRPATH: The directory path where the additional CP data
-          file is located.
-        - INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH: The directory path containing raw
-          CP data files for Zsun members.
-        - OUTPUT_FILE_NAME: The filename for the consolidated CP data output.
-        - OUTPUT_DIR_PATH: The directory path where the consolidated CP data
-          output will be written.
-
-    Dependencies:
-        - Requires `handy_utilities` for reading Zwift rider and CP data.
-        - Uses `ZsunRiderItem` for handling rider data.
-
-    Returns:
-        None
-    """
     # configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
