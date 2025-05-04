@@ -2,8 +2,9 @@
 from typing import Any
 import pandas as pd
 from zsun_rider_item import ZsunRiderItem
-from dataclasses import dataclass,  asdict
-from scraped_zwift_data_repository import ScrapedZwiftDataRepository# configure logging
+from dataclasses import asdict
+from scraped_zwift_data_repository import ScrapedZwiftDataRepository
+from jgh_sanitise_string import cleanup_name_string
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -12,17 +13,17 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 
-@dataclass
-class CurveFittingResult:
-    zwiftid: int
-    name: str
-    ftp_watts: float
-    pull_watts: float
-    pull_percent : float
-    critical_power_watts: float
-    anaerobic_work_capacity_kJ: float
-    r_squared_pull: float
-    r_squared_ftp: float
+# @dataclass
+# class CurveFittingResult:
+#     zwiftid: str
+#     name: str
+#     ftp_watts: float
+#     pull_watts: float
+#     pull_percent : float
+#     critical_power_watts: float
+#     anaerobic_work_capacity_kJ: float
+#     r_squared_pull: float
+#     r_squared_ftp: float
 
 def main():
     
@@ -57,83 +58,30 @@ def main():
     df.to_excel(output_file_path, index=False, engine="openpyxl")
     logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
-    # items = [
-    #     rep.dict_of_zwiftracingappprofileitem[zwift_id]
-    #     for zwift_id in zwift_ids
-    #     if zwift_id in rep.dict_of_zwiftracingappprofileitem
-    # ]
-    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    # df = pd.DataFrame(items_as_attr_dicts)
-    # output_file_name = "candidate_zwiftracingapp_profiles.xlsx"
-    # output_file_path = OUTPUT_DIRPATH + output_file_name
-    # df.to_excel(output_file_path, index=False, engine="openpyxl")
-    # logger.info(f"Saved {len(items)} zwiftracingapp profiles to: {output_file_path}")
-
-
-
-    # items = [
-    #     rep.dict_of_zwiftpowerprofileitem[zwift_id]
-    #     for zwift_id in zwift_ids
-    #     if zwift_id in rep.dict_of_zwiftpowerprofileitem
-    # ]
-    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    # df = pd.DataFrame(items_as_attr_dicts)
-    # output_file_name = "candidate_zwiftpower_profiles.xlsx"
-    # output_file_path = OUTPUT_DIRPATH + output_file_name
-    # df.to_excel(output_file_path, index=False, engine="openpyxl")
-    # logger.info(f"Saved {len(items)} zwiftpower profiles to: {output_file_path}")
-
-
-    # items = [
-    #     rep.dict_of_jghbestpoweritem[zwift_id]
-    #     for zwift_id in zwift_ids
-    #     if zwift_id in rep.dict_of_jghbestpoweritem
-    # ]
-    # items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in items]
-    # df = pd.DataFrame(items_as_attr_dicts)
-    # output_file_name = "candidate_zwiftpower_90day_bests.xlsx"
-    # output_file_path = OUTPUT_DIRPATH + output_file_name
-    # df.to_excel(output_file_path, index=False, engine="openpyxl")
-    # logger.info(f"Saved {len(items)} zwiftpower 90day bests to: {output_file_path}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # Step 4: Instantiate and initialize a Dict[str, OmnibusProfileDTO]
     dict_of_zsun_riders : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
     
     for key in rep.dict_of_zwiftprofileitem:
         z = rep.dict_of_zwiftprofileitem[key]
-        if z.zftp < 50 or z.competitionMetrics.racingScore < 80:            
-            logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
-            continue
-        jgh_best_power = rep.dict_of_jghbestpoweritem[key]
-        if jgh_best_power.cp_10 == 0:
-            logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
-            continue
+        # if z.zftp < 50 or z.competitionMetrics.racingScore < 80:            
+        #     logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
+        #     continue
+        # jgh_best_power = rep.dict_of_jghbestpoweritem[key]
+        # if jgh_best_power.cp_10 == 0:
+        #     logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
+        #     continue
 
-        velo = rep.dict_of_zwiftracingappprofileitem[key]
+        v = rep.dict_of_zwiftracingappprofileitem[key]
         
         zp = rep.dict_of_zwiftpowerprofileitem[key]
 
+        if key in rep.dict_of_zwiftracingappprofileitem:
+            name = rep.dict_of_zwiftracingappprofileitem[key].fullname or f"{z.first_name} {z.last_name}"
+        else:
+            name = f"{z.first_name} {z.last_name}"
+
         item = ZsunRiderItem(
             zwift_id                   = z.zwift_id,
-            name                       = f"{z.last_name or ''}, {z.first_name or ''}",
+            name                       = cleanup_name_string(name),
             weight_kg                  = (z.weight_grams or 0.0) / 1_000.0,
             height_cm                  = (z.height_mm or 0.0) / 10.0,
             gender                     = "m" if z.male else "f",
@@ -142,11 +90,11 @@ def main():
             zwift_zftp                 = z.zftp,
             zwift_zrs                  = z.competitionMetrics.racingScore,
             zwift_cat                  = z.competitionMetrics.category,
-            velo_score                 = velo.raceitem.max90.rating,
-            velo_cat_num               = velo.raceitem.max90.mixed.number,
-            velo_cat_name              = velo.raceitem.max90.mixed.category,
-            velo_cp                    = velo.poweritem.CP,
-            velo_awc                   = velo.poweritem.AWC,
+            velo_score                 = v.raceitem.max90.rating,
+            velo_cat_num               = v.raceitem.max90.mixed.number,
+            velo_cat_name              = v.raceitem.max90.mixed.category,
+            velo_cp                    = v.poweritem.CP,
+            velo_awc                   = v.poweritem.AWC,
             jgh_pull_adjustment_watts  = 0.0,
             jgh_cp                     = 0.0,
             jgh_w_prime                = 0.0,

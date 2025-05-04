@@ -38,7 +38,6 @@ def main():
     ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
@@ -49,13 +48,11 @@ def main():
 
     betel_IDs = get_betel_zwift_ids()
 
-
     dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     # choose a rider to model
 
     zwiftID = markb
-
 
     # model critical_power and w_prime
 
@@ -73,7 +70,7 @@ def main():
 
     x_y_ordinates_for_FTP_60min = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_ftp_modelling()
 
-    coefficient_60min, exponent_60min, r_squared_ftp, rmse_60min, answer_60min = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
+    coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
 
     logger.info("\nModelling completed. Thank you.\n")
 
@@ -101,7 +98,7 @@ def main():
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_ftp, 2)}]"
+    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_60min, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 

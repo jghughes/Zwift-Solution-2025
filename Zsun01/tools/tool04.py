@@ -1,86 +1,47 @@
-from datetime import datetime
 from tabulate import tabulate
-import matplotlib.pyplot as plt
-import numpy as np
-from numpy.typing import NDArray
-from cp_watts import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
-from handy_utilities import read_dict_of_90day_bestpower_items, write_dict_of_90day_bestpower_items
-import logging
-from jgh_logging import jgh_configure_logging
+from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
+from handy_utilities import read_dict_of_90day_bestpower_items, write_dict_of_90day_bestpower_items, read_many_zwiftpower_bestpower_files_in_folder, get_betel_zwift_ids
 
 def main():
-    """
-    Process input critical power (CP) data for Zwift riders, perform curve fitting
-    using the CP-W' model and the Inverse model, and generate fully populated CP
-    data for each rider.
-
-    This script performs the following steps:
-    1. Reads input CP data for Zwift riders.
-    2. For each rider:
-       - Exports raw CP data for curve fitting.
-       - Fits the data using the CP-W' model and the Inverse model.
-       - Updates the rider's CP data with model parameters (e.g., CP, AWC, constants).
-       - Determines the preferred model for each rider.
-       - Generates predicted CP data for specified durations.
-       - Imports the predicted CP data into the rider's profile.
-       - Adds a timestamp indicating when the data was .
-    3. Writes the updated CP data for all riders to a JSON file.
-
-    The output file serves as the foundation for subsequent calculations and
-    analyses.
-
-    Dependencies:
-        - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `critical_power_models` for curve fitting and predictions.
-        - Requires `matplotlib` for plotting (though not used in this script).
-
-    Constants:
-        - Input and output file paths are hardcoded in the script.
-
-    Returns:
-        None
-    """
     # Configure logging
-
+    import logging
+    from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    riders_cp_data = read_dict_of_90day_bestpower_items("extracted_input_cp_data_for_betelV4.json", "C:/Users/johng/holding_pen/StuffForZsun/Betel/")
+    ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    # Process each rider in the riders_cp_data dictionary
-    for rider_id, rider_cp_data in riders_cp_data.items():
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-        # Import raw CP data for best fitting
+    betel_IDs = get_betel_zwift_ids()
 
-        raw_xy_data = rider_cp_data.export_zwiftpower_data_for_cp_w_prime_modelling()
+    dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
-        # log pretty table of input data
-        # table_data = [
-        #     [x, round(y)]
-        #     for x, y in raw_xy_data.items()
-        # ]
-        # headers = ["xdata (s)", "ydata (W)"]
-        # logger.debug("\n" + tabulate(table_data, headers=headers, tablefmt="grid"))
+    # Process each rider in the dict_of_jghbestpoweritems_for_betel dictionary
+    for my_zwiftID, my_jghbestpoweritem in dict_of_jghbestpoweritems_for_betel.items():
 
-
-        # Perform CP-W' model fitting
+        raw_xy_data = my_jghbestpoweritem.export_x_y_ordinates_for_cp_w_prime_modelling()
 
         cp_watts, anaerobic_work_capacity, r_squared, rms, answer = do_curve_fit_with_cp_w_prime_model(raw_xy_data)
 
-        # Perform inverse model fitting
         constant, exponent, r_squared2, rms2, answer2 = do_curve_fit_with_decay_model(raw_xy_data)
 
         # Update the rider's CP data with the model results
-        rider_cp_data.cp_watts = cp_watts
-        rider_cp_data.critical_power_w_prime= anaerobic_work_capacity
+        my_jghbestpoweritem.cp_watts = cp_watts
+        my_jghbestpoweritem.critical_power_w_prime= anaerobic_work_capacity
         # model_applied = "critical_power"
 
-        rider_cp_data.ftp_curve_coefficient = constant
-        rider_cp_data.ftp_curve_exponent = exponent
+        my_jghbestpoweritem.ftp_curve_coefficient = constant
+        my_jghbestpoweritem.ftp_curve_exponent = exponent
         model_applied = "inverse"
 
-        rider_cp_data.model_applied = model_applied
+        my_jghbestpoweritem.model_applied = model_applied
 
 
         # Prepare data for the table
@@ -96,13 +57,12 @@ def main():
         # Convert y_pred to a dictionary and import it into the rider's CP data
 
         y_pred_dict = {int(x): round(y[1], 0) for x, y in answer2.items()}
-        rider_cp_data.import_x_y_ordinates(y_pred_dict)
-        rider_cp_data. = datetime.now().isoformat()
+        my_jghbestpoweritem.import_x_y_ordinates(y_pred_dict)
 
     # Write the updated CP data for all riders to a file
 
     write_dict_of_90day_bestpower_items(
-        riders_cp_data,
+        dict_of_jghbestpoweritems_for_betel,
         "populated_cp_data_for_betel_rubbish.json",
         "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
     )

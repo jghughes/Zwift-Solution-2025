@@ -1,5 +1,5 @@
 from handy_utilities import read_many_zwiftpower_bestpower_files_in_folder, read_many_zwift_profile_files_in_folder
-import critical_power as cp
+from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from dataclasses import dataclass
 
 
@@ -52,9 +52,9 @@ def main():
 
     power_curves_for_everybody : dict[str, CurveFittingResult] = {}
 
-    for my_zwift_id, my_jghbestpoweritem in dict_of_bestpower_for_everybody.items():
+    for my_zwiftID, my_jghbestpoweritem in dict_of_bestpower_for_everybody.items():
 
-        my_jghbestpoweritem.zwift_id = my_zwift_id
+        my_jghbestpoweritem.zwift_id = my_zwiftID
 
         total_count += 1
 
@@ -88,21 +88,21 @@ def main():
 
         # do power modelling
     
-        critical_power, anaerobic_work_capacity, _, _, _  = cp.do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
-        coefficient_pull, exponent_pull, r_squared_pull, _, _ = cp.do_curve_fit_with_decay_model(raw_xy_data_pull)
-        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = cp.do_curve_fit_with_decay_model(raw_xy_data_ftp)
+        critical_power, anaerobic_work_capacity, _, _, _  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+        coefficient_pull, exponent_pull, r_squared_pull, _, _ = do_curve_fit_with_decay_model(raw_xy_data_pull)
+        coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = do_curve_fit_with_decay_model(raw_xy_data_ftp)
 
-        pull_short = cp.decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
-        pull_medium = cp.decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
-        pull_long = cp.decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
-        ftp = cp.decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
+        pull_short = decay_model_numpy(np.array([300]), coefficient_pull, exponent_pull)
+        pull_medium = decay_model_numpy(np.array([600]), coefficient_pull, exponent_pull)
+        pull_long = decay_model_numpy(np.array([1800]), coefficient_pull, exponent_pull)
+        ftp = decay_model_numpy(np.array([60*60]), coefficient_ftp, exponent_ftp)
 
         # load results into answer
 
         #load results into a dataclass
         curve = CurveFittingResult(
-            zwift_id=my_zwift_id,
-            name=dict_of_profiles_for_everybody[my_zwift_id].first_name + " " + dict_of_profiles_for_everybody[my_zwift_id].last_name,
+            zwift_id=my_zwiftID,
+            name=dict_of_profiles_for_everybody[my_zwiftID].first_name + " " + dict_of_profiles_for_everybody[my_zwiftID].last_name,
             ftp_watts= round(ftp[0]), 
             pull_watts = round(pull_short[0]),
             pull_percent = round(100*pull_short[0]/ftp[0]),
