@@ -115,11 +115,25 @@ def main():
     df = pd.DataFrame([asdict(rider) for rider in riders])
 
     # Step 8: Save the DataFrame to an Excel file
-    OUTPUT_FILE_NAME = "minimally_valid_zsun_riders.xlsx"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=True)
-    logger.info(f"Saved the DataFrame to:  {OUTPUT_DIR_PATH + OUTPUT_FILE_NAME}")
 
+    file_name = "minimally_valid_zsun_riders.xlsx"
+    df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
+    logger.info(f"Minimally valid subset of zsun riders: {len(dict_of_zsun_riders)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
+
+    # Remove items where zwift_zrs is 0 or vvelo_cat_name is an empty string
+    dict_of_zsun_riders = {
+        key: value
+        for key, value in dict_of_zsun_riders.items()
+        if value.zwift_zrs != 0 and value.velo_cat_name != ''
+    }
+
+    riders = dict_of_zsun_riders.values()
+    df = pd.DataFrame([asdict(rider) for rider in riders])
+
+    file_name = "zsun_riders_recently_active.xlsx"
+    df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
+    logger.info(f"Active subset of zsun racers: {len(dict_of_zsun_riders)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
 
 
 if __name__ == "__main__":
