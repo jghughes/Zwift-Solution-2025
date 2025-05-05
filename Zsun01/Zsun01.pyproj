@@ -82,7 +82,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\test_critical_power_models.py" />
-    <Compile Include="tools\tool04.py" />
     <Compile Include="tools\tool03.py">
       <SubType>Code</SubType>
     </Compile>

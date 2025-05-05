@@ -1,4 +1,6 @@
 
+from typing import Optional
+from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 from handy_utilities import *
@@ -8,7 +10,8 @@ from zwiftpower_profile_item import ZwiftPowerProfileItem
 from jgh_bestpower_item import JghBestPowerItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
-
+from computation_classes import CurveFittingResult
+from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 
 @dataclass
 class ScrapedZwiftDataRepository:
@@ -278,6 +281,66 @@ class ScrapedZwiftDataRepository:
         if not zwift_ids:
             return dict(self.dict_of_jghbestpoweritem)
         return {zwift_id: self.dict_of_jghbestpoweritem[zwift_id] for zwift_id in zwift_ids}
+
+    def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> dict[str, CurveFittingResult]:
+
+        min_coordinates = 5 # minimum number of datapoints required for curve fitting
+        skipped_count = 0
+        answer : dict[str, CurveFittingResult] = {}
+
+        if zwift_ids is None:
+            zwift_ids = []
+
+        dict_of_JghBestPowerItem = self.get_dict_of_JghBestPowerItem(zwift_ids)
+
+        for zwiftID, item in dict_of_JghBestPowerItem.items():
+
+            item.zwift_id = zwiftID
+
+            ordinates = item.export_all_x_y_ordinates()
+
+            if not ordinates:
+                logger.warning(f"ZwiftID {item.zwift_id} has no ordinates")
+                skipped_count += 1
+                continue
+
+            if all(value == 0 for value in ordinates.values()):
+                logger.warning(f"ZwiftID {item.zwift_id} has empty data")
+                skipped_count += 1
+                continue
+        
+            raw_xy_data_ftp = item.export_x_y_ordinates_for_ftp_modelling()
+            raw_xy_data_pull = item.export_x_y_ordinates_for_pull_zone_modelling()
+            raw_xy_data_cp = item.export_x_y_ordinates_for_cp_w_prime_modelling()
+
+            if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < min_coordinates or len(raw_xy_data_ftp) < min_coordinates:
+                logger.warning(f"{item.zwift_id} too sparse for reliable modelling.")
+                skipped_count += 1
+                continue
+
+            coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = do_curve_fit_with_decay_model(raw_xy_data_ftp)
+            coefficient_pull, exponent_pull, r_squared_pull, _, _ = do_curve_fit_with_decay_model(raw_xy_data_pull)
+            critical_power, anaerobic_work_capacity, _, _, _  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+
+            curvefit = CurveFittingResult(
+                zwift_id=zwiftID,
+                ftp_curve_coefficient = coefficient_ftp,
+                ftp_curve_exponent= exponent_ftp,
+                ftp_r_squared= r_squared_ftp,
+                pull_curve_coefficient = coefficient_pull,
+                pull_curve_exponent= exponent_pull,
+                pull_r_squared= r_squared_pull,
+                cp=round(critical_power),
+                w_prime=round((anaerobic_work_capacity/1_000.0),1),
+                when_curves_fitted = datetime.now().isoformat(),
+            )
+
+            answer[zwiftID] = curvefit
+
+        logger.info(f"Successfuly completed {len(answer)} curve fittings.")
+        logger.info(f"Skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.)")
+
+        return answer
 
     def save_dataframe_to_excel(self, df: pd.DataFrame, file_name: str, dir_path : str):
            # Validate the file name
@@ -549,12 +612,6 @@ def main5():
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
     rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
-
-
-
-
-
-
 def main6():
     # Define paths for testing
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
@@ -597,21 +654,6 @@ def main6():
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Jgh best power curves.xlsx"
     rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     # main()

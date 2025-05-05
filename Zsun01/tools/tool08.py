@@ -2,18 +2,8 @@ from handy_utilities import read_many_zwiftpower_bestpower_files_in_folder, read
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from dataclasses import dataclass
 
+from computation_classes import CurveFittingResult
 
-@dataclass
-class CurveFittingResult:
-    zwift_id: str
-    name: str
-    ftp_watts: float
-    pull_watts: float
-    pull_percent : float
-    critical_power_watts: float
-    anaerobic_work_capacity_kJ: float
-    r_squared_pull: float
-    r_squared_ftp: float
 
 def main():
     # configure logging

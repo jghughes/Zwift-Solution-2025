@@ -1,5 +1,41 @@
 ﻿import re
 import unicodedata
+def make_short_displayname(old_name: str) -> str:
+    """
+    Cleans up a given name according to the following rules:
+    1. Trim spaces from the old name and replace any contained commas or dots with spaces.
+    2. If the old name has only one word, capitalize the first letter of the word.
+    3. If the old name has more than one word, concatenate the first word (with the first letter capitalized)
+        with the capitalized first letter of the second word.
+
+    Args:
+        old_name (str): The original name to be cleaned.
+
+    Returns:
+        str: The cleaned-up new name.
+    """
+    old_name = cleanup_name_string(old_name)
+
+    # Step 1: Trim spaces and replace commas or dots with spaces
+    old_name = old_name.strip().replace(",", " ").replace(".", " ")
+
+    # Step 2: Split the name into words
+    name_parts = old_name.split()
+
+    # Step 3: Determine the new name
+    if len(name_parts) == 1:
+        # If the old name has only one word, capitalize the first letter
+        new_name = name_parts[0][0].upper() + name_parts[0][1:]
+    elif len(name_parts) > 1:
+        # If the old name has more than one word, concatenate the first word
+        # (with only the first letter capitalized) with the capitalized first letter of the second word
+        new_name = name_parts[0][0].upper() + name_parts[0][1:] + " " + name_parts[1][0].upper()
+    else:
+        # Handle edge cases where the name might be empty
+        new_name = "Unknown"
+
+    return new_name
+
 
 def cleanup_name_string(name_to_clean: str | None) -> str:
 

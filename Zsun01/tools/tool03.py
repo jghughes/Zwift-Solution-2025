@@ -1,6 +1,7 @@
 import logging
 from jgh_logging import jgh_configure_logging
 from handy_utilities import read_dict_of_zsunrider_items, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_90day_bestpower_items, get_betel_zwift_ids
+from jgh_sanitise_string import make_short_displayname
 
 def main():
     """
@@ -24,10 +25,10 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    RIDERDATA_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_BETEL_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    betel_rider_profiles_dict = read_dict_of_zsunrider_items(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    betel_rider_profiles_dict = read_dict_of_zsunrider_items(ZSUN01_BETEL_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     # do work
 
@@ -41,45 +42,11 @@ def main():
 
     # function to make nick-names 
 
-    def make_short_name(old_name: str) -> str:
-        """
-        Cleans up a given name according to the following rules:
-        1. Trim spaces from the old name and replace any contained commas or dots with spaces.
-        2. If the old name has only one word, capitalize the first letter of the word.
-        3. If the old name has more than one word, concatenate the first word (with the first letter capitalized)
-           with the capitalized first letter of the second word.
-
-        Args:
-            old_name (str): The original name to be cleaned.
-
-        Returns:
-            str: The cleaned-up new name.
-        """
-        # Step 1: Trim spaces and replace commas or dots with spaces
-        old_name = old_name.strip().replace(",", " ").replace(".", " ")
-
-        # Step 2: Split the name into words
-        name_parts = old_name.split()
-
-        # Step 3: Determine the new name
-        if len(name_parts) == 1:
-            # If the old name has only one word, capitalize the first letter
-            new_name = name_parts[0][0].upper() + name_parts[0][1:]
-        elif len(name_parts) > 1:
-            # If the old name has more than one word, concatenate the first word
-            # (with only the first letter capitalized) with the capitalized first letter of the second word
-            new_name = name_parts[0][0].upper() + name_parts[0][1:] + " " + name_parts[1][0].upper()
-        else:
-            # Handle edge cases where the name might be empty
-            new_name = "Unknown"
-
-        return new_name
-
     # Clean up names in each JghFlattened90DayBestPowerCurveItem
 
     for rider_id, rider_cp_data in betel_cp_dict.items():
         rider_cp_data.zwiftid = int(rider_id) # write filename into zwiftId field
-        rider_cp_data.name = make_short_name(betel_rider_profiles_dict[rider_id].name) # add short name
+        rider_cp_data.name = make_short_displayname(betel_rider_profiles_dict[rider_id].name) # add short name
         # betel_cp_dict[rider_id] = rider_cp_data
         logger.debug(f"{rider_id} {rider_cp_data.name}")
 
