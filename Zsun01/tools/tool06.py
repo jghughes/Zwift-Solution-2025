@@ -26,12 +26,12 @@ def main():
     zsun_cp_dict = read_many_zwiftracingapp_profile_files_in_folder([], INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     # Separate Betel IDs into found and not found lists
-    betel_found = []
+    betel_found :  = []
     betel_not_found = []
 
     for betel_id in betel_IDs:
         if betel_id in zsun_cp_dict:
-            name = zsun_cp_dict[betel_id].name
+            name = zsun_cp_dict[betel_id].fullname
             betel_found.append((betel_id, name))
         else:
             name = dict_of_zwiftrideritem.get(betel_id, ZsunRiderItem(name="Unknown")).name

@@ -282,11 +282,11 @@ class ScrapedZwiftDataRepository:
             return dict(self.dict_of_jghbestpoweritem)
         return {zwift_id: self.dict_of_jghbestpoweritem[zwift_id] for zwift_id in zwift_ids}
 
-    def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> dict[str, CurveFittingResult]:
+    def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResult]:
 
         min_coordinates = 5 # minimum I desire for reliable curve fitting
         skipped_count = 0
-        answer : dict[str, CurveFittingResult] = {}
+        answer : defaultdict[str, CurveFittingResult] = defaultdict(CurveFittingResult)
 
         if zwift_ids is None:
             zwift_ids = []
@@ -338,7 +338,7 @@ class ScrapedZwiftDataRepository:
             answer[zwiftID] = curvefit
 
         logger.info(f"Successfuly completed {len(answer)} curve fittings.")
-        logger.info(f"Skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.)")
+        logger.info(f"Skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.")
 
         return answer
 

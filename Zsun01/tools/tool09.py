@@ -21,23 +21,20 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
+    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
+    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    zwift_ids = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
+    jgh_curve_dict = repository.get_dict_of_CurveFittingResult(None)
 
-    rep : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
-
-    rep.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-
-    logger.info(f"Imported {len(rep.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_zwiftpowerprofileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(rep.dict_of_jghbestpoweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
-
-
-    zwift_ids = rep.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
+    logger.info(f"Imported {len(repository.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_zwiftpowerprofileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_jghbestpoweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     zwift_profiles = [
-        rep.dict_of_zwiftprofileitem[zwift_id]
+        repository.dict_of_zwiftprofileitem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in rep.dict_of_zwiftprofileitem
+        if zwift_id in repository.dict_of_zwiftprofileitem
     ]
     items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
     df = pd.DataFrame(items_as_attr_dicts)
@@ -46,59 +43,52 @@ def main():
     df.to_excel(output_file_path, index=False, engine="openpyxl")
     logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
-    dict_of_zsun_riders : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
-    
-    for key in rep.dict_of_zwiftprofileitem:
-        z = rep.dict_of_zwiftprofileitem[key]
-        # if z.zftp < 50 or z.competitionMetrics.racingScore < 80:            
-        #     logger.warning(f"Skipped: low zFTP or poor ZRS: {z.first_name} {z.last_name}")
-        #     continue
-        # jgh_best_power = rep.dict_of_jghbestpoweritem[key]
-        # if jgh_best_power.cp_10 == 0:
-        #     logger.warning(f"Skipped: no 90-day-best curve: {z.first_name} {z.last_name}")
-        #     continue
+    answer_dict : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
 
-        v = rep.dict_of_zwiftracingappprofileitem[key]
-        
-        zp = rep.dict_of_zwiftpowerprofileitem[key]
+    for key in repository.dict_of_zwiftprofileitem:
+        zwift = repository.dict_of_zwiftprofileitem[key]
+        zwiftpower = repository.dict_of_zwiftpowerprofileitem[key]
+        zwiftracingapp = repository.dict_of_zwiftracingappprofileitem[key]
+        jgh = jgh_curve_dict[key]
 
-        if key in rep.dict_of_zwiftracingappprofileitem:
-            name = rep.dict_of_zwiftracingappprofileitem[key].fullname or f"{z.first_name} {z.last_name}"
+        if key in repository.dict_of_zwiftracingappprofileitem:
+            name = repository.dict_of_zwiftracingappprofileitem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
         else:
-            name = f"{z.first_name} {z.last_name}"
+            name = f"{zwift.first_name} {zwift.last_name}"
 
-        item = ZsunRiderItem(
-            zwift_id                   = z.zwift_id,
+        zwift = ZsunRiderItem(
+            zwift_id                   = zwift.zwift_id,
             name                       = cleanup_name_string(name),
-            weight_kg                  = (z.weight_grams or 0.0) / 1_000.0,
-            height_cm                  = (z.height_mm or 0.0) / 10.0,
-            gender                     = "m" if z.male else "f",
-            age_years                  = z.age_years,
-            agegroup                   = zp.age_group,
-            zwift_zftp                 = z.zftp,
-            zwift_zrs                  = z.competitionMetrics.racingScore,
-            zwift_cat                  = z.competitionMetrics.category,
-            velo_score                 = v.raceitem.max90.rating,
-            velo_cat_num               = v.raceitem.max90.mixed.number,
-            velo_cat_name              = v.raceitem.max90.mixed.category,
-            velo_cp                    = v.poweritem.CP,
-            velo_awc                   = v.poweritem.AWC,
+            weight_kg                  = round((zwift.weight_grams or 0.0) / 1_000.0, 1),
+            height_cm                  = round((zwift.height_mm or 0.0) / 10.0),
+            gender                     = "m" if zwift.male else "f",
+            age_years                  = zwift.age_years,
+            agegroup                   = zwiftracingapp.agegroup,
+            zwift_ftp                  = round(zwift.ftp),
+            zwiftpower_zftp            = round(zwiftpower.zftp),
+            zwiftracingapp_zpFTP       = round(zwiftracingapp.zp_FTP),
+            zwift_zrs                  = round(zwift.competitionMetrics.racingScore),
+            zwift_cat                  = zwift.competitionMetrics.category,
+            zwiftracingapp_score        = round(zwiftracingapp.raceitem.max90.rating),
+            zwiftracingapp_cat_num      = zwiftracingapp.raceitem.max90.mixed.number,
+            zwiftracingapp_cat_name     = zwiftracingapp.raceitem.max90.mixed.category,
+            zwiftracingapp_cp           = round(zwiftracingapp.poweritem.CP),
+            zwiftracingapp_awc          = round(zwiftracingapp.poweritem.AWC/1000.0),
             jgh_pull_adjustment_watts  = 0.0,
-            jgh_cp                     = 0.0,
-            jgh_w_prime                = 0.0,
-            jgh_ftp_curve_coefficient  = 0.0,
-            jgh_ftp_curve_exponent     = 0.0,
-            jgh_pull_curve_coefficient = 0.0,
-            jgh_pull_curve_exponent    = 0.0,
-            jgh_when_curves_fitted     = ""
+            jgh_ftp_curve_coefficient  = jgh.ftp_curve_coefficient,
+            jgh_ftp_curve_exponent     = jgh.ftp_curve_exponent,
+            jgh_pull_curve_coefficient = jgh.pull_curve_coefficient,
+            jgh_pull_curve_exponent    = jgh.pull_curve_exponent,
+            jgh_cp                     = jgh.cp,
+            jgh_w_prime                = jgh.w_prime,
+            jgh_when_curves_fitted     = jgh.when_curves_fitted,
         )
+        answer_dict[key] = zwift
 
-        dict_of_zsun_riders[key] = item
 
+    riders = answer_dict.values()
 
-    riders = dict_of_zsun_riders.values()
-
-    logger.info(f"Created a minimally valid subset of zsun riders:  {len(dict_of_zsun_riders)}")
+    logger.info(f"Created a minimally valid subset of zsun riders:  {len(answer_dict)}")
 
     df = pd.DataFrame([asdict(rider) for rider in riders])
 
@@ -107,21 +97,21 @@ def main():
 
     file_name = "minimally_valid_zsun_riders.xlsx"
     df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
-    logger.info(f"Minimally valid subset of zsun riders: {len(dict_of_zsun_riders)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
+    logger.info(f"Minimally valid subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
 
     # Remove items where zwift_zrs is 0 or vvelo_cat_name is an empty string
-    dict_of_zsun_riders = {
+    answer_dict = {
         key: value
-        for key, value in dict_of_zsun_riders.items()
-        if value.zwift_zrs != 0 and value.velo_cat_name != ''
+        for key, value in answer_dict.items()
+        if value.zwift_zrs != 0 and value.zwiftracingapp_cat_name != ''
     }
 
-    riders = dict_of_zsun_riders.values()
+    riders = answer_dict.values()
     df = pd.DataFrame([asdict(rider) for rider in riders])
 
     file_name = "zsun_riders_recently_active.xlsx"
     df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
-    logger.info(f"Active subset of zsun racers: {len(dict_of_zsun_riders)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
+    logger.info(f"Active subset of zsun racers: {len(answer_dict)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
 
 
 if __name__ == "__main__":

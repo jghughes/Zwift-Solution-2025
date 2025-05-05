@@ -1,6 +1,6 @@
 from handy_utilities import read_many_zwiftpower_bestpower_files_in_folder, read_many_zwift_profile_files_in_folder
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
-from dataclasses import dataclass
+from datetime import datetime
 
 from computation_classes import CurveFittingResult
 
@@ -92,16 +92,16 @@ def main():
         #load results into a dataclass
         curve = CurveFittingResult(
             zwift_id=my_zwiftID,
-            name=dict_of_profiles_for_everybody[my_zwiftID].first_name + " " + dict_of_profiles_for_everybody[my_zwiftID].last_name,
-            ftp_watts= round(ftp[0]), 
-            pull_watts = round(pull_short[0]),
-            pull_percent = round(100*pull_short[0]/ftp[0]),
-            critical_power_watts=round(critical_power),
-            anaerobic_work_capacity_kJ=round((anaerobic_work_capacity/1_000.0),1),
-            r_squared_pull=round(r_squared_pull,2),
-            r_squared_ftp=round(r_squared_ftp,2),
+            ftp_curve_coefficient=coefficient_ftp,
+            ftp_curve_exponent=exponent_ftp,
+            ftp_r_squared=round(r_squared_ftp, 2),
+            pull_curve_coefficient=coefficient_pull,
+            pull_curve_exponent=exponent_pull,
+            pull_r_squared=round(r_squared_pull, 2),
+            cp=round(critical_power),
+            w_prime=round((anaerobic_work_capacity / 1_000.0), 1),
+            when_curves_fitted=datetime.now().isoformat()  # Add timestamp
         )
-
         power_curves_for_everybody[str(my_jghbestpoweritem.zwift_id)] = curve
 
         # log results for my_jghbestpoweritem

@@ -35,7 +35,7 @@ class ZwiftProfileDTO(BaseModel):
     age_years           : Optional[float]                    = 0    # Age of the rider
     height_mm           : Optional[float]                    = 0    # Height in millimeters
     weight_grams        : Optional[float]                    = 0    # Weight in grams
-    ftp                 : Optional[float]                    = 0    # Functional Threshold Power (FTP) in watts (I don't know if this is the same as their zFTP)
+    ftp                 : Optional[float]                    = 0    # This seems much different than their zFTP on ZWiftPower
     competitionMetrics  : Optional[CompetitionMetricsDTO]    = Field(default_factory=CompetitionMetricsDTO)
 
     # Validator for zwift_id to convert int to string

@@ -19,23 +19,25 @@ class ZsunRiderItem:
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
     agegroup                   : str   = ""    # Age group of the rider
-    zwift_zftp                 : float = 0.0   # Functional Threshold Power in watts
+    zwift_ftp                  : float = 0.0   # Originates in Zwift profile
+    zwiftpower_zftp            : float = 0.0   # Originates in Zwiftpower profile
+    zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
-    velo_score                 : float = 0.0   # Velo score typically over 1000
-    velo_cat_num               : int   = 0     # Velo rating 1 to 10
-    velo_cat_name              : str   = ""    # Copper, Silver, Gold etc
-    velo_cp                    : float = 0.0   # Critical power in watts
-    velo_awc                   : float = 0.0   # Anaerobic work capacity in kilojoules
+    zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
+    zwiftracingapp_cat_num      : int   = 0     # Velo rating 1 to 10
+    zwiftracingapp_cat_name     : str   = ""    # Copper, Silver, Gold etc
+    zwiftracingapp_cp           : float = 0.0   # Critical power in watts
+    zwiftracingapp_awc          : float = 0.0   # Anaerobic work capacity in kilojoules
     jgh_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
-    jgh_cp                     : float = 0.0   # Critical power in watts
-    jgh_w_prime                : float = 0.0   # Critical power W' in kilojoules
     jgh_ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
     jgh_ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
     jgh_pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
     jgh_pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
     jgh_when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
-    
+    jgh_cp                     : float = 0.0   # Critical power in watts
+    jgh_w_prime                : float = 0.0   # Critical power W' in kilojoules
+
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders
         json_schema_extra = {
@@ -45,9 +47,9 @@ class ZsunRiderItem:
                 "weight_kg": 73.4,
                 "height_cm": 182,
                 "gender": "m",
-                "zwift_zftp": 276,
+                "zwiftpower_zftp": 276,
                 "zwift_zrs": 744,
-                "velo_cat_num": 1897,
+                "zwiftracingapp_cat_num": 1897,
             },
             "huskyc": {
                 "zwift_id": "5134",
@@ -55,9 +57,9 @@ class ZsunRiderItem:
                 "weight_kg": 75.5,
                 "height_cm": 178,
                 "gender": "m",
-                "zwift_zftp": 268,
+                "zwiftpower_zftp": 268,
                 "zwift_zrs": 552,
-                "velo_cat_num": 1519,
+                "zwiftracingapp_cat_num": 1519,
             },
             "scottm": {
                 "zwift_id": "11526",
@@ -65,9 +67,9 @@ class ZsunRiderItem:
                 "weight_kg": 78,
                 "height_cm": 165,
                 "gender": "m",
-                "zwift_zftp": 247,
+                "zwiftpower_zftp": 247,
                 "zwift_zrs": 509,
-                "velo_cat_num": 1537,
+                "zwiftracingapp_cat_num": 1537,
             },
             "johnh": {
                 "zwift_id": "1884456",
@@ -75,9 +77,9 @@ class ZsunRiderItem:
                 "weight_kg": 75.4,
                 "height_cm": 174,
                 "gender": "m",
-                "zwift_zftp": 233,
+                "zwiftpower_zftp": 233,
                 "zwift_zrs": 351,
-                "velo_cat_num": 1067,
+                "zwiftracingapp_cat_num": 1067,
             },
             "joshn": {
                 "zwift_id": "2508033",
@@ -85,15 +87,15 @@ class ZsunRiderItem:
                 "weight_kg": 101,
                 "height_cm": 178,
                 "gender": "m",
-                "zwift_zftp": 260,
+                "zwiftpower_zftp": 260,
                 "zwift_zrs": 285,
-                "velo_cat_num": 942,
+                "zwiftracingapp_cat_num": 942,
             },
         }
 
     @staticmethod
     def create(zwiftid: str, name: str, weight_kg: float, height_cm: float, gender: str, 
-        zwift_zftp: float, zwift_zrs: int, velo_cat_num: int
+        zwiftpower_zftp: float, zwift_zrs: int, zwiftracingapp_cat_num: int
     ) -> 'ZsunRiderItem':
         """
         Create a ZsunRiderItem instance with the given parameters
@@ -104,9 +106,9 @@ class ZsunRiderItem:
             weight_kg             (float): The weight_kg of the rider in kilograms.
             height_cm             (float): The height_cm of the rider in centimeters.
             gender             (Gender): The gender of the rider.
-            zwift_zftp                (float): Functional Threshold Power in watts.
+            zwiftpower_zftp                (float): Functional Threshold Power in watts.
             zwift_zrs (int)  : Zwift racing score.
-            velo_cat_num        (int)  : Velo rating.
+            zwiftracingapp_cat_num        (int)  : Velo rating.
     
         Returns:
             ZsunRiderItem: A ZsunRiderItem instance with the given parameters.
@@ -118,9 +120,9 @@ class ZsunRiderItem:
             weight_kg=weight_kg,
             height_cm=height_cm,
             gender=gender,
-            zwift_zftp=zwift_zftp,
+            zwiftpower_zftp=zwiftpower_zftp,
             zwift_zrs=zwift_zrs,
-            velo_cat_num=velo_cat_num
+            zwiftracingapp_cat_num=zwiftracingapp_cat_num
         )
 
         return instance
@@ -272,21 +274,23 @@ class ZsunRiderItem:
             gender                     = item.gender,
             age_years                  = item.age_years,
             agegroup                   = item.agegroup,
-            zwift_zftp                 = item.zwift_zftp,
+            zwift_ftp                  = item.zwift_ftp,
+            zwiftpower_zftp            = item.zwiftpower_zftp,
+            zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
             zwift_zrs                  = item.zwift_zrs,
             zwift_cat                  = item.zwift_cat,
-            velo_score             = item.velo_score,
-            velo_cat_num                = item.velo_cat_num,
-            velo_cat_name               = item.velo_cat_name,
-            velo_cp                     = item.velo_cp,
-            velo_awc                    = item.velo_awc,
+            zwiftracingapp_score                  = item.zwiftracingapp_score,
+            zwiftracingapp_cat_num                = item.zwiftracingapp_cat_num,
+            zwiftracingapp_cat_name               = item.zwiftracingapp_cat_name,
+            zwiftracingapp_cp                     = item.zwiftracingapp_cp,
+            zwiftracingapp_awc                    = item.zwiftracingapp_awc,
             jgh_pull_adjustment_watts  = item.jgh_pull_adjustment_watts,
-            jgh_cp                     = item.jgh_cp,
-            jgh_w_prime                = item.jgh_w_prime,
             jgh_ftp_curve_coefficient  = item.jgh_ftp_curve_coefficient,
             jgh_ftp_curve_exponent     = item.jgh_ftp_curve_exponent,
             jgh_pull_curve_coefficient = item.jgh_pull_curve_coefficient,
             jgh_pull_curve_exponent    = item.jgh_pull_curve_exponent,
+            jgh_cp                     = item.jgh_cp,
+            jgh_w_prime                = item.jgh_w_prime,
             jgh_when_curves_fitted     = item.jgh_when_curves_fitted
         )
 
@@ -303,21 +307,23 @@ class ZsunRiderItem:
             gender                     = dto.gender or "",
             age_years                  = dto.age_years or 0.0,
             agegroup                   = dto.agegroup or "",
-            zwift_zftp                 = dto.zwift_zftp or 0.0,
+            zwift_ftp                  = dto.zwift_ftp or 0.0,
+            zwiftpower_zftp            = dto.zwiftpower_zftp or 0.0,
+            zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
             zwift_zrs                  = dto.zwift_zrs or 0.0,
             zwift_cat                  = dto.zwift_cat or "",
-            velo_score                 = dto.velo_score or 0.0,
-            velo_cat_num               = dto.velo_cat_num or 0,
-            velo_cat_name              = dto.velo_cat_name or "",
-            velo_cp                    = dto.velo_cp or 0.0,
-            velo_awc                   = dto.velo_awc or 0.0,
+            zwiftracingapp_score                 = dto.zwiftracingapp_score or 0.0,
+            zwiftracingapp_cat_num               = dto.zwiftracingapp_cat_num or 0,
+            zwiftracingapp_cat_name              = dto.zwiftracingapp_cat_name or "",
+            zwiftracingapp_cp                    = dto.zwiftracingapp_cp or 0.0,
+            zwiftracingapp_awc                   = dto.zwiftracingapp_awc or 0.0,
             jgh_pull_adjustment_watts  = dto.jgh_pull_adjustment_watts or 0.0,
-            jgh_cp                     = dto.jgh_cp or 0.0,
-            jgh_w_prime                = dto.jgh_w_prime or 0.0,
             jgh_ftp_curve_coefficient  = dto.jgh_ftp_curve_coefficient or 0.0,
             jgh_ftp_curve_exponent     = dto.jgh_ftp_curve_exponent or 0.0,
             jgh_pull_curve_coefficient = dto.jgh_pull_curve_coefficient or 0.0,
             jgh_pull_curve_exponent    = dto.jgh_pull_curve_exponent or 0.0,
+            jgh_cp                     = dto.jgh_cp or 0.0,
+            jgh_w_prime                = dto.jgh_w_prime or 0.0,
             jgh_when_curves_fitted     = dto.jgh_when_curves_fitted or ""
         )
 
@@ -387,21 +393,21 @@ def main():
 
     # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
-    # at a given wattage (zwift_zftp=233) and tabulate neatly and log it.
+    # at a given wattage (zwiftpower_zftp=233) and tabulate neatly and log it.
     rider_john = ZsunRiderItem(
-        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zwift_zftp=rider1.zwift_zftp, gender=rider1.gender, velo_cat_num=rider1.velo_cat_num)
+        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zwiftpower_zftp=rider1.zwiftpower_zftp, gender=rider1.gender, zwiftracingapp_cat_num=rider1.zwiftracingapp_cat_num)
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
-    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zwift_zftp}"]
+    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zwiftpower_zftp}"]
 
     for position in positions:
         # Calculate the speed for the given position and FTP
-        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zwift_zftp, position)
+        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zwiftpower_zftp, position)
         table.append([position, speed])
 
     # Log the table
-    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zwift_zftp}")
+    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zwiftpower_zftp}")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 
