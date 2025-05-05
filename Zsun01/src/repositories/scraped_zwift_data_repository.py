@@ -11,7 +11,7 @@ from jgh_bestpower_item import JghBestPowerItem
 import pandas as pd
 from jgh_read_write import raise_exception_if_invalid
 from computation_classes import CurveFittingResult
-from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
+from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
 
 @dataclass
 class ScrapedZwiftDataRepository:
@@ -284,7 +284,7 @@ class ScrapedZwiftDataRepository:
 
     def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> dict[str, CurveFittingResult]:
 
-        min_coordinates = 5 # minimum number of datapoints required for curve fitting
+        min_coordinates = 5 # minimum I desire for reliable curve fitting
         skipped_count = 0
         answer : dict[str, CurveFittingResult] = {}
 
