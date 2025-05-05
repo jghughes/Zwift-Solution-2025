@@ -5,6 +5,9 @@ from zsun_rider_item import ZsunRiderItem
 from dataclasses import asdict
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from jgh_sanitise_string import cleanup_name_string
+from handy_utilities import *
+from jgh_read_write import write_pandas_dataframe_as_xlsx
+
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -14,7 +17,7 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages,
 
 
 def main():
-    
+  
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
@@ -91,13 +94,9 @@ def main():
     logger.info(f"Created a minimally valid subset of zsun riders:  {len(answer_dict)}")
 
     df = pd.DataFrame([asdict(rider) for rider in riders])
-
-    # Step 8: Save the DataFrame to an Excel file
-    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-
     file_name = "minimally_valid_zsun_riders.xlsx"
-    df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
-    logger.info(f"Minimally valid subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
+    write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
+    logger.info(f"Minimally valid subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
 
     # Remove items where zwift_zrs is 0 or vvelo_cat_name is an empty string
     answer_dict = {
@@ -108,10 +107,9 @@ def main():
 
     riders = answer_dict.values()
     df = pd.DataFrame([asdict(rider) for rider in riders])
-
     file_name = "zsun_riders_recently_active.xlsx"
-    df.to_excel(OUTPUT_DIR_PATH + file_name, index=True)
-    logger.info(f"Active subset of zsun racers: {len(answer_dict)}\nSaved to:  {OUTPUT_DIR_PATH + file_name}")
+    write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
+    logger.info(f"Active subset of zsun racers: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
 
 
 if __name__ == "__main__":

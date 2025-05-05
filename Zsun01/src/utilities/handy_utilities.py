@@ -1,6 +1,6 @@
 import os
 from typing import Dict, cast, Optional, List
-from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
+from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder, raise_exception_if_invalid
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
@@ -12,8 +12,10 @@ from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
 from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem, PowerItem
+from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwift_profile_item import ZwiftProfileItem
+
+
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -42,7 +44,7 @@ def get_zsun_rider(id : int) -> ZsunRiderItem:
     answer = riders[str(id)]
     return answer
 
-def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> Dict[str, ZsunRiderItem]:
+def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> defaultdict[str, ZsunRiderItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -53,12 +55,15 @@ def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> Dict[str, Zsu
     inputjson = read_text(dir_path, file_name)
     answer = JghSerialization.validate(inputjson, Dict[str, ZsunRiderDTO])
     answer = cast(Dict[str, ZsunRiderDTO], answer)
-    return {
-        key: ZsunRiderItem.from_dataTransferObject(dto)
-        for key, dto in answer.items()
-    }
+    return defaultdict(
+        ZsunRiderItem, 
+        {
+            key: ZsunRiderItem.from_dataTransferObject(dto)
+            for key, dto in answer.items()
+        }
+    )
 
-def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[str, JghBestPowerItem]:
+def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> defaultdict[str, JghBestPowerItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -69,10 +74,13 @@ def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> Dict[st
     inputjson = read_text(dir_path, file_name)
     answer = JghSerialization.validate(inputjson, Dict[str, JghBestPowerDTO])
     answer = cast(Dict[str, JghBestPowerDTO], answer)
-    return {
-        key: JghBestPowerItem.from_dataTransferObject(dto)
-        for key, dto in answer.items()
-    }
+    return defaultdict(
+        JghBestPowerItem,
+        {
+            key: JghBestPowerItem.from_dataTransferObject(dto)
+            for key, dto in answer.items()
+        }
+    )
 
 def write_dict_of_90day_bestpower_items(data: Dict[str, JghBestPowerItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
@@ -89,6 +97,8 @@ def write_dict_of_90day_bestpower_items(data: Dict[str, JghBestPowerItem], file_
         json_file.write(serialized_data)
 
     logger.debug(f"File saved : {file_name}")
+
+
 
 def read_many_zwift_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileItem]:
 
@@ -204,6 +214,7 @@ def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str
 
     return answer
 
+
 def main():
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
@@ -219,7 +230,6 @@ def main():
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
     write_dict_of_90day_bestpower_items(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
-
 
 def main02():
     # configure logging
@@ -247,7 +257,6 @@ def main02():
     dict_of_zwiftpower_90day_bestpower = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
     logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower bestpower info items")
 
-
 def main03():
     # configure logging
 
@@ -268,7 +277,6 @@ def main03():
         logger.info(f"{zwift_id} {item.last_name} zFTP = {round(item.zftp)} Watts, Height = {round(item.height_mm/10.0)} cm")
 
     logger.info(f"Imported {len(my_dict)} items")
-
 
 def main04():
     # configure logging
@@ -291,7 +299,6 @@ def main04():
 
     logger.info(f"Imported {len(my_dict)} items")
 
-
 def main05():
     # configure logging
 
@@ -312,7 +319,6 @@ def main05():
         logger.info(f"{zwift_id} {item.zwift_name}")
 
     logger.info(f"Imported {len(my_dict)} items")
-
 
 def main06():
     # configure logging

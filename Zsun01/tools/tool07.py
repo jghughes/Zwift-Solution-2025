@@ -1,5 +1,7 @@
-from handy_utilities import write_dict_of_90day_bestpower_items, read_many_zwiftpower_bestpower_files_in_folder, read_dict_of_zsunrider_items,get_betel_zwift_ids
+from handy_utilities import *
 import pandas as pd
+from jgh_read_write import write_pandas_dataframe_as_xlsx
+
 
 # Module-level constants
 
@@ -63,8 +65,7 @@ def main():
     #save to exel
     output_file_name = "markb_90day_best_power_x_y_ordinates.xlsx"
     output_dir_path = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/markb/"
-    output_file_path = output_dir_path + output_file_name
-    df.to_excel(output_file_path, index=False, engine="openpyxl")
+    write_pandas_dataframe_as_xlsx(df, output_file_name, output_dir_path)
     logger.info(f"Saved {len(x_y_ordinates)} x y ordinates for MarkB to: {output_file_path}")
 
 

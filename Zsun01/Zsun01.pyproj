@@ -44,9 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />
-    <Content Include="data\betel_cp_data.json" />
     <Content Include="data\betel_rider_zwift_ids.json" />
-    <Content Include="data\input_cp_data_for_betel_from_zwiftpower.json" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">
@@ -86,9 +84,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tools\tool05.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tools\tool06.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tools\tool07.py" />

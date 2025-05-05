@@ -94,7 +94,7 @@ def main():
 
     logger.info(f"\n{summary_cp_w_prime}")
 
-    summary_pull = f"Pull power (30-60-120 seconds) = {round(pi.get_30sec_watts())} - {round(pi.get_1_minute_watts())} - {round(pi.get_2_minute_watts())}W  [r-squared {round(r_squared_pull, 2)}]"
+    summary_pull = f"Pull power (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}W  [r-squared {round(r_squared_pull, 2)}]"
 
     logger.info(f"\n{summary_pull}")
 

@@ -4,6 +4,7 @@ import json
 import csv
 from collections import OrderedDict
 from typing import List, Dict, Any, Optional
+import pandas as pd
 
 # Configure logging
 import logging
@@ -207,7 +208,6 @@ def write_csv(dirpath: str, filename: str, items: List[Dict[str, Any]]) -> None:
         error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to write to csv file [{filename}].\r\nError: {e}")
         raise Exception(error_message)
 
-
 def write_csv_with_fieldnames(
     dirpath: str, filename: str, items: List[Dict[str, Any]], fieldnames: List[str]
 ) -> None:
@@ -315,7 +315,6 @@ def read_json_write_csv(
         error_message = f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to read json file [{input_filename}] and write to csv file [{output_filename}].\r\nError: {e}"
         raise Exception(error_message)
 
-
 def read_json_write_pretty_csv(
     input_dirpath: str,
     input_filename: str,
@@ -380,3 +379,32 @@ def read_json_write_pretty_csv(
         error_message = (f"\r\nError: Exception raised. Something went wrong.\r\nError: Failed to read json file [{input_filename}] and write to csv file [{output_filename}].\r\nError: {e}"
         )
         raise Exception(error_message)
+
+def write_pandas_dataframe_as_xlsx(df: pd.DataFrame, file_name: str, dir_path : str):
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+    if not file_name or not file_name.endswith(".xlsx"):
+        raise ValueError(f"Invalid file name: '{file_name}'. Ensure it ends with '.xlsx'.")
+
+    raise_exception_if_invalid(dir_path, file_name, ".xlsx", must_read_not_write=False)
+    output_file_path = os.path.join(dir_path, file_name)
+    df.to_excel(output_file_path, index=False, engine="openpyxl")
+
+def write_json_file(text: str, file_name: str, dir_path : str):
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+    if not file_name or not file_name.endswith(".json"):
+        raise ValueError(f"Invalid file name: '{file_name}'. Ensure it ends with '.json'.")
+
+    raise_exception_if_invalid(dir_path, file_name, ".json", must_read_not_write=False)
+    output_file_path = os.path.join(dir_path, file_name)
+    with open(output_file_path, 'w', encoding='utf-8') as json_file:
+        json_file.write(text)

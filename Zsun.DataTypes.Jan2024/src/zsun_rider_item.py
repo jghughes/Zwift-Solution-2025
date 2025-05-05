@@ -217,7 +217,7 @@ class ZsunRiderItem:
     def get_anaerobic_work_capacity_kj(self) -> float:
         return self.jgh_w_prime / 1_000.0
 
-    def get_30sec_watts(self) -> float:
+    def get_30sec_pull_watts(self) -> float:
 
         pull_short = decay_model_numpy(np.array([300]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
 
@@ -225,7 +225,7 @@ class ZsunRiderItem:
 
         return answer
 
-    def get_1_minute_watts(self) -> float:
+    def get_1_minute_pull_watts(self) -> float:
 
         pull_medium = decay_model_numpy(np.array([600]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
 
@@ -233,7 +233,7 @@ class ZsunRiderItem:
 
         return answer
 
-    def get_2_minute_watts(self) -> float:
+    def get_2_minute_pull_watts(self) -> float:
 
         pull_long = decay_model_numpy(np.array([1200]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
 
@@ -241,14 +241,19 @@ class ZsunRiderItem:
 
         return answer
 
-    def get_3_minute_watts(self) -> float:
+    def get_3_minute_pull_watts(self) -> float:
 
         # same as 2 minute because this is for beasts who can withstand more time at the front 
         # at the same power
-        pull_long = decay_model_numpy(np.array([1200]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([1500]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
 
         answer =  pull_long[0] + self.jgh_pull_adjustment_watts
 
+        return answer
+
+    def get_5_minute_pull_watts(self) -> float:
+        pull_long = decay_model_numpy(np.array([1800]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        answer =  pull_long[0] + self.jgh_pull_adjustment_watts
         return answer
 
     def get_ftp_60_minute_watts(self) -> float:

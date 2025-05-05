@@ -9,9 +9,9 @@ from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
 from jgh_bestpower_item import JghBestPowerItem
 import pandas as pd
-from jgh_read_write import raise_exception_if_invalid
 from computation_classes import CurveFittingResult
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
+
 
 @dataclass
 class ScrapedZwiftDataRepository:
@@ -342,29 +342,6 @@ class ScrapedZwiftDataRepository:
 
         return answer
 
-    def save_dataframe_to_excel(self, df: pd.DataFrame, file_name: str, dir_path : str):
-           # Validate the file name
-            if not file_name or not file_name.endswith(".xlsx"):
-                raise ValueError(f"Invalid file name: '{file_name}'. Ensure it ends with '.xlsx'.")
-
-            # # Validate the directory path
-            raise_exception_if_invalid(dir_path, file_name, ".xlsx", must_read_not_write=False)
-
-            # # Process the "in_sample1" and "in_sample2" columns
-            # df["in_sample1"] = df["in_sample1"].replace("n", "")
-            # df["in_sample2"] = df["in_sample2"].replace("n", "")
-
-            # # Process all remaining columns
-            # remaining_columns = [col for col in df.columns if col not in ["in_sample1", "in_sample2"]]
-            # for col in remaining_columns:
-            #     df[col] = df[col].replace("y", "")
-
-            # Save the processed DataFrame to an Excel file
-            output_path = os.path.join(dir_path, file_name)
-            df.to_excel(output_path)
-            # df.to_excel(output_path, index=False, engine="openpyxl")
-            # df.to_excel(output_path, index=False, engine="openpyxl")
-            logger.info(f"DataFrame saved to: {os.path.join(dir_path, file_name)}")
 
 def main():
     # Define paths for testing
@@ -418,14 +395,14 @@ def main():
     print(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "beautiful_superset_of_everything.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
     # Example: get the intersection - should be about 80
     df = rep.get_table_of_intersections_of_sets([], [])
     print("DataFrame of intesection of Zwift IDs in main datasets:")
     print(df)
     OUTPUT_FILENAME2 = "beautiful_intersection_of_main_datasets.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
 
 
     # Example: get an intersection of all main sets and betel - should be tiny - 4
@@ -433,7 +410,7 @@ def main():
     print("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
     print(df)
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
 
 def main2():
     # Initialize the repository
@@ -478,7 +455,7 @@ def main2():
     # Optionally, save the filtered DataFrame to an Excel file for verification
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "beautiful_matching_specified_boolean_filter_criteria.xlsx"
-    rep.save_dataframe_to_excel(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
     print(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
@@ -523,7 +500,7 @@ def main3():
     print(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Zwift_profiles.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 def main4():
     # Define paths for testing
@@ -566,8 +543,7 @@ def main4():
     print(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftRacingApp_profiles.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
-
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 def main5():
     # Define paths for testing
@@ -610,7 +586,7 @@ def main5():
     print(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 def main6():
     # Define paths for testing
@@ -653,7 +629,7 @@ def main6():
     print(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Jgh best power curves.xlsx"
-    rep.save_dataframe_to_excel(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
 if __name__ == "__main__":
     # main()

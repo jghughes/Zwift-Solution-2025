@@ -1,6 +1,8 @@
-from handy_utilities import read_many_zwiftpower_bestpower_files_in_folder, read_many_zwift_profile_files_in_folder
+from handy_utilities import *
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from datetime import datetime
+from jgh_read_write import write_pandas_dataframe_as_xlsx
+
 
 from computation_classes import CurveFittingResult
 
@@ -158,8 +160,7 @@ def main():
     # write to excel
     OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    merged_df.to_excel(OUTPUT_DIR_PATH + OUTPUT_FILE_NAME, index=True)
-
+    write_pandas_dataframe_as_xlsx(merged_df, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 if __name__ == "__main__":
     main()
 
