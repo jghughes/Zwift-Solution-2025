@@ -22,7 +22,7 @@ class ZsunRiderDTO(BaseModel):
     gender                     : Optional[str]   = ""    # Gender of the rider, m or f
     age_years                  : Optional[float] = 0     # Age of the rider in years
     agegroup                   : Optional[str]   = ""    # Age group of the rider
-    zwift_ftp                 : Optional[float]  = 0     # Originates in Zwift profile
+    zwift_ftp                  : Optional[float]  = 0     # Originates in Zwift profile
     zwiftpower_zftp            : Optional[float] = 0     # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP       : Optional[float] = 0     #Originates in Zwiftracingapp profile
     zwift_zrs                  : Optional[float] = 0     # Zwift racing score
@@ -35,6 +35,7 @@ class ZsunRiderDTO(BaseModel):
     jgh_pull_adjustment_watts  : Optional[float] = 0.0   # Adjustment watts for pulling
     jgh_ftp_curve_coefficient  : Optional[float] = 0.0   # Coefficient for FTP modeling
     jgh_ftp_curve_exponent     : Optional[float] = 0.0   # Exponent for FTP modeling
+    jgh_ftp_curve_fit_r_squared : Optional[float] = 0.0   # R-squared value for the curve fit of the FTP data
     jgh_pull_curve_coefficient : Optional[float] = 0.0   # Coefficient for pull modeling
     jgh_pull_curve_exponent    : Optional[float] = 0.0   # Exponent for pull modeling
     jgh_cp                     : Optional[float] = 0.0   # Critical power in watts

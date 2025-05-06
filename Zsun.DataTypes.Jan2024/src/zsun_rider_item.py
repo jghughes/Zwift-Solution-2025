@@ -32,6 +32,7 @@ class ZsunRiderItem:
     jgh_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
     jgh_ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
     jgh_ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
+    jgh_ftp_curve_fit_r_squared : float = 0.0   # R-squared value for the curve fit of the FTP data
     jgh_pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
     jgh_pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
     jgh_when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
@@ -264,6 +265,10 @@ class ZsunRiderItem:
 
         return answer
 
+    def get_n_second_watts(self, seconds: float) -> float:
+        power = decay_model_numpy(np.array([seconds]), self.jgh_ftp_curve_coefficient, self.jgh_ftp_curve_exponent)
+        return power[0]
+
     def get_when_models_fitted(self) -> str:
         return self.jgh_when_curves_fitted
 
@@ -292,6 +297,7 @@ class ZsunRiderItem:
             jgh_pull_adjustment_watts  = item.jgh_pull_adjustment_watts,
             jgh_ftp_curve_coefficient  = item.jgh_ftp_curve_coefficient,
             jgh_ftp_curve_exponent     = item.jgh_ftp_curve_exponent,
+            jgh_ftp_curve_fit_r_squared= item.jgh_ftp_curve_fit_r_squared,
             jgh_pull_curve_coefficient = item.jgh_pull_curve_coefficient,
             jgh_pull_curve_exponent    = item.jgh_pull_curve_exponent,
             jgh_cp                     = item.jgh_cp,
@@ -317,19 +323,20 @@ class ZsunRiderItem:
             zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
             zwift_zrs                  = dto.zwift_zrs or 0.0,
             zwift_cat                  = dto.zwift_cat or "",
-            zwiftracingapp_score                 = dto.zwiftracingapp_score or 0.0,
-            zwiftracingapp_cat_num               = dto.zwiftracingapp_cat_num or 0,
-            zwiftracingapp_cat_name              = dto.zwiftracingapp_cat_name or "",
-            zwiftracingapp_cp                    = dto.zwiftracingapp_cp or 0.0,
-            zwiftracingapp_awc                   = dto.zwiftracingapp_awc or 0.0,
+            zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
+            zwiftracingapp_cat_num     = dto.zwiftracingapp_cat_num or 0,
+            zwiftracingapp_cat_name    = dto.zwiftracingapp_cat_name or "",
+            zwiftracingapp_cp          = dto.zwiftracingapp_cp or 0.0,
+            zwiftracingapp_awc         = dto.zwiftracingapp_awc or 0.0,
             jgh_pull_adjustment_watts  = dto.jgh_pull_adjustment_watts or 0.0,
             jgh_ftp_curve_coefficient  = dto.jgh_ftp_curve_coefficient or 0.0,
             jgh_ftp_curve_exponent     = dto.jgh_ftp_curve_exponent or 0.0,
+            jgh_ftp_curve_fit_r_squared= dto.jgh_ftp_curve_fit_r_squared or 0.0,
             jgh_pull_curve_coefficient = dto.jgh_pull_curve_coefficient or 0.0,
             jgh_pull_curve_exponent    = dto.jgh_pull_curve_exponent or 0.0,
             jgh_cp                     = dto.jgh_cp or 0.0,
             jgh_w_prime                = dto.jgh_w_prime or 0.0,
-            jgh_when_curves_fitted     = dto.jgh_when_curves_fitted or ""
+            jgh_when_curves_fitted     = dto.jgh_when_curves_fitted or "",
         )
 
 
