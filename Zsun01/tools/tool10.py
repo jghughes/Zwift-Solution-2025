@@ -33,12 +33,12 @@ def main():
     logger.info(f"Imported {len(repository.dict_of_jghbestpoweritem)} zwiftpower cp graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
 
-    zwift_ids = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y") 
+    eligible_IDs = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y") 
 
     betel_IDs = get_betel_zwift_ids()
 
     # determine which betel ids not found in repository
-    betel_ids_not_found = [betel_id for betel_id in betel_IDs if betel_id not in zwift_ids]
+    betel_ids_not_found = [betel_id for betel_id in betel_IDs if betel_id not in eligible_IDs]
     betel_ids_found = list(set(betel_IDs) - set(betel_ids_not_found))
     logger.info(f"Betel IDs not found in repository: {len(betel_ids_not_found)}\n{betel_ids_not_found}\n")
     logger.info(f"Betel IDs found in repository:{len(betel_ids_found)}\n {betel_ids_found}\n")

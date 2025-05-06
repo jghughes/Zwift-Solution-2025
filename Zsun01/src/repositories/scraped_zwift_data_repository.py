@@ -1,17 +1,21 @@
 
-from typing import Optional
+from typing import Optional, Type, TypeVar
 from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
+from jgh_sanitise_string import cleanup_name_string
+from jgh_read_write import write_pandas_dataframe_as_xlsx
 from handy_utilities import *
 from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
+from zsun_rider_item import ZsunRiderItem
 from jgh_bestpower_item import JghBestPowerItem
 import pandas as pd
 from computation_classes import CurveFittingResult
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
 
+T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
 
 @dataclass
 class ScrapedZwiftDataRepository:
@@ -262,25 +266,44 @@ class ScrapedZwiftDataRepository:
         df = self.get_table_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp)
         return df[self.COL_ZWIFT_ID].tolist()
  
-    def get_dict_of_ZwiftProfileItem(self, zwift_ids: Optional[list[str]]) -> dict[str, ZwiftProfileItem]:
-        if not zwift_ids:
-            return dict(self.dict_of_zwiftprofileitem)
-        return {zwift_id: self.dict_of_zwiftprofileitem[zwift_id] for zwift_id in zwift_ids if zwift_id in self.dict_of_zwiftprofileitem}
+    def _get_dict_of_items(self, source_dict: defaultdict[str, T], zwift_ids: Optional[list[str]], default_factory: Type[T]) -> defaultdict[str, T]:
+        """
+        Generic method to retrieve a filtered defaultdict of items based on provided Zwift IDs.
 
-    def get_dict_of_ZwiftRacingAppProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftRacingAppProfileItem]:
-        if not zwift_ids:
-            return dict(self.dict_of_zwiftracingappprofileitem)
-        return {zwift_id: self.dict_of_zwiftracingappprofileitem[zwift_id] for zwift_id in zwift_ids}
+        Args:
+            source_dict (defaultdict[str, T]): The source dictionary to filter.
+            zwift_ids (Optional[list[str]]): List of Zwift IDs to filter. If None, return all items.
+            default_factory (Type[T]): The default factory for the defaultdict.
 
-    def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: list[str]) -> dict[str, ZwiftPowerProfileItem]:
-        if not zwift_ids:
-            return dict(self.dict_of_zwiftpowerprofileitem)
-        return {zwift_id: self.dict_of_zwiftpowerprofileitem[zwift_id] for zwift_id in zwift_ids}
+        Returns:
+            defaultdict[str, T]: A filtered defaultdict of items.
+        """
+        answer: defaultdict[str, T] = defaultdict(default_factory)
 
-    def get_dict_of_JghBestPowerItem(self, zwift_ids: list[str]) -> dict[str, JghBestPowerItem]:
+        # all of them
         if not zwift_ids:
-            return dict(self.dict_of_jghbestpoweritem)
-        return {zwift_id: self.dict_of_jghbestpoweritem[zwift_id] for zwift_id in zwift_ids}
+            for key, value in source_dict.items():
+                answer[key] = value
+            return answer
+
+        # filter them
+        for zwift_id in zwift_ids:
+            if zwift_id in source_dict:
+                answer[zwift_id] = source_dict[zwift_id]
+
+        return answer
+
+    def get_dict_of_ZwiftProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftProfileItem]:
+        return self._get_dict_of_items(self.dict_of_zwiftprofileitem, zwift_ids, ZwiftProfileItem)
+
+    def get_dict_of_ZwiftRacingAppProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftRacingAppProfileItem]:
+        return self._get_dict_of_items(self.dict_of_zwiftracingappprofileitem, zwift_ids, ZwiftRacingAppProfileItem)
+
+    def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftPowerProfileItem]:
+        return self._get_dict_of_items(self.dict_of_zwiftpowerprofileitem, zwift_ids, ZwiftPowerProfileItem)
+
+    def get_dict_of_JghBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, JghBestPowerItem]:
+        return self._get_dict_of_items(self.dict_of_jghbestpoweritem, zwift_ids, JghBestPowerItem)
 
     def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResult]:
 
@@ -341,6 +364,65 @@ class ScrapedZwiftDataRepository:
         logger.info(f"Skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.")
 
         return answer
+
+    def get_dict_of_ZsunRiderItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZsunRiderItem]:
+
+        answer : defaultdict[str, ZsunRiderItem] = defaultdict(ZsunRiderItem)
+
+        if zwift_ids is None:
+            zwift_ids = []
+
+        eligible_IDs = set(self.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y"))
+
+        eligible_IDs = list(set(eligible_IDs) & set(zwift_ids))
+
+        jgh_curve_dict = self.get_dict_of_CurveFittingResult(eligible_IDs)
+    
+        for key in self.get_dict_of_ZwiftProfileItem(eligible_IDs):
+
+            zwiftItem = self.dict_of_zwiftprofileitem[key]
+            zwiftpowerItem = self.dict_of_zwiftpowerprofileitem[key]
+            zwiftracingappItem = self.dict_of_zwiftracingappprofileitem[key]
+            jghcurveItem = jgh_curve_dict[key]
+
+            if key in self.dict_of_zwiftracingappprofileitem:
+                name = self.dict_of_zwiftracingappprofileitem[key].fullname or f"{zwiftItem.first_name} {zwiftItem.last_name}"
+            else:
+                name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
+
+            zwiftItem = ZsunRiderItem(
+                zwift_id                   = zwiftItem.zwift_id,
+                name                       = cleanup_name_string(name),
+                weight_kg                  = round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
+                height_cm                  = round((zwiftItem.height_mm or 0.0) / 10.0),
+                gender                     = "m" if zwiftItem.male else "f",
+                age_years                  = zwiftItem.age_years,
+                agegroup                   = zwiftracingappItem.agegroup,
+                zwift_ftp                  = round(zwiftItem.ftp),
+                zwiftpower_zftp            = round(zwiftpowerItem.zftp),
+                zwiftracingapp_zpFTP       = round(zwiftracingappItem.zp_FTP),
+                zwift_zrs                  = round(zwiftItem.competitionMetrics.racingScore),
+                zwift_cat                  = zwiftItem.competitionMetrics.category,
+                zwiftracingapp_score        = round(zwiftracingappItem.raceitem.max90.rating),
+                zwiftracingapp_cat_num      = zwiftracingappItem.raceitem.max90.mixed.number,
+                zwiftracingapp_cat_name     = zwiftracingappItem.raceitem.max90.mixed.category,
+                zwiftracingapp_cp           = round(zwiftracingappItem.poweritem.CP),
+                zwiftracingapp_awc          = round(zwiftracingappItem.poweritem.AWC/1000.0),
+                jgh_pull_adjustment_watts  = 0.0,
+                jgh_ftp_curve_coefficient  = jghcurveItem.ftp_curve_coefficient,
+                jgh_ftp_curve_exponent     = jghcurveItem.ftp_curve_exponent,
+                jgh_pull_curve_coefficient = jghcurveItem.pull_curve_coefficient,
+                jgh_pull_curve_exponent    = jghcurveItem.pull_curve_exponent,
+                jgh_cp                     = jghcurveItem.cp,
+                jgh_w_prime                = jghcurveItem.w_prime,
+                jgh_when_curves_fitted     = jghcurveItem.when_curves_fitted,
+            )
+
+            answer[key] = zwiftItem
+
+        return answer
+
+
 
 
 def main():

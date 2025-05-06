@@ -1,7 +1,6 @@
 from typing import Dict, Optional
 from dataclasses import dataclass
 
-from sqlalchemy import exists
 from jgh_bestpower_dto import JghBestPowerDTO
 from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO, EffortDTO
 from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
