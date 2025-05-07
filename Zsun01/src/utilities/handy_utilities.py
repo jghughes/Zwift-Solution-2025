@@ -4,9 +4,9 @@ from jgh_read_write import read_text, read_filepath_as_text, help_select_filepat
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
-from jgh_bestpower_dto import JghBestPowerDTO
+from zsun_bestpower_dto import ZsunBestPowerDTO
 from zsun_rider_item import ZsunRiderItem
-from jgh_bestpower_item import JghBestPowerItem
+from zsun_bestpower_item import ZsunBestPowerItem
 from zwiftracingapp_profile_dto import *
 from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwift_profile_dto import ZwiftProfileDTO
@@ -63,7 +63,7 @@ def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> defaultdict[s
         }
     )
 
-def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> defaultdict[str, JghBestPowerItem]:
+def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> defaultdict[str, ZsunBestPowerItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -72,17 +72,17 @@ def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> default
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
     
     inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, Dict[str, JghBestPowerDTO])
-    answer = cast(Dict[str, JghBestPowerDTO], answer)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZsunBestPowerDTO])
+    answer = cast(Dict[str, ZsunBestPowerDTO], answer)
     return defaultdict(
-        JghBestPowerItem,
+        ZsunBestPowerItem,
         {
-            key: JghBestPowerItem.from_dataTransferObject(dto)
+            key: ZsunBestPowerItem.from_dataTransferObject(dto)
             for key, dto in answer.items()
         }
     )
 
-def write_dict_of_90day_bestpower_items(data: Dict[str, JghBestPowerItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_90day_bestpower_items(data: Dict[str, ZsunBestPowerItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -184,9 +184,9 @@ def read_many_zwiftpower_profile_files_in_folder(file_names: Optional[list[str]]
 
     return answer
 
-def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, JghBestPowerItem]:
+def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZsunBestPowerItem]:
 
-    answer: defaultdict[str, JghBestPowerItem] = defaultdict(JghBestPowerItem)
+    answer: defaultdict[str, ZsunBestPowerItem] = defaultdict(ZsunBestPowerItem)
 
     file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -207,7 +207,7 @@ def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        temp = JghBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp = ZsunBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
         temp.zwift_id = zwift_id  # zwift_id is obtained from the file name, this is the only place it is set
         answer[zwift_id] = temp
 

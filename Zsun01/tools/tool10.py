@@ -1,4 +1,4 @@
-# load Dave's jgh_cp data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
+# load Dave's zsun_cp data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Any
 import pandas as pd
 from zsun_rider_item import ZsunRiderItem
@@ -84,14 +84,14 @@ def main():
             zwiftracingapp_cat_name     = zwiftracingapp.raceitem.max90.mixed.category,
             zwiftracingapp_cp           = round(zwiftracingapp.poweritem.CP),
             zwiftracingapp_awc          = round(zwiftracingapp.poweritem.AWC/1000.0),
-            jgh_pull_adjustment_watts  = 0.0,
-            jgh_ftp_curve_coefficient  = jgh.ftp_curve_coefficient,
-            jgh_ftp_curve_exponent     = jgh.ftp_curve_exponent,
-            jgh_pull_curve_coefficient = jgh.pull_curve_coefficient,
-            jgh_pull_curve_exponent    = jgh.pull_curve_exponent,
-            jgh_cp                     = jgh.cp,
-            jgh_w_prime                = jgh.w_prime,
-            jgh_when_curves_fitted     = jgh.when_curves_fitted,
+            zsun_pull_adjustment_watts  = 0.0,
+            zsun_ftp_curve_coefficient  = jgh.ftp_curve_coefficient,
+            zsun_ftp_curve_exponent     = jgh.ftp_curve_exponent,
+            zsun_pull_curve_coefficient = jgh.pull_curve_coefficient,
+            zsun_pull_curve_exponent    = jgh.pull_curve_exponent,
+            zsun_cp                     = jgh.cp,
+            zsun_w_prime                = jgh.w_prime,
+            zsun_when_curves_fitted     = jgh.when_curves_fitted,
         )
 
         answer_dict[key] = zwift
@@ -104,7 +104,7 @@ def main():
 
     jghbestpoweritems = list(repository.get_dict_of_JghBestPowerItem(betel_ids_found).values())
 
-    df = pd.DataFrame([asdict(jghbestpoweritem) for jghbestpoweritem in jghbestpoweritems])
+    df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
     write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)
 
 

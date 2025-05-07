@@ -6,6 +6,8 @@ from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunrider_items, get_betel_zwift_ids, read_many_zwiftpower_bestpower_files_in_folder
 import critical_power as cp
 import matplotlib.pyplot as plt
+from matplot_utilities import set_x_axis_ticks,set_y_axis_ticks
+
 
 
 
@@ -79,13 +81,13 @@ def main():
     pi = ZsunRiderItem(
         zwift_id=zwiftID,
         name=dict_of_zsun01_betel_zsunrideritems[zwiftID].name,
-        jgh_cp=critical_power,
-        jgh_w_prime=anaerobic_work_capacity,
-        jgh_ftp_curve_coefficient=coefficient_60min,
-        jgh_ftp_curve_exponent=exponent_60min,
-        jgh_pull_curve_coefficient=coefficient_pull,
-        jgh_pull_curve_exponent=exponent_pull,
-        jgh_when_curves_fitted=datetime.now().isoformat(),
+        zsun_cp=critical_power,
+        zsun_w_prime=anaerobic_work_capacity,
+        zsun_ftp_curve_coefficient=coefficient_60min,
+        zsun_ftp_curve_exponent=exponent_60min,
+        zsun_pull_curve_coefficient=coefficient_pull,
+        zsun_pull_curve_exponent=exponent_pull,
+        zsun_when_curves_fitted=datetime.now().isoformat(),
     )
 
     # log pretty summaries
@@ -98,7 +100,7 @@ def main():
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"Functional Threshold Power (60 minutes watts)) = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_60min, 2)}]"
+    summary_ftp = f"One hour power = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_60min, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 
@@ -117,17 +119,28 @@ def main():
     ydata_pred_pull = [value[1] for value in answer_pull.values()]
     ydata_pred_ftp = [value[1] for value in answer_60min.values()]
 
+    max_x = max(max(xdata_cp), max(xdata_pull), max(xdata_ftp))
+    max_y = max(max(ydata_cp), max(ydata_pull), max(ydata_ftp))
+    lim_x = max_x * 1.05
+    lim_y = max_y * 1.05
+
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata_cp, ydata_cp, color='grey', label='critical power range')
-    plt.scatter(xdata_pull, ydata_pull, color='orange', label='pull power range')
-    plt.scatter(xdata_ftp, ydata_ftp, color='black', label='functional threshold range')
+    plt.scatter(xdata_cp, ydata_cp, color='grey', label='anaerobic power range')
+    plt.scatter(xdata_pull, ydata_pull, color='orange', label='TTT pull power range')
+    plt.scatter(xdata_ftp, ydata_ftp, color='black', label='one hour power range')
     plt.plot(xdata_cp, ydata_pred_cp, color='red', label=summary_cp_w_prime)
     plt.plot(xdata_pull, ydata_pred_pull, color='blue', label=summary_pull)
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
-    plt.xlabel('Duration (s)')
-    plt.ylabel('ZwiftPower 90-day best (Watts)')
+    plt.xlabel('Duration (minutes)')
+    plt.ylabel('ZwiftPower 90-day best graph (Watts)')
     plt.title(f'{dict_of_zsun01_betel_zsunrideritems[zwiftID].name}')
-    plt.xticks(xdata_cp)  
+    # Set the x-axis and y-axis limits
+    plt.xlim(0, lim_x)
+    plt.ylim(0, lim_y)
+    ax = plt.gca()  # Get the current axes
+    set_x_axis_ticks(ax, int(max_x))  # Set x-axis ticks
+    set_y_axis_ticks(ax, int(max_y))  # Set y-axis ticks
+
     plt.legend()
     plt.show()
 

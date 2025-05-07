@@ -10,7 +10,7 @@ from zwift_profile_item import ZwiftProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zsun_rider_item import ZsunRiderItem
-from jgh_bestpower_item import JghBestPowerItem
+from zsun_bestpower_item import ZsunBestPowerItem
 import pandas as pd
 from computation_classes import CurveFittingResult
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
@@ -32,7 +32,7 @@ class ScrapedZwiftDataRepository:
         self.dict_of_zwiftprofileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
         self.dict_of_zwiftracingappprofileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
         self.dict_of_zwiftpowerprofileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
-        self.dict_of_jghbestpoweritem: defaultdict[str, JghBestPowerItem] = field(default_factory=lambda: defaultdict(JghBestPowerItem))
+        self.dict_of_jghbestpoweritem: defaultdict[str, ZsunBestPowerItem] = field(default_factory=lambda: defaultdict(ZsunBestPowerItem))
 
     def populate_repository(
         self,
@@ -302,8 +302,8 @@ class ScrapedZwiftDataRepository:
     def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftPowerProfileItem]:
         return self._get_dict_of_items(self.dict_of_zwiftpowerprofileitem, zwift_ids, ZwiftPowerProfileItem)
 
-    def get_dict_of_JghBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, JghBestPowerItem]:
-        return self._get_dict_of_items(self.dict_of_jghbestpoweritem, zwift_ids, JghBestPowerItem)
+    def get_dict_of_JghBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZsunBestPowerItem]:
+        return self._get_dict_of_items(self.dict_of_jghbestpoweritem, zwift_ids, ZsunBestPowerItem)
 
     def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResult]:
 

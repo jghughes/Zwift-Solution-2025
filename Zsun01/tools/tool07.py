@@ -32,8 +32,8 @@ def main():
 
     dict_of_zsun01_betel_zsunrideritems = read_dict_of_zsunrider_items(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    for zwiftID, jghbestpoweritem in dict_of_jghbestpoweritems_for_betel.items():
-        jghbestpoweritem.zwift_id = zwiftID
+    for zwiftID, ZsunBestPowerItem in dict_of_jghbestpoweritems_for_betel.items():
+        ZsunBestPowerItem.zwift_id = zwiftID
         if zwiftID in dict_of_zsun01_betel_zsunrideritems:
             pass
         else:
@@ -48,13 +48,13 @@ def main():
 
     # log all the x and y data for all riders in pretty tables
 
-    for zwiftID, jghbestpoweritem in dict_of_jghbestpoweritems_for_betel.items():
+    for zwiftID, ZsunBestPowerItem in dict_of_jghbestpoweritems_for_betel.items():
         name = dict_of_zsun01_betel_zsunrideritems[zwiftID].name
-        x_y_ordinates = jghbestpoweritem.export_all_x_y_ordinates()  # Export critical power data as a dictionary
+        x_y_ordinates = ZsunBestPowerItem.export_all_x_y_ordinates()  # Export critical power data as a dictionary
         table_data = [[x, y] for x, y in x_y_ordinates.items()]  # Convert dictionary to a list of [x, y] pairs
         table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
 
-        logger.info(f"JghBestPowerItem ordinates for ZwiftID: {zwiftID}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
+        logger.info(f"ZsunBestPowerItem ordinates for ZwiftID: {zwiftID}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
 
     # segue: get a hold off ordinates for MarkB
 

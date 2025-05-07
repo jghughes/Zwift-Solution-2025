@@ -3,7 +3,7 @@ from typing import Optional
 
 
 # this class is only intended for export of data prepared by JGH 
-class JghBestPowerDTO(BaseModel):
+class ZsunBestPowerDTO(BaseModel):
     """
     A data transfer object representing a Zwift rider's critical power data - derived from the data recorded on ZwiftPower.
     """

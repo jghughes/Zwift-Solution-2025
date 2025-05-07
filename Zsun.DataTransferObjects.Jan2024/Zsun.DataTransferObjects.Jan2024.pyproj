@@ -36,7 +36,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
-    <Compile Include="src\jgh_bestpower_dto.py" />
+    <Compile Include="src\zsun_bestpower_dto.py" />
     <Compile Include="src\zwiftpower_bestpower_dto.py" />
     <Compile Include="src\zwiftpower_profile_dto.py" />
     <Compile Include="src\zwiftracingapp_profile_dto.py" />

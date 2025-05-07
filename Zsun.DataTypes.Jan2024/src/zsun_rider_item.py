@@ -22,6 +22,7 @@ class ZsunRiderItem:
     zwift_ftp                  : float = 0.0   # Originates in Zwift profile
     zwiftpower_zftp            : float = 0.0   # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
+    zsun_ftp                   : float = 0.0     #Calculated by JGH
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
     zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
@@ -29,15 +30,15 @@ class ZsunRiderItem:
     zwiftracingapp_cat_name     : str   = ""    # Copper, Silver, Gold etc
     zwiftracingapp_cp           : float = 0.0   # Critical power in watts
     zwiftracingapp_awc          : float = 0.0   # Anaerobic work capacity in kilojoules
-    jgh_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
-    jgh_ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
-    jgh_ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
-    jgh_ftp_curve_fit_r_squared : float = 0.0   # R-squared value for the curve fit of the FTP data
-    jgh_pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
-    jgh_pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
-    jgh_when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
-    jgh_cp                     : float = 0.0   # Critical power in watts
-    jgh_w_prime                : float = 0.0   # Critical power W' in kilojoules
+    zsun_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
+    zsun_ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
+    zsun_ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
+    zsun_ftp_curve_fit_r_squared : float = 0.0   # R-squared value for the curve fit of the FTP data
+    zsun_pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
+    zsun_pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
+    zsun_when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
+    zsun_cp                     : float = 0.0   # Critical power in watts
+    zsun_w_prime                : float = 0.0   # Critical power W' in kilojoules
 
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders
@@ -213,32 +214,32 @@ class ZsunRiderItem:
         return round(speed_kph, 3)
 
     def get_critical_power_watts(self) -> float:
-        return self.jgh_cp
+        return self.zsun_cp
 
     def get_anaerobic_work_capacity_kj(self) -> float:
-        return self.jgh_w_prime / 1_000.0
+        return self.zsun_w_prime / 1_000.0
 
     def get_30sec_pull_watts(self) -> float:
 
-        pull_short = decay_model_numpy(np.array([300]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        pull_short = decay_model_numpy(np.array([300]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
 
-        answer =  pull_short[0] + self.jgh_pull_adjustment_watts
+        answer =  pull_short[0] + self.zsun_pull_adjustment_watts
 
         return answer
 
     def get_1_minute_pull_watts(self) -> float:
 
-        pull_medium = decay_model_numpy(np.array([600]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        pull_medium = decay_model_numpy(np.array([600]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
 
-        answer =  pull_medium[0] + self.jgh_pull_adjustment_watts
+        answer =  pull_medium[0] + self.zsun_pull_adjustment_watts
 
         return answer
 
     def get_2_minute_pull_watts(self) -> float:
 
-        pull_long = decay_model_numpy(np.array([1200]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([1200]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
 
-        answer =  pull_long[0] + self.jgh_pull_adjustment_watts
+        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
 
         return answer
 
@@ -246,31 +247,31 @@ class ZsunRiderItem:
 
         # same as 2 minute because this is for beasts who can withstand more time at the front 
         # at the same power
-        pull_long = decay_model_numpy(np.array([1500]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([1500]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
 
-        answer =  pull_long[0] + self.jgh_pull_adjustment_watts
+        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
 
         return answer
 
     def get_5_minute_pull_watts(self) -> float:
-        pull_long = decay_model_numpy(np.array([1800]), self.jgh_pull_curve_coefficient, self.jgh_pull_curve_exponent)
-        answer =  pull_long[0] + self.jgh_pull_adjustment_watts
+        pull_long = decay_model_numpy(np.array([1800]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
         return answer
 
     def get_ftp_60_minute_watts(self) -> float:
 
-        ftp = decay_model_numpy(np.array([3_600]), self.jgh_ftp_curve_coefficient, self.jgh_ftp_curve_exponent)
+        ftp = decay_model_numpy(np.array([3_600]), self.zsun_ftp_curve_coefficient, self.zsun_ftp_curve_exponent)
 
         answer =  ftp[0]
 
         return answer
 
     def get_n_second_watts(self, seconds: float) -> float:
-        power = decay_model_numpy(np.array([seconds]), self.jgh_ftp_curve_coefficient, self.jgh_ftp_curve_exponent)
+        power = decay_model_numpy(np.array([seconds]), self.zsun_ftp_curve_coefficient, self.zsun_ftp_curve_exponent)
         return power[0]
 
     def get_when_models_fitted(self) -> str:
-        return self.jgh_when_curves_fitted
+        return self.zsun_when_curves_fitted
 
     @staticmethod
     def to_dataTransferObject(item: Optional["ZsunRiderItem"]) -> ZsunRiderDTO:
@@ -287,6 +288,7 @@ class ZsunRiderItem:
             zwift_ftp                  = item.zwift_ftp,
             zwiftpower_zftp            = item.zwiftpower_zftp,
             zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
+            zsun_ftp                   = item.get_ftp_60_minute_watts(),
             zwift_zrs                  = item.zwift_zrs,
             zwift_cat                  = item.zwift_cat,
             zwiftracingapp_score                  = item.zwiftracingapp_score,
@@ -294,15 +296,15 @@ class ZsunRiderItem:
             zwiftracingapp_cat_name               = item.zwiftracingapp_cat_name,
             zwiftracingapp_cp                     = item.zwiftracingapp_cp,
             zwiftracingapp_awc                    = item.zwiftracingapp_awc,
-            jgh_pull_adjustment_watts  = item.jgh_pull_adjustment_watts,
-            jgh_ftp_curve_coefficient  = item.jgh_ftp_curve_coefficient,
-            jgh_ftp_curve_exponent     = item.jgh_ftp_curve_exponent,
-            jgh_ftp_curve_fit_r_squared= item.jgh_ftp_curve_fit_r_squared,
-            jgh_pull_curve_coefficient = item.jgh_pull_curve_coefficient,
-            jgh_pull_curve_exponent    = item.jgh_pull_curve_exponent,
-            jgh_cp                     = item.jgh_cp,
-            jgh_w_prime                = item.jgh_w_prime,
-            jgh_when_curves_fitted     = item.jgh_when_curves_fitted
+            zsun_pull_adjustment_watts  = item.zsun_pull_adjustment_watts,
+            zsun_ftp_curve_coefficient  = item.zsun_ftp_curve_coefficient,
+            zsun_ftp_curve_exponent     = item.zsun_ftp_curve_exponent,
+            zsun_ftp_curve_fit_r_squared= item.zsun_ftp_curve_fit_r_squared,
+            zsun_pull_curve_coefficient = item.zsun_pull_curve_coefficient,
+            zsun_pull_curve_exponent    = item.zsun_pull_curve_exponent,
+            zsun_cp                     = item.zsun_cp,
+            zsun_w_prime                = item.zsun_w_prime,
+            zsun_when_curves_fitted     = item.zsun_when_curves_fitted,
         )
 
 
@@ -321,6 +323,7 @@ class ZsunRiderItem:
             zwift_ftp                  = dto.zwift_ftp or 0.0,
             zwiftpower_zftp            = dto.zwiftpower_zftp or 0.0,
             zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
+            zsun_ftp                    = dto.zsun_ftp or 0.0,
             zwift_zrs                  = dto.zwift_zrs or 0.0,
             zwift_cat                  = dto.zwift_cat or "",
             zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
@@ -328,15 +331,15 @@ class ZsunRiderItem:
             zwiftracingapp_cat_name    = dto.zwiftracingapp_cat_name or "",
             zwiftracingapp_cp          = dto.zwiftracingapp_cp or 0.0,
             zwiftracingapp_awc         = dto.zwiftracingapp_awc or 0.0,
-            jgh_pull_adjustment_watts  = dto.jgh_pull_adjustment_watts or 0.0,
-            jgh_ftp_curve_coefficient  = dto.jgh_ftp_curve_coefficient or 0.0,
-            jgh_ftp_curve_exponent     = dto.jgh_ftp_curve_exponent or 0.0,
-            jgh_ftp_curve_fit_r_squared= dto.jgh_ftp_curve_fit_r_squared or 0.0,
-            jgh_pull_curve_coefficient = dto.jgh_pull_curve_coefficient or 0.0,
-            jgh_pull_curve_exponent    = dto.jgh_pull_curve_exponent or 0.0,
-            jgh_cp                     = dto.jgh_cp or 0.0,
-            jgh_w_prime                = dto.jgh_w_prime or 0.0,
-            jgh_when_curves_fitted     = dto.jgh_when_curves_fitted or "",
+            zsun_pull_adjustment_watts  = dto.zsun_pull_adjustment_watts or 0.0,
+            zsun_ftp_curve_coefficient  = dto.zsun_ftp_curve_coefficient or 0.0,
+            zsun_ftp_curve_exponent     = dto.zsun_ftp_curve_exponent or 0.0,
+            zsun_ftp_curve_fit_r_squared= dto.zsun_ftp_curve_fit_r_squared or 0.0,
+            zsun_pull_curve_coefficient = dto.zsun_pull_curve_coefficient or 0.0,
+            zsun_pull_curve_exponent    = dto.zsun_pull_curve_exponent or 0.0,
+            zsun_cp                     = dto.zsun_cp or 0.0,
+            zsun_w_prime                = dto.zsun_w_prime or 0.0,
+            zsun_when_curves_fitted     = dto.zsun_when_curves_fitted or "",
         )
 
 
