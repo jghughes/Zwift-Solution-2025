@@ -40,7 +40,7 @@ def main():
 
     # choose a rider to model
 
-    zwiftID = joshn
+    zwiftID = johnh
 
 
     ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_rider_profiles.json"
@@ -103,8 +103,8 @@ def main():
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"One hour power zone (W) = {round(pi.get_ftp_60_minute_watts())}"
-    # summary_ftp = f"One hour power zone (W) = {round(pi.get_ftp_60_minute_watts())}  [r^2 = {round(r_squared_60min, 2)}]"
+    summary_ftp = f"One hour power zone (W) = {round(pi.get_one_hour_watts())}"
+    # summary_ftp = f"One hour power zone (W) = {round(pi.get_one_hour_watts())}  [r^2 = {round(r_squared_60min, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 

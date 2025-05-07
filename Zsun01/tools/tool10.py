@@ -75,8 +75,9 @@ def main():
             age_years                  = zwift.age_years,
             agegroup                   = zwiftracingapp.agegroup,
             zwift_ftp                  = round(zwift.ftp),
-            zwiftpower_zftp            = round(zwiftpower.zftp),
+            zwiftpower_zFTP            = round(zwiftpower.zftp),
             zwiftracingapp_zpFTP       = round(zwiftracingapp.zp_FTP),
+            zsun_one_hour_watts=
             zwift_zrs                  = round(zwift.competitionMetrics.racingScore),
             zwift_cat                  = zwift.competitionMetrics.category,
             zwiftracingapp_score        = round(zwiftracingapp.raceitem.max90.rating),

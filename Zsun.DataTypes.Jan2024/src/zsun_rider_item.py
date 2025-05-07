@@ -20,9 +20,9 @@ class ZsunRiderItem:
     age_years                  : float = 0.0   # Age of the rider in years
     agegroup                   : str   = ""    # Age group of the rider
     zwift_ftp                  : float = 0.0   # Originates in Zwift profile
-    zwiftpower_zftp            : float = 0.0   # Originates in Zwiftpower profile
+    zwiftpower_zFTP            : float = 0.0   # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
-    zsun_ftp                   : float = 0.0     #Calculated by JGH
+    zsun_one_hour_watts                   : float = 0.0     #Calculated by JGH
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
     zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
@@ -49,7 +49,7 @@ class ZsunRiderItem:
                 "weight_kg": 73.4,
                 "height_cm": 182,
                 "gender": "m",
-                "zwiftpower_zftp": 276,
+                "zwiftpower_zFTP": 276,
                 "zwift_zrs": 744,
                 "zwiftracingapp_cat_num": 1897,
             },
@@ -59,7 +59,7 @@ class ZsunRiderItem:
                 "weight_kg": 75.5,
                 "height_cm": 178,
                 "gender": "m",
-                "zwiftpower_zftp": 268,
+                "zwiftpower_zFTP": 268,
                 "zwift_zrs": 552,
                 "zwiftracingapp_cat_num": 1519,
             },
@@ -69,7 +69,7 @@ class ZsunRiderItem:
                 "weight_kg": 78,
                 "height_cm": 165,
                 "gender": "m",
-                "zwiftpower_zftp": 247,
+                "zwiftpower_zFTP": 247,
                 "zwift_zrs": 509,
                 "zwiftracingapp_cat_num": 1537,
             },
@@ -79,7 +79,7 @@ class ZsunRiderItem:
                 "weight_kg": 75.4,
                 "height_cm": 174,
                 "gender": "m",
-                "zwiftpower_zftp": 233,
+                "zwiftpower_zFTP": 233,
                 "zwift_zrs": 351,
                 "zwiftracingapp_cat_num": 1067,
             },
@@ -89,7 +89,7 @@ class ZsunRiderItem:
                 "weight_kg": 101,
                 "height_cm": 178,
                 "gender": "m",
-                "zwiftpower_zftp": 260,
+                "zwiftpower_zFTP": 260,
                 "zwift_zrs": 285,
                 "zwiftracingapp_cat_num": 942,
             },
@@ -97,7 +97,7 @@ class ZsunRiderItem:
 
     @staticmethod
     def create(zwiftid: str, name: str, weight_kg: float, height_cm: float, gender: str, 
-        zwiftpower_zftp: float, zwift_zrs: int, zwiftracingapp_cat_num: int
+        zwiftpower_zFTP: float, zwift_zrs: int, zwiftracingapp_cat_num: int
     ) -> 'ZsunRiderItem':
         """
         Create a ZsunRiderItem instance with the given parameters
@@ -108,7 +108,7 @@ class ZsunRiderItem:
             weight_kg             (float): The weight_kg of the rider in kilograms.
             height_cm             (float): The height_cm of the rider in centimeters.
             gender             (Gender): The gender of the rider.
-            zwiftpower_zftp                (float): Functional Threshold Power in watts.
+            zwiftpower_zFTP                (float): Functional Threshold Power in watts.
             zwift_zrs (int)  : Zwift racing score.
             zwiftracingapp_cat_num        (int)  : Velo rating.
     
@@ -122,7 +122,7 @@ class ZsunRiderItem:
             weight_kg=weight_kg,
             height_cm=height_cm,
             gender=gender,
-            zwiftpower_zftp=zwiftpower_zftp,
+            zwiftpower_zFTP=zwiftpower_zFTP,
             zwift_zrs=zwift_zrs,
             zwiftracingapp_cat_num=zwiftracingapp_cat_num
         )
@@ -258,7 +258,7 @@ class ZsunRiderItem:
         answer =  pull_long[0] + self.zsun_pull_adjustment_watts
         return answer
 
-    def get_ftp_60_minute_watts(self) -> float:
+    def get_one_hour_watts(self) -> float:
 
         ftp = decay_model_numpy(np.array([3_600]), self.zsun_ftp_curve_coefficient, self.zsun_ftp_curve_exponent)
 
@@ -286,9 +286,9 @@ class ZsunRiderItem:
             age_years                  = item.age_years,
             agegroup                   = item.agegroup,
             zwift_ftp                  = item.zwift_ftp,
-            zwiftpower_zftp            = item.zwiftpower_zftp,
+            zwiftpower_zFTP            = item.zwiftpower_zFTP,
             zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
-            zsun_ftp                   = item.get_ftp_60_minute_watts(),
+            zsun_one_hour_watts                   = item.get_one_hour_watts(),
             zwift_zrs                  = item.zwift_zrs,
             zwift_cat                  = item.zwift_cat,
             zwiftracingapp_score                  = item.zwiftracingapp_score,
@@ -321,9 +321,9 @@ class ZsunRiderItem:
             age_years                  = dto.age_years or 0.0,
             agegroup                   = dto.agegroup or "",
             zwift_ftp                  = dto.zwift_ftp or 0.0,
-            zwiftpower_zftp            = dto.zwiftpower_zftp or 0.0,
+            zwiftpower_zFTP            = dto.zwiftpower_zFTP or 0.0,
             zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
-            zsun_ftp                    = dto.zsun_ftp or 0.0,
+            zsun_one_hour_watts                    = dto.zsun_one_hour_watts or 0.0,
             zwift_zrs                  = dto.zwift_zrs or 0.0,
             zwift_cat                  = dto.zwift_cat or "",
             zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
@@ -408,21 +408,21 @@ def main():
 
     # example : using rider "John H" instantiated using ctor (no cache)
     # calculate speed for each position in the peloton from 1 to 5
-    # at a given wattage (zwiftpower_zftp=233) and tabulate neatly and log it.
+    # at a given wattage (zwiftpower_zFTP=233) and tabulate neatly and log it.
     rider_john = ZsunRiderItem(
-        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zwiftpower_zftp=rider1.zwiftpower_zftp, gender=rider1.gender, zwiftracingapp_cat_num=rider1.zwiftracingapp_cat_num)
+        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zwiftpower_zFTP=rider1.zwiftpower_zFTP, gender=rider1.gender, zwiftracingapp_cat_num=rider1.zwiftracingapp_cat_num)
 
     positions = range(1, 6)
     table: List[List[Union[str, float]]] = []
-    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zwiftpower_zftp}"]
+    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zwiftpower_zFTP}"]
 
     for position in positions:
         # Calculate the speed for the given position and FTP
-        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zwiftpower_zftp, position)
+        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zwiftpower_zFTP, position)
         table.append([position, speed])
 
     # Log the table
-    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zwiftpower_zftp}")
+    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zwiftpower_zFTP}")
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
 

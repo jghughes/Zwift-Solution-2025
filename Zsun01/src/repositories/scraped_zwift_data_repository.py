@@ -399,7 +399,7 @@ class ScrapedZwiftDataRepository:
                 age_years                  = zwiftItem.age_years,
                 agegroup                   = zwiftracingappItem.agegroup,
                 zwift_ftp                  = round(zwiftItem.ftp),
-                zwiftpower_zftp            = round(zwiftpowerItem.zftp),
+                zwiftpower_zFTP            = round(zwiftpowerItem.zftp),
                 zwiftracingapp_zpFTP       = round(zwiftracingappItem.zp_FTP),
                 zwift_zrs                  = round(zwiftItem.competitionMetrics.racingScore),
                 zwift_cat                  = zwiftItem.competitionMetrics.category,

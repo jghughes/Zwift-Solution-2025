@@ -23,9 +23,9 @@ class ZsunRiderDTO(BaseModel):
     age_years                  : Optional[float] = 0.0    # Age of the rider in years
     agegroup                   : Optional[str]   = ""    # Age group of the rider
     zwift_ftp                  : Optional[float]  = 0.0    # Originates in Zwift profile
-    zwiftpower_zftp            : Optional[float] = 0.0    # Originates in Zwiftpower profile
+    zwiftpower_zFTP            : Optional[float] = 0.0    # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP       : Optional[float] = 0.0    #Originates in Zwiftracingapp profile
-    zsun_ftp                   : Optional[float] = 0.0    # Calculated by JGH
+    zsun_one_hour_watts                   : Optional[float] = 0.0    # Calculated by JGH
     zwift_zrs                  : Optional[float] = 0.0    # Zwift racing score
     zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
     zwiftracingapp_score        : Optional[float] = 0.0   # Velo score typically over 1000
@@ -54,7 +54,7 @@ def main02():
         "weight_kg": 70.5,
         "height_cm": 180,
         "gender": "m",
-        "zwiftpower_zftp": null,
+        "zwiftpower_zFTP": null,
     }
     '''
     data = json.loads(input_json)

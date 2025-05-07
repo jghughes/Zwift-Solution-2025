@@ -7,6 +7,9 @@ from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from jgh_sanitise_string import cleanup_name_string
 from handy_utilities import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
+import numpy as np
+from jgh_power_curve_fit_models import decay_model_numpy
+
 
 
 import logging
@@ -27,7 +30,7 @@ def main():
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
     repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     zwift_ids = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
-    jgh_curve_dict = repository.get_dict_of_CurveFittingResult(None)
+    dict_of_curve_fits = repository.get_dict_of_CurveFittingResult(None)
 
     logger.info(f"Imported {len(repository.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
@@ -52,12 +55,18 @@ def main():
         zwift = repository.dict_of_zwiftprofileitem[key]
         zwiftpower = repository.dict_of_zwiftpowerprofileitem[key]
         zwiftracingapp = repository.dict_of_zwiftracingappprofileitem[key]
-        jgh = jgh_curve_dict[key]
 
         if key in repository.dict_of_zwiftracingappprofileitem:
             name = repository.dict_of_zwiftracingappprofileitem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
         else:
             name = f"{zwift.first_name} {zwift.last_name}"
+
+        zsun_curve_fit = dict_of_curve_fits[key]
+
+        p60 = decay_model_numpy(np.array([3_600]), zsun_curve_fit.ftp_curve_coefficient, zsun_curve_fit.ftp_curve_exponent)
+
+        one_hour_watts =  p60[0]
+
 
         zwift = ZsunRiderItem(
             zwift_id                   = zwift.zwift_id,
@@ -68,8 +77,9 @@ def main():
             age_years                  = zwift.age_years,
             agegroup                   = zwiftracingapp.agegroup,
             zwift_ftp                  = round(zwift.ftp),
-            zwiftpower_zftp            = round(zwiftpower.zftp),
+            zwiftpower_zFTP            = round(zwiftpower.zftp),
             zwiftracingapp_zpFTP       = round(zwiftracingapp.zp_FTP),
+            zsun_one_hour_watts         = round(one_hour_watts),
             zwift_zrs                  = round(zwift.competitionMetrics.racingScore),
             zwift_cat                  = zwift.competitionMetrics.category,
             zwiftracingapp_score        = round(zwiftracingapp.raceitem.max90.rating),
@@ -78,13 +88,13 @@ def main():
             zwiftracingapp_cp           = round(zwiftracingapp.poweritem.CP),
             zwiftracingapp_awc          = round(zwiftracingapp.poweritem.AWC/1000.0),
             zsun_pull_adjustment_watts  = 0.0,
-            zsun_ftp_curve_coefficient  = jgh.ftp_curve_coefficient,
-            zsun_ftp_curve_exponent     = jgh.ftp_curve_exponent,
-            zsun_pull_curve_coefficient = jgh.pull_curve_coefficient,
-            zsun_pull_curve_exponent    = jgh.pull_curve_exponent,
-            zsun_cp                     = jgh.cp,
-            zsun_w_prime                = jgh.w_prime,
-            zsun_when_curves_fitted     = jgh.when_curves_fitted,
+            zsun_ftp_curve_coefficient  = zsun_curve_fit.ftp_curve_coefficient,
+            zsun_ftp_curve_exponent     = zsun_curve_fit.ftp_curve_exponent,
+            zsun_pull_curve_coefficient = zsun_curve_fit.pull_curve_coefficient,
+            zsun_pull_curve_exponent    = zsun_curve_fit.pull_curve_exponent,
+            zsun_cp                     = zsun_curve_fit.cp,
+            zsun_w_prime                = zsun_curve_fit.w_prime,
+            zsun_when_curves_fitted     = zsun_curve_fit.when_curves_fitted,
         )
         answer_dict[key] = zwift
 
