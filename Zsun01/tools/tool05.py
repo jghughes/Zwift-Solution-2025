@@ -36,6 +36,12 @@ def main():
     melissa_warwick = "1657744" #ftp 213
     brandi_steeve = "991817" #ftp 196
     selena = "2682791" #ftp 214
+    steve_seiler = "6142432" #ftp 270
+
+    # choose a rider to model
+
+    zwiftID = joshn
+
 
     ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_rider_profiles.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -51,10 +57,6 @@ def main():
     betel_IDs = get_betel_zwift_ids()
 
     dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
-
-    # choose a rider to model
-
-    zwiftID = markb
 
     # model critical_power and w_prime
 
@@ -92,15 +94,17 @@ def main():
 
     # log pretty summaries
 
-    summary_cp_w_prime  =  f"Critical Power = {round(pi.get_critical_power_watts())}W  Anaerobic Work Capacity = {round(pi.get_anaerobic_work_capacity_kj(), 1)}kJ"
+    summary_cp_w_prime  =  f"Critical Power (W) = {round(pi.get_critical_power_watts())}  Anaerobic Work Capacity = {round(pi.get_anaerobic_work_capacity_kj(), 1)}kJ"
 
     logger.info(f"\n{summary_cp_w_prime}")
 
-    summary_pull = f"Pull power (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}W  [r-squared {round(r_squared_pull, 2)}]"
+    summary_pull = f"TTT pull power (W) (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}"
+    # summary_pull = f"TTT pull power (W) (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}  [r^2 = {round(r_squared_pull, 2)}]"
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"One hour power = {round(pi.get_ftp_60_minute_watts())}W  [r-squared {round(r_squared_60min, 2)}]"
+    summary_ftp = f"One hour power zone (W) = {round(pi.get_ftp_60_minute_watts())}"
+    # summary_ftp = f"One hour power zone (W) = {round(pi.get_ftp_60_minute_watts())}  [r^2 = {round(r_squared_60min, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 
@@ -125,10 +129,10 @@ def main():
     lim_y = max_y * 1.05
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata_cp, ydata_cp, color='grey', label='anaerobic power range')
-    plt.scatter(xdata_pull, ydata_pull, color='orange', label='TTT pull power range')
-    plt.scatter(xdata_ftp, ydata_ftp, color='black', label='one hour power range')
-    plt.plot(xdata_cp, ydata_pred_cp, color='red', label=summary_cp_w_prime)
+    plt.scatter(xdata_cp, ydata_cp, color='grey', label='anaerobic power zone')
+    plt.scatter(xdata_pull, ydata_pull, color='orange', label='TTT pull power curve fit')
+    plt.scatter(xdata_ftp, ydata_ftp, color='black', label='one hour power curve fit')
+    # plt.plot(xdata_cp, ydata_pred_cp, color='red', label=summary_cp_w_prime)
     plt.plot(xdata_pull, ydata_pred_pull, color='blue', label=summary_pull)
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
     plt.xlabel('Duration (minutes)')
