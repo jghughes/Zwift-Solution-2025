@@ -1,12 +1,15 @@
 # load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Any
 import pandas as pd
-from zsun_rider_item import ZsunRiderItem
 from dataclasses import asdict
+
+from pytz import country_names
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from handy_utilities import *
 from jgh_serialization import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
+import numpy as np
+from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -21,15 +24,17 @@ class DummyItem:
     name                       : str   = ""    # Name of the rider
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
-    curve_fit_ftp    : float = 0.0
+    country                    : str   = ""    # Country of the rider
+    curve_fit_ftp              : float = 0.0
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
-    delta                 : float = 0.0   # Difference between Zwift FTP and JGH FTP
-    percent               : float = 0.0   # Percentage difference between Zwift FTP and JGH FTP
+    delta                      : float = 0.0   # Difference between zwiftracingapp_zpFTP and curve_fit_ftp
+    percent                    : float = 0.0   # Percentage difference between zwiftracingapp_zpFTP and curve_fit_ftp
+    value_of_curve_x_for_zwiftracingapp_zpFTP_y : float = 0.0   # The x value of the curve fit for the y value of zwiftracingapp_zpFTP
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
-    zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
-    zwiftracingapp_cat_num      : int   = 0     # Velo rating 1 to 10
-    zwiftracingapp_cat_name     : str   = ""    # Copper, Silver, Gold etc
+    zwiftracingapp_score       : float = 0.0   # Velo score typically over 1000
+    zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
+    zwiftracingapp_cat_name    : str   = ""    # Copper, Silver, Gold etc
 
 def main():
     
@@ -39,10 +44,13 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = None
+    # betel_IDs = get_betel_IDs()
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
     repository.populate_repository(betel_IDs, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    dict_of_curve_fits = repository.get_dict_of_CurveFittingResult(betel_IDs)
+    dict_of_zwift_profiles = repository.get_dict_of_ZwiftProfileItem(betel_IDs)
 
     comparative_FTPs : list[DummyItem] = list()
 
@@ -53,22 +61,26 @@ def main():
             continue
         delta = round(y_pred - y_actual)
         percent = abs(round(((y_pred - y_actual) * 100) / y_actual))
-        logger.info(f"zpFTP/jgh: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%)")
+        curve = dict_of_curve_fits[zsunriderItem.zwift_id]
+        curve_x_ordinate = solve_decay_model_for_x_numpy(curve.one_hour_curve_coefficient, curve.one_hour_curve_exponent, np.array([y_actual]))
+        logger.info(f"zpFTP/Zsun one-hour: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {zsunriderItem.name}")
 
         item = DummyItem(
-            zwift_id=zsunriderItem.zwift_id,
-            name=zsunriderItem.name,
-            gender=zsunriderItem.gender,
-            age_years=zsunriderItem.age_years,
-            curve_fit_ftp=y_pred,
-            zwiftracingapp_zpFTP= y_actual,
-            delta=delta,
-            percent=percent,
-            zwift_zrs=zsunriderItem.zwift_zrs,
-            zwift_cat=zsunriderItem.zwift_cat,
-            zwiftracingapp_score=zsunriderItem.zwiftracingapp_score,
-            zwiftracingapp_cat_num=zsunriderItem.zwiftracingapp_cat_num,
-            zwiftracingapp_cat_name=zsunriderItem.zwiftracingapp_cat_name
+            zwift_id                                = zsunriderItem.zwift_id,
+            name                                    = zsunriderItem.name,
+            gender                                  = zsunriderItem.gender,
+            age_years                               = zsunriderItem.age_years,
+            country                                 = dict_of_zwift_profiles[zsunriderItem.zwift_id].c
+            curve_fit_ftp                           = y_pred,
+            zwiftracingapp_zpFTP                    = y_actual,
+            delta                                   = delta,
+            percent                                 = percent,
+            value_of_curve_x_for_zwiftracingapp_zpFTP_y = round(curve_x_ordinate[0] / 60),
+            zwift_zrs                               = zsunriderItem.zwift_zrs,
+            zwift_cat                               = zsunriderItem.zwift_cat,
+            zwiftracingapp_score                    = zsunriderItem.zwiftracingapp_score,
+            zwiftracingapp_cat_num                  = zsunriderItem.zwiftracingapp_cat_num,
+            zwiftracingapp_cat_name                 = zsunriderItem.zwiftracingapp_cat_name
         )
         comparative_FTPs.append(item)
 

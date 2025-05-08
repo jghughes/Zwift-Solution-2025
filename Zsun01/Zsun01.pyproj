@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tools\tool05.py</StartupFile>
+    <StartupFile>tools\tool11.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />
-    <Content Include="data\betel_zwift_ids.json" />
+    <Content Include="data\betel_IDs.json" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">

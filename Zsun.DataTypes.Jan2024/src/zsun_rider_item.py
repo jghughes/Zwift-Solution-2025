@@ -32,7 +32,6 @@ class ZsunRiderItem:
     zwiftracingapp_cat_name           : str   = ""    # Copper, Silver, Gold etc
     zwiftracingapp_CP                 : float = 0.0   # Critical power in watts
     zwiftracingapp_AWC                : float = 0.0   # Anaerobic work capacity in kilojoules
-    zsun_pull_adjustment_watts        : float = 0.0   # Adjustment watts for pulling
     zsun_one_hour_curve_coefficient   : float = 0.0   # Coefficient for FTP modeling
     zsun_one_hour_curve_exponent      : float = 0.0   # Exponent for FTP modeling
     zsun_TTT_pull_curve_coefficient   : float = 0.0   # Coefficient for pull modeling
@@ -223,7 +222,7 @@ class ZsunRiderItem:
 
         pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
-        answer =  pull_short[0] + self.zsun_pull_adjustment_watts
+        answer =  pull_short[0]
 
         return answer
 
@@ -231,7 +230,7 @@ class ZsunRiderItem:
 
         pull_medium = decay_model_numpy(np.array([300]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
-        answer =  pull_medium[0] + self.zsun_pull_adjustment_watts
+        answer =  pull_medium[0]
 
         return answer
 
@@ -239,7 +238,7 @@ class ZsunRiderItem:
 
         pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
-        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
+        answer =  pull_long[0]
 
         return answer
 
@@ -249,13 +248,13 @@ class ZsunRiderItem:
         # at the same power
         pull_long = decay_model_numpy(np.array([1500]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
-        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
+        answer =  pull_long[0]
 
         return answer
 
     def get_5_minute_pull_watts(self) -> float:
         pull_long = decay_model_numpy(np.array([1800]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-        answer =  pull_long[0] + self.zsun_pull_adjustment_watts
+        answer =  pull_long[0]
         return answer
 
     def get_one_hour_watts(self) -> float:
@@ -298,7 +297,6 @@ class ZsunRiderItem:
             zwiftracingapp_cat_name           = item.zwiftracingapp_cat_name,
             zwiftracingapp_CP                 = item.zwiftracingapp_CP,
             zwiftracingapp_AWC                = item.zwiftracingapp_AWC,
-            zsun_pull_adjustment_watts        = item.zsun_pull_adjustment_watts,
             zsun_one_hour_curve_coefficient   = item.zsun_one_hour_curve_coefficient,
             zsun_one_hour_curve_exponent      = item.zsun_one_hour_curve_exponent,
             zsun_TTT_pull_curve_coefficient   = item.zsun_TTT_pull_curve_coefficient,
@@ -333,7 +331,6 @@ class ZsunRiderItem:
             zwiftracingapp_cat_name           = dto.zwiftracingapp_cat_name or "",
             zwiftracingapp_CP                 = dto.zwiftracingapp_CP or 0.0,
             zwiftracingapp_AWC                = dto.zwiftracingapp_AWC or 0.0,
-            zsun_pull_adjustment_watts        = dto.zsun_pull_adjustment_watts or 0.0,
             zsun_one_hour_curve_coefficient   = dto.zsun_one_hour_curve_coefficient or 0.0,
             zsun_one_hour_curve_exponent      = dto.zsun_one_hour_curve_exponent or 0.0,
             zsun_TTT_pull_curve_coefficient   = dto.zsun_TTT_pull_curve_coefficient or 0.0,

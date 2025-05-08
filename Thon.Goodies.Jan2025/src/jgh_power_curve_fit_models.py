@@ -50,3 +50,6 @@ def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray
 
     return result
 
+def solve_decay_model_for_x_numpy(a : float, b : float, ydata: NDArray[np.float64]) -> NDArray[np.float64]:
+    return (a / ydata) ** (1 / b)
+

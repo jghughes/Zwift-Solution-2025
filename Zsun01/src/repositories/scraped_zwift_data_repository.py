@@ -411,7 +411,6 @@ class ScrapedZwiftDataRepository:
                 zwiftracingapp_cat_name           = zwiftracingappItem.raceitem.max90.mixed.category,
                 zwiftracingapp_CP                 = round(zwiftracingappItem.poweritem.CP),
                 zwiftracingapp_AWC                = round(zwiftracingappItem.poweritem.AWC / 1_000.0),
-                zsun_pull_adjustment_watts        = 0.0,
                 zsun_one_hour_curve_coefficient   = jghcurveItem.one_hour_curve_coefficient,
                 zsun_one_hour_curve_exponent      = jghcurveItem.one_hour_curve_exponent,
                 zsun_TTT_pull_curve_coefficient   = jghcurveItem.TTT_pull_curve_coefficient,

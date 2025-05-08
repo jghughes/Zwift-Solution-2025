@@ -24,7 +24,7 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = get_betel_IDs()
 
     dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH)
 

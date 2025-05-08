@@ -35,7 +35,6 @@ class ZsunRiderDTO(BaseModel):
     zwiftracingapp_cat_name          : Optional[str]   = ""    # Copper, Silver, Gold etc
     zwiftracingapp_CP                : Optional[float] = 0.0   # Critical power in watts
     zwiftracingapp_AWC               : Optional[float] = 0.0   # Anaerobic work capacity in kilojoules
-    zsun_pull_adjustment_watts       : Optional[float] = 0.0   # Adjustment watts for pulling
     zsun_one_hour_curve_coefficient  : Optional[float] = 0.0   # Coefficient for FTP modeling
     zsun_one_hour_curve_exponent     : Optional[float] = 0.0   # Exponent for FTP modeling
     zsun_TTT_pull_curve_coefficient  : Optional[float] = 0.0   # Coefficient for pull modeling

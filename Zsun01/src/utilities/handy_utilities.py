@@ -15,23 +15,18 @@ from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwift_profile_item import ZwiftProfileItem
 
-
-
 import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-def get_betel_zwift_ids() -> List[str]:
-    file_name = "betel_zwift_ids.json"
+def get_betel_IDs() -> List[str]:
+    file_name = "betel_IDs.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
     inputjson = read_text(dir_path, file_name)
-    xx = decode_json(inputjson)
-    logger.debug(f"Decoded {len(xx)} betel zwift ids from {file_name}")
-    logger.debug(f"Decoded betel zwift ids: {xx}")
-    # answer = JghSerialization.validate(inputjson, List[str])
-    answer = cast(List[str], xx)
+    anything = decode_json(inputjson)
+    answer = cast(List[str], anything)
     return answer
 
 def get_betel_zsunriderItem(id : str) -> ZsunRiderItem:
@@ -217,7 +212,7 @@ def main():
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
 
-    zsun_raw_cp_dict_for_betel = read_many_zwiftracingapp_profile_files_in_folder(get_betel_zwift_ids(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    zsun_raw_cp_dict_for_betel = read_many_zwiftracingapp_profile_files_in_folder(get_betel_IDs(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"

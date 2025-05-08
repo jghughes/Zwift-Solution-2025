@@ -1,6 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zsunriderItems, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_zsunbestpowerItems, get_betel_zwift_ids
+from handy_utilities import read_dict_of_zsunriderItems, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_zsunbestpowerItems, get_betel_IDs
 from jgh_sanitise_string import make_short_displayname
 
 def main():
@@ -32,7 +32,7 @@ def main():
 
     # do work
 
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = get_betel_IDs()
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 

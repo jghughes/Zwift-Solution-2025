@@ -3,7 +3,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunRiderItem
-from handy_utilities import read_dict_of_zsunriderItems, get_betel_zwift_ids, read_many_zwiftpower_bestpower_files_in_folder
+from handy_utilities import read_dict_of_zsunriderItems, get_betel_IDs, read_many_zwiftpower_bestpower_files_in_folder
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_ticks,set_y_axis_ticks
@@ -41,7 +41,7 @@ def main():
 
     # choose a rider to model
 
-    zwiftID = david_evanetich
+    zwiftID = johnh
 
     ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_ZsunRiderItems.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -54,7 +54,7 @@ def main():
 
     dict_of_zsun01_betel_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = get_betel_IDs()
 
     dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 

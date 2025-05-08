@@ -24,7 +24,7 @@ def main():
 
 
 
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = get_betel_IDs()
     # betel_IDs = ['4945836'] # david_evanetich
 
     dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH)

@@ -27,19 +27,15 @@ def main():
 
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
-
     repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-
+    eligible_IDs = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y") 
 
     logger.info(f"Imported {len(repository.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_zwiftpowerprofileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_jghbestpoweritem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
-
-    eligible_IDs = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y") 
-
-    betel_IDs = get_betel_zwift_ids()
+    betel_IDs = get_betel_IDs()
 
     # determine which betel ids not found in repository
     betel_ids_not_found = [betel_id for betel_id in betel_IDs if betel_id not in eligible_IDs]
@@ -47,13 +43,13 @@ def main():
     logger.info(f"Betel IDs not found in repository: {len(betel_ids_not_found)}\n{betel_ids_not_found}\n")
     logger.info(f"Betel IDs found in repository:{len(betel_ids_found)}\n {betel_ids_found}\n")
 
-    zwift_profiles = list(repository.get_dict_of_ZwiftProfileItem(betel_ids_found).values())
+    # zwift_profiles = list(repository.get_dict_of_ZwiftProfileItem(betel_ids_found).values())
 
-    profiles_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
-    df = pd.DataFrame(profiles_as_attr_dicts)
-    output_file_name = "betels_zwift_profiles.xlsx"
-    write_pandas_dataframe_as_xlsx(df, output_file_name, OUTPUT_DIRPATH)
-    logger.info(f"Saved {len(zwift_profiles)} candidate betels to: {OUTPUT_DIRPATH+output_file_name}")
+    # profiles_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
+    # df = pd.DataFrame(profiles_as_attr_dicts)
+    # output_file_name = "betels_zwift_profiles.xlsx"
+    # write_pandas_dataframe_as_xlsx(df, output_file_name, OUTPUT_DIRPATH)
+    # logger.info(f"Saved {len(zwift_profiles)} candidate betels to: {OUTPUT_DIRPATH+output_file_name}")
 
     answer_dict : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
 
@@ -95,7 +91,6 @@ def main():
             zwiftracingapp_cat_name           = zwiftracingapp.raceitem.max90.mixed.category,
             zwiftracingapp_CP                 = round(zwiftracingapp.poweritem.CP),
             zwiftracingapp_AWC                = round(zwiftracingapp.poweritem.AWC / 1_000.0),
-            zsun_pull_adjustment_watts        = 0.0,
             zsun_one_hour_curve_coefficient   = zsun_curve_fit.one_hour_curve_coefficient,
             zsun_one_hour_curve_exponent      = zsun_curve_fit.one_hour_curve_exponent,
             zsun_TTT_pull_curve_coefficient   = zsun_curve_fit.TTT_pull_curve_coefficient,
@@ -107,15 +102,14 @@ def main():
         answer_dict[key] = zwift
 
     df = pd.DataFrame([asdict(betel) for betel in answer_dict.values()])
-
     write_pandas_dataframe_as_xlsx(df,  "betels_for_copying_manually_into_ZSUN01.xlsx", OUTPUT_DIRPATH)
     write_json_file(JghSerialization.serialise(answer_dict), "betels_for_copying_manually_into_ZSUN01.json", OUTPUT_DIRPATH)
     logger.info(f"{len(answer_dict)} Betels saved to: {OUTPUT_DIRPATH} + betels_for_copying_manually_into_ZSUN01..")
 
-    jghbestpoweritems = list(repository.get_dict_of_JghBestPowerItem(betel_ids_found).values())
+    # jghbestpoweritems = list(repository.get_dict_of_JghBestPowerItem(betel_ids_found).values())
 
-    df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
-    write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)
+    # df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
+    # write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)
 
 
 
