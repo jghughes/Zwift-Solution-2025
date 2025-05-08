@@ -1,6 +1,6 @@
 import os
 from typing import Dict, cast, Optional, List
-from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder, raise_exception_if_invalid
+from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder, decode_json
 from jgh_serialization import JghSerialization
 from zsun_rider_dto import ZsunRiderDTO
 from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO
@@ -24,27 +24,24 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 def get_betel_zwift_ids() -> List[str]:
-    file_name = "betel_rider_profiles.json"
+    file_name = "betel_zwift_ids.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zsunrider_items(file_name, dir_path)
-    answer = [str(rider.zwift_id) for rider in riders.values()]
+    inputjson = read_text(dir_path, file_name)
+    xx = decode_json(inputjson)
+    logger.debug(f"Decoded {len(xx)} betel zwift ids from {file_name}")
+    logger.debug(f"Decoded betel zwift ids: {xx}")
+    # answer = JghSerialization.validate(inputjson, List[str])
+    answer = cast(List[str], xx)
     return answer
 
-def get_betel(id : int) -> ZsunRiderItem:
-    file_name = "betel_rider_profiles.json"
+def get_betel_zsunriderItem(id : str) -> ZsunRiderItem:
+    file_name = "betel_ZsunRiderItems.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zsunrider_items(file_name, dir_path)
-    answer = riders[str(id)]
+    riders = read_dict_of_zsunriderItems(file_name, dir_path)
+    answer = riders[id]
     return answer
 
-def get_zsun_rider(id : int) -> ZsunRiderItem:
-    file_name = "betel_rider_profiles.json"
-    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zsunrider_items(file_name, dir_path)
-    answer = riders[str(id)]
-    return answer
-
-def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> defaultdict[str, ZsunRiderItem]:
+def read_dict_of_zsunriderItems(file_name: str, dir_path: str) -> defaultdict[str, ZsunRiderItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -63,7 +60,7 @@ def read_dict_of_zsunrider_items(file_name: str, dir_path: str) -> defaultdict[s
         }
     )
 
-def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> defaultdict[str, ZsunBestPowerItem]:
+def read_dict_of_zsunbestpowerItem(file_name: str, dir_path: str) -> defaultdict[str, ZsunBestPowerItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -82,7 +79,7 @@ def read_dict_of_90day_bestpower_items(file_name: str, dir_path: str) -> default
         }
     )
 
-def write_dict_of_90day_bestpower_items(data: Dict[str, ZsunBestPowerItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_zsunbestpowerItems(data: Dict[str, ZsunBestPowerItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -225,11 +222,11 @@ def main():
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    jgh_cp_dict = read_dict_of_90day_bestpower_items(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+    jgh_cp_dict = read_dict_of_zsunbestpowerItem(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_dict_of_90day_bestpower_items(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_dict_of_zsunbestpowerItems(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
 def main02():
     # configure logging

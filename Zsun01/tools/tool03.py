@@ -1,6 +1,6 @@
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zsunrider_items, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_90day_bestpower_items, get_betel_zwift_ids
+from handy_utilities import read_dict_of_zsunriderItems, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_zsunbestpowerItems, get_betel_zwift_ids
 from jgh_sanitise_string import make_short_displayname
 
 def main():
@@ -25,10 +25,10 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    ZSUN01_BETEL_FILE_NAME = "betel_rider_profiles.json"
+    ZSUN01_BETEL_FILE_NAME = "betel_ZsunRiderItems.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    betel_rider_profiles_dict = read_dict_of_zsunrider_items(ZSUN01_BETEL_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    betel_rider_profiles_dict = read_dict_of_zsunriderItems(ZSUN01_BETEL_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     # do work
 
@@ -57,7 +57,7 @@ def main():
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    write_dict_of_90day_bestpower_items(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_zsunbestpowerItems(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
     main()

@@ -24,9 +24,11 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(None, ZWIFT_PROFILES_DIRPATH)
+    betel_IDs = get_betel_zwift_ids()
 
-    dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH)
+
+    dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     logger.info(f"Successfully read, validated, and loaded {len(dict_of_bestpower_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
@@ -37,7 +39,7 @@ def main():
     count_of_riders_with_high_fidelity_models = 0
     count_of_riders_with_low_fidelity_models = 0
 
-    r_squared_limit = .90
+    r_squared_limit = .95
 
     zwiftIds_with_high_fidelity : list[str] = []
     zwiftids_with_low_fidelity : list[str] = []
@@ -74,7 +76,7 @@ def main():
 
         # skip riders where any of the three datasets contain less than 5 points
         if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < 5 or len(raw_xy_data_ftp) < 5:
-            logger.warning(f"ZwiftID {my_jghbestpoweritem.zwift_id} has insufficient data for modelling")
+            logger.warning(f"ZwiftID {my_jghbestpoweritem.zwift_id} has insufficient data for curve fitting")
             skipped_modelling_count += 1
             continue
 
@@ -108,15 +110,16 @@ def main():
 
         # log results for my_jghbestpoweritem
 
-        summary_cp_w_prime  =  f"Critical Power = {round(critical_power)}W  Anaerobic Work Capacity = {round(anaerobic_work_capacity/1_000)}kJ"
-        summary_pull = f"Pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
-        summary_ftp = f"Functional Threshold Power = {round(ftp[0])}W"
+        summary_cp_w_prime  =  f"Zsun CP = {round(critical_power)}W  AWC = {round(anaerobic_work_capacity/1_000)}kJ"
+        summary_pull = f"TTT pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
+        summary_ftp = f"One hour power = {round(ftp[0])}W"
 
         logger.info(f"\n{summary_cp_w_prime}")
         logger.info(f"{summary_pull}")
         logger.info(f"{summary_ftp}")
 
-        if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
+        if r_squared_pull >= r_squared_limit:
+        # if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
             zwiftIds_with_high_fidelity.append(my_jghbestpoweritem.zwift_id)
             count_of_riders_with_high_fidelity_models += 1
         else:
@@ -125,16 +128,16 @@ def main():
 
     modelled_count = total_count - skipped_modelling_count
 
-    logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}")
+    logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}\n")
 
-    logger.info(f"Riders with lower fidelity models [r_squared < {r_squared_limit}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
-    logger.info(f"Riders with high fidelity models [r_squared > {r_squared_limit}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)\n\n")
+    # logger.info(f"Riders with lower fidelity models [r_squared < {r_squared_limit}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
+    logger.info(f"Riders with excellent TTT pull curve fits [r_squared > {r_squared_limit}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
 
     # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, critical_power, and r_squared_cp. sorted by name
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwift_id in zwiftIds_with_high_fidelity:
-        logger.info(f"ZwiftID {zwift_id}")
-        # betel = get_betel(zwift_id)
+        logger.info(f"ZwiftID {zwift_id} {dict_of_profiles_for_everybody[zwift_id].first_name} {dict_of_profiles_for_everybody[zwift_id].last_name}")
+        # betel = get_betel_zsunriderItem(zwift_id)
         # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
     # load power_curves_for-everybody into pandas dataframe, sort by ftp_watts, and write to csv file
@@ -150,12 +153,6 @@ def main():
 
     # Merge the two DataFrames on the identifier columns
     merged_df = pd.merge(df1, df2, left_on="zwift_id", right_on="zwift_id", suffixes=('_profile', '_power'))
-
-    # Sort the merged DataFrame by the "ftp_watts" column
-    merged_df = merged_df.sort_values(by="ftp_watts", ascending=False)
-
-    # # Add an index column
-    # merged_df.insert(0, 'index', range(1, len(merged_df) + 1))
 
     # write to excel
     OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
