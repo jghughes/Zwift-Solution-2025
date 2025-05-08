@@ -1,4 +1,4 @@
-# load Dave's zsun_cp data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
+# load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Any
 import pandas as pd
 from zsun_rider_item import ZsunRiderItem
@@ -22,13 +22,9 @@ class DummyItem:
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
     curve_fit_ftp    : float = 0.0
-    # o1_zwift_ftp                  : float = 0.0   # Originates in Zwift profile
-    # o1_delta                 : float = 0.0   # Difference between Zwift FTP and JGH FTP
-    # o1_percent               : float = 0.0   # Percentage difference between Zwift FTP and JGH FTP
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
     delta                 : float = 0.0   # Difference between Zwift FTP and JGH FTP
     percent               : float = 0.0   # Percentage difference between Zwift FTP and JGH FTP
-    r_squared_ftp_curve_fit : float = 0.0   # R-squared value for the curve fit of the FTP data
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
     zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
@@ -68,7 +64,6 @@ def main():
             zwiftracingapp_zpFTP= y_actual,
             delta=delta,
             percent=percent,
-            r_squared_ftp_curve_fit = round(zsunriderItem.zsun_ftp_curve_fit_r_squared,2),
             zwift_zrs=zsunriderItem.zwift_zrs,
             zwift_cat=zsunriderItem.zwift_cat,
             zwiftracingapp_score=zsunriderItem.zwiftracingapp_score,

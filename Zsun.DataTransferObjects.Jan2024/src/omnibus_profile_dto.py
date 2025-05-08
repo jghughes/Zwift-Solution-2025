@@ -70,10 +70,10 @@ class OmnibusProfileDTO(BaseModel):
     pull_adjustment_watts   : Optional[float] = 0.0
     critical_power          : Optional[float] = 0.0
     critical_power_w_prime  : Optional[float] = 0.0
-    ftp_curve_coefficient   : Optional[float] = 0.0
-    ftp_curve_exponent      : Optional[float] = 0.0
-    pull_curve_coefficient  : Optional[float] = 0.0
-    pull_curve_exponent     : Optional[float] = 0.0
+    one_hour_curve_coefficient   : Optional[float] = 0.0
+    one_hour_curve_exponent      : Optional[float] = 0.0
+    TTT_pull_curve_coefficient  : Optional[float] = 0.0
+    TTT_pull_curve_exponent     : Optional[float] = 0.0
     when_curves_fitted      : Optional[str]   = ""
     functional_threshold_power : Optional[float] = 0.0
 

@@ -2,17 +2,16 @@ from dataclasses import dataclass
 
 @dataclass
 class CurveFittingResult:
-    zwift_id                : str = ""  # Zwift ID of the rider"
-    ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
-    ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
-    ftp_r_squared          : float = 0.0   # R-squared value for FTP curve fitting
-    pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
-    pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
-    pull_r_squared         : float = 0.0   # R-squared value for pull curve fitting
-    cp                    : float = 0.0    # Critical power in watts
-    w_prime                : float = 0.0   # Anaerobic work capacity in kilojoules
-    when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
-
+    zwift_id                     : str   = ""    # Zwift ID of the rider
+    one_hour_curve_coefficient   : float = 0.0   # Coefficient for FTP modeling
+    one_hour_curve_exponent      : float = 0.0   # Exponent for FTP modeling
+    one_hour_curve_r_squared     : float = 0.0   # R-squared value for FTP curve fitting
+    TTT_pull_curve_coefficient   : float = 0.0   # Coefficient for pull modeling
+    TTT_pull_curve_exponent      : float = 0.0   # Exponent for pull modeling
+    TTT_pull_curve_r_squared     : float = 0.0   # R-squared value for pull curve fitting
+    CP                           : float = 0.0   # Critical power in watts
+    AWC                          : float = 0.0   # Anaerobic work capacity in kilojoules
+    when_curves_fitted           : str   = ""    # Timestamp indicating when the models were fitted
 
 
 # @dataclass(frozen=True, eq=True) 

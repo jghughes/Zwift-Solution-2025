@@ -12,33 +12,33 @@ class ZsunRiderItem:
     Can be used as a cache key or dictionary key, or in a set.
     """
 
-    zwift_id                   : str   = ""    # Zwift ID of the rider
-    name                       : str   = ""    # Name of the rider
-    weight_kg                  : float = 0.0   # Weight of the rider in kilograms
-    height_cm                  : float = 0.0   # Height of the rider in centimeters
-    gender                     : str   = ""    # Gender of the rider
-    age_years                  : float = 0.0   # Age of the rider in years
-    agegroup                   : str   = ""    # Age group of the rider
-    zwift_ftp                  : float = 0.0   # Originates in Zwift profile
-    zwiftpower_zFTP            : float = 0.0   # Originates in Zwiftpower profile
-    zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
-    zsun_one_hour_watts                   : float = 0.0     #Calculated by JGH
-    zwift_zrs                  : float   = 0.0     # Zwift racing score
-    zwift_cat                  : str   = ""    # A+, A, B, C, D, E
-    zwiftracingapp_score        : float = 0.0   # Velo score typically over 1000
-    zwiftracingapp_cat_num      : int   = 0     # Velo rating 1 to 10
-    zwiftracingapp_cat_name     : str   = ""    # Copper, Silver, Gold etc
-    zwiftracingapp_cp           : float = 0.0   # Critical power in watts
-    zwiftracingapp_awc          : float = 0.0   # Anaerobic work capacity in kilojoules
-    zsun_pull_adjustment_watts  : float = 0.0   # Adjustment watts for pulling
-    zsun_ftp_curve_coefficient  : float = 0.0   # Coefficient for FTP modeling
-    zsun_ftp_curve_exponent     : float = 0.0   # Exponent for FTP modeling
-    zsun_ftp_curve_fit_r_squared : float = 0.0   # R-squared value for the curve fit of the FTP data
-    zsun_pull_curve_coefficient : float = 0.0   # Coefficient for pull modeling
-    zsun_pull_curve_exponent    : float = 0.0   # Exponent for pull modeling
-    zsun_when_curves_fitted     : str   = ""    # Timestamp indicating when the models were fitted
-    zsun_cp                     : float = 0.0   # Critical power in watts
-    zsun_w_prime                : float = 0.0   # Critical power W' in kilojoules
+    zwift_id                          : str   = ""    # Zwift ID of the rider
+    name                              : str   = ""    # Name of the rider
+    weight_kg                         : float = 0.0   # Weight of the rider in kilograms
+    height_cm                         : float = 0.0   # Height of the rider in centimeters
+    gender                            : str   = ""    # Gender of the rider
+    age_years                         : float = 0.0   # Age of the rider in years
+    agegroup                          : str   = ""    # Age group of the rider
+    zwift_ftp                         : float = 0.0   # Originates in Zwift profile
+    zwiftpower_zFTP                   : float = 0.0   # Originates in Zwiftpower profile
+    zwiftracingapp_zpFTP              : float = 0.0   # Originates in Zwiftracingapp profile
+    zsun_one_hour_watts               : float = 0.0   # Calculated by JGH
+    zsun_CP                           : float = 0.0   # Critical power in watts
+    zsun_AWC                          : float = 0.0   # Critical power W' in kilojoules
+    zwift_zrs                         : float = 0.0   # Zwift racing score
+    zwift_cat                         : str   = ""    # A+, A, B, C, D, E
+    zwiftracingapp_score              : float = 0.0   # Velo score typically over 1000
+    zwiftracingapp_cat_num            : int   = 0     # Velo rating 1 to 10
+    zwiftracingapp_cat_name           : str   = ""    # Copper, Silver, Gold etc
+    zwiftracingapp_CP                 : float = 0.0   # Critical power in watts
+    zwiftracingapp_AWC                : float = 0.0   # Anaerobic work capacity in kilojoules
+    zsun_pull_adjustment_watts        : float = 0.0   # Adjustment watts for pulling
+    zsun_one_hour_curve_coefficient   : float = 0.0   # Coefficient for FTP modeling
+    zsun_one_hour_curve_exponent      : float = 0.0   # Exponent for FTP modeling
+    zsun_TTT_pull_curve_coefficient   : float = 0.0   # Coefficient for pull modeling
+    zsun_TTT_pull_curve_exponent      : float = 0.0   # Exponent for pull modeling
+    zsun_TTT_pull_curve_fit_r_squared : float = 0.0   # R-squared value for the curve fit of the FTP data
+    zsun_when_curves_fitted           : str   = ""    # Timestamp indicating when the models were fitted
 
     class Config:
         # Define the extra JSON schema for the class in the form of a dictionary of riders
@@ -214,14 +214,14 @@ class ZsunRiderItem:
         return round(speed_kph, 3)
 
     def get_critical_power_watts(self) -> float:
-        return self.zsun_cp
+        return self.zsun_CP
 
     def get_anaerobic_work_capacity_kj(self) -> float:
-        return self.zsun_w_prime / 1_000.0
+        return self.zsun_AWC / 1_000.0
 
     def get_30sec_pull_watts(self) -> float:
 
-        pull_short = decay_model_numpy(np.array([210]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
         answer =  pull_short[0] + self.zsun_pull_adjustment_watts
 
@@ -229,7 +229,7 @@ class ZsunRiderItem:
 
     def get_1_minute_pull_watts(self) -> float:
 
-        pull_medium = decay_model_numpy(np.array([300]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        pull_medium = decay_model_numpy(np.array([300]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
         answer =  pull_medium[0] + self.zsun_pull_adjustment_watts
 
@@ -237,7 +237,7 @@ class ZsunRiderItem:
 
     def get_2_minute_pull_watts(self) -> float:
 
-        pull_long = decay_model_numpy(np.array([720]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
         answer =  pull_long[0] + self.zsun_pull_adjustment_watts
 
@@ -247,27 +247,27 @@ class ZsunRiderItem:
 
         # same as 2 minute because this is for beasts who can withstand more time at the front 
         # at the same power
-        pull_long = decay_model_numpy(np.array([1500]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([1500]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
 
         answer =  pull_long[0] + self.zsun_pull_adjustment_watts
 
         return answer
 
     def get_5_minute_pull_watts(self) -> float:
-        pull_long = decay_model_numpy(np.array([1800]), self.zsun_pull_curve_coefficient, self.zsun_pull_curve_exponent)
+        pull_long = decay_model_numpy(np.array([1800]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         answer =  pull_long[0] + self.zsun_pull_adjustment_watts
         return answer
 
     def get_one_hour_watts(self) -> float:
 
-        ftp = decay_model_numpy(np.array([3_600]), self.zsun_ftp_curve_coefficient, self.zsun_ftp_curve_exponent)
+        ftp = decay_model_numpy(np.array([3_600]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
 
         answer =  ftp[0]
 
         return answer
 
     def get_n_second_watts(self, seconds: float) -> float:
-        power = decay_model_numpy(np.array([seconds]), self.zsun_ftp_curve_coefficient, self.zsun_ftp_curve_exponent)
+        power = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         return power[0]
 
     def get_when_models_fitted(self) -> str:
@@ -278,33 +278,33 @@ class ZsunRiderItem:
         if item is None:
             return ZsunRiderDTO()
         return ZsunRiderDTO(
-            zwift_id                   = item.zwift_id,
-            name                       = item.name,
-            weight_kg                  = item.weight_kg,
-            height_cm                  = item.height_cm,
-            gender                     = item.gender,
-            age_years                  = item.age_years,
-            agegroup                   = item.agegroup,
-            zwift_ftp                  = item.zwift_ftp,
-            zwiftpower_zFTP            = item.zwiftpower_zFTP,
-            zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
-            zsun_one_hour_watts                   = item.get_one_hour_watts(),
-            zwift_zrs                  = item.zwift_zrs,
-            zwift_cat                  = item.zwift_cat,
-            zwiftracingapp_score                  = item.zwiftracingapp_score,
-            zwiftracingapp_cat_num                = item.zwiftracingapp_cat_num,
-            zwiftracingapp_cat_name               = item.zwiftracingapp_cat_name,
-            zwiftracingapp_cp                     = item.zwiftracingapp_cp,
-            zwiftracingapp_awc                    = item.zwiftracingapp_awc,
-            zsun_pull_adjustment_watts  = item.zsun_pull_adjustment_watts,
-            zsun_ftp_curve_coefficient  = item.zsun_ftp_curve_coefficient,
-            zsun_ftp_curve_exponent     = item.zsun_ftp_curve_exponent,
-            zsun_ftp_curve_fit_r_squared= item.zsun_ftp_curve_fit_r_squared,
-            zsun_pull_curve_coefficient = item.zsun_pull_curve_coefficient,
-            zsun_pull_curve_exponent    = item.zsun_pull_curve_exponent,
-            zsun_cp                     = item.zsun_cp,
-            zsun_w_prime                = item.zsun_w_prime,
-            zsun_when_curves_fitted     = item.zsun_when_curves_fitted,
+            zwift_id                          = item.zwift_id,
+            name                              = item.name,
+            weight_kg                         = item.weight_kg,
+            height_cm                         = item.height_cm,
+            gender                            = item.gender,
+            age_years                         = item.age_years,
+            agegroup                          = item.agegroup,
+            zwift_ftp                         = item.zwift_ftp,
+            zwiftpower_zFTP                   = item.zwiftpower_zFTP,
+            zwiftracingapp_zpFTP              = item.zwiftracingapp_zpFTP,
+            zsun_one_hour_watts               = item.get_one_hour_watts(),
+            zsun_CP                           = item.zsun_CP,
+            zsun_AWC                          = item.zsun_AWC,
+            zwift_zrs                         = item.zwift_zrs,
+            zwift_cat                         = item.zwift_cat,
+            zwiftracingapp_score              = item.zwiftracingapp_score,
+            zwiftracingapp_cat_num            = item.zwiftracingapp_cat_num,
+            zwiftracingapp_cat_name           = item.zwiftracingapp_cat_name,
+            zwiftracingapp_CP                 = item.zwiftracingapp_CP,
+            zwiftracingapp_AWC                = item.zwiftracingapp_AWC,
+            zsun_pull_adjustment_watts        = item.zsun_pull_adjustment_watts,
+            zsun_one_hour_curve_coefficient   = item.zsun_one_hour_curve_coefficient,
+            zsun_one_hour_curve_exponent      = item.zsun_one_hour_curve_exponent,
+            zsun_TTT_pull_curve_coefficient   = item.zsun_TTT_pull_curve_coefficient,
+            zsun_TTT_pull_curve_exponent      = item.zsun_TTT_pull_curve_exponent,
+            zsun_TTT_pull_curve_fit_r_squared = item.zsun_TTT_pull_curve_fit_r_squared,
+            zsun_when_curves_fitted           = item.zsun_when_curves_fitted,
         )
 
 
@@ -313,33 +313,33 @@ class ZsunRiderItem:
         if dto is None:
             return ZsunRiderItem()
         return ZsunRiderItem(
-            zwift_id                   = dto.zwift_id or "",
-            name                       = dto.name or "",
-            weight_kg                  = dto.weight_kg or 0.0,
-            height_cm                  = dto.height_cm or 0.0,
-            gender                     = dto.gender or "",
-            age_years                  = dto.age_years or 0.0,
-            agegroup                   = dto.agegroup or "",
-            zwift_ftp                  = dto.zwift_ftp or 0.0,
-            zwiftpower_zFTP            = dto.zwiftpower_zFTP or 0.0,
-            zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
-            zsun_one_hour_watts                    = dto.zsun_one_hour_watts or 0.0,
-            zwift_zrs                  = dto.zwift_zrs or 0.0,
-            zwift_cat                  = dto.zwift_cat or "",
-            zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
-            zwiftracingapp_cat_num     = dto.zwiftracingapp_cat_num or 0,
-            zwiftracingapp_cat_name    = dto.zwiftracingapp_cat_name or "",
-            zwiftracingapp_cp          = dto.zwiftracingapp_cp or 0.0,
-            zwiftracingapp_awc         = dto.zwiftracingapp_awc or 0.0,
-            zsun_pull_adjustment_watts  = dto.zsun_pull_adjustment_watts or 0.0,
-            zsun_ftp_curve_coefficient  = dto.zsun_ftp_curve_coefficient or 0.0,
-            zsun_ftp_curve_exponent     = dto.zsun_ftp_curve_exponent or 0.0,
-            zsun_ftp_curve_fit_r_squared= dto.zsun_ftp_curve_fit_r_squared or 0.0,
-            zsun_pull_curve_coefficient = dto.zsun_pull_curve_coefficient or 0.0,
-            zsun_pull_curve_exponent    = dto.zsun_pull_curve_exponent or 0.0,
-            zsun_cp                     = dto.zsun_cp or 0.0,
-            zsun_w_prime                = dto.zsun_w_prime or 0.0,
-            zsun_when_curves_fitted     = dto.zsun_when_curves_fitted or "",
+            zwift_id                          = dto.zwift_id or "",
+            name                              = dto.name or "",
+            weight_kg                         = dto.weight_kg or 0.0,
+            height_cm                         = dto.height_cm or 0.0,
+            gender                            = dto.gender or "",
+            age_years                         = dto.age_years or 0.0,
+            agegroup                          = dto.agegroup or "",
+            zwift_ftp                         = dto.zwift_ftp or 0.0,
+            zwiftpower_zFTP                   = dto.zwiftpower_zFTP or 0.0,
+            zwiftracingapp_zpFTP              = dto.zwiftracingapp_zpFTP or 0.0,
+            zsun_one_hour_watts               = dto.zsun_one_hour_watts or 0.0,
+            zsun_CP                           = dto.zsun_CP or 0.0,
+            zsun_AWC                          = dto.zsun_AWC or 0.0,
+            zwift_zrs                         = dto.zwift_zrs or 0.0,
+            zwift_cat                         = dto.zwift_cat or "",
+            zwiftracingapp_score              = dto.zwiftracingapp_score or 0.0,
+            zwiftracingapp_cat_num            = dto.zwiftracingapp_cat_num or 0,
+            zwiftracingapp_cat_name           = dto.zwiftracingapp_cat_name or "",
+            zwiftracingapp_CP                 = dto.zwiftracingapp_CP or 0.0,
+            zwiftracingapp_AWC                = dto.zwiftracingapp_AWC or 0.0,
+            zsun_pull_adjustment_watts        = dto.zsun_pull_adjustment_watts or 0.0,
+            zsun_one_hour_curve_coefficient   = dto.zsun_one_hour_curve_coefficient or 0.0,
+            zsun_one_hour_curve_exponent      = dto.zsun_one_hour_curve_exponent or 0.0,
+            zsun_TTT_pull_curve_coefficient   = dto.zsun_TTT_pull_curve_coefficient or 0.0,
+            zsun_TTT_pull_curve_exponent      = dto.zsun_TTT_pull_curve_exponent or 0.0,
+            zsun_TTT_pull_curve_fit_r_squared = dto.zsun_TTT_pull_curve_fit_r_squared or 0.0,
+            zsun_when_curves_fitted           = dto.zsun_when_curves_fitted or "",
         )
 
 

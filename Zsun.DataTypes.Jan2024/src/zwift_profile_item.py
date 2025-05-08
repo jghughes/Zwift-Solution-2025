@@ -40,7 +40,7 @@ class ZwiftProfileItem:
     age_years                 : float = 0.0
     height_mm                 : float = 0.0
     weight_grams              : float = 0.0
-    ftp                      : float = 0.0
+    ftp                       : float = 0.0
     competitionMetrics        : CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
 
     @staticmethod
@@ -56,7 +56,7 @@ class ZwiftProfileItem:
             age_years                 = dto.age_years or 0.0,
             height_mm                 = dto.height_mm or 0.0,
             weight_grams              = dto.weight_grams or 0.0,
-            ftp                      = dto.ftp or 0.0,
+            ftp                       = dto.ftp or 0.0,
             competitionMetrics        = CompetitionMetricsItem.from_dataTransferObject(dto.competitionMetrics),
         )
 

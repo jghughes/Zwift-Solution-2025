@@ -83,12 +83,12 @@ def main():
     pi = ZsunRiderItem(
         zwift_id=zwiftID,
         name=dict_of_zsun01_betel_zsunrideritems[zwiftID].name,
-        zsun_cp=critical_power,
-        zsun_w_prime=anaerobic_work_capacity,
-        zsun_ftp_curve_coefficient=coefficient_60min,
-        zsun_ftp_curve_exponent=exponent_60min,
-        zsun_pull_curve_coefficient=coefficient_pull,
-        zsun_pull_curve_exponent=exponent_pull,
+        zsun_CP=critical_power,
+        zsun_AWC=anaerobic_work_capacity,
+        zsun_one_hour_curve_coefficient=coefficient_60min,
+        zsun_one_hour_curve_exponent=exponent_60min,
+        zsun_TTT_pull_curve_coefficient=coefficient_pull,
+        zsun_TTT_pull_curve_exponent=exponent_pull,
         zsun_when_curves_fitted=datetime.now().isoformat(),
     )
 

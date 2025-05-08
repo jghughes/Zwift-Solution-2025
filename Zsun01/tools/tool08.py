@@ -94,14 +94,14 @@ def main():
         #load results into a dataclass
         curve = CurveFittingResult(
             zwift_id=my_zwiftID,
-            ftp_curve_coefficient=coefficient_ftp,
-            ftp_curve_exponent=exponent_ftp,
-            ftp_r_squared=round(r_squared_ftp, 2),
-            pull_curve_coefficient=coefficient_pull,
-            pull_curve_exponent=exponent_pull,
-            pull_r_squared=round(r_squared_pull, 2),
-            cp=round(critical_power),
-            w_prime=round((anaerobic_work_capacity / 1_000.0), 1),
+            one_hour_curve_coefficient=coefficient_ftp,
+            one_hour_curve_exponent=exponent_ftp,
+            one_hour_curve_r_squared=round(r_squared_ftp, 2),
+            TTT_pull_curve_coefficient=coefficient_pull,
+            TTT_pull_curve_exponent=exponent_pull,
+            TTT_pull_curve_r_squared=round(r_squared_pull, 2),
+            CP=round(critical_power),
+            AWC=round((anaerobic_work_capacity / 1_000.0), 1),
             when_curves_fitted=datetime.now().isoformat()  # Add timestamp
         )
         power_curves_for_everybody[str(my_jghbestpoweritem.zwift_id)] = curve
