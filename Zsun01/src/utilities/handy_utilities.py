@@ -14,8 +14,8 @@ from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwift_profile_item import ZwiftProfileItem
-from bestpower_comparison_item import BestPowerComparisonItem
-from bestpower_comparison_dto import BestPowerComparisonDTO
+from bestpower_for_model_training_item import BestPowerModelTrainingItem
+from bestpower_for_model_training_dto import BestPowerModelTrainingDTO
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -92,7 +92,7 @@ def write_dict_of_zsunbestpowerItems(data: Dict[str, ZsunBestPowerItem], file_na
 
     logger.debug(f"File saved : {file_name}")
 
-def read_dict_of_bestpowercomparisonItems(file_name: str, dir_path: str) -> defaultdict[str, BestPowerComparisonItem]:
+def read_dict_of_bestpowermodeltrainingItems(file_name: str, dir_path: str) -> defaultdict[str, BestPowerModelTrainingItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -101,16 +101,16 @@ def read_dict_of_bestpowercomparisonItems(file_name: str, dir_path: str) -> defa
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
     
     inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, Dict[str, BestPowerComparisonDTO])
-    answer = cast(Dict[str, BestPowerComparisonDTO], answer)
-    return defaultdict(BestPowerComparisonItem,
+    answer = JghSerialization.validate(inputjson, Dict[str, BestPowerModelTrainingDTO])
+    answer = cast(Dict[str, BestPowerModelTrainingDTO], answer)
+    return defaultdict(BestPowerModelTrainingItem,
         {
-            key: BestPowerComparisonItem.from_dataTransferObject(dto)
+            key: BestPowerModelTrainingItem.from_dataTransferObject(dto)
             for key, dto in answer.items()
         }
     )
 
-def write_dict_of_bestpowercomparisonItems(data: Dict[str, BestPowerComparisonItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_bestpowermodeltrainingItems(data: Dict[str, BestPowerModelTrainingItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():

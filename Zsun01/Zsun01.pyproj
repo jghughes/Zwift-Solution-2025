@@ -92,6 +92,7 @@
     <Compile Include="tools\tool11.py" />
     <Compile Include="tools\tool10.py" />
     <Compile Include="tools\tool09.py" />
+    <Compile Include="tools\tool12.py" />
     <Compile Include="tools\zwiftpower_serialisation_failures.json">
       <SubType>Code</SubType>
     </Compile>

@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
+
 @dataclass
-class BestPowerComparisonDTO:
+class BestPowerModelTrainingDTO:
     zwift_id                   : Optional[str]   = ""    # Zwift ID of the rider
     name                       : Optional[str]   = ""    # Name of the rider
     gender                     : Optional[str]   = ""    # Gender of the rider

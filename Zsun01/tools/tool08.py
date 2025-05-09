@@ -4,7 +4,7 @@ from datetime import datetime
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from computation_classes import CurveFittingResult
-from bestpower_comparison_item import BestPowerComparisonItem
+from bestpower_for_model_training_item import BestPowerModelTrainingItem
 
 
 def main():
@@ -24,8 +24,8 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    # sample_IDs = None
-    sample_IDs = get_betel_IDs()
+    sample_IDs = None
+    # sample_IDs = get_betel_IDs()
 
     dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
 
@@ -119,7 +119,7 @@ def main():
         logger.info(f"{summary_pull}")
         logger.info(f"{summary_ftp}")
 
-        r_squared_limit = .95
+        r_squared_limit = .90
 
         if r_squared_ftp >= r_squared_limit:
         # if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
@@ -174,12 +174,12 @@ def main():
     dict_of_zp_90day_graph_watts : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
     
     
-    dict_of_riders_with_high_fidelity : defaultdict[str, BestPowerComparisonItem] = defaultdict(BestPowerComparisonItem)
+    dict_of_riders_with_high_fidelity : defaultdict[str, BestPowerModelTrainingItem] = defaultdict(BestPowerModelTrainingItem)
 
     for ID in zwiftIds_with_high_fidelity:
         zsun = dict_of_zsunriderItems[ID]
         zp_90day_best = dict_of_zp_90day_graph_watts[ID]
-        dict_of_riders_with_high_fidelity[ID] = BestPowerComparisonItem(
+        dict_of_riders_with_high_fidelity[ID] = BestPowerModelTrainingItem(
             zwift_id                   = ID,
             name                       = zsun.name,
             gender                     = zsun.gender,
@@ -208,7 +208,7 @@ def main():
 
     # Create the third DataFrame from dict_of_riders_with_high_fidelity
     riders = dict_of_riders_with_high_fidelity.values()
-    df3 = pd.DataFrame([asdict(correlationDTO) for correlationDTO in riders])
+    df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
     file_name = "bestpower_dataset_for_model_training.xlsx"
     write_pandas_dataframe_as_xlsx(df3, file_name, OUTPUT_DIRPATH)
@@ -216,7 +216,7 @@ def main():
 
     file_name = "bestpower_dataset_for_model_training.json"
 
-    write_dict_of_bestpowercomparisonItems(dict_of_riders_with_high_fidelity, file_name, OUTPUT_DIRPATH)
+    write_dict_of_bestpowermodeltrainingItems(dict_of_riders_with_high_fidelity, file_name, OUTPUT_DIRPATH)
 
 
 
