@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from handy_utilities import *
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from datetime import datetime
@@ -8,19 +9,20 @@ from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 
 from computation_classes import CurveFittingResult
 
-class CorrelationDTO(BaseModel):
-    zwift_id                   : str   = ""    # Zwift ID of the rider
-    name                       : str   = ""    # Name of the rider
-    gender                     : str   = ""    # Gender of the rider
-    weight_kg                  : float = 0.0
-    height_cm                  : float = 0.0
-    age_years                  : float = 0.0   # Age of the rider in years
-    zwift_zrs                  : float   = 0.0     # Zwift racing score
-    zwift_cat                  : str   = ""    # A+, A, B, C, D, E
-    zwiftpower_zpFTP           : float = 0.0
-    zwiftracingapp_score       : float = 0.0   # Velo score typically over 1000
+@dataclass
+class CorrelationDTO():
+    zwift_id                   : Optional[str]   = ""    # Zwift ID of the rider
+    name                       : Optional[str]   = ""    # Name of the rider
+    gender                     : Optional[str]   = ""    # Gender of the rider
+    weight_kg                  : Optional[float] = 0.0
+    height_cm                  : Optional[float] = 0.0
+    age_years                  : Optional[float] = 0.0   # Age of the rider in years
+    zwift_zrs                  : Optional[float]   = 0.0     # Zwift racing score
+    zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
+    zwiftracingapp_zpFTP       : Optional[float] = 0.0
+    zwiftracingapp_score       : Optional[float] = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
-    zwiftracingapp_cat_name    : str   = ""    # Copper, Silver, Gold etc
+    zwiftracingapp_cat_name    : Optional[Optional[str]]   = ""    # Copper, Silver, Gold etc
     cp_5    : Optional[float] = 0.0
     cp_15   : Optional[float] = 0.0
     cp_30   : Optional[float] = 0.0
@@ -192,54 +194,58 @@ def main():
 
     # write to excel
     OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
-    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    write_pandas_dataframe_as_xlsx(merged_df, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
-    logger.info(f"Saved {len(merged_df)} power curve fitting results to: {OUTPUT_DIR_PATH + OUTPUT_FILE_NAME}\n")
+    write_pandas_dataframe_as_xlsx(merged_df, OUTPUT_FILE_NAME, OUTPUT_DIRPATH)
+    logger.info(f"\nSaved {len(merged_df)} power curve fitting results to: {OUTPUT_DIRPATH + OUTPUT_FILE_NAME}\n")
 
-    # zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
+    # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
     repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-
     dict_of_zsunriderItems : defaultdict[str, ZsunRiderItem] = repository.get_dict_of_ZsunRiderItem(zwiftIds_with_high_fidelity)
-    dict_of_bestpowerItems : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
+    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
+    
+    
     dict_of_riders_with_high_fidelity : defaultdict[str, CorrelationDTO] = defaultdict(CorrelationDTO)
 
-
-
     for ID in zwiftIds_with_high_fidelity:
-        profile = dict_of_zsunriderItems[ID]
-        bestpower = dict_of_bestpowerItems[ID]
-
+        zsun = dict_of_zsunriderItems[ID]
+        zp_90day_best = dict_of_zp_90day_graph_watts[ID]
         dict_of_riders_with_high_fidelity[ID] = CorrelationDTO(
             zwift_id                   = ID,
-            name                       = f"{profile.name}",
-            gender                     = profile.gender,
-            weight_kg                  = profile.weight_kg,
-            height_cm                  = profile.height_cm,
-            age_years                  = profile.age_years,
-            zwift_zrs                  = profile.zwift_zrs,
-            zwift_cat                  = profile.zwift_cat,
-            zwiftpower_zpFTP           = profile.zwiftpower_zFTP,
-            zwiftracingapp_score       = profile.zwiftracingapp_score,
-            zwiftracingapp_cat_num     = profile.zwiftracingapp_cat_num,
-            zwiftracingapp_cat_name    = profile.zwiftracingapp_cat_name,
-            cp_5                       = bestpower.cp_5,
-            cp_15                      = bestpower.cp_15,
-            cp_30                      = bestpower.cp_30,
-            cp_60                      = bestpower.cp_60,
-            cp_180                     = bestpower.cp_180,
-            cp_300                     = bestpower.cp_300,
-            cp_600                     = bestpower.cp_600,
-            cp_720                     = bestpower.cp_720,
-            cp_900                     = bestpower.cp_900,
-            cp_1200                    = bestpower.cp_1200,
-            cp_1800                    = bestpower.cp_1800,
-            cp_2400                    = bestpower.cp_2400
-
+            name                       = zsun.name,
+            gender                     = zsun.gender,
+            weight_kg                  = zsun.weight_kg,
+            height_cm                  = zsun.height_cm,
+            age_years                  = zsun.age_years,
+            zwift_zrs                  = zsun.zwift_zrs,
+            zwift_cat                  = zsun.zwift_cat,
+            zwiftracingapp_zpFTP       = zsun.zwiftracingapp_zpFTP,
+            zwiftracingapp_score       = zsun.zwiftracingapp_score,
+            zwiftracingapp_cat_num     = zsun.zwiftracingapp_cat_num,
+            zwiftracingapp_cat_name    = zsun.zwiftracingapp_cat_name,
+            cp_5                       = zp_90day_best.cp_5,
+            cp_15                      = zp_90day_best.cp_15,
+            cp_30                      = zp_90day_best.cp_30,
+            cp_60                      = zp_90day_best.cp_60,
+            cp_180                     = zp_90day_best.cp_180,
+            cp_300                     = zp_90day_best.cp_300,
+            cp_600                     = zp_90day_best.cp_600,
+            cp_720                     = zp_90day_best.cp_720,
+            cp_900                     = zp_90day_best.cp_900,
+            cp_1200                    = zp_90day_best.cp_1200,
+            cp_1800                    = zp_90day_best.cp_1800,
+            cp_2400                    = zp_90day_best.cp_2400,
         )
 
+    # Create the third DataFrame from dict_of_riders_with_high_fidelity
+    riders = dict_of_riders_with_high_fidelity.values()
+    df3 = pd.DataFrame([asdict(correlationDTO) for correlationDTO in riders])
 
+
+
+    file_name = "dataset_of_CorrelationDTO_for_sophisticated_model_building.xlsx"
+    write_pandas_dataframe_as_xlsx(df3, file_name, OUTPUT_DIRPATH)
+    logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{file_name}\n")
 
 
 if __name__ == "__main__":
