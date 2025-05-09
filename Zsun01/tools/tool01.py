@@ -7,9 +7,9 @@ with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftride
 
 # Define the new entries to be added
 new_entries = {
-    "cp_5": 0,
-    "cp_15": 0,
-    "cp_30": 0,
+    "bp_5": 0,
+    "bp_15": 0,
+    "bp_30": 0,
     "cp_1_min": 0,
     "cp_2_min": 0,
     "cp_3_min": 0,

@@ -329,7 +329,7 @@ def main06():
     for zwift_id, item in my_dict.items():
         if not item:
             logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
-        logger.info(f"{zwift_id} cp60 = {item.cp_60}")
+        logger.info(f"{zwift_id} cp60 = {item.bp_60}")
 
     logger.info(f"Imported {len(my_dict)} items")
 

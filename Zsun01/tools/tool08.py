@@ -23,18 +23,18 @@ class CorrelationDTO():
     zwiftracingapp_score       : Optional[float] = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
     zwiftracingapp_cat_name    : Optional[Optional[str]]   = ""    # Copper, Silver, Gold etc
-    cp_5    : Optional[float] = 0.0
-    cp_15   : Optional[float] = 0.0
-    cp_30   : Optional[float] = 0.0
-    cp_60   : Optional[float] = 0.0
-    cp_180  : Optional[float] = 0.0
-    cp_300  : Optional[float] = 0.0
-    cp_600  : Optional[float] = 0.0
-    cp_720  : Optional[float] = 0.0
-    cp_900  : Optional[float] = 0.0
-    cp_1200 : Optional[float] = 0.0
-    cp_1800 : Optional[float] = 0.0
-    cp_2400 : Optional[float] = 0.0
+    bp_5    : Optional[float] = 0.0
+    bp_15   : Optional[float] = 0.0
+    bp_30   : Optional[float] = 0.0
+    bp_60   : Optional[float] = 0.0
+    bp_180  : Optional[float] = 0.0
+    bp_300  : Optional[float] = 0.0
+    bp_600  : Optional[float] = 0.0
+    bp_720  : Optional[float] = 0.0
+    bp_900  : Optional[float] = 0.0
+    bp_1200 : Optional[float] = 0.0
+    bp_1800 : Optional[float] = 0.0
+    bp_2400 : Optional[float] = 0.0
 
     
 
@@ -223,18 +223,18 @@ def main():
             zwiftracingapp_score       = zsun.zwiftracingapp_score,
             zwiftracingapp_cat_num     = zsun.zwiftracingapp_cat_num,
             zwiftracingapp_cat_name    = zsun.zwiftracingapp_cat_name,
-            cp_5                       = zp_90day_best.cp_5,
-            cp_15                      = zp_90day_best.cp_15,
-            cp_30                      = zp_90day_best.cp_30,
-            cp_60                      = zp_90day_best.cp_60,
-            cp_180                     = zp_90day_best.cp_180,
-            cp_300                     = zp_90day_best.cp_300,
-            cp_600                     = zp_90day_best.cp_600,
-            cp_720                     = zp_90day_best.cp_720,
-            cp_900                     = zp_90day_best.cp_900,
-            cp_1200                    = zp_90day_best.cp_1200,
-            cp_1800                    = zp_90day_best.cp_1800,
-            cp_2400                    = zp_90day_best.cp_2400,
+            bp_5                       = zp_90day_best.bp_5,
+            bp_15                      = zp_90day_best.bp_15,
+            bp_30                      = zp_90day_best.bp_30,
+            bp_60                      = zp_90day_best.bp_60,
+            bp_180                     = zp_90day_best.bp_180,
+            bp_300                     = zp_90day_best.bp_300,
+            bp_600                     = zp_90day_best.bp_600,
+            bp_720                     = zp_90day_best.bp_720,
+            bp_900                     = zp_90day_best.bp_900,
+            bp_1200                    = zp_90day_best.bp_1200,
+            bp_1800                    = zp_90day_best.bp_1800,
+            bp_2400                    = zp_90day_best.bp_2400,
         )
 
     # Create the third DataFrame from dict_of_riders_with_high_fidelity

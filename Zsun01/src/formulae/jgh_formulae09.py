@@ -56,9 +56,9 @@ def translate_efforts_into_criticalpower_item(rider: ZsunRiderItem, rider_exerti
 
     # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
     critical_power_curve = CriticalPowerCurveItem(
-        cp_5=powercurve_datapoints.get(5, 0.0),
-        cp_15=powercurve_datapoints.get(15, 0.0),
-        cp_30=powercurve_datapoints.get(30, 0.0),
+        bp_5=powercurve_datapoints.get(5, 0.0),
+        bp_15=powercurve_datapoints.get(15, 0.0),
+        bp_30=powercurve_datapoints.get(30, 0.0),
         cp_1_min=powercurve_datapoints.get(60, 0.0),
         cp_2_min=powercurve_datapoints.get(120, 0.0),
         cp_3_min=powercurve_datapoints.get(180, 0.0),
