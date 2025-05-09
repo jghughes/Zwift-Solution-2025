@@ -31,6 +31,7 @@
     <Compile Include="src\app_settings_dto.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\bestpower_comparison_dto.py" />
     <Compile Include="src\omnibus_profile_dto.py" />
     <Compile Include="src\person_dto_starter_kit.py">
       <SubType>Code</SubType>

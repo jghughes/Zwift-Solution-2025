@@ -14,6 +14,8 @@ from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwift_profile_item import ZwiftProfileItem
+from bestpower_comparison_item import BestPowerComparisonItem
+from bestpower_comparison_dto import BestPowerComparisonDTO
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -90,7 +92,39 @@ def write_dict_of_zsunbestpowerItems(data: Dict[str, ZsunBestPowerItem], file_na
 
     logger.debug(f"File saved : {file_name}")
 
+def read_dict_of_bestpowercomparisonItems(file_name: str, dir_path: str) -> defaultdict[str, BestPowerComparisonItem]:
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+    
+    inputjson = read_text(dir_path, file_name)
+    answer = JghSerialization.validate(inputjson, Dict[str, BestPowerComparisonDTO])
+    answer = cast(Dict[str, BestPowerComparisonDTO], answer)
+    return defaultdict(BestPowerComparisonItem,
+        {
+            key: BestPowerComparisonItem.from_dataTransferObject(dto)
+            for key, dto in answer.items()
+        }
+    )
 
+def write_dict_of_bestpowercomparisonItems(data: Dict[str, BestPowerComparisonItem], file_name: str, dir_path: str) -> None:
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+
+    serialized_data = JghSerialization.serialise(data)
+    os.makedirs(dir_path, exist_ok=True)
+    file_path = os.path.join(dir_path, file_name)
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json_file.write(serialized_data)
+
+    logger.debug(f"File saved : {file_name}")
 
 def read_many_zwift_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> defaultdict[str, ZwiftProfileItem]:
 

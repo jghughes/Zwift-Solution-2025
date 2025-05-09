@@ -29,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="setup.py" />
+    <Compile Include="src\bestpower_comparison_item.py" />
     <Compile Include="src\hub_item_base.py">
       <SubType>Code</SubType>
     </Compile>

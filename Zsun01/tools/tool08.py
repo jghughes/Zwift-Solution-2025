@@ -1,42 +1,11 @@
-from dataclasses import dataclass
 from handy_utilities import *
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from datetime import datetime
 from jgh_read_write import write_pandas_dataframe_as_xlsx
-from pydantic import BaseModel
-from typing import Optional
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
-
 from computation_classes import CurveFittingResult
+from bestpower_comparison_item import BestPowerComparisonItem
 
-@dataclass
-class CorrelationDTO():
-    zwift_id                   : Optional[str]   = ""    # Zwift ID of the rider
-    name                       : Optional[str]   = ""    # Name of the rider
-    gender                     : Optional[str]   = ""    # Gender of the rider
-    weight_kg                  : Optional[float] = 0.0
-    height_cm                  : Optional[float] = 0.0
-    age_years                  : Optional[float] = 0.0   # Age of the rider in years
-    zwift_zrs                  : Optional[float]   = 0.0     # Zwift racing score
-    zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
-    zwiftracingapp_zpFTP       : Optional[float] = 0.0
-    zwiftracingapp_score       : Optional[float] = 0.0   # Velo score typically over 1000
-    zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
-    zwiftracingapp_cat_name    : Optional[Optional[str]]   = ""    # Copper, Silver, Gold etc
-    bp_5    : Optional[float] = 0.0
-    bp_15   : Optional[float] = 0.0
-    bp_30   : Optional[float] = 0.0
-    bp_60   : Optional[float] = 0.0
-    bp_180  : Optional[float] = 0.0
-    bp_300  : Optional[float] = 0.0
-    bp_600  : Optional[float] = 0.0
-    bp_720  : Optional[float] = 0.0
-    bp_900  : Optional[float] = 0.0
-    bp_1200 : Optional[float] = 0.0
-    bp_1800 : Optional[float] = 0.0
-    bp_2400 : Optional[float] = 0.0
-
-    
 
 def main():
     # configure logging
@@ -55,8 +24,8 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    sample_IDs = None
-    # sample_IDs = get_betel_IDs()
+    # sample_IDs = None
+    sample_IDs = get_betel_IDs()
 
     dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
 
@@ -205,12 +174,12 @@ def main():
     dict_of_zp_90day_graph_watts : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
     
     
-    dict_of_riders_with_high_fidelity : defaultdict[str, CorrelationDTO] = defaultdict(CorrelationDTO)
+    dict_of_riders_with_high_fidelity : defaultdict[str, BestPowerComparisonItem] = defaultdict(BestPowerComparisonItem)
 
     for ID in zwiftIds_with_high_fidelity:
         zsun = dict_of_zsunriderItems[ID]
         zp_90day_best = dict_of_zp_90day_graph_watts[ID]
-        dict_of_riders_with_high_fidelity[ID] = CorrelationDTO(
+        dict_of_riders_with_high_fidelity[ID] = BestPowerComparisonItem(
             zwift_id                   = ID,
             name                       = zsun.name,
             gender                     = zsun.gender,
@@ -241,11 +210,14 @@ def main():
     riders = dict_of_riders_with_high_fidelity.values()
     df3 = pd.DataFrame([asdict(correlationDTO) for correlationDTO in riders])
 
-
-
-    file_name = "dataset_of_CorrelationDTO_for_sophisticated_model_building.xlsx"
+    file_name = "bestpower_dataset_for_model_training.xlsx"
     write_pandas_dataframe_as_xlsx(df3, file_name, OUTPUT_DIRPATH)
     logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{file_name}\n")
+
+    file_name = "bestpower_dataset_for_model_training.json"
+
+    write_dict_of_bestpowercomparisonItems(dict_of_riders_with_high_fidelity, file_name, OUTPUT_DIRPATH)
+
 
 
 if __name__ == "__main__":

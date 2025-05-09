@@ -75,7 +75,7 @@ class ZsunBestPowerItem:
     bp_25     : float = 0.0
     bp_26     : float = 0.0
     bp_27     : float = 0.0
-    bp_27     : float = 0.0
+    bp_28     : float = 0.0
     bp_29     : float = 0.0
     bp_30     : float = 0.0
     bp_35     : float = 0.0
@@ -205,7 +205,7 @@ class ZsunBestPowerItem:
             25: self.bp_25,
             26: self.bp_26,
             27: self.bp_27,
-            28: self.bp_27,
+            28: self.bp_28,
             29: self.bp_29,
             30: self.bp_30,
             35: self.bp_35,
@@ -329,7 +329,7 @@ class ZsunBestPowerItem:
             25: self.bp_25,
             26: self.bp_26,
             27: self.bp_27,
-            28: self.bp_27,
+            28: self.bp_28,
             29: self.bp_29,
             30: self.bp_30,
             35: self.bp_35,
@@ -458,7 +458,7 @@ class ZsunBestPowerItem:
             # 25: self.bp_25,
             # 26: self.bp_26,
             # 27: self.bp_27,
-            # 28: self.bp_27,
+            # 28: self.bp_28,
             # 29: self.bp_29,
             # 30: self.bp_30,
             # 35: self.bp_35,
@@ -588,7 +588,7 @@ class ZsunBestPowerItem:
             # 25: self.bp_25,
             # 26: self.bp_26,
             # 27: self.bp_27,
-            # 28: self.bp_27,
+            # 28: self.bp_28,
             # 29: self.bp_29,
             # 30: self.bp_30,
             # 35: self.bp_35,
@@ -710,7 +710,7 @@ class ZsunBestPowerItem:
             25: "bp_25",
             26: "bp_26",
             27: "bp_27",
-            28: "bp_27",
+            28: "bp_28",
             29: "bp_29",
             30: "bp_30",
             35: "bp_35",
@@ -820,7 +820,7 @@ class ZsunBestPowerItem:
             bp_25          = item.bp_25,
             bp_26          = item.bp_26,
             bp_27          = item.bp_27,
-            bp_27          = item.bp_27,
+            bp_28          = item.bp_28,
             bp_29          = item.bp_29,
             bp_30          = item.bp_30,
             bp_35          = item.bp_35,
@@ -928,7 +928,7 @@ class ZsunBestPowerItem:
             bp_25          = dto.bp_25 or 0.0,
             bp_26          = dto.bp_26 or 0.0,
             bp_27          = dto.bp_27 or 0.0,
-            bp_27          = dto.bp_27 or 0.0,
+            bp_28          = dto.bp_28 or 0.0,
             bp_29          = dto.bp_29 or 0.0,
             bp_30          = dto.bp_30 or 0.0,
             bp_35          = dto.bp_35 or 0.0,

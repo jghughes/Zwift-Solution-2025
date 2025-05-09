@@ -35,7 +35,7 @@ class ZsunBestPowerDTO(BaseModel):
     bp_25   : Optional[float] = 0.0
     bp_26   : Optional[float] = 0.0
     bp_27   : Optional[float] = 0.0
-    bp_27   : Optional[float] = 0.0
+    bp_28   : Optional[float] = 0.0
     bp_29   : Optional[float] = 0.0
     bp_30   : Optional[float] = 0.0
     bp_35   : Optional[float] = 0.0
