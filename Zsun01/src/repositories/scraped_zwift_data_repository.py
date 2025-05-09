@@ -29,10 +29,10 @@ class ScrapedZwiftDataRepository:
     COL_IN_ZWIFTPOWER_90DAYBEST_GRAPHS = "in_zwiftpower_90daybest_graphs"
  
     def __init__(self):
-        self.dict_of_zwiftprofileitem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
-        self.dict_of_zwiftracingappprofileitem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
-        self.dict_of_zwiftpowerprofileitem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
-        self.dict_of_jghbestpoweritem: defaultdict[str, ZsunBestPowerItem] = field(default_factory=lambda: defaultdict(ZsunBestPowerItem))
+        self.dict_of_ZwiftProfileItem: defaultdict[str, ZwiftProfileItem] = field(default_factory=lambda: defaultdict(ZwiftProfileItem))
+        self.dict_of_ZwiftrRacingAppProfileItem: defaultdict[str, ZwiftRacingAppProfileItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppProfileItem))
+        self.dict_of_ZwiftPowerProfileItem: defaultdict[str, ZwiftPowerProfileItem] = field(default_factory=lambda: defaultdict(ZwiftPowerProfileItem))
+        self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem: defaultdict[str, ZsunBestPowerItem] = field(default_factory=lambda: defaultdict(ZsunBestPowerItem))
 
     def populate_repository(
         self,
@@ -42,10 +42,10 @@ class ScrapedZwiftDataRepository:
         zwiftpower_profile_dir_path: str,
         zwiftpower_90daybest_dir_path: str
     ):
-        self.dict_of_zwiftprofileitem               = read_many_zwift_profile_files_in_folder(file_names, zwift_profile_dir_path)
-        self.dict_of_zwiftracingappprofileitem      = read_many_zwiftracingapp_profile_files_in_folder(file_names, zwiftracingapp_profile_dir_path)
-        self.dict_of_zwiftpowerprofileitem          = read_many_zwiftpower_profile_files_in_folder(file_names, zwiftpower_profile_dir_path)
-        self.dict_of_jghbestpoweritem               = read_many_zwiftpower_bestpower_files_in_folder(file_names, zwiftpower_90daybest_dir_path)
+        self.dict_of_ZwiftProfileItem               = read_many_zwift_profile_files_in_folder(file_names, zwift_profile_dir_path)
+        self.dict_of_ZwiftrRacingAppProfileItem     = read_many_zwiftracingapp_profile_files_in_folder(file_names, zwiftracingapp_profile_dir_path)
+        self.dict_of_ZwiftPowerProfileItem          = read_many_zwiftpower_profile_files_in_folder(file_names, zwiftpower_profile_dir_path)
+        self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem = read_many_zwiftpower_bestpower_files_in_folder(file_names, zwiftpower_90daybest_dir_path)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """
@@ -63,10 +63,10 @@ class ScrapedZwiftDataRepository:
 
         # Step 2: Create a superset of all Zwift IDs - the zwift dataset is over a thousand, the others are half that. zwiftracing contains only 200 odd
         superset_of_zwiftID = set(sample1) | set(sample2) | \
-                              set(self.dict_of_zwiftprofileitem.keys()) | \
-                              set(self.dict_of_zwiftracingappprofileitem.keys()) | \
-                              set(self.dict_of_zwiftpowerprofileitem.keys()) | \
-                              set(self.dict_of_jghbestpoweritem.keys())
+                              set(self.dict_of_ZwiftProfileItem.keys()) | \
+                              set(self.dict_of_ZwiftrRacingAppProfileItem.keys()) | \
+                              set(self.dict_of_ZwiftPowerProfileItem.keys()) | \
+                              set(self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem.keys())
 
         # Optional: Log the size of the superset for debugging
         logger.info(f"Total unique Zwift IDs in superset: {len(superset_of_zwiftID)}")
@@ -77,10 +77,10 @@ class ScrapedZwiftDataRepository:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_zwiftprofileitem.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_zwiftracingappprofileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_zwiftpowerprofileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_jghbestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self.dict_of_ZwiftProfileItem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self.dict_of_ZwiftrRacingAppProfileItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self.dict_of_ZwiftPowerProfileItem.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -112,10 +112,10 @@ class ScrapedZwiftDataRepository:
         """
         # Step 1: Create sets for all datasets
         #create four separate list [str] of keys of each dataset
-        zwift_profiles = list(self.dict_of_zwiftprofileitem.keys())
-        zwiftracingapp_profiles = list(self.dict_of_zwiftracingappprofileitem.keys())
-        zwiftpower_profiles = list(self.dict_of_zwiftpowerprofileitem.keys())
-        zwiftpower_90daybest_graphs = list(self.dict_of_jghbestpoweritem.keys())
+        zwift_profiles = list(self.dict_of_ZwiftProfileItem.keys())
+        zwiftracingapp_profiles = list(self.dict_of_ZwiftrRacingAppProfileItem.keys())
+        zwiftpower_profiles = list(self.dict_of_ZwiftPowerProfileItem.keys())
+        zwiftpower_90daybest_graphs = list(self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem.keys())
         
         intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_profiles) & set(zwiftpower_90daybest_graphs)
 
@@ -137,10 +137,10 @@ class ScrapedZwiftDataRepository:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_zwiftprofileitem.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_zwiftracingappprofileitem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_zwiftpowerprofileitem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_jghbestpoweritem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self.dict_of_ZwiftProfileItem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self.dict_of_ZwiftrRacingAppProfileItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self.dict_of_ZwiftPowerProfileItem.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -294,16 +294,16 @@ class ScrapedZwiftDataRepository:
         return answer
 
     def get_dict_of_ZwiftProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftProfileItem]:
-        return self._get_dict_of_items(self.dict_of_zwiftprofileitem, zwift_ids, ZwiftProfileItem)
+        return self._get_dict_of_items(self.dict_of_ZwiftProfileItem, zwift_ids, ZwiftProfileItem)
 
     def get_dict_of_ZwiftRacingAppProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftRacingAppProfileItem]:
-        return self._get_dict_of_items(self.dict_of_zwiftracingappprofileitem, zwift_ids, ZwiftRacingAppProfileItem)
+        return self._get_dict_of_items(self.dict_of_ZwiftrRacingAppProfileItem, zwift_ids, ZwiftRacingAppProfileItem)
 
     def get_dict_of_ZwiftPowerProfileItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZwiftPowerProfileItem]:
-        return self._get_dict_of_items(self.dict_of_zwiftpowerprofileitem, zwift_ids, ZwiftPowerProfileItem)
+        return self._get_dict_of_items(self.dict_of_ZwiftPowerProfileItem, zwift_ids, ZwiftPowerProfileItem)
 
-    def get_dict_of_JghBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZsunBestPowerItem]:
-        return self._get_dict_of_items(self.dict_of_jghbestpoweritem, zwift_ids, ZsunBestPowerItem)
+    def get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZsunBestPowerItem]:
+        return self._get_dict_of_items(self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem, zwift_ids, ZsunBestPowerItem)
 
     def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResult]:
 
@@ -314,7 +314,7 @@ class ScrapedZwiftDataRepository:
         if zwift_ids is None:
             zwift_ids = []
 
-        dict_of_JghBestPowerItem = self.get_dict_of_JghBestPowerItem(zwift_ids)
+        dict_of_JghBestPowerItem = self.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwift_ids)
 
         for zwiftID, item in dict_of_JghBestPowerItem.items():
 
@@ -332,7 +332,7 @@ class ScrapedZwiftDataRepository:
                 skipped_count += 1
                 continue
         
-            raw_xy_data_ftp = item.export_x_y_ordinates_for_ftp_modelling()
+            raw_xy_data_ftp = item.export_x_y_ordinates_for_one_hour_zone_modelling()
             raw_xy_data_pull = item.export_x_y_ordinates_for_pull_zone_modelling()
             raw_xy_data_cp = item.export_x_y_ordinates_for_cp_w_prime_modelling()
 
@@ -380,13 +380,13 @@ class ScrapedZwiftDataRepository:
     
         for key in self.get_dict_of_ZwiftProfileItem(eligible_IDs):
 
-            zwiftItem = self.dict_of_zwiftprofileitem[key]
-            zwiftpowerItem = self.dict_of_zwiftpowerprofileitem[key]
-            zwiftracingappItem = self.dict_of_zwiftracingappprofileitem[key]
+            zwiftItem = self.dict_of_ZwiftProfileItem[key]
+            zwiftpowerItem = self.dict_of_ZwiftPowerProfileItem[key]
+            zwiftracingappItem = self.dict_of_ZwiftrRacingAppProfileItem[key]
             jghcurveItem = jgh_curve_dict[key]
 
-            if key in self.dict_of_zwiftracingappprofileitem:
-                name = self.dict_of_zwiftracingappprofileitem[key].fullname or f"{zwiftItem.first_name} {zwiftItem.last_name}"
+            if key in self.dict_of_ZwiftrRacingAppProfileItem:
+                name = self.dict_of_ZwiftrRacingAppProfileItem[key].fullname or f"{zwiftItem.first_name} {zwiftItem.last_name}"
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
@@ -691,7 +691,7 @@ def main6():
     )
 
     # Example: get the superset - should be more than 1500
-    dict_of_items = rep.get_dict_of_JghBestPowerItem([])
+    dict_of_items = rep.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem([])
     print(f"Jgh best power curves:\n{dict_of_items.values()}\n")
     print(f"Jgh best power curves: {len(dict_of_items.items())}\n")
 

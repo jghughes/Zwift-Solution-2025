@@ -32,15 +32,15 @@ def main():
     zwift_ids = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
     dict_of_curve_fits = repository.get_dict_of_CurveFittingResult(None)
 
-    logger.info(f"Imported {len(repository.dict_of_zwiftprofileitem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_zwiftracingappprofileitem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_zwiftpowerprofileitem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_jghbestpoweritem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     zwift_profiles = [
-        repository.dict_of_zwiftprofileitem[zwift_id]
+        repository.dict_of_ZwiftProfileItem[zwift_id]
         for zwift_id in zwift_ids
-        if zwift_id in repository.dict_of_zwiftprofileitem
+        if zwift_id in repository.dict_of_ZwiftProfileItem
     ]
     items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
     df = pd.DataFrame(items_as_attr_dicts)
@@ -51,13 +51,13 @@ def main():
 
     answer_dict : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
 
-    for key in repository.dict_of_zwiftprofileitem:
-        zwift = repository.dict_of_zwiftprofileitem[key]
-        zwiftpower = repository.dict_of_zwiftpowerprofileitem[key]
-        zwiftracingapp = repository.dict_of_zwiftracingappprofileitem[key]
+    for key in repository.dict_of_ZwiftProfileItem:
+        zwift = repository.dict_of_ZwiftProfileItem[key]
+        zwiftpower = repository.dict_of_ZwiftPowerProfileItem[key]
+        zwiftracingapp = repository.dict_of_ZwiftrRacingAppProfileItem[key]
 
-        if key in repository.dict_of_zwiftracingappprofileitem:
-            name = repository.dict_of_zwiftracingappprofileitem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
+        if key in repository.dict_of_ZwiftrRacingAppProfileItem:
+            name = repository.dict_of_ZwiftrRacingAppProfileItem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
         else:
             name = f"{zwift.first_name} {zwift.last_name}"
 
@@ -89,7 +89,6 @@ def main():
             zwiftracingapp_cat_name           = zwiftracingapp.raceitem.max90.mixed.category,
             zwiftracingapp_CP                 = round(zwiftracingapp.poweritem.CP),
             zwiftracingapp_AWC                = round(zwiftracingapp.poweritem.AWC / 1_000.0),
-            zsun_pull_adjustment_watts        = 0.0,
             zsun_one_hour_curve_coefficient   = zsun_curve_fit.one_hour_curve_coefficient,
             zsun_one_hour_curve_exponent      = zsun_curve_fit.one_hour_curve_exponent,
             zsun_TTT_pull_curve_coefficient   = zsun_curve_fit.TTT_pull_curve_coefficient,

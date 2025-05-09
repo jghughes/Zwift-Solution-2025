@@ -2,10 +2,39 @@ from handy_utilities import *
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from datetime import datetime
 from jgh_read_write import write_pandas_dataframe_as_xlsx
-
+from pydantic import BaseModel
+from typing import Optional
+from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 
 from computation_classes import CurveFittingResult
 
+class CorrelationDTO(BaseModel):
+    zwift_id                   : str   = ""    # Zwift ID of the rider
+    name                       : str   = ""    # Name of the rider
+    gender                     : str   = ""    # Gender of the rider
+    weight_kg                  : float = 0.0
+    height_cm                  : float = 0.0
+    age_years                  : float = 0.0   # Age of the rider in years
+    zwift_zrs                  : float   = 0.0     # Zwift racing score
+    zwift_cat                  : str   = ""    # A+, A, B, C, D, E
+    zwiftpower_zpFTP           : float = 0.0
+    zwiftracingapp_score       : float = 0.0   # Velo score typically over 1000
+    zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
+    zwiftracingapp_cat_name    : str   = ""    # Copper, Silver, Gold etc
+    cp_5    : Optional[float] = 0.0
+    cp_15   : Optional[float] = 0.0
+    cp_30   : Optional[float] = 0.0
+    cp_60   : Optional[float] = 0.0
+    cp_180  : Optional[float] = 0.0
+    cp_300  : Optional[float] = 0.0
+    cp_600  : Optional[float] = 0.0
+    cp_720  : Optional[float] = 0.0
+    cp_900  : Optional[float] = 0.0
+    cp_1200 : Optional[float] = 0.0
+    cp_1800 : Optional[float] = 0.0
+    cp_2400 : Optional[float] = 0.0
+
+    
 
 def main():
     # configure logging
@@ -24,11 +53,12 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
 
-    betel_IDs = get_betel_IDs()
+    sample_IDs = None
+    # sample_IDs = get_betel_IDs()
 
-    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH)
+    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
 
-    dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     logger.info(f"Successfully read, validated, and loaded {len(dict_of_bestpower_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
@@ -36,10 +66,10 @@ def main():
 
     total_count = 0
     skipped_modelling_count = 0
+    valid_count = 0
     count_of_riders_with_high_fidelity_models = 0
     count_of_riders_with_low_fidelity_models = 0
 
-    r_squared_limit = .95
 
     zwiftIds_with_high_fidelity : list[str] = []
     zwiftids_with_low_fidelity : list[str] = []
@@ -72,7 +102,7 @@ def main():
 
         raw_xy_data_cp = my_jghbestpoweritem.export_x_y_ordinates_for_cp_w_prime_modelling()
         raw_xy_data_pull = my_jghbestpoweritem.export_x_y_ordinates_for_pull_zone_modelling()
-        raw_xy_data_ftp = my_jghbestpoweritem.export_x_y_ordinates_for_ftp_modelling()
+        raw_xy_data_ftp = my_jghbestpoweritem.export_x_y_ordinates_for_one_hour_zone_modelling()
 
         # skip riders where any of the three datasets contain less than 5 points
         if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < 5 or len(raw_xy_data_ftp) < 5:
@@ -118,13 +148,17 @@ def main():
         logger.info(f"{summary_pull}")
         logger.info(f"{summary_ftp}")
 
-        if r_squared_pull >= r_squared_limit:
+        r_squared_limit = .95
+
+        if r_squared_ftp >= r_squared_limit:
         # if r_squared_pull >= r_squared_limit and r_squared_ftp >= r_squared_limit:
             zwiftIds_with_high_fidelity.append(my_jghbestpoweritem.zwift_id)
             count_of_riders_with_high_fidelity_models += 1
         else:
             zwiftids_with_low_fidelity.append(my_jghbestpoweritem.zwift_id)
             count_of_riders_with_low_fidelity_models += 1
+
+        valid_count += 1
 
     modelled_count = total_count - skipped_modelling_count
 
@@ -140,7 +174,9 @@ def main():
         # betel = get_betel_zsunriderItem(zwift_id)
         # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
-    # load power_curves_for-everybody into pandas dataframe, sort by ftp_watts, and write to csv file
+    logger.info(f"\nTotal in sample : {total_count} Total valid: {valid_count} Total excellent one hr r2: {count_of_riders_with_high_fidelity_models} % excellent/valid: {round(count_of_riders_with_high_fidelity_models *100/valid_count)}%\n")
+
+    # load dict_of_profiles_for_everybody into pandas dataframe, sort by ftp_watts, and write to csv file
 
     import pandas as pd
     from dataclasses import asdict
@@ -158,6 +194,54 @@ def main():
     OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     write_pandas_dataframe_as_xlsx(merged_df, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    logger.info(f"Saved {len(merged_df)} power curve fitting results to: {OUTPUT_DIR_PATH + OUTPUT_FILE_NAME}\n")
+
+    # zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
+
+    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
+    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+
+    dict_of_zsunriderItems : defaultdict[str, ZsunRiderItem] = repository.get_dict_of_ZsunRiderItem(zwiftIds_with_high_fidelity)
+    dict_of_bestpowerItems : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
+    dict_of_riders_with_high_fidelity : defaultdict[str, CorrelationDTO] = defaultdict(CorrelationDTO)
+
+
+
+    for ID in zwiftIds_with_high_fidelity:
+        profile = dict_of_zsunriderItems[ID]
+        bestpower = dict_of_bestpowerItems[ID]
+
+        dict_of_riders_with_high_fidelity[ID] = CorrelationDTO(
+            zwift_id                   = ID,
+            name                       = f"{profile.name}",
+            gender                     = profile.gender,
+            weight_kg                  = profile.weight_kg,
+            height_cm                  = profile.height_cm,
+            age_years                  = profile.age_years,
+            zwift_zrs                  = profile.zwift_zrs,
+            zwift_cat                  = profile.zwift_cat,
+            zwiftpower_zpFTP           = profile.zwiftpower_zFTP,
+            zwiftracingapp_score       = profile.zwiftracingapp_score,
+            zwiftracingapp_cat_num     = profile.zwiftracingapp_cat_num,
+            zwiftracingapp_cat_name    = profile.zwiftracingapp_cat_name,
+            cp_5                       = bestpower.cp_5,
+            cp_15                      = bestpower.cp_15,
+            cp_30                      = bestpower.cp_30,
+            cp_60                      = bestpower.cp_60,
+            cp_180                     = bestpower.cp_180,
+            cp_300                     = bestpower.cp_300,
+            cp_600                     = bestpower.cp_600,
+            cp_720                     = bestpower.cp_720,
+            cp_900                     = bestpower.cp_900,
+            cp_1200                    = bestpower.cp_1200,
+            cp_1800                    = bestpower.cp_1800,
+            cp_2400                    = bestpower.cp_2400
+
+        )
+
+
+
+
 if __name__ == "__main__":
     main()
 

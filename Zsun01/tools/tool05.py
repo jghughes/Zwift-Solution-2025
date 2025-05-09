@@ -72,7 +72,7 @@ def main():
 
     # model ftp curve 
 
-    x_y_ordinates_for_FTP_60min = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_ftp_modelling()
+    x_y_ordinates_for_FTP_60min = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_one_hour_zone_modelling()
 
     coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
 

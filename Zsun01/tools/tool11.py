@@ -24,7 +24,6 @@ class DummyItem:
     name                       : str   = ""    # Name of the rider
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
-    country                    : str   = ""    # Country of the rider
     curve_fit_ftp              : float = 0.0
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
     delta                      : float = 0.0   # Difference between zwiftracingapp_zpFTP and curve_fit_ftp
@@ -50,7 +49,6 @@ def main():
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
     repository.populate_repository(betel_IDs, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     dict_of_curve_fits = repository.get_dict_of_CurveFittingResult(betel_IDs)
-    dict_of_zwift_profiles = repository.get_dict_of_ZwiftProfileItem(betel_IDs)
 
     comparative_FTPs : list[DummyItem] = list()
 
@@ -70,7 +68,6 @@ def main():
             name                                    = zsunriderItem.name,
             gender                                  = zsunriderItem.gender,
             age_years                               = zsunriderItem.age_years,
-            country                                 = dict_of_zwift_profiles[zsunriderItem.zwift_id].c
             curve_fit_ftp                           = y_pred,
             zwiftracingapp_zpFTP                    = y_actual,
             delta                                   = delta,
@@ -90,7 +87,7 @@ def main():
     # write_json_file(JghSerialization.serialise(answer_dict), "betels_for_copying_manually_into_ZSUN01.json", OUTPUT_DIRPATH)
     logger.info(f"\n{len(comparative_FTPs)} line items saved to: {OUTPUT_DIRPATH}/comparative_FTP_analysis.xlsx\n")
 
-    # jghbestpoweritems = list(repository.get_dict_of_JghBestPowerItem(betel_ids_found).values())
+    # jghbestpoweritems = list(repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(betel_ids_found).values())
 
     # df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
     # write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)

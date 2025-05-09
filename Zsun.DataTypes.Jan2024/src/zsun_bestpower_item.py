@@ -542,7 +542,7 @@ class ZsunBestPowerItem:
         return answer
 
 
-    def export_x_y_ordinates_for_ftp_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_one_hour_zone_modelling(self) -> Dict[int, float]:
         """
 
         Zwift doesn't use FTP per se. They use black magic to come up with zFTP.
