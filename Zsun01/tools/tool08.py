@@ -27,7 +27,7 @@ def main():
     sample_IDs = None
     # sample_IDs = get_betel_IDs()
 
-    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
+    dict_of_zwift_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
 
     dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
@@ -141,19 +141,19 @@ def main():
     # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, critical_power, and r_squared_cp. sorted by name
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwift_id in zwiftIds_with_high_fidelity:
-        logger.info(f"ZwiftID {zwift_id} {dict_of_profiles_for_everybody[zwift_id].first_name} {dict_of_profiles_for_everybody[zwift_id].last_name}")
+        logger.info(f"ZwiftID {zwift_id} {dict_of_zwift_profiles_for_everybody[zwift_id].first_name} {dict_of_zwift_profiles_for_everybody[zwift_id].last_name}")
         # betel = get_betel_zsunriderItem(zwift_id)
         # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
     logger.info(f"\nTotal in sample : {total_count} Total valid: {valid_count} Total excellent one hr r2: {count_of_riders_with_high_fidelity_models} % excellent/valid: {round(count_of_riders_with_high_fidelity_models *100/valid_count)}%\n")
 
-    # load dict_of_profiles_for_everybody into pandas dataframe, sort by ftp_watts, and write to csv file
+    # load dict_of_zwift_profiles_for_everybody into pandas dataframe, sort by ftp_watts, and write to csv file
 
     import pandas as pd
     from dataclasses import asdict
 
-    # Create the first DataFrame from dict_of_profiles_for_everybody
-    df1 = pd.DataFrame([asdict(value) for value in dict_of_profiles_for_everybody.values()])
+    # Create the first DataFrame from dict_of_zwift_profiles_for_everybody
+    df1 = pd.DataFrame([asdict(value) for value in dict_of_zwift_profiles_for_everybody.values()])
 
     # Create the second DataFrame from power_curves_for_everybody
     df2 = pd.DataFrame([asdict(value) for value in power_curves_for_everybody.values()])
@@ -177,6 +177,7 @@ def main():
     dict_of_riders_with_high_fidelity : defaultdict[str, BestPowerModelTrainingItem] = defaultdict(BestPowerModelTrainingItem)
 
     for ID in zwiftIds_with_high_fidelity:
+        zwift = dict_of_zwift_profiles_for_everybody[ID]
         zsun = dict_of_zsunriderItems[ID]
         zp_90day_best = dict_of_zp_90day_graph_watts[ID]
         dict_of_riders_with_high_fidelity[ID] = BestPowerModelTrainingItem(
@@ -188,6 +189,7 @@ def main():
             age_years                  = zsun.age_years,
             zwift_zrs                  = zsun.zwift_zrs,
             zwift_cat                  = zsun.zwift_cat,
+            zwift_ftp                  = zwift.ftp,
             zwiftracingapp_zpFTP       = zsun.zwiftracingapp_zpFTP,
             zwiftracingapp_score       = zsun.zwiftracingapp_score,
             zwiftracingapp_cat_num     = zsun.zwiftracingapp_cat_num,

@@ -12,6 +12,7 @@ class BestPowerModelTrainingDTO:
     age_years                  : Optional[float] = 0.0   # Age of the rider in years
     zwift_zrs                  : Optional[float] = 0.0     # Zwift racing score
     zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
+    zwift_ftp                  : Optional[float]  = 0.0    
     zwiftracingapp_zpFTP       : Optional[float] = 0.0
     zwiftracingapp_score       : Optional[float] = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : Optional[int]   = 0     # Velo rating 1 to 10

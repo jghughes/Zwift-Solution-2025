@@ -1,6 +1,6 @@
 from matplotlib.axes import Axes
 
-def set_x_axis_ticks(ax: Axes, max_seconds: int, interval_seconds: int = 300) -> None:
+def set_x_axis_seconds_in_minute_ticks(ax: Axes, max_seconds: int, interval_seconds: int = 300) -> None:
     """
     Sets x-axis ticks at specified intervals and labels them in minutes.
 
@@ -14,7 +14,20 @@ def set_x_axis_ticks(ax: Axes, max_seconds: int, interval_seconds: int = 300) ->
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels)
 
-def set_y_axis_ticks(ax: Axes, max_units: int, interval_units: int = 50) -> None:
+
+def set_x_axis_units_ticks(ax: Axes, max_units: int, interval_units: int = 50) -> None:
+    """
+    Sets x-axis ticks at specified intervals.
+
+    Parameters:
+        ax (matplotlib.axes.Axes): The axes object to modify.
+        max_units (int): The maximum value on the x-axis.
+        interval_units (int): The interval between ticks (default is 50).
+    """
+    tick_positions = range(0, max_units + 1, interval_units)  # Tick positions at intervals
+    ax.set_xticks(tick_positions)
+
+def set_y_axis_units_ticks(ax: Axes, max_units: int, interval_units: int = 50) -> None:
     """
     Sets y-axis ticks at specified intervals.
 
@@ -25,3 +38,4 @@ def set_y_axis_ticks(ax: Axes, max_units: int, interval_units: int = 50) -> None
     """
     tick_positions = range(0, max_units + 1, interval_units)  # Tick positions at intervals
     ax.set_yticks(tick_positions)
+

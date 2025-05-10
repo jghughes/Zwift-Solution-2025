@@ -6,7 +6,7 @@ from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems, get_betel_IDs, read_many_zwiftpower_bestpower_files_in_folder
 import critical_power as cp
 import matplotlib.pyplot as plt
-from matplot_utilities import set_x_axis_ticks,set_y_axis_ticks
+from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
 
 
 
@@ -142,8 +142,8 @@ def main():
     plt.xlim(0, lim_x)
     plt.ylim(0, lim_y)
     ax = plt.gca()  # Get the current axes
-    set_x_axis_ticks(ax, int(max_x))  # Set x-axis ticks
-    set_y_axis_ticks(ax, int(max_y))  # Set y-axis ticks
+    set_x_axis_seconds_in_minute_ticks(ax, int(max_x))  # Set x-axis ticks
+    set_y_axis_units_ticks(ax, int(max_y))  # Set y-axis ticks
 
     plt.legend()
     plt.show()

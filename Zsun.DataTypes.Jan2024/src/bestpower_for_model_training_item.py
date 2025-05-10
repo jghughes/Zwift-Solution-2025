@@ -12,6 +12,7 @@ class BestPowerModelTrainingItem:
     age_years                  : float = 0.0   # Age of the rider in years
     zwift_zrs                  : float = 0.0   # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
+    zwift_ftp                  : float = 0.0
     zwiftracingapp_zpFTP       : float = 0.0
     zwiftracingapp_score       : float = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
@@ -40,6 +41,7 @@ class BestPowerModelTrainingItem:
             age_years                  = dto.age_years or 0.0,
             zwift_zrs                  = dto.zwift_zrs or 0.0,
             zwift_cat                  = dto.zwift_cat or "",
+            zwift_ftp                  = dto.zwift_ftp or 0.0,
             zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
             zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
             zwiftracingapp_cat_num     = dto.zwiftracingapp_cat_num or 0,
@@ -69,6 +71,7 @@ class BestPowerModelTrainingItem:
             age_years                  = item.age_years,
             zwift_zrs                  = item.zwift_zrs,
             zwift_cat                  = item.zwift_cat,
+            zwift_ftp                  = item.zwift_ftp,
             zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
             zwiftracingapp_score       = item.zwiftracingapp_score,
             zwiftracingapp_cat_num     = item.zwiftracingapp_cat_num,
