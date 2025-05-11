@@ -28,7 +28,7 @@ def main():
 
 
     # filter out all items with item.zwift_ftp == 0.0 or item.zwiftracingapp_zpFTP == 0.0 or item.item.bp_720 == 0.0 or item.item.bp_1200 == 0.0 or item.item.bp_2400 == 0.0. make a new dict
-    dict_of_modelTrainingItems = {k: v for k, v in dict_of_candidate_modelTrainingItems.items() if v.zwiftracingapp_zpFTP > 0.0 and v.zwift_ftp > 0.0 and v.bp_720 > 0.0 and v.bp_1200 > 0.0 and v.bp_2400 > 0.0}
+    dict_of_modelTrainingItems = {k: v for k, v in dict_of_candidate_modelTrainingItems.items() if v.zwiftracingapp_zpFTP > 0.0 and v.zwift_ftp > 0.0 and v.bp_900 > 0.0 and v.bp_1200 > 0.0 and v.bp_1800 > 0.0 and v.bp_2400 > 0.0}
 
     logger.info(f"\nLoaded : {len(dict_of_candidate_modelTrainingItems)} items")
     logger.info(f"Eliminated: {len(dict_of_candidate_modelTrainingItems) - len(dict_of_modelTrainingItems)} partially zero items")
@@ -41,26 +41,30 @@ def main():
     xdata_bp_720 = [item.bp_720 for item in dict_of_modelTrainingItems.values()] # 12 min best
     xdata_bp_900 = [item.bp_900 for item in dict_of_modelTrainingItems.values()] # 12 min best
     xdata_bp_1200 = [item.bp_1200 for item in dict_of_modelTrainingItems.values()] # 20 min best
+    xdata_bp_1800 = [item.bp_1800 for item in dict_of_modelTrainingItems.values()] # 30 min best
     xdata_bp_2400 = [item.bp_2400 for item in dict_of_modelTrainingItems.values()] # 40 min best
-    ydata_zwift_ftp = [item.zwift_ftp for item in dict_of_modelTrainingItems.values()]
+    xdata_zsun_curve_fit = [item.zsun_one_hour_watts for item in dict_of_modelTrainingItems.values()] # 40 min best
+    ydata_zwiftprofile_ftp = [item.zwift_ftp for item in dict_of_modelTrainingItems.values()]
     ydata_zwiftracingapp_zpftp = [item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()]
 
-    max_x = max(max(xdata_bp_60), max(xdata_bp_180), max(xdata_bp_300), max(xdata_bp_600), max(xdata_bp_720),max(xdata_bp_900), max(xdata_bp_1200), max(xdata_bp_2400))
-    max_y = max(max(ydata_zwift_ftp), max(ydata_zwiftracingapp_zpftp))
+    max_x = max(max(xdata_bp_60), max(xdata_bp_180), max(xdata_bp_300), max(xdata_bp_600), max(xdata_bp_720),max(xdata_bp_900), max(xdata_bp_1200), max(xdata_bp_1800), max(xdata_bp_2400), max(xdata_zsun_curve_fit))
+    max_y = max(max(ydata_zwiftprofile_ftp), max(ydata_zwiftracingapp_zpftp))
     lim_x = max_x * 1.05
     lim_y = max_y * 1.05
 
     # plot 1
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata_bp_60, ydata_zwift_ftp, color='brown', label='zwiftpower 90 day best - 1 minute')
-    plt.scatter(xdata_bp_180, ydata_zwift_ftp, color='black', label='zwiftpower 90 day best - 3 minutes')
-    plt.scatter(xdata_bp_300, ydata_zwift_ftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
-    plt.scatter(xdata_bp_600, ydata_zwift_ftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
-    plt.scatter(xdata_bp_720, ydata_zwift_ftp, color='red', label='zwiftpower 90 day best - 12 minutes')
-    plt.scatter(xdata_bp_900, ydata_zwift_ftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
-    plt.scatter(xdata_bp_1200, ydata_zwift_ftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
-    plt.scatter(xdata_bp_2400, ydata_zwift_ftp, color='green', label='zwiftpower 90 day best - 40 minutes')
+    # plt.scatter(xdata_bp_60, ydata_zwiftprofile_ftp, color='brown', label='zwiftpower 90 day best - 1 minute')
+    # plt.scatter(xdata_bp_180, ydata_zwiftprofile_ftp, color='black', label='zwiftpower 90 day best - 3 minutes')
+    # plt.scatter(xdata_bp_300, ydata_zwiftprofile_ftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
+    plt.scatter(xdata_bp_600, ydata_zwiftprofile_ftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
+    plt.scatter(xdata_bp_720, ydata_zwiftprofile_ftp, color='red', label='zwiftpower 90 day best - 12 minutes')
+    plt.scatter(xdata_bp_900, ydata_zwiftprofile_ftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
+    plt.scatter(xdata_bp_1200, ydata_zwiftprofile_ftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
+    plt.scatter(xdata_bp_1800, ydata_zwiftprofile_ftp, color='orange', label='zwiftpower 90 day best - 30 minutes')
+    plt.scatter(xdata_bp_2400, ydata_zwiftprofile_ftp, color='green', label='zwiftpower 90 day best - 40 minutes')
+    plt.scatter(xdata_zsun_curve_fit, ydata_zwiftprofile_ftp, color='indigo', label='zsun curve fit - 40 minutes')
 
     plt.xlabel('ZwiftPower 90 day best (Watts)')
     plt.ylabel('ZwiftProfile (Watts)')
@@ -78,15 +82,16 @@ def main():
     # plot 2
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata_bp_60, ydata_zwift_ftp, color='brown', label='zwiftpower 90 day best - 1 minute')
-    plt.scatter(xdata_bp_180, ydata_zwift_ftp, color='black', label='zwiftpower 90 day best - 3 minutes')
-    plt.scatter(xdata_bp_300, ydata_zwift_ftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
-    plt.scatter(xdata_bp_600, ydata_zwift_ftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
-    plt.scatter(xdata_bp_720, ydata_zwift_ftp, color='red', label='zwiftpower 90 day best - 12 minutes')
-    plt.scatter(xdata_bp_900, ydata_zwift_ftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
-    plt.scatter(xdata_bp_1200, ydata_zwift_ftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
-    plt.scatter(xdata_bp_2400, ydata_zwift_ftp, color='green', label='zwiftpower 90 day best - 40 minutes')
-
+    # plt.scatter(xdata_bp_60, ydata_zwiftracingapp_zpftp, color='brown', label='zwiftpower 90 day best - 1 minute')
+    # plt.scatter(xdata_bp_180, ydata_zwiftracingapp_zpftp, color='black', label='zwiftpower 90 day best - 3 minutes')
+    # plt.scatter(xdata_bp_300, ydata_zwiftracingapp_zpftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
+    plt.scatter(xdata_bp_600, ydata_zwiftracingapp_zpftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
+    plt.scatter(xdata_bp_720, ydata_zwiftracingapp_zpftp, color='red', label='zwiftpower 90 day best - 12 minutes')
+    plt.scatter(xdata_bp_900, ydata_zwiftracingapp_zpftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
+    plt.scatter(xdata_bp_1200, ydata_zwiftracingapp_zpftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
+    plt.scatter(xdata_bp_1800, ydata_zwiftracingapp_zpftp, color='orange', label='zwiftpower 90 day best - 20 minutes')
+    plt.scatter(xdata_bp_2400, ydata_zwiftracingapp_zpftp, color='green', label='zwiftpower 90 day best - 40 minutes')
+    plt.scatter(xdata_zsun_curve_fit, ydata_zwiftracingapp_zpftp, color='indigo', label='zsun curve fit - 40 minutes')
     plt.xlabel('ZwiftPower 90 day best (Watts)')
     plt.ylabel('ZwiftRacingApp zpFTP (Watts)')
     plt.title(f'Scatter-plot of ZwiftPower 90-best datasets (x axis) versus ZwiftRacingApp zpFTP (y axis)')
@@ -101,7 +106,7 @@ def main():
     # plot 3
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(ydata_zwift_ftp, ydata_zwiftracingapp_zpftp, color='red', label='coordinates')
+    plt.scatter(ydata_zwiftprofile_ftp, ydata_zwiftracingapp_zpftp, color='red', label='coordinates')
     plt.xlabel('ZwiftProfile ftp (Watts)')
     plt.ylabel('ZwiftRacingApp zpFTP (Watts)')
     plt.title(f'Scatter-plot of ZwiftProfile ftp datasets (x axis) versus ZwiftRacingApp zpFTP (y axis)')
@@ -114,19 +119,97 @@ def main():
     plt.show()
 
 
+    # # do modelling with linear regression
+
+    # # Prepare the data
+    # X = np.array([[item.bp_600, item.bp_720, item.bp_900, item.bp_1200, item.bp_1800, item.bp_2400, item.zsun_one_hour_watts] for item in dict_of_modelTrainingItems.values()])
+    # y = np.array([item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()])
+
+    # # Normalize the features using Min-Max Scaling
+    # # scaler = MinMaxScaler()
+    # # X_normalized = scaler.fit_transform(X)
+
+    # # Alternatively, use Standardization (uncomment the following lines if preferred)
+    # scaler = StandardScaler()
+    # X_normalized = scaler.fit_transform(X)
+
+    # # Split the normalized data into training and testing sets
+    # X_train, X_test, y_train, y_test = train_test_split(X_normalized, y, test_size=0.2, random_state=42)
+
+    # # Create and train the model
+    # model = LinearRegression()
+    # model.fit(X_train, y_train)
+
+    # # Make predictions
+    # y_pred = model.predict(X_test)
+
+    # # Evaluate the model
+    # r2 = r2_score(y_test, y_pred)
+    # mse = mean_squared_error(y_test, y_pred)
+    # rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+    # logger.info(f"R-squared: {r2}")
+    # logger.info(f"Mean Squared Error: {mse}")
+    # logger.info(f"Root Mean Squared Error: {rmse}")
+   
+
+    # # Display the coefficients to analyze the influence of each factor
+    # coefficients = model.coef_
+    # features = ['bp_600', 'bp_720', 'bp_900', 'bp_1200', 'bp_1800', 'bp_2400', 'zsun_one_hour_watts']
+    # for feature, coef in zip(features, coefficients):
+    #     logger.info(f"Feature: {feature}, Coefficient: {coef}")
+
+    # # Predicted vs. Actual Values Plot
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(y_test, y_pred, color='blue', alpha=0.6, label='Predicted vs Actual')
+    # plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', label='Ideal Fit (y=x)')
+    # plt.xlabel('Actual Values (y_test)')
+    # plt.ylabel('Predicted Values (y_pred)')
+    # plt.title('Predicted vs Actual Values')
+    # plt.legend()
+    # plt.show()
+
+    # # Residuals Plot
+    # residuals = y_test - y_pred
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(y_pred, residuals, color='purple', alpha=0.6)
+    # plt.axhline(y=0, color='red', linestyle='--', label='Zero Residual Line')
+    # plt.xlabel('Predicted Values (y_pred)')
+    # plt.ylabel('Residuals (y_test - y_pred)')
+    # plt.title('Residuals Plot')
+    # plt.legend()
+    # plt.show()
+
+    # # Feature Importance (Coefficients)
+    # plt.figure(figsize=(10, 6))
+    # features = ['bp_600', 'bp_720', 'bp_900', 'bp_1200', 'bp_1800', 'bp_2400', 'zsun_one_hour_watts']
+    # plt.bar(features, coefficients, color='green', alpha=0.7)
+    # plt.xlabel('Features')
+    # plt.ylabel('Coefficient Value')
+    # plt.title('Feature Importance (Regression Coefficients)')
+    # plt.show()
+
+
+
+
+
+
+
+
+
     # do modelling with linear regression
 
     # Prepare the data
-    X = np.array([[item.bp_720, item.bp_900, item.bp_1200, item.bp_2400] for item in dict_of_modelTrainingItems.values()])
+    X = np.array([[item.zsun_one_hour_watts] for item in dict_of_modelTrainingItems.values()])
     y = np.array([item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()])
 
     # Normalize the features using Min-Max Scaling
-    scaler = MinMaxScaler()
-    X_normalized = scaler.fit_transform(X)
+    # scaler = MinMaxScaler()
+    # X_normalized = scaler.fit_transform(X)
 
     # Alternatively, use Standardization (uncomment the following lines if preferred)
-    # scaler = StandardScaler()
-    # X_normalized = scaler.fit_transform(X)
+    scaler = StandardScaler()
+    X_normalized = scaler.fit_transform(X)
 
     # Split the normalized data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X_normalized, y, test_size=0.2, random_state=42)
@@ -139,8 +222,8 @@ def main():
     y_pred = model.predict(X_test)
 
     # Evaluate the model
-    mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
     logger.info(f"R-squared: {r2}")
@@ -150,7 +233,7 @@ def main():
 
     # Display the coefficients to analyze the influence of each factor
     coefficients = model.coef_
-    features = ['bp_720', 'bp_900', 'bp_1200', 'bp_2400']
+    features = ['zsun_one_hour_watts']
     for feature, coef in zip(features, coefficients):
         logger.info(f"Feature: {feature}, Coefficient: {coef}")
 
@@ -177,87 +260,12 @@ def main():
 
     # Feature Importance (Coefficients)
     plt.figure(figsize=(10, 6))
-    features = ['bp_720', 'bp_900', 'bp_1200', 'bp_2400']
+    features = ['zsun_one_hour_watts']
     plt.bar(features, coefficients, color='green', alpha=0.7)
     plt.xlabel('Features')
     plt.ylabel('Coefficient Value')
     plt.title('Feature Importance (Regression Coefficients)')
     plt.show()
-
-    # do modelling with linear regression without negative influence of item.bp_720 and bp_1200
-    logger.info(f"\n\n\n\n\n\n\n\n\n\nSame linear regression, but this time excluding the -tve influence of 12 and 20min data")
-
-    # Prepare the data
-    X = np.array([[item.bp_900, item.bp_2400] for item in dict_of_modelTrainingItems.values()])
-    y = np.array([item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()])
-
-    # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Create and train the model
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-
-    # Make predictions
-    y_pred = model.predict(X_test)
-
-    # Evaluate the model
-    r2 = r2_score(y_test, y_pred)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-    logger.info(f"R-squared: {r2}")
-    logger.info(f"Mean Squared Error: {mse}")
-    logger.info(f"Root Mean Squared Error: {rmse}")
-   
-
-    # Display the coefficients to analyze the influence of each factor
-    coefficients = model.coef_
-    features = ['bp_900', 'bp_2400']
-    for feature, coef in zip(features, coefficients):
-        logger.info(f"Feature: {feature}, Coefficient: {coef}")
-
-    # Predicted vs. Actual Values Plot
-    plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, y_pred, color='blue', alpha=0.6, label='Predicted vs Actual')
-    plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', label='Ideal Fit (y=x)')
-    plt.xlabel('Actual Values (y_test)')
-    plt.ylabel('Predicted Values (y_pred)')
-    plt.title('Predicted vs Actual Values')
-    plt.legend()
-    plt.show()
-
-    # Residuals Plot
-    residuals = y_test - y_pred
-    plt.figure(figsize=(10, 6))
-    plt.scatter(y_pred, residuals, color='purple', alpha=0.6)
-    plt.axhline(y=0, color='red', linestyle='--', label='Zero Residual Line')
-    plt.xlabel('Predicted Values (y_pred)')
-    plt.ylabel('Residuals (y_test - y_pred)')
-    plt.title('Residuals Plot')
-    plt.legend()
-    plt.show()
-
-    # Feature Importance (Coefficients)
-    plt.figure(figsize=(10, 6))
-    features = ['bp_900', 'bp_2400']
-    plt.bar(features, coefficients, color='green', alpha=0.7)
-    plt.xlabel('Features')
-    plt.ylabel('Coefficient Value')
-    plt.title('Feature Importance (Regression Coefficients)')
-    plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

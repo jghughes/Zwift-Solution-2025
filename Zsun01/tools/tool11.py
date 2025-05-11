@@ -24,10 +24,10 @@ class DummyItem:
     name                       : str   = ""    # Name of the rider
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
-    curve_fit_ftp              : float = 0.0
+    zsun_one_hour_power         : float = 0.0
     zwiftracingapp_zpFTP       : float = 0.0    #Originates in Zwiftracingapp profile
-    delta                      : float = 0.0   # Difference between zwiftracingapp_zpFTP and curve_fit_ftp
-    percent                    : float = 0.0   # Percentage difference between zwiftracingapp_zpFTP and curve_fit_ftp
+    delta                      : float = 0.0   # Difference between zwiftracingapp_zpFTP and zsun_one_hour_power
+    percent                    : float = 0.0   # Percentage difference between zwiftracingapp_zpFTP and zsun_one_hour_power
     value_of_curve_x_for_zwiftracingapp_zpFTP_y : float = 0.0   # The x value of the curve fit for the y value of zwiftracingapp_zpFTP
     zwift_zrs                  : float   = 0.0     # Zwift racing score
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
@@ -53,7 +53,8 @@ def main():
     comparative_FTPs : list[DummyItem] = list()
 
     for zsunriderItem in repository.get_dict_of_ZsunRiderItem(betel_IDs).values():
-        y_pred = round(zsunriderItem.get_n_second_watts(3600))
+        y_pred = round(zsunriderItem.get_n_second_watts(2400))
+        # y_pred = round(zsunriderItem.get_one_hour_watts())
         y_actual = zsunriderItem.zwiftracingapp_zpFTP
         if y_pred == 0.0 or y_actual == 0 or zsunriderItem.zwift_zrs == 0 or zsunriderItem.zwiftracingapp_score == 0:
             continue
@@ -61,14 +62,14 @@ def main():
         percent = abs(round(((y_pred - y_actual) * 100) / y_actual))
         curve = dict_of_curve_fits[zsunriderItem.zwift_id]
         curve_x_ordinate = solve_decay_model_for_x_numpy(curve.one_hour_curve_coefficient, curve.one_hour_curve_exponent, np.array([y_actual]))
-        logger.info(f"zpFTP/Zsun one-hour: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {zsunriderItem.name}")
+        logger.info(f"zpFTP/Zsun one-hour_power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {zsunriderItem.name}")
 
         item = DummyItem(
             zwift_id                                = zsunriderItem.zwift_id,
             name                                    = zsunriderItem.name,
             gender                                  = zsunriderItem.gender,
             age_years                               = zsunriderItem.age_years,
-            curve_fit_ftp                           = y_pred,
+            zsun_one_hour_power                           = y_pred,
             zwiftracingapp_zpFTP                    = y_actual,
             delta                                   = delta,
             percent                                 = percent,

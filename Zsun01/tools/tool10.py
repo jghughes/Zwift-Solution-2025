@@ -105,13 +105,5 @@ def main():
     write_json_file(JghSerialization.serialise(answer_dict), "betels_for_copying_manually_into_ZSUN01.json", OUTPUT_DIRPATH)
     logger.info(f"{len(answer_dict)} Betels saved to: {OUTPUT_DIRPATH} + betels_for_copying_manually_into_ZSUN01..")
 
-    # jghbestpoweritems = list(repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(betel_ids_found).values())
-
-    # df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
-    # write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)
-
-
-
-
 if __name__ == "__main__":
     main()
