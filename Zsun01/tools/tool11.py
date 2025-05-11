@@ -53,7 +53,7 @@ def main():
     comparative_FTPs : list[DummyItem] = list()
 
     for zsunriderItem in repository.get_dict_of_ZsunRiderItem(betel_IDs).values():
-        y_pred = round(zsunriderItem.get_n_second_watts(2400))
+        y_pred = round(zsunriderItem.get_n_second_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
         # y_pred = round(zsunriderItem.get_one_hour_watts())
         y_actual = zsunriderItem.zwiftracingapp_zpFTP
         if y_pred == 0.0 or y_actual == 0 or zsunriderItem.zwift_zrs == 0 or zsunriderItem.zwiftracingapp_score == 0:
@@ -84,7 +84,7 @@ def main():
 
     df = pd.DataFrame([asdict(item) for item in comparative_FTPs])
 
-    write_pandas_dataframe_as_xlsx(df,  "comparative_FTP_analysis.xlsx", OUTPUT_DIRPATH)
+    write_pandas_dataframe_as_xlsx(df, "comparative_FTP_analysis.xlsx", OUTPUT_DIRPATH)
     # write_json_file(JghSerialization.serialise(answer_dict), "betels_for_copying_manually_into_ZSUN01.json", OUTPUT_DIRPATH)
     logger.info(f"\n{len(comparative_FTPs)} line items saved to: {OUTPUT_DIRPATH}/comparative_FTP_analysis.xlsx\n")
 

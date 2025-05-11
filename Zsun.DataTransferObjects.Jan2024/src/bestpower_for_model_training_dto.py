@@ -14,6 +14,7 @@ class BestPowerModelTrainingDTO:
     zwift_cat                  : Optional[str]   = ""    # A+, A, B, C, D, E
     zwift_ftp                  : Optional[float]  = 0.0    
     zsun_one_hour_watts        : Optional[float]  = 0.0
+    zsun_40_minute_watts       : Optional[float]  = 0.0
     zwiftracingapp_zpFTP       : Optional[float] = 0.0
     zwiftracingapp_score       : Optional[float] = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : Optional[int]   = 0     # Velo rating 1 to 10
@@ -30,4 +31,6 @@ class BestPowerModelTrainingDTO:
     bp_1200 : Optional[float] = 0.0
     bp_1800 : Optional[float] = 0.0
     bp_2400 : Optional[float] = 0.0
+    zsun_one_hour_curve_coefficient : Optional[float] = 0.0
+    zsun_one_hour_curve_exponent : Optional[float] = 0.0
 

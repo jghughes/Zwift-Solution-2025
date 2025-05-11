@@ -190,7 +190,8 @@ def main():
             zwift_zrs                  = zsun.zwift_zrs,
             zwift_cat                  = zsun.zwift_cat,
             zwift_ftp                  = zwift.ftp,
-            zsun_one_hour_watts        = round(zsun.get_n_second_watts(2400)),
+            zsun_one_hour_watts        = round(zsun.get_one_hour_watts()),
+            zsun_40_minute_watts       = round(zsun.get_n_second_watts(2400)),
             zwiftracingapp_zpFTP       = zsun.zwiftracingapp_zpFTP,
             zwiftracingapp_score       = zsun.zwiftracingapp_score,
             zwiftracingapp_cat_num     = zsun.zwiftracingapp_cat_num,
@@ -207,6 +208,8 @@ def main():
             bp_1200                    = zp_90day_best.bp_1200,
             bp_1800                    = zp_90day_best.bp_1800,
             bp_2400                    = zp_90day_best.bp_2400,
+            zsun_one_hour_curve_coefficient = zsun.zsun_one_hour_curve_coefficient,
+            zsun_one_hour_curve_exponent = zsun.zsun_one_hour_curve_exponent
         )
 
     # Create the third DataFrame from dict_of_riders_with_high_fidelity

@@ -14,6 +14,7 @@ class BestPowerModelTrainingItem:
     zwift_cat                  : str   = ""    # A+, A, B, C, D, E
     zwift_ftp                  : float = 0.0
     zsun_one_hour_watts        : float = 0.0
+    zsun_40_minute_watts       : float = 0.0
     zwiftracingapp_zpFTP       : float = 0.0
     zwiftracingapp_score       : float = 0.0   # Velo score typically over 1000
     zwiftracingapp_cat_num     : int   = 0     # Velo rating 1 to 10
@@ -30,6 +31,8 @@ class BestPowerModelTrainingItem:
     bp_1200                    : float = 0.0
     bp_1800                    : float = 0.0
     bp_2400                    : float = 0.0
+    zsun_one_hour_curve_coefficient : float = 0.0
+    zsun_one_hour_curve_exponent    : float = 0.0
 
     @staticmethod
     def from_dataTransferObject(dto: BestPowerModelTrainingDTO) -> "BestPowerModelTrainingItem":
@@ -44,6 +47,7 @@ class BestPowerModelTrainingItem:
             zwift_cat                  = dto.zwift_cat or "",
             zwift_ftp                  = dto.zwift_ftp or 0.0,
             zsun_one_hour_watts        = dto.zsun_one_hour_watts or 0.0,
+            zsun_40_minute_watts       = dto.zsun_40_minute_watts or 0.0,
             zwiftracingapp_zpFTP       = dto.zwiftracingapp_zpFTP or 0.0,
             zwiftracingapp_score       = dto.zwiftracingapp_score or 0.0,
             zwiftracingapp_cat_num     = dto.zwiftracingapp_cat_num or 0,
@@ -59,7 +63,9 @@ class BestPowerModelTrainingItem:
             bp_900                     = dto.bp_900 or 0.0,
             bp_1200                    = dto.bp_1200 or 0.0,
             bp_1800                    = dto.bp_1800 or 0.0,
-            bp_2400                    = dto.bp_2400 or 0.0
+            bp_2400                    = dto.bp_2400 or 0.0,
+            zsun_one_hour_curve_coefficient = dto.zsun_one_hour_curve_coefficient or 0.0,
+            zsun_one_hour_curve_exponent    = dto.zsun_one_hour_curve_exponent or 0.0
         )
 
     @staticmethod
@@ -75,6 +81,7 @@ class BestPowerModelTrainingItem:
             zwift_cat                  = item.zwift_cat,
             zwift_ftp                  = item.zwift_ftp,
             zsun_one_hour_watts        = item.zsun_one_hour_watts,
+            zsun_40_minute_watts       = item.zsun_40_minute_watts,
             zwiftracingapp_zpFTP       = item.zwiftracingapp_zpFTP,
             zwiftracingapp_score       = item.zwiftracingapp_score,
             zwiftracingapp_cat_num     = item.zwiftracingapp_cat_num,
@@ -90,5 +97,7 @@ class BestPowerModelTrainingItem:
             bp_900                     = item.bp_900,
             bp_1200                    = item.bp_1200,
             bp_1800                    = item.bp_1800,
-            bp_2400                    = item.bp_2400
+            bp_2400                    = item.bp_2400,
+            zsun_one_hour_curve_coefficient = item.zsun_one_hour_curve_coefficient,
+            zsun_one_hour_curve_exponent    = item.zsun_one_hour_curve_exponent
         )
