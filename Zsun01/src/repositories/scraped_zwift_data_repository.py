@@ -397,7 +397,7 @@ class ScrapedZwiftDataRepository:
                 height_cm                         = round((zwiftItem.height_mm or 0.0) / 10.0),
                 gender                            = "m" if zwiftItem.male else "f",
                 age_years                         = zwiftItem.age_years,
-                agegroup                          = zwiftracingappItem.agegroup,
+                age_group                          = zwiftracingappItem.age_group,
                 zwift_ftp                         = round(zwiftItem.ftp),
                 zwiftpower_zFTP                   = round(zwiftpowerItem.zftp),
                 zwiftracingapp_zpFTP              = round(zwiftracingappItem.zp_FTP),

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
+    <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
     <Compile Include="tools\rubbish.py" />

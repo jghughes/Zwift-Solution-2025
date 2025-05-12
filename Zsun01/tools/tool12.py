@@ -569,7 +569,7 @@ def main():
 
     # ydata_pred = decay_model_numpy(xdata, coefficient_ftp, exponent_ftp)
 
-    # Prepare the data - (38 minutes gives a teeny bit "better" R-squared"
+    # Prepare the data
     X = np.array([[decay_model_numpy(np.array(2400),item.zsun_one_hour_curve_coefficient, item.zsun_one_hour_curve_exponent)] for item in dict_of_modelTrainingItems.values()])
     y = np.array([item.bp_2400 for item in dict_of_modelTrainingItems.values()])
     # y = np.array([item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()])

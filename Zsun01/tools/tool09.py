@@ -75,7 +75,7 @@ def main():
             height_cm                         = round((zwift.height_mm or 0.0) / 10.0),
             gender                            = "m" if zwift.male else "f",
             age_years                         = zwift.age_years,
-            agegroup                          = zwiftracingapp.agegroup,
+            age_group                          = zwiftracingapp.age_group,
             zwift_ftp                         = round(zwift.ftp),
             zwiftpower_zFTP                   = round(zwiftpower.zftp),
             zwiftracingapp_zpFTP              = round(zwiftracingapp.zp_FTP),

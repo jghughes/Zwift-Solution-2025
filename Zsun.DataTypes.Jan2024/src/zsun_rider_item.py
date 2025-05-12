@@ -18,7 +18,7 @@ class ZsunRiderItem:
     height_cm                         : float = 0.0   # Height of the rider in centimeters
     gender                            : str   = ""    # Gender of the rider
     age_years                         : float = 0.0   # Age of the rider in years
-    agegroup                          : str   = ""    # Age group of the rider
+    age_group                          : str   = ""    # Age group of the rider
     zwift_ftp                         : float = 0.0   # Originates in Zwift profile
     zwiftpower_zFTP                   : float = 0.0   # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP              : float = 0.0   # Originates in Zwiftracingapp profile
@@ -129,7 +129,9 @@ class ZsunRiderItem:
         return instance
 
     def calculate_strength(self) -> float:
-        return self.zwift_zrs
+        if self.weight_kg == 0:
+            return self.get_one_hour_watts()/80.0 # arbitrary default 80kg
+        return self.get_one_hour_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -283,7 +285,7 @@ class ZsunRiderItem:
             height_cm                         = item.height_cm,
             gender                            = item.gender,
             age_years                         = item.age_years,
-            agegroup                          = item.agegroup,
+            age_group                          = item.age_group,
             zwift_ftp                         = item.zwift_ftp,
             zwiftpower_zFTP                   = item.zwiftpower_zFTP,
             zwiftracingapp_zpFTP              = item.zwiftracingapp_zpFTP,
@@ -317,7 +319,7 @@ class ZsunRiderItem:
             height_cm                         = dto.height_cm or 0.0,
             gender                            = dto.gender or "",
             age_years                         = dto.age_years or 0.0,
-            agegroup                          = dto.agegroup or "",
+            age_group                          = dto.age_group or "",
             zwift_ftp                         = dto.zwift_ftp or 0.0,
             zwiftpower_zFTP                   = dto.zwiftpower_zFTP or 0.0,
             zwiftracingapp_zpFTP              = dto.zwiftracingapp_zpFTP or 0.0,

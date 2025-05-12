@@ -4,7 +4,7 @@ from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "zwift_id"               : AliasChoices("zwift_id", "riderId"),
-    "agegroup"               : AliasChoices("agegroup", "age"),
+    "age_group"               : AliasChoices("age_group", "age"),
     "fullname"               : AliasChoices("fullname", "name"),
     "height_cm"              : AliasChoices("height_cm", "height"),
     "weight_kg"              : AliasChoices("weight_kg", "weight"),
@@ -82,7 +82,7 @@ class ZwiftRacingAppProfileDTO(BaseModel):
     fullname            : Optional[str]        = ""   # Name of the rider
     gender              : Optional[str]        = ""   # Gender of the rider "M" or "F"
     country             : Optional[str]        = ""   # Country of the rider
-    agegroup            : Optional[str]        = ""   # Age category of the rider eg 50+
+    age_group            : Optional[str]        = ""   # Age category of the rider eg 50+
     height_cm           : Optional[float]      = 0.0  # Height of the rider in centimeters
     weight_kg           : Optional[float]      = 0.0  # Weight of the rider in kilograms
     zp_race_category    : Optional[str]        = ""   # ZwiftPower category, such as C or D

@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
-from zsun_rider_item import ZsunRiderItem, 
+from zsun_rider_item import ZsunRiderItem 
 from computation_classes import  RiderWorkAssignmentItem, RiderExertionItem 
 from zwiftpower_90day_best_item import JghFlattened90DayBestPowerCurveItem
 

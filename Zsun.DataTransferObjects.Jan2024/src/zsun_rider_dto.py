@@ -21,7 +21,7 @@ class ZsunRiderDTO(BaseModel):
     height_cm                        : Optional[float] = 0.0   # Height of the rider in centimeters
     gender                           : Optional[str]   = ""    # Gender of the rider, m or f
     age_years                        : Optional[float] = 0.0   # Age of the rider in years
-    agegroup                         : Optional[str]   = ""    # Age group of the rider
+    age_group                         : Optional[str]   = ""    # Age group of the rider
     zwift_ftp                        : Optional[float] = 0.0   # Originates in Zwift profile
     zwiftpower_zFTP                  : Optional[float] = 0.0   # Originates in Zwiftpower profile
     zwiftracingapp_zpFTP             : Optional[float] = 0.0   # Originates in Zwiftracingapp profile

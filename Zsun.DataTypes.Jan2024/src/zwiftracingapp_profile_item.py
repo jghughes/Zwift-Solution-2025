@@ -175,7 +175,7 @@ class ZwiftRacingAppProfileItem:
     fullname          : str  = ""
     gender            : str  = ""
     country           : str  = ""
-    agegroup          : str  = ""
+    age_group          : str  = ""
     height_cm         : float = 0.0
     weight_kg         : float = 0.0
     zp_race_category  : str  = ""
@@ -192,7 +192,7 @@ class ZwiftRacingAppProfileItem:
             fullname         = dto.fullname or "",
             gender           = dto.gender or "",
             country          = dto.country or "",
-            agegroup         = dto.agegroup or "",
+            age_group         = dto.age_group or "",
             height_cm        = dto.height_cm or 0.0,
             weight_kg        = dto.weight_kg or 0.0,
             zp_race_category = dto.zp_race_category or "",
@@ -210,7 +210,7 @@ class ZwiftRacingAppProfileItem:
             fullname         = item.fullname,
             gender           = item.gender,
             country          = item.country,
-            agegroup         = item.agegroup,
+            age_group         = item.age_group,
             height_cm        = item.height_cm,
             weight_kg        = item.weight_kg,
             zp_race_category = item.zp_race_category,
