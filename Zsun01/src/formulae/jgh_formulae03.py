@@ -34,19 +34,19 @@ def deselect_weaker_riders(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRiderI
     weak_sorted: List[ZsunRiderItem] = sorted(weak, key=lambda r: r.calculate_speed_at_1_minute_pull_watts(), reverse=True)
 
 
-    # # Step 6: determine a threshold which is the slowest speed of the strong group, i.e. the last rider in the strong group 
-    # if strong_sorted:
-    #     threshold = strong_sorted[-1].calculate_speed_at_1_minute_pull_watts()
+    # Step 6: determine a threshold which is the slowest speed of the strong group, i.e. the last rider in the strong group 
+    if strong_sorted:
+        threshold = strong_sorted[-1].calculate_speed_at_1_minute_pull_watts()
 
-    # # Step 7: promote riders from the weak group to the strong group if they are faster than the slowest rider in the strong group
-    # for rider in weak_sorted:
-    #     if rider.calculate_speed_at_1_minute_pull_watts() > threshold:
-    #         strong_sorted.append(rider)
-    #         weak_sorted.remove(rider)
+    # Step 7: promote riders from the weak group to the strong group if they are faster than the slowest rider in the strong group
+    for rider in weak_sorted:
+        if rider.calculate_speed_at_1_minute_pull_watts() > threshold:
+            strong_sorted.append(rider)
+            weak_sorted.remove(rider)
 
-    # # Step 8: Sort the strong group again after promotion
-    # strong_sorted = sorted(strong_sorted, key=lambda r: r.calculate_speed_at_1_minute_pull_watts(), reverse=True)
-    # weak_sorted = sorted(weak_sorted, key=lambda r: r.calculate_speed_at_1_minute_pull_watts(), reverse=True)
+    # Step 8: Sort the strong group again after promotion
+    strong_sorted = sorted(strong_sorted, key=lambda r: r.calculate_speed_at_1_minute_pull_watts(), reverse=True)
+    weak_sorted = sorted(weak_sorted, key=lambda r: r.calculate_speed_at_1_minute_pull_watts(), reverse=True)
 
     return strong_sorted, weak_sorted
 
