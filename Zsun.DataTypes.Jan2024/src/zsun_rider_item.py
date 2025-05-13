@@ -44,53 +44,199 @@ class ZsunRiderItem:
         json_schema_extra = {
             "davek": {
                 "zwift_id": "3147366",
-                "name": "Dave K",
+                "name": "Dave Konicek",
                 "weight_kg": 73.4,
                 "height_cm": 182,
                 "gender": "m",
-                "zwiftpower_zFTP": 276,
-                "zwift_zrs": 744,
-                "zwiftracingapp_cat_num": 1897,
+                "age_years": 37.0,
+                "age_group": "Mas",
+                "zwift_ftp": 289,
+                "zwiftpower_zFTP": 253,
+                "zwiftracingapp_zpFTP": 276,
+                "zsun_one_hour_watts": 265,
+                "zsun_CP": 481,
+                "zsun_AWC": 5.7,
+                "zwift_zrs": 766,
+                "zwift_cat": "B",
+                "zwiftracingapp_score": 1961,
+                "zwiftracingapp_cat_num": 2,
+                "zwiftracingapp_cat_name": "Ruby",
+                "zwiftracingapp_CP": 267,
+                "zwiftracingapp_AWC": 44,
+                "zsun_one_hour_curve_coefficient": 664.0079147534638,
+                "zsun_one_hour_curve_exponent": 0.11239298363950606,
+                "zsun_TTT_pull_curve_coefficient": 1745.6066111916828,
+                "zsun_TTT_pull_curve_exponent": 0.26940852871547233,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.99,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.465243"
             },
             "huskyc": {
                 "zwift_id": "5134",
-                "name": "Husky C",
+                "name": "Husky Crone",
                 "weight_kg": 75.5,
                 "height_cm": 178,
                 "gender": "m",
-                "zwiftpower_zFTP": 268,
-                "zwift_zrs": 552,
-                "zwiftracingapp_cat_num": 1519,
+                "age_years": 35.0,
+                "age_group": "Mas",
+                "zwift_ftp": 289,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 269,
+                "zsun_one_hour_watts": 262,
+                "zsun_CP": 435,
+                "zsun_AWC": 6.0,
+                "zwift_zrs": 559,
+                "zwift_cat": "B",
+                "zwiftracingapp_score": 1558,
+                "zwiftracingapp_cat_num": 4,
+                "zwiftracingapp_cat_name": "Sapphire",
+                "zwiftracingapp_CP": 274,
+                "zwiftracingapp_AWC": 20,
+                "zsun_one_hour_curve_coefficient": 520.4954289732605,
+                "zsun_one_hour_curve_exponent": 0.08389032975096743,
+                "zsun_TTT_pull_curve_coefficient": 955.1603211890762,
+                "zsun_TTT_pull_curve_exponent": 0.18357620329753058,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.96,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.535358"
             },
             "scottm": {
                 "zwift_id": "11526",
-                "name": "Scott M",
-                "weight_kg": 78,
+                "name": "Scott McVeigh",
+                "weight_kg": 78.0,
                 "height_cm": 165,
                 "gender": "m",
-                "zwiftpower_zFTP": 247,
+                "age_years": 55.0,
+                "age_group": "50+",
+                "zwift_ftp": 266,
+                "zwiftpower_zFTP": 266,
+                "zwiftracingapp_zpFTP": 248,
+                "zsun_one_hour_watts": 237,
+                "zsun_CP": 407,
+                "zsun_AWC": 5.5,
                 "zwift_zrs": 509,
-                "zwiftracingapp_cat_num": 1537,
+                "zwift_cat": "B",
+                "zwiftracingapp_score": 1537,
+                "zwiftracingapp_cat_num": 4,
+                "zwiftracingapp_cat_name": "Sapphire",
+                "zwiftracingapp_CP": 240,
+                "zwiftracingapp_AWC": 29,
+                "zsun_one_hour_curve_coefficient": 506.95534041277796,
+                "zsun_one_hour_curve_exponent": 0.0928305762893673,
+                "zsun_TTT_pull_curve_coefficient": 818.2572203302822,
+                "zsun_TTT_pull_curve_exponent": 0.16785965369458963,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.95,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.605522"
             },
             "johnh": {
                 "zwift_id": "1884456",
-                "name": "John H",
+                "name": "John Hughes",
                 "weight_kg": 75.4,
                 "height_cm": 174,
                 "gender": "m",
-                "zwiftpower_zFTP": 233,
-                "zwift_zrs": 351,
-                "zwiftracingapp_cat_num": 1067,
+                "age_years": 68.0,
+                "age_group": "60+",
+                "zwift_ftp": 255,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 240,
+                "zsun_one_hour_watts": 235,
+                "zsun_CP": 321,
+                "zsun_AWC": 2.0,
+                "zwift_zrs": 354,
+                "zwift_cat": "C",
+                "zwiftracingapp_score": 1068,
+                "zwiftracingapp_cat_num": 7,
+                "zwiftracingapp_cat_name": "Gold",
+                "zwiftracingapp_CP": 235,
+                "zwiftracingapp_AWC": 27,
+                "zsun_one_hour_curve_coefficient": 438.41811711142964,
+                "zsun_one_hour_curve_exponent": 0.07613242272294136,
+                "zsun_TTT_pull_curve_coefficient": 368.9228335727515,
+                "zsun_TTT_pull_curve_exponent": 0.041421410263352096,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.69,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.590622"
             },
             "joshn": {
                 "zwift_id": "2508033",
                 "name": "Josh N",
-                "weight_kg": 101,
+                "weight_kg": 101.0,
                 "height_cm": 178,
                 "gender": "m",
-                "zwiftpower_zFTP": 260,
-                "zwift_zrs": 285,
-                "zwiftracingapp_cat_num": 942,
+                "age_years": 48.0,
+                "age_group": "Vet",
+                "zwift_ftp": 283,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 259,
+                "zsun_one_hour_watts": 247,
+                "zsun_CP": 420,
+                "zsun_AWC": 6.3,
+                "zwift_zrs": 0,
+                "zwift_cat": "",
+                "zwiftracingapp_score": 966,
+                "zwiftracingapp_cat_num": 8,
+                "zwiftracingapp_cat_name": "Silver",
+                "zwiftracingapp_CP": 261,
+                "zwiftracingapp_AWC": 22,
+                "zsun_one_hour_curve_coefficient": 635.6351183277075,
+                "zsun_one_hour_curve_exponent": 0.11525850433801628,
+                "zsun_TTT_pull_curve_coefficient": 954.4693803074022,
+                "zsun_TTT_pull_curve_exponent": 0.18875993101642763,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.96,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.547244"
+            },
+            "brent": {
+                "zwift_id": "480698",
+                "name": "Brent",
+                "weight_kg": 75.1,
+                "height_cm": 180,
+                "gender": "m",
+                "age_years": 64.0,
+                "age_group": "60+",
+                "zwift_ftp": 248,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 252,
+                "zsun_one_hour_watts": 233,
+                "zsun_CP": 387,
+                "zsun_AWC": 5.9,
+                "zwift_zrs": 0,
+                "zwift_cat": "",
+                "zwiftracingapp_score": 1134,
+                "zwiftracingapp_cat_num": 7,
+                "zwiftracingapp_cat_name": "Gold",
+                "zwiftracingapp_CP": 244,
+                "zwiftracingapp_AWC": 16,
+                "zsun_one_hour_curve_coefficient": 490.839505002798,
+                "zsun_one_hour_curve_exponent": 0.09124723263727438,
+                "zsun_TTT_pull_curve_coefficient": 754.0586848474131,
+                "zsun_TTT_pull_curve_exponent": 0.16464100889054065,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.98,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.528257"
+            },
+            "coryc": {
+                "zwift_id": "5569057",
+                "name": "Cory Cook",
+                "weight_kg": 90.7,
+                "height_cm": 186,
+                "gender": "m",
+                "age_years": 58.0,
+                "age_group": "50+",
+                "zwift_ftp": 290,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 271,
+                "zsun_one_hour_watts": 264,
+                "zsun_CP": 457,
+                "zsun_AWC": 7.3,
+                "zwift_zrs": 436,
+                "zwift_cat": "C",
+                "zwiftracingapp_score": 1266,
+                "zwiftracingapp_cat_num": 6,
+                "zwiftracingapp_cat_name": "Platinum",
+                "zwiftracingapp_CP": 275,
+                "zwiftracingapp_AWC": 32,
+                "zsun_one_hour_curve_coefficient": 648.1030002578349,
+                "zsun_one_hour_curve_exponent": 0.10975216676298859,
+                "zsun_TTT_pull_curve_coefficient": 925.1077031333853,
+                "zsun_TTT_pull_curve_exponent": 0.1654803344602741,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.86,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.563525"
             },
         }
 
@@ -130,8 +276,8 @@ class ZsunRiderItem:
 
     def calculate_strength(self) -> float:
         if self.weight_kg == 0:
-            return self.get_one_hour_watts()/80.0 # arbitrary default 80kg
-        return self.get_one_hour_watts()/self.weight_kg
+            return self.get_30sec_pull_watts()/80.0 # arbitrary default 80kg
+        return self.get_30sec_pull_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -223,40 +369,22 @@ class ZsunRiderItem:
     def get_30sec_pull_watts(self) -> float:
 
         pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-
-        answer =  pull_short[0]
-
+        one_hour = decay_model_numpy(np.array([210]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+        answer = max(pull_short[0], one_hour[0])
         return answer
 
     def get_1_minute_pull_watts(self) -> float:
 
         pull_medium = decay_model_numpy(np.array([300]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-
-        answer =  pull_medium[0]
-
+        one_hour = decay_model_numpy(np.array([300]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+        answer = max(pull_medium[0], one_hour[0])
         return answer
 
     def get_2_minute_pull_watts(self) -> float:
 
         pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-
-        answer =  pull_long[0]
-
-        return answer
-
-    def get_3_minute_pull_watts(self) -> float:
-
-        # same as 2 minute because this is for beasts who can withstand more time at the front 
-        # at the same power
-        pull_long = decay_model_numpy(np.array([1500]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-
-        answer =  pull_long[0]
-
-        return answer
-
-    def get_5_minute_pull_watts(self) -> float:
-        pull_long = decay_model_numpy(np.array([1800]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-        answer =  pull_long[0]
+        one_hour = decay_model_numpy(np.array([720]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+        answer = max(pull_long[0], one_hour[0])
         return answer
 
     def get_one_hour_watts(self) -> float:
@@ -268,8 +396,16 @@ class ZsunRiderItem:
         return answer
 
     def get_n_second_watts(self, seconds: float) -> float:
+
+        if seconds < 120:
+            pull = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
+            one_hour = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+            answer = max(pull[0], one_hour[0])
+            return answer
+
         power = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
-        return power[0]
+        answer = power[0]
+        return answer
 
     def get_when_models_fitted(self) -> str:
         return self.zsun_when_curves_fitted

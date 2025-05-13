@@ -1,5 +1,6 @@
 from typing import List
 from zsun_rider_item import ZsunRiderItem
+from zsun_rider_dto import ZsunRiderDTO
 from computation_classes import *
 
 def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRiderItem]:
@@ -18,17 +19,6 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
     - The fourth strongest rider is placed ahead of the second strongest (position n-1).
     - This pattern continues until all riders are placed.
 
-    The resulting pattern for n riders is as follows:
-
-        pos     strength
-        1       1 (strongest)
-        2       3
-        3       5
-        ...     ...
-        n-2     6
-        n-1     4
-        n       2 (second strongest)
-
     Args:
         riders (List[ZsunRiderItem]): The list of riders to be arranged.
 
@@ -38,22 +28,21 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
     # Step 1: Calculate the strength of each rider and sort them in descending order
     sorted_riders = sorted(riders, key=lambda rider: rider.calculate_strength(), reverse=True)
 
-    # Step 2: Interleave the riders
-    optimal_order : List[ZsunRiderItem] = []
-    left = 0  # Pointer for the front of the list
-    right = len(sorted_riders) - 1  # Pointer for the back of the list
+    # Step 2: Create an empty list to hold the optimal order
+    n = len(sorted_riders)
+    optimal_order: List[ZsunRiderItem] = [None] * n  # type: ignore
 
-    while left <= right:
-        if left == right:
-            # If there's only one rider left, add them to the list
-            optimal_order.append(sorted_riders[left])
-        else:
-            # Add the strongest remaining rider to the front
-            optimal_order.append(sorted_riders[left])
-            # Add the next strongest remaining rider to the back
-            optimal_order.append(sorted_riders[right])
-        left += 1
-        right -= 1
+    # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
+    front_idx = 0
+    for i in range(0, n, 2):
+        optimal_order[front_idx] = sorted_riders[i]
+        front_idx += 1
+
+    # Step 4: Fill back, 2nd last, ... (even positions from end) with 2nd, 4th, 6th, ... in reverse
+    back_idx = n - 1
+    for i in range(1, n, 2):
+        optimal_order[back_idx] = sorted_riders[i]
+        back_idx -= 1
 
     return optimal_order
 
@@ -70,16 +59,19 @@ def main():
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
-        ZsunRiderItem.Config.json_schema_extra["davek"],
+        # ZsunRiderItem.Config.json_schema_extra["davek"],
         ZsunRiderItem.Config.json_schema_extra["huskyc"],
         ZsunRiderItem.Config.json_schema_extra["scottm"],
         ZsunRiderItem.Config.json_schema_extra["johnh"],
         ZsunRiderItem.Config.json_schema_extra["joshn"],
+        ZsunRiderItem.Config.json_schema_extra["brent"],
+        ZsunRiderItem.Config.json_schema_extra["coryc"],
     ]
+
 
     # Convert example data to ZsunRiderItem instances
     riders = [
-        ZsunRiderItem.from_dataTransferObject(ZsunRiderItem.create(**data))
+        ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
         for data in example_riders_data
     ]
 
