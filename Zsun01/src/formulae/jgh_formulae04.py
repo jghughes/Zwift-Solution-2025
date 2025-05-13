@@ -1,7 +1,7 @@
 from typing import Dict, List
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import *
-
+from jgh_formulae03 import *
 def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
@@ -78,26 +78,39 @@ def main() -> None:
         ]
         logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
-    from handy_utilities import read_dict_of_zsunriderItems
+    # Example: Instantiate riders using the Config class
+    example_riders_data = [
+        # ZsunRiderItem.Config.json_schema_extra["meridithl"],
+        ZsunRiderItem.Config.json_schema_extra["melissaw"],
+        ZsunRiderItem.Config.json_schema_extra["richardm"],
+        ZsunRiderItem.Config.json_schema_extra["davek"],
+        # ZsunRiderItem.Config.json_schema_extra["huskyc"],
+        ZsunRiderItem.Config.json_schema_extra["scottm"],
+        # ZsunRiderItem.Config.json_schema_extra["johnh"],
+        # ZsunRiderItem.Config.json_schema_extra["joshn"],
+        # ZsunRiderItem.Config.json_schema_extra["brent"],
+        # ZsunRiderItem.Config.json_schema_extra["coryc"],
+        # ZsunRiderItem.Config.json_schema_extra["davide"],
+    ]
 
-    RIDERDATA_FILE_NAME = "betel_ZsunRiderItems.json"
-    ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+    # Convert example data to ZsunRiderItem instances
+    riders = [
+        ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
+        for data in example_riders_data
+    ]
+    target_speed_kph = calculate_target_speed_of_paceline(riders)
 
-    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    strong_riders, weak_riders = deselect_weaker_riders(riders) # from here on we ignore weak riders - for now
 
+    # the pull durations for all strong_riders is the same, 60 seconds
+    # the pull speeds are the same for all strong_riders, = target_speed_kph
 
-    davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
-    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh 1884456
-    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    pull_durations = [60.0] * len(strong_riders)
+    pull_speeds_kph = [target_speed_kph] * len(strong_riders)
 
-    pull_speeds_kph = [44.0, 40.0, 38.0, 36.0]
-    pull_durations = [120.0, 60.0, 30.0, 10.0]
-    riders : list[ZsunRiderItem] = [davek, barryb, johnh, lynseys]
+    work_assignments = populate_rider_work_assignments(strong_riders, pull_durations, pull_speeds_kph)
 
-    assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
-
-    log_results_work_assignments("Example riders",assignments, logger)
+    log_results_work_assignments("Example riders",work_assignments, logger)
 
 if __name__ == "__main__":
     main()
