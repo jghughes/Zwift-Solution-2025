@@ -238,6 +238,146 @@ class ZsunRiderItem:
                 "zsun_TTT_pull_curve_fit_r_squared": 0.86,
                 "zsun_when_curves_fitted": "2025-05-08T15:32:40.563525"
             },
+            "richardm": {
+                "zwift_id": "1193",
+                "name": "Richard Mann",
+                "weight_kg": 93.0,
+                "height_cm": 178,
+                "gender": "m",
+                "age_years": 59.0,
+                "age_group": "50+",
+                "zwift_ftp": 220,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 203,
+                "zsun_one_hour_watts": 196,
+                "zsun_CP": 269,
+                "zsun_AWC": 6.6,
+                "zwift_zrs": 187,
+                "zwift_cat": "D",
+                "zwiftracingapp_score": 645,
+                "zwiftracingapp_cat_num": 10,
+                "zwiftracingapp_cat_name": "Copper",
+                "zwiftracingapp_CP": 196,
+                "zwiftracingapp_AWC": 22,
+                "zsun_one_hour_curve_coefficient": 393.721985511704,
+                "zsun_one_hour_curve_exponent": 0.08546639813143812,
+                "zsun_TTT_pull_curve_coefficient": 617.2705888756522,
+                "zsun_TTT_pull_curve_exponent": 0.1590388131288181,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.95,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.459256"
+            },
+            "timr": {
+                "zwift_id": "5421258",
+                "name": "Tim Reid",
+                "weight_kg": 79.8,
+                "height_cm": 185,
+                "gender": "m",
+                "age_years": 42.0,
+                "age_group": "Vet",
+                "zwift_ftp": 366,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 380,
+                "zsun_one_hour_watts": 346,
+                "zsun_CP": 515,
+                "zsun_AWC": 6.3,
+                "zwift_zrs": 705,
+                "zwift_cat": "A",
+                "zwiftracingapp_score": 2186,
+                "zwiftracingapp_cat_num": 2,
+                "zwiftracingapp_cat_name": "Ruby",
+                "zwiftracingapp_CP": 384,
+                "zwiftracingapp_AWC": 17,
+                "zsun_one_hour_curve_coefficient": 835.4522228502348,
+                "zsun_one_hour_curve_exponent": 0.10750304608455272,
+                "zsun_TTT_pull_curve_coefficient": 1066.8447652505567,
+                "zsun_TTT_pull_curve_exponent": 0.15556453497632458,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.98,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.514248"
+            },
+            "meridithl": {
+                "zwift_id": "1707548",
+                "name": "Meridith Leubner",
+                "weight_kg": 59.0,
+                "height_cm": 158,
+                "gender": "f",
+                "age_years": 49.0,
+                "age_group": "Vet",
+                "zwift_ftp": 236,
+                "zwiftpower_zFTP": 224,
+                "zwiftracingapp_zpFTP": 220,
+                "zsun_one_hour_watts": 214,
+                "zsun_CP": 320,
+                "zsun_AWC": 3.4,
+                "zwift_zrs": 398,
+                "zwift_cat": "B",
+                "zwiftracingapp_score": 1310,
+                "zwiftracingapp_cat_num": 5,
+                "zwiftracingapp_cat_name": "Amethyst",
+                "zwiftracingapp_CP": 219,
+                "zwiftracingapp_AWC": 18,
+                "zsun_one_hour_curve_coefficient": 387.17415636798984,
+                "zsun_one_hour_curve_exponent": 0.07228861452587262,
+                "zsun_TTT_pull_curve_coefficient": 522.5841631649076,
+                "zsun_TTT_pull_curve_exponent": 0.11649441181261071,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.96,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.479252"
+            },
+            "melissaw": {
+                "zwift_id": "1657744",
+                "name": "Melissa Warwick N",
+                "weight_kg": 59.0,
+                "height_cm": 175,
+                "gender": "f",
+                "age_years": 48.0,
+                "age_group": "Vet",
+                "zwift_ftp": 218,
+                "zwiftpower_zFTP": 0,
+                "zwiftracingapp_zpFTP": 213,
+                "zsun_one_hour_watts": 206,
+                "zsun_CP": 268,
+                "zsun_AWC": 5.7,
+                "zwift_zrs": 354,
+                "zwift_cat": "B",
+                "zwiftracingapp_score": 1088,
+                "zwiftracingapp_cat_num": 7,
+                "zwiftracingapp_cat_name": "Gold",
+                "zwiftracingapp_CP": 203,
+                "zwiftracingapp_AWC": 18,
+                "zsun_one_hour_curve_coefficient": 329.38967469903315,
+                "zsun_one_hour_curve_exponent": 0.05759325401657411,
+                "zsun_TTT_pull_curve_coefficient": 519.6131258856989,
+                "zsun_TTT_pull_curve_exponent": 0.13271100392618762,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.98,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.573522"
+            },
+            "davide": {
+                "zwift_id": "4945836",
+                "name": "David Evanetich",
+                "weight_kg": 89.4,
+                "height_cm": 175,
+                "gender": "m",
+                "age_years": 60.0,
+                "age_group": "60+",
+                "zwift_ftp": 244,
+                "zwiftpower_zFTP": 243,
+                "zwiftracingapp_zpFTP": 250,
+                "zsun_one_hour_watts": 232,
+                "zsun_CP": 330,
+                "zsun_AWC": 5.2,
+                "zwift_zrs": 268,
+                "zwift_cat": "C",
+                "zwiftracingapp_score": 871,
+                "zwiftracingapp_cat_num": 8,
+                "zwiftracingapp_cat_name": "Silver",
+                "zwiftracingapp_CP": 253,
+                "zwiftracingapp_AWC": 10,
+                "zsun_one_hour_curve_coefficient": 461.94246292014464,
+                "zsun_one_hour_curve_exponent": 0.08405525316957085,
+                "zsun_TTT_pull_curve_coefficient": 942.5213896273015,
+                "zsun_TTT_pull_curve_exponent": 0.21045384587938612,
+                "zsun_TTT_pull_curve_fit_r_squared": 0.94,
+                "zsun_when_curves_fitted": "2025-05-08T15:32:40.579625"
+            },
         }
 
     @staticmethod
@@ -276,8 +416,8 @@ class ZsunRiderItem:
 
     def calculate_strength(self) -> float:
         if self.weight_kg == 0:
-            return self.get_30sec_pull_watts()/80.0 # arbitrary default 80kg
-        return self.get_30sec_pull_watts()/self.weight_kg
+            return self.get_1_minute_pull_watts()/80.0 # arbitrary default 80kg
+        return self.get_1_minute_pull_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -309,7 +449,7 @@ class ZsunRiderItem:
         power = estimate_watts_from_speed(speed, self.weight_kg, self.height_cm)
         return power
 
-    def calculate_wattage_riding_in_the_peloton(
+    def calculate_wattage_riding_in_the_paceline(
         self, speed: float, position: int
     ) -> float:
         """
@@ -335,7 +475,7 @@ class ZsunRiderItem:
 
         return round(adjusted_power, 3)
 
-    def calculate_speed_riding_in_the_peloton(
+    def calculate_speed_riding_in_the_paceline(
         self, power: float, position: int
     ) -> float:
         """
@@ -357,6 +497,50 @@ class ZsunRiderItem:
 
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
         speed_kph = estimate_speed_from_wattage(adjusted_watts, self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
+    def calculate_speed_at_one_hour_watts(self) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their one-hour power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.zsun_one_hour_watts, self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
+    def calculate_speed_at_30sec_pull_watts(self) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_30sec_pull_watts(), self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
+    def calculate_speed_at_1_minute_pull_watts(self) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_1_minute_pull_watts(), self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
+    def calculate_speed_at_2_minute_pull_watts(self) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_2_minute_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
@@ -397,7 +581,7 @@ class ZsunRiderItem:
 
     def get_n_second_watts(self, seconds: float) -> float:
 
-        if seconds < 120:
+        if seconds < 720:
             pull = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
             one_hour = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
             answer = max(pull[0], one_hour[0])
@@ -516,7 +700,7 @@ def main():
     for rider in riders:
         row : List[Union[str, float]] = [rider.name]
         for position in [1, 5]:
-            wattage = rider.calculate_wattage_riding_in_the_peloton(40, position)
+            wattage = rider.calculate_wattage_riding_in_the_paceline(40, position)
             row.append(str(wattage))  # Convert wattage to string
         table.append(row)
     
@@ -534,7 +718,7 @@ def main():
     headers = ["Position", "Wattage (40 km/h)"]
 
     for position in positions:
-        wattage = rider_john.calculate_wattage_riding_in_the_peloton(40, position)
+        wattage = rider_john.calculate_wattage_riding_in_the_paceline(40, position)
         table.append([position, wattage])
 
     # Log the table
@@ -553,7 +737,7 @@ def main():
 
     for position in positions:
         # Calculate the speed for the given position and FTP
-        speed = rider_john.calculate_speed_riding_in_the_peloton(rider_john.zwiftpower_zFTP, position)
+        speed = rider_john.calculate_speed_riding_in_the_paceline(rider_john.zwiftpower_zFTP, position)
         table.append([position, speed])
 
     # Log the table

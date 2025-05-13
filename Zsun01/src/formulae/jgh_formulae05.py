@@ -21,7 +21,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[Ri
     for rider, work_assignments in rider_work_assignments.items():
         rider_exertions: List[RiderExertionItem] = []
         for assignment in work_assignments:
-            wattage = rider.calculate_wattage_riding_in_the_peloton(assignment.speed, assignment.position)
+            wattage = rider.calculate_wattage_riding_in_the_paceline(assignment.speed, assignment.position)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
             rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))

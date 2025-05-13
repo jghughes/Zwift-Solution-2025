@@ -38,6 +38,7 @@ def main():
     selena = "2682791" #ftp 214
     steve_seiler = "6142432" #ftp 270
     david_evanetich= '4945836'
+    coryc = "5569057"
 
     # choose a rider to model
 
