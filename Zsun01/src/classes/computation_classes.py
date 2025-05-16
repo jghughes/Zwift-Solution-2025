@@ -23,7 +23,7 @@ class CurveFittingResult:
 
 #     @staticmethod
 #     def create(riders: list[ZsunRiderItem]) -> "RiderTeamItem":
-#         riders.sort(key=lambda x: x.calculate_strength(), reverse=True)
+#         riders.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
 #         # assign rank to rank attr sarting with 1
 #         for i, rider in enumerate(riders):
 #             rider.rank = i + 1
@@ -31,8 +31,8 @@ class CurveFittingResult:
 #         return team
 
 #     def sort_riders(self) -> None:
-#         riders_working.sort(key=lambda x: x.calculate_strength(), reverse=True)
-#         riders_resting.sort(key=lambda x: x.calculate_strength(), reverse=True)
+#         riders_working.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
+#         riders_resting.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
 
 #     def demote_rider_from_working_to_resting(self, rider: ZsunRiderItem) -> None:
 #         riders_resting.append(rider)
@@ -63,8 +63,6 @@ class RiderExertionItem:
 
 @dataclass
 class RiderAnswerItem():
-    cp_watts                    : float = 0
-    critical_power_w_prime              : float = 0
     speed_kph             : float = 0
     pull_duration         : float = 0
     pull_wkg              : float = 0
@@ -74,8 +72,8 @@ class RiderAnswerItem():
     p3_w                  : float = 0
     p4_w                  : float = 0
     p__w                  : float = 0
-    ftp_intensity_factor  : float = 0
-    cp_intensity_factor   : float = 0
+    intensity_factor_power  : float = 0
+    intensity_factor_energy : float = 0
 
     
 @dataclass
@@ -95,8 +93,8 @@ class RiderAnswerDisplayObject():
     pull_wkg              : float = 0
     pull_w_over_ftp       : str   = ""
     p1_4                  : str   = ""
-    ftp_intensity_factor  : float = 0
-    cp_intensity_factor   : float = 0
+    intensity_factor_power  : float = 0
+    intensity_factor_energy   : float = 0
 
     
 @dataclass(frozen=True, eq=True)

@@ -54,7 +54,7 @@ def main():
 
     for zsunriderItem in repository.get_dict_of_ZsunRiderItem(betel_IDs).values():
         y_pred = round(zsunriderItem.get_n_second_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
-        # y_pred = round(zsunriderItem.get_one_hour_watts())
+        # y_pred = round(zsunriderItem.get_1_hour_watts())
         y_actual = zsunriderItem.zwiftracingapp_zpFTP
         if y_pred == 0.0 or y_actual == 0 or zsunriderItem.zwift_zrs == 0 or zsunriderItem.zwiftracingapp_score == 0:
             continue

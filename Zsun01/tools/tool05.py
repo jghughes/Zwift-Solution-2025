@@ -42,7 +42,7 @@ def main():
 
     # choose a rider to model
 
-    zwiftID = johnh
+    zwiftID = lynseys
 
     ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_ZsunRiderItems.json"
     ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -99,13 +99,12 @@ def main():
 
     logger.info(f"\n{summary_cp_w_prime}")
 
-    summary_pull = f"TTT pull power (W) (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}"
-    # summary_pull = f"TTT pull power (W) (30-60-120 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())}  [r^2 = {round(r_squared_pull, 2)}]"
+    summary_pull = f"TTT pull power (W) (30-60-120-240 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())} - {round(pi.get_4_minute_pull_watts())}"
 
     logger.info(f"\n{summary_pull}")
 
-    summary_ftp = f"One hour power zone (W) = {round(pi.get_one_hour_watts())}"
-    # summary_ftp = f"One hour power zone (W) = {round(pi.get_one_hour_watts())}  [r^2 = {round(r_squared_60min, 2)}]"
+    summary_ftp = f"One hour power zone (W) = {round(pi.get_1_hour_watts())}"
+    # summary_ftp = f"One hour power zone (W) = {round(pi.get_1_hour_watts())}  [r^2 = {round(r_squared_60min, 2)}]"
 
     logger.info(f"\n{summary_ftp}")
 

@@ -108,7 +108,7 @@ def main():
     write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
     logger.info(f"Minimally valid subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
 
-    # Remove items where zwift_zrs is 0 or vvelo_cat_name is an empty string
+    # Remove items where zwift_zrs is 0 or velo_cat_name is an empty string
     answer_dict = {
         key: value
         for key, value in answer_dict.items()

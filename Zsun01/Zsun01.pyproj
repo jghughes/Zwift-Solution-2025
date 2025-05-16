@@ -45,6 +45,7 @@
   <ItemGroup>
     <Content Include="appsettings.json" />
     <Content Include="data\betel_IDs.json" />
+    <Content Include="data\everyone_in_club_ZsunRiderItems.json" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">
@@ -93,6 +94,7 @@
     <Compile Include="tools\tool11.py" />
     <Compile Include="tools\tool10.py" />
     <Compile Include="tools\tool09.py" />
+    <Compile Include="tools\tool13.py" />
     <Compile Include="tools\tool12.py" />
     <Compile Include="tools\zwiftpower_serialisation_failures.json">
       <SubType>Code</SubType>

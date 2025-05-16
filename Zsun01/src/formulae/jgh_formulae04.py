@@ -2,6 +2,14 @@ from typing import Dict, List
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import *
 from jgh_formulae03 import *
+
+import logging
+from jgh_logging import jgh_configure_logging
+jgh_configure_logging("appsettings.json")
+logger = logging.getLogger(__name__)
+
+
+
 def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
@@ -50,33 +58,28 @@ def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations:
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
+def log_rider_work_assignments(test_description: str, result: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
+    from tabulate import tabulate
+
+    table = []
+    for rider, assignments in result.items():
+        for assignment in assignments:
+            table.append([
+                rider.name, 
+                assignment.position, 
+                assignment.duration, 
+                assignment.speed
+            ])
+
+    headers = [
+        "Rider", 
+        "Position", 
+        "Duration (sec)", 
+        "Speed (kph)"
+    ]
+    logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 def main() -> None:
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-
-    def log_results_work_assignments(test_description: str, result: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
-        from tabulate import tabulate
-
-        table = []
-        for rider, assignments in result.items():
-            for assignment in assignments:
-                table.append([
-                    rider.name, 
-                    assignment.position, 
-                    assignment.duration, 
-                    assignment.speed
-                ])
-
-        headers = [
-            "Rider", 
-            "Position", 
-            "Duration (sec)", 
-            "Speed (kph)"
-        ]
-        logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
@@ -98,19 +101,12 @@ def main() -> None:
         ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
         for data in example_riders_data
     ]
-    target_speed_kph = calculate_target_speed_of_paceline(riders)
+    pull_durations = [60.0] * len(riders)
+    pull_speeds_kph = [40.0] * len(riders)
 
-    strong_riders, weak_riders = deselect_weaker_riders(riders) # from here on we ignore weak riders - for now
+    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    # the pull durations for all strong_riders is the same, 60 seconds
-    # the pull speeds are the same for all strong_riders, = target_speed_kph
-
-    pull_durations = [60.0] * len(strong_riders)
-    pull_speeds_kph = [target_speed_kph] * len(strong_riders)
-
-    work_assignments = populate_rider_work_assignments(strong_riders, pull_durations, pull_speeds_kph)
-
-    log_results_work_assignments("Example riders",work_assignments, logger)
+    log_rider_work_assignments("Example riders",work_assignments, logger)
 
 if __name__ == "__main__":
     main()

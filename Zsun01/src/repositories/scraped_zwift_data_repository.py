@@ -323,12 +323,12 @@ class ScrapedZwiftDataRepository:
             ordinates = item.export_all_x_y_ordinates()
 
             if not ordinates:
-                logger.warning(f"ZwiftID {item.zwift_id} has no ordinates")
+                logger.warning(f"Repository message: ZwiftID {item.zwift_id} has no ordinates")
                 skipped_count += 1
                 continue
 
             if all(value == 0 for value in ordinates.values()):
-                logger.warning(f"ZwiftID {item.zwift_id} has empty data")
+                logger.warning(f"Repository message: ZwiftID {item.zwift_id} has empty data")
                 skipped_count += 1
                 continue
         
@@ -337,7 +337,7 @@ class ScrapedZwiftDataRepository:
             raw_xy_data_cp = item.export_x_y_ordinates_for_cp_w_prime_modelling()
 
             if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < min_coordinates or len(raw_xy_data_ftp) < min_coordinates:
-                logger.warning(f"{item.zwift_id} too sparse for reliable modelling.")
+                logger.warning(f"Repository message: {item.zwift_id} too sparse for reliable modelling.")
                 skipped_count += 1
                 continue
 
@@ -360,8 +360,8 @@ class ScrapedZwiftDataRepository:
 
             answer[zwiftID] = curvefit
 
-        logger.info(f"Successfuly completed {len(answer)} curve fittings.")
-        logger.info(f"Skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.")
+        logger.info(f"Repository message: successfuly completed {len(answer)} curve fittings.")
+        logger.info(f"Repository message: skipped {skipped_count} riders due to insufficient data for modelling. Size requirement is {min_coordinates} ordinates minimum.")
 
         return answer
 

@@ -190,7 +190,7 @@ def main():
             zwift_zrs                  = zsun.zwift_zrs,
             zwift_cat                  = zsun.zwift_cat,
             zwift_ftp                  = zwift.ftp,
-            zsun_one_hour_watts        = round(zsun.get_one_hour_watts()),
+            zsun_one_hour_watts        = round(zsun.get_1_hour_watts()),
             zsun_40_minute_watts       = round(zsun.get_n_second_watts(2400)),
             zwiftracingapp_zpFTP       = zsun.zwiftracingapp_zpFTP,
             zwiftracingapp_score       = zsun.zwiftracingapp_score,

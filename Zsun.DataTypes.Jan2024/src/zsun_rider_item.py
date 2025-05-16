@@ -414,10 +414,10 @@ class ZsunRiderItem:
 
         return instance
 
-    def calculate_strength(self) -> float:
+    def calculate_strength_wkg(self) -> float:
         if self.weight_kg == 0:
-            return self.get_1_minute_pull_watts()/80.0 # arbitrary default 80kg
-        return self.get_1_minute_pull_watts()/self.weight_kg
+            return self.get_2_minute_pull_watts()/80.0 # arbitrary default 80kg
+        return self.get_2_minute_pull_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -544,34 +544,76 @@ class ZsunRiderItem:
         
         return round(speed_kph, 3)
 
+    def calculate_speed_at_4_minute_pull_watts(self) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_4_minute_pull_watts(), self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
+    def calculate_speed_at_n_second_watts(self, seconds: float) -> float:
+        """
+        Calculate the speed (km/h) for a rider given their power output (watts) 
+        for a specific duration in seconds.
+        Args:
+        seconds (float): The duration in seconds.
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_n_second_watts(seconds), self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
     def get_critical_power_watts(self) -> float:
         return self.zsun_CP
 
     def get_anaerobic_work_capacity_kj(self) -> float:
         return self.zsun_AWC / 1_000.0
 
-    def get_30sec_pull_watts(self) -> float:
+    def get_zwiftracingapp_zpFTP_wkg(self) -> float:
+        if self.weight_kg == 0:
+            return 0.0
+        return self.zwiftracingapp_zpFTP / self.weight_kg
 
+    def get_zsun_one_hour_wkg(self) -> float:
+        if self.weight_kg == 0:
+            return 0.0
+        return self.zsun_one_hour_watts / self.weight_kg
+
+    def get_30sec_pull_watts(self) -> float:
+        # apply 3.5 minute watts
         pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([210]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_short[0], one_hour[0])
         return answer
 
     def get_1_minute_pull_watts(self) -> float:
-
+        # apply 5 minute watts
         pull_medium = decay_model_numpy(np.array([300]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([300]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_medium[0], one_hour[0])
         return answer
 
     def get_2_minute_pull_watts(self) -> float:
-
+        # apply 12 minute watts
         pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([720]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
         return answer
 
-    def get_one_hour_watts(self) -> float:
+    def get_4_minute_pull_watts(self) -> float:
+        # apply 15 minute watts
+        pull_long = decay_model_numpy(np.array([900]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
+        one_hour = decay_model_numpy(np.array([900]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+        answer = max(pull_long[0], one_hour[0])
+        return answer
+
+    def get_1_hour_watts(self) -> float:
 
         ftp = decay_model_numpy(np.array([3_600]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
 
@@ -581,7 +623,7 @@ class ZsunRiderItem:
 
     def get_n_second_watts(self, seconds: float) -> float:
 
-        if seconds < 720:
+        if seconds < 900:
             pull = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
             one_hour = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
             answer = max(pull[0], one_hour[0])
@@ -609,7 +651,7 @@ class ZsunRiderItem:
             zwift_ftp                         = item.zwift_ftp,
             zwiftpower_zFTP                   = item.zwiftpower_zFTP,
             zwiftracingapp_zpFTP              = item.zwiftracingapp_zpFTP,
-            zsun_one_hour_watts               = item.get_one_hour_watts(),
+            zsun_one_hour_watts               = item.get_1_hour_watts(),
             zsun_CP                           = item.zsun_CP,
             zsun_AWC                          = item.zsun_AWC,
             zwift_zrs                         = item.zwift_zrs,

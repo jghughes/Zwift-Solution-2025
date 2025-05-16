@@ -74,7 +74,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
         instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
     # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
-    # Our pulls are 30, 60, and 90 seconds long, so we'll use a (arbitrary) 5-second rolling average
+    # Our pulls are 30, 60, and 120 seconds long, so we'll use a (arbitrary) 5-second rolling average
     rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
 
     # Raise the smoothed power values to the fourth power
@@ -123,20 +123,28 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
 
         p1_speed_kph = pull_exertion.speed_kph
         pull_duration = pull_exertion.duration
-        pull_wkg = pull_exertion.wattage / rider.weight if rider.weight != 0 else 0
-        pull_w_over_ftp = pull_exertion.wattage / rider.ftp if rider.ftp != 0 else 0
+        pull_wkg = pull_exertion.wattage / rider.weight_kg if rider.weight_kg != 0 else 0
+        pull_w_over_ftp = pull_exertion.wattage / rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
 
         return p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp
  
     def calculate_ftp_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
         if not items:
             return 0
-        if rider.ftp == 0:
+        if rider.zwiftracingapp_zpFTP == 0:
             return 0
-        ftp_intensity_factor = calculate_normalized_watts(items)/rider.ftp if rider.ftp != 0 else 0
-        return ftp_intensity_factor
+        intensity_factor_power = calculate_normalized_watts(items)/rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
+        return intensity_factor_power
 
         answer: Dict[ZsunRiderItem, RiderAnswerItem] = {}
+
+    def calculate_energy_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
+        if not items:
+            return 0
+        if rider.zsun_one_hour_watts == 0:
+            return 0
+        intensity_factor_energy = calculate_average_watts(items)/rider.zsun_one_hour_watts if rider.zsun_one_hour_watts != 0 else 0
+        return intensity_factor_energy
 
     answer : Dict[ZsunRiderItem, RiderAnswerItem] = {}
 
@@ -144,8 +152,6 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
         p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
         p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp = extract_pull_metrics(exertions)
         rider_answer_item = RiderAnswerItem(
-            cp_watts  = 0,
-            anaerobic_work_capacity= 0,
             speed_kph = p1_speed_kph,
             pull_duration = pull_duration,
             pull_wkg = pull_wkg,
@@ -155,35 +161,50 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
             p3_w = p3w,
             p4_w = p4w,
             p__w = p__w,
-            ftp_intensity_factor = calculate_ftp_intensity_factor(rider, exertions),
-            cp_intensity_factor = 0
+            intensity_factor_power = calculate_ftp_intensity_factor(rider, exertions),
+            intensity_factor_energy = calculate_energy_intensity_factor(rider, exertions)
         )
         answer[rider] = rider_answer_item
 
     return answer
 
 
-def add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items: Dict[ZsunRiderItem, RiderAnswerItem], zwiftriders_zwift_cp_data: Dict[str, JghFlattened90DayBestPowerCurveItem]
-) -> Dict[ZsunRiderItem, RiderAnswerItem]:
-    """
-    Populate zwift critical power and W' in the the rider answer items.
-    Args:
-        rider_answer_items (Dict[ZsunRiderItem, RiderAnswerItem]): The rider answer items.
-        zwiftriders_zwift_cp_data (Dict[str, JghFlattened90DayBestPowerCurveItem]): The critical power items. Key is str(zwiftid).
-    Returns:
-        Dict[ZsunRiderItem, RiderAnswerItem]: The updated rider answer items with critical power and W'.
-    """
-    for rider, answer_item in rider_answer_items.items():
-        rider_id_str = str(rider.zwiftid).strip()
-        # logging.debug(f"Looking for rider ID: {rider_id_str} in zwiftriders_zwift_cp_data")
-        rider_cp_item = zwiftriders_zwift_cp_data.get(rider_id_str, None) # because keyed on zwiftid
-        if rider_cp_item:
-            # logging.debug(f"Found rider ID: {rider_id_str}")
-            answer_item.cp_watts = rider_cp_item.cp_watts
-            answer_item.critical_power_w_prime= rider_cp_item.anaerobic_work_capacity
-        else:
-            logging.debug(f"Rider ID: {rider_id_str} not found in zwiftriders_zwift_cp_data")
-    return rider_answer_items
+def log_rider_answer_items(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
+    from tabulate import tabulate
+    logger.info(test_description)
+    table = []
+    for rider, z in result.items():
+        table.append([
+            rider.name, 
+            z.speed_kph,
+            z.pull_duration,
+            round(z.pull_wkg,1),
+            round(z.p1_w), 
+            round(z.p2_w), 
+            round(z.p3_w), 
+            round(z.p4_w), 
+            round(z.p__w),
+            round(z.pull_w_over_ftp,1),
+            round(z.intensity_factor_power,2), 
+            round(z.zsun_one_hour_watts), 
+            round(z.anaerobic_work_capacity/1_000)
+        ])
+    headers = ["rider", 
+        "kph",
+        "pull(s)", 
+        "pull(wkg)",
+        "p1(W)", 
+        "p2(W)", 
+        "p3(W)", 
+        "p4(W)", 
+        "p+(W)", 
+        "pull(%ftp)",
+        "IF(np/ftp)", 
+        "critical_power(W)", 
+        "awc(kJ)",
+    ]
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
+
 
 
 
@@ -197,41 +218,6 @@ def main() -> None:
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
 
-    def log_results_answer_items(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
-        from tabulate import tabulate
-        logger.info(test_description)
-        table = []
-        for rider, z in result.items():
-            table.append([
-                rider.name, 
-                z.speed_kph,
-                z.pull_duration,
-                round(z.pull_wkg,1),
-                round(z.p1_w), 
-                round(z.p2_w), 
-                round(z.p3_w), 
-                round(z.p4_w), 
-                round(z.p__w),
-                round(z.pull_w_over_ftp,1),
-                round(z.ftp_intensity_factor,2), 
-                round(z.cp_watts), 
-                round(z.anaerobic_work_capacity/1_000)
-            ])
-        headers = ["rider", 
-            "kph",
-            "pull(s)", 
-            "pull(wkg)",
-            "p1(W)", 
-            "p2(W)", 
-            "p3(W)", 
-            "p4(W)", 
-            "p+(W)", 
-            "pull(%ftp)",
-            "IF(np/ftp)", 
-            "critical_power(W)", 
-            "awc(kJ)",
-        ]
-        logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
     from handy_utilities import read_dict_of_zsunriderItems
 
@@ -240,9 +226,6 @@ def main() -> None:
 
     dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERDATA_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    CPDATA_FILE_NAME = "betel_cp_data.json"
-
-    zwiftriders_zwift_cp_data = read_dict_of_zsunbestpowerItem(CPDATA_FILE_NAME,ZSUN01_PROJECT_DATA_DIRPATH)
 
     davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
     barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
@@ -262,9 +245,7 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    rider_answer_items_with_cp_and_w_prime = add_zwift_cp_and_w_prime_to_rider_answer_items(rider_answer_items, zwiftriders_zwift_cp_data)
-
-    log_results_answer_items("7-riders @40kph", rider_answer_items_with_cp_and_w_prime, logger)
+    log_rider_answer_items("7-riders @40kph", rider_answer_items, logger)
 
 
 if __name__ == "__main__":

@@ -41,49 +41,49 @@ def main():
     # zwift feed power curve from 1 minute to 60 minutes
 ############################################################################################
 
-    # xdata_bp_60 = [item.bp_60 for item in dict_of_modelTrainingItems.values()] # 3 min best
-    # xdata_bp_180 = [item.bp_180 for item in dict_of_modelTrainingItems.values()] # 3 min best
-    # xdata_bp_300 = [item.bp_300 for item in dict_of_modelTrainingItems.values()] # 5 min best
-    # xdata_bp_600 = [item.bp_600 for item in dict_of_modelTrainingItems.values()] # 10 min best
-    # xdata_bp_720 = [item.bp_720 for item in dict_of_modelTrainingItems.values()] # 12 min best
-    # xdata_bp_900 = [item.bp_900 for item in dict_of_modelTrainingItems.values()] # 12 min best
-    # xdata_bp_1200 = [item.bp_1200 for item in dict_of_modelTrainingItems.values()] # 20 min best
-    # xdata_bp_1800 = [item.bp_1800 for item in dict_of_modelTrainingItems.values()] # 30 min best
-    # xdata_bp_2400 = [item.bp_2400 for item in dict_of_modelTrainingItems.values()] # 40 min best
-    # xdata_zsun_curve_fit = [item.zsun_one_hour_watts for item in dict_of_modelTrainingItems.values()]
-    # ydata_zwiftprofile_ftp = [item.zwift_ftp for item in dict_of_modelTrainingItems.values()]
-    # ydata_zwiftracingapp_zpftp = [item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()]
+    xdata_bp_60 = [item.bp_60 for item in dict_of_modelTrainingItems.values()] # 3 min best
+    xdata_bp_180 = [item.bp_180 for item in dict_of_modelTrainingItems.values()] # 3 min best
+    xdata_bp_300 = [item.bp_300 for item in dict_of_modelTrainingItems.values()] # 5 min best
+    xdata_bp_600 = [item.bp_600 for item in dict_of_modelTrainingItems.values()] # 10 min best
+    xdata_bp_720 = [item.bp_720 for item in dict_of_modelTrainingItems.values()] # 12 min best
+    xdata_bp_900 = [item.bp_900 for item in dict_of_modelTrainingItems.values()] # 12 min best
+    xdata_bp_1200 = [item.bp_1200 for item in dict_of_modelTrainingItems.values()] # 20 min best
+    xdata_bp_1800 = [item.bp_1800 for item in dict_of_modelTrainingItems.values()] # 30 min best
+    xdata_bp_2400 = [item.bp_2400 for item in dict_of_modelTrainingItems.values()] # 40 min best
+    xdata_zsun_curve_fit = [item.zsun_one_hour_watts for item in dict_of_modelTrainingItems.values()]
+    ydata_zwiftprofile_ftp = [item.zwift_ftp for item in dict_of_modelTrainingItems.values()]
+    ydata_zwiftracingapp_zpftp = [item.zwiftracingapp_zpFTP for item in dict_of_modelTrainingItems.values()]
 
-    # max_x = max(max(xdata_bp_60), max(xdata_bp_180), max(xdata_bp_300), max(xdata_bp_600), max(xdata_bp_720),max(xdata_bp_900), max(xdata_bp_1200), max(xdata_bp_1800), max(xdata_bp_2400), max(xdata_zsun_curve_fit))
-    # max_y = max(max(ydata_zwiftprofile_ftp), max(ydata_zwiftracingapp_zpftp))
-    # lim_x = max_x * 1.05
-    # lim_y = max_y * 1.05
+    max_x = max(max(xdata_bp_60), max(xdata_bp_180), max(xdata_bp_300), max(xdata_bp_600), max(xdata_bp_720),max(xdata_bp_900), max(xdata_bp_1200), max(xdata_bp_1800), max(xdata_bp_2400), max(xdata_zsun_curve_fit))
+    max_y = max(max(ydata_zwiftprofile_ftp), max(ydata_zwiftracingapp_zpftp))
+    lim_x = max_x * 1.05
+    lim_y = max_y * 1.05
 
-    # # plot 1
+    # plot 1
 
-    # plt.figure(figsize=(10, 6))
-    # # plt.scatter(xdata_bp_60, ydata_zwiftprofile_ftp, color='brown', label='zwiftpower 90 day best - 1 minute')
-    # # plt.scatter(xdata_bp_180, ydata_zwiftprofile_ftp, color='black', label='zwiftpower 90 day best - 3 minutes')
-    # # plt.scatter(xdata_bp_300, ydata_zwiftprofile_ftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
-    # plt.scatter(xdata_bp_600, ydata_zwiftprofile_ftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
-    # plt.scatter(xdata_bp_720, ydata_zwiftprofile_ftp, color='red', label='zwiftpower 90 day best - 12 minutes')
-    # plt.scatter(xdata_bp_900, ydata_zwiftprofile_ftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
-    # plt.scatter(xdata_bp_1200, ydata_zwiftprofile_ftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
-    # plt.scatter(xdata_bp_1800, ydata_zwiftprofile_ftp, color='orange', label='zwiftpower 90 day best - 30 minutes')
-    # plt.scatter(xdata_bp_2400, ydata_zwiftprofile_ftp, color='green', label='zwiftpower 90 day best - 40 minutes')
-    # plt.scatter(xdata_zsun_curve_fit, ydata_zwiftprofile_ftp, color='indigo', label='zsun curve fit - 40 minutes')
+    plt.figure(figsize=(10, 6))
+    # plt.scatter(xdata_bp_60, ydata_zwiftprofile_ftp, color='brown', label='zwiftpower 90 day best - 1 minute')
+    # plt.scatter(xdata_bp_180, ydata_zwiftprofile_ftp, color='black', label='zwiftpower 90 day best - 3 minutes')
+    # plt.scatter(xdata_bp_300, ydata_zwiftprofile_ftp, color='grey', label='zwiftpower 90 day best - 5 minutes')
+    plt.scatter(xdata_bp_600, ydata_zwiftprofile_ftp, color='purple', label='zwiftpower 90 day best - 10 minutes')
+    plt.scatter(xdata_bp_720, ydata_zwiftprofile_ftp, color='red', label='zwiftpower 90 day best - 12 minutes')
+    plt.scatter(xdata_bp_900, ydata_zwiftprofile_ftp, color='blue', label='zwiftpower 90 day best - 15 minutes')
+    plt.scatter(xdata_bp_1200, ydata_zwiftprofile_ftp, color='yellow', label='zwiftpower 90 day best - 20 minutes')
+    plt.scatter(xdata_bp_1800, ydata_zwiftprofile_ftp, color='orange', label='zwiftpower 90 day best - 30 minutes')
+    plt.scatter(xdata_bp_2400, ydata_zwiftprofile_ftp, color='green', label='zwiftpower 90 day best - 40 minutes')
+    plt.scatter(xdata_zsun_curve_fit, ydata_zwiftprofile_ftp, color='indigo', label='zsun curve fit - 40 minutes')
 
-    # plt.xlabel('ZwiftPower 90 day best (Watts)')
-    # plt.ylabel('ZwiftProfile (Watts)')
-    # plt.title(f'Scatter-plot of ZwiftProfile ftp versus ZwiftPower 90-best datasets')
-    # plt.title(f'Scatter-plot of ZwiftPower 90-best datasets (x axis) versus ZwiftProfile ftp (y axis)')
-    # plt.xlim(0, lim_x)
-    # plt.ylim(0, lim_y)
-    # ax = plt.gca()  # Get the current axes
-    # set_x_axis_units_ticks(ax, int(max_x), 50)  # Set x-axis ticks
-    # set_y_axis_units_ticks(ax, int(max_y), 50)  # Set y-axis ticks
-    # plt.legend()
-    # plt.show()
+    plt.xlabel('ZwiftPower 90 day best (Watts)')
+    plt.ylabel('ZwiftProfile (Watts)')
+    plt.title(f'Scatter-plot of ZwiftProfile ftp versus ZwiftPower 90-best datasets')
+    plt.title(f'Scatter-plot of ZwiftPower 90-best datasets (x axis) versus ZwiftProfile ftp (y axis)')
+    plt.xlim(0, lim_x)
+    plt.ylim(0, lim_y)
+    ax = plt.gca()  # Get the current axes
+    set_x_axis_units_ticks(ax, int(max_x), 50)  # Set x-axis ticks
+    set_y_axis_units_ticks(ax, int(max_y), 50)  # Set y-axis ticks
+    plt.legend()
+    plt.show()
 
 
     # # plot 2
