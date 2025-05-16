@@ -35,10 +35,10 @@ class SolutionLineItem(BaseModel):
 
     rank : int = 1
     rider : ZsunRiderItem
-    pull_duration : float = 0.0
+    p1_duration : float = 0.0
     pull_speed : float = 0.0
     pull_watts: float = 0.0
-    pull_wkg : float = 0.0
+    p1_wkg : float = 0.0
 
     wattage_position_3 : float = 0.0
     wattage_position_4 : float = 0.0

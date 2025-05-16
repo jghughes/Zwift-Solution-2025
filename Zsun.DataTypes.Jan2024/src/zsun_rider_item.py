@@ -633,6 +633,21 @@ class ZsunRiderItem:
         answer = power[0]
         return answer
 
+    def lookup_permissable_pull_watts(self, seconds : float)-> float:
+        permissable_watts = self.get_1_hour_watts() # default
+
+        if seconds == 30:
+            permissable_watts = self.get_30sec_pull_watts()
+        if seconds == 60:
+            permissable_watts = self.get_1_minute_pull_watts()
+        if seconds == 120:
+            permissable_watts = self.get_2_minute_pull_watts()
+        if seconds == 240:
+            permissable_watts = self.get_4_minute_pull_watts()
+         
+        return permissable_watts
+            
+
     def get_when_models_fitted(self) -> str:
         return self.zsun_when_curves_fitted
 

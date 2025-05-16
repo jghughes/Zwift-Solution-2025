@@ -109,11 +109,11 @@ def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswer
             ftp                   = round(rider.ftp),
             ftp_wkg               = round(calculate_wkg(rider.ftp, rider.weight),1),
             speed_kph             = round(item.speed_kph, 1),
-            pull_duration         = item.pull_duration,
-            pull_wkg              = round(calculate_wkg(item.p1_w, rider.weight), 1),
-            pull_w_over_ftp       = f"{round(item.p1_w / rider.ftp*100 if rider.ftp != 0 else 0)}%",
+            p1_duration         = item.p1_duration,
+            p1_wkg              = round(calculate_wkg(item.p1_w, rider.weight), 1),
+            p1_ratio_to_1hr_w       = f"{round(item.p1_w / rider.ftp*100 if rider.ftp != 0 else 0)}%",
             p1_4                  = make_pretty_p1_p4(item),
-            intensity_factor_power  = round(item.intensity_factor_power, 2),
+            np_intensity_factor  = round(item.np_intensity_factor, 2),
             intensity_factor_energy   = round(0, 2)
         )
         answer[rider] = rider_display_object
@@ -138,11 +138,11 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRi
             # z.ftp, 
             # z.ftp_wkg, 
             z.speed_kph,
-            z.pull_duration, 
-            z.pull_wkg, 
+            z.p1_duration, 
+            z.p1_wkg, 
             z.p1_4, 
-            z.pull_w_over_ftp, 
-            z.intensity_factor_power, 
+            z.p1_ratio_to_1hr_w, 
+            z.np_intensity_factor, 
             z.intensity_factor_energy,
             z.zwift_cp, 
             z.zwift_w_prime 

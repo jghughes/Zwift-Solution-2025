@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, DefaultDict
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import *
 from jgh_formulae03 import *
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
     Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
@@ -40,7 +40,7 @@ def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations:
 
     min_length = min(len(pull_durations), len(pull_speeds_kph))
 
-    rider_workunits: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]] = {}
+    rider_workunits: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]] = DefaultDict(list)
     for k in range(1, n + 1):
         workunits: List[RiderWorkAssignmentItem] = []
         for j in range(n):
@@ -58,7 +58,7 @@ def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations:
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-def log_rider_work_assignments(test_description: str, result: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
+def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
 
     table = []

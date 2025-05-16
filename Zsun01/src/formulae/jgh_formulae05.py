@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, DefaultDict
 from zsun_rider_item import ZsunRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 from computation_classes import *
@@ -11,7 +11,7 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 
-def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> Dict[ZsunRiderItem, List[RiderExertionItem]]:
+def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> DefaultDict[ZsunRiderItem, List[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -24,7 +24,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[Ri
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of rider_exertions
     """
-    rider_workloads: Dict[ZsunRiderItem, List[RiderExertionItem]] = {}
+    rider_workloads: DefaultDict[ZsunRiderItem, List[RiderExertionItem]] = {}
     
     for rider, work_assignments in rider_work_assignments.items():
         rider_exertions: List[RiderExertionItem] = []
@@ -39,7 +39,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[ZsunRiderItem, List[Ri
 
 
 
-def log_rider_exertions(test_description: str, result: Dict[ZsunRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
+def log_rider_exertions(test_description: str, result: DefaultDict[ZsunRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []

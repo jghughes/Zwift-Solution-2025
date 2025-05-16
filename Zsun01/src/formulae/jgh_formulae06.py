@@ -1,12 +1,10 @@
-from typing import  List, Dict, Tuple
+from typing import  List, Dict, Tuple, DefaultDict
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import *
-
 from rolling_average import calculate_rolling_averages
 import logging
 
 
-# currenty unsused
 def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the average power for a list of efforts.
@@ -89,7 +87,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionItem]]) -> Dict[ZsunRiderItem, RiderAnswerItem]:
+def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderAnswerItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
         if not exertions:
@@ -110,9 +108,9 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
             return 0, 0, 0, 0
 
         p1_speed_kph = 0
-        pull_duration : float = 0
-        pull_wkg : float = 0
-        pull_w_over_ftp : float= 0
+        p1_duration : float = 0
+        p1_wkg : float = 0
+        p1_ratio_to_1hr_w : float= 0
 
         dict_positions = {exertion.current_location_in_paceline: exertion for exertion in exertions}
 
@@ -122,54 +120,46 @@ def populate_rider_answeritems(riders: Dict[ZsunRiderItem, List[RiderExertionIte
             return 0, 0, 0, 0
 
         p1_speed_kph = pull_exertion.speed_kph
-        pull_duration = pull_exertion.duration
-        pull_wkg = pull_exertion.wattage / rider.weight_kg if rider.weight_kg != 0 else 0
-        pull_w_over_ftp = pull_exertion.wattage / rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
+        p1_duration = pull_exertion.duration
+        p1_wkg = pull_exertion.wattage / rider.weight_kg if rider.weight_kg != 0 else 0
+        p1_ratio_to_1hr_w = pull_exertion.wattage / rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
 
-        return p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp
+        return p1_speed_kph, p1_duration, p1_wkg, p1_ratio_to_1hr_w
  
-    def calculate_ftp_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
-        if not items:
-            return 0
-        if rider.zwiftracingapp_zpFTP == 0:
-            return 0
-        intensity_factor_power = calculate_normalized_watts(items)/rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
-        return intensity_factor_power
-
-        answer: Dict[ZsunRiderItem, RiderAnswerItem] = {}
-
-    def calculate_energy_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
+    def calculate_normalised_power_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
         if not items:
             return 0
         if rider.zsun_one_hour_watts == 0:
             return 0
-        intensity_factor_energy = calculate_average_watts(items)/rider.zsun_one_hour_watts if rider.zsun_one_hour_watts != 0 else 0
-        return intensity_factor_energy
+        np_intensity_factor = calculate_normalized_watts(items)/rider.zsun_one_hour_watts if rider.zsun_one_hour_watts != 0 else 0
+        return np_intensity_factor
 
-    answer : Dict[ZsunRiderItem, RiderAnswerItem] = {}
+        # answer: Dict[ZsunRiderItem, RiderAnswerItem] = {}
+
+
+    answer : DefaultDict[ZsunRiderItem, RiderAnswerItem] = DefaultDict(RiderAnswerItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
-        p1_speed_kph, pull_duration, pull_wkg, pull_w_over_ftp = extract_pull_metrics(exertions)
+        p1_speed_kph, p1_duration, p1_wkg, p1_ratio_to_1hr_w = extract_pull_metrics(exertions)
         rider_answer_item = RiderAnswerItem(
             speed_kph = p1_speed_kph,
-            pull_duration = pull_duration,
-            pull_wkg = pull_wkg,
-            pull_w_over_ftp = pull_w_over_ftp,
+            p1_duration = p1_duration,
+            p1_wkg = p1_wkg,
+            p1_ratio_to_1hr_w = p1_ratio_to_1hr_w,
             p1_w = p1w,
             p2_w = p2w,
             p3_w = p3w,
             p4_w = p4w,
             p__w = p__w,
-            intensity_factor_power = calculate_ftp_intensity_factor(rider, exertions),
-            intensity_factor_energy = calculate_energy_intensity_factor(rider, exertions)
+            np_intensity_factor = calculate_normalised_power_intensity_factor(rider, exertions),
         )
         answer[rider] = rider_answer_item
 
     return answer
 
 
-def log_rider_answer_items(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
+def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -177,31 +167,29 @@ def log_rider_answer_items(test_description: str, result: Dict[ZsunRiderItem, Ri
         table.append([
             rider.name, 
             z.speed_kph,
-            z.pull_duration,
-            round(z.pull_wkg,1),
+            z.p1_duration,
+            round(z.p1_wkg,1),
+            round(z.p1_ratio_to_1hr_w,1),
             round(z.p1_w), 
             round(z.p2_w), 
             round(z.p3_w), 
             round(z.p4_w), 
             round(z.p__w),
-            round(z.pull_w_over_ftp,1),
-            round(z.intensity_factor_power,2), 
-            round(z.zsun_one_hour_watts), 
-            round(z.anaerobic_work_capacity/1_000)
+            round(z.np_intensity_factor,2),
+            z.diagnostic_message if z.diagnostic_message else ""
         ])
     headers = ["rider", 
         "kph",
-        "pull(s)", 
-        "pull(wkg)",
+        "p1(s)", 
+        "p1(wkg)",
+        "p1/1hr",
         "p1(W)", 
         "p2(W)", 
         "p3(W)", 
         "p4(W)", 
         "p+(W)", 
-        "pull(%ftp)",
-        "IF(np/ftp)", 
-        "critical_power(W)", 
-        "awc(kJ)",
+        "np/1hr",
+        "message"
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 
@@ -245,7 +233,7 @@ def main() -> None:
 
     rider_answer_items = populate_rider_answeritems(rider_exertions)
 
-    log_rider_answer_items("7-riders @40kph", rider_answer_items, logger)
+    log_rider_answer_items("7-riders @39kph", rider_answer_items, logger)
 
 
 if __name__ == "__main__":

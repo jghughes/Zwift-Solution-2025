@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from ftplib import error_perm
 
 @dataclass
 class CurveFittingResult:
@@ -64,16 +65,17 @@ class RiderExertionItem:
 @dataclass
 class RiderAnswerItem():
     speed_kph             : float = 0
-    pull_duration         : float = 0
-    pull_wkg              : float = 0
-    pull_w_over_ftp       : float = 0
+    p1_duration           : float = 0
+    p1_wkg                : float = 0
+    p1_ratio_to_1hr_w     : float = 0
     p1_w                  : float = 0
     p2_w                  : float = 0
     p3_w                  : float = 0
     p4_w                  : float = 0
     p__w                  : float = 0
-    intensity_factor_power  : float = 0
-    intensity_factor_energy : float = 0
+    np_intensity_factor   : float = 0
+    diagnostic_message    : str = ""
+    
 
     
 @dataclass
@@ -89,12 +91,11 @@ class RiderAnswerDisplayObject():
     zftp                   : float = 0
     ftp_wkg               : float = 0
     speed_kph             : float = 0
-    pull_duration         : float = 0
-    pull_wkg              : float = 0
-    pull_w_over_ftp       : str   = ""
+    p1_duration         : float = 0
+    p1_wkg              : float = 0
+    p1_ratio_to_1hr_w   : str   = ""
     p1_4                  : str   = ""
-    intensity_factor_power  : float = 0
-    intensity_factor_energy   : float = 0
+    np_intensity_factor    : float = 0
 
     
 @dataclass(frozen=True, eq=True)
