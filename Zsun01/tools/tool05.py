@@ -99,7 +99,7 @@ def main():
 
     logger.info(f"\n{summary_cp_w_prime}")
 
-    summary_pull = f"TTT pull power (W) (30-60-120-240 seconds) = {round(pi.get_30sec_pull_watts())} - {round(pi.get_1_minute_pull_watts())} - {round(pi.get_2_minute_pull_watts())} - {round(pi.get_4_minute_pull_watts())}"
+    summary_pull = f"TTT pull power (W) (30-60-120-240 seconds) = {round(pi.get_permitted_30sec_pull_watts())} - {round(pi.get_permitted_1_minute_pull_watts())} - {round(pi.get_permitted_2_minute_pull_watts())} - {round(pi.get_permitted_4_minute_pull_watts())}"
 
     logger.info(f"\n{summary_pull}")
 

@@ -10,7 +10,7 @@ def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRid
         return [], []
 
     #sort riders according to 1 minute pull speed
-    riders.sort(key=lambda r: r.calculate_speed_at_2_minute_pull_watts(), reverse=True)
+    riders.sort(key=lambda r: r.calculate_speed_at_permitted_2_minute_pull_watts(), reverse=True)
 
     strong_riders: List[ZsunRiderItem] = []
     weak_riders: List[ZsunRiderItem] = []
@@ -31,7 +31,7 @@ def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRid
 
             return candidate_answer_kph
 
-        if rider.calculate_speed_at_2_minute_pull_watts() > calculate_fatigue_adjusted_pull_speed(riders[0], current_size_of_strong_group + 1):
+        if rider.calculate_speed_at_permitted_2_minute_pull_watts() > calculate_fatigue_adjusted_pull_speed(riders[0], current_size_of_strong_group + 1):
             strong_riders.append(rider)
         else:
             weak_riders.append(rider)
@@ -180,7 +180,7 @@ def main2():
             rider.name,
             rider.calculate_strength_wkg(),
             rider.calculate_speed_at_one_hour_watts(),
-            rider.calculate_speed_at_1_minute_pull_watts(),
+            rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in riders
     ]
@@ -208,7 +208,7 @@ def main2():
             rider.name,
             rider.calculate_strength_wkg(),
             rider.calculate_speed_at_one_hour_watts(),
-            rider.calculate_speed_at_1_minute_pull_watts(),
+            rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in strong
     ]
@@ -232,7 +232,7 @@ def main2():
             rider.name,
             rider.calculate_strength_wkg(),
             rider.calculate_speed_at_one_hour_watts(),
-            rider.calculate_speed_at_1_minute_pull_watts(),
+            rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in weak
     ]
@@ -288,14 +288,14 @@ def main3():
 
     # Table 1: All riders ranked by 2-minute speed
     riders_sorted = sorted(
-        riders, key=lambda r: r.calculate_speed_at_2_minute_pull_watts(), reverse=True
+        riders, key=lambda r: r.calculate_speed_at_permitted_2_minute_pull_watts(), reverse=True
     )
     table = [
         [
             rider.name,
-            fmt(rider.calculate_speed_at_2_minute_pull_watts()),
+            fmt(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
             fmt(rider.get_1_hour_watts() / rider.weight_kg),
-            fmt(rider.get_2_minute_pull_watts() / rider.weight_kg),
+            fmt(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in riders_sorted
     ]
@@ -320,9 +320,9 @@ def main3():
     table = [
         [
             rider.name,
-            fmt(rider.calculate_speed_at_2_minute_pull_watts()),
+            fmt(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
             fmt(rider.get_1_hour_watts() / rider.weight_kg),
-            fmt(rider.get_2_minute_pull_watts() / rider.weight_kg),
+            fmt(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in strong
     ]
@@ -344,9 +344,9 @@ def main3():
     table = [
         [
             rider.name,
-            fmt(rider.calculate_speed_at_2_minute_pull_watts()),
+            fmt(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
             fmt(rider.get_1_hour_watts() / rider.weight_kg),
-            fmt(rider.get_2_minute_pull_watts() / rider.weight_kg),
+            fmt(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in weak
     ]
