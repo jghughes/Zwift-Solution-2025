@@ -158,14 +158,14 @@ def do_diagnostic(rider_answers: defaultdict[ZsunRiderItem, RiderAnswerItem]) ->
         msg = ""
         # Step 1: Intensity factor checks
         if answer.np_intensity_factor >= 1.0:
-            msg += "halt. intensity factor > 1.0. "
+            msg += "intensity factor > 1.0."
         # elif answer.np_intensity_factor >= 0.95:
         #     msg += "warning. intensity factor >= 0.95. "
 
         # Step 2: Pull watt limit checks
         pull_limit = rider.lookup_permissable_pull_watts(answer.p1_duration)
         if answer.p1_w >= pull_limit:
-            msg += "halt. pull watts exceed limit."
+            msg += "pull-watts over limit."
         # elif answer.p1_w >= 0.95 * pull_limit:
         #     msg += "warning. pull watts >= .95 of limit."
 
@@ -199,10 +199,14 @@ from collections import defaultdict
 from typing import List, Tuple
 
 def make_inventory_of_all_combinations_of_pull_durations(
-    riders: List[ZsunRiderItem],
-    permitted_durations: List[float],
-    lower_bound_speed: float
-) -> List[Tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]]:
+        riders: List[ZsunRiderItem],
+        permitted_durations: List[float],
+        lower_bound_speed: float
+) -> Tuple[
+        List[Tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]],
+        int,  # total_alternatives
+        int   # total_iterations
+]:
     # Generate all combinations of pull durations
     all_combinations = list(itertools.product(permitted_durations, repeat=len(riders)))
     seed_speed_array = [lower_bound_speed] * len(riders)
@@ -213,10 +217,14 @@ def make_inventory_of_all_combinations_of_pull_durations(
     lowest_dispersion_tuple = None
     lowest_dispersion = float('inf')
 
+    total_alternatives = len(all_combinations)
+    total_iterations = 0
+
     for pull_durations in all_combinations:
         iterations, rider_answer_items, halted_rider = iterate_until_halted(
             riders, list(pull_durations), seed_speed_array
         )
+        total_iterations += iterations
         halted_speed = rider_answer_items[halted_rider].speed_kph
 
         # Memo for fastest halted speed
@@ -231,19 +239,18 @@ def make_inventory_of_all_combinations_of_pull_durations(
             lowest_dispersion = dispersion
             lowest_dispersion_tuple = (iterations, rider_answer_items, halted_rider)
 
-    return [fastest_tuple, lowest_dispersion_tuple]
-
+    return [fastest_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations
 
 def main():
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     riders : list[ZsunRiderItem] = [
-        dict_of_zsunrideritems[tom_bick],
+        # dict_of_zsunrideritems[tom_bick],
         dict_of_zsunrideritems[davek],
-        dict_of_zsunrideritems[husky],
-        # dict_of_zsunrideritems[timr],
-        dict_of_zsunrideritems[meridith_leubner],
-        dict_of_zsunrideritems[johnh],
+        # dict_of_zsunrideritems[husky],
+        dict_of_zsunrideritems[timr],
+        # dict_of_zsunrideritems[meridith_leubner],
+        # dict_of_zsunrideritems[johnh],
     ]
 
     # Sort riders by 1hr speed (descending)
@@ -253,47 +260,33 @@ def main():
         reverse=True
     )
 
-    log_rider_one_hour_speeds(riders_sorted, logger)
+    # logger.info(f"\nRiders sorted by 1hr speed (descending): {[rider.name for rider in riders_sorted]}")
+
+    # log_rider_one_hour_speeds(riders_sorted, logger)
 
     riders = arrange_riders_in_optimal_order(riders)
 
     a,b,c =calculate_lower_bound_pull_speed(riders)
-    logger.info(f"Lower bound pull speed: {fmtl(c)} kph for {a.name} at {b} seconds")
-
     d,e,f = calculate_lower_bound_speed_at_one_hour_watts(riders)
-    logger.info(f"Lower bound speed at one hour: {fmtl(f)} kph for {d.name} at {e} seconds")
+
+    logger.info(f"\nPaceline: Lower-bound pull speed: {fmtl(c)}kph for {a.name} at {b}sec. Lower-bound one-hour speed: {fmtl(f)}kph for {d.name} at {e}sec. \n")
 
     seed_speed = round(min(c, f),1) # 1 decimal place
-
-    pull_durations = [30.0] * len(riders) # seed: 30 seconds for everyone to begin with
+    plain_vanilla_pull_durations = [30.0] * len(riders) # seed: 30 seconds for everyone to begin with
     seed_speed_array = [seed_speed] * len(riders)
 
-    iterations, rider_answer_items, halted_rider = iterate_until_halted(riders, pull_durations, seed_speed_array)
+    iterations, rider_answer_items, halted_rider = iterate_until_halted(riders, plain_vanilla_pull_durations, seed_speed_array)
+    log_rider_answer_items(f"\nPlain vanilla solution:", rider_answer_items, logger)
 
-    log_rider_answer_items(f"{len(riders)} riders in paceline", rider_answer_items, logger)
 
-    halted_speed = rider_answer_items[halted_rider].speed_kph
+    (results, total_alternatives, total_iterations) = make_inventory_of_all_combinations_of_pull_durations(riders, permitted_pull_durations, seed_speed)
 
-    logger.info(f"\nHalted after {iterations} iterations. Halted: {fmtl(halted_speed)} kph  Halting rider: {halted_rider.name} Diagnostic: {rider_answer_items[halted_rider].diagnostic_message}")
+    a,b, = results
+    logger.info(f"\nTotal alternatives evaluated: {total_alternatives} Total iterations done: {total_iterations}")
+    log_rider_answer_items(f"\nFastest solution:", a[1], logger)
+    log_rider_answer_items(f"\nMost evenly balanced solution:", b[1], logger)
+    logger.info(f"\nTotal alternatives evaluated: {total_alternatives} Total iterations done: {total_iterations}")
 
-    # pull_durations[0] = 240 
-    # pull_durations[1] = 240 
-    # pull_durations[2] = 240 
-    # pull_durations[4] = 240 
-    # pull_durations[5] = 240 
-
-    # iterations, rider_answer_items, halted_rider = iterate_until_halted(riders, pull_durations, seed_speed_array)
-
-    # log_rider_answer_items(f"{len(riders)} riders in paceline", rider_answer_items, logger)
-
-    # halted_speed = rider_answer_items[halted_rider].speed_kph
-
-    # logger.info(f"\nHalted after {iterations} iterations. Halted: {fmtl(halted_speed)} kph  Halting rider: {halted_rider.name} Diagnostic: {rider_answer_items[halted_rider].diagnostic_message}")
-
-    a, b = make_inventory_of_all_combinations_of_pull_durations(riders, permitted_pull_durations, seed_speed)
-
-    log_rider_answer_items(f"\nFastest solution: Halted after {a[0]} iterations. ", a[1], logger)
-    log_rider_answer_items(f"\nMost evenly balanced solution: Halted after {b[0]} iterations. ", b[1], logger)
 if __name__ == "__main__":
     main()
 
