@@ -28,43 +28,57 @@ ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDave
 ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
 ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
-# Betel
 
-barry_beck ='5490373' #ftp 273
-john_hughes ='1884456' #ftp 240 zmap 292
-lynseys ='383480' #ftp 201
-josh_neil ='2508033' #ftp 260
-richard_mann ='1193' # ftp 200
-mark_brzezinski ='5530045' #ftp 280
-dave_konicek="3147366" #ftp 276 critical_power 278
-husky_crone="5134" #ftp 268
-scott_mcveigh="11526" #ftp 247
-tim_reid= "5421258" #ftp 380
-tom_bick= "11741" #ftp 303 critical_power 298
-bryan_bumpas = "9011" #ftp 214
-matt_steeve = "1024413"
-giao_nguyen = "183277" #ftp 189
-meridith_leubner ="1707548" #ftp 220
-melissa_warwick = "1657744" #ftp 213
+# ZSUNBetelguese
+barry_beck = '5490373' #ftp 273
 brandi_steeve = "991817" #ftp 196
-selena_shaik = "2682791" #ftp 214
+bryan_bumpas = "9011" #ftp 214
+cory_cook = "5569057"
+dave_konicek = "3147366" #ftp 276 critical_power 278
+david_evanetich = '4945836'
+giao_nguyen = "183277" #ftp 189
+husky_crone = "5134" #ftp 268
+john_hughes = '1884456' #ftp 240 zmap 292
+josh_neil = '2508033' #ftp 260
+lynseys_segal = '383480' #ftp 201
+mark_brzezinski = '5530045' #ftp 280
+matt_steeve = "1024413"
+melissa_warwick = "1657744" #ftp 213
+meridith_leubner = "1707548" #ftp 220
+richard_mann = '1193' # ftp 200
+scott_mcveigh = "11526" #ftp 247
+selena_shaikh = "2682791" #ftp 214
 steve_seiler = "6142432" #ftp 270
-david_evanetich= '4945836'
-coryc = "5569057"
+tim_reid = "5421258" #ftp 380
+tom_bick = "11741" #ftp 303 critical_power 298
 
-betel = [
-    # tom_bick, 
-    mark_brzezinski, 
-    # coryc, 
-    # melissa_warwick, 
-    # lynseys, 
-    # david_evanetich, 
-    # joshn
+betelguese = [
+    # barry_beck,
+    # brandi_steeve,
+    # bryan_bumpas,
+    # cory_cook,
+    # dave_konicek,
+    david_evanetich,
+    giao_nguyen,
+    # husky_crone,
+    # john_hughes,
+    josh_neil,
+    # lynseys_segal,
+    # mark_brzezinski,
+    # matt_steeve,
+    # melissa_warwick,
+    # meridith_leubner,
+    richard_mann,
+    # scott_mcveigh,
+    # selena_shaikh,
+    # steve_seiler,
+    # tim_reid,
+    # tom_bick,
 ]
-
-# Giants
+# ZSUNGiants
 ceri_pritchard = "4204538"
 colin_humphrey = "407780"
+dave_konicek = "3147366" #ftp 276 critical_power 278
 ed_bentley = "2449352"
 eltjo_biemold = "106298"
 ivan_parks = "2847282"
@@ -74,40 +88,36 @@ steve_james = "1662067"
 giants = [
     ceri_pritchard,
     colin_humphrey,
+    # dave_konicek,
     # ed_bentley,
     # eltjo_biemold,
     # ivan_parks,
     john_glass,
     roy_roesthuis,
     steve_james,
-    dave_konicek,
-
 ]
 
 #ZSUNderFire
-sjors_van_liempt = "2705238"
+dave_konicek = "3147366"
 gertjan_buisman = "1408923"
 harrison_clark = "4348809"
 james_veitch = "5959864"
 rick_porteous = "2873877"
+sjors_van_liempt = "2705238"
+tom_bick = "11741"
 xander_crawshaw = "2419188"
-dave_konicek="3147366"
-tom_bick= "11741"
 zsunderfire = [
-    sjors_van_liempt,
+    dave_konicek,
     gertjan_buisman,
     # harrison_clark,
     james_veitch,
-    # rick_porteous,
+    rick_porteous,
+    sjors_van_liempt,
     tom_bick,
-    xander_crawshaw,
-    dave_konicek,
+    # xander_crawshaw,
 ]
 
-riderIDS = zsunderfire
-
-
-
+riderIDS = betelguese
 
 permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 

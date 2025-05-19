@@ -189,7 +189,7 @@ def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderI
         "p4", 
         "p+", 
         "NP/1hr",
-        "halted"
+        "limit"
     ]
     logger.info(tabulate(table, headers=headers, tablefmt="simple"))
 
