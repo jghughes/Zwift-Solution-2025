@@ -51,18 +51,59 @@ steve_seiler = "6142432" #ftp 270
 david_evanetich= '4945836'
 coryc = "5569057"
 
-# choose a rider to model
-zwiftID = lynseys
+# Betel
+riderIDS = [
+        tom_bick, 
+        markb, 
+        # coryc, 
+        # melissa_warwick, 
+        # lynseys, 
+        # david_evanetich, 
+        # david_evanetich, 
+        # joshn
+    ]
+
+# Giants
+
+#ZSUNderFire
 
 permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 
 def fmt(x : Union[int, float]):
+    """
+    Format a number in compact scientific or fixed-point notation with 2 significant digits.
+    
+    Args:
+        x (int or float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '1.2e+03' or '12'.
+    """
     return f"{x:.2g}"
 
 def fmtl(x : Union[int, float]):
+    """
+    Format a number in compact scientific or fixed-point notation with 4 significant digits.
+    
+    Args:
+        x (int or float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '1.234e+03' or '1234'.
+    """
     return f"{x:.4g}"
 
 def fmtc(x: Union[int, float]) -> str:
+    """
+    Format a number with thousands separators and up to 2 decimal places.
+    For floats, trailing zeros and decimal points are removed if unnecessary.
+    
+    Args:
+        x (int or float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '1,234' or '1,234.56'.
+    """
     if isinstance(x, int):
         return f"{x:,}"
     elif isinstance(x, float):
@@ -74,14 +115,14 @@ def format_hms(seconds: float) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, secs = divmod(remainder, 60)
     # Format seconds with one leading zero if < 10, else no leading zero
-    sec_str = f"{secs:05.3f}" if secs < 10 else f"{secs:0.3f}"
+    sec_str = f"{secs:03.1f}" if secs < 10 else f"{secs:0.1f}"
     if hours >= 1:
-        return f"{int(hours):02} hours {int(minutes):02} minutes {sec_str} seconds"
+        return f"{int(hours)} hours {int(minutes):02} minutes {sec_str} seconds"
     elif minutes >= 1:
         return f"{int(minutes):02} minutes {sec_str} seconds"
     else:
         return f"{sec_str} seconds"
-    
+
 def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
 
@@ -109,7 +150,6 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
         "Pull 30s (W)",
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
 
 def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     # (rider, duration_sec, speed_kph)
@@ -152,7 +192,6 @@ def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
 
     return slowest_rider, slowest_duration, slowest_speed
 
-
 def populate_rider_answers(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float])-> defaultdict[ZsunRiderItem, RiderAnswerItem]:
     
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
@@ -177,12 +216,12 @@ def do_diagnostic(rider_answers: defaultdict[ZsunRiderItem, RiderAnswerItem]) ->
         msg = ""
         # Step 1: Intensity factor checks
         if answer.np_intensity_factor >= 0.95:
-            msg += "intensity factor > 0.95."
+            msg += " NP/1hr>0.95"
 
         # Step 2: Pull watt limit checks
         pull_limit = rider.lookup_permissable_pull_watts(answer.p1_duration)
         if answer.p1_w >= pull_limit:
-            msg += "pull-watts over limit."
+            msg += " pull-watts>limit"
 
         answer.diagnostic_message = msg
     return rider_answers
@@ -326,37 +365,34 @@ import time
 def main():
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
-    riders : list[ZsunRiderItem] = [
-        dict_of_zsunrideritems[tom_bick],
-        dict_of_zsunrideritems[markb],
-        dict_of_zsunrideritems[coryc],
-        dict_of_zsunrideritems[melissa_warwick],
-        dict_of_zsunrideritems[lynseys],
-        dict_of_zsunrideritems[david_evanetich],
-        dict_of_zsunrideritems[joshn],
-    ]
+
+    riders : list[ZsunRiderItem] = []
+    for riderID in riderIDS:
+        riders.append(dict_of_zsunrideritems[riderID])
 
     riders = arrange_riders_in_optimal_order(riders)
 
     a,b,c =calculate_lower_bound_pull_speed(riders)
     d,e,f = calculate_lower_bound_speed_at_one_hour_watts(riders)
 
-    logger.info(f"\nPaceline: Lower-bound pull speed: {fmtl(c)}kph for {a.name} at {b}sec. Lower-bound one-hour speed: {fmtl(f)}kph for {d.name} at {e}sec.")
+    logger.info(f"\nPaceline lower bound speed limits: -")
+    logger.info(f"Lower-bound p1   :  {fmtl(c)}kph for {a.name} at {b}sec.")
+    logger.info(f"Lower-bound 1hr  :  {fmtl(f)}kph for {d.name} at {e}sec.")
 
     seed_speed = round(min(c, f),1) # 1 decimal place
     plain_vanilla_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case execute as a team
     seed_speed_array = [seed_speed] * len(riders)
 
     iterations, rider_answer_items, halted_rider = iterate_until_halted(riders, plain_vanilla_pull_durations, seed_speed_array)
-    log_rider_answer_items(f"\n\nSimplest:", rider_answer_items, logger)
+    log_rider_answer_items(f"\n\nSIMPLEST PLAN:", rider_answer_items, logger)
 
     start_time = time.time()
     (results, total_alternatives, total_iterations) = find_optimal_solutions(riders, permitted_pull_durations, seed_speed)
     elapsed_time = time.time() - start_time
 
     a,b, = results
-    log_rider_answer_items(f"\n\n\nFastest:", a[1], logger)
-    log_rider_answer_items(f"\n\n\nFairest:", b[1], logger)
+    log_rider_answer_items(f"\n\nFASTEST PLAN:", a[1], logger)
+    log_rider_answer_items(f"\n\nFAIREST PLAN:", b[1], logger)
     logger.info(f"\n\n\nReport: did {fmtc(total_iterations)} iterations to evaluate {fmtc(total_alternatives)} alternatives in {format_hms(elapsed_time)} \n\n")
 
 if __name__ == "__main__":

@@ -166,7 +166,7 @@ def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderI
     for rider, z in result.items():
         table.append([
             rider.name, 
-            z.speed_kph,
+            round(z.speed_kph,1),
             z.p1_duration,
             round(z.p1_wkg,1),
             round(z.p1_ratio_to_1hr_w,1),
@@ -178,20 +178,20 @@ def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderI
             round(z.np_intensity_factor,2),
             z.diagnostic_message if z.diagnostic_message else ""
         ])
-    headers = ["rider", 
+    headers = ["", 
         "kph",
         "p1(s)", 
         "p1(wkg)",
         "p1/1hr",
-        "p1(W)", 
-        "p2(W)", 
-        "p3(W)", 
-        "p4(W)", 
-        "p+(W)", 
-        "np/1hr",
-        "message"
+        "p1", 
+        "p2", 
+        "p3", 
+        "p4", 
+        "p+", 
+        "NP/1hr",
+        "halted"
     ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
+    logger.info(tabulate(table, headers=headers, tablefmt="simple"))
 
 
 
