@@ -176,41 +176,88 @@ def do_diagnostic(rider_answers: defaultdict[ZsunRiderItem, RiderAnswerItem]) ->
     for rider, answer in rider_answers.items():
         msg = ""
         # Step 1: Intensity factor checks
-        if answer.np_intensity_factor >= 1.0:
-            msg += "intensity factor > 1.0."
-        # elif answer.np_intensity_factor >= 0.95:
-        #     msg += "warning. intensity factor >= 0.95. "
+        if answer.np_intensity_factor >= 0.95:
+            msg += "intensity factor > 0.95."
 
         # Step 2: Pull watt limit checks
         pull_limit = rider.lookup_permissable_pull_watts(answer.p1_duration)
         if answer.p1_w >= pull_limit:
             msg += "pull-watts over limit."
-        # elif answer.p1_w >= 0.95 * pull_limit:
-        #     msg += "warning. pull watts >= .95 of limit."
 
         answer.diagnostic_message = msg
     return rider_answers
 
-def iterate_until_halted (riders: list[ZsunRiderItem], pull_durations: list[float], pull_speeds_kph: list[float]) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]:
+# def iterate_until_halted (riders: list[ZsunRiderItem], pull_durations: list[float], pull_speeds_kph: list[float]) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]:
 
-    rider_answer_items : defaultdict[ZsunRiderItem, RiderAnswerItem] = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
+#     rider_answer_items : defaultdict[ZsunRiderItem, RiderAnswerItem] = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
 
-    # iterate until a rider has a diagnostic message
-    i = 1
-    current_speed = round(pull_speeds_kph[0], 1)
+#     # iterate until a rider has a diagnostic message
+#     i = 1
+#     current_speed = round(pull_speeds_kph[0], 1)
 
-    while True:
-        # break if any rider has a diagnostic message
+#     while True:
+#         # break if any rider has a diagnostic message
+#         if any(answer.diagnostic_message for answer in rider_answer_items.values()):
+#             halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
+#             break
+#         current_speed = current_speed + 0.1
+#         pull_speeds_kph = [current_speed] * len(riders)
+#         rider_answer_items = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
+#         i += 1
+#     return i-1, rider_answer_items, halting_rider
+
+def iterate_until_halted(
+    riders: list[ZsunRiderItem],
+    pull_durations: list[float],
+    pull_speeds_kph: list[float],
+    precision: float = 0.1,
+    max_iter: int = 20
+) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]:
+    """
+    Uses binary search to find the maximum speed before a diagnostic message appears.
+    Returns (iterations, rider_answer_items, halting_rider).
+    """
+    # Initial lower and upper bounds
+    lower = pull_speeds_kph[0]
+    upper = lower
+
+    # Find an upper bound where a diagnostic message appears
+    for _ in range(10):
+        test_speeds = [upper] * len(riders)
+        rider_answer_items = populate_rider_answers(riders, pull_durations, test_speeds)
         if any(answer.diagnostic_message for answer in rider_answer_items.values()):
-            halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
             break
-        current_speed = current_speed + 0.1
-        pull_speeds_kph = [current_speed] * len(riders)
-        rider_answer_items = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
-        i += 1
-    return i-1, rider_answer_items, halting_rider
+        upper += 5.0  # Increase by a reasonable chunk
+    else:
+        # If we never find an upper bound, just return the last result
+        return 1, rider_answer_items, None
+
+    iterations = 0
+    halting_rider = None
+    last_valid_items = None
+
+    while (upper - lower) > precision and iterations < max_iter:
+        mid = (lower + upper) / 2
+        test_speeds = [mid] * len(riders)
+        rider_answer_items = populate_rider_answers(riders, pull_durations, test_speeds)
+        iterations += 1
+        if any(answer.diagnostic_message for answer in rider_answer_items.values()):
+            upper = mid
+            halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
+        else:
+            lower = mid
+            last_valid_items = rider_answer_items
 
 
+    # Use the halting (upper) speed after binary search
+    final_speeds = [upper] * len(riders)
+    rider_answer_items = populate_rider_answers(riders, pull_durations, final_speeds)
+    if any(answer.diagnostic_message for answer in rider_answer_items.values()):
+        halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
+    else:
+        halting_rider = None
+
+    return iterations, rider_answer_items, halting_rider
 
 import itertools
 import numpy as np
@@ -280,12 +327,13 @@ def main():
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     riders : list[ZsunRiderItem] = [
-        # dict_of_zsunrideritems[tom_bick],
-        # dict_of_zsunrideritems[davek],
-        # dict_of_zsunrideritems[husky],
-        # dict_of_zsunrideritems[timr],
-        dict_of_zsunrideritems[meridith_leubner],
-        dict_of_zsunrideritems[johnh],
+        dict_of_zsunrideritems[tom_bick],
+        dict_of_zsunrideritems[markb],
+        dict_of_zsunrideritems[coryc],
+        dict_of_zsunrideritems[melissa_warwick],
+        dict_of_zsunrideritems[lynseys],
+        dict_of_zsunrideritems[david_evanetich],
+        dict_of_zsunrideritems[joshn],
     ]
 
     riders = arrange_riders_in_optimal_order(riders)
