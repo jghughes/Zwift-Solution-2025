@@ -28,17 +28,18 @@ ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDave
 ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
 ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+# Betel
 
-barryb ='5490373' #ftp 273
-johnh ='1884456' #ftp 240 zmap 292
+barry_beck ='5490373' #ftp 273
+john_hughes ='1884456' #ftp 240 zmap 292
 lynseys ='383480' #ftp 201
-joshn ='2508033' #ftp 260
-richardm ='1193' # ftp 200
-markb ='5530045' #ftp 280
-davek="3147366" #ftp 276 critical_power 278
-husky="5134" #ftp 268
-scottm="11526" #ftp 247
-timr= "5421258" #ftp 380
+josh_neil ='2508033' #ftp 260
+richard_mann ='1193' # ftp 200
+mark_brzezinski ='5530045' #ftp 280
+dave_konicek="3147366" #ftp 276 critical_power 278
+husky_crone="5134" #ftp 268
+scott_mcveigh="11526" #ftp 247
+tim_reid= "5421258" #ftp 380
 tom_bick= "11741" #ftp 303 critical_power 298
 bryan_bumpas = "9011" #ftp 214
 matt_steeve = "1024413"
@@ -46,26 +47,67 @@ giao_nguyen = "183277" #ftp 189
 meridith_leubner ="1707548" #ftp 220
 melissa_warwick = "1657744" #ftp 213
 brandi_steeve = "991817" #ftp 196
-selena = "2682791" #ftp 214
+selena_shaik = "2682791" #ftp 214
 steve_seiler = "6142432" #ftp 270
 david_evanetich= '4945836'
 coryc = "5569057"
 
-# Betel
-riderIDS = [
-        tom_bick, 
-        markb, 
-        # coryc, 
-        # melissa_warwick, 
-        # lynseys, 
-        # david_evanetich, 
-        # david_evanetich, 
-        # joshn
-    ]
+betel = [
+    # tom_bick, 
+    mark_brzezinski, 
+    # coryc, 
+    # melissa_warwick, 
+    # lynseys, 
+    # david_evanetich, 
+    # joshn
+]
 
 # Giants
+ceri_pritchard = "4204538"
+colin_humphrey = "407780"
+ed_bentley = "2449352"
+eltjo_biemold = "106298"
+ivan_parks = "2847282"
+john_glass = "172221"
+roy_roesthuis = "197937"
+steve_james = "1662067"
+giants = [
+    ceri_pritchard,
+    colin_humphrey,
+    # ed_bentley,
+    # eltjo_biemold,
+    # ivan_parks,
+    john_glass,
+    roy_roesthuis,
+    steve_james,
+    dave_konicek,
+
+]
 
 #ZSUNderFire
+sjors_van_liempt = "2705238"
+gertjan_buisman = "1408923"
+harrison_clark = "4348809"
+james_veitch = "5959864"
+rick_porteous = "2873877"
+xander_crawshaw = "2419188"
+dave_konicek="3147366"
+tom_bick= "11741"
+zsunderfire = [
+    sjors_van_liempt,
+    gertjan_buisman,
+    # harrison_clark,
+    james_veitch,
+    # rick_porteous,
+    tom_bick,
+    xander_crawshaw,
+    dave_konicek,
+]
+
+riderIDS = zsunderfire
+
+
+
 
 permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 
@@ -375,9 +417,9 @@ def main():
     a,b,c =calculate_lower_bound_pull_speed(riders)
     d,e,f = calculate_lower_bound_speed_at_one_hour_watts(riders)
 
-    logger.info(f"\nPaceline lower bound speed limits: -")
-    logger.info(f"Lower-bound p1   :  {fmtl(c)}kph for {a.name} at {b}sec.")
-    logger.info(f"Lower-bound 1hr  :  {fmtl(f)}kph for {d.name} at {e}sec.")
+    logger.info(f"\nPaceline constraints:-")
+    logger.info(f"p1 constraint (slowest p1)    :  {fmtl(c)}kph by {a.name} for a pull of {b}sec.")
+    logger.info(f"1hr constraint (slowest 1hr)  :  {fmtl(f)}kph by {d.name} for a pull of {e}sec.")
 
     seed_speed = round(min(c, f),1) # 1 decimal place
     plain_vanilla_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case execute as a team
