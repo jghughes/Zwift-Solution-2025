@@ -4,6 +4,7 @@ from matplotlib.pylab import f
 from zsun_rider_item import ZsunRiderItem
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_units_ticks,set_y_axis_units_ticks
+
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from handy_utilities import *
 from computation_classes import RiderAnswerItem
@@ -19,9 +20,7 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-
-
-ZSUN01_BETEL_PROFILES_FILE_NAME = "betel_ZsunRiderItems.json"
+ZSUN01_BETEL_PROFILES_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
 ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
 OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
@@ -63,6 +62,26 @@ def fmt(x : Union[int, float]):
 def fmtl(x : Union[int, float]):
     return f"{x:.4g}"
 
+def fmtc(x: Union[int, float]) -> str:
+    if isinstance(x, int):
+        return f"{x:,}"
+    elif isinstance(x, float):
+        return f"{x:,.2f}".rstrip('0').rstrip('.') if '.' in f"{x:,.2f}" else f"{x:,.2f}"
+    else:
+        return str(x)
+
+def format_hms(seconds: float) -> str:
+    hours, remainder = divmod(seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+    # Format seconds with one leading zero if < 10, else no leading zero
+    sec_str = f"{secs:05.3f}" if secs < 10 else f"{secs:0.3f}"
+    if hours >= 1:
+        return f"{int(hours):02} hours {int(minutes):02} minutes {sec_str} seconds"
+    elif minutes >= 1:
+        return f"{int(minutes):02} minutes {sec_str} seconds"
+    else:
+        return f"{sec_str} seconds"
+    
 def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
 
@@ -198,7 +217,19 @@ import numpy as np
 from collections import defaultdict
 from typing import List, Tuple
 
-def make_inventory_of_all_combinations_of_pull_durations(
+import concurrent.futures
+import itertools
+import numpy as np
+from collections import defaultdict
+from typing import List, Tuple
+
+def evaluate_combination(args):
+    # Unpack arguments
+    riders, pull_durations, seed_speed_array = args
+    # Call the simulation for this combination
+    return iterate_until_halted(riders, list(pull_durations), seed_speed_array)
+
+def find_optimal_solutions(
         riders: List[ZsunRiderItem],
         permitted_durations: List[float],
         lower_bound_speed: float
@@ -207,23 +238,25 @@ def make_inventory_of_all_combinations_of_pull_durations(
         int,  # total_alternatives
         int   # total_iterations
 ]:
-    # Generate all combinations of pull durations
     all_combinations = list(itertools.product(permitted_durations, repeat=len(riders)))
     seed_speed_array = [lower_bound_speed] * len(riders)
-
-    fastest_tuple = None
-    fastest_speed = -float('inf')
-
-    lowest_dispersion_tuple = None
-    lowest_dispersion = float('inf')
-
     total_alternatives = len(all_combinations)
     total_iterations = 0
 
-    for pull_durations in all_combinations:
-        iterations, rider_answer_items, halted_rider = iterate_until_halted(
-            riders, list(pull_durations), seed_speed_array
-        )
+    # Prepare arguments for each process
+    args_list = [(riders, pull_durations, seed_speed_array) for pull_durations in all_combinations]
+
+    results = []
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        for result in executor.map(evaluate_combination, args_list):
+            results.append(result)
+
+    fastest_tuple = None
+    fastest_speed = -float('inf')
+    lowest_dispersion_tuple = None
+    lowest_dispersion = float('inf')
+
+    for iterations, rider_answer_items, halted_rider in results:
         total_iterations += iterations
         halted_speed = rider_answer_items[halted_rider].speed_kph
 
@@ -239,53 +272,44 @@ def make_inventory_of_all_combinations_of_pull_durations(
             lowest_dispersion = dispersion
             lowest_dispersion_tuple = (iterations, rider_answer_items, halted_rider)
 
-    return [fastest_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations
+    return ([fastest_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations)
+
+import time
 
 def main():
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
 
     riders : list[ZsunRiderItem] = [
         # dict_of_zsunrideritems[tom_bick],
-        dict_of_zsunrideritems[davek],
+        # dict_of_zsunrideritems[davek],
         # dict_of_zsunrideritems[husky],
-        dict_of_zsunrideritems[timr],
-        # dict_of_zsunrideritems[meridith_leubner],
-        # dict_of_zsunrideritems[johnh],
+        # dict_of_zsunrideritems[timr],
+        dict_of_zsunrideritems[meridith_leubner],
+        dict_of_zsunrideritems[johnh],
     ]
-
-    # Sort riders by 1hr speed (descending)
-    riders_sorted = sorted(
-        riders,
-        key=lambda r: r.calculate_speed_at_one_hour_watts(),
-        reverse=True
-    )
-
-    # logger.info(f"\nRiders sorted by 1hr speed (descending): {[rider.name for rider in riders_sorted]}")
-
-    # log_rider_one_hour_speeds(riders_sorted, logger)
 
     riders = arrange_riders_in_optimal_order(riders)
 
     a,b,c =calculate_lower_bound_pull_speed(riders)
     d,e,f = calculate_lower_bound_speed_at_one_hour_watts(riders)
 
-    logger.info(f"\nPaceline: Lower-bound pull speed: {fmtl(c)}kph for {a.name} at {b}sec. Lower-bound one-hour speed: {fmtl(f)}kph for {d.name} at {e}sec. \n")
+    logger.info(f"\nPaceline: Lower-bound pull speed: {fmtl(c)}kph for {a.name} at {b}sec. Lower-bound one-hour speed: {fmtl(f)}kph for {d.name} at {e}sec.")
 
     seed_speed = round(min(c, f),1) # 1 decimal place
-    plain_vanilla_pull_durations = [30.0] * len(riders) # seed: 30 seconds for everyone to begin with
+    plain_vanilla_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case execute as a team
     seed_speed_array = [seed_speed] * len(riders)
 
     iterations, rider_answer_items, halted_rider = iterate_until_halted(riders, plain_vanilla_pull_durations, seed_speed_array)
-    log_rider_answer_items(f"\nPlain vanilla solution:", rider_answer_items, logger)
+    log_rider_answer_items(f"\n\nSimplest:", rider_answer_items, logger)
 
-
-    (results, total_alternatives, total_iterations) = make_inventory_of_all_combinations_of_pull_durations(riders, permitted_pull_durations, seed_speed)
+    start_time = time.time()
+    (results, total_alternatives, total_iterations) = find_optimal_solutions(riders, permitted_pull_durations, seed_speed)
+    elapsed_time = time.time() - start_time
 
     a,b, = results
-    logger.info(f"\nTotal alternatives evaluated: {total_alternatives} Total iterations done: {total_iterations}")
-    log_rider_answer_items(f"\nFastest solution:", a[1], logger)
-    log_rider_answer_items(f"\nMost evenly balanced solution:", b[1], logger)
-    logger.info(f"\nTotal alternatives evaluated: {total_alternatives} Total iterations done: {total_iterations}")
+    log_rider_answer_items(f"\n\n\nFastest:", a[1], logger)
+    log_rider_answer_items(f"\n\n\nFairest:", b[1], logger)
+    logger.info(f"\n\n\nReport: did {fmtc(total_iterations)} iterations to evaluate {fmtc(total_alternatives)} alternatives in {format_hms(elapsed_time)} \n\n")
 
 if __name__ == "__main__":
     main()
