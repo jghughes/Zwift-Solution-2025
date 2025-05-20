@@ -555,7 +555,6 @@ class ZsunRiderItem:
         
         return round(speed_kph, 3)
 
-
     def calculate_speed_at_permitted_4_minute_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
@@ -663,7 +662,6 @@ class ZsunRiderItem:
             permissable_watts = self.get_permitted_4_minute_pull_watts()
          
         return permissable_watts
-            
 
     def get_when_models_fitted(self) -> str:
         return self.zsun_when_curves_fitted
@@ -700,7 +698,6 @@ class ZsunRiderItem:
             zsun_TTT_pull_curve_fit_r_squared = item.zsun_TTT_pull_curve_fit_r_squared,
             zsun_when_curves_fitted           = item.zsun_when_curves_fitted,
         )
-
 
     @staticmethod
     def from_dataTransferObject(dto: Optional[ZsunRiderDTO]) -> "ZsunRiderItem":

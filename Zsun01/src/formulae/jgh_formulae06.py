@@ -4,7 +4,6 @@ from computation_classes import *
 from rolling_average import calculate_rolling_averages
 import logging
 
-
 def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the average power for a list of efforts.
@@ -192,8 +191,6 @@ def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderI
         "limit"
     ]
     logger.info(tabulate(table, headers=headers, tablefmt="simple"))
-
-
 
 
 def main() -> None:

@@ -1,17 +1,15 @@
-from typing import Tuple
-
-from matplotlib.pylab import f
+from typing import  List, Tuple, Union
+from collections import defaultdict
+import time
+import numpy as np
+import itertools
+import concurrent.futures
 from zsun_rider_item import ZsunRiderItem
-import matplotlib.pyplot as plt
-from matplot_utilities import set_x_axis_units_ticks,set_y_axis_units_ticks
-
-from jgh_read_write import write_pandas_dataframe_as_xlsx
-from handy_utilities import *
 from computation_classes import RiderAnswerItem
-
+from handy_utilities import read_dict_of_zsunriderItems
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae04 import populate_rider_work_assignments, log_rider_work_assignments
-from jgh_formulae05 import populate_rider_exertions, log_rider_exertions
+from jgh_formulae04 import populate_rider_work_assignments
+from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_answeritems, log_rider_answer_items
 
 import logging
@@ -58,23 +56,24 @@ betelguese = [
     # bryan_bumpas,
     # cory_cook,
     # dave_konicek,
-    david_evanetich,
-    giao_nguyen,
+    # david_evanetich,
+    # giao_nguyen,
     # husky_crone,
-    # john_hughes,
-    josh_neil,
+    john_hughes,
+    # josh_neil,
     # lynseys_segal,
     # mark_brzezinski,
     # matt_steeve,
-    # melissa_warwick,
-    # meridith_leubner,
-    richard_mann,
+    melissa_warwick,
+    meridith_leubner,
+    # richard_mann,
     # scott_mcveigh,
     # selena_shaikh,
     # steve_seiler,
     # tim_reid,
-    # tom_bick,
+    tom_bick,
 ]
+
 # ZSUNGiants
 ceri_pritchard = "4204538"
 colin_humphrey = "407780"
@@ -85,6 +84,7 @@ ivan_parks = "2847282"
 john_glass = "172221"
 roy_roesthuis = "197937"
 steve_james = "1662067"
+
 giants = [
     ceri_pritchard,
     colin_humphrey,
@@ -106,6 +106,7 @@ rick_porteous = "2873877"
 sjors_van_liempt = "2705238"
 tom_bick = "11741"
 xander_crawshaw = "2419188"
+
 zsunderfire = [
     dave_konicek,
     gertjan_buisman,
@@ -204,11 +205,25 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
-    # (rider, duration_sec, speed_kph)
+    """
+    Determines the minima permitted pull speed among all permitted pull durations of all riders.
+
+    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
+    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
+    corresponding to the overall slowest speed found.
+
+    Args:
+        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
+
+    Returns:
+        Tuple[ZsunRiderItem, float, float]: A tuple containing:
+            - The ZsunRiderItem with the lowest speed,
+            - The pull duration in seconds for which this minima occurs,
+            - The minima speed in kph.
+    """
     slowest_rider = riders[0]
     slowest_duration = 30.0
     slowest_speed = 100.0  # Arbitrarily high speed
-
 
     duration_methods = [
         (30.0, 'calculate_speed_at_permitted_30sec_pull_watts'),
@@ -278,32 +293,13 @@ def do_diagnostic(rider_answers: defaultdict[ZsunRiderItem, RiderAnswerItem]) ->
         answer.diagnostic_message = msg
     return rider_answers
 
-# def iterate_until_halted (riders: list[ZsunRiderItem], pull_durations: list[float], pull_speeds_kph: list[float]) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]:
-
-#     rider_answer_items : defaultdict[ZsunRiderItem, RiderAnswerItem] = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
-
-#     # iterate until a rider has a diagnostic message
-#     i = 1
-#     current_speed = round(pull_speeds_kph[0], 1)
-
-#     while True:
-#         # break if any rider has a diagnostic message
-#         if any(answer.diagnostic_message for answer in rider_answer_items.values()):
-#             halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
-#             break
-#         current_speed = current_speed + 0.1
-#         pull_speeds_kph = [current_speed] * len(riders)
-#         rider_answer_items = populate_rider_answers(riders, pull_durations, pull_speeds_kph)
-#         i += 1
-#     return i-1, rider_answer_items, halting_rider
-
 def iterate_until_halted(
     riders: list[ZsunRiderItem],
     pull_durations: list[float],
     pull_speeds_kph: list[float],
     precision: float = 0.1,
     max_iter: int = 20
-) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]:
+) -> tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], Union[None, ZsunRiderItem]]:
     """
     Uses binary search to find the maximum speed before a diagnostic message appears.
     Returns (iterations, rider_answer_items, halting_rider).
@@ -323,9 +319,9 @@ def iterate_until_halted(
         # If we never find an upper bound, just return the last result
         return 1, rider_answer_items, None
 
-    iterations = 0
-    halting_rider = None
-    last_valid_items = None
+    iterations : int = 0
+    halting_rider : Union[None, ZsunRiderItem] = None
+    last_valid_items : Union[None, defaultdict[ZsunRiderItem, RiderAnswerItem]] = None # the last known good solution. not currently needed or used
 
     while (upper - lower) > precision and iterations < max_iter:
         mid = (lower + upper) / 2
@@ -350,18 +346,8 @@ def iterate_until_halted(
 
     return iterations, rider_answer_items, halting_rider
 
-import itertools
-import numpy as np
-from collections import defaultdict
-from typing import List, Tuple
-
-import concurrent.futures
-import itertools
-import numpy as np
-from collections import defaultdict
-from typing import List, Tuple
-
-def evaluate_combination(args):
+def evaluate_combination( args: Tuple[List[ZsunRiderItem], List[float], List[float]]
+) -> Tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], Union[None, ZsunRiderItem]]:
     # Unpack arguments
     riders, pull_durations, seed_speed_array = args
     # Call the simulation for this combination
@@ -376,27 +362,61 @@ def find_optimal_solutions(
         int,  # total_alternatives
         int   # total_iterations
 ]:
+    # --- Input validation ---
+    if not riders:
+        raise ValueError("No riders provided to find_optimal_solutions.")
+    if not permitted_durations:
+        raise ValueError("No permitted pull durations provided to find_optimal_solutions.")
+    if any(d <= 0 or not np.isfinite(d) for d in permitted_durations):
+        raise ValueError("All permitted pull durations must be positive and finite.")
+    if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
+        raise ValueError("lower_bound_speed must be positive and finite.")
+
     all_combinations = list(itertools.product(permitted_durations, repeat=len(riders)))
-    seed_speed_array = [lower_bound_speed] * len(riders)
-    total_alternatives = len(all_combinations)
-    total_iterations = 0
+    seed_speed_array : list[float] = [lower_bound_speed] * len(riders)
+    total_alternatives : int = len(all_combinations)
+    total_iterations : int = 0
+
+    if total_alternatives  > 1_000_000:
+        logger.warning("Number of alternatives is very large: %d", total_alternatives)
 
     # Prepare arguments for each process
     args_list = [(riders, pull_durations, seed_speed_array) for pull_durations in all_combinations]
 
-    results = []
+    results: List[Tuple[int, defaultdict[ZsunRiderItem, RiderAnswerItem], ZsunRiderItem]] = []
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        for result in executor.map(evaluate_combination, args_list):
-            results.append(result)
+        future_to_args = {executor.submit(evaluate_combination, args): args for args in args_list}
+        for future in concurrent.futures.as_completed(future_to_args):
+            try:
+                result = future.result()
+                # --- Result validation ---
+                if (result is None or
+                    not isinstance(result, tuple) or
+                    len(result) != 3 or
+                    result[1] is None or
+                    result[2] is None or
+                    not isinstance(result[1], dict)):
+                    logger.warning("Skipping invalid result: %s", result)
+                    continue
+                results.append(result)
+            except Exception as exc:
+                logger.error("Exception in evaluate_combination: %s", exc)
 
     fastest_tuple = None
-    fastest_speed = -float('inf')
+    fastest_speed : float = float('-inf')
     lowest_dispersion_tuple = None
-    lowest_dispersion = float('inf')
+    lowest_dispersion : float = float('inf')
 
     for iterations, rider_answer_items, halted_rider in results:
         total_iterations += iterations
+        if halted_rider is None or rider_answer_items is None or not isinstance(rider_answer_items, dict):
+            logger.warning("Invalid result in results list: %s", (iterations, rider_answer_items, halted_rider))
+            continue
         halted_speed = rider_answer_items[halted_rider].speed_kph
+        if not np.isfinite(halted_speed):
+            logger.warning("Non-finite halted_speed encountered: %s", halted_speed)
+            continue
 
         # Memo for fastest halted speed
         if halted_speed > fastest_speed:
@@ -404,15 +424,27 @@ def find_optimal_solutions(
             fastest_tuple = (iterations, rider_answer_items, halted_rider)
 
         # Memo for lowest dispersion of np_intensity_factor
-        np_intensity_factors = [answer.np_intensity_factor for answer in rider_answer_items.values()]
+        np_intensity_factors = [answer.np_intensity_factor for answer in rider_answer_items.values() if hasattr(answer, "np_intensity_factor")]
+        if not np_intensity_factors:
+            logger.warning("No valid np_intensity_factors in rider_answer_items.")
+            continue
         dispersion = np.std(np_intensity_factors)
+        if not np.isfinite(dispersion):
+            logger.warning("Non-finite dispersion encountered: %s", dispersion)
+            continue
         if dispersion < lowest_dispersion:
             lowest_dispersion = dispersion
             lowest_dispersion_tuple = (iterations, rider_answer_items, halted_rider)
 
-    return ([fastest_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations)
+    # --- Output consistency ---
+    if fastest_tuple is None and lowest_dispersion_tuple is None:
+        raise RuntimeError("find_optimal_solutions: No valid solution found (both fastest_tuple and lowest_dispersion_tuple are None)")
+    elif fastest_tuple is None:
+        raise RuntimeError("find_optimal_solutions: No valid solution found (fastest_tuple is None)")
+    elif lowest_dispersion_tuple is None:
+        raise RuntimeError("find_optimal_solutions: No valid solution found (lowest_dispersion_tuple is None)")
 
-import time
+    return ([fastest_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations)
 
 def main():
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
@@ -424,14 +456,14 @@ def main():
 
     riders = arrange_riders_in_optimal_order(riders)
 
-    a,b,c =calculate_lower_bound_pull_speed(riders)
-    d,e,f = calculate_lower_bound_speed_at_one_hour_watts(riders)
+    r01,r01_duration,r01_speed =calculate_lower_bound_pull_speed(riders)
+    r02,r02_duration,r02_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
 
-    logger.info(f"\nPaceline constraints:-")
-    logger.info(f"p1 constraint (slowest p1)    :  {fmtl(c)}kph by {a.name} for a pull of {b}sec.")
-    logger.info(f"1hr constraint (slowest 1hr)  :  {fmtl(f)}kph by {d.name} for a pull of {e}sec.")
+    logger.info(f"\nPaceline speed constraints:-")
+    logger.info(f"Slowest conceivable pull      :  {round(r01_speed,1)} kph @ {round(r01.get_permitted_4_minute_pull_watts())} Watts ({round(r01.get_permitted_4_minute_pull_watts()/r01.weight_kg, 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Slowest conceivable one hour  :  {round(r02_speed, 1)} kph @ {round(r02.get_1_hour_watts())} Watts ({round(r02.get_1_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
 
-    seed_speed = round(min(c, f),1) # 1 decimal place
+    seed_speed = round(min(r01_speed, r02_speed),1) # 1 decimal place i.e. a float not an int
     plain_vanilla_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case execute as a team
     seed_speed_array = [seed_speed] * len(riders)
 
@@ -439,12 +471,13 @@ def main():
     log_rider_answer_items(f"\n\nSIMPLEST PLAN:", rider_answer_items, logger)
 
     start_time = time.time()
-    (results, total_alternatives, total_iterations) = find_optimal_solutions(riders, permitted_pull_durations, seed_speed)
+    (solutions, total_alternatives, total_iterations) = find_optimal_solutions(riders, permitted_pull_durations, seed_speed)
     elapsed_time = time.time() - start_time
 
-    a,b, = results
-    log_rider_answer_items(f"\n\nFASTEST PLAN:", a[1], logger)
-    log_rider_answer_items(f"\n\nFAIREST PLAN:", b[1], logger)
+    solution01, solution02 = solutions
+    log_rider_answer_items(f"\n\nFASTEST PLAN:", solution01[1], logger)
+    log_rider_answer_items(f"\n\nFAIREST PLAN:", solution02[1], logger)
+    
     logger.info(f"\n\n\nReport: did {fmtc(total_iterations)} iterations to evaluate {fmtc(total_alternatives)} alternatives in {format_hms(elapsed_time)} \n\n")
 
 if __name__ == "__main__":
