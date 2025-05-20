@@ -86,7 +86,7 @@ def calculate_everything(riders: List[ZsunRiderItem]) -> Tuple[float, List[ZsunR
     if not riders:
         return 0, [], []
 
-    floor_speed_kph = min(rider.calculate_speed_at_one_hour_watts() for rider in riders) - 2.0 # arbitrary cushion. slowest rider of all
+    floor_speed_kph = min(rider.calculate_speed_at_1_hour_watts() for rider in riders) - 2.0 # arbitrary cushion. slowest rider of all
 
     group_of_pullers, group_of_not_pullers = allocate_riders_to_groups(riders)
 
@@ -181,7 +181,7 @@ def main2():
         [
             rider.name,
             rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_one_hour_watts(),
+            rider.calculate_speed_at_1_hour_watts(),
             rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in riders
@@ -209,7 +209,7 @@ def main2():
         [
             rider.name,
             rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_one_hour_watts(),
+            rider.calculate_speed_at_1_hour_watts(),
             rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in strong
@@ -233,7 +233,7 @@ def main2():
         [
             rider.name,
             rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_one_hour_watts(),
+            rider.calculate_speed_at_1_hour_watts(),
             rider.calculate_speed_at_permitted_1_minute_pull_watts(),
         ]
         for rider in weak

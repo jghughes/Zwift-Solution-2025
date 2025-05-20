@@ -500,17 +500,6 @@ class ZsunRiderItem:
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_one_hour_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their one-hour power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.zsun_one_hour_watts, self.weight_kg, self.height_cm)
-        
-        return round(speed_kph, 3)
-
     def calculate_speed_at_permitted_30sec_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
@@ -580,6 +569,17 @@ class ZsunRiderItem:
         
         return round(speed_kph, 3)
 
+    def calculate_speed_at_1_hour_watts(self) -> float: 
+        """
+        Calculate the speed (km/h) for a rider given their one-hour power output (watts).
+        Returns:
+        float: The estimated speed in km/h.
+        """
+        # Estimate the speed in km/h using the estimate_speed_from_wattage function
+        speed_kph = estimate_speed_from_wattage(self.get_1_hour_watts(), self.weight_kg, self.height_cm)
+        
+        return round(speed_kph, 3)
+
     def get_critical_power_watts(self) -> float:
         return self.zsun_CP
 
@@ -591,10 +591,6 @@ class ZsunRiderItem:
             return 0.0
         return self.zwiftracingapp_zpFTP / self.weight_kg
 
-    def get_zsun_one_hour_wkg(self) -> float:
-        if self.weight_kg == 0:
-            return 0.0
-        return self.zsun_one_hour_watts / self.weight_kg
 
     def get_permitted_30sec_pull_watts(self) -> float:
         # apply 3.5 minute watts
@@ -636,6 +632,11 @@ class ZsunRiderItem:
         answer =  ftp[0]
 
         return answer
+
+    def get_zsun_1_hour_wkg(self) -> float:
+        if self.weight_kg == 0:
+            return 0.0
+        return self.get_1_hour_watts()/ self.weight_kg
 
     def get_n_second_watts(self, seconds: float) -> float:
 
