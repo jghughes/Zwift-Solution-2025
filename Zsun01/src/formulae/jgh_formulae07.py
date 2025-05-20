@@ -176,7 +176,7 @@ def main() -> None:
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
-    from jgh_formulae06 import populate_rider_answeritems
+    from jgh_formulae06 import populate_pull_plan_from_exertions
 
     from handy_utilities import read_dict_of_zsunriderItems, read_dict_of_zsunbestpowerItem
 
@@ -203,7 +203,7 @@ def main() -> None:
 
     rider_exertions = populate_rider_exertions(work_assignments)
 
-    rider_answer_items = populate_rider_answeritems(rider_exertions)
+    rider_answer_items = populate_pull_plan_from_exertions(rider_exertions)
 
     zwiftrider_cp_items = add_zwift_cp_and_w_prime_to_rider_criticalpower_items(zwiftriders_zwift_cp_data)
 

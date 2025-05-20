@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from ftplib import error_perm
 
 @dataclass
 class CurveFittingResult:
@@ -72,6 +71,7 @@ class RiderPullPlanItem():
     p2_w                  : float = 0
     p3_w                  : float = 0
     p4_w                  : float = 0
+    zsun_one_hour_watts   : float = 0
     p__w                  : float = 0
     np_intensity_factor   : float = 0
     diagnostic_message    : str = ""

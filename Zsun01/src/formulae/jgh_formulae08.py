@@ -8,7 +8,7 @@ from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderPullPlanItem
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
-from jgh_formulae06 import populate_rider_answeritems
+from jgh_formulae06 import populate_pull_plan_from_exertions
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -154,7 +154,7 @@ def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def populate_rider_answers(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float])-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_rider_pull_plans(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float])-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
     
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
@@ -164,16 +164,16 @@ def populate_rider_answers(riders: List[ZsunRiderItem], pull_durations: List[flo
 
     # log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", rider_exertions, logger)
 
-    rider_answer_items = populate_rider_answeritems(rider_exertions)
+    rider_answer_items = populate_pull_plan_from_exertions(rider_exertions)
 
-    rider_answer_items = diagnose_what_capped_the_top_speed(rider_answer_items)
+    rider_answer_items = diagnose_what_governed_the_top_speed(rider_answer_items)
 
-    # log_rider_answer_items(f"{len(riders)} riders in paceline", rider_answer_items, logger)
+    # log_pull_plan(f"{len(riders)} riders in paceline", rider_answer_items, logger)
 
 
     return rider_answer_items
 
-def diagnose_what_capped_the_top_speed(rider_answers: defaultdict[ZsunRiderItem, RiderPullPlanItem]) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def diagnose_what_governed_the_top_speed(rider_answers: defaultdict[ZsunRiderItem, RiderPullPlanItem]) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
     for rider, answer in rider_answers.items():
         msg = ""
         # Step 1: Intensity factor checks
@@ -203,7 +203,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
     # Find an upper bound where a diagnostic message appears
     for _ in range(10):
         test_speeds = [upper] * len(riders)
-        rider_answer_items = populate_rider_answers(riders, pull_durations, test_speeds)
+        rider_answer_items = populate_rider_pull_plans(riders, pull_durations, test_speeds)
         if any(answer.diagnostic_message for answer in rider_answer_items.values()):
             break
         upper += 5.0  # Increase by a reasonable chunk
@@ -218,7 +218,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
     while (upper - lower) > precision and iterations < max_iter:
         mid = (lower + upper) / 2
         test_speeds = [mid] * len(riders)
-        rider_answer_items = populate_rider_answers(riders, pull_durations, test_speeds)
+        rider_answer_items = populate_rider_pull_plans(riders, pull_durations, test_speeds)
         iterations += 1
         if any(answer.diagnostic_message for answer in rider_answer_items.values()):
             upper = mid
@@ -230,7 +230,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
 
     # Use the halting (upper) speed after binary search
     final_speeds = [upper] * len(riders)
-    rider_answer_items = populate_rider_answers(riders, pull_durations, final_speeds)
+    rider_answer_items = populate_rider_pull_plans(riders, pull_durations, final_speeds)
     if any(answer.diagnostic_message for answer in rider_answer_items.values()):
         halting_rider = next(rider for rider, answer in rider_answer_items.items() if answer.diagnostic_message)
     else:

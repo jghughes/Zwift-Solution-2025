@@ -2,7 +2,7 @@ import time
 from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae06 import log_rider_answer_items
+from jgh_formulae06 import log_pull_plan
 from jgh_formulae08 import fmtc, format_hms, permitted_pull_durations, calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, make_a_pull_plan_with_a_sensible_top_speed, search_for_optimal_pull_plans
 
 import logging
@@ -136,16 +136,17 @@ def main():
     seed_speed_array = [seed_speed] * len(riders)
 
     iterations, rider_answer_items, halted_rider = make_a_pull_plan_with_a_sensible_top_speed(riders, plain_vanilla_pull_durations, seed_speed_array)
-    log_rider_answer_items(f"\n\nSIMPLEST PLAN:", rider_answer_items, logger)
+    log_pull_plan(f"\n\nSIMPLEST PLAN: {round(rider_answer_items[halted_rider].speed_kph)} kph", rider_answer_items, logger)
 
     start_time = time.time()
     (solutions, total_alternatives, total_iterations) = search_for_optimal_pull_plans(riders, permitted_pull_durations, seed_speed)
     elapsed_time = time.time() - start_time
 
     solution01, solution02 = solutions
-    log_rider_answer_items(f"\n\nFAIREST PLAN:", solution02[1], logger)
-
-    log_rider_answer_items(f"\n\nFASTEST PLAN:", solution01[1], logger)
+    iterations, rider_answer_items, halted_rider = solution02
+    log_pull_plan(f"\n\nFAIREST PLAN: {round(rider_answer_items[halted_rider].speed_kph)} kph", rider_answer_items, logger)
+    iterations, rider_answer_items, halted_rider = solution01
+    log_pull_plan(f"\n\nFASTEST PLAN: {round(rider_answer_items[halted_rider].speed_kph)} kph", rider_answer_items, logger)
     
     logger.info(f"\n\n\nReport: did {fmtc(total_iterations)} iterations to evaluate {fmtc(total_alternatives)} alternatives in {format_hms(elapsed_time)} \n\n")
 

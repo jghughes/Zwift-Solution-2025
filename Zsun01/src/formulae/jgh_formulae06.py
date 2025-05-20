@@ -88,7 +88,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_pull_plan_from_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
         if not exertions:
@@ -137,7 +137,6 @@ def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExer
 
         # answer: Dict[ZsunRiderItem, RiderPullPlanItem] = {}
 
-
     answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = DefaultDict(RiderPullPlanItem)
 
     for rider, exertions in riders.items():
@@ -153,6 +152,7 @@ def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExer
             p3_w = p3w,
             p4_w = p4w,
             p__w = p__w,
+            zsun_one_hour_watts = rider.zsun_one_hour_watts,
             np_intensity_factor = calculate_normalised_power_intensity_factor(rider, exertions),
         )
         answer[rider] = rider_answer_item
@@ -160,36 +160,44 @@ def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExer
     return answer
 
 
-def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanItem], logger: logging.Logger) -> None:
+def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
     for rider, z in result.items():
         table.append([
             rider.name, 
-            round(z.speed_kph,1),
+            # round(z.speed_kph,1),
             z.p1_duration,
-            round(z.p1_wkg,1),
-            round(z.p1_ratio_to_1hr_w,1),
+            # round(z.p1_wkg,1),
+            # round(z.p1_ratio_to_1hr_w,1),
             round(z.p1_w), 
             round(z.p2_w), 
             round(z.p3_w), 
             round(z.p4_w), 
-            round(z.p__w),
+            # round(z.p__w),
+            round(z.zsun_one_hour_watts),
+            round(z.zsun_one_hour_watts/rider.weight_kg,1),
+            round(z.p1_wkg,1),
+            round(z.p1_ratio_to_1hr_w,1),
             round(z.np_intensity_factor,2),
             z.diagnostic_message if z.diagnostic_message else ""
         ])
     headers = ["", 
-        "kph",
-        "p1(s)", 
-        "p1(wkg)",
-        "p1/1hr",
+        # "kph",
+        "sec", 
+        # "p1(wkg)",
+        # "p1/1hr",
         "p1", 
         "p2", 
         "p3", 
         "p4", 
-        "p+", 
-        "NP/1hr",
+        # "p+", 
+        "FTP", 
+        "FTP", 
+        "p1",
+        "x",
+        "IF",
         "limit"
     ]
     logger.info(tabulate(table, headers=headers, tablefmt="simple"))
@@ -228,9 +236,9 @@ def main() -> None:
 
     rider_exertions = populate_rider_exertions(work_assignments)
 
-    rider_answer_items = populate_rider_answeritems(rider_exertions)
+    rider_answer_items = populate_pull_plan_from_exertions(rider_exertions)
 
-    log_rider_answer_items("7-riders @39kph", rider_answer_items, logger)
+    log_pull_plan("7-riders @39kph", rider_answer_items, logger)
 
 
 if __name__ == "__main__":
