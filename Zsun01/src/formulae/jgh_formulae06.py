@@ -1,9 +1,11 @@
-from typing import  List, Dict, Tuple, DefaultDict
+from typing import List, Tuple, DefaultDict
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import *
+from computation_classes import RiderExertionItem, RiderAnswerItem
 from rolling_average import calculate_rolling_averages
+
 import logging
 
+# not currentky needed, but may be useful in future
 def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the average power for a list of efforts.
@@ -194,12 +196,10 @@ def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderI
 
 
 def main() -> None:
-    import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zsun_rider_item import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
 

@@ -60,6 +60,7 @@
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
+    <Compile Include="src\formulae\jgh_formulae08.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
     <Compile Include="tools\rubbish.py" />
@@ -76,8 +77,8 @@
     <Compile Include="src\formulae\jgh_formulae04.py" />
     <Compile Include="src\formulae\jgh_formulae05.py" />
     <Compile Include="src\formulae\jgh_formulae07.py" />
-    <Compile Include="src\formulae\jgh_formulae08.py" />
-    <Compile Include="src\formulae\jgh_formulae09.py" />
+    <Compile Include="src\formulae\jgh_formulae08 - to be deleted.py" />
+    <Compile Include="src\formulae\jgh_formulae09 - to be deleted.py" />
     <Compile Include="src\formulae\ttt_solution.py" />
     <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>

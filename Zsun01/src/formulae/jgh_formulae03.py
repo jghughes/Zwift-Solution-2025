@@ -1,8 +1,5 @@
 from typing import List, Tuple
 from zsun_rider_item import ZsunRiderItem
-from zsun_rider_dto import ZsunRiderDTO
-from computation_classes import *
-
 
 
 def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRiderItem], List[ZsunRiderItem]]:
@@ -104,6 +101,8 @@ def main():
     from tabulate import tabulate
     from zsun_rider_item import ZsunRiderItem
     from jgh_formulae03 import arrange_riders_in_optimal_order
+    from zsun_rider_dto import ZsunRiderDTO
+
 
     # Configure logging
     jgh_configure_logging("appsettings.json")
@@ -167,6 +166,9 @@ def main2():
         ZsunRiderItem.Config.json_schema_extra["coryc"],
         ZsunRiderItem.Config.json_schema_extra["davide"],
     ]
+
+    from zsun_rider_dto import ZsunRiderDTO
+
     # Convert example data to ZsunRiderItem instances
     riders = [
         ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
@@ -367,14 +369,7 @@ def main3():
     # Display the calculated floor_speed_kph
     logger.info(f"\nCalculated floor_speed_kph: {fmt(floor_speed_kph)} kph")
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
-    # main()    
-    # main2()
+    main()    
+    main2()
     main3()

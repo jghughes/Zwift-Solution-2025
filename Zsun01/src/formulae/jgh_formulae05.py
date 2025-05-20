@@ -1,15 +1,10 @@
-from typing import Dict, List, DefaultDict
+from typing import List, DefaultDict
 from zsun_rider_item import ZsunRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
-from computation_classes import *
-from jgh_formulae03 import *
+from computation_classes import RiderWorkAssignmentItem, RiderExertionItem
 from jgh_formulae04 import populate_rider_work_assignments
 
 import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-
 
 def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> DefaultDict[ZsunRiderItem, List[RiderExertionItem]]:
     """
@@ -37,8 +32,6 @@ def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, 
     
     return rider_workloads
 
-
-
 def log_rider_exertions(test_description: str, result: DefaultDict[ZsunRiderItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
@@ -64,8 +57,11 @@ def log_rider_exertions(test_description: str, result: DefaultDict[ZsunRiderItem
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
-
 def main() -> None:
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [

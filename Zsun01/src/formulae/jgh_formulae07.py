@@ -1,12 +1,11 @@
-from typing import  Dict, Tuple
+from typing import  DefaultDict, Tuple
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import *
+from computation_classes import RiderAnswerItem, RiderAnswerDisplayObject
 
-from jgh_formulae06 import *
 import logging
 
 
-def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswerItem]) -> Dict[ZsunRiderItem, RiderAnswerDisplayObject]:
+def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswerItem]) -> DefaultDict[ZsunRiderItem, RiderAnswerDisplayObject]:
 
     answer: Dict[ZsunRiderItem, RiderAnswerDisplayObject] = {}
 
@@ -119,7 +118,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswer
         answer[rider] = rider_display_object
 
     return answer
-
+`
 def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
@@ -171,12 +170,10 @@ def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRi
 
 
 def main() -> None:
-    import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from zsun_rider_item import ZsunRiderItem
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_answeritems

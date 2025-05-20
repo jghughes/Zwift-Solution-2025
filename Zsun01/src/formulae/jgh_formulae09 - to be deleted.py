@@ -2,7 +2,6 @@ from typing import List, Tuple, Dict
 from concurrent.futures import ThreadPoolExecutor
 from zsun_rider_item import ZsunRiderItem 
 from computation_classes import  RiderWorkAssignmentItem, RiderExertionItem 
-from zwiftpower_90day_best_item import JghFlattened90DayBestPowerCurveItem
 
 def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertionItem]) -> List[Tuple[int, float]]:
     """
@@ -38,40 +37,40 @@ def translate_efforts_to_wattages_perond_for_one_hour(efforts: List[RiderExertio
     
     return datapoints[:3600]  # Ensure the list is exactly 3600 elements long
 
-def translate_efforts_into_criticalpower_item(rider: ZsunRiderItem, rider_exertions: Dict[ZsunRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> JghFlattened90DayBestPowerCurveItem:
-    """
-    Calculate the critical power curve for a single rider.
+# def translate_efforts_into_criticalpower_item(rider: ZsunRiderItem, rider_exertions: Dict[ZsunRiderItem, List[RiderExertionItem]], cp_test_duration_specs: List[int]) -> JghFlattened90DayBestPowerCurveItem:
+#     """
+#     Calculate the critical power curve for a single rider.
 
-    Args:
-        rider (ZsunRiderItem): The rider to process.
-        rider_exertions (Dict[ZsunRiderItem, List[RiderExertionItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
-        cp_test_duration_specs (List[int]): List of timespans for each of the desired datapoints in the power curve in seconds.
+#     Args:
+#         rider (ZsunRiderItem): The rider to process.
+#         rider_exertions (Dict[ZsunRiderItem, List[RiderExertionItem]]): Dictionary of rider efforts which record intervals of duration and power exerted.
+#         cp_test_duration_specs (List[int]): List of timespans for each of the desired datapoints in the power curve in seconds.
 
-    Returns:
-        Dict[int, float]: CriticalPower curve data for the rider where int is the number of seconds of the timespan and float is the wattage.
-    """
-    wattage_datapoints = translate_efforts_to_wattages_perond_for_one_hour(rider_exertions[rider])
+#     Returns:
+#         Dict[int, float]: CriticalPower curve data for the rider where int is the number of seconds of the timespan and float is the wattage.
+#     """
+#     wattage_datapoints = translate_efforts_to_wattages_perond_for_one_hour(rider_exertions[rider])
 
-    powercurve_datapoints = distill_cp_metrics_from_wattages_perond(wattage_datapoints, cp_test_duration_specs)
+#     powercurve_datapoints = distill_cp_metrics_from_wattages_perond(wattage_datapoints, cp_test_duration_specs)
 
-    # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
-    critical_power_curve = CriticalPowerCurveItem(
-        bp_5=powercurve_datapoints.get(5, 0.0),
-        bp_15=powercurve_datapoints.get(15, 0.0),
-        bp_30=powercurve_datapoints.get(30, 0.0),
-        cp_1_min=powercurve_datapoints.get(60, 0.0),
-        cp_2_min=powercurve_datapoints.get(120, 0.0),
-        cp_3_min=powercurve_datapoints.get(180, 0.0),
-        cp_5_min=powercurve_datapoints.get(300, 0.0),
-        cp_10_min=powercurve_datapoints.get(600, 0.0),
-        cp_12_min=powercurve_datapoints.get(720, 0.0),
-        cp_15_min=powercurve_datapoints.get(900, 0.0),
-        cp_20_min=powercurve_datapoints.get(1200, 0.0),
-        cp_30_min=powercurve_datapoints.get(1800, 0.0),
-        cp_40_min=powercurve_datapoints.get(2400, 0.0)
-    )
+#     # map the critical power curve to the rider in the form of a CriticalPowerCurveItem
+#     critical_power_curve = CriticalPowerCurveItem(
+#         bp_5=powercurve_datapoints.get(5, 0.0),
+#         bp_15=powercurve_datapoints.get(15, 0.0),
+#         bp_30=powercurve_datapoints.get(30, 0.0),
+#         cp_1_min=powercurve_datapoints.get(60, 0.0),
+#         cp_2_min=powercurve_datapoints.get(120, 0.0),
+#         cp_3_min=powercurve_datapoints.get(180, 0.0),
+#         cp_5_min=powercurve_datapoints.get(300, 0.0),
+#         cp_10_min=powercurve_datapoints.get(600, 0.0),
+#         cp_12_min=powercurve_datapoints.get(720, 0.0),
+#         cp_15_min=powercurve_datapoints.get(900, 0.0),
+#         cp_20_min=powercurve_datapoints.get(1200, 0.0),
+#         cp_30_min=powercurve_datapoints.get(1800, 0.0),
+#         cp_40_min=powercurve_datapoints.get(2400, 0.0)
+#     )
 
-    return critical_power_curve
+#     return critical_power_curve
 
 
 # Example usage in the main function
@@ -155,17 +154,6 @@ def main() -> None:
 
         a,b = estimate_cp_and_w_prime()
 
-        # rider_aggregate_efforts = calculate_rider_aggregate_efforts(rider_exertions)
-        # rider_stress_metrics = calculate_rider_stress_metrics(rider_aggregate_efforts)
-
-        # total_duration = next(iter(rider_aggregate_efforts.values())).total_duration
-        # average_speed = next(iter(rider_aggregate_efforts.values())).average_speed #  #careful. formula below only valid when speed is constant, as it is in this case
-        # total_distance = next(iter(rider_aggregate_efforts.values())).total_distance
-
-        # table_heading= f"\nPull durations={pull_durations}sec\nPull speeds={pull_speeds_kph[i]}km/h\nTotal_duration={total_duration}  Ave_speed={average_speed}  Total_dist={total_distance}"
-        # log_rider_aggregate_efforts(table_heading, rider_aggregate_efforts, logger)
-
-        # log_rider_stress_metrics(f"", rider_stress_metrics, logger)
-        
+       
 if __name__ == "__main__":
     main()
