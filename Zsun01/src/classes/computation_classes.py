@@ -63,7 +63,7 @@ class RiderExertionItem:
 
 
 @dataclass
-class RiderAnswerItem():
+class RiderPullPlanItem():
     speed_kph             : float = 0
     p1_duration           : float = 0
     p1_wkg                : float = 0
@@ -79,7 +79,7 @@ class RiderAnswerItem():
 
     
 @dataclass
-class RiderAnswerDisplayObject():
+class RiderPullPlanDisplayObject():
     name                  : str   = ""
     pretty_cat_descriptor : str   = ""
     zrs_score             : float = 0

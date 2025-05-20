@@ -1,13 +1,13 @@
 from typing import  DefaultDict, Tuple
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import RiderAnswerItem, RiderAnswerDisplayObject
+from computation_classes import RiderPullPlanItem, RiderPullPlanDisplayObject
 
 import logging
 
 
-def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswerItem]) -> DefaultDict[ZsunRiderItem, RiderAnswerDisplayObject]:
+def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderPullPlanItem]) -> DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject]:
 
-    answer: Dict[ZsunRiderItem, RiderAnswerDisplayObject] = {}
+    answer: Dict[ZsunRiderItem, RiderPullPlanDisplayObject] = {}
 
     def calculate_zwift_zrs_cat(rider: ZsunRiderItem) -> str:
         if rider.zwift_racing_score < 180:
@@ -92,11 +92,11 @@ def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswer
         # answer = f"{rider.zwift_racing_score}({calculate_zwift_zrs_cat(rider)}) {round(calculate_wkg(rider.ftp, rider.weight), 1)}({calculate_zwift_ftp_cat(rider)}) {make_pretty_velo_cat(rider)}"
         return answer
 
-    def make_pretty_p1_p4(answer: RiderAnswerItem) -> str:
+    def make_pretty_p1_p4(answer: RiderPullPlanItem) -> str:
         return f"{round(answer.p1_w)} {round(answer.p2_w)} {round(answer.p3_w)} {round(answer.p4_w)}"
 
     for rider, item in riders.items():
-        rider_display_object = RiderAnswerDisplayObject(
+        rider_display_object = RiderPullPlanDisplayObject(
             name                  = rider.name,
             pretty_cat_descriptor = make_pretty_cat_descriptor(rider),
             zrs_score             = rider.zwift_racing_score,
@@ -119,7 +119,7 @@ def populate_rider_answer_displayobjects(riders: Dict[ZsunRiderItem, RiderAnswer
 
     return answer
 `
-def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRiderItem, RiderAnswerDisplayObject], logger: logging.Logger) -> None:
+def log_results_answer_displayobjects(test_description: str, result: Dict[ZsunRiderItem, RiderPullPlanDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
    
@@ -211,7 +211,7 @@ def main() -> None:
 
     rider_displayobjects = populate_rider_answer_displayobjects(rider_answer_items_with_cp_and_w_prime)
 
-    log_results_answer_displayobjects("Comparative rider metrics [RiderAnswerItem]:", rider_displayobjects, logger)
+    log_results_answer_displayobjects("Comparative rider metrics [RiderPullPlanItem]:", rider_displayobjects, logger)
 
 
 if __name__ == "__main__":

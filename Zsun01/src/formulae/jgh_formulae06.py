@@ -1,6 +1,6 @@
 from typing import List, Tuple, DefaultDict
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import RiderExertionItem, RiderAnswerItem
+from computation_classes import RiderExertionItem, RiderPullPlanItem
 from rolling_average import calculate_rolling_averages
 
 import logging
@@ -88,7 +88,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderAnswerItem]:
+def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
         if not exertions:
@@ -135,15 +135,15 @@ def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExer
         np_intensity_factor = calculate_normalized_watts(items)/rider.zsun_one_hour_watts if rider.zsun_one_hour_watts != 0 else 0
         return np_intensity_factor
 
-        # answer: Dict[ZsunRiderItem, RiderAnswerItem] = {}
+        # answer: Dict[ZsunRiderItem, RiderPullPlanItem] = {}
 
 
-    answer : DefaultDict[ZsunRiderItem, RiderAnswerItem] = DefaultDict(RiderAnswerItem)
+    answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = DefaultDict(RiderPullPlanItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration, p1_wkg, p1_ratio_to_1hr_w = extract_pull_metrics(exertions)
-        rider_answer_item = RiderAnswerItem(
+        rider_answer_item = RiderPullPlanItem(
             speed_kph = p1_speed_kph,
             p1_duration = p1_duration,
             p1_wkg = p1_wkg,
@@ -160,7 +160,7 @@ def populate_rider_answeritems(riders: DefaultDict[ZsunRiderItem, List[RiderExer
     return answer
 
 
-def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderItem, RiderAnswerItem], logger: logging.Logger) -> None:
+def log_rider_answer_items(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
