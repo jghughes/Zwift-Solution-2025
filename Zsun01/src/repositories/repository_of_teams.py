@@ -1,107 +1,82 @@
-from typing import  List, Tuple, Union
+from typing import  List
+from collections import defaultdict
+from typing import List, Dict
+from collections import defaultdict
 
-
-# ZSUNBetelguese
-barry_beck = '5490373' #ftp 273
-brandi_steeve = "991817" #ftp 196
-bryan_bumpas = "9011" #ftp 214
-cory_cook = "5569057"
-dave_konicek = "3147366" #ftp 276 critical_power 278
-david_evanetich = '4945836'
-giao_nguyen = "183277" #ftp 189
-husky_crone = "5134" #ftp 268
-john_hughes = '1884456' #ftp 240 zmap 292
-josh_neil = '2508033' #ftp 260
-lynsey_segal = '383480' #ftp 201
-mark_brzezinski = '5530045' #ftp 280
-matt_steeve = "1024413"
-melissa_warwick = "1657744" #ftp 213
-meridith_leubner = "1707548" #ftp 220
-richard_mann = '1193' # ftp 200
-scott_mcveigh = "11526" #ftp 247
-selena_shaikh = "2682791" #ftp 214
-steve_seiler = "6142432" #ftp 270
-tim_reid = "5421258" #ftp 380
-tom_bick = "11741" #ftp 303 critical_power 298
-
-betelguese = [
-    # barry_beck,
-    # brandi_steeve,
-    # bryan_bumpas,
-    cory_cook,
-    # dave_konicek,
-    # david_evanetich,
-    # giao_nguyen,
-    # husky_crone,
-    john_hughes,
-    josh_neil,
-    # lynsey_segal,
-    # mark_brzezinski,
-    # matt_steeve,
-    melissa_warwick,
-    # meridith_leubner,
-    # richard_mann,
-    # scott_mcveigh,
-    # selena_shaikh,
-    # steve_seiler,
-    # tim_reid,
-    tom_bick,
-]
-
-# ZSUNGiants
-ceri_pritchard = "4204538"
-colin_humphrey = "407780"
-dave_konicek = "3147366" #ftp 276 critical_power 278
-ed_bentley = "2449352"
-eltjo_biemold = "106298"
-ivan_parks = "2847282"
-john_glass = "172221"
-roy_roesthuis = "197937"
-steve_james = "1662067"
-
-giants = [
-    ceri_pritchard,
-    colin_humphrey,
-    # dave_konicek,
-    # ed_bentley,
-    # eltjo_biemold,
-    # ivan_parks,
-    john_glass,
-    roy_roesthuis,
-    steve_james,
-]
-
-#ZSUNderFire
-dave_konicek = "3147366"
-gertjan_buisman = "1408923"
-harrison_clark = "4348809"
-james_veitch = "5959864"
-rick_porteous = "2873877"
-sjors_van_liempt = "2705238"
-tom_bick = "11741"
-xander_crawshaw = "2419188"
-
-zsunderfire = [
-    dave_konicek,
-    gertjan_buisman,
-    # harrison_clark,
-    james_veitch,
-    rick_porteous,
-    sjors_van_liempt,
-    tom_bick,
-    # xander_crawshaw,
-]
-
-def get_teams():
+def get_teams() -> Dict[str, defaultdict[str, str]]:
     return {
-        "betel": betelguese,
-        "giants": giants,
-        "underfire": zsunderfire,
+        "betel": betelguese_Roster,
+        "giants": giants_Roster,
+        "fire": zsunderfire_Roster,
     }
 
-def get_team_IDs(team_name :str) -> List[str]:
+def get_team_riderIDs(team_name: str) -> List[str]:
     teams = get_teams()
     if team_name in teams:
-        return teams[team_name]
+        return list(teams[team_name].keys())
     else:
         raise ValueError(f"Team '{team_name}' not found. Available teams: {list(teams.keys())}")
+
+def get_rider_name_by_zwiftID(zwiftID: str) -> str:
+    teams = get_teams()
+    for roster in teams.values():
+        if zwiftID in roster:
+            return roster[zwiftID]
+    return ""
+
+betelguese_Roster = defaultdict(
+    str,
+    {
+        # "5490373": "barry_beck",
+        # "991817": "brandi_steeve",
+        # "9011": "bryan_bumpas",
+        "5569057": "cory_cook",
+        # "3147366": "dave_konicek",
+        "4945836": "david_evanetich",
+        # "183277": "giao_nguyen",
+        # "5134": "husky_crone",
+        "1884456": "john_hughes",
+        "2508033": "josh_neil",
+        # "383480": "lynsey_segal",
+        # "5530045": "mark_brzezinski",
+        # "1024413": "matt_steeve",
+        "1657744": "melissa_warwick",
+        # "1707548": "meridith_leubner",
+        # "1193": "richard_mann",
+        # "11526": "scott_mcveigh",
+        # "2682791": "selena_shaikh",
+        # "6142432": "steve_seiler",
+        # "5421258": "tim_reid",
+        "11741": "tom_bick",
+    }
+)
+
+giants_Roster = defaultdict(
+    str,
+    {
+        "4204538": "ceri_pritchard",
+        "407780": "colin_humphrey",
+        "3147366": "dave_konicek",
+        "2449352": "ed_bentley",
+        "106298": "eltjo_biemold",
+        "2847282": "ivan_parks",
+        "172221": "john_glass",
+        "197937": "roy_roesthuis",
+        "1662067": "steve_james",
+    }
+)
+
+zsunderfire_Roster = defaultdict(
+    str,
+    {
+        "3147366": "dave_konicek",
+        "1408923": "gertjan_buisman",
+        "4348809": "harrison_clark",
+        "5959864": "james_veitch",
+        "2873877": "rick_porteous",
+        "2705238": "sjors_van_liempt",
+        "11741": "tom_bick",
+        "2419188": "xander_crawshaw",
+    }
+)
+
