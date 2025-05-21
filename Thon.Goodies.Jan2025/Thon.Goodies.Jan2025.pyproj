@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src\jgh_formatting.py" />
     <Compile Include="src\jgh_sanitise_string.py" />
     <Compile Include="setup.py">
       <SubType>Code</SubType>

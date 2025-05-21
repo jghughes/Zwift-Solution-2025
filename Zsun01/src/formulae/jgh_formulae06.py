@@ -1,6 +1,7 @@
 from typing import List, Tuple, DefaultDict
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import RiderExertionItem, RiderPullPlanItem
+from zsun_rider_pullplan_item import RiderPullPlanItem
+from computation_classes import RiderExertionItem
 from rolling_average import calculate_rolling_averages
 
 import logging
@@ -88,7 +89,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_pull_plan_from_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
         if not exertions:
@@ -236,7 +237,7 @@ def main() -> None:
 
     rider_exertions = populate_rider_exertions(work_assignments)
 
-    rider_answer_items = populate_pull_plan_from_exertions(rider_exertions)
+    rider_answer_items = populate_pull_plan_from_rider_exertions(rider_exertions)
 
     log_pull_plan("7-riders @39kph", rider_answer_items, logger)
 

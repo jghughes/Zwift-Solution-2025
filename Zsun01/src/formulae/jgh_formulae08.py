@@ -4,77 +4,20 @@ import time
 import numpy as np
 import itertools
 import concurrent.futures
+from jgh_formatting import format_number_sig2, truncate
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import RiderPullPlanItem
+from zsun_rider_pullplan_item import RiderPullPlanItem
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
-from jgh_formulae06 import populate_pull_plan_from_exertions
+from jgh_formulae06 import populate_pull_plan_from_rider_exertions
 
 import logging
 from jgh_logging import jgh_configure_logging
-import time
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 
-def fmt(x : Union[int, float]):
-    """
-    Format a number in compact scientific or fixed-point notation with 2 significant digits.
-    
-    Args:
-        x (int or float): The number to format.
-    
-    Returns:
-        str: The formatted string, e.g., '1.2e+03' or '12'.
-    """
-    return f"{x:.2g}"
-
-def fmtl(x : Union[int, float]):
-    """
-    Format a number in compact scientific or fixed-point notation with 4 significant digits.
-    
-    Args:
-        x (int or float): The number to format.
-    
-    Returns:
-        str: The formatted string, e.g., '1.234e+03' or '1234'.
-    """
-    return f"{x:.4g}"
-
-def fmtc(x: Union[int, float]) -> str:
-    """
-    Format a number with thousands separators and up to 2 decimal places.
-    For floats, trailing zeros and decimal points are removed if unnecessary.
-    
-    Args:
-        x (int or float): The number to format.
-    
-    Returns:
-        str: The formatted string, e.g., '1,234' or '1,234.56'.
-    """
-    if isinstance(x, int):
-        return f"{x:,}"
-    elif isinstance(x, float):
-        return f"{x:,.2f}".rstrip('0').rstrip('.') if '.' in f"{x:,.2f}" else f"{x:,.2f}"
-    else:
-        return str(x)
-
-def format_hms(seconds: float) -> str:
-    hours, remainder = divmod(seconds, 3600)
-    minutes, secs = divmod(remainder, 60)
-    # Format seconds with one leading zero if < 10, else no leading zero
-    sec_str = f"{secs:03.1f}" if secs < 10 else f"{secs:0.1f}"
-    if hours >= 1:
-        return f"{int(hours)} hours {int(minutes):02} minutes {sec_str} seconds"
-    elif minutes >= 1:
-        return f"{int(minutes):02} minutes {sec_str} seconds"
-    else:
-        return f"{sec_str} seconds"
-
-def truncate(f : float, n : int):
-    factor = 10 ** n
-    return int(f * factor) / factor
 
 def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
@@ -83,13 +26,13 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
     for rider in riders:
         table.append([
             rider.name,
-            fmt(rider.calculate_strength_wkg()),
-            fmt(rider.get_zwiftracingapp_zpFTP_wkg()),
-            fmt(rider.get_zsun_1_hour_wkg()),
-            fmt(rider.calculate_speed_at_1_hour_watts()),
-            fmt(rider.zsun_one_hour_watts),
-            fmt(rider.calculate_speed_at_permitted_30sec_pull_watts()),
-            fmt(rider.get_permitted_30sec_pull_watts()),
+            format_number_sig2(rider.calculate_strength_wkg()),
+            format_number_sig2(rider.get_zwiftracingapp_zpFTP_wkg()),
+            format_number_sig2(rider.get_zsun_1_hour_wkg()),
+            format_number_sig2(rider.calculate_speed_at_1_hour_watts()),
+            format_number_sig2(rider.zsun_one_hour_watts),
+            format_number_sig2(rider.calculate_speed_at_permitted_30sec_pull_watts()),
+            format_number_sig2(rider.get_permitted_30sec_pull_watts()),
         ])
 
     headers = [
@@ -216,7 +159,7 @@ def populate_rider_pull_plans(riders: List[ZsunRiderItem], pull_durations: List[
 
     # log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", rider_exertions, logger)
 
-    rider_answer_items = populate_pull_plan_from_exertions(rider_exertions)
+    rider_answer_items = populate_pull_plan_from_rider_exertions(rider_exertions)
 
     rider_answer_items = diagnose_what_governed_the_top_speed(rider_answer_items)
 

@@ -591,7 +591,6 @@ class ZsunRiderItem:
             return 0.0
         return self.zwiftracingapp_zpFTP / self.weight_kg
 
-
     def get_permitted_30sec_pull_watts(self) -> float:
         # apply 3.5 minute watts
         pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
@@ -732,7 +731,6 @@ class ZsunRiderItem:
             zsun_TTT_pull_curve_fit_r_squared = dto.zsun_TTT_pull_curve_fit_r_squared or 0.0,
             zsun_when_curves_fitted           = dto.zsun_when_curves_fitted or "",
         )
-
 
 
 def main():
