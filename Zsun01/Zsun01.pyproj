@@ -57,6 +57,7 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\formulae\jgh_formulae09.py" />
     <Compile Include="src\repositories\repository_of_teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
