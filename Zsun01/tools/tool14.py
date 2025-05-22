@@ -47,7 +47,7 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items_displayobjects, logger)
 
-    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plansV2(riders, permitted_pull_durations, lowest_bound_speed)
+    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans(riders, permitted_pull_durations, lowest_bound_speed)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
