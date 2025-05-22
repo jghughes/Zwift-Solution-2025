@@ -3,7 +3,7 @@ from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_pull_plan
-from jgh_formulae08 import format_number_with_commas, format_hms, truncate 
+from jgh_formulae08 import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
 from jgh_formulae08 import make_a_pull_plan_with_a_sensible_top_speed, search_for_optimal_pull_plans, permitted_pull_durations
 import logging
@@ -53,7 +53,7 @@ def main():
     _, plan_line_items, halted_rider = plan01
     log_pull_plan(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_with_commas(total_iterations)} iterations to evaluate {format_number_with_commas(total_alternatives)} alternatives in {format_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
 
 if __name__ == "__main__":
     main()

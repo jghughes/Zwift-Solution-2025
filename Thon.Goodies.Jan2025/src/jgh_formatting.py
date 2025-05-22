@@ -1,5 +1,9 @@
 from typing import Union
 
+def truncate(f : float, n : int):
+    factor = 10 ** n
+    return int(f * factor) / factor
+
 def round_to_nearest_10(x: float) -> int:
     """
     Round an int or float to the nearest multiple of 10.
@@ -12,7 +16,7 @@ def round_to_nearest_10(x: float) -> int:
     """
     return int(round(x / 10.0) * 10)
 
-def format_number_1_decimal(x: float) -> str:
+def format_number_1dp(x: float) -> str:
     """
     Format a float to one decimal place, always showing the decimal digit (including trailing zero).
     
@@ -24,7 +28,7 @@ def format_number_1_decimal(x: float) -> str:
     """
     return f"{x:.1f}"
 
-def format_number_sig2(x : Union[int, float]):
+def format_number_2sig(x : Union[int, float]):
     """
     Format a number in compact scientific or fixed-point notation with 2 significant digits.
     
@@ -36,7 +40,7 @@ def format_number_sig2(x : Union[int, float]):
     """
     return f"{x:.2g}"
 
-def format_number_sig4(x : Union[int, float]):
+def format_number_4sig(x : Union[int, float]):
     """
     Format a number in compact scientific or fixed-point notation with 4 significant digits.
     
@@ -48,7 +52,7 @@ def format_number_sig4(x : Union[int, float]):
     """
     return f"{x:.4g}"
 
-def format_number_with_commas(x: Union[int, float]) -> str:
+def format_number_comma_separators(x: Union[int, float]) -> str:
     """
     Format a number with thousands separators and up to 2 decimal places.
     For floats, trailing zeros and decimal points are removed if unnecessary.
@@ -66,7 +70,7 @@ def format_number_with_commas(x: Union[int, float]) -> str:
     else:
         return str(x)
 
-def format_hms(seconds: float) -> str:
+def format_duration_hms(seconds: float) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, secs = divmod(remainder, 60)
     # Format seconds with one leading zero if < 10, else no leading zero
@@ -78,9 +82,6 @@ def format_hms(seconds: float) -> str:
     else:
         return f"{sec_str} seconds"
 
-def truncate(f : float, n : int):
-    factor = 10 ** n
-    return int(f * factor) / factor
 
 
 

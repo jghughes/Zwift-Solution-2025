@@ -285,7 +285,7 @@ def main3():
         for data in example_riders_data
     ]
 
-    def format_number_sig2(x):
+    def format_number_2sig(x):
         return f"{x:.3g}"
 
     # Table 1: All riders ranked by 2-minute speed
@@ -295,9 +295,9 @@ def main3():
     table = [
         [
             rider.name,
-            format_number_sig2(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
-            format_number_sig2(rider.get_1_hour_watts() / rider.weight_kg),
-            format_number_sig2(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
+            format_number_2sig(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
+            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in riders_sorted
     ]
@@ -322,9 +322,9 @@ def main3():
     table = [
         [
             rider.name,
-            format_number_sig2(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
-            format_number_sig2(rider.get_1_hour_watts() / rider.weight_kg),
-            format_number_sig2(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
+            format_number_2sig(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
+            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in strong
     ]
@@ -346,9 +346,9 @@ def main3():
     table = [
         [
             rider.name,
-            format_number_sig2(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
-            format_number_sig2(rider.get_1_hour_watts() / rider.weight_kg),
-            format_number_sig2(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
+            format_number_2sig(rider.calculate_speed_at_permitted_2_minute_pull_watts()),
+            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_permitted_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in weak
     ]
@@ -367,7 +367,7 @@ def main3():
     )
 
     # Display the calculated floor_speed_kph
-    logger.info(f"\nCalculated floor_speed_kph: {format_number_sig2(floor_speed_kph)} kph")
+    logger.info(f"\nCalculated floor_speed_kph: {format_number_2sig(floor_speed_kph)} kph")
 
 if __name__ == "__main__":
     main()    

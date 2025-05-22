@@ -1,4 +1,4 @@
-from jgh_formatting import format_number_1_decimal, format_number_with_commas, format_hms, truncate 
+from jgh_formatting import format_number_1dp, format_number_comma_separators, format_duration_hms, truncate 
 from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
@@ -30,13 +30,13 @@ def main():
 
     r01,r01_duration,r01_speed = calculate_upper_bound_pull_speed(riders)
     r02,_,r02_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
-    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_30sec_pull_watts())} W ({format_number_1_decimal(r01.get_permitted_30sec_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1_decimal(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
+    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_30sec_pull_watts())} W ({format_number_1dp(r01.get_permitted_30sec_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1dp(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
 
     r01,r01_duration,r01_speed = calculate_lower_bound_pull_speed(riders)
     r02,_,r02_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
-    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_4_minute_pull_watts())} W ({format_number_1_decimal(r01.get_permitted_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1_decimal(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
+    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_4_minute_pull_watts())} W ({format_number_1dp(r01.get_permitted_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1dp(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
 
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed,0),1)) # round to lowest 1 kph, as a float
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
@@ -56,7 +56,7 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items_displayobjects, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_with_commas(total_iterations)} iterations to evaluate {format_number_with_commas(total_alternatives)} alternatives in {format_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ import time
 import numpy as np
 import itertools
 import concurrent.futures
-from jgh_formatting import format_number_sig2, truncate
+from jgh_formatting import format_number_2sig, truncate
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
 from jgh_formulae04 import populate_rider_work_assignments
@@ -26,13 +26,13 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
     for rider in riders:
         table.append([
             rider.name,
-            format_number_sig2(rider.calculate_strength_wkg()),
-            format_number_sig2(rider.get_zwiftracingapp_zpFTP_wkg()),
-            format_number_sig2(rider.get_zsun_1_hour_wkg()),
-            format_number_sig2(rider.calculate_speed_at_1_hour_watts()),
-            format_number_sig2(rider.zsun_one_hour_watts),
-            format_number_sig2(rider.calculate_speed_at_permitted_30sec_pull_watts()),
-            format_number_sig2(rider.get_permitted_30sec_pull_watts()),
+            format_number_2sig(rider.calculate_strength_wkg()),
+            format_number_2sig(rider.get_zwiftracingapp_zpFTP_wkg()),
+            format_number_2sig(rider.get_zsun_1_hour_wkg()),
+            format_number_2sig(rider.calculate_speed_at_1_hour_watts()),
+            format_number_2sig(rider.zsun_one_hour_watts),
+            format_number_2sig(rider.calculate_speed_at_permitted_30sec_pull_watts()),
+            format_number_2sig(rider.get_permitted_30sec_pull_watts()),
         ])
 
     headers = [
@@ -260,7 +260,7 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],permitted_duration
 
 
     all_combinations = list(itertools.product(permitted_durations, repeat=len(riders)))
-    seed_speed_array : list[float] = [lower_bound_speed] * len(riders)
+    lowest_possible_bound_speed_as_array : list[float] = [lower_bound_speed] * len(riders)
     total_alternatives : int = len(all_combinations)
     total_iterations : int = 0
 
@@ -268,7 +268,7 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],permitted_duration
         logger.warning("Number of alternatives is very large: %d", total_alternatives)
 
     # Prepare arguments for each process
-    args_list = [(riders, pull_durations, seed_speed_array) for pull_durations in all_combinations]
+    args_list = [(riders, pull_durations, lowest_possible_bound_speed_as_array) for pull_durations in all_combinations]
 
     results: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
