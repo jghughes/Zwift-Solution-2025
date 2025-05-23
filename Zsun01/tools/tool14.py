@@ -45,17 +45,17 @@ def main():
 
     _, plan_line_items, halted_rider = make_a_pull_plan_with_a_sensible_top_speed(riders, simplest_pull_durations, lowest_bound_speed_as_array)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
     (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans(riders, permitted_pull_durations, lowest_bound_speed)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFAIREST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nFAIREST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     _, plan_line_items, halted_rider = plan01
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
     logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
 

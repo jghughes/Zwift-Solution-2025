@@ -19,6 +19,18 @@ logger = logging.getLogger(__name__)
 
 permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 
+def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) -> float:
+    """
+    Calculate the intensity factor for a given rider and exertion.
+    Args:
+        rider (ZsunRiderItem): The rider object.
+        exertion (RiderPullPlanItem): The exertion object.
+    Returns:
+        float: The intensity factor.
+    """
+    if rider.get_1_hour_watts() == 0:
+        return 0.0
+    return plan.normalized_watts / rider.get_1_hour_watts()
 
 def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
@@ -173,7 +185,8 @@ def diagnose_what_governed_the_top_speed(rider_answers: defaultdict[ZsunRiderIte
     for rider, answer in rider_answers.items():
         msg = ""
         # Step 1: Intensity factor checks
-        if answer.np_intensity_factor >= 0.95:
+        intensity_factor = answer.normalized_watts / rider.get_1_hour_watts()
+        if intensity_factor >= 0.95:
             msg += " IF > 0.95"
 
         # Step 2: Pull watt limit checks
@@ -312,7 +325,8 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],pull_duration_opti
             fastest_speed_tuple = (iterations, rider_pullplan_items, halted_rider)
 
         # Memo for lowest dispersion of np_intensity_factor
-        np_intensity_factors = [answer.np_intensity_factor for answer in rider_pullplan_items.values() if hasattr(answer, "np_intensity_factor")]
+        np_intensity_factors = [calculate_intensity_factor(rider, answer) for rider, answer in rider_pullplan_items.items()]
+        # np_intensity_factors = [answer.np_intensity_factor for answer in rider_pullplan_items.values() if hasattr(answer, "np_intensity_factor")]
         if not np_intensity_factors:
             logger.warning("No valid np_intensity_factors in rider_pullplan_items.")
             continue

@@ -24,19 +24,47 @@ def get_rider_name_by_zwiftID(zwiftID: str) -> str:
             return roster[zwiftID]
     return ""
 
+# betelguese_Roster = defaultdict(
+#     str,
+#     {
+#         # "5490373": "barry_beck",
+#         # "991817": "brandi_steeve",
+#         # "9011": "bryan_bumpas",
+#         "5569057": "cory_cook",
+#         # "3147366": "dave_konicek",
+#         "4945836": "david_evanetich",
+#         # # "183277": "giao_nguyen",
+#         # "5134": "husky_crone",
+#         "1884456": "john_hughes",
+#         "2508033": "josh_neil",
+#         # # "383480": "lynsey_segal",
+#         # # "5530045": "mark_brzezinski",
+#         # # "1024413": "matt_steeve",
+#         # "1657744": "melissa_warwick",
+#         # # "1707548": "meridith_leubner",
+#         # # "1193": "richard_mann",
+#         # # "11526": "scott_mcveigh",
+#         # "1956": "scott_yarosh",
+#         # # "2682791": "selena_shaikh",
+#         # # "6142432": "steve_seiler",
+#         # # "5421258": "tim_reid",
+#         # "11741": "tom_bick",
+#     }
+# )
+
 betelguese_Roster = defaultdict(
     str,
     {
         # "5490373": "barry_beck",
         # "991817": "brandi_steeve",
-        # "9011": "bryan_bumpas",
-        "5569057": "cory_cook",
-        # "3147366": "dave_konicek",
-        "4945836": "david_evanetich",
+        "9011": "bryan_bumpas",
+        # "5569057": "cory_cook",
+        "3147366": "dave_konicek",
+        # "4945836": "david_evanetich",
         # # "183277": "giao_nguyen",
-        # "5134": "husky_crone",
-        "1884456": "john_hughes",
-        "2508033": "josh_neil",
+        "5134": "husky_crone",
+        # "1884456": "john_hughes",
+        # "2508033": "josh_neil",
         # # "383480": "lynsey_segal",
         # # "5530045": "mark_brzezinski",
         # # "1024413": "matt_steeve",
@@ -51,33 +79,6 @@ betelguese_Roster = defaultdict(
         # "11741": "tom_bick",
     }
 )
-# betelguese_Roster = defaultdict(
-#     str,
-#     {
-#         # "5490373": "barry_beck",
-#         # "991817": "brandi_steeve",
-#         "9011": "bryan_bumpas",
-#         # "5569057": "cory_cook",
-#         "3147366": "dave_konicek",
-#         # "4945836": "david_evanetich",
-#         # # "183277": "giao_nguyen",
-#         "5134": "husky_crone",
-#         # "1884456": "john_hughes",
-#         # "2508033": "josh_neil",
-#         # # "383480": "lynsey_segal",
-#         # # "5530045": "mark_brzezinski",
-#         # # "1024413": "matt_steeve",
-#         "1657744": "melissa_warwick",
-#         # # "1707548": "meridith_leubner",
-#         # # "1193": "richard_mann",
-#         # # "11526": "scott_mcveigh",
-#         "1956": "scott_yarosh",
-#         # # "2682791": "selena_shaikh",
-#         # # "6142432": "steve_seiler",
-#         # # "5421258": "tim_reid",
-#         "11741": "tom_bick",
-#     }
-# )
 
 giants_Roster = defaultdict(
     str,

@@ -91,7 +91,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
 
 def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
 
-    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float]:
+    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float]:
         if not exertions:
             return 0, 0, 0, 0, 0
 
@@ -101,18 +101,15 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
         p2 = dict_wattages.get(2, 0)
         p3 = dict_wattages.get(3, 0)
         p4 = dict_wattages.get(4, 0)
-        px = p4 # for locations 5 and beyond ad infinitum, riders have same benefit as p4
 
-        return p1, p2, p3, p4, px
+        return p1, p2, p3, p4
 
-    def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float]:
+    def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float]:
         if not exertions:
             return 0, 0, 0, 0
 
         p1_speed_kph = 0
         p1_duration : float = 0
-        p1_wkg : float = 0
-        p1_ratio_to_1hr_w : float= 0
 
         dict_positions = {exertion.current_location_in_paceline: exertion for exertion in exertions}
 
@@ -123,38 +120,22 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
 
         p1_speed_kph = pull_exertion.speed_kph
         p1_duration = pull_exertion.duration
-        p1_wkg = pull_exertion.wattage / rider.weight_kg if rider.weight_kg != 0 else 0
-        p1_ratio_to_1hr_w = pull_exertion.wattage / rider.zwiftracingapp_zpFTP if rider.zwiftracingapp_zpFTP != 0 else 0
 
-        return p1_speed_kph, p1_duration, p1_wkg, p1_ratio_to_1hr_w
+        return p1_speed_kph, p1_duration
  
-    def calculate_normalised_power_intensity_factor(rider: ZsunRiderItem, items: List[RiderExertionItem]) -> float:
-        if not items:
-            return 0
-        if rider.zsun_one_hour_watts == 0:
-            return 0
-        np_intensity_factor = calculate_normalized_watts(items)/rider.zsun_one_hour_watts if rider.zsun_one_hour_watts != 0 else 0
-        return np_intensity_factor
-
-        # answer: Dict[ZsunRiderItem, RiderPullPlanItem] = {}
-
     answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = DefaultDict(RiderPullPlanItem)
 
     for rider, exertions in riders.items():
-        p1w, p2w, p3w, p4w, p__w = extract_watts_sequentially(exertions)
-        p1_speed_kph, p1_duration, p1_wkg, p1_ratio_to_1hr_w = extract_pull_metrics(exertions)
+        p1w, p2w, p3w, p4w = extract_watts_sequentially(exertions)
+        p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
         rider_answer_item = RiderPullPlanItem(
             speed_kph = p1_speed_kph,
             p1_duration = p1_duration,
-            p1_wkg = p1_wkg,
-            p1_ratio_to_1hr_w = p1_ratio_to_1hr_w,
             p1_w = p1w,
             p2_w = p2w,
             p3_w = p3w,
             p4_w = p4w,
-            p__w = p__w,
-            zsun_one_hour_watts = rider.zsun_one_hour_watts,
-            np_intensity_factor = calculate_normalised_power_intensity_factor(rider, exertions),
+            normalized_watts= calculate_normalized_watts(exertions),
         )
         answer[rider] = rider_answer_item
 
@@ -168,37 +149,20 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
     for rider, z in result.items():
         table.append([
             rider.name, 
-            # round(z.speed_kph,1),
             z.p1_duration,
-            # round(z.p1_wkg,1),
-            # round(z.p1_ratio_to_1hr_w,1),
             round(z.p1_w), 
             round(z.p2_w), 
             round(z.p3_w), 
             round(z.p4_w), 
-            # round(z.p__w),
-            round(z.zsun_one_hour_watts),
-            round(z.zsun_one_hour_watts/rider.weight_kg,1),
-            round(z.p1_wkg,1),
-            round(z.p1_ratio_to_1hr_w,1),
-            round(z.np_intensity_factor,2),
             z.diagnostic_message if z.diagnostic_message else ""
         ])
-    headers = ["", 
-        # "kph",
+    headers = [
+        "name", 
         "sec", 
-        # "p1(wkg)",
-        # "p1/1hr",
         "p1", 
         "2", 
         "3", 
         "4", 
-        # "..", 
-        "FTP", 
-        "FTP", 
-        "p1",
-        "x",
-        "IF",
         "limit"
     ]
     logger.info(tabulate(table, headers=headers, tablefmt="simple"))

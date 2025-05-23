@@ -19,13 +19,14 @@ class RiderPullPlanDisplayObject():
     p1_duration                            : float = 0
     p1_wkg                                 : float = 0
     p1_ratio_to_1hr_w                      : float = 0
+    p1_ratio_to_zwiftracingapp_zpFTP       : float = 0
     p1_w                                   : float = 0
     p2_w                                   : float = 0
     p3_w                                   : float = 0
     p4_w                                   : float = 0
     pretty_p2_3_4_w                        : str   = ""
     zsun_one_hour_watts                    : float = 0
-    p__w                                   : float = 0
+    normalised_watts                       : float = 0
     np_intensity_factor                    : float = 0
     diagnostic_message                     : str   = ""
 
@@ -121,8 +122,11 @@ class RiderPullPlanDisplayObject():
         return answer
 
     @staticmethod
+    @staticmethod
     def make_pretty_p2_3_4_w(p2_w: float, p3_w: float, p4_w: float) -> str:
-        return f"{round_to_nearest_10(p2_w)} {round_to_nearest_10(p3_w)} {round_to_nearest_10(p4_w)}"
+        def pretty(val: float) -> str:
+            return "   " if round_to_nearest_10(val) == 0 else str(round_to_nearest_10(val))
+        return f"{pretty(p2_w)} {pretty(p3_w)} {pretty(p4_w)}"
 
     @staticmethod
     def from_RiderPullPlanItem(rider : ZsunRiderItem, plan: Optional[RiderPullPlanItem]) -> "RiderPullPlanDisplayObject":
@@ -139,15 +143,16 @@ class RiderPullPlanDisplayObject():
             zwiftracingapp_zpFTP_wkg               = RiderPullPlanDisplayObject.calculate_zwiftracingapp_zpFTP_wkg(rider),
             speed_kph                              = plan.speed_kph,
             p1_duration                            = plan.p1_duration,
-            p1_wkg                                 = plan.p1_wkg,
-            p1_ratio_to_1hr_w                      = plan.p1_ratio_to_1hr_w,
+            p1_wkg                                 = plan.p1_w/rider.weight_kg,
+            p1_ratio_to_1hr_w                      = plan.p1_w/rider.zsun_one_hour_watts,
+            p1_ratio_to_zwiftracingapp_zpFTP       = plan.p1_w/rider.zwiftracingapp_zpFTP,
             p1_w                                   = plan.p1_w,
             p2_w                                   = plan.p2_w,
             p3_w                                   = plan.p3_w,
             p4_w                                   = plan.p4_w,
             pretty_p2_3_4_w                        = RiderPullPlanDisplayObject.make_pretty_p2_3_4_w(plan.p2_w, plan.p3_w, plan.p4_w),
-            zsun_one_hour_watts                    = plan.zsun_one_hour_watts,
-            p__w                                   = plan.p__w,
-            np_intensity_factor                    = plan.np_intensity_factor,
+            zsun_one_hour_watts                    = rider.zsun_one_hour_watts,
+            normalised_watts                       = plan.normalized_watts,
+            np_intensity_factor                    = plan.normalized_watts/rider.get_1_hour_watts(),
             diagnostic_message                     = plan.diagnostic_message
         )
