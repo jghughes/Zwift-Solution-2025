@@ -1,4 +1,4 @@
-from typing import  List, Tuple, Union, Any, DefaultDict, Optional, Generator 
+from typing import  List, Tuple, Any, DefaultDict, Optional, Generator 
 from collections import defaultdict
 import concurrent.futures
 import os
@@ -7,7 +7,7 @@ import numpy as np
 import itertools
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
-from jgh_formulae08 import make_a_pull_plan
+from jgh_formulae08 import make_a_pull_plan, calculate_intensity_factor
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -44,7 +44,7 @@ def process_chunk(
             logger.error("Exception in make_a_pull_plan: %s", exc)
     return chunk_results
 
-def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], pull_duration_options: List[float], lower_bound_speed: float,
+def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], system_pull_duration_alternatives: List[float], lower_bound_speed: float,
     chunk_size: Optional[int] = None,
     max_workers: Optional[int] = None,
     verbose: bool = True
@@ -57,7 +57,7 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], pull_duration_o
     Alternative version with chunking and flexible worker count for benchmarking and profiling.
     Args:
         riders: List of ZsunRiderItem
-        pull_duration_options: List of permitted pull durations
+        system_pull_duration_alternatives: List of permitted pull durations
         lower_bound_speed: Minimum speed to consider
         chunk_size: Number of tasks per chunk (default: auto)
         max_workers: Number of worker processes (default: os.cpu_count())
@@ -69,16 +69,16 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], pull_duration_o
 
     if not riders:
         raise ValueError("No riders provided to search_for_optimal_pull_plansV2.")
-    if not pull_duration_options:
+    if not system_pull_duration_alternatives:
         raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plansV2.")
-    if any(d <= 0 or not np.isfinite(d) for d in pull_duration_options):
+    if any(d <= 0 or not np.isfinite(d) for d in system_pull_duration_alternatives):
         raise ValueError("All permitted pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
         raise ValueError("lower_bound_speed must be positive and finite.")
 
     start_time = time.time()
 
-    all_combinations = list(itertools.product(pull_duration_options, repeat=len(riders)))
+    all_combinations = list(itertools.product(system_pull_duration_alternatives, repeat=len(riders)))
     total_alternatives = len(all_combinations)
     seed_speed_array: list[float] = [lower_bound_speed] * len(riders)
     total_iterations: int = 0
@@ -150,7 +150,9 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], pull_duration_o
             fastest_speed_tuple = (iterations, rider_pullplan_items, halted_rider)
 
         # Memo for lowest dispersion of np_intensity_factor
-        np_intensity_factors = [answer.np_intensity_factor for answer in rider_pullplan_items.values() if hasattr(answer, "np_intensity_factor")]
+        np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in rider_pullplan_items.items()]
+
+        # np_intensity_factors = [answer.np_intensity_factor for answer in rider_pullplan_items.values() if hasattr(answer, "np_intensity_factor")]
         if not np_intensity_factors:
             logger.warning("No valid np_intensity_factors in rider_pullplan_items.")
             continue

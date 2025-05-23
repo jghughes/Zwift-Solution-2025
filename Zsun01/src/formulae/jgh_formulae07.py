@@ -28,30 +28,31 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
             z.p1_duration,
             round_to_nearest_10(z.p1_w), 
             z.pretty_p2_3_4_w, 
-            round(z.zsun_one_hour_watts),
-            round(z.zwiftracingapp_zpFTP),
+            z.zsun_one_hour_watts,
+            z.zwiftracingapp_zpFTP,
             z.zwiftracingapp_zpFTP_wkg,
             z.p1_wkg,
             z.p1_ratio_to_zwiftracingapp_zpFTP,
-            z.normalised_watts,
-            round(z.np_intensity_factor,2),
-            z.diagnostic_message if z.diagnostic_message else ""
-
+            z.average_watts,
+            z.normalised_power_watts,
+            z.np_intensity_factor,
+            z.diagnostic_message if z.diagnostic_message else "",
         ])
 
     headers = [
-        "",
+        "name",
         "sec", 
         "p1", 
         "  2   3   4", 
-        "FTP", 
+        "bFTP", 
         "zFTP", 
         "zFTP", 
         "p1",
         "x",
+        "ave",
         "NP",
         "IF",
-        "limit"
+        "limit",
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
 

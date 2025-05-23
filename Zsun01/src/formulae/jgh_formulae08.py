@@ -1,7 +1,6 @@
-from typing import  List, Tuple, Union, Any, DefaultDict, Optional, Generator 
+from typing import  List, Tuple, Union 
 from collections import defaultdict
 import concurrent.futures
-import os
 import time
 import numpy as np
 import itertools
@@ -17,7 +16,7 @@ from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
-permitted_pull_durations = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
+system_pull_duration_alternatives = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
 
 def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) -> float:
     """
@@ -31,6 +30,7 @@ def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) ->
     if rider.get_1_hour_watts() == 0:
         return 0.0
     return plan.normalized_watts / rider.get_1_hour_watts()
+
 
 def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
@@ -59,6 +59,7 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
         "Pull 30s (W)",
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+
 
 def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     """
@@ -92,6 +93,7 @@ def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
                 fastest_rider = rider
                 fastest_duration = duration
     return fastest_rider, fastest_duration, fastest_speed
+
 
 def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     """
@@ -132,6 +134,7 @@ def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
 
     return slowest_rider, slowest_duration, slowest_speed
 
+
 def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
@@ -148,6 +151,7 @@ def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
 
     return slowest_rider, slowest_duration, slowest_speed
 
+
 def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
@@ -162,9 +166,10 @@ def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
             fastest_duration = 3600.0
     return fastest_rider, fastest_duration, fastest_speed
 
-def populate_rider_pull_plans(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float])-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+
+def populate_rider_pull_plans(riders: List[ZsunRiderItem], system_pull_duration_alternatives: List[float], pull_speeds_kph: List[float])-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
     
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
+    work_assignments = populate_rider_work_assignments(riders, system_pull_duration_alternatives, pull_speeds_kph)
 
     # log_rider_work_assignments("Example riders",work_assignments, logger)
 
@@ -181,23 +186,25 @@ def populate_rider_pull_plans(riders: List[ZsunRiderItem], pull_durations: List[
 
     return rider_pullplan_items
 
-def diagnose_what_governed_the_top_speed(rider_answers: defaultdict[ZsunRiderItem, RiderPullPlanItem]) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
-    for rider, answer in rider_answers.items():
+
+def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem, RiderPullPlanItem]) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+    for rider, plan in rider_plans.items():
         msg = ""
         # Step 1: Intensity factor checks
-        intensity_factor = answer.normalized_watts / rider.get_1_hour_watts()
+        intensity_factor = calculate_intensity_factor(rider, plan)
         if intensity_factor >= 0.95:
             msg += " IF > 0.95"
 
         # Step 2: Pull watt limit checks
-        pull_limit = rider.lookup_permissable_pull_watts(answer.p1_duration)
-        if answer.p1_w >= pull_limit:
-            msg += " p1 > limit"
+        pull_limit = rider.lookup_permissable_pull_watts(plan.p1_duration)
+        if plan.p1_w >= pull_limit:
+            msg += " pull (p1) > limit"
 
-        answer.diagnostic_message = msg
-    return rider_answers
+        plan.diagnostic_message = msg
+    return rider_plans
 
-def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull_durations: list[float], lowest_conceivable_kph: list[float],
+
+def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], system_pull_duration_alternatives: list[float], lowest_conceivable_kph: list[float],
     precision: float = 0.1,
     max_iter: int = 20
 ) -> tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
@@ -212,7 +219,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
     # Find an upper bound where a diagnostic message appears
     for _ in range(10):
         test_speeds = [upper] * len(riders)
-        rider_pullplan_items = populate_rider_pull_plans(riders, pull_durations, test_speeds)
+        rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_duration_alternatives, test_speeds)
         if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
             break
         upper += 5.0  # Increase by a reasonable chunk
@@ -227,7 +234,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
     while (upper - lower) > precision and iterations < max_iter:
         mid = (lower + upper) / 2
         test_speeds = [mid] * len(riders)
-        rider_pullplan_items = populate_rider_pull_plans(riders, pull_durations, test_speeds)
+        rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_duration_alternatives, test_speeds)
         iterations += 1
         if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
             upper = mid
@@ -239,7 +246,7 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
 
     # Use the halting (upper) speed after binary search
     final_speeds = [upper] * len(riders)
-    rider_pullplan_items = populate_rider_pull_plans(riders, pull_durations, final_speeds)
+    rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_duration_alternatives, final_speeds)
     if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
         halting_rider = next(rider for rider, answer in rider_pullplan_items.items() if answer.diagnostic_message)
     else:
@@ -247,14 +254,16 @@ def make_a_pull_plan_with_a_sensible_top_speed(riders: list[ZsunRiderItem], pull
 
     return iterations, rider_pullplan_items, halting_rider
 
+
 def make_a_pull_plan( args: Tuple[List[ZsunRiderItem], List[float], List[float]]
 ) -> Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
     # Unpack arguments
-    riders, pull_durations, pull_speeds = args
+    riders, system_pull_duration_alternatives, pull_speeds = args
     # Call the simulation for this combination
-    return make_a_pull_plan_with_a_sensible_top_speed(riders, list(pull_durations), pull_speeds)
+    return make_a_pull_plan_with_a_sensible_top_speed(riders, list(system_pull_duration_alternatives), pull_speeds)
 
-def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],pull_duration_options: List[float], lower_bound_speed: float
+# --- Main function to search for optimal pull plans ---
+def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],system_pull_duration_alternatives: List[float], lower_bound_speed: float
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
         int,  # total_alternatives investigated
         int,   # total_iterations done
@@ -263,9 +272,9 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],pull_duration_opti
     # --- Input validation ---
     if not riders:
         raise ValueError("No riders provided to search_for_optimal_pull_plans.")
-    if not pull_duration_options:
+    if not system_pull_duration_alternatives:
         raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plans.")
-    if any(d <= 0 or not np.isfinite(d) for d in pull_duration_options):
+    if any(d <= 0 or not np.isfinite(d) for d in system_pull_duration_alternatives):
         raise ValueError("All permitted pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
         raise ValueError("lower_bound_speed must be positive and finite.")
@@ -273,16 +282,16 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],pull_duration_opti
     start_time = time.time()
 
 
-    all_combinations_of_pull_durations = list(itertools.product(pull_duration_options, repeat=len(riders)))
+    all_combinations_of_system_pull_duration_alternatives = list(itertools.product(system_pull_duration_alternatives, repeat=len(riders)))
     seed_speed_array : list[float] = [lower_bound_speed] * len(riders)
-    total_alternatives : int = len(all_combinations_of_pull_durations)
+    total_alternatives : int = len(all_combinations_of_system_pull_duration_alternatives)
     total_iterations : int = 0
 
     if total_alternatives  > 1_000_000:
         logger.warning("Number of alternatives is very large: %d", total_alternatives)
 
     # Prepare arguments for each process
-    args_list = [(riders, pull_durations, seed_speed_array) for pull_durations in all_combinations_of_pull_durations]
+    args_list = [(riders, system_pull_duration_alternatives, seed_speed_array) for system_pull_duration_alternatives in all_combinations_of_system_pull_duration_alternatives]
 
     solutions: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
@@ -325,7 +334,7 @@ def search_for_optimal_pull_plans(riders: List[ZsunRiderItem],pull_duration_opti
             fastest_speed_tuple = (iterations, rider_pullplan_items, halted_rider)
 
         # Memo for lowest dispersion of np_intensity_factor
-        np_intensity_factors = [calculate_intensity_factor(rider, answer) for rider, answer in rider_pullplan_items.items()]
+        np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in rider_pullplan_items.items()]
         # np_intensity_factors = [answer.np_intensity_factor for answer in rider_pullplan_items.values() if hasattr(answer, "np_intensity_factor")]
         if not np_intensity_factors:
             logger.warning("No valid np_intensity_factors in rider_pullplan_items.")

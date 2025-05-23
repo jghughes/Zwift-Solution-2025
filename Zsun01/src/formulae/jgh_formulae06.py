@@ -6,7 +6,6 @@ from rolling_average import calculate_rolling_averages
 
 import logging
 
-# not currentky needed, but may be useful in future
 def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the average power for a list of efforts.
@@ -129,13 +128,14 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
         p1w, p2w, p3w, p4w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
         rider_answer_item = RiderPullPlanItem(
-            speed_kph = p1_speed_kph,
-            p1_duration = p1_duration,
-            p1_w = p1w,
-            p2_w = p2w,
-            p3_w = p3w,
-            p4_w = p4w,
-            normalized_watts= calculate_normalized_watts(exertions),
+            speed_kph           = p1_speed_kph,
+            p1_duration         = p1_duration,
+            p1_w                = p1w,
+            p2_w                = p2w,
+            p3_w                = p3w,
+            p4_w                = p4w,
+            average_watts       = calculate_average_watts(exertions),
+            normalized_watts    = calculate_normalized_watts(exertions),
         )
         answer[rider] = rider_answer_item
 
@@ -154,6 +154,8 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
             round(z.p2_w), 
             round(z.p3_w), 
             round(z.p4_w), 
+            round(z.average_watts), 
+            round(z.normalized_watts), 
             z.diagnostic_message if z.diagnostic_message else ""
         ])
     headers = [
@@ -163,6 +165,8 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
         "2", 
         "3", 
         "4", 
+        "ave", 
+        "NP", 
         "limit"
     ]
     logger.info(tabulate(table, headers=headers, tablefmt="simple"))

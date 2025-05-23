@@ -1,4 +1,5 @@
 from typing import List, DefaultDict
+from zsun_rider_dto import ZsunRiderDTO
 from zsun_rider_item import ZsunRiderItem
 from jgh_formulae import estimate_kilojoules_from_wattage_and_time
 from computation_classes import RiderWorkAssignmentItem, RiderExertionItem

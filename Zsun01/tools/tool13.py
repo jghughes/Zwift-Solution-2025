@@ -3,9 +3,9 @@ from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_pull_plan
-from jgh_formulae08 import format_number_comma_separators, format_duration_hms, truncate 
+from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
-from jgh_formulae08 import make_a_pull_plan_with_a_sensible_top_speed, search_for_optimal_pull_plans, permitted_pull_durations
+from jgh_formulae08 import make_a_pull_plan_with_a_sensible_top_speed, search_for_optimal_pull_plans, system_pull_duration_alternatives
 import logging
 from jgh_logging import jgh_configure_logging
 
@@ -45,7 +45,7 @@ def main():
     _, plan_line_items, halted_rider = make_a_pull_plan_with_a_sensible_top_speed(riders, simplest_pull_durations, lowest_bound_speed_as_array)
     log_pull_plan(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items, logger)
 
-    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans(riders, permitted_pull_durations, lowest_bound_speed)
+    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans(riders, system_pull_duration_alternatives, lowest_bound_speed)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02

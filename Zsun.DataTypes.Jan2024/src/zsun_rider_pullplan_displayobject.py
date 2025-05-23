@@ -26,7 +26,8 @@ class RiderPullPlanDisplayObject():
     p4_w                                   : float = 0
     pretty_p2_3_4_w                        : str   = ""
     zsun_one_hour_watts                    : float = 0
-    normalised_watts                       : float = 0
+    average_watts                          : float = 0
+    normalised_power_watts                       : float = 0
     np_intensity_factor                    : float = 0
     diagnostic_message                     : str   = ""
 
@@ -149,10 +150,11 @@ class RiderPullPlanDisplayObject():
             p1_w                                   = plan.p1_w,
             p2_w                                   = plan.p2_w,
             p3_w                                   = plan.p3_w,
-            p4_w                                   = plan.p4_w,
+            p4_w                                   = plan.p4_w,     
             pretty_p2_3_4_w                        = RiderPullPlanDisplayObject.make_pretty_p2_3_4_w(plan.p2_w, plan.p3_w, plan.p4_w),
             zsun_one_hour_watts                    = rider.zsun_one_hour_watts,
-            normalised_watts                       = plan.normalized_watts,
+            average_watts                          = plan.average_watts,
+            normalised_power_watts                 = plan.normalized_watts,
             np_intensity_factor                    = plan.normalized_watts/rider.get_1_hour_watts(),
             diagnostic_message                     = plan.diagnostic_message
         )
