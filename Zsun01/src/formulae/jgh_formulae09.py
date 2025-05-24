@@ -13,7 +13,7 @@ import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
-
+logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 def process_chunk(
     chunk: List[Tuple[List[ZsunRiderItem], List[float], List[float]]]
@@ -44,54 +44,55 @@ def process_chunk(
             logger.error("Exception in make_a_pull_plan: %s", exc)
     return chunk_results
 
-def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], system_pull_duration_alternatives: List[float], lower_bound_speed: float,
-    chunk_size: Optional[int] = None,
-    max_workers: Optional[int] = None,
+# --- Main function to search for optimal pull plans using concurrent programming chunking algorithm ---
+def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRiderItem], system_pull_period_enums: List[float], lower_bound_speed: float,intensity_factor : Optional[float] = 1.0,
+    chunk_size: Optional[int] = 100,
+    max_workers: Optional[int] = 8,
     verbose: bool = True
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
-           int,  # total_alternatives investigated
-           int,  # total_iterations done
+           int,  # total_num_of_all_conceivable_plans investigated
+           int,  # total_compute_iterations done
            float  # elapsed computer time in seconds
            ]:
     """
     Alternative version with chunking and flexible worker count for benchmarking and profiling.
     Args:
         riders: List of ZsunRiderItem
-        system_pull_duration_alternatives: List of permitted pull durations
+        system_pull_period_enums: List of permitted pull durations
         lower_bound_speed: Minimum speed to consider
         chunk_size: Number of tasks per chunk (default: auto)
         max_workers: Number of worker processes (default: os.cpu_count())
         verbose: Print profiling info
     Returns:
-        (solutions, total_alternatives, total_iterations, elapsed_time)
+        (solutions, total_num_of_all_conceivable_plans, total_compute_iterations, elapsed_time)
     """
     import math
 
     if not riders:
-        raise ValueError("No riders provided to search_for_optimal_pull_plansV2.")
-    if not system_pull_duration_alternatives:
-        raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plansV2.")
-    if any(d <= 0 or not np.isfinite(d) for d in system_pull_duration_alternatives):
+        raise ValueError("No riders provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
+    if not system_pull_period_enums:
+        raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
+    if any(d <= 0 or not np.isfinite(d) for d in system_pull_period_enums):
         raise ValueError("All permitted pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
         raise ValueError("lower_bound_speed must be positive and finite.")
 
-    start_time = time.time()
+    start_time = time.perf_counter()
 
-    all_combinations = list(itertools.product(system_pull_duration_alternatives, repeat=len(riders)))
-    total_alternatives = len(all_combinations)
-    seed_speed_array: list[float] = [lower_bound_speed] * len(riders)
-    total_iterations: int = 0
+    all_combinations = list(itertools.product(system_pull_period_enums, repeat=len(riders)))
+    total_num_of_all_conceivable_plans = len(all_combinations)
+    total_compute_iterations: int = 0
+    lower_bound_paceline_speed_as_array: list[float] = [lower_bound_speed] * len(riders)
 
-    if total_alternatives > 1_000_000:
-        logger.warning("Number of alternatives is very large: %d", total_alternatives)
+    if total_num_of_all_conceivable_plans > 1_000_000:
+        logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
 
     # --- Chunking setup ---
     if max_workers is None:
         max_workers = os.cpu_count() or 1
     if chunk_size is None:
         # Default: divide evenly among workers, but at least 1 per chunk
-        chunk_size = max(1, math.ceil(total_alternatives / max_workers))
+        chunk_size = max(1, math.ceil(total_num_of_all_conceivable_plans / max_workers))
 
     # Helper to yield chunks
     def chunked_args(args_list: List[Tuple[List[ZsunRiderItem], List[float], List[float]]], size: int
@@ -99,11 +100,11 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], system_pull_dur
         for i in range(0, len(args_list), size):
             yield args_list[i:i + size]
     
-    args_list = [(riders, pull_durations, seed_speed_array) for pull_durations in all_combinations]
+    args_list = [(riders, pull_duration_alternatives, lower_bound_paceline_speed_as_array) for pull_duration_alternatives in all_combinations]
     chunked_args_list = list(chunked_args(args_list, chunk_size))
 
     if verbose:
-        print(f"search_for_optimal_pull_plansV2: {total_alternatives} alternatives, "
+        print(f"search_for_optimal_pull_plans_concurrently_with_chunking: {total_num_of_all_conceivable_plans} alternatives, "
               f"{len(chunked_args_list)} chunks, chunk_size={chunk_size}, max_workers={max_workers}")
 
     # --- Parallel execution ---
@@ -118,36 +119,37 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], system_pull_dur
                 if verbose:
                     print(f"Chunk {chunk_idx+1}/{len(chunked_args_list)} completed, {len(chunk_results)} results")
             except Exception as exc:
-                logger.error("Exception in process_chunk: %s", exc)
+                logger.error("Exception in function process_chunk() containing function make_a_pull_plan() : %s", exc)
+
+    end_time = time.perf_counter()
+    concurrent_computational_time = end_time - start_time
 
     # --- Profiling and benchmarking output ---
-    end_time = time.time()
-    elapsed_time = end_time - start_time
 
     if verbose:
-        print(f"search_for_optimal_pull_plansV2 completed in {elapsed_time:.2f} seconds")
+        print(f"search_for_optimal_pull_plans_concurrently_with_chunking completed in {concurrent_computational_time:.2f} seconds")
         print(f"Total solutions: {len(solutions)}")
 
     # --- Post-processing (same as original) ---
-    fastest_speed_tuple = None
-    fastest_speed: float = float('-inf')
-    lowest_dispersion_tuple = None
+    highest_speed_pull_plan_solution = None
+    highest_speed: float = float('-inf')
+    lowest_dispersion_pull_plan_soluton = None
     lowest_dispersion: float = float('inf')
 
-    for iterations, rider_pullplan_items, halted_rider in solutions:
-        total_iterations += iterations
-        if halted_rider is None or rider_pullplan_items is None or not isinstance(rider_pullplan_items, dict):
-            logger.warning("Invalid result in solutions list: %s", (iterations, rider_pullplan_items, halted_rider))
+    for compute_iterations, rider_pullplan_items, exertion_maxed_out_rider in solutions:
+        total_compute_iterations += compute_iterations
+        if exertion_maxed_out_rider is None or rider_pullplan_items is None or not isinstance(rider_pullplan_items, dict):
+            logger.warning("Invalid result in solutions list: %s", (compute_iterations, rider_pullplan_items, exertion_maxed_out_rider))
             continue
-        halted_speed = rider_pullplan_items[halted_rider].speed_kph
-        if not np.isfinite(halted_speed):
-            logger.warning("Non-finite halted_speed encountered: %s", halted_speed)
+        pull_plan_speed_limit = rider_pullplan_items[exertion_maxed_out_rider].speed_kph
+        if not np.isfinite(pull_plan_speed_limit):
+            logger.warning("Non-finite pull_plan_speed_limit encountered: %s", pull_plan_speed_limit)
             continue
 
         # Memo for fastest halted speed
-        if halted_speed > fastest_speed:
-            fastest_speed = halted_speed
-            fastest_speed_tuple = (iterations, rider_pullplan_items, halted_rider)
+        if pull_plan_speed_limit > highest_speed:
+            highest_speed = pull_plan_speed_limit
+            highest_speed_pull_plan_solution = (compute_iterations, rider_pullplan_items, exertion_maxed_out_rider)
 
         # Memo for lowest dispersion of np_intensity_factor
         np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in rider_pullplan_items.items()]
@@ -162,13 +164,220 @@ def search_for_optimal_pull_plansV2(riders: List[ZsunRiderItem], system_pull_dur
             continue
         if dispersion < lowest_dispersion:
             lowest_dispersion = dispersion
-            lowest_dispersion_tuple = (iterations, rider_pullplan_items, halted_rider)
+            lowest_dispersion_pull_plan_soluton = (compute_iterations, rider_pullplan_items, exertion_maxed_out_rider)
 
-    if fastest_speed_tuple is None and lowest_dispersion_tuple is None:
-        raise RuntimeError("search_for_optimal_pull_plansV2: No valid solution found (both fastest_speed_tuple and lowest_dispersion_tuple are None)")
-    elif fastest_speed_tuple is None:
-        raise RuntimeError("search_for_optimal_pull_plansV2: No valid solution found (fastest_speed_tuple is None)")
-    elif lowest_dispersion_tuple is None:
-        raise RuntimeError("search_for_optimal_pull_plansV2: No valid solution found (lowest_dispersion_tuple is None)")
+    if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_soluton is None:
+        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
+    elif highest_speed_pull_plan_solution is None:
+        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (highest_speed_pull_plan_solution is None)")
+    elif lowest_dispersion_pull_plan_soluton is None:
+        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
-    return ([fastest_speed_tuple, lowest_dispersion_tuple], total_alternatives, total_iterations, elapsed_time)
+    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, concurrent_computational_time)
+
+ZSUN01_BETEL_PROFILES_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+save_filename_without_ext = "benchmark_results_5_riders"
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def main01():
+    from handy_utilities import read_dict_of_zsunriderItems
+    from repository_of_teams import get_team_riderIDs
+    from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
+    from jgh_formulae08 import system_pull_period_enums, search_for_optimal_pull_plans_concurrently
+    import time
+    import pandas as pd
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
+    dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    riderIDs = get_team_riderIDs("betel")
+    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+
+    # Define parameter grid
+    max_workers_list = [1, 2, 4, 8, 16, os.cpu_count()]
+    chunk_size_list = [1, 10, 100, 1000, 10000]
+
+
+    # Reference run for correctness
+    ref_start = time.perf_counter()
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, 30.0)
+    ref_end = time.perf_counter()
+    ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
+    ref_elapsed_measured = ref_end - ref_start
+    print(f"Reference run compute time (reported): {ref_elapsed:.2f} seconds")
+    print(f"Reference run compute time (measured): {ref_elapsed_measured:.2f} seconds")
+    print(f"Reference highest_speed paceline pull plan: {ref_fastest_speed} kph\n")
+
+    results = []
+    for max_workers in max_workers_list:
+        for chunk_size in chunk_size_list:
+            print(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
+            try:
+                res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_concurrently_with_chunking(
+                    riders, system_pull_period_enums, 30.0,
+                    chunk_size=chunk_size, max_workers=max_workers, verbose=False
+                )
+                fastest = res[0]
+                highest_speed = fastest[1][fastest[2]].speed_kph
+                correct = abs(highest_speed - ref_fastest_speed) < 1e-6
+                results.append({
+                    "max_workers": max_workers,
+                    "chunk_size": chunk_size,
+                    "elapsed_time": elapsed,
+                    "total_num_of_all_conceivable_plans": total_alts,
+                    "total_compute_iterations": total_iters,
+                    "highest_speed": highest_speed,
+                    "correct": correct
+                })
+            except Exception as e:
+                results.append({
+                    "max_workers": max_workers,
+                    "chunk_size": chunk_size,
+                    "elapsed_time": None,
+                    "total_num_of_all_conceivable_plans": None,
+                    "total_compute_iterations": None,
+                    "highest_speed": None,
+                    "correct": False,
+                    "error": str(e)
+                })
+
+    # Convert to DataFrame and save to CSV
+    df = pd.DataFrame(results)
+    df.to_csv(f"{save_filename_without_ext}.csv", index=False)
+    print(df)
+
+    # Print and save a summary report to a .txt file
+    report_lines = []
+    report_lines.append("Benchmark Results Summary\n")
+    report_lines.append(f"Reference run compute time (reported): {ref_elapsed:.2f} seconds\n")
+    report_lines.append(f"Reference run compute time (measured): {ref_elapsed_measured:.2f} seconds\n")
+    report_lines.append(f"Reference highest speed paceline pull plan: {ref_fastest_speed:.3f} kph\n")
+    report_lines.append(f"Reference run parameters: max_workers=1, chunk_size=1\n")
+    report_lines.append(f"Number of parameter combinations tested: {len(results)}\n")
+    report_lines.append("\n")
+    report_lines.append(f"{'max_workers':>11} | {'chunk_size':>10} | {'compute_time':>12} | {'highest_speed_kph':>13} | {'correct':>7}\n")
+    report_lines.append("-" * 65 + "\n")
+    for row in results:
+        report_lines.append(
+            f"{str(row['max_workers']):>11} | "
+            f"{str(row['chunk_size']):>10} | "
+            f"{str(row['elapsed_time']) if row['elapsed_time'] is not None else 'ERR':>12} | "
+            f"{str(row['highest_speed']) if row['highest_speed'] is not None else 'ERR':>13} | "
+            f"{str(row['correct']):>7}\n"
+        )
+    report_lines.append("\n")
+    report_lines.append("Note: 'ERR' indicates an error or failed run for that parameter combination.\n")
+
+    # --- Analysis and Conclusion ---
+    # Only consider successful and correct runs
+    df_valid = df[(df["correct"] == True) & (df["elapsed_time"].notnull())]
+    if not df_valid.empty:
+        # Find the row(s) with the minimum elapsed_time
+        min_time = df_valid["elapsed_time"].min()
+        best_rows = df_valid[df_valid["elapsed_time"] == min_time]
+        # If multiple, pick the one with the smallest max_workers, then smallest chunk_size
+        best_row = best_rows.sort_values(["max_workers", "chunk_size"]).iloc[0]
+        conclusion = (
+            "\n"
+            "==================== Benchmarking Conclusion ====================\n"
+            f"Optimal configuration:\n"
+            f"  max_workers = {best_row['max_workers']}\n"
+            f"  chunk_size  = {best_row['chunk_size']}\n"
+            f"  compute_time = {best_row['elapsed_time']:.2f} seconds\n"
+            "\n"
+            "How this was decided:\n"
+            "  - Only runs with correct results and successful completion were considered.\n"
+            "  - The configuration with the lowest compute_time was selected.\n"
+            "  - If multiple runs had the same time, the one with fewer workers and smaller chunk size was preferred.\n"
+            "  - This approach balances speed, correctness, and resource usage.\n"
+            "===============================================================\n"
+        )
+    else:
+        conclusion = (
+            "\n"
+            "==================== Benchmarking Conclusion ====================\n"
+            "No valid (correct and successful) configuration was found.\n"
+            "===============================================================\n"
+        )
+
+    print(conclusion)
+    report_lines.append(conclusion)
+
+    # Write the report to a .txt file
+    with open(f"{save_filename_without_ext}.txt", "w", encoding="utf-8") as f:
+        f.writelines(report_lines)
+    print(f"Summary report written to {save_filename_without_ext}.txt")
+
+    # Visualization
+    plt.figure(figsize=(12, 6))
+    sns.scatterplot(
+        data=df,
+        x="max_workers",
+        y="elapsed_time",
+        hue="chunk_size",
+        style="correct",
+        palette="tab10",         # Use a categorical palette for distinct colors
+        s=150,                   # Larger marker size
+        edgecolor="black",       # Black edge for contrast
+        alpha=0.85               # Slight transparency
+    )
+    plt.title("Compute Time vs. max_cpu_workers and chunk_size")
+    plt.xlabel("max_cpu_worker_processes")
+    plt.ylabel("Compute Time (s)")
+    plt.legend(title="chunk_size", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.savefig(f"{save_filename_without_ext}_max_workers_vs_time.png")
+    plt.show()
+
+    plt.figure(figsize=(12, 6))
+    sns.scatterplot(
+        data=df,
+        x="chunk_size",
+        y="elapsed_time",
+        hue="max_workers",
+        style="correct",
+        palette="Set1",          # Another categorical palette
+        s=150,
+        edgecolor="black",
+        alpha=0.85
+    )
+    plt.title("Compute Time vs. chunk_size and max_cpu_workers")
+    plt.xlabel("chunk_size")
+    plt.ylabel("Compute Time (s)")
+    plt.legend(title="max_cpu_worker_processes", bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.savefig(f"{save_filename_without_ext}_chunk_size_vs_time.png")
+    plt.show()
+
+        # --- Heatmap Visualization ---
+    # Pivot the DataFrame for heatmap: rows=chunk_size, columns=max_workers, values=elapsed_time
+    heatmap_data = df.pivot_table(
+        index="chunk_size",
+        columns="max_workers",
+        values="elapsed_time",
+        aggfunc="min"
+    )
+
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(
+        heatmap_data,
+        annot=True,
+        fmt=".2f",
+        cmap="YlGnBu",
+        linewidths=0.5,
+        cbar_kws={'label': 'Elapsed Time (s)'}
+    )
+    plt.title("Compute Time Heatmap (s) by max_workers and chunk_size")
+    plt.xlabel("max_workers")
+    plt.ylabel("chunk_size")
+    plt.tight_layout()
+    plt.savefig(f"{save_filename_without_ext}_heatmap.png")
+    plt.show()
+
+if __name__ == "__main__":
+    main01()

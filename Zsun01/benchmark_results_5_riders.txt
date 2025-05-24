@@ -1,0 +1,54 @@
+Benchmark Results Summary
+Reference run compute time (reported): 15.44 seconds
+Reference run compute time (measured): 16.00 seconds
+Reference highest speed paceline pull plan: 42.129 kph
+Reference run parameters: max_workers=1, chunk_size=1
+Number of parameter combinations tested: 30
+
+max_workers | chunk_size | compute_time | highest_speed_kph | correct
+-----------------------------------------------------------------
+          1 |          1 | 79.60010779998265 |   42.12890625 |    True
+          1 |         10 | 80.39403709999169 |   42.12890625 |    True
+          1 |        100 | 80.34000070000184 |   42.12890625 |    True
+          1 |       1000 | 81.99036389999674 |   42.12890625 |    True
+          1 |      10000 | 81.02061199999298 |   42.12890625 |    True
+          2 |          1 | 39.29449329999625 |   42.12890625 |    True
+          2 |         10 | 39.06250389997149 |   42.12890625 |    True
+          2 |        100 | 40.638221500004875 |   42.12890625 |    True
+          2 |       1000 | 52.073243599996204 |   42.12890625 |    True
+          2 |      10000 | 82.3014647999953 |   42.12890625 |    True
+          4 |          1 | 21.66108049999457 |   42.12890625 |    True
+          4 |         10 | 20.797375499998452 |   42.12890625 |    True
+          4 |        100 | 20.877039500017418 |   42.12890625 |    True
+          4 |       1000 | 22.357839600008447 |   42.12890625 |    True
+          4 |      10000 | 63.81633679999504 |   42.12890625 |    True
+          8 |          1 | 12.05905999999959 |   42.12890625 |    True
+          8 |         10 | 12.104882200015709 |   42.12890625 |    True
+          8 |        100 | 12.639933099999325 |   42.12890625 |    True
+          8 |       1000 | 21.94527470000321 |   42.12890625 |    True
+          8 |      10000 | 61.068059000012 |   42.12890625 |    True
+         16 |          1 | 12.678974999987986 |   42.12890625 |    True
+         16 |         10 | 13.53653869999107 |   42.12890625 |    True
+         16 |        100 | 13.75686819999828 |   42.12890625 |    True
+         16 |       1000 | 21.928748700011056 |   42.12890625 |    True
+         16 |      10000 | 61.12071390001802 |   42.12890625 |    True
+         20 |          1 | 13.539678999979515 |   42.12890625 |    True
+         20 |         10 | 13.623258899984648 |   42.12890625 |    True
+         20 |        100 | 14.388861600018572 |   42.12890625 |    True
+         20 |       1000 | 22.0572269000113 |   42.12890625 |    True
+         20 |      10000 | 60.82268569999724 |   42.12890625 |    True
+
+Note: 'ERR' indicates an error or failed run for that parameter combination.
+
+==================== Benchmarking Conclusion ====================
+Optimal configuration:
+  max_workers = 8
+  chunk_size  = 1
+  compute_time = 12.06 seconds
+
+How this was decided:
+  - Only runs with correct results and successful completion were considered.
+  - The configuration with the lowest compute_time was selected.
+  - If multiple runs had the same time, the one with fewer workers and smaller chunk size was preferred.
+  - This approach balances speed, correctness, and resource usage.
+===============================================================

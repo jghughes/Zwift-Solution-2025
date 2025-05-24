@@ -5,8 +5,8 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
-from jgh_formulae08 import search_for_optimal_pull_plans, make_a_pull_plan_with_a_sensible_top_speed,  system_pull_duration_alternatives
-from jgh_formulae09 import search_for_optimal_pull_plansV2
+from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints,  system_pull_period_enums
+from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
 import logging
 from jgh_logging import jgh_configure_logging
 
@@ -43,11 +43,11 @@ def main():
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    _, plan_line_items, halted_rider = make_a_pull_plan_with_a_sensible_top_speed(riders, simplest_pull_durations, lowest_bound_speed_as_array)
+    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
-    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plansV2(riders, system_pull_duration_alternatives, lowest_bound_speed)
+    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_concurrently_with_chunking(riders, system_pull_period_enums, lowest_bound_speed, verbose=False)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
@@ -57,7 +57,7 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
 
 if __name__ == "__main__":
     main()

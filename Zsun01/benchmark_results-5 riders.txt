@@ -1,0 +1,55 @@
+Benchmark Results Summary
+Reference run elapsed time (reported): 15.44 seconds
+Reference run elapsed time (measured): 15.45 seconds
+Reference fastest speed: 40.840 kph
+Reference run parameters: max_workers=1, chunk_size=1
+Number of parameter combinations tested: 30
+
+max_workers | chunk_size | elapsed_time | fastest_speed | correct
+-----------------------------------------------------------------
+          1 |          1 | 81.07965850830078 |   40.83984375 |    True
+          1 |         10 | 81.45881915092468 |   40.83984375 |    True
+          1 |        100 | 1603.6280915737152 |   40.83984375 |    True
+          1 |       1000 | 81.84191823005676 |   40.83984375 |    True
+          1 |      10000 | 79.19046711921692 |   40.83984375 |    True
+          2 |          1 | 34.71181631088257 |   40.83984375 |    True
+          2 |         10 | 295.23553943634033 |   40.83984375 |    True
+          2 |        100 | 37.66048073768616 |   40.83984375 |    True
+          2 |       1000 | 38.70542359352112 |   40.83984375 |    True
+          2 |      10000 | 59.876402378082275 |   40.83984375 |    True
+          4 |          1 | 16.64894413948059 |   40.83984375 |    True
+          4 |         10 | 16.387281894683838 |   40.83984375 |    True
+          4 |        100 | 17.155569553375244 |   40.83984375 |    True
+          4 |       1000 | 4260.607269048691 |   40.83984375 |    True
+          4 |      10000 | 65.3095235824585 |   40.83984375 |    True
+          8 |          1 | 13.50358533859253 |   40.83984375 |    True
+          8 |         10 | 11.757219791412354 |   40.83984375 |    True
+          8 |        100 | 13.240823984146118 |   40.83984375 |    True
+          8 |       1000 | 22.22152328491211 |   40.83984375 |    True
+          8 |      10000 | 61.832823276519775 |   40.83984375 |    True
+         16 |          1 | 13.658255577087402 |   40.83984375 |    True
+         16 |         10 | 14.357771873474121 |   40.83984375 |    True
+         16 |        100 | 14.345715999603271 |   40.83984375 |    True
+         16 |       1000 | 27.395350694656372 |   40.83984375 |    True
+         16 |      10000 | 53.35779857635498 |   40.83984375 |    True
+         20 |          1 | 12.309019804000854 |   40.83984375 |    True
+         20 |         10 | 12.791876077651978 |   40.83984375 |    True
+         20 |        100 | 13.603946208953857 |   40.83984375 |    True
+         20 |       1000 | 20.39948058128357 |   40.83984375 |    True
+         20 |      10000 | 68.14614629745483 |   40.83984375 |    True
+
+Note: 'ERR' indicates an error or failed run for that parameter combination.
+
+==================== Benchmarking Conclusion ====================
+Optimal configuration:
+  max_workers = 8
+  chunk_size  = 10
+  elapsed_time = 11.76 seconds
+  fastest_speed = 40.83984375
+
+How this was decided:
+  - Only runs with correct results and successful completion were considered.
+  - The configuration with the lowest elapsed_time was selected.
+  - If multiple runs had the same time, the one with fewer workers and smaller chunk size was preferred.
+  - This approach balances speed, correctness, and resource usage.
+===============================================================
