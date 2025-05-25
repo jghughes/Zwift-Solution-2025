@@ -1,4 +1,5 @@
-from typing import  List, Tuple, Union, Optional
+from typing import  List, Tuple, Union
+import os
 from collections import defaultdict
 import concurrent.futures
 import time
@@ -255,13 +256,19 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
     return compute_iterations, rider_pullplan_items, halting_rider
 
 
-def make_a_pull_plan( args: Tuple[List[ZsunRiderItem], List[float], List[float]], exertion_intensity_ceiling : float
+def make_a_pull_plan(args: Tuple[
+        List[ZsunRiderItem],           # riders
+        List[float],                   # system_pull_period_enums
+        List[float],                   # pull_speeds
+        float                         # exertion_intensity_ceiling
+    ]
 ) -> Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
     # Unpack arguments
-    riders, system_pull_period_enums, pull_speeds = args
+    riders, system_pull_period_enums, pull_speeds, exertion_intensity_ceiling = args
     # Call the simulation for this combination
-    return make_a_pull_plan_complying_with_exertion_constraints(riders, list(system_pull_period_enums), pull_speeds, exertion_intensity_ceiling)
-
+    return make_a_pull_plan_complying_with_exertion_constraints(
+        riders, list(system_pull_period_enums), pull_speeds, exertion_intensity_ceiling
+    )
 # --- Main function to search for optimal pull plans using concurrent work-stealing algorithm - no chunking ---
 def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],system_pull_period_enums: List[float], lower_bound_speed: float,  exertion_intensity_ceiling : float
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
@@ -290,12 +297,14 @@ def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],syste
         logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
 
     # Prepare arguments for each process
-    args_list = [(riders, system_pull_period_enums, lower_bound_paceline_speed_as_array) for system_pull_period_enums in all_conceivable_paceline_rotation_schedules]
-
+    args_list = [
+        (riders, system_pull_period_enums, lower_bound_paceline_speed_as_array, exertion_intensity_ceiling)
+        for system_pull_period_enums in all_conceivable_paceline_rotation_schedules
+    ]
     solutions: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_args = {executor.submit(make_a_pull_plan, args,exertion_intensity_ceiling): args for args in args_list}
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        future_to_args = {executor.submit(make_a_pull_plan, args): args for args in args_list}
         for future in concurrent.futures.as_completed(future_to_args):
             try:
                 result = future.result()

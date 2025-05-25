@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 def process_chunk(
-    chunk: List[Tuple[List[ZsunRiderItem], List[float], List[float]]]
+    chunk: List[Tuple[List[ZsunRiderItem], List[float], List[float],float]]
 ) -> List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], Any]]:
     """
     Processes a chunk of arguments for make_a_pull_plan in parallel execution.
@@ -45,9 +45,9 @@ def process_chunk(
     return chunk_results
 
 # --- Main function to search for optimal pull plans using concurrent programming chunking algorithm ---
-def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRiderItem], system_pull_period_enums: List[float], lower_bound_speed: float,intensity_factor : Optional[float] = 1.0,
+def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRiderItem], system_pull_period_enums: List[float], lower_bound_speed: float, exertion_intensity_ceiling : float = 1.0,
     chunk_size: Optional[int] = 100,
-    max_workers: Optional[int] = 8,
+    max_workers: Optional[int] = os.cpu_count(),
     verbose: bool = True
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
            int,  # total_num_of_all_conceivable_plans investigated
@@ -79,10 +79,10 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRi
 
     start_time = time.perf_counter()
 
-    all_combinations = list(itertools.product(system_pull_period_enums, repeat=len(riders)))
-    total_num_of_all_conceivable_plans = len(all_combinations)
-    total_compute_iterations: int = 0
+    all_conceivable_paceline_rotation_schedules = list(itertools.product(system_pull_period_enums, repeat=len(riders)))
+    total_num_of_all_conceivable_plans = len(all_conceivable_paceline_rotation_schedules)
     lower_bound_paceline_speed_as_array: list[float] = [lower_bound_speed] * len(riders)
+    total_compute_iterations: int = 0
 
     if total_num_of_all_conceivable_plans > 1_000_000:
         logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
@@ -95,12 +95,16 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRi
         chunk_size = max(1, math.ceil(total_num_of_all_conceivable_plans / max_workers))
 
     # Helper to yield chunks
-    def chunked_args(args_list: List[Tuple[List[ZsunRiderItem], List[float], List[float]]], size: int
+    def chunked_args(args_list: List[Tuple[List[ZsunRiderItem], List[float], List[float], float]], size: int
     ) -> 'Generator[List[Tuple[List[ZsunRiderItem], List[float], List[float]]], None, None]':
         for i in range(0, len(args_list), size):
             yield args_list[i:i + size]
     
-    args_list = [(riders, pull_duration_alternatives, lower_bound_paceline_speed_as_array) for pull_duration_alternatives in all_combinations]
+    args_list = [
+        (riders, system_pull_period_enums, lower_bound_paceline_speed_as_array, exertion_intensity_ceiling)
+        for system_pull_period_enums in all_conceivable_paceline_rotation_schedules
+    ]    
+
     chunked_args_list = list(chunked_args(args_list, chunk_size))
 
     if verbose:
@@ -205,7 +209,7 @@ def main01():
 
     # Reference run for correctness
     ref_start = time.perf_counter()
-    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, 30.0)
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, 30.0, 0.95)
     ref_end = time.perf_counter()
     ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
     ref_elapsed_measured = ref_end - ref_start
@@ -219,7 +223,7 @@ def main01():
             print(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
             try:
                 res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_concurrently_with_chunking(
-                    riders, system_pull_period_enums, 30.0,
+                    riders, system_pull_period_enums, 30.0, exertion_intensity_ceiling=1.0,
                     chunk_size=chunk_size, max_workers=max_workers, verbose=False
                 )
                 fastest = res[0]

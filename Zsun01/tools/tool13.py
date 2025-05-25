@@ -12,6 +12,8 @@ from jgh_logging import jgh_configure_logging
 ZSUN01_BETEL_PROFILES_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
 ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
+exertion_intensity_factor_ceiling = 1.05
+
 def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
@@ -42,10 +44,10 @@ def main():
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, 0.95)
+    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, exertion_intensity_factor_ceiling)
     log_pull_plan(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph)} kph", plan_line_items, logger)
 
-    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, lowest_bound_speed, 0.95)
+    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, lowest_bound_speed, exertion_intensity_factor_ceiling)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
