@@ -3,7 +3,6 @@ from typing import Any
 import pandas as pd
 from dataclasses import asdict
 
-from pytz import country_names
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from handy_utilities import *
 from jgh_serialization import *

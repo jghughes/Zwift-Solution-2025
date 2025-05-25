@@ -45,41 +45,55 @@ def process_chunk(
     return chunk_results
 
 # --- Main function to search for optimal pull plans using concurrent programming chunking algorithm ---
-def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRiderItem], system_pull_period_enums: List[float], lower_bound_speed: float, exertion_intensity_ceiling : float = 1.0,
+def search_for_optimal_pull_plans_concurrently_with_chunking(
+    riders: List[ZsunRiderItem],
+    standard_pull_periods_seconds: List[float],
+    lower_bound_speed: float,
+    max_intensity_factor: float = 1.0,
     chunk_size: Optional[int] = 100,
     max_workers: Optional[int] = os.cpu_count(),
     verbose: bool = True
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
-           int,  # total_num_of_all_conceivable_plans investigated
-           int,  # total_compute_iterations done
-           float  # elapsed computer time in seconds
-           ]:
+           int,
+           int,
+           float]:
     """
     Alternative version with chunking and flexible worker count for benchmarking and profiling.
+
     Args:
-        riders: List of ZsunRiderItem
-        system_pull_period_enums: List of permitted pull durations
-        lower_bound_speed: Minimum speed to consider
-        chunk_size: Number of tasks per chunk (default: auto)
-        max_workers: Number of worker processes (default: os.cpu_count())
-        verbose: Print profiling info
+        riders: List of ZsunRiderItem.
+        standard_pull_periods_seconds: List of permitted pull durations.
+        lower_bound_speed: Minimum speed to consider.
+        chunk_size: Number of tasks per chunk. If an integer is provided, that value is used.
+            If None is passed, the function will automatically determine a suitable chunk size
+            based on the total number of plans and the number of workers. Default is 100.
+        max_workers: Number of worker processes. If an integer is provided, that value is used.
+            If None is passed, the function will use the number of CPUs available on the system.
+            Default is os.cpu_count().
+        verbose: Print profiling info.
+
     Returns:
         (solutions, total_num_of_all_conceivable_plans, total_compute_iterations, elapsed_time)
+
+    Note:
+        The use of Optional[int] for chunk_size and max_workers allows the caller to explicitly pass
+        None to trigger automatic, context-sensitive defaulting logic inside the function, rather than
+        always using a fixed default. This provides more flexibility for advanced use cases.
     """
     import math
 
     if not riders:
         raise ValueError("No riders provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
-    if not system_pull_period_enums:
+    if not standard_pull_periods_seconds:
         raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
-    if any(d <= 0 or not np.isfinite(d) for d in system_pull_period_enums):
+    if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
         raise ValueError("All permitted pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
         raise ValueError("lower_bound_speed must be positive and finite.")
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules = list(itertools.product(system_pull_period_enums, repeat=len(riders)))
+    all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
     total_num_of_all_conceivable_plans = len(all_conceivable_paceline_rotation_schedules)
     lower_bound_paceline_speed_as_array: list[float] = [lower_bound_speed] * len(riders)
     total_compute_iterations: int = 0
@@ -101,8 +115,8 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRi
             yield args_list[i:i + size]
     
     args_list = [
-        (riders, system_pull_period_enums, lower_bound_paceline_speed_as_array, exertion_intensity_ceiling)
-        for system_pull_period_enums in all_conceivable_paceline_rotation_schedules
+        (riders, standard_pull_periods_seconds, lower_bound_paceline_speed_as_array, max_intensity_factor)
+        for standard_pull_periods_seconds in all_conceivable_paceline_rotation_schedules
     ]    
 
     chunked_args_list = list(chunked_args(args_list, chunk_size))
@@ -179,8 +193,8 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(riders: List[ZsunRi
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, concurrent_computational_time)
 
-ZSUN01_BETEL_PROFILES_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
-ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
 save_filename_without_ext = "benchmark_results_5_riders"
 
@@ -191,14 +205,15 @@ import matplotlib.pyplot as plt
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
+    from constants import STANDARD_PULL_PERIODS_SEC
     from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
-    from jgh_formulae08 import system_pull_period_enums, search_for_optimal_pull_plans_concurrently
+    from jgh_formulae08 import search_for_optimal_pull_plans_concurrently
     import time
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
 
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 
@@ -209,7 +224,7 @@ def main01():
 
     # Reference run for correctness
     ref_start = time.perf_counter()
-    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, system_pull_period_enums, 30.0, 0.95)
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
     ref_end = time.perf_counter()
     ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
     ref_elapsed_measured = ref_end - ref_start
@@ -223,7 +238,7 @@ def main01():
             print(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
             try:
                 res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_concurrently_with_chunking(
-                    riders, system_pull_period_enums, 30.0, exertion_intensity_ceiling=1.0,
+                    riders, STANDARD_PULL_PERIODS_SEC, 30.0, max_intensity_factor=1.0,
                     chunk_size=chunk_size, max_workers=max_workers, verbose=False
                 )
                 fastest = res[0]

@@ -5,22 +5,20 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
-from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints,  system_pull_period_enums
+from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints
 from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
+from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+
 import logging
 from jgh_logging import jgh_configure_logging
 
-ZSUN01_BETEL_PROFILES_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
-ZSUN01_PROJECT_DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-exertion_intensity_factor_ceiling = 1.05
 
 
 def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(ZSUN01_BETEL_PROFILES_FILE_NAME, ZSUN01_PROJECT_DATA_DIRPATH)
+    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     riderIDs = get_team_riderIDs("betel")
 
@@ -46,11 +44,11 @@ def main():
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, exertion_intensity_factor_ceiling)
+    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
-    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_concurrently_with_chunking(riders, system_pull_period_enums, lowest_bound_speed, exertion_intensity_factor_ceiling, verbose=False)
+    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_concurrently_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR, verbose=False)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02

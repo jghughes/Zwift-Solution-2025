@@ -17,7 +17,7 @@ from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
-system_pull_period_enums = [30.0, 60.0, 120.0, 180.0, 240.0] # in seconds
+
 
 def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) -> float:
     """
@@ -168,9 +168,9 @@ def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
     return fastest_rider, fastest_duration, highest_speed
 
 
-def populate_rider_pull_plans(riders: List[ZsunRiderItem], system_pull_period_enums: List[float], pull_speeds_kph: List[float], exertion_intensity_ceiling : float)-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_rider_pull_plans(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float], pull_speeds_kph: List[float], max_intensity_factor : float)-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
     
-    work_assignments = populate_rider_work_assignments(riders, system_pull_period_enums, pull_speeds_kph)
+    work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
 
     # log_rider_work_assignments("Example riders",work_assignments, logger)
 
@@ -180,7 +180,7 @@ def populate_rider_pull_plans(riders: List[ZsunRiderItem], system_pull_period_en
 
     rider_pullplan_items = populate_pull_plan_from_rider_exertions(rider_exertions)
 
-    rider_pullplan_items = diagnose_what_governed_the_top_speed(rider_pullplan_items, exertion_intensity_ceiling)
+    rider_pullplan_items = diagnose_what_governed_the_top_speed(rider_pullplan_items, max_intensity_factor)
 
     # log_pull_plan(f"{len(riders)} riders in paceline", rider_pullplan_items, logger)
 
@@ -188,13 +188,13 @@ def populate_rider_pull_plans(riders: List[ZsunRiderItem], system_pull_period_en
     return rider_pullplan_items
 
 
-def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem, RiderPullPlanItem], exertion_intensity_ceiling : float = 0.95) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem, RiderPullPlanItem], max_intensity_factor : float = 0.95) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
     for rider, plan in rider_plans.items():
         msg = ""
         # Step 1: Intensity factor checks
         intensity_factor = calculate_intensity_factor(rider, plan)
-        if intensity_factor >= exertion_intensity_ceiling:
-            msg += f" IF > {exertion_intensity_ceiling}"
+        if intensity_factor >= max_intensity_factor:
+            msg += f" IF > {max_intensity_factor}"
 
         # Step 2: Pull watt limit checks
         pull_limit = rider.lookup_permissable_pull_watts(plan.p1_duration)
@@ -205,7 +205,7 @@ def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem,
     return rider_plans
 
 
-def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderItem], system_pull_period_enums: list[float], lowest_conceivable_kph: list[float], exertion_intensity_ceiling : float,
+def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderItem], standard_pull_periods_seconds: list[float], lowest_conceivable_kph: list[float], max_intensity_factor : float,
     precision: float = 0.1,
     max_iter: int = 20
 ) -> tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
@@ -220,7 +220,7 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
     # Find an upper bound where a diagnostic message appears
     for _ in range(10):
         test_speeds = [upper] * len(riders)
-        rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_period_enums, test_speeds, exertion_intensity_ceiling)
+        rider_pullplan_items = populate_rider_pull_plans(riders, standard_pull_periods_seconds, test_speeds, max_intensity_factor)
         if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
             break
         upper += 5.0  # Increase by a reasonable chunk
@@ -235,7 +235,7 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
     while (upper - lower) > precision and compute_iterations < max_iter:
         mid = (lower + upper) / 2
         test_speeds = [mid] * len(riders)
-        rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_period_enums, test_speeds, exertion_intensity_ceiling)
+        rider_pullplan_items = populate_rider_pull_plans(riders, standard_pull_periods_seconds, test_speeds, max_intensity_factor)
         compute_iterations += 1
         if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
             upper = mid
@@ -247,7 +247,7 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
 
     # Use the halting (upper) speed after binary search
     final_speeds = [upper] * len(riders)
-    rider_pullplan_items = populate_rider_pull_plans(riders, system_pull_period_enums, final_speeds, exertion_intensity_ceiling)
+    rider_pullplan_items = populate_rider_pull_plans(riders, standard_pull_periods_seconds, final_speeds, max_intensity_factor)
     if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
         halting_rider = next(rider for rider, answer in rider_pullplan_items.items() if answer.diagnostic_message)
     else:
@@ -258,19 +258,19 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
 
 def make_a_pull_plan(args: Tuple[
         List[ZsunRiderItem],           # riders
-        List[float],                   # system_pull_period_enums
+        List[float],                   # standard_pull_periods_seconds
         List[float],                   # pull_speeds
-        float                         # exertion_intensity_ceiling
+        float                         # max_intensity_factor
     ]
 ) -> Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
     # Unpack arguments
-    riders, system_pull_period_enums, pull_speeds, exertion_intensity_ceiling = args
+    riders, standard_pull_periods_seconds, pull_speeds, max_intensity_factor = args
     # Call the simulation for this combination
     return make_a_pull_plan_complying_with_exertion_constraints(
-        riders, list(system_pull_period_enums), pull_speeds, exertion_intensity_ceiling
+        riders, list(standard_pull_periods_seconds), pull_speeds, max_intensity_factor
     )
 # --- Main function to search for optimal pull plans using concurrent work-stealing algorithm - no chunking ---
-def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],system_pull_period_enums: List[float], lower_bound_speed: float,  exertion_intensity_ceiling : float
+def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], binary_search_seed: float,  max_intensity_factor : float
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
         int,  # total_num_of_all_conceivable_plans investigated
         int,   # total_compute_iterations done
@@ -279,27 +279,27 @@ def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],syste
     # --- Input validation ---
     if not riders:
         raise ValueError("No riders provided to search_for_optimal_pull_plans_concurrently.")
-    if not system_pull_period_enums:
+    if not standard_pull_periods_seconds:
         raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plans_concurrently.")
-    if any(d <= 0 or not np.isfinite(d) for d in system_pull_period_enums):
+    if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
         raise ValueError("All permitted pull durations must be positive and finite.")
-    if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
-        raise ValueError("lower_bound_speed must be positive and finite.")
+    if not np.isfinite(binary_search_seed) or binary_search_seed <= 0:
+        raise ValueError("binary_search_seed must be positive and finite.")
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules = list(itertools.product(system_pull_period_enums, repeat=len(riders)))
+    all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
     total_num_of_all_conceivable_plans : int = len(all_conceivable_paceline_rotation_schedules)
     total_compute_iterations : int = 0
-    lower_bound_paceline_speed_as_array : list[float] = [lower_bound_speed] * len(riders)
+    lower_bound_paceline_speed_as_array : list[float] = [binary_search_seed] * len(riders)
 
     if total_num_of_all_conceivable_plans  > 1_000_000:
         logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
 
     # Prepare arguments for each process
     args_list = [
-        (riders, system_pull_period_enums, lower_bound_paceline_speed_as_array, exertion_intensity_ceiling)
-        for system_pull_period_enums in all_conceivable_paceline_rotation_schedules
+        (riders, standard_pull_periods_seconds, lower_bound_paceline_speed_as_array, max_intensity_factor)
+        for standard_pull_periods_seconds in all_conceivable_paceline_rotation_schedules
     ]
     solutions: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
