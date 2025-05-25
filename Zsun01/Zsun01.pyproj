@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tools\tool15.py</StartupFile>
+    <StartupFile>tests\test_concurrent_programming_strategies.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -57,7 +57,7 @@
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\formulae\constants.py" />
+    <Compile Include="constants.py" />
     <Compile Include="src\formulae\jgh_formulae09.py" />
     <Compile Include="src\repositories\repository_of_teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
