@@ -58,9 +58,53 @@ def main():
     logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
 
 
+    # --- Begin iterative weakest-rider removal process for FASTEST PLAN (plan01) ---
+    original_fastest_speed = plan_line_items[halted_rider].speed_kph
+    current_riders = riders.copy()
+    removed_riders = []
+    plan01_records = []
+    speed_records = []
+    halted_rider_records = []
+    total_iterations = total_num_of_all_conceivable_plans
+    total_alternatives = total_compute_iterations
+    total_time = compute_time
 
+    while len(current_riders) > 2:
+        # Remove the weakest rider (halted_rider from last plan01)
+        halted_rider_index = current_riders.index(halted_rider)
+        removed_riders.append(current_riders[halted_rider_index])
+        del current_riders[halted_rider_index]
 
+        # Recompute the fastest plan for the reduced team
+        (pull_plans, num_alternatives, num_iterations, compute_time) = search_for_optimal_pull_plans_concurrently(
+            current_riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR
+        )
+        plan01, plan02 = pull_plans
+        _, plan_line_items, halted_rider = plan01
 
+        # Record stats
+        plan01_records.append(plan01)
+        speed_records.append(plan_line_items[halted_rider].speed_kph)
+        halted_rider_records.append(halted_rider)
+        total_iterations += num_iterations
+        total_alternatives += num_alternatives
+        total_time += compute_time
+
+    # Find the fastest plan among the new ones
+    if not speed_records or max(speed_records) <= original_fastest_speed:
+        logger.info(f"\nNo faster solution found by removing riders. Original fastest speed: {original_fastest_speed:.1f} kph.")
+    else:
+        idx = speed_records.index(max(speed_records))
+        best_plan01 = plan01_records[idx]
+        _, plan_line_items, halted_rider = best_plan01
+        plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
+        log_concise_pullplan_displayobjects(
+            f"\n\nFASTEST PLAN PLUS: {round(plan_line_items[halted_rider].speed_kph,1)} kph",
+            plan_line_items_displayobjects,
+            logger
+        )
+
+    logger.info(f"\n\n\nFASTEST PLAN PLUS: {len(speed_records)} iterations, {format_number_comma_separators(total_iterations)} total iterations, {format_number_comma_separators(total_alternatives)} alternatives, {format_duration_hms(total_time)} compute time.\n\n")
 
 
 

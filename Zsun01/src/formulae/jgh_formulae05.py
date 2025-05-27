@@ -56,7 +56,7 @@ def log_rider_exertions(test_description: str, result: DefaultDict[ZsunRiderItem
         "watts", 
         "kJ"
     ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
 
 def main() -> None:
     from jgh_logging import jgh_configure_logging

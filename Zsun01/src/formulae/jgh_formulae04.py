@@ -71,7 +71,7 @@ def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunRi
         "Duration (sec)", 
         "Speed (kph)"
     ]
-    logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain"))
+    logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
 
 def main() -> None:
     from zsun_rider_dto import ZsunRiderDTO

@@ -1,5 +1,5 @@
 from typing import  DefaultDict
-from jgh_formatting import round_to_nearest_10, format_number_1dp
+from jgh_formatting import round_to_nearest_10, format_number_1dp, format_number_2dp
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
 from zsun_rider_pullplan_displayobject import RiderPullPlanDisplayObject
@@ -30,12 +30,12 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
             z.pretty_p2_3_4_w, 
             z.zsun_one_hour_watts,
             z.zwiftracingapp_zpFTP,
-            z.zwiftracingapp_zpFTP_wkg,
-            z.p1_wkg,
-            z.p1_ratio_to_zwiftracingapp_zpFTP,
-            z.average_watts,
-            z.normalised_power_watts,
-            z.np_intensity_factor,
+            format_number_1dp(z.zwiftracingapp_zpFTP_wkg),
+            format_number_1dp(z.p1_wkg),
+            format_number_2dp(z.p1_ratio_to_zwiftracingapp_zpFTP),
+            round(z.average_watts),
+            round(z.normalised_power_watts),
+            format_number_2dp(z.np_intensity_factor),
             z.diagnostic_message if z.diagnostic_message else "",
         ])
 
@@ -54,8 +54,7 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
         "IF",
         "limit",
     ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
-
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple",disable_numparse=True))
 
 def main() -> None:
     from jgh_logging import jgh_configure_logging

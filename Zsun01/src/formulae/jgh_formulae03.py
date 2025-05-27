@@ -137,7 +137,7 @@ def main():
     # Log the arranged list of riders
     logger.info("\nRiders arranged in optimal order:")
     table = [[i + 1, rider.name, rider.calculate_strength_wkg()] for i, rider in enumerate(optimal_order)]
-    logger.info("\n" + tabulate(table, headers=["Position", "Rider", "Strength"], tablefmt="simple"))
+    logger.info("\n" + tabulate(table, headers=["Position", "Rider", "Strength"], tablefmt="simple",disable_numparse=True))
 
 def main2():
     import logging

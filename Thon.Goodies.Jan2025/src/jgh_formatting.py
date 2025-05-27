@@ -28,6 +28,18 @@ def format_number_1dp(x: float) -> str:
     """
     return f"{x:.1f}"
 
+def format_number_2dp(x: float) -> str:
+    """
+    Format a float to two decimal places, always showing the decimal digit (including trailing zero).
+    
+    Args:
+        x (float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '12.00', '3.56', '0.01'.
+    """
+    return f"{x:.2f}"
+
 def format_number_2sig(x : Union[int, float]):
     """
     Format a number in compact scientific or fixed-point notation with 2 significant digits.
@@ -83,5 +95,18 @@ def format_duration_hms(seconds: float) -> str:
         return f"{sec_str} seconds"
 
 
+import unittest
+
+class TestFormatNumber2dp(unittest.TestCase):
+    def test_format_number_2dp(self):
+        self.assertEqual(format_number_2dp(12), "12.00")
+        self.assertEqual(format_number_2dp(3.5), "3.50")
+        self.assertEqual(format_number_2dp(0.01), "0.01")
+        self.assertEqual(format_number_2dp(0), "0.00")
+        self.assertEqual(format_number_2dp(1234.5678), "1234.57")
+        self.assertEqual(format_number_2dp(-2.5), "-2.50")
+
+if __name__ == "__main__":
+    unittest.main()
 
 

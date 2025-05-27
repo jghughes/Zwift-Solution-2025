@@ -169,7 +169,7 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
         "NP", 
         "limit"
     ]
-    logger.info(tabulate(table, headers=headers, tablefmt="simple"))
+    logger.info(tabulate(table, headers=headers, tablefmt="simple", disable_numparse=True))
 
 
 def main() -> None:
