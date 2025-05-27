@@ -32,12 +32,12 @@ def main():
 
     r01,r01_duration,r01_speed = calculate_upper_bound_pull_speed(riders)
     r02,_,r02_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
-    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_30sec_pull_watts())} W ({format_number_1dp(r01.get_permitted_30sec_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_30sec_pull_watts())} W ({format_number_1dp(r01.get_standard_30sec_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
     logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1dp(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
 
     r01,r01_duration,r01_speed = calculate_lower_bound_pull_speed(riders)
     r02,_,r02_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
-    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_permitted_4_minute_pull_watts())} W ({format_number_1dp(r01.get_permitted_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_4_minute_pull_watts())} W ({format_number_1dp(r01.get_standard_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
     logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({format_number_1dp(r02.get_1_hour_watts()/r02.weight_kg)} W/kg) by {r02.name}.")
 
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed,0),1)) # round to lowest 1 kph, as a float

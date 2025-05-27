@@ -416,8 +416,8 @@ class ZsunRiderItem:
 
     def calculate_strength_wkg(self) -> float:
         if self.weight_kg == 0:
-            return self.get_permitted_2_minute_pull_watts()/80.0 # arbitrary default 80kg
-        return self.get_permitted_2_minute_pull_watts()/self.weight_kg
+            return self.get_standard_2_minute_pull_watts()/80.0 # arbitrary default 80kg
+        return self.get_standard_2_minute_pull_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -500,58 +500,58 @@ class ZsunRiderItem:
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_permitted_30sec_pull_watts(self) -> float:
+    def calculate_speed_at_standard_30sec_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
         Returns:
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_permitted_30sec_pull_watts(), self.weight_kg, self.height_cm)
+        speed_kph = estimate_speed_from_wattage(self.get_standard_30sec_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_permitted_1_minute_pull_watts(self) -> float:
+    def calculate_speed_at_standard_1_minute_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
         Returns:
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_permitted_1_minute_pull_watts(), self.weight_kg, self.height_cm)
+        speed_kph = estimate_speed_from_wattage(self.get_standard_1_minute_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_permitted_2_minute_pull_watts(self) -> float:
+    def calculate_speed_at_standard_2_minute_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
         Returns:
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_permitted_2_minute_pull_watts(), self.weight_kg, self.height_cm)
+        speed_kph = estimate_speed_from_wattage(self.get_standard_2_minute_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_permitted_3_minute_pull_watts(self) -> float:
+    def calculate_speed_at_standard_3_minute_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
         Returns:
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_permitted_3_minute_pull_watts(), self.weight_kg, self.height_cm)
+        speed_kph = estimate_speed_from_wattage(self.get_standard_3_minute_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
-    def calculate_speed_at_permitted_4_minute_pull_watts(self) -> float:
+    def calculate_speed_at_standard_4_minute_pull_watts(self) -> float:
         """
         Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
         Returns:
         float: The estimated speed in km/h.
         """
         # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_permitted_4_minute_pull_watts(), self.weight_kg, self.height_cm)
+        speed_kph = estimate_speed_from_wattage(self.get_standard_4_minute_pull_watts(), self.weight_kg, self.height_cm)
         
         return round(speed_kph, 3)
 
@@ -591,34 +591,34 @@ class ZsunRiderItem:
             return 0.0
         return self.zwiftracingapp_zpFTP / self.weight_kg
 
-    def get_permitted_30sec_pull_watts(self) -> float:
+    def get_standard_30sec_pull_watts(self) -> float:
         # apply 3.5 minute watts
         pull_short = decay_model_numpy(np.array([210]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([210]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_short[0], one_hour[0])
         return answer
 
-    def get_permitted_1_minute_pull_watts(self) -> float:
+    def get_standard_1_minute_pull_watts(self) -> float:
         # apply 5 minute watts
         pull_medium = decay_model_numpy(np.array([300]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([300]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_medium[0], one_hour[0])
         return answer
 
-    def get_permitted_2_minute_pull_watts(self) -> float:
+    def get_standard_2_minute_pull_watts(self) -> float:
         # apply 12 minute watts
         pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([720]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
         return answer
 
-    def get_permitted_3_minute_pull_watts(self) -> float:
+    def get_standard_3_minute_pull_watts(self) -> float:
         # apply 15 minute watts
         one_hour = decay_model_numpy(np.array([900]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = one_hour[0]
         return answer
 
-    def get_permitted_4_minute_pull_watts(self) -> float:
+    def get_standard_4_minute_pull_watts(self) -> float:
         # apply 20 minute watts
         one_hour = decay_model_numpy(np.array([1200]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = one_hour[0]
@@ -649,17 +649,17 @@ class ZsunRiderItem:
         answer = power[0]
         return answer
 
-    def lookup_permissable_pull_watts(self, seconds : float)-> float:
+    def lookup_standard_pull_watts(self, seconds : float)-> float:
         permissable_watts = self.get_1_hour_watts() # default
 
         if seconds == 30:
-            permissable_watts = self.get_permitted_30sec_pull_watts()
+            permissable_watts = self.get_standard_30sec_pull_watts()
         if seconds == 60:
-            permissable_watts = self.get_permitted_1_minute_pull_watts()
+            permissable_watts = self.get_standard_1_minute_pull_watts()
         if seconds == 120:
-            permissable_watts = self.get_permitted_2_minute_pull_watts()
+            permissable_watts = self.get_standard_2_minute_pull_watts()
         if seconds == 240:
-            permissable_watts = self.get_permitted_4_minute_pull_watts()
+            permissable_watts = self.get_standard_4_minute_pull_watts()
          
         return permissable_watts
 

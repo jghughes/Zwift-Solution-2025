@@ -58,7 +58,7 @@ betelguese_Roster = defaultdict(
         # "5490373": "barry_beck",
         # "991817": "brandi_steeve",
         "9011": "bryan_bumpas",
-        # "5569057": "cory_cook",
+        "5569057": "cory_cook",
         "3147366": "dave_konicek",
         # "4945836": "david_evanetich",
         # # "183277": "giao_nguyen",
@@ -74,8 +74,8 @@ betelguese_Roster = defaultdict(
         # # "11526": "scott_mcveigh",
         # "1956": "scott_yarosh",
         # # "2682791": "selena_shaikh",
-        # # "6142432": "steve_seiler",
-        # # "5421258": "tim_reid",
+        # "6142432": "steve_seiler",
+        # "5421258": "tim_reid",
         # "11741": "tom_bick",
     }
 )

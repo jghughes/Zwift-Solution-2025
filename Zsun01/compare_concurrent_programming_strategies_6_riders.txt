@@ -1,0 +1,17 @@
+Benchmark Report: Concurrent Programming Strategies
+
+Tested strategies:
+1. search_for_optimal_pull_plans_concurrently
+2. search_for_optimal_pull_plans_concurrently_with_chunking (chunk_size=None, max_workers=None)
+3. search_for_optimal_pull_plans_concurrently_with_chunking (default args)
+
+Data saved to: compare_concurrent_programming_strategies_6_riders.csv
+Chart saved to: compare_concurrent_programming_strategies_6_riders.png
+
+Results:
+
+  concurrent: 77.6530 seconds
+  chunking_none: 165.2132 seconds
+  chunking_default: 156.9898 seconds
+
+Conclusion: The fastest strategy was 'concurrent' (77.6530 seconds).

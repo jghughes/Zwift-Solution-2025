@@ -10,8 +10,8 @@ Chart saved to: compare_concurrent_programming_strategies_3_riders.png
 
 Results:
 
-  concurrent: 2.6537 seconds
-  chunking_none: 7.0694 seconds
-  chunking_default: 4.8196 seconds
+  concurrent: 2.4417 seconds
+  chunking_none: 8.2589 seconds
+  chunking_default: 4.9952 seconds
 
-Conclusion: The fastest strategy was 'concurrent' (2.6537 seconds).
+Conclusion: The fastest strategy was 'concurrent' (2.4417 seconds).

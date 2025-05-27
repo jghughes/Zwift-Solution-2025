@@ -1,0 +1,4 @@
+strategy,elapsed_sec
+concurrent,11.374344900003052
+chunking_none,30.793822399999044
+chunking_default,30.76316450000013

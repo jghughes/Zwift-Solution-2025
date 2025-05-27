@@ -45,8 +45,8 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
             format_number_2sig(rider.get_zsun_1_hour_wkg()),
             format_number_2sig(rider.calculate_speed_at_1_hour_watts()),
             format_number_2sig(rider.zsun_one_hour_watts),
-            format_number_2sig(rider.calculate_speed_at_permitted_30sec_pull_watts()),
-            format_number_2sig(rider.get_permitted_30sec_pull_watts()),
+            format_number_2sig(rider.calculate_speed_at_standard_30sec_pull_watts()),
+            format_number_2sig(rider.get_standard_30sec_pull_watts()),
         ])
 
     headers = [
@@ -80,11 +80,11 @@ def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
     fastest_duration = 30.0 #arbitrary short
     highest_speed = 0.0  # Arbitrarily low speed
     duration_methods = [
-        (30.0, 'calculate_speed_at_permitted_30sec_pull_watts'),
-        (60.0, 'calculate_speed_at_permitted_1_minute_pull_watts'),
-        (120.0, 'calculate_speed_at_permitted_2_minute_pull_watts'),
-        (180.0, 'calculate_speed_at_permitted_3_minute_pull_watts'),
-        (240.0, 'calculate_speed_at_permitted_4_minute_pull_watts'),
+        (30.0, 'calculate_speed_at_standard_30sec_pull_watts'),
+        (60.0, 'calculate_speed_at_standard_1_minute_pull_watts'),
+        (120.0, 'calculate_speed_at_standard_2_minute_pull_watts'),
+        (180.0, 'calculate_speed_at_standard_3_minute_pull_watts'),
+        (240.0, 'calculate_speed_at_standard_4_minute_pull_watts'),
     ]
     for rider in riders:
         for duration, method_name in duration_methods:
@@ -118,11 +118,11 @@ def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
     slowest_speed = 100.0  # Arbitrarily high speed
 
     duration_methods = [
-        (30.0, 'calculate_speed_at_permitted_30sec_pull_watts'),
-        (60.0, 'calculate_speed_at_permitted_1_minute_pull_watts'),
-        (120.0, 'calculate_speed_at_permitted_2_minute_pull_watts'),
-        (180.0, 'calculate_speed_at_permitted_3_minute_pull_watts'),
-        (240.0, 'calculate_speed_at_permitted_4_minute_pull_watts'),
+        (30.0, 'calculate_speed_at_standard_30sec_pull_watts'),
+        (60.0, 'calculate_speed_at_standard_1_minute_pull_watts'),
+        (120.0, 'calculate_speed_at_standard_2_minute_pull_watts'),
+        (180.0, 'calculate_speed_at_standard_3_minute_pull_watts'),
+        (240.0, 'calculate_speed_at_standard_4_minute_pull_watts'),
     ]
 
     for rider in riders:
@@ -197,7 +197,7 @@ def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem,
             msg += f" IF > {max_intensity_factor}"
 
         # Step 2: Pull watt limit checks
-        pull_limit = rider.lookup_permissable_pull_watts(plan.p1_duration)
+        pull_limit = rider.lookup_standard_pull_watts(plan.p1_duration)
         if plan.p1_w >= pull_limit:
             msg += " pull (p1) > limit"
 
@@ -269,6 +269,7 @@ def make_a_pull_plan(args: Tuple[
     return make_a_pull_plan_complying_with_exertion_constraints(
         riders, list(standard_pull_periods_seconds), pull_speeds, max_intensity_factor
     )
+
 # --- Main function to search for optimal pull plans using concurrent work-stealing algorithm - no chunking ---
 def search_for_optimal_pull_plans_concurrently(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], binary_search_seed: float,  max_intensity_factor : float
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],

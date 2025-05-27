@@ -4,7 +4,7 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
-save_filename_without_ext = "compare_concurrent_programming_strategies_3_riders"
+save_filename_without_ext = "compare_concurrent_programming_strategies_9_riders"
 
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
