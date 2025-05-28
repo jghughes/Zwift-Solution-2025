@@ -17,8 +17,7 @@ from jgh_logging import jgh_configure_logging
 def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
-
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    logging.getLogger("numba").setLevel(logging.ERROR)    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     riderIDs = get_team_riderIDs("betel")
 

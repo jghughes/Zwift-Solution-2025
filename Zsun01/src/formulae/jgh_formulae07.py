@@ -24,13 +24,14 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
     table = []
     for rider, z in result.items():
         table.append([
-            rider.name, 
-            z.p1_duration,
-            round_to_nearest_10(z.p1_w), 
+            rider.name,
+            z.pretty_pull,
+            # round(z.p1_duration),
+            # round_to_nearest_10(z.p1_w), 
             z.pretty_p2_3_4_w, 
-            z.zsun_one_hour_watts,
-            z.zwiftracingapp_zpFTP,
-            format_number_1dp(z.zwiftracingapp_zpFTP_wkg),
+            # round(z.zsun_one_hour_watts),
+            round(z.zwiftracingapp_zpFTP),
+            format_number_2dp(z.zwiftracingapp_zpFTP_wkg),
             format_number_1dp(z.p1_wkg),
             format_number_2dp(z.p1_ratio_to_zwiftracingapp_zpFTP),
             round(z.average_watts),
@@ -41,10 +42,10 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
 
     headers = [
         "name",
-        "sec", 
-        "p1", 
+        "pull", 
+        # "p1", 
         "  2   3   4", 
-        "bFTP", 
+        # "bFTP", 
         "zFTP", 
         "zFTP", 
         "p1",

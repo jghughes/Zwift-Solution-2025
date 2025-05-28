@@ -18,6 +18,7 @@ class RiderPullPlanDisplayObject():
     speed_kph                              : float = 0
     p1_duration                            : float = 0
     p1_wkg                                 : float = 0
+    pretty_pull                            : str   = ""
     p1_ratio_to_1hr_w                      : float = 0
     p1_ratio_to_zwiftracingapp_zpFTP       : float = 0
     p1_w                                   : float = 0
@@ -123,11 +124,23 @@ class RiderPullPlanDisplayObject():
         return answer
 
     @staticmethod
+    def make_pretty_pull(p1_duration : float, p1_w: float) -> str:
+        if p1_duration >= 100:
+            duration_str = " " + str(round(p1_duration)) + "s"
+        else:
+            duration_str = str(round(p1_duration)) + "s"
+
+        p1_w_str = str(round_to_nearest_10(p1_w)) + "W"
+
+        return f"{duration_str} {p1_w_str}"
+
     @staticmethod
     def make_pretty_p2_3_4_w(p2_w: float, p3_w: float, p4_w: float) -> str:
         def pretty(val: float) -> str:
             return "   " if round_to_nearest_10(val) == 0 else str(round_to_nearest_10(val))
         return f"{pretty(p2_w)} {pretty(p3_w)} {pretty(p4_w)}"
+
+
 
     @staticmethod
     def from_RiderPullPlanItem(rider : ZsunRiderItem, plan: Optional[RiderPullPlanItem]) -> "RiderPullPlanDisplayObject":
@@ -145,6 +158,7 @@ class RiderPullPlanDisplayObject():
             speed_kph                              = plan.speed_kph,
             p1_duration                            = plan.p1_duration,
             p1_wkg                                 = plan.p1_w/rider.weight_kg,
+            pretty_pull                            = RiderPullPlanDisplayObject.make_pretty_pull(plan.p1_duration, plan.p1_w),
             p1_ratio_to_1hr_w                      = plan.p1_w/rider.zsun_one_hour_watts,
             p1_ratio_to_zwiftracingapp_zpFTP       = plan.p1_w/rider.zwiftracingapp_zpFTP,
             p1_w                                   = plan.p1_w,

@@ -14,6 +14,7 @@ from jgh_logging import jgh_configure_logging
 def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
 
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
@@ -43,17 +44,17 @@ def main():
 
     _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
     (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_concurrently(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFAIREST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nFAIREST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     _, plan_line_items, halted_rider = plan01
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\n\nFASTEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
     logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
 

@@ -1,5 +1,8 @@
-from functools import lru_cache
+import numpy as np
+import numba
+from constants import POWER_CURVE_IN_PACELINE
 
+@numba.njit
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
     Calculate the missing parameter (speed, time, or distance) given the other two.
@@ -39,39 +42,24 @@ def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: floa
 
     return kph, seconds, meters
 
-@lru_cache(maxsize=128)
-def estimate_power_factor_in_peloton(position: int) -> float:
-    """
-    Calculate the power factor based on the rider's
-    position in the peloton. The leader's factor is 1.0.
-    Follower's in the peloton are based on ZwiftInsider's
-    power matrix.Their factors are less than 1.0, diminishing
-    as they are further back in the peloton.
 
-        ZwiftInsiderWattageMatrix = np.array([
-            [300, 350, 400],
-            [212, 252, 290],
-            [196, 236, 261],
-            [191, 217, 255]
-        ])
-
+@numba.njit
+def estimate_drag_ratio_in_paceline(position: int) -> float:
     """
-    default = 200 # Default power for unknown positions
-    # Define the ZwiftInsider powers for each position in the 
-    # peloton, choosing the 350W leader as the baseline.
-    power_ratios: dict[int, int] = {
-        1: 350,
-        2: 252,
-        3: 236,
-        4: 217,
-    }
-    denominator = power_ratios.get(1, default)
-    # Return the power ratio for the given position
-    if position in power_ratios:
-        return power_ratios.get(position, default) / denominator
+    Calculate the power factor based on the rider's position in the peloton.
+    The leader's factor is 1.0. Follower's in the paceline are based on ZwiftInsider's
+    power matrix. Their factors are less than 1.0, diminishing as they are further back.
+    """
+    denominator = POWER_CURVE_IN_PACELINE[0]  # 350.0
+    # Clamp position to valid range (1-4), else use position 4 as fallback
+    if 1 <= position <= 4:
+        numerator = POWER_CURVE_IN_PACELINE[position - 1]
     else:
-        return power_ratios.get(4, default) / denominator
+        numerator = POWER_CURVE_IN_PACELINE[3]  # Use position 4's value
+    return numerator / denominator
 
+
+@numba.njit
 def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
@@ -85,7 +73,8 @@ def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -
     """
     return wattage * duration/1_000
 
-@lru_cache(maxsize=256)
+
+@numba.njit
 def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
@@ -100,71 +89,65 @@ def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float
     Returns:
     float: The calculated power in watts.
     """
-    watts = 1.86e-02 * weight * kph - 5.37e-04 * kph**3 + 2.23e-05 * weight * kph**3 + 1.33e-05 * height * kph**3
+    kph3 = kph * kph * kph
+    watts = 0.0186 * weight * kph + ( -0.000537 + 0.0000223 * weight + 0.0000133 * height ) * kph3 
     return round(watts, 3)
 
-@lru_cache(maxsize=256)
+
+@numba.njit
 def estimate_speed_from_wattage(wattage: float, weight: float, height: float) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.
-
-    Args:
-    wattage (float): The power in watts.
-    weight (float): The weight in kg.
-    height (float): The height in cm.
-
-    Returns:
-    float: The estimated speed in km/h.
+    Optimized for speed by precomputing constants and reducing repeated calculations.
     """
-    # Initial guess for speed (km/h)
     v = 30.0
     m = weight
 
-    # Tolerance and maximum iterations for the Newton-Raphson method
+    c1 = 1.86e-02 * m
+    c2 = -5.37e-04
+    c3 = 2.23e-05 * m
+    c4 = 1.33e-05 * height
+
     tolerance = 1e-6
     max_iterations = 100
 
     for _ in range(max_iterations):
-        # Calculate the function value at the current v
-        f = 1.86e-02 * m * v - 5.37e-04 * v**3 + 2.23e-05 * m * v**3 + 1.33e-05 * height * v**3 - wattage
+        v2 = v * v
+        v3 = v2 * v
 
-        # Calculate the function derivative at the current speed
-        f_prime = 1.86e-02 * m - 3 * 5.37e-04 * v**2 + 3 * 2.23e-05 * m * v**2 + 3 * 1.33e-05 * height * v**2
+        f = c1 * v + c2 * v3 + c3 * v3 + c4 * v3 - wattage
+        f_prime = c1 + 3 * (c2 + c3 + c4) * v2
 
-        # Update the speed using the Newton-Raphson formula
         new_speed = v - f / f_prime
 
-        # Check for convergence and return the speed if the tolerance is met
         if abs(new_speed - v) < tolerance:
             return round(new_speed, 2)
-
-        # Update the speed for the next iteration
         v = new_speed
 
-    # If the method did not converge, raise an error
     raise ValueError("Newton-Raphson method did not converge")
 
-@lru_cache(maxsize=256)
-def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight: float, height: float) -> float:
-    """
-    Calculate the energy consumed in kilojoules given speed, duration, weight, and height.
 
-    Args:
-    speed (float): The speed in km/h.
-    duration (float): The duration in seconds.
-    weight (float): The weight in kg.
-    height (float): The height in cm.
+# @numba.njit
+# def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight: float, height: float) -> float:
+#     """
+#     Calculate the energy consumed in kilojoules given speed, duration, weight, and height.
 
-    Returns:
-    float: The energy consumed in kilojoules.
-    """
-    # Estimate the power in watts
-    power = estimate_watts_from_speed(kph, weight, height)
+#     Args:
+#     speed (float): The speed in km/h.
+#     duration (float): The duration in seconds.
+#     weight (float): The weight in kg.
+#     height (float): The height in cm.
 
-    # Calculate the energy consumed in kJ
-    energy_kilojoules = estimate_kilojoules_from_wattage_and_time(power, duration)
+#     Returns:
+#     float: The energy consumed in kilojoules.
+#     """
+#     # Estimate the power in watts
+#     power = estimate_watts_from_speed(kph, weight, height)
 
-    return round(energy_kilojoules, 3)
+#     # Calculate the energy consumed in kJ
+#     energy_kilojoules = estimate_kilojoules_from_wattage_and_time(power, duration)
+
+#     return round(energy_kilojoules, 3)
 
 # Example usage
 # def main():
@@ -224,10 +207,34 @@ def estimate_kilojoules_from_speed_and_time(kph: float, duration: float, weight:
 #         logger.info(f"Estimated power for {name} @ {speed} km/h   {weight} kg   {height} cm  := {power} watts")
 
 #     # Log cache performance
-#     logger.info(f"estimate_power_factor_in_peloton cache info: {estimate_power_factor_in_peloton.cache_info()}")
+#     logger.info(f"estimate_drag_ratio_in_paceline cache info: {estimate_drag_ratio_in_paceline.cache_info()}")
 #     logger.info(f"estimate_watts_from_speed cache info: {estimate_watts_from_speed.cache_info()}")
 #     logger.info(f"estimate_speed_from_wattage cache info: {estimate_speed_from_wattage.cache_info()}")
 #     logger.info(f"estimate_kilojoules_from_speed_and_time cache info: {estimate_kilojoules_from_speed_and_time.cache_info()}")
 
-# if __name__ == "__main__":
-#     main()
+
+import time
+
+
+def test_speed_of_estimate_watts_from_speed_functions():
+    kph = 40.0
+    weight = 75.0
+    height = 175.0
+    iterations = 300000
+
+    funcs = [
+        ("estimate_watts_from_speed", estimate_watts_from_speed),
+        ("estimate_watts_from_speedV2", estimate_watts_from_speedV2),
+    ]
+
+    for name, func in funcs:
+        # Warm up JIT for numba functions
+        func(kph, weight, height)
+        start = time.perf_counter()
+        for _ in range(iterations):
+            func(kph, weight, height)
+        elapsed = time.perf_counter() - start
+        print(f"{name}: {elapsed:.6f} seconds for {iterations} iterations")
+
+if __name__ == "__main__":
+    test_speed_of_estimate_watts_from_speed_functions()

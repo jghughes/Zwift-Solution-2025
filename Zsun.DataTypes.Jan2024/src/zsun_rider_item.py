@@ -2,7 +2,7 @@ from dataclasses import dataclass,  asdict
 from typing import Optional
 import numpy as np
 from zsun_rider_dto import ZsunRiderDTO 
-from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_power_factor_in_peloton
+from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
 from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True)  # immutable and hashable, we use this as a dictionary key everywhere
@@ -468,7 +468,7 @@ class ZsunRiderItem:
         base_power = self.calculate_wattage_riding_alone(speed)
 
         # Get the power factor based on the rider's position in the peloton
-        power_factor = estimate_power_factor_in_peloton(position)
+        power_factor = estimate_drag_ratio_in_paceline(position)
 
         # Adjust the power based on the power factor
         adjusted_power = base_power * power_factor
@@ -490,7 +490,7 @@ class ZsunRiderItem:
         float: The estimated speed in km/h.
         """
         # Get the power factor based on the rider's position in the peloton
-        power_factor = estimate_power_factor_in_peloton(position)
+        power_factor = estimate_drag_ratio_in_paceline(position)
 
         # Adjust the power based on the power factor
         adjusted_watts = power / power_factor

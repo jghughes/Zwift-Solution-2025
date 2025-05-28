@@ -16,7 +16,7 @@ import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
-
+logging.getLogger("numba").setLevel(logging.ERROR)
 
 
 def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) -> float:
