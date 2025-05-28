@@ -416,8 +416,8 @@ class ZsunRiderItem:
 
     def calculate_strength_wkg(self) -> float:
         if self.weight_kg == 0:
-            return self.get_standard_2_minute_pull_watts()/80.0 # arbitrary default 80kg
-        return self.get_standard_2_minute_pull_watts()/self.weight_kg
+            return self.get_standard_1_minute_pull_watts()/80.0 # arbitrary default 80kg
+        return self.get_standard_1_minute_pull_watts()/self.weight_kg
 
     def calculate_kph_riding_alone(self, power: float) -> float:
         """
@@ -636,6 +636,15 @@ class ZsunRiderItem:
         if self.weight_kg == 0:
             return 0.0
         return self.get_1_hour_watts()/ self.weight_kg
+
+
+    def get_watts_per_kg(self, wattage : float) -> float:
+        if self.weight_kg == 0:
+            return 0.0
+        return wattage/ self.weight_kg
+
+
+
 
     def get_n_second_watts(self, seconds: float) -> float:
 

@@ -25,35 +25,43 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
     for rider, z in result.items():
         table.append([
             rider.name,
+            z.concatenated_racing_cat_descriptor,
+            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
             # round(z.p1_duration),
             # round_to_nearest_10(z.p1_w), 
-            z.pretty_p2_3_4_w, 
+            # z.pretty_p2_3_4_w, 
             # round(z.zsun_one_hour_watts),
-            round(z.zwiftracingapp_zpFTP),
-            format_number_2dp(z.zwiftracingapp_zpFTP_wkg),
-            format_number_1dp(z.p1_wkg),
-            format_number_2dp(z.p1_ratio_to_zwiftracingapp_zpFTP),
-            round(z.average_watts),
-            round(z.normalised_power_watts),
-            format_number_2dp(z.np_intensity_factor),
+            # round(z.zwiftracingapp_zpFTP),
+            # format_number_2dp(z.zwiftracingapp_zpFTP_wkg),
+            # format_number_1dp(z.p1_wkg),
+            # format_number_2dp(z.p1_ratio_to_zwiftracingapp_zpFTP),
+            z.pretty_average_watts,
+            f"{round(z.normalised_power_watts)}w",
+            f"{round(100*z.np_intensity_factor)}%",
             z.diagnostic_message if z.diagnostic_message else "",
+            z.pretty_p2_3_4_w, 
+
         ])
 
     headers = [
         "name",
+        "cat",
+        "zFTP", 
         "pull", 
         # "p1", 
-        "  2   3   4", 
+        # "  2   3   4", 
         # "bFTP", 
-        "zFTP", 
-        "zFTP", 
-        "p1",
-        "x",
+        # "zFTP", 
+        # "zFTP", 
+        # "p1",
+        # "x",
         "ave",
         "NP",
         "IF",
         "limit",
+        "  2   3   4", 
+
     ]
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple",disable_numparse=True))
 

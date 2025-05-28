@@ -199,7 +199,7 @@ def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem,
         # Step 2: Pull watt limit checks
         pull_limit = rider.lookup_standard_pull_watts(plan.p1_duration)
         if plan.p1_w >= pull_limit:
-            msg += " pull (p1) > limit"
+            msg += " pull > max"
 
         plan.diagnostic_message = msg
     return rider_plans
