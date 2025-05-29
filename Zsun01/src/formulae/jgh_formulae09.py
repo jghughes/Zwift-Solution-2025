@@ -44,12 +44,12 @@ def process_chunk(
             logger.error("Exception in make_a_pull_plan: %s", exc)
     return chunk_results
 
-# --- Main function to search for optimal pull plans using concurrent programming chunking algorithm ---
-def search_for_optimal_pull_plans_concurrently_with_chunking(
+# --- Main function to search for optimal pull plans using parallel programming chunking algorithm ---
+def search_for_optimal_pull_plans_in_parallel_with_chunking(
     riders: List[ZsunRiderItem],
     standard_pull_periods_seconds: List[float],
     lower_bound_speed: float,
-    max_intensity_factor: float = 1.0,
+    max_exertion_intensity_factor: float = 1.0,
     chunk_size: Optional[int] = 100,
     max_workers: Optional[int] = os.cpu_count(),
     verbose: bool = True
@@ -83,11 +83,11 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(
     import math
 
     if not riders:
-        raise ValueError("No riders provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
+        raise ValueError("No riders provided to search_for_optimal_pull_plans_in_parallel_with_chunking.")
     if not standard_pull_periods_seconds:
-        raise ValueError("No permitted pull durations provided to search_for_optimal_pull_plans_concurrently_with_chunking.")
+        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_in_parallel_with_chunking.")
     if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
-        raise ValueError("All permitted pull durations must be positive and finite.")
+        raise ValueError("All standard pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
         raise ValueError("lower_bound_speed must be positive and finite.")
 
@@ -115,14 +115,14 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(
             yield args_list[i:i + size]
     
     args_list = [
-        (riders, standard_pull_periods_seconds, lower_bound_paceline_speed_as_array, max_intensity_factor)
+        (riders, standard_pull_periods_seconds, lower_bound_paceline_speed_as_array, max_exertion_intensity_factor)
         for standard_pull_periods_seconds in all_conceivable_paceline_rotation_schedules
     ]    
 
     chunked_args_list = list(chunked_args(args_list, chunk_size))
 
     if verbose:
-        print(f"search_for_optimal_pull_plans_concurrently_with_chunking: {total_num_of_all_conceivable_plans} alternatives, "
+        logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking: {total_num_of_all_conceivable_plans} alternatives, "
               f"{len(chunked_args_list)} chunks, chunk_size={chunk_size}, max_workers={max_workers}")
 
     # --- Parallel execution ---
@@ -135,7 +135,7 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(
                 chunk_results = future.result()
                 solutions.extend(chunk_results)
                 if verbose:
-                    print(f"Chunk {chunk_idx+1}/{len(chunked_args_list)} completed, {len(chunk_results)} results")
+                    logger.info(f"Chunk {chunk_idx+1}/{len(chunked_args_list)} completed, {len(chunk_results)} results")
             except Exception as exc:
                 logger.error("Exception in function process_chunk() containing function make_a_pull_plan() : %s", exc)
 
@@ -145,8 +145,8 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(
     # --- Profiling and benchmarking output ---
 
     if verbose:
-        print(f"search_for_optimal_pull_plans_concurrently_with_chunking completed in {concurrent_computational_time:.2f} seconds")
-        print(f"Total solutions: {len(solutions)}")
+        logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking completed in {concurrent_computational_time:.2f} seconds")
+        logger.info(f"Total solutions: {len(solutions)}")
 
     # --- Post-processing (same as original) ---
     highest_speed_pull_plan_solution = None
@@ -185,18 +185,14 @@ def search_for_optimal_pull_plans_concurrently_with_chunking(
             lowest_dispersion_pull_plan_soluton = (compute_iterations, rider_pullplan_items, exertion_maxed_out_rider)
 
     if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
+        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
     elif highest_speed_pull_plan_solution is None:
-        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (highest_speed_pull_plan_solution is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (highest_speed_pull_plan_solution is None)")
     elif lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_concurrently_with_chunking: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, concurrent_computational_time)
 
-RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
-DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-save_filename_without_ext = "benchmark_results_5_riders"
 
 import pandas as pd
 import seaborn as sns
@@ -206,39 +202,45 @@ def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
-    from jgh_formulae08 import search_for_optimal_pull_plans_concurrently
+    from jgh_formulae09 import search_for_optimal_pull_plans_in_parallel_with_chunking
+    from jgh_formulae08 import search_for_optimal_pull_plans_in_parallel_with_workstealing
     import time
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
 
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    save_filename_without_ext = "benchmark_results_5_riders"
+
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 
+    logger.info(f"Starting: benchmarking parallel processing with work-stealing (base case) versus chunking with {len(riderIDs)} riders")
+
     # Define parameter grid
-    max_workers_list = [1, 2, 4, 8, 16, os.cpu_count()]
-    chunk_size_list = [1, 10, 100, 1000, 10000]
+    max_workers_list = [1, 4, 8, os.cpu_count()]
+    chunk_size_list = [100, 1000, 10000]
 
-
-    # Reference run for correctness
+    # Base-case run for correctness
     ref_start = time.perf_counter()
-    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_concurrently(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_in_parallel_with_workstealing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
     ref_end = time.perf_counter()
     ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
     ref_elapsed_measured = ref_end - ref_start
-    print(f"Reference run compute time (reported): {ref_elapsed:.2f} seconds")
-    print(f"Reference run compute time (measured): {ref_elapsed_measured:.2f} seconds")
-    print(f"Reference highest_speed paceline pull plan: {ref_fastest_speed} kph\n")
+    logger.info(f"Base-case run compute time (reported): {ref_elapsed:.2f} seconds")
+    logger.info(f"Base-case run compute time (measured): {ref_elapsed_measured:.2f} seconds")
+    logger.info(f"Base-case highest_speed paceline pull plan: {ref_fastest_speed} kph\n")
 
     results = []
     for max_workers in max_workers_list:
         for chunk_size in chunk_size_list:
-            print(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
+            logger.info(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
             try:
-                res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_concurrently_with_chunking(
-                    riders, STANDARD_PULL_PERIODS_SEC, 30.0, max_intensity_factor=1.0,
+                res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_in_parallel_with_chunking(
+                    riders, STANDARD_PULL_PERIODS_SEC, 30.0, max_exertion_intensity_factor=1.0,
                     chunk_size=chunk_size, max_workers=max_workers, verbose=False
                 )
                 fastest = res[0]
@@ -268,15 +270,15 @@ def main01():
     # Convert to DataFrame and save to CSV
     df = pd.DataFrame(results)
     df.to_csv(f"{save_filename_without_ext}.csv", index=False)
-    print(df)
+    logger.info(df)
 
     # Print and save a summary report to a .txt file
     report_lines = []
     report_lines.append("Benchmark Results Summary\n")
-    report_lines.append(f"Reference run compute time (reported): {ref_elapsed:.2f} seconds\n")
-    report_lines.append(f"Reference run compute time (measured): {ref_elapsed_measured:.2f} seconds\n")
-    report_lines.append(f"Reference highest speed paceline pull plan: {ref_fastest_speed:.3f} kph\n")
-    report_lines.append(f"Reference run parameters: max_workers=1, chunk_size=1\n")
+    report_lines.append(f"Base-case run compute time (reported): {ref_elapsed:.2f} seconds\n")
+    report_lines.append(f"Base-case run compute time (measured): {ref_elapsed_measured:.2f} seconds\n")
+    report_lines.append(f"Base-case highest speed paceline pull plan: {ref_fastest_speed:.3f} kph\n")
+    report_lines.append(f"Base-case run parameters: max_workers=1, chunk_size=1\n")
     report_lines.append(f"Number of parameter combinations tested: {len(results)}\n")
     report_lines.append("\n")
     report_lines.append(f"{'max_workers':>11} | {'chunk_size':>10} | {'compute_time':>12} | {'highest_speed_kph':>13} | {'correct':>7}\n")
@@ -324,13 +326,13 @@ def main01():
             "===============================================================\n"
         )
 
-    print(conclusion)
+    logger.info(conclusion)
     report_lines.append(conclusion)
 
     # Write the report to a .txt file
     with open(f"{save_filename_without_ext}.txt", "w", encoding="utf-8") as f:
         f.writelines(report_lines)
-    print(f"Summary report written to {save_filename_without_ext}.txt")
+    logger.info(f"Summary report written to {save_filename_without_ext}.txt")
 
     # Visualization
     plt.figure(figsize=(12, 6))

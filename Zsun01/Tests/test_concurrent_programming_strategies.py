@@ -9,8 +9,8 @@ save_filename_without_ext = "compare_concurrent_programming_strategies_9_riders"
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from jgh_formulae08 import search_for_optimal_pull_plans_concurrently
-    from jgh_formulae09 import search_for_optimal_pull_plans_concurrently_with_chunking
+    from jgh_formulae08 import search_for_optimal_pull_plans_in_parallel_with_workstealing
+    from jgh_formulae09 import search_for_optimal_pull_plans_in_parallel_with_chunking
     from constants import STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     import time
@@ -24,23 +24,23 @@ def main01():
 
     results = []
 
-    # 1. Baseline: search_for_optimal_pull_plans_concurrently
+    # 1. Baseline: search_for_optimal_pull_plans_in_parallel_with_workstealing
     start = time.perf_counter()
-    res1 = search_for_optimal_pull_plans_concurrently(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR)
+    res1 = search_for_optimal_pull_plans_in_parallel_with_workstealing(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR)
     elapsed1 = time.perf_counter() - start
-    logger.info(f"search_for_optimal_pull_plans_concurrently: {elapsed1:.4f}s with work-stealing algorithm")
+    logger.info(f"search_for_optimal_pull_plans_in_parallel_with_workstealing: {elapsed1:.4f}s with work-stealing algorithm")
 
     # 2. Chunking with None args
     start = time.perf_counter()
-    res2 = search_for_optimal_pull_plans_concurrently_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, chunk_size=None, max_workers=None)
+    res2 = search_for_optimal_pull_plans_in_parallel_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, chunk_size=None, max_workers=None)
     elapsed2 = time.perf_counter() - start
-    logger.info(f"search_for_optimal_pull_plans_concurrently_with_chunking (None args): {elapsed2:.4f}s")
+    logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking (None args): {elapsed2:.4f}s")
 
     # 3. Chunking with default args (omit chunk_size and max_workers)
     start = time.perf_counter()
-    res3 = search_for_optimal_pull_plans_concurrently_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH)
+    res3 = search_for_optimal_pull_plans_in_parallel_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH)
     elapsed3 = time.perf_counter() - start
-    logger.info(f"search_for_optimal_pull_plans_concurrently_with_chunking (default args): {elapsed3:.4f}s")
+    logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking (default args): {elapsed3:.4f}s")
 
     results.append({
         "strategy": "concurrent",
@@ -78,9 +78,9 @@ def main01():
     report_lines = [
         "Benchmark Report: Concurrent Programming Strategies\n",
         "Tested strategies:",
-        "1. search_for_optimal_pull_plans_concurrently",
-        "2. search_for_optimal_pull_plans_concurrently_with_chunking (chunk_size=None, max_workers=None)",
-        "3. search_for_optimal_pull_plans_concurrently_with_chunking (default args)\n",
+        "1. search_for_optimal_pull_plans_in_parallel_with_workstealing",
+        "2. search_for_optimal_pull_plans_in_parallel_with_chunking (chunk_size=None, max_workers=None)",
+        "3. search_for_optimal_pull_plans_in_parallel_with_chunking (default args)\n",
         f"Data saved to: {csv_path}",
         f"Chart saved to: {png_path}\n",
         "Results:\n"

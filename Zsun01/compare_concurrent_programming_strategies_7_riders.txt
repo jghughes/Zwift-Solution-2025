@@ -1,9 +1,9 @@
 Benchmark Report: Concurrent Programming Strategies
 
 Tested strategies:
-1. search_for_optimal_pull_plans_concurrently
-2. search_for_optimal_pull_plans_concurrently_with_chunking (chunk_size=None, max_workers=None)
-3. search_for_optimal_pull_plans_concurrently_with_chunking (default args)
+1. search_for_optimal_pull_plans_in_parallel_with_workstealing
+2. search_for_optimal_pull_plans_in_parallel_with_chunking (chunk_size=None, max_workers=None)
+3. search_for_optimal_pull_plans_in_parallel_with_chunking (default args)
 
 Data saved to: compare_concurrent_programming_strategies_7_riders.csv
 Chart saved to: compare_concurrent_programming_strategies_7_riders.png
