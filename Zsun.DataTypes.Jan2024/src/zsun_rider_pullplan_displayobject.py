@@ -37,10 +37,6 @@ class RiderPullPlanDisplayObject():
     diagnostic_message                     : str   = ""
 
     @staticmethod
-    def calculate_wkg(watts: float, weight : float)-> float:
-        return watts/weight if weight != 0 else 0
-
-    @staticmethod
     def calculate_zwift_racing_score_cat(rider: ZsunRiderItem) -> str:
         if rider.zwift_zrs < 180:
             return "E"
@@ -55,76 +51,22 @@ class RiderPullPlanDisplayObject():
 
     @staticmethod
     def calculate_zwiftracingapp_zpFTP_cat(rider: ZsunRiderItem)-> str:
-        wkg = RiderPullPlanDisplayObject.calculate_wkg(rider.zwiftracingapp_zpFTP, rider.weight_kg)
-
-        if wkg < 2.5:
-            return "D"
-        elif wkg < 3.2:
-            return "C"
-        elif wkg < 4.0:
-            return "B"
-        else:
-            return "A"
+        return rider.zwift_cat
 
     @staticmethod
     def calculate_zwiftracingapp_zpFTP_wkg(rider: ZsunRiderItem)-> float:
-        wkg = RiderPullPlanDisplayObject.calculate_wkg(rider.zwiftracingapp_zpFTP, rider.weight_kg)
+        return rider.zwiftracingapp_zpFTP/rider.weight_kg if rider.weight_kg != 0 else 0
 
         return round(wkg, 2) if rider.weight_kg != 0 else 0
 
     @staticmethod
     def make_pretty_zwiftracingapp_cat(rider: ZsunRiderItem) -> str:
 
-        def calculate_velo_cat(rider: ZsunRiderItem) -> Tuple[int, str]:
-            if rider.gender == "f":
-                if rider.zwiftracingapp_score >= 1450:
-                    return 1, "Diamond"
-                elif rider.zwiftracingapp_score >= 1250:
-                    return 2, "Ruby"
-                elif rider.zwiftracingapp_score >= 1100:
-                    return 3, "Emerald"
-                elif rider.zwiftracingapp_score >= 950:
-                    return 4, "Sapphire"
-                elif rider.zwiftracingapp_score >= 850:
-                    return 5, "Amethyst"
-                elif rider.zwiftracingapp_score >= 750:
-                    return 6, "Platinum"
-                elif rider.zwiftracingapp_score >= 650:
-                    return 7, "Gold"
-                elif rider.zwiftracingapp_score >= 550:
-                    return 8, "Silver"
-                elif rider.zwiftracingapp_score >= 400:
-                    return 9, "Bronze"
-                else:
-                    return 10, "Copper"
-            else:
-                if rider.zwiftracingapp_score >= 2200:
-                    return 1, "Diamond"
-                elif rider.zwiftracingapp_score >= 1900:
-                    return 2, "Ruby"
-                elif rider.zwiftracingapp_score >= 1650:
-                    return 3, "Emerald"
-                elif rider.zwiftracingapp_score >= 1450:
-                    return 4, "Sapphire"
-                elif rider.zwiftracingapp_score >= 1300:
-                    return 5, "Amethyst"
-                elif rider.zwiftracingapp_score >= 1150:
-                    return 6, "Platinum"
-                elif rider.zwiftracingapp_score >= 1000:
-                    return 7, "Gold"
-                elif rider.zwiftracingapp_score >= 850:
-                    return 8, "Silver"
-                elif rider.zwiftracingapp_score >= 650:
-                    return 9, "Bronze"
-                else:
-                    return 10, "Copper"
-
-        velo_rank, velo_name = calculate_velo_cat(rider)
-        return f"{velo_rank}-{velo_name}"
+        return f"{rider.zwiftracingapp_cat_num}-{rider.zwiftracingapp_cat_name}"
 
     @staticmethod
     def make_pretty_consolidated_racing_cat_descriptor(rider: ZsunRiderItem) -> str:
-        answer = f"{RiderPullPlanDisplayObject.calculate_zwift_racing_score_cat(rider)} {RiderPullPlanDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
+        answer = f"{rider.zwift_cat} {RiderPullPlanDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
         return answer
 
     @staticmethod
