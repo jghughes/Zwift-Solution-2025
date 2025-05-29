@@ -59,7 +59,8 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)} \n")
+    logger.info(f"Note: Exertion intensity factor capped at {round(100*MAX_INTENSITY_FACTOR)}%\n\n")
 
 if __name__ == "__main__":
     main()

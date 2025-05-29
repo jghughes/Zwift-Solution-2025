@@ -56,7 +56,10 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nFASTEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
+    logger.info(f"\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)}")
+    logger.info(f"Energy intensity factor capped at {round(100*MAX_INTENSITY_FACTOR)}%. Pull speeds capped by 90-day best power curves on ZwiftPower.\n")
+    logger.info(f"30 second pull = 90-day best for 3.5 minutes\n 1 minute pull = 90-day best for 5 minutes\n 2 minute pull = 90-day best for 12 minutes\n 3 minute pull = 90-day best for 15 minute\n")
+    logger.info(f"Not all riders have accurate or reliable data on ZwiftPower.\n\n")
 
 if __name__ == "__main__":
     main()
