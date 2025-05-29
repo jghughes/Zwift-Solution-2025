@@ -74,7 +74,7 @@ betelguese_Roster = defaultdict(
 #         # "1193": "richard_mann",
 #         # # "11526": "scott_mcveigh",
 #         # "1956": "scott_yarosh",
-#         # # "2682791": "selena_shaikh",
+#         # "2682791": "selena_shaikh",
 #         # "6142432": "steve_seiler",
 #         # "5421258": "tim_reid",
 #         "11741": "tom_bick",

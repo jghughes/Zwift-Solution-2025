@@ -270,7 +270,50 @@ def make_a_pull_plan(args: Tuple[
         riders, list(standard_pull_periods_seconds), pull_speeds, max_exertion_intensity_factor
     )
 
-def constrain_pull_plan_solution_space(riders : list[ZsunRiderItem], standard_pull_periods_seconds: List[float]):
+from typing import List, Tuple, Any
+
+def filter_paceline_rotation_schedules(
+    all_conceivable_paceline_rotation_schedules: List[Tuple[float, ...]],
+    riders: List[Any]
+) -> List[Tuple[float, ...]]:
+    """
+    Filters paceline rotation schedules according to three rules:
+    1. Reject if any element (except last) is greater than the 0th element.
+    2. Reject if any element (except the 0th) is greater than the last element.
+    3. Reject if any element is less than the value at the index of the weakest rider.
+       Weakest rider is determined by the minimum value of rider.calculate_strength_wkg().
+    Returns the reduced list of schedules.
+    """
+    reduced_paceline_rotation_schedules: List[Tuple[float, ...]] = []
+    rejected_paceline_rotation_solutions: List[Tuple[float, ...]] = []
+
+    # Determine the index of the weakest rider
+    strengths = [r.calculate_strength_wkg() for r in riders]
+    weakest_rider_index = strengths.index(min(strengths))
+
+    for schedule in all_conceivable_paceline_rotation_schedules:
+        # First filter: no element (except last) > 0th element
+        first_value = schedule[0]
+        if any(value > first_value for idx, value in enumerate(schedule) if idx != len(schedule) - 1):
+            rejected_paceline_rotation_solutions.append(schedule)
+            continue
+
+        # Second filter: no element (except 0th) > last element
+        last_value = schedule[-1]
+        if any(value > last_value for idx, value in enumerate(schedule) if idx != 0):
+            rejected_paceline_rotation_solutions.append(schedule)
+            continue
+
+        # # Third filter: no element < value at weakest_rider_index
+        # weakest_value = schedule[weakest_rider_index]
+        # if any(value < weakest_value for value in schedule):
+        #     rejected_paceline_rotation_solutions.append(schedule)
+        #     continue
+
+        reduced_paceline_rotation_schedules.append(schedule)
+
+    return reduced_paceline_rotation_schedules
+def make_pull_plan_solution_space(riders : list[ZsunRiderItem], standard_pull_periods_seconds: List[float]):
     """
     Stub for constraining the solution space of paceline rotation schedules.
     Currently returns the input schedules unchanged.
@@ -284,8 +327,11 @@ def constrain_pull_plan_solution_space(riders : list[ZsunRiderItem], standard_pu
     """
     all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
 
-    # Here you can implement any filtering or constraints on the schedules if needed
+    logger.info(f"Total conceivable paceline rotation schedules: {len(all_conceivable_paceline_rotation_schedules)}")
 
+    all_conceivable_paceline_rotation_schedules = filter_paceline_rotation_schedules(all_conceivable_paceline_rotation_schedules, riders)
+
+    logger.info(f"Reduced paceline rotation schedules after filtering: {len(all_conceivable_paceline_rotation_schedules)}")
 
     return all_conceivable_paceline_rotation_schedules
 
@@ -310,7 +356,7 @@ def search_for_optimal_pull_plans_ordinary_compute(riders: List[ZsunRiderItem], 
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules =constrain_pull_plan_solution_space(riders, standard_pull_periods_seconds)
+    all_conceivable_paceline_rotation_schedules =make_pull_plan_solution_space(riders, standard_pull_periods_seconds)
     total_num_of_all_conceivable_plans: int = len(all_conceivable_paceline_rotation_schedules)
     total_compute_iterations: int = 0
     lower_bound_paceline_speed_as_array: list[float] = [binary_search_seed] * len(riders)
@@ -408,7 +454,7 @@ def search_for_optimal_pull_plans_in_parallel_with_workstealing(riders: List[Zsu
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules =constrain_pull_plan_solution_space(riders, standard_pull_periods_seconds)
+    all_conceivable_paceline_rotation_schedules =make_pull_plan_solution_space(riders, standard_pull_periods_seconds)
 
     total_num_of_all_conceivable_plans : int = len(all_conceivable_paceline_rotation_schedules)
     total_compute_iterations : int = 0
