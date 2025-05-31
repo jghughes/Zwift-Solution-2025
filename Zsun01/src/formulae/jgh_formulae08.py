@@ -271,63 +271,120 @@ def make_a_pull_plan(args: Tuple[
         riders, list(standard_pull_periods_seconds), pull_speeds, max_exertion_intensity_factor
     )
 
-def stronger_than_strongest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]]) -> List[Tuple[float, ...]]:
-
-    # Filter: no element (except last) > 0th element
-
+def stronger_than_strongest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        logger.info("stronger_than_strongest_rider_filter: No riders, returning empty list.")
+        return []
     answer: List[Tuple[float, ...]] = []
 
-    for schedule in paceline_rotation_schedules_being_filtered:
-        first_value = schedule[0]
-        if any(value > first_value for idx, value in enumerate(schedule) if idx != len(schedule) - 1):
-            continue
-
-        answer.append(schedule)
-
-    logger.info(f"stronger_than_strongest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
-
-    return answer
-
-def stronger_than_second_strongest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]]) -> List[Tuple[float, ...]]:
-
-    # Filter: no element (except 0th) > last element
-
-    answer: List[Tuple[float, ...]] = []
-
-    for schedule in paceline_rotation_schedules_being_filtered:
-        last_value = schedule[-1]
-        if any(value > last_value for idx, value in enumerate(schedule) if idx != 0):
-            continue
-
-        answer.append(schedule)
-
-    logger.info(f"stronger_than_second_strongest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
-
-    return answer
-
-def weaker_than_weakest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]], riders: List[Any]) -> List[Tuple[float, ...]]:
-
-    # Third filter: no element < value at weakest_rider_index
-
-    answer: List[Tuple[float, ...]] = []
-
-    # Determine the index of the weakest rider
     strengths = [r.calculate_strength_wkg() for r in riders]
-    weakest_rider_index = strengths.index(min(strengths))
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    strongest_rider_index = sorted_indices[0] if sorted_indices else None
+    second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
 
     for schedule in paceline_rotation_schedules_being_filtered:
-        weakest_value = schedule[weakest_rider_index]
-        if any(value < weakest_value for value in schedule):
+        if strongest_rider_index is None or strongest_rider_index >= len(schedule):
             continue
-
+        strongest_value = schedule[strongest_rider_index]
+        if any(
+            value > strongest_value
+            for idx, value in enumerate(schedule)
+            if idx != second_strongest_rider_index
+        ):
+            continue
         answer.append(schedule)
 
-    logger.info(f"weaker_than_weakest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
 
+    logger.info(
+        f"stronger_than_strongest_rider_filter applied: input {input_len} output {output_len} "
+        f"reduction: {reduction} ({percent:.1f}%)"
+    )
     return answer
 
+def stronger_than_second_strongest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        logger.info("stronger_than_second_strongest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[Tuple[float, ...]] = []
 
-def filter_pull_plan_rotation_schedules(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]], riders: List[ZsunRiderItem]
+    strengths = [r.calculate_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    strongest_rider_index = sorted_indices[0] if sorted_indices else None
+    second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        if second_strongest_rider_index is None or second_strongest_rider_index >= len(schedule):
+            answer.append(schedule)
+            continue
+        second_strongest_value = schedule[second_strongest_rider_index]
+        if any(
+            value > second_strongest_value
+            for idx, value in enumerate(schedule)
+            if idx != strongest_rider_index
+        ):
+            continue
+        answer.append(schedule)
+
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
+
+    logger.info(
+        f"stronger_than_second_strongest_rider_filter applied: input {input_len} output {output_len} "
+        f"reduction: {reduction} ({percent:.1f}%)"
+    )
+    return answer
+
+def weaker_than_weakest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        logger.info("weaker_than_weakest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[Tuple[float, ...]] = []
+
+    strengths = [r.calculate_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i])
+    weakest_rider_index = sorted_indices[0] if sorted_indices else None
+    second_weakest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        if weakest_rider_index is None or weakest_rider_index >= len(schedule):
+            continue
+        weakest_value = schedule[weakest_rider_index]
+        if any(
+            value < weakest_value
+            for idx, value in enumerate(schedule)
+            if idx != second_weakest_rider_index
+        ):
+            continue
+        answer.append(schedule)
+
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
+
+    logger.info(
+        f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
+        f"reduction: {reduction} ({percent:.1f}%)"
+    )
+    return answer
+def filter_pull_plan_rotation_schedules(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
 ) -> List[Tuple[float, ...]]:
     """
     Filters paceline rotation schedules according to three rules:
@@ -338,20 +395,20 @@ def filter_pull_plan_rotation_schedules(paceline_rotation_schedules_being_filter
     Returns the reduced list of schedules.
     """
 
-    # Early return if filtering is not needed
-    if len(paceline_rotation_schedules_being_filtered) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS +1:
+    # Early return if filtering is not needed - up to 5 riders can be handled without resorting to filtering. happy days
+    if len(paceline_rotation_schedules_being_filtered) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS + 1:
         return paceline_rotation_schedules_being_filtered
 
     # List of filter functions to apply in order
     filters = [
         stronger_than_strongest_rider_filter,
         stronger_than_second_strongest_rider_filter,
-        lambda schedules: weaker_than_weakest_rider_filter(schedules, riders)
+        weaker_than_weakest_rider_filter
     ]
 
     filtered_schedules = paceline_rotation_schedules_being_filtered
     for filter_func in filters:
-        filtered_schedules = filter_func(filtered_schedules)
+        filtered_schedules = filter_func(filtered_schedules, riders)
         if len(filtered_schedules) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS:
             return filtered_schedules
 
