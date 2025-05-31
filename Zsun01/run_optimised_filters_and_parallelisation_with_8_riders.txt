@@ -1,0 +1,6 @@
+Benchmark Summary Report
+Number of riders: 8
+
+Parallel run (work-stealing):
+  Compute time (measured): 23.07 seconds
+

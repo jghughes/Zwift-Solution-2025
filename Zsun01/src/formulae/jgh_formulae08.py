@@ -1,4 +1,4 @@
-from typing import  List, Tuple, Union
+from typing import  List, Tuple, Union, Any
 import os
 from collections import defaultdict
 import concurrent.futures
@@ -11,6 +11,7 @@ from zsun_rider_pullplan_item import RiderPullPlanItem
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_pull_plan_from_rider_exertions
+from constants import EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS, EMPIRICALY_DETERMINED_CROSSOVER_TO_PARALLEL_PROCESSING_THRESHOLD
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -270,11 +271,63 @@ def make_a_pull_plan(args: Tuple[
         riders, list(standard_pull_periods_seconds), pull_speeds, max_exertion_intensity_factor
     )
 
-from typing import List, Tuple, Any
+def stronger_than_strongest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]]) -> List[Tuple[float, ...]]:
 
-def filter_paceline_rotation_schedules(
-    all_conceivable_paceline_rotation_schedules: List[Tuple[float, ...]],
-    riders: List[Any]
+    # Filter: no element (except last) > 0th element
+
+    answer: List[Tuple[float, ...]] = []
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        first_value = schedule[0]
+        if any(value > first_value for idx, value in enumerate(schedule) if idx != len(schedule) - 1):
+            continue
+
+        answer.append(schedule)
+
+    logger.info(f"stronger_than_strongest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
+
+    return answer
+
+def stronger_than_second_strongest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]]) -> List[Tuple[float, ...]]:
+
+    # Filter: no element (except 0th) > last element
+
+    answer: List[Tuple[float, ...]] = []
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        last_value = schedule[-1]
+        if any(value > last_value for idx, value in enumerate(schedule) if idx != 0):
+            continue
+
+        answer.append(schedule)
+
+    logger.info(f"stronger_than_second_strongest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
+
+    return answer
+
+def weaker_than_weakest_rider_filter(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]], riders: List[Any]) -> List[Tuple[float, ...]]:
+
+    # Third filter: no element < value at weakest_rider_index
+
+    answer: List[Tuple[float, ...]] = []
+
+    # Determine the index of the weakest rider
+    strengths = [r.calculate_strength_wkg() for r in riders]
+    weakest_rider_index = strengths.index(min(strengths))
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        weakest_value = schedule[weakest_rider_index]
+        if any(value < weakest_value for value in schedule):
+            continue
+
+        answer.append(schedule)
+
+    logger.info(f"weaker_than_weakest_rider_filter applied: input {len(paceline_rotation_schedules_being_filtered)} output {len(answer)} reduction: {len(paceline_rotation_schedules_being_filtered) - len(answer)}")
+
+    return answer
+
+
+def filter_pull_plan_rotation_schedules(paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]], riders: List[ZsunRiderItem]
 ) -> List[Tuple[float, ...]]:
     """
     Filters paceline rotation schedules according to three rules:
@@ -284,36 +337,27 @@ def filter_paceline_rotation_schedules(
        Weakest rider is determined by the minimum value of rider.calculate_strength_wkg().
     Returns the reduced list of schedules.
     """
-    reduced_paceline_rotation_schedules: List[Tuple[float, ...]] = []
-    rejected_paceline_rotation_solutions: List[Tuple[float, ...]] = []
 
-    # Determine the index of the weakest rider
-    strengths = [r.calculate_strength_wkg() for r in riders]
-    weakest_rider_index = strengths.index(min(strengths))
+    # Early return if filtering is not needed
+    if len(paceline_rotation_schedules_being_filtered) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS +1:
+        return paceline_rotation_schedules_being_filtered
 
-    for schedule in all_conceivable_paceline_rotation_schedules:
-        # First filter: no element (except last) > 0th element
-        first_value = schedule[0]
-        if any(value > first_value for idx, value in enumerate(schedule) if idx != len(schedule) - 1):
-            rejected_paceline_rotation_solutions.append(schedule)
-            continue
+    # List of filter functions to apply in order
+    filters = [
+        stronger_than_strongest_rider_filter,
+        stronger_than_second_strongest_rider_filter,
+        lambda schedules: weaker_than_weakest_rider_filter(schedules, riders)
+    ]
 
-        # Second filter: no element (except 0th) > last element
-        last_value = schedule[-1]
-        if any(value > last_value for idx, value in enumerate(schedule) if idx != 0):
-            rejected_paceline_rotation_solutions.append(schedule)
-            continue
+    filtered_schedules = paceline_rotation_schedules_being_filtered
+    for filter_func in filters:
+        filtered_schedules = filter_func(filtered_schedules)
+        if len(filtered_schedules) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS:
+            return filtered_schedules
 
-        # # Third filter: no element < value at weakest_rider_index
-        # weakest_value = schedule[weakest_rider_index]
-        # if any(value < weakest_value for value in schedule):
-        #     rejected_paceline_rotation_solutions.append(schedule)
-        #     continue
+    return filtered_schedules
 
-        reduced_paceline_rotation_schedules.append(schedule)
-
-    return reduced_paceline_rotation_schedules
-def make_pull_plan_solution_space(riders : list[ZsunRiderItem], standard_pull_periods_seconds: List[float]):
+def make_pull_plan_rotation_schedule_solution_space(riders : list[ZsunRiderItem], standard_pull_periods_seconds: List[float]):
     """
     Stub for constraining the solution space of paceline rotation schedules.
     Currently returns the input schedules unchanged.
@@ -327,28 +371,22 @@ def make_pull_plan_solution_space(riders : list[ZsunRiderItem], standard_pull_pe
     """
     all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
 
-    logger.info(f"Total conceivable paceline rotation schedules: {len(all_conceivable_paceline_rotation_schedules)}")
-
-    all_conceivable_paceline_rotation_schedules = filter_paceline_rotation_schedules(all_conceivable_paceline_rotation_schedules, riders)
-
-    logger.info(f"Reduced paceline rotation schedules after filtering: {len(all_conceivable_paceline_rotation_schedules)}")
-
     return all_conceivable_paceline_rotation_schedules
 
-def search_for_optimal_pull_plans_ordinary_compute(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
+def search_for_optimal_pull_plans_with_serial_processing(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
     binary_search_seed: float,
-    max_exertion_intensity_factor: float
+    max_exertion_intensity_factor: float, pull_plan_period_schedules : List[Tuple[float, ...]]
 ) -> Tuple[
     List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
-    int,  # total_num_of_all_conceivable_plans investigated
+    int,  # total_num_of_all_pull_plan_period_schedules investigated
     int,  # total_compute_iterations done
     float # elapsed computer time in seconds
 ]:
     # --- Input validation ---
     if not riders:
-        raise ValueError("No riders provided to search_for_optimal_pull_plans_ordinary_compute.")
+        raise ValueError("No riders provided to search_for_optimal_pull_plans_with_serial_processing.")
     if not standard_pull_periods_seconds:
-        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_ordinary_compute.")
+        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_with_serial_processing.")
     if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not np.isfinite(binary_search_seed) or binary_search_seed <= 0:
@@ -356,18 +394,18 @@ def search_for_optimal_pull_plans_ordinary_compute(riders: List[ZsunRiderItem], 
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules =make_pull_plan_solution_space(riders, standard_pull_periods_seconds)
-    total_num_of_all_conceivable_plans: int = len(all_conceivable_paceline_rotation_schedules)
+    # all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, standard_pull_periods_seconds)
+    total_num_of_all_pull_plan_period_schedules: int = len(pull_plan_period_schedules)
     total_compute_iterations: int = 0
     lower_bound_paceline_speed_as_array: list[float] = [binary_search_seed] * len(riders)
 
-    if total_num_of_all_conceivable_plans > 1_000_000:
-        logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
+    if total_num_of_all_pull_plan_period_schedules > 1_000_000:
+        logger.warning("Number of alternatives is very large: %d", total_num_of_all_pull_plan_period_schedules)
 
     # Prepare arguments for each plan
     args_list = [
         (riders, list(standard_pull_periods_seconds), lower_bound_paceline_speed_as_array, max_exertion_intensity_factor)
-        for standard_pull_periods_seconds in all_conceivable_paceline_rotation_schedules
+        for standard_pull_periods_seconds in pull_plan_period_schedules
     ]
     solutions: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
@@ -425,28 +463,28 @@ def search_for_optimal_pull_plans_ordinary_compute(riders: List[ZsunRiderItem], 
 
     # --- Output consistency ---
     if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_ordinary_compute: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_serial_processing: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
     elif highest_speed_pull_plan_solution is None:
-        raise RuntimeError("search_for_optimal_pull_plans_ordinary_compute: No valid solution found (highest_speed_pull_plan_solution is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_serial_processing: No valid solution found (highest_speed_pull_plan_solution is None)")
     elif lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_ordinary_compute: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_serial_processing: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
-    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, computational_time)
+    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, computational_time)
 
 
-def search_for_optimal_pull_plans_in_parallel_with_workstealing(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], 
+def search_for_optimal_pull_plans_with_parallel_workstealing(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], 
     binary_search_seed: float,  
-    max_exertion_intensity_factor : float
+    max_exertion_intensity_factor : float, pull_plan_period_schedules : List[Tuple[float, ...]]
 ) -> Tuple[List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
-        int,  # total_num_of_all_conceivable_plans investigated
+        int,  # total_num_of_all_pull_plan_period_schedules investigated
         int,   # total_compute_iterations done
         float]: # elapsed computer time in seconds
 
     # --- Input validation ---
     if not riders:
-        raise ValueError("No riders provided to search_for_optimal_pull_plans_in_parallel_with_workstealing.")
+        raise ValueError("No riders provided to search_for_optimal_pull_plans_with_parallel_workstealing.")
     if not standard_pull_periods_seconds:
-        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_in_parallel_with_workstealing.")
+        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_with_parallel_workstealing.")
     if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not np.isfinite(binary_search_seed) or binary_search_seed <= 0:
@@ -454,19 +492,19 @@ def search_for_optimal_pull_plans_in_parallel_with_workstealing(riders: List[Zsu
 
     start_time = time.perf_counter()
 
-    all_conceivable_paceline_rotation_schedules =make_pull_plan_solution_space(riders, standard_pull_periods_seconds)
+    # all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, standard_pull_periods_seconds)
 
-    total_num_of_all_conceivable_plans : int = len(all_conceivable_paceline_rotation_schedules)
+    total_num_of_all_pull_plan_period_schedules : int = len(pull_plan_period_schedules)
     total_compute_iterations : int = 0
     lower_bound_paceline_speed_as_array : list[float] = [binary_search_seed] * len(riders)
 
-    if total_num_of_all_conceivable_plans  > 1_000_000:
-        logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
+    if total_num_of_all_pull_plan_period_schedules  > 1_000_000:
+        logger.warning("Number of alternatives is very large: %d", total_num_of_all_pull_plan_period_schedules)
 
     # Prepare arguments for each process
     args_list = [
         (riders, standard_pull_periods_seconds, lower_bound_paceline_speed_as_array, max_exertion_intensity_factor)
-        for standard_pull_periods_seconds in all_conceivable_paceline_rotation_schedules
+        for standard_pull_periods_seconds in pull_plan_period_schedules
     ]
     solutions: List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]] = []
 
@@ -527,13 +565,13 @@ def search_for_optimal_pull_plans_in_parallel_with_workstealing(riders: List[Zsu
 
     # --- Output consistency ---
     if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_workstealing: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_workstealing: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
     elif highest_speed_pull_plan_solution is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_workstealing: No valid solution found (highest_speed_pull_plan_solution is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_workstealing: No valid solution found (highest_speed_pull_plan_solution is None)")
     elif lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_workstealing: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_workstealing: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
-    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, parallel_compute_time)
+    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, parallel_compute_time)
 
 
 def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
@@ -549,19 +587,26 @@ def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[Zs
     Selects the most efficient algorithm for searching optimal pull plans based on the number of riders.
     Uses the parallel algorithm for 5 or more riders, otherwise uses the ordinary algorithm.
     """
-    if len(riders) < 5:
-        return search_for_optimal_pull_plans_ordinary_compute(
+
+    all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, standard_pull_periods_seconds)
+
+    logger.info(f"All conceivable paceline rotation schedules : {len(all_conceivable_paceline_rotation_schedules)}")
+
+    paceline_rotation_schedules = filter_pull_plan_rotation_schedules(all_conceivable_paceline_rotation_schedules, riders)
+
+    if len(paceline_rotation_schedules) < EMPIRICALY_DETERMINED_CROSSOVER_TO_PARALLEL_PROCESSING_THRESHOLD:
+        return search_for_optimal_pull_plans_with_serial_processing(
             riders,
             standard_pull_periods_seconds,
             binary_search_seed,
-            max_exertion_intensity_factor
+            max_exertion_intensity_factor, paceline_rotation_schedules
         )
     else:
-        return search_for_optimal_pull_plans_in_parallel_with_workstealing(
+        return search_for_optimal_pull_plans_with_parallel_workstealing(
             riders,
             standard_pull_periods_seconds,
             binary_search_seed,
-            max_exertion_intensity_factor
+            max_exertion_intensity_factor, paceline_rotation_schedules
         )
 
 
@@ -569,7 +614,7 @@ def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae08 import search_for_optimal_pull_plans_in_parallel_with_workstealing
+    from jgh_formulae08 import search_for_optimal_pull_plans_with_parallel_workstealing
     import time
     import pandas as pd
     import seaborn as sns
@@ -587,9 +632,11 @@ def main01():
 
     logger.info(f"Starting: benchmarking ordinary vs parallel processing with {len(riders)} riders")
 
+    all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, STANDARD_PULL_PERIODS_SEC)
+
     # Non_parallel run as the base case
     ref_start = time.perf_counter()
-    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_ordinary_compute(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_with_serial_processing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95, all_conceivable_paceline_rotation_schedules)
     ref_end = time.perf_counter()
     ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
     ref_elapsed_measured = ref_end - ref_start
@@ -598,7 +645,7 @@ def main01():
 
     # Test case
     res_start = time.perf_counter()
-    res_result, _, _, res_elapsed = search_for_optimal_pull_plans_in_parallel_with_workstealing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
+    res_result, _, _, res_elapsed = search_for_optimal_pull_plans_with_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95, all_conceivable_paceline_rotation_schedules)
     res_end = time.perf_counter()
     res_fastest_speed = res_result[0][1][res_result[0][2]].speed_kph
     res_elapsed_measured = res_end - res_start
@@ -636,5 +683,46 @@ def main01():
     plt.show()
     logger.info(f"Bar chart saved to {save_filename_without_ext}.png")
 
+def main02():
+    from handy_utilities import read_dict_of_zsunriderItems
+    from repository_of_teams import get_team_riderIDs
+    from constants import STANDARD_PULL_PERIODS_SEC
+    from jgh_formulae08 import search_for_optimal_pull_plans_using_most_efficient_algorithm
+    import time
+
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+
+    riderIDs = get_team_riderIDs("betel")
+    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+
+    save_filename_without_ext = f"run_optimised_filters_and_parallelisation_with_{len(riders)}_riders"
+
+    logger.info(f"Testing: running optimised thresholds for no-filtering -> filtering and serial -> parallel processing with {len(riders)} riders")
+
+        # Test case
+    res_start = time.perf_counter()
+    res_result, _, _, res_elapsed = search_for_optimal_pull_plans_using_most_efficient_algorithm(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
+    res_end = time.perf_counter()
+    res_fastest_speed = res_result[0][1][res_result[0][2]].speed_kph
+    res_elapsed_measured = res_end - res_start
+    logger.info(f"Test-case: optimised compute time (measured): {res_elapsed_measured:.2f} seconds")
+    logger.info(f"Test-case: answer (fastest kph) = {res_fastest_speed} kph\n")
+
+    # --- Summary Report ---
+    report_lines = []
+    report_lines.append("Benchmark Summary Report\n")
+    report_lines.append(f"Number of riders: {len(riders)}\n\n")
+    report_lines.append("Parallel run (work-stealing):\n")
+    report_lines.append(f"  Compute time (measured): {res_elapsed_measured:.2f} seconds\n")
+    report_lines.append("\n")
+
+    with open(f"{save_filename_without_ext}.txt", "w", encoding="utf-8") as f:
+        f.writelines(report_lines)
+    logger.info(f"Summary report written to {save_filename_without_ext}.txt")
+
 if __name__ == "__main__":
-    main01()
+    # main01()    
+    main02()

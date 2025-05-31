@@ -45,7 +45,7 @@ def process_chunk(
     return chunk_results
 
 # --- Main function to search for optimal pull plans using parallel programming chunking algorithm ---
-def search_for_optimal_pull_plans_in_parallel_with_chunking(
+def search_for_optimal_pull_plans_with_parallel_chunking(
     riders: List[ZsunRiderItem],
     standard_pull_periods_seconds: List[float],
     lower_bound_speed: float,
@@ -73,7 +73,7 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
         verbose: Print profiling info.
 
     Returns:
-        (solutions, total_num_of_all_conceivable_plans, total_compute_iterations, elapsed_time)
+        (solutions, total_num_of_all_pull_plan_period_schedules, total_compute_iterations, elapsed_time)
 
     Note:
         The use of Optional[int] for chunk_size and max_workers allows the caller to explicitly pass
@@ -83,9 +83,9 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
     import math
 
     if not riders:
-        raise ValueError("No riders provided to search_for_optimal_pull_plans_in_parallel_with_chunking.")
+        raise ValueError("No riders provided to search_for_optimal_pull_plans_with_parallel_chunking.")
     if not standard_pull_periods_seconds:
-        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_in_parallel_with_chunking.")
+        raise ValueError("No standard pull durations provided to search_for_optimal_pull_plans_with_parallel_chunking.")
     if any(d <= 0 or not np.isfinite(d) for d in standard_pull_periods_seconds):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not np.isfinite(lower_bound_speed) or lower_bound_speed <= 0:
@@ -94,19 +94,19 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
     start_time = time.perf_counter()
 
     all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
-    total_num_of_all_conceivable_plans = len(all_conceivable_paceline_rotation_schedules)
+    total_num_of_all_pull_plan_period_schedules = len(all_conceivable_paceline_rotation_schedules)
     lower_bound_paceline_speed_as_array: list[float] = [lower_bound_speed] * len(riders)
     total_compute_iterations: int = 0
 
-    if total_num_of_all_conceivable_plans > 1_000_000:
-        logger.warning("Number of alternatives is very large: %d", total_num_of_all_conceivable_plans)
+    if total_num_of_all_pull_plan_period_schedules > 1_000_000:
+        logger.warning("Number of alternatives is very large: %d", total_num_of_all_pull_plan_period_schedules)
 
     # --- Chunking setup ---
     if max_workers is None:
         max_workers = os.cpu_count() or 1
     if chunk_size is None:
         # Default: divide evenly among workers, but at least 1 per chunk
-        chunk_size = max(1, math.ceil(total_num_of_all_conceivable_plans / max_workers))
+        chunk_size = max(1, math.ceil(total_num_of_all_pull_plan_period_schedules / max_workers))
 
     # Helper to yield chunks
     def chunked_args(args_list: List[Tuple[List[ZsunRiderItem], List[float], List[float], float]], size: int
@@ -122,7 +122,7 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
     chunked_args_list = list(chunked_args(args_list, chunk_size))
 
     if verbose:
-        logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking: {total_num_of_all_conceivable_plans} alternatives, "
+        logger.info(f"search_for_optimal_pull_plans_with_parallel_chunking: {total_num_of_all_pull_plan_period_schedules} alternatives, "
               f"{len(chunked_args_list)} chunks, chunk_size={chunk_size}, max_workers={max_workers}")
 
     # --- Parallel execution ---
@@ -145,7 +145,7 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
     # --- Profiling and benchmarking output ---
 
     if verbose:
-        logger.info(f"search_for_optimal_pull_plans_in_parallel_with_chunking completed in {concurrent_computational_time:.2f} seconds")
+        logger.info(f"search_for_optimal_pull_plans_with_parallel_chunking completed in {concurrent_computational_time:.2f} seconds")
         logger.info(f"Total solutions: {len(solutions)}")
 
     # --- Post-processing (same as original) ---
@@ -185,13 +185,13 @@ def search_for_optimal_pull_plans_in_parallel_with_chunking(
             lowest_dispersion_pull_plan_soluton = (compute_iterations, rider_pullplan_items, exertion_maxed_out_rider)
 
     if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_chunking: No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_soluton are None)")
     elif highest_speed_pull_plan_solution is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (highest_speed_pull_plan_solution is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_chunking: No valid solution found (highest_speed_pull_plan_solution is None)")
     elif lowest_dispersion_pull_plan_soluton is None:
-        raise RuntimeError("search_for_optimal_pull_plans_in_parallel_with_chunking: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
+        raise RuntimeError("search_for_optimal_pull_plans_with_parallel_chunking: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
-    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_conceivable_plans, total_compute_iterations, concurrent_computational_time)
+    return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, concurrent_computational_time)
 
 
 import pandas as pd
@@ -202,8 +202,8 @@ def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae09 import search_for_optimal_pull_plans_in_parallel_with_chunking
-    from jgh_formulae08 import search_for_optimal_pull_plans_in_parallel_with_workstealing
+    from jgh_formulae09 import search_for_optimal_pull_plans_with_parallel_chunking
+    from jgh_formulae08 import search_for_optimal_pull_plans_with_parallel_workstealing
     import time
     import pandas as pd
     import seaborn as sns
@@ -226,7 +226,7 @@ def main01():
 
     # Base-case run for correctness
     ref_start = time.perf_counter()
-    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_in_parallel_with_workstealing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
+    ref_result, _, _, ref_elapsed = search_for_optimal_pull_plans_with_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, 30.0, 0.95)
     ref_end = time.perf_counter()
     ref_fastest_speed = ref_result[0][1][ref_result[0][2]].speed_kph
     ref_elapsed_measured = ref_end - ref_start
@@ -239,7 +239,7 @@ def main01():
         for chunk_size in chunk_size_list:
             logger.info(f"Running: max_workers={max_workers}, chunk_size={chunk_size}")
             try:
-                res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_in_parallel_with_chunking(
+                res, total_alts, total_iters, elapsed = search_for_optimal_pull_plans_with_parallel_chunking(
                     riders, STANDARD_PULL_PERIODS_SEC, 30.0, max_exertion_intensity_factor=1.0,
                     chunk_size=chunk_size, max_workers=max_workers, verbose=False
                 )
@@ -250,7 +250,7 @@ def main01():
                     "max_workers": max_workers,
                     "chunk_size": chunk_size,
                     "elapsed_time": elapsed,
-                    "total_num_of_all_conceivable_plans": total_alts,
+                    "total_num_of_all_pull_plan_period_schedules": total_alts,
                     "total_compute_iterations": total_iters,
                     "highest_speed": highest_speed,
                     "correct": correct
@@ -260,7 +260,7 @@ def main01():
                     "max_workers": max_workers,
                     "chunk_size": chunk_size,
                     "elapsed_time": None,
-                    "total_num_of_all_conceivable_plans": None,
+                    "total_num_of_all_pull_plan_period_schedules": None,
                     "total_compute_iterations": None,
                     "highest_speed": None,
                     "correct": False,

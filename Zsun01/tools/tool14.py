@@ -6,7 +6,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
 from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints
-from jgh_formulae09 import search_for_optimal_pull_plans_in_parallel_with_chunking
+from jgh_formulae09 import search_for_optimal_pull_plans_with_parallel_chunking
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -49,7 +49,7 @@ def main():
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
-    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_in_parallel_with_chunking(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR, verbose=False)
+    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_with_parallel_chunking(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR, verbose=False)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02

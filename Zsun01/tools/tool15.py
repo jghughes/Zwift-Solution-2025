@@ -58,7 +58,7 @@ def main():
     
     logger.info(f"\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)}")
     logger.info(f"Energy intensity factor capped at {round(100*MAX_INTENSITY_FACTOR)}%. Pull speeds capped by 90-day best power curves on ZwiftPower.\n")
-    logger.info(f"30 second pull = 90-day best for 3.5 minutes\n 1 minute pull = 90-day best for 5 minutes\n 2 minute pull = 90-day best for 12 minutes\n 3 minute pull = 90-day best for 15 minute\n")
+    logger.info(f"30 second pull standard = 90-day best for 3.5 minutes\n 1 minute pull standard = 90-day best for 5 minutes\n 2 minute pull standard = 90-day best for 12 minutes\n 3 minute pull standard = 90-day best for 15 minutes\n")
     logger.info(f"Not all riders have accurate or reliable data on ZwiftPower.\n\n")
 
 if __name__ == "__main__":

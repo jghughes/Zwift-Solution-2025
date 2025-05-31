@@ -17,5 +17,9 @@ BINARY_SEARCH_SEED_KPH = 30.0 # let's conservatively assume 30 kph is the highes
 
 MAX_INTENSITY_FACTOR = 1.00 # maximum intensity factor for exertion: 1.05 for Sirius. Betel is 0.95 or 1.00?
 
+EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS = 1024 # Empirically determined maximum number of schedules before needing filtering to impove speed to less than approx 30 sec for eight riders. This max allows up to five riders to be explored exhaustively (for up to four standard pull periods) before filtering kicks in to reduce the number of schedules evaluated.   
+
+EMPIRICALY_DETERMINED_CROSSOVER_TO_PARALLEL_PROCESSING_THRESHOLD = 512 # number of schedules being evaluated. below this threshold, the serial processing is faster than parallel processing. Above this threshold, parallel processing is faster. This is empirically determined and may change with hardware and software improvements.
+
 
 
