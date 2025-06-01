@@ -382,6 +382,7 @@ def weaker_than_weakest_rider_filter(
         f"reduction: {reduction} ({percent:.1f}%)"
     )
     return answer
+
 def filter_pull_plan_rotation_schedules(
     paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
     riders: List[ZsunRiderItem]
@@ -528,7 +529,6 @@ def search_for_optimal_pull_plans_with_serial_processing(riders: List[ZsunRiderI
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, computational_time)
 
-
 def search_for_optimal_pull_plans_with_parallel_workstealing(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], 
     binary_search_seed: float,  
     max_exertion_intensity_factor : float, pull_plan_period_schedules : List[Tuple[float, ...]]
@@ -630,7 +630,6 @@ def search_for_optimal_pull_plans_with_parallel_workstealing(riders: List[ZsunRi
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, parallel_compute_time)
 
-
 def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
     binary_search_seed: float,
     max_exertion_intensity_factor: float
@@ -646,8 +645,6 @@ def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[Zs
     """
 
     all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, standard_pull_periods_seconds)
-
-    logger.info(f"All conceivable paceline rotation schedules : {len(all_conceivable_paceline_rotation_schedules)}")
 
     paceline_rotation_schedules = filter_pull_plan_rotation_schedules(all_conceivable_paceline_rotation_schedules, riders)
 

@@ -49,15 +49,16 @@ def estimate_drag_ratio_in_paceline(position: int) -> float:
     Calculate the power factor based on the rider's position in the peloton.
     The leader's factor is 1.0. Follower's in the paceline are based on ZwiftInsider's
     power matrix. Their factors are less than 1.0, diminishing as they are further back.
+    This function guards against index out of range errors if POWER_CURVE_IN_PACELINE is shorter than 8.
     """
-    denominator = POWER_CURVE_IN_PACELINE[0]  # 350.0
-    # Clamp position to valid range (1-4), else use position 4 as fallback
-    if 1 <= position <= 4:
+    denominator = POWER_CURVE_IN_PACELINE[0]
+    max_index = len(POWER_CURVE_IN_PACELINE) - 1
+    # Clamp position to valid range (1 to len(POWER_CURVE_IN_PACELINE)), else use last available value
+    if 1 <= position <= len(POWER_CURVE_IN_PACELINE):
         numerator = POWER_CURVE_IN_PACELINE[position - 1]
     else:
-        numerator = POWER_CURVE_IN_PACELINE[3]  # Use position 4's value
+        numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator
-
 
 @numba.njit
 def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:

@@ -44,22 +44,23 @@ def main():
 
     _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\nSIMPLEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
     (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_using_most_efficient_algorithm(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFAIREST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\nFAIREST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     _, plan_line_items, halted_rider = plan01
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\n\nFASTEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"\nFASTEST PULL PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
     logger.info(f"\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)}")
-    logger.info(f"Energy intensity factor capped at {round(100*MAX_INTENSITY_FACTOR)}%. Pull speeds capped by 90-day best power curves on ZwiftPower.\n")
-    logger.info(f"30 second pull standard = 90-day best for 3.5 minutes\n 1 minute pull standard = 90-day best for 5 minutes\n 2 minute pull standard = 90-day best for 12 minutes\n 3 minute pull standard = 90-day best for 15 minutes\n")
-    logger.info(f"Not all riders have accurate or reliable data on ZwiftPower.\n\n")
+    logger.info(f"zFTP not used by Brute. zFTP displayed for reference only. Intensity Factor defined as Normalized Power/one-hour power.")
+    logger.info(f"Intensity Factor capped at {round(100*MAX_INTENSITY_FACTOR)}% in this run. Pull-wattages capped according to 90-day best data on ZwiftPower.\n")
+    logger.info(f"30 second pull standard = 90-day best power for 3.5 minutes\n 1 minute pull standard = 90-day best power for 5 minutes\n 2 minute pull standard = 90-day best power for 12 minutes\n 3 minute pull standard = 90-day best power for 15 minutes\n")
+    logger.info(f"Based on March/April 2025 ZwiftPower data. Not all ZSUN riders have accurate or reliable data on ZwiftPower.\n\n")
 
 if __name__ == "__main__":
     main()
