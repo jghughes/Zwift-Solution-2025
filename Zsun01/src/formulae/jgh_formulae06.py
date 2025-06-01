@@ -176,6 +176,8 @@ def main() -> None:
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions

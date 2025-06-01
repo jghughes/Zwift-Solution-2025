@@ -15,6 +15,7 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 logging.getLogger("numba").setLevel(logging.ERROR)
+
 def process_chunk(
     chunk: List[Tuple[List[ZsunRiderItem], List[float], List[float],float]]
 ) -> List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], Any]]:

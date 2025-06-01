@@ -1,5 +1,7 @@
 from typing import List, Tuple
 from zsun_rider_item import ZsunRiderItem
+from jgh_formulae02 import calculate_speed_at_one_hour_watts, calculate_speed_at_standard_1_minute_pull_watts, calculate_speed_at_standard_2_minute_pull_watts
+from jgh_formulae02 import calculate_speed_at_n_second_watts
 
 
 def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRiderItem], List[ZsunRiderItem]]:
@@ -7,7 +9,7 @@ def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRid
         return [], []
 
     #sort riders according to 1 minute pull speed
-    riders.sort(key=lambda r: r.calculate_speed_at_standard_2_minute_pull_watts(), reverse=True)
+    riders.sort(key=lambda r: calculate_speed_at_standard_2_minute_pull_watts(r), reverse=True)
 
     strong_riders: List[ZsunRiderItem] = []
     weak_riders: List[ZsunRiderItem] = []
@@ -18,17 +20,17 @@ def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRid
             if n_riders == 0:
                 candidate_answer_kph = 0
             elif n_riders == 1:
-                candidate_answer_kph = rider.calculate_speed_at_n_second_watts(3600)
+                candidate_answer_kph = calculate_speed_at_n_second_watts(rider,3600)
             elif n_riders == 2:
-                candidate_answer_kph = rider.calculate_speed_at_n_second_watts(1800)
+                candidate_answer_kph = calculate_speed_at_n_second_watts(rider,1800)
             elif n_riders == 3:
-                candidate_answer_kph = rider.calculate_speed_at_n_second_watts(1200)
+                candidate_answer_kph = calculate_speed_at_n_second_watts(rider,1200)
             else:
-                candidate_answer_kph = rider.calculate_speed_at_n_second_watts(900)
+                candidate_answer_kph = calculate_speed_at_n_second_watts(rider,900)
 
             return candidate_answer_kph
 
-        if rider.calculate_speed_at_standard_2_minute_pull_watts() > calculate_fatigue_adjusted_pull_speed(riders[0], current_size_of_strong_group + 1):
+        if calculate_speed_at_standard_2_minute_pull_watts(rider) > calculate_fatigue_adjusted_pull_speed(riders[0], current_size_of_strong_group + 1):
             strong_riders.append(rider)
         else:
             weak_riders.append(rider)
@@ -46,7 +48,7 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
     Riders are ranked according to their strength, from strongest to weakest. 
     The strongest rider is ranked 1, and the weakest rider is ranked n. 
     The strength of a rider is determined by the value returned from the 
-    `ZsunRiderItem.calculate_strength_wkg()` method.
+    `ZsunRiderItem.get_strength_wkg()` method.
 
     To arrange the riders in optimal order, the riders are interleaved as follows:
     - The strongest rider is placed at the front (position 1).
@@ -62,7 +64,7 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
         List[ZsunRiderItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
-    sorted_riders = sorted(riders, key=lambda rider: rider.calculate_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_strength_wkg(), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
@@ -86,7 +88,7 @@ def calculate_everything(riders: List[ZsunRiderItem]) -> Tuple[float, List[ZsunR
     if not riders:
         return 0, [], []
 
-    floor_speed_kph = min(rider.calculate_speed_at_1_hour_watts() for rider in riders) - 2.0 # arbitrary cushion. slowest rider of all
+    floor_speed_kph = min(calculate_speed_at_one_hour_watts(rider) for rider in riders) - 2.0 # arbitrary cushion. slowest rider of all
 
     group_of_pullers, group_of_not_pullers = allocate_riders_to_groups(riders)
 
@@ -107,6 +109,8 @@ def main():
     # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
@@ -128,7 +132,7 @@ def main():
 
     # Log the original list of riders
     logger.info("\nOriginal list of riders:")
-    table = [[rider.name, rider.calculate_strength_wkg()] for rider in riders]
+    table = [[rider.name, rider.get_strength_wkg()] for rider in riders]
     logger.info("\n" + tabulate(table, headers=["Rider", "Strength"], tablefmt="simple"))
 
     # Arrange riders in optimal order
@@ -136,7 +140,7 @@ def main():
 
     # Log the arranged list of riders
     logger.info("\nRiders arranged in optimal order:")
-    table = [[i + 1, rider.name, rider.calculate_strength_wkg()] for i, rider in enumerate(optimal_order)]
+    table = [[i + 1, rider.name, rider.get_strength_wkg()] for i, rider in enumerate(optimal_order)]
     logger.info("\n" + tabulate(table, headers=["Position", "Rider", "Strength"], tablefmt="simple",disable_numparse=True))
 
 def main2():
@@ -150,6 +154,8 @@ def main2():
     # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
@@ -180,9 +186,9 @@ def main2():
     table = [
         [
             rider.name,
-            rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_1_hour_watts(),
-            rider.calculate_speed_at_standard_1_minute_pull_watts(),
+            rider.get_strength_wkg(),
+            calculate_speed_at_one_hour_watts(rider),
+            calculate_speed_at_standard_1_minute_pull_watts(rider),
         ]
         for rider in riders
     ]
@@ -208,9 +214,9 @@ def main2():
     table = [
         [
             rider.name,
-            rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_1_hour_watts(),
-            rider.calculate_speed_at_standard_1_minute_pull_watts(),
+            rider.get_strength_wkg(),
+            calculate_speed_at_one_hour_watts(rider),
+            calculate_speed_at_standard_1_minute_pull_watts(rider),
         ]
         for rider in strong
     ]
@@ -232,9 +238,9 @@ def main2():
     table = [
         [
             rider.name,
-            rider.calculate_strength_wkg(),
-            rider.calculate_speed_at_1_hour_watts(),
-            rider.calculate_speed_at_standard_1_minute_pull_watts(),
+            rider.get_strength_wkg(),
+            calculate_speed_at_one_hour_watts(rider),
+            calculate_speed_at_standard_1_minute_pull_watts(rider),
         ]
         for rider in weak
     ]
@@ -263,6 +269,8 @@ def main3():
     # Configure logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
@@ -290,12 +298,12 @@ def main3():
 
     # Table 1: All riders ranked by 2-minute speed
     riders_sorted = sorted(
-        riders, key=lambda r: r.calculate_speed_at_standard_2_minute_pull_watts(), reverse=True
+        riders, key=lambda r: calculate_speed_at_standard_2_minute_pull_watts(r), reverse=True
     )
     table = [
         [
             rider.name,
-            format_number_2sig(rider.calculate_speed_at_standard_2_minute_pull_watts()),
+            format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
             format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]
@@ -322,7 +330,7 @@ def main3():
     table = [
         [
             rider.name,
-            format_number_2sig(rider.calculate_speed_at_standard_2_minute_pull_watts()),
+            format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
             format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]
@@ -346,7 +354,7 @@ def main3():
     table = [
         [
             rider.name,
-            format_number_2sig(rider.calculate_speed_at_standard_2_minute_pull_watts()),
+            format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
             format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]

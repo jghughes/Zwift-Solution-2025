@@ -24,7 +24,7 @@ class CurveFittingResult:
 
 #     @staticmethod
 #     def create(riders: list[ZsunRiderItem]) -> "RiderTeamItem":
-#         riders.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
+#         riders.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
 #         # assign rank to rank attr sarting with 1
 #         for i, rider in enumerate(riders):
 #             rider.rank = i + 1
@@ -32,8 +32,8 @@ class CurveFittingResult:
 #         return team
 
 #     def sort_riders(self) -> None:
-#         riders_working.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
-#         riders_resting.sort(key=lambda x: x.calculate_strength_wkg(), reverse=True)
+#         riders_working.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
+#         riders_resting.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
 
 #     def demote_rider_from_working_to_resting(self, rider: ZsunRiderItem) -> None:
 #         riders_resting.append(rider)

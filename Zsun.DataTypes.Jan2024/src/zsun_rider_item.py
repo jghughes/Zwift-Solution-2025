@@ -2,7 +2,6 @@ from dataclasses import dataclass,  asdict
 from typing import Optional
 import numpy as np
 from zsun_rider_dto import ZsunRiderDTO 
-from jgh_formulae import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
 from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True)  # immutable and hashable, we use this as a dictionary key everywhere
@@ -414,171 +413,187 @@ class ZsunRiderItem:
 
         return instance
 
-    def calculate_strength_wkg(self) -> float:
+    def get_strength_wkg(self) -> float:
         if self.weight_kg == 0:
             return self.get_standard_1_minute_pull_watts()/80.0 # arbitrary default 80kg
         return self.get_standard_1_minute_pull_watts()/self.weight_kg
 
-    def calculate_kph_riding_alone(self, power: float) -> float:
-        """
-        Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
-        height_cm (cm) using the Newton-Raphson method.
+    def lookup_standard_pull_watts(self, seconds : float)-> float:
+        permissable_watts = self.get_1_hour_watts() # default
 
-        Args:
-        power (float): The power in watts.
+        if seconds == 30:
+            permissable_watts = self.get_standard_30sec_pull_watts()
+        if seconds == 60:
+            permissable_watts = self.get_standard_1_minute_pull_watts()
+        if seconds == 120:
+            permissable_watts = self.get_standard_2_minute_pull_watts()
+        if seconds == 180:
+            permissable_watts = self.get_standard_3_minute_pull_watts()
+        if seconds == 240:
+            permissable_watts = self.get_standard_4_minute_pull_watts()
+         
+        return permissable_watts
 
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(power, self.weight_kg, self.height_cm)
-        return speed_kph
+    # # def calculate_kph_riding_alone(self, power: float) -> float:
+    # #     """
+    # #     Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
+    # #     height_cm (cm) using the Newton-Raphson method.
 
-    def calculate_wattage_riding_alone(self, speed: float) -> float:
-        """
-        Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
-        height_cm (cm).
+    # #     Args:
+    # #     power (float): The power in watts.
 
-        Args:
-        speed (float): The speed in km/h.
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(power, self.weight_kg, self.height_cm)
+    # #     return speed_kph
 
-        Returns:
-        float: The calculated power in watts.
-        """
-        # Calculate the power using the estimate_watts_from_speed function
-        power = estimate_watts_from_speed(speed, self.weight_kg, self.height_cm)
-        return power
+    # # def calculate_wattage_riding_alone(self, speed: float) -> float:
+    # #     """
+    # #     Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
+    # #     height_cm (cm).
 
-    def calculate_wattage_riding_in_the_paceline(
-        self, speed: float, position: int
-    ) -> float:
-        """
-        Calculate the wattage required for a rider given their speed and position 
-        in the peloton.
+    # #     Args:
+    # #     speed (float): The speed in km/h.
 
-        Args:
-        rider (ZsunRiderItem): The rider object.
-        speed (float): The speed in km/h.
-        position (int): The position in the peloton.
+    # #     Returns:
+    # #     float: The calculated power in watts.
+    # #     """
+    # #     # Calculate the power using the estimate_watts_from_speed function
+    # #     power = estimate_watts_from_speed(speed, self.weight_kg, self.height_cm)
+    # #     return power
 
-        Returns:
-        float: The required wattage in watts.
-        """
-        # Calculate the base power required for the given speed
-        base_power = self.calculate_wattage_riding_alone(speed)
+    # # def calculate_wattage_riding_in_the_paceline(
+    # #     self, speed: float, position: int
+    # # ) -> float:
+    # #     """
+    # #     Calculate the wattage required for a rider given their speed and position 
+    # #     in the peloton.
 
-        # Get the power factor based on the rider's position in the peloton
-        power_factor = estimate_drag_ratio_in_paceline(position)
+    # #     Args:
+    # #     rider (ZsunRiderItem): The rider object.
+    # #     speed (float): The speed in km/h.
+    # #     position (int): The position in the peloton.
 
-        # Adjust the power based on the power factor
-        adjusted_power = base_power * power_factor
+    # #     Returns:
+    # #     float: The required wattage in watts.
+    # #     """
+    # #     # Calculate the base power required for the given speed
+    # #     base_power = self.calculate_wattage_riding_alone(speed)
 
-        return round(adjusted_power, 3)
+    # #     # Get the power factor based on the rider's position in the peloton
+    # #     power_factor = estimate_drag_ratio_in_paceline(position)
 
-    def calculate_speed_riding_in_the_paceline(
-        self, power: float, position: int
-    ) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their power output (watts) 
-        and position in the peloton.
+    # #     # Adjust the power based on the power factor
+    # #     adjusted_power = base_power * power_factor
 
-        Args:
-        power (float): The power output in watts.
-        position (int): The position in the peloton.
+    # #     return round(adjusted_power, 3)
 
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Get the power factor based on the rider's position in the peloton
-        power_factor = estimate_drag_ratio_in_paceline(position)
+    # # def calculate_speed_riding_in_the_paceline(
+    # #     self, power: float, position: int
+    # # ) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their power output (watts) 
+    # #     and position in the peloton.
 
-        # Adjust the power based on the power factor
-        adjusted_watts = power / power_factor
+    # #     Args:
+    # #     power (float): The power output in watts.
+    # #     position (int): The position in the peloton.
 
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(adjusted_watts, self.weight_kg, self.height_cm)
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Get the power factor based on the rider's position in the peloton
+    # #     power_factor = estimate_drag_ratio_in_paceline(position)
+
+    # #     # Adjust the power based on the power factor
+    # #     adjusted_watts = power / power_factor
+
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(adjusted_watts, self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_standard_30sec_pull_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_standard_30sec_pull_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_standard_30sec_pull_watts(self) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_standard_30sec_pull_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_standard_1_minute_pull_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_standard_1_minute_pull_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_standard_1_minute_pull_watts(self) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_standard_1_minute_pull_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_standard_2_minute_pull_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_standard_2_minute_pull_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_standard_2_minute_pull_watts(self) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_standard_2_minute_pull_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_standard_3_minute_pull_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_standard_3_minute_pull_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_standard_3_minute_pull_watts(self) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_standard_3_minute_pull_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_standard_4_minute_pull_watts(self) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_standard_4_minute_pull_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_standard_4_minute_pull_watts(self) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_standard_4_minute_pull_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_n_second_watts(self, seconds: float) -> float:
-        """
-        Calculate the speed (km/h) for a rider given their power output (watts) 
-        for a specific duration in seconds.
-        Args:
-        seconds (float): The duration in seconds.
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_n_second_watts(seconds), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_n_second_watts(self, seconds: float) -> float:
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their power output (watts) 
+    # #     for a specific duration in seconds.
+    # #     Args:
+    # #     seconds (float): The duration in seconds.
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_n_second_watts(seconds), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
-    def calculate_speed_at_1_hour_watts(self) -> float: 
-        """
-        Calculate the speed (km/h) for a rider given their one-hour power output (watts).
-        Returns:
-        float: The estimated speed in km/h.
-        """
-        # Estimate the speed in km/h using the estimate_speed_from_wattage function
-        speed_kph = estimate_speed_from_wattage(self.get_1_hour_watts(), self.weight_kg, self.height_cm)
+    # # def calculate_speed_at_1_hour_watts(self) -> float: 
+    # #     """
+    # #     Calculate the speed (km/h) for a rider given their one-hour power output (watts).
+    # #     Returns:
+    # #     float: The estimated speed in km/h.
+    # #     """
+    # #     # Estimate the speed in km/h using the estimate_speed_from_wattage function
+    # #     speed_kph = estimate_speed_from_wattage(self.get_1_hour_watts(), self.weight_kg, self.height_cm)
         
-        return round(speed_kph, 3)
+    # #     return round(speed_kph, 3)
 
     def get_critical_power_watts(self) -> float:
         return self.zsun_CP
@@ -637,14 +652,10 @@ class ZsunRiderItem:
             return 0.0
         return self.get_1_hour_watts()/ self.weight_kg
 
-
     def get_watts_per_kg(self, wattage : float) -> float:
         if self.weight_kg == 0:
             return 0.0
         return wattage/ self.weight_kg
-
-
-
 
     def get_n_second_watts(self, seconds: float) -> float:
 
@@ -657,20 +668,6 @@ class ZsunRiderItem:
         power = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = power[0]
         return answer
-
-    def lookup_standard_pull_watts(self, seconds : float)-> float:
-        permissable_watts = self.get_1_hour_watts() # default
-
-        if seconds == 30:
-            permissable_watts = self.get_standard_30sec_pull_watts()
-        if seconds == 60:
-            permissable_watts = self.get_standard_1_minute_pull_watts()
-        if seconds == 120:
-            permissable_watts = self.get_standard_2_minute_pull_watts()
-        if seconds == 240:
-            permissable_watts = self.get_standard_4_minute_pull_watts()
-         
-        return permissable_watts
 
     def get_when_models_fitted(self) -> str:
         return self.zsun_when_curves_fitted
@@ -762,67 +759,6 @@ def main():
     rider_attrs = asdict(rider1)    
     logger.info("\nZwiftRider instantiated (ctor) from JSON config is:")
     logger.info("\n" + tabulate(rider_attrs.items(), tablefmt="plain"))
-
-    # example : instantiate examples of two riders of differing ability. for each of them 
-    # calculate wattage at a given speed (40kph)and in two positions in the peloton - 
-    # position 1 and position 5. tabulate the results in a table and log it.
-    example_data = ZsunRiderItem.Config.json_schema_extra["davek"]
-    example_rider = ZsunRiderDTO.model_validate(example_data)
-    rider2 = ZsunRiderItem.from_dataTransferObject(example_rider)
-
-    riders = [rider1, rider2]
-    table: List[List[Union[str, float]]] = []
-    headers = [
-        "Rider", "Wattage (P 1, 40 km/h)", 
-        "Wattage (P 5, 40 km/h)"
-    ]
-    for rider in riders:
-        row : List[Union[str, float]] = [rider.name]
-        for position in [1, 5]:
-            wattage = rider.calculate_wattage_riding_in_the_paceline(40, position)
-            row.append(str(wattage))  # Convert wattage to string
-        table.append(row)
-    
-    # Log the table
-    logger.info("\nRider wattage in positions 1 and 5 for 40 km/h")
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
-
-    # example : using rider "John H" instantiated using ctor
-    # calculate wattage for each position in the peloton from 1 to 5
-    # at a given speed (40kph) and tabulate neatly and log it.
-    rider_john = rider1
-
-    positions = range(1, 6)
-    table: List[List[Union[str, float]]] = []
-    headers = ["Position", "Wattage (40 km/h)"]
-
-    for position in positions:
-        wattage = rider_john.calculate_wattage_riding_in_the_paceline(40, position)
-        table.append([position, wattage])
-
-    # Log the table
-    logger.info("\nWattage for John H in positions 1 to 5 at 40 km/h")
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
-
-    # example : using rider "John H" instantiated using ctor (no cache)
-    # calculate speed for each position in the peloton from 1 to 5
-    # at a given wattage (zwiftpower_zFTP=233) and tabulate neatly and log it.
-    rider_john = ZsunRiderItem(
-        name=rider1.name, weight_kg=rider1.weight_kg, height_cm=rider1.height_cm, zwiftpower_zFTP=rider1.zwiftpower_zFTP, gender=rider1.gender, zwiftracingapp_cat_num=rider1.zwiftracingapp_cat_num)
-
-    positions = range(1, 6)
-    table: List[List[Union[str, float]]] = []
-    headers = ["Position", f"Speed (km/h) at FTP {rider_john.zwiftpower_zFTP}"]
-
-    for position in positions:
-        # Calculate the speed for the given position and FTP
-        speed = rider_john.calculate_speed_riding_in_the_paceline(rider_john.zwiftpower_zFTP, position)
-        table.append([position, speed])
-
-    # Log the table
-    logger.info(f"\nSpeed for John H in positions 1 to 5 at FTP {rider_john.zwiftpower_zFTP}")
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple"))
-
 
 if __name__ == "__main__":
     main()

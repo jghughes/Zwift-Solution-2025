@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
-from networkx import average_clustering
-from jgh_formatting import round_to_nearest_10, format_number_1dp, format_number_2dp
+from jgh_formatting import round_to_nearest_10
 
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem

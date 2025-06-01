@@ -1,7 +1,8 @@
 from typing import List, DefaultDict
 from zsun_rider_dto import ZsunRiderDTO
 from zsun_rider_item import ZsunRiderItem
-from jgh_formulae import estimate_kilojoules_from_wattage_and_time
+from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
+from jgh_formulae02 import calculate_wattage_riding_in_the_paceline 
 from computation_classes import RiderWorkAssignmentItem, RiderExertionItem
 from jgh_formulae04 import populate_rider_work_assignments
 
@@ -25,7 +26,7 @@ def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, 
     for rider, work_assignments in rider_work_assignments.items():
         rider_exertions: List[RiderExertionItem] = []
         for assignment in work_assignments:
-            wattage = rider.calculate_wattage_riding_in_the_paceline(assignment.speed, assignment.position)
+            wattage = calculate_wattage_riding_in_the_paceline(rider, assignment.speed, assignment.position)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
             rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
@@ -62,6 +63,8 @@ def main() -> None:
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
 
 
     # Example: Instantiate riders using the Config class

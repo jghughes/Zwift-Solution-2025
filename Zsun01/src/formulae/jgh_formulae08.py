@@ -1,4 +1,4 @@
-from typing import  List, Tuple, Union, Any
+from typing import  List, Tuple, Union
 import os
 from collections import defaultdict
 import concurrent.futures
@@ -8,10 +8,18 @@ import itertools
 from jgh_formatting import format_number_2sig, truncate
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
+from jgh_formulae02 import (
+    calculate_speed_at_standard_30sec_pull_watts,
+    calculate_speed_at_standard_1_minute_pull_watts,
+    calculate_speed_at_standard_2_minute_pull_watts,
+    calculate_speed_at_standard_3_minute_pull_watts,
+    calculate_speed_at_standard_4_minute_pull_watts,
+    calculate_speed_at_one_hour_watts,
+)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_pull_plan_from_rider_exertions
-from constants import EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS, EMPIRICALY_DETERMINED_CROSSOVER_TO_PARALLEL_PROCESSING_THRESHOLD
+from constants import SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -41,12 +49,12 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
     for rider in riders:
         table.append([
             rider.name,
-            format_number_2sig(rider.calculate_strength_wkg()),
+            format_number_2sig(rider.get_strength_wkg()),
             format_number_2sig(rider.get_zwiftracingapp_zpFTP_wkg()),
             format_number_2sig(rider.get_zsun_1_hour_wkg()),
-            format_number_2sig(rider.calculate_speed_at_1_hour_watts()),
+            format_number_2sig(calculate_speed_at_one_hour_watts(rider)),
             format_number_2sig(rider.zsun_one_hour_watts),
-            format_number_2sig(rider.calculate_speed_at_standard_30sec_pull_watts()),
+            format_number_2sig(calculate_speed_at_standard_30sec_pull_watts(rider)),
             format_number_2sig(rider.get_standard_30sec_pull_watts()),
         ])
 
@@ -78,18 +86,18 @@ def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
             - The maxima speed in kph.
     """
     fastest_rider = riders[0]
-    fastest_duration = 30.0 #arbitrary short
+    fastest_duration = 30.0  # arbitrary short
     highest_speed = 0.0  # Arbitrarily low speed
-    duration_methods = [
-        (30.0, 'calculate_speed_at_standard_30sec_pull_watts'),
-        (60.0, 'calculate_speed_at_standard_1_minute_pull_watts'),
-        (120.0, 'calculate_speed_at_standard_2_minute_pull_watts'),
-        (180.0, 'calculate_speed_at_standard_3_minute_pull_watts'),
-        (240.0, 'calculate_speed_at_standard_4_minute_pull_watts'),
+    duration_functions = [
+        (30.0, calculate_speed_at_standard_30sec_pull_watts),
+        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
+        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
+        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
+        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
     ]
     for rider in riders:
-        for duration, method_name in duration_methods:
-            speed = getattr(rider, method_name)()
+        for duration, func in duration_functions:
+            speed = func(rider)
             if speed > highest_speed:
                 highest_speed = speed
                 fastest_rider = rider
@@ -115,20 +123,20 @@ def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
             - The minima speed in kph.
     """
     slowest_rider = riders[0]
-    slowest_duration = 30.0 #arbitrary short
+    slowest_duration = 30.0  # arbitrary short
     slowest_speed = 100.0  # Arbitrarily high speed
 
-    duration_methods = [
-        (30.0, 'calculate_speed_at_standard_30sec_pull_watts'),
-        (60.0, 'calculate_speed_at_standard_1_minute_pull_watts'),
-        (120.0, 'calculate_speed_at_standard_2_minute_pull_watts'),
-        (180.0, 'calculate_speed_at_standard_3_minute_pull_watts'),
-        (240.0, 'calculate_speed_at_standard_4_minute_pull_watts'),
+    duration_functions = [
+        (30.0, calculate_speed_at_standard_30sec_pull_watts),
+        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
+        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
+        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
+        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
     ]
 
     for rider in riders:
-        for duration, method_name in duration_methods:
-            speed = getattr(rider, method_name)()
+        for duration, func in duration_functions:
+            speed = func(rider)
             if speed < slowest_speed:
                 slowest_speed = speed
                 slowest_rider = rider
@@ -141,10 +149,10 @@ def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
     slowest_duration = 3600.0  # 1 hour in seconds
-    slowest_speed = slowest_rider.calculate_speed_at_1_hour_watts()
+    slowest_speed = calculate_speed_at_one_hour_watts(slowest_rider)
 
     for rider in riders:
-        speed = rider.calculate_speed_at_1_hour_watts()
+        speed = calculate_speed_at_one_hour_watts(rider)
         if speed < slowest_speed:
             slowest_speed = speed
             slowest_rider = rider
@@ -158,9 +166,9 @@ def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
     fastest_duration = 3600.0  # 1 hour in seconds
-    highest_speed = fastest_rider.calculate_speed_at_1_hour_watts()
+    highest_speed = calculate_speed_at_one_hour_watts(fastest_rider)
     for rider in riders:
-        speed = rider.calculate_speed_at_1_hour_watts()
+        speed = calculate_speed_at_one_hour_watts(rider)
         if speed > highest_speed:
             highest_speed = speed
             fastest_rider = rider
@@ -271,16 +279,55 @@ def make_a_pull_plan(args: Tuple[
         riders, list(standard_pull_periods_seconds), pull_speeds, max_exertion_intensity_factor
     )
 
+
+def weaker_than_weakest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        # logger.info("weaker_than_weakest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[Tuple[float, ...]] = []
+
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i])
+    weakest_rider_index = sorted_indices[0] if sorted_indices else None
+    second_weakest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        if weakest_rider_index is None or weakest_rider_index >= len(schedule):
+            continue
+        weakest_value = schedule[weakest_rider_index]
+        if any(
+            value < weakest_value
+            for idx, value in enumerate(schedule)
+            if idx != second_weakest_rider_index
+        ):
+            continue
+        answer.append(schedule)
+
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
+
+    # logger.info(
+    #     f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
+    return answer
+
+
 def stronger_than_strongest_rider_filter(
     paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
     riders: List[ZsunRiderItem]
 ) -> List[Tuple[float, ...]]:
     if not riders:
-        logger.info("stronger_than_strongest_rider_filter: No riders, returning empty list.")
+        # logger.info("stronger_than_strongest_rider_filter: No riders, returning empty list.")
         return []
     answer: List[Tuple[float, ...]] = []
 
-    strengths = [r.calculate_strength_wkg() for r in riders]
+    strengths = [r.get_strength_wkg() for r in riders]
     sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
     strongest_rider_index = sorted_indices[0] if sorted_indices else None
     second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
@@ -302,22 +349,23 @@ def stronger_than_strongest_rider_filter(
     reduction = input_len - output_len
     percent = (reduction / input_len * 100) if input_len else 0.0
 
-    logger.info(
-        f"stronger_than_strongest_rider_filter applied: input {input_len} output {output_len} "
-        f"reduction: {reduction} ({percent:.1f}%)"
-    )
+    # logger.info(
+    #     f"stronger_than_strongest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
     return answer
+
 
 def stronger_than_second_strongest_rider_filter(
     paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
     riders: List[ZsunRiderItem]
 ) -> List[Tuple[float, ...]]:
     if not riders:
-        logger.info("stronger_than_second_strongest_rider_filter: No riders, returning empty list.")
+        # logger.info("stronger_than_second_strongest_rider_filter: No riders, returning empty list.")
         return []
     answer: List[Tuple[float, ...]] = []
 
-    strengths = [r.calculate_strength_wkg() for r in riders]
+    strengths = [r.get_strength_wkg() for r in riders]
     sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
     strongest_rider_index = sorted_indices[0] if sorted_indices else None
     second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
@@ -340,34 +388,37 @@ def stronger_than_second_strongest_rider_filter(
     reduction = input_len - output_len
     percent = (reduction / input_len * 100) if input_len else 0.0
 
-    logger.info(
-        f"stronger_than_second_strongest_rider_filter applied: input {input_len} output {output_len} "
-        f"reduction: {reduction} ({percent:.1f}%)"
-    )
+    # logger.info(
+    #     f"stronger_than_second_strongest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
     return answer
 
-def weaker_than_weakest_rider_filter(
+
+def stronger_than_third_strongest_rider_filter(
     paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
     riders: List[ZsunRiderItem]
 ) -> List[Tuple[float, ...]]:
     if not riders:
-        logger.info("weaker_than_weakest_rider_filter: No riders, returning empty list.")
+        # logger.info("stronger_than_third_strongest_rider_filter: No riders, returning empty list.")
         return []
     answer: List[Tuple[float, ...]] = []
 
-    strengths = [r.calculate_strength_wkg() for r in riders]
-    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i])
-    weakest_rider_index = sorted_indices[0] if sorted_indices else None
-    second_weakest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    strongest_rider_index = sorted_indices[0] if len(sorted_indices) > 0 else None
+    second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+    third_strongest_rider_index = sorted_indices[2] if len(sorted_indices) > 2 else None
 
     for schedule in paceline_rotation_schedules_being_filtered:
-        if weakest_rider_index is None or weakest_rider_index >= len(schedule):
+        if third_strongest_rider_index is None or third_strongest_rider_index >= len(schedule):
+            answer.append(schedule)
             continue
-        weakest_value = schedule[weakest_rider_index]
+        third_strongest_value = schedule[third_strongest_rider_index]
         if any(
-            value < weakest_value
+            value > third_strongest_value
             for idx, value in enumerate(schedule)
-            if idx != second_weakest_rider_index
+            if idx != strongest_rider_index and idx != second_strongest_rider_index
         ):
             continue
         answer.append(schedule)
@@ -377,10 +428,99 @@ def weaker_than_weakest_rider_filter(
     reduction = input_len - output_len
     percent = (reduction / input_len * 100) if input_len else 0.0
 
-    logger.info(
-        f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
-        f"reduction: {reduction} ({percent:.1f}%)"
-    )
+    # logger.info(
+    #     f"stronger_than_third_strongest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
+    return answer
+
+
+def stronger_than_fourth_strongest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        # logger.info("stronger_than_fourth_strongest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[Tuple[float, ...]] = []
+
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    strongest_rider_index = sorted_indices[0] if len(sorted_indices) > 0 else None
+    second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+    third_strongest_rider_index = sorted_indices[2] if len(sorted_indices) > 2 else None
+    fourth_strongest_rider_index = sorted_indices[3] if len(sorted_indices) > 3 else None
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        if fourth_strongest_rider_index is None or fourth_strongest_rider_index >= len(schedule):
+            answer.append(schedule)
+            continue
+        fourth_strongest_value = schedule[fourth_strongest_rider_index]
+        if any(
+            value > fourth_strongest_value
+            for idx, value in enumerate(schedule)
+            if idx not in (strongest_rider_index, second_strongest_rider_index, third_strongest_rider_index)
+        ):
+            continue
+        answer.append(schedule)
+
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
+
+    # logger.info(
+    #     f"stronger_than_fourth_strongest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
+    return answer
+
+
+def stronger_than_fifth_strongest_rider_filter(
+    paceline_rotation_schedules_being_filtered: List[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> List[Tuple[float, ...]]:
+    if not riders:
+        # logger.info("stronger_than_fifth_strongest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[Tuple[float, ...]] = []
+
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    # Get indices for the top five strongest riders
+    strongest_rider_index = sorted_indices[0] if len(sorted_indices) > 0 else None
+    second_strongest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+    third_strongest_rider_index = sorted_indices[2] if len(sorted_indices) > 2 else None
+    fourth_strongest_rider_index = sorted_indices[3] if len(sorted_indices) > 3 else None
+    fifth_strongest_rider_index = sorted_indices[4] if len(sorted_indices) > 4 else None
+
+    for schedule in paceline_rotation_schedules_being_filtered:
+        if fifth_strongest_rider_index is None or fifth_strongest_rider_index >= len(schedule):
+            answer.append(schedule)
+            continue
+        fifth_strongest_value = schedule[fifth_strongest_rider_index]
+        if any(
+            value > fifth_strongest_value
+            for idx, value in enumerate(schedule)
+            if idx not in (
+                strongest_rider_index,
+                second_strongest_rider_index,
+                third_strongest_rider_index,
+                fourth_strongest_rider_index,
+            )
+        ):
+            continue
+        answer.append(schedule)
+
+    input_len = len(paceline_rotation_schedules_being_filtered)
+    output_len = len(answer)
+    reduction = input_len - output_len
+    percent = (reduction / input_len * 100) if input_len else 0.0
+
+    # logger.info(
+    #     f"stronger_than_fifth_strongest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
     return answer
 
 def filter_pull_plan_rotation_schedules(
@@ -392,28 +532,32 @@ def filter_pull_plan_rotation_schedules(
     1. Reject if any element (except last) is greater than the 0th element.
     2. Reject if any element (except the 0th) is greater than the last element.
     3. Reject if any element is less than the value at the index of the weakest rider.
-       Weakest rider is determined by the minimum value of rider.calculate_strength_wkg().
+       Weakest rider is determined by the minimum value of rider.get_strength_wkg().
     Returns the reduced list of schedules.
     """
 
     # Early return if filtering is not needed - up to 5 riders can be handled without resorting to filtering. happy days
-    if len(paceline_rotation_schedules_being_filtered) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS + 1:
+    if len(paceline_rotation_schedules_being_filtered) < SOLUTION_SPACE_SIZE_CONSTRAINT + 1:
         return paceline_rotation_schedules_being_filtered
 
     # List of filter functions to apply in order
     filters = [
+        weaker_than_weakest_rider_filter,
         stronger_than_strongest_rider_filter,
         stronger_than_second_strongest_rider_filter,
-        weaker_than_weakest_rider_filter
+        stronger_than_third_strongest_rider_filter,
+        stronger_than_fourth_strongest_rider_filter,
+        stronger_than_fifth_strongest_rider_filter,
     ]
 
     filtered_schedules = paceline_rotation_schedules_being_filtered
     for filter_func in filters:
         filtered_schedules = filter_func(filtered_schedules, riders)
-        if len(filtered_schedules) < EMPIRICALLY_DETERMINED_MAX_PULL_PLAN_EVALUATIONS:
+        if len(filtered_schedules) < SOLUTION_SPACE_SIZE_CONSTRAINT:
             return filtered_schedules
 
     return filtered_schedules
+
 
 def make_pull_plan_rotation_schedule_solution_space(riders : list[ZsunRiderItem], standard_pull_periods_seconds: List[float]):
     """
@@ -430,6 +574,7 @@ def make_pull_plan_rotation_schedule_solution_space(riders : list[ZsunRiderItem]
     all_conceivable_paceline_rotation_schedules = list(itertools.product(standard_pull_periods_seconds, repeat=len(riders)))
 
     return all_conceivable_paceline_rotation_schedules
+
 
 def search_for_optimal_pull_plans_with_serial_processing(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
     binary_search_seed: float,
@@ -528,6 +673,7 @@ def search_for_optimal_pull_plans_with_serial_processing(riders: List[ZsunRiderI
         raise RuntimeError("search_for_optimal_pull_plans_with_serial_processing: No valid solution found (lowest_dispersion_pull_plan_soluton is None)")
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, computational_time)
+
 
 def search_for_optimal_pull_plans_with_parallel_workstealing(riders: List[ZsunRiderItem],standard_pull_periods_seconds: List[float], 
     binary_search_seed: float,  
@@ -630,6 +776,7 @@ def search_for_optimal_pull_plans_with_parallel_workstealing(riders: List[ZsunRi
 
     return ([highest_speed_pull_plan_solution, lowest_dispersion_pull_plan_soluton], total_num_of_all_pull_plan_period_schedules, total_compute_iterations, parallel_compute_time)
 
+
 def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float],
     binary_search_seed: float,
     max_exertion_intensity_factor: float
@@ -648,7 +795,7 @@ def search_for_optimal_pull_plans_using_most_efficient_algorithm(riders: List[Zs
 
     paceline_rotation_schedules = filter_pull_plan_rotation_schedules(all_conceivable_paceline_rotation_schedules, riders)
 
-    if len(paceline_rotation_schedules) < EMPIRICALY_DETERMINED_CROSSOVER_TO_PARALLEL_PROCESSING_THRESHOLD:
+    if len(paceline_rotation_schedules) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
         return search_for_optimal_pull_plans_with_serial_processing(
             riders,
             standard_pull_periods_seconds,
