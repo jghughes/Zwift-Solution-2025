@@ -15,37 +15,6 @@ class CurveFittingResult:
     when_curves_fitted           : str   = ""    # Timestamp indicating when the models were fitted
 
 
-# @dataclass(frozen=True, eq=True) 
-# class RiderTeamItem:
-#     """
-#     """
-#     riders_working: list[ZsunRiderItem] = field(default_factory=list)
-#     riders_resting: list[ZsunRiderItem] = field(default_factory=list)
-
-#     @staticmethod
-#     def create(riders: list[ZsunRiderItem]) -> "RiderTeamItem":
-#         riders.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
-#         # assign rank to rank attr sarting with 1
-#         for i, rider in enumerate(riders):
-#             rider.rank = i + 1
-#         team = RiderTeamItem(riders_working=riders, riders_resting=[])
-#         return team
-
-#     def sort_riders(self) -> None:
-#         riders_working.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
-#         riders_resting.sort(key=lambda x: x.get_strength_wkg(), reverse=True)
-
-#     def demote_rider_from_working_to_resting(self, rider: ZsunRiderItem) -> None:
-#         riders_resting.append(rider)
-#         riders_working.remove(rider)
-#         sort_riders()
-
-#     def promote_rider_from_resting_to_working(self, rider: ZsunRiderItem) -> None:
-#         riders_working.append(rider)
-#         riders_resting.remove(rider)
-#         sort_riders()
-
-
 @dataclass(frozen=True, eq=True) 
 class RiderWorkAssignmentItem:
     position: int = 1
@@ -60,33 +29,4 @@ class RiderExertionItem:
     duration: float = 0
     wattage: float = 0
     kilojoules: float = 0
-
-
-    
-
-    
-    
-@dataclass(frozen=True, eq=True)
-class RiderAggregateEffortItem:
-    total_duration: float = 0
-    average_speed: float = 0
-    total_distance: float = 0
-    weighted_average_watts: float = 0
-    normalized_average_watts: float = 0
-    instantaneous_peak_wattage: float = 0
-    position_at_peak_wattage: int = 0
-    total_kilojoules_at_weighted_watts: float = 0
-    total_kilojoules_at_normalized_watts: float = 0
-
-
-@dataclass(frozen=True, eq=True) # immutable and hashable
-class RiderStressItem():
-    zftp: float = 0
-    normalised_power: float = 0
-    intensity_factor: float = 0
-
-    peak_watts_divided_by_ftp_watts: float = 0
-    position_at_peak_wattage : int = 0
-    total_normalized_kilojoules_divided_by_ftp_kilojoules: float = 0
-
 

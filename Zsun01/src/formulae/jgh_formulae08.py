@@ -206,7 +206,7 @@ def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem,
             msg += f" IF > {round(100*max_exertion_intensity_factor)}%"
 
         # Step 2: Pull watt limit checks
-        pull_limit = rider.lookup_standard_pull_watts(plan.p1_duration)
+        pull_limit = rider.get_standard_pull_watts(plan.p1_duration)
         if plan.p1_w >= pull_limit:
             msg += " pull > max W"
 

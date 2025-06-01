@@ -207,9 +207,9 @@ def main() -> None:
 
     rider_exertions = populate_rider_exertions(work_assignments)
 
-    rider_answer_items = populate_pull_plan_from_rider_exertions(rider_exertions)
+    rider_pull_plans = populate_pull_plan_from_rider_exertions(rider_exertions)
 
-    log_pull_plan("7-riders @39kph", rider_answer_items, logger)
+    log_pull_plan("7-riders @39kph", rider_pull_plans, logger)
 
 
 if __name__ == "__main__":
