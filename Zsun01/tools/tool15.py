@@ -68,10 +68,11 @@ def main():
   
     logger.info(f"\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)}")
     logger.info(f"zFTP metrics shown for reference only: not used.  Intensity Factor is Normalized Power/one-hour power.")
-    logger.info(f"IF capped at {round(100*MAX_INTENSITY_FACTOR)}% in this run. Pull-wattages capped according to 90-day best data on ZwiftPower.\n")
+    logger.info(f"IF capped at {round(100*MAX_INTENSITY_FACTOR)}% in this run. Standard pull-wattage limits are derived from 90-day best data on ZwiftPower.\n")
     logger.info(f"30 second pull standard = 90-day best power for 3.5 minutes\n 1 minute pull standard = 90-day best power for 5 minutes\n 2 minute pull standard = 90-day best power for 12 minutes\n 3 minute pull standard = 90-day best power for 15 minutes\n")
-    logger.info(f"Riders with better one-hour are prioritised for longer pulls.")
-    logger.info(f"Max-pull-speed of slowest puller dictates average speed of pace line. Speed capped by IF as well.")
+    logger.info(f"Stronger riders are at the front and back of the order of rotation, weaker riders are in the middle.")
+    logger.info(f"Riders with better one-hour power are prioritised for longer pulls.")
+    logger.info(f"The one-minute pull standard of the slowest puller limits the overall speed of pace line, as does the intensity factor.\n")
 
     logger.info(f"Based on March/April 2025 ZwiftPower data. Not all ZSUN riders have high quality data on ZwiftPower.\n\n")
 
