@@ -2,14 +2,9 @@ from jgh_formatting import format_number_1dp, format_number_comma_separators, fo
 from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
-from jgh_formulae01 import triangulate_speed_time_and_distance
-from jgh_formulae02 import calculate_kph_riding_alone
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae04 import populate_rider_work_assignments
-from jgh_formulae05 import populate_rider_exertions
-from jgh_formulae06 import populate_pull_plan_from_rider_exertions
 from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
-from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, make_pull_plan_rotation_schedule_solution_space
+from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
 from jgh_formulae08 import search_for_optimal_pull_plans_using_most_efficient_algorithm,  make_a_pull_plan_complying_with_exertion_constraints
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
@@ -65,16 +60,19 @@ def main():
     plan01, plan02 = pull_plans
     _, plan_line_items01, halted_rider01 = plan01
     plan_line_items_displayobjects01 = populate_pullplan_displayobjects(plan_line_items01)
-    log_concise_pullplan_displayobjects(f"\nBALANCED EFFORT PULL-PLAN: {round(plan_line_items01[halted_rider01].speed_kph,1)} kph (riders with better one-hour endurance get longer pulls. IF capped at {round(100*MAX_INTENSITY_FACTOR)}%.)", plan_line_items_displayobjects01, logger)
+    log_concise_pullplan_displayobjects(f"\nBALANCED EFFORT PULL-PLAN: {round(plan_line_items01[halted_rider01].speed_kph,1)} kph (IF capped at {round(100*MAX_INTENSITY_FACTOR)}%.)", plan_line_items_displayobjects01, logger)
 
     _, plan_line_items02, halted_rider02 = plan02
     plan_line_items_displayobjects02 = populate_pullplan_displayobjects(plan_line_items02)
-    log_concise_pullplan_displayobjects(f"\nTEMPO PULL-PLAN: {round(plan_line_items02[halted_rider02].speed_kph,1)} kph (max-pull-speed of slowest puller dictates average speed. IF capped at {round(100*MAX_INTENSITY_FACTOR)}%.)", plan_line_items_displayobjects02, logger)
+    log_concise_pullplan_displayobjects(f"\nTEMPO PULL-PLAN: {round(plan_line_items02[halted_rider02].speed_kph,1)} kph ( IF capped at {round(100*MAX_INTENSITY_FACTOR)}%.)", plan_line_items_displayobjects02, logger)
   
     logger.info(f"\nBrute report: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_duration_hms(compute_time)}")
     logger.info(f"zFTP metrics shown for reference only: not used.  Intensity Factor is Normalized Power/one-hour power.")
     logger.info(f"IF capped at {round(100*MAX_INTENSITY_FACTOR)}% in this run. Pull-wattages capped according to 90-day best data on ZwiftPower.\n")
     logger.info(f"30 second pull standard = 90-day best power for 3.5 minutes\n 1 minute pull standard = 90-day best power for 5 minutes\n 2 minute pull standard = 90-day best power for 12 minutes\n 3 minute pull standard = 90-day best power for 15 minutes\n")
+    logger.info(f"Riders with better one-hour are prioritised for longer pulls.")
+    logger.info(f"Max-pull-speed of slowest puller dictates average speed of pace line. Speed capped by IF as well.")
+
     logger.info(f"Based on March/April 2025 ZwiftPower data. Not all ZSUN riders have high quality data on ZwiftPower.\n\n")
 
 if __name__ == "__main__":
