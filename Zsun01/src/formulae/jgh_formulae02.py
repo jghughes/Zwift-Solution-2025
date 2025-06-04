@@ -135,32 +135,6 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunRiderItem) -> fl
         
     return round(speed_kph, 3)
 
-
-# def get_standard_pull_watts(self, seconds : float)-> float:
-#     permissable_watts = self.get_1_hour_watts() # default
-
-#     if seconds == 30:
-#         permissable_watts = self.get_standard_30sec_pull_watts()
-#     if seconds == 60:
-#         permissable_watts = self.get_standard_1_minute_pull_watts()
-#     if seconds == 120:
-#         permissable_watts = self.get_standard_2_minute_pull_watts()
-#     if seconds == 180:
-#         permissable_watts = self.get_standard_3_minute_pull_watts()
-#     if seconds == 240:
-#         permissable_watts = self.get_standard_4_minute_pull_watts()
-         
-#     return permissable_watts
-
-
-
-
-
-
-
-
-
-
 def calculate_speed_at_n_second_watts(rider : ZsunRiderItem, seconds: float) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 

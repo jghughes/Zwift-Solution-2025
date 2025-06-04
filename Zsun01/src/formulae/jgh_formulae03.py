@@ -1,7 +1,78 @@
-from typing import List, Tuple
+from typing import List, Tuple, DefaultDict, Optional
+from collections import defaultdict
+import itertools
 from zsun_rider_item import ZsunRiderItem
 from jgh_formulae02 import calculate_speed_at_one_hour_watts, calculate_speed_at_standard_1_minute_pull_watts, calculate_speed_at_standard_2_minute_pull_watts
 from jgh_formulae02 import calculate_speed_at_n_second_watts
+
+
+def generate_permutations_of_all_riders(riders: List[ZsunRiderItem]) -> DefaultDict[int, List[ZsunRiderItem]]:
+    """
+    Generate all permutations of the given list of ZsunRiderItem objects.
+    Returns a DefaultDict where the key is the permutation index and the value is the permutation (as a list of ZsunRiderItem).
+    """
+    permutations = itertools.permutations(riders)
+    result: DefaultDict[int, List[ZsunRiderItem]] = defaultdict(list)
+    for idx, perm in enumerate(permutations):
+        result[idx] = list(perm)
+    return result
+
+def generate_rider_permutations(riders: List[ZsunRiderItem]) -> DefaultDict[int, List[ZsunRiderItem]]:
+    """
+    Wrapper function to generate all permutations of the given riders.
+    """
+    return generate_permutations_of_all_riders(riders)
+
+
+def generate_combinations_of_riders(
+    riders: List[ZsunRiderItem],
+    combination_size: Optional[int] = None
+) -> DefaultDict[int, List[ZsunRiderItem]]:
+    """
+    Generate all combinations of the given list of ZsunRiderItem objects.
+    If combination_size is provided, only combinations of that size are generated.
+    Otherwise, all possible non-empty combinations are generated.
+    Each combination is sorted by rider strength (strongest first).
+    The result is sorted from smallest to largest combination size.
+    """
+    result: DefaultDict[int, List[ZsunRiderItem]] = defaultdict(list)
+    idx = 0
+    sizes = (
+        [combination_size] if combination_size is not None
+        else range(1, len(riders) + 1)
+    )
+    for size in sizes:
+        for combo in itertools.combinations(riders, size):
+            sorted_combo = sorted(combo, key=lambda r: r.get_strength_wkg(), reverse=True)
+            result[idx] = sorted_combo
+            idx += 1
+    return result
+
+def rider_combinations(
+    riders: List[ZsunRiderItem],
+    combination_size: Optional[int] = None
+) -> DefaultDict[int, List[ZsunRiderItem]]:
+    """
+    Wrapper for generate_combinations_of_riders.
+    """
+    return generate_combinations_of_riders(riders, combination_size)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRiderItem], List[ZsunRiderItem]]:

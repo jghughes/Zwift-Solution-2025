@@ -1,4 +1,5 @@
 from typing import List, Tuple, DefaultDict
+from collections import defaultdict
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
 from computation_classes import RiderExertionItem
@@ -90,7 +91,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
 
 def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
 
-    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float]:
+    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
             return 0, 0, 0, 0, 0
 
@@ -100,8 +101,12 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
         p2 = dict_wattages.get(2, 0)
         p3 = dict_wattages.get(3, 0)
         p4 = dict_wattages.get(4, 0)
+        p5 = dict_wattages.get(5, 0)
+        p6 = dict_wattages.get(6, 0)
+        p7 = dict_wattages.get(7, 0)
+        p8 = dict_wattages.get(8, 0)
 
-        return p1, p2, p3, p4
+        return p1, p2, p3, p4, p5, p6, p7, p8
 
     def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float]:
         if not exertions:
@@ -115,17 +120,17 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
         pull_exertion = dict_positions.get(1, None)
 
         if pull_exertion is None:
-            return 0, 0, 0, 0
+            return 0, 0
 
         p1_speed_kph = pull_exertion.speed_kph
         p1_duration = pull_exertion.duration
 
         return p1_speed_kph, p1_duration
  
-    answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = DefaultDict(RiderPullPlanItem)
+    answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = defaultdict(RiderPullPlanItem)
 
     for rider, exertions in riders.items():
-        p1w, p2w, p3w, p4w = extract_watts_sequentially(exertions)
+        p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
         rider_answer_item = RiderPullPlanItem(
             speed_kph           = p1_speed_kph,
@@ -134,6 +139,10 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
             p2_w                = p2w,
             p3_w                = p3w,
             p4_w                = p4w,
+            p5_w                = p5w,
+            p6_w                = p6w,
+            p7_w                = p7w,
+            p8_w                = p8w,
             average_watts       = calculate_average_watts(exertions),
             normalized_watts    = calculate_normalized_watts(exertions),
         )
@@ -154,6 +163,10 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
             round(z.p2_w), 
             round(z.p3_w), 
             round(z.p4_w), 
+            round(z.p5_w), 
+            round(z.p6_w), 
+            round(z.p7_w), 
+            round(z.p8_w), 
             round(z.average_watts), 
             round(z.normalized_watts), 
             z.diagnostic_message if z.diagnostic_message else ""
@@ -199,8 +212,8 @@ def main() -> None:
     joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
     richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
     
-    pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0]
-    pull_durations = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0]
+    pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0, 39.0]
+    pull_durations = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0, 30.0]
     riders : list[ZsunRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)

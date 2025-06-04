@@ -1,4 +1,5 @@
 from typing import List, DefaultDict
+from collections import defaultdict
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderWorkAssignmentItem
 
@@ -26,15 +27,19 @@ def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations:
             how long in which position. 
     """
     n = len(riders)
+
     if n == 0:
-        return {}
+        return defaultdict(list)
 
     if len(pull_durations) == 0 or len(pull_speeds_kph) == 0:
-        return {rider: [RiderWorkAssignmentItem()] for rider in riders}
+        dd = defaultdict(list)
+        for rider in riders:
+            dd[rider] = [RiderWorkAssignmentItem()]
+        return dd
 
     min_length = min(len(pull_durations), len(pull_speeds_kph))
 
-    rider_workunits: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]] = DefaultDict(list)
+    rider_workunits: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]] = defaultdict(list)
     for k in range(1, n + 1):
         workunits: List[RiderWorkAssignmentItem] = []
         for j in range(n):

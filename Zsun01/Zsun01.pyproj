@@ -60,7 +60,6 @@
     <Compile Include="constants.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
-    <Compile Include="src\formulae\jgh_formulae09.py" />
     <Compile Include="src\repositories\repository_of_teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
@@ -97,8 +96,8 @@
     <Compile Include="tools\tool11.py" />
     <Compile Include="tools\tool10.py" />
     <Compile Include="tools\tool09.py" />
+    <Compile Include="tools\tool16.py" />
     <Compile Include="tools\tool15.py" />
-    <Compile Include="tools\tool14.py" />
     <Compile Include="tools\tool13.py" />
     <Compile Include="tools\tool12.py" />
   </ItemGroup>

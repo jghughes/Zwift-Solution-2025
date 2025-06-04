@@ -1,4 +1,5 @@
 from typing import List, DefaultDict
+from collections import defaultdict
 from zsun_rider_dto import ZsunRiderDTO
 from zsun_rider_item import ZsunRiderItem
 from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
@@ -21,7 +22,7 @@ def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, 
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of rider_exertions
     """
-    rider_workloads: DefaultDict[ZsunRiderItem, List[RiderExertionItem]] = {}
+    rider_workloads: DefaultDict[ZsunRiderItem, List[RiderExertionItem]] = defaultdict(list)
     
     for rider, work_assignments in rider_work_assignments.items():
         rider_exertions: List[RiderExertionItem] = []

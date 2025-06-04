@@ -8,6 +8,10 @@ class RiderPullPlanItem():
     p2_w                  : float = 0
     p3_w                  : float = 0
     p4_w                  : float = 0
+    p5_w                  : float = 0
+    p6_w                  : float = 0
+    p7_w                  : float = 0
+    p8_w                  : float = 0
     average_watts         : float = 0
     normalized_watts      : float = 0
     diagnostic_message    : str = ""
