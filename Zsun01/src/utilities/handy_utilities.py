@@ -241,6 +241,10 @@ def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str
     return answer
 
 
+def log_multiline(logger: logging.Logger, lines: list[str]) -> None:
+    logger.info("\n".join(lines))
+
+
 def main():
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
