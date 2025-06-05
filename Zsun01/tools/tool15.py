@@ -1,5 +1,8 @@
+from typing import List, Union, DefaultDict, Tuple, Optional
 from jgh_formatting import format_number_1dp, format_number_comma_separators, format_duration_hms, truncate 
 from zsun_rider_item import ZsunRiderItem
+from zsun_rider_pullplan_item import RiderPullPlanItem
+
 from handy_utilities import read_dict_of_zsunriderItems, log_multiline
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
@@ -14,7 +17,7 @@ from jgh_logging import jgh_configure_logging
 from typing import List
 import logging
 
-def calculate_binary_search_startpoint_to_locate_top_speeds(riders: List[ZsunRiderItem], verbose : bool, logger: logging.Logger) -> float:
+def calculate_safe_binary_search_startpoint_to_locate_speeds(riders: List[ZsunRiderItem], verbose : bool, logger: logging.Logger) -> float:
 
     upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed = calculate_upper_bound_pull_speed(riders)
     upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
@@ -30,20 +33,21 @@ def calculate_binary_search_startpoint_to_locate_top_speeds(riders: List[ZsunRid
     message_lines = [
         "\nPACELINE PULL SPEED: upper and lower bounds: -\n",
         f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_standard_30sec_pull_watts())}w "
-        f"({format_number_1dp(upper_bound_pull_rider.get_standard_30sec_pull_watts()/upper_bound_pull_rider.weight_kg)}wkg) by {upper_bound_pull_rider.name} "
+        f"{format_number_1dp(upper_bound_pull_rider.get_standard_30sec_pull_watts()/upper_bound_pull_rider.weight_kg)}wkg by {upper_bound_pull_rider.name} "
         f"for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
         f"Upper bound 1-hour pull :  {round(upper_bound_1_hour_rider_speed)}kph @ {round(upper_bound_1_hour_rider.get_1_hour_watts())}w "
-        f"({format_number_1dp(upper_bound_1_hour_rider.get_1_hour_watts()/upper_bound_1_hour_rider.weight_kg)}wkg) by {upper_bound_1_hour_rider.name}.",
+        f"{format_number_1dp(upper_bound_1_hour_rider.get_1_hour_watts()/upper_bound_1_hour_rider.weight_kg)}wkg by {upper_bound_1_hour_rider.name}.",
         f"Lower bound pull        :  {round(lower_bound_pull_rider_speed)}kph @ {round(lower_bound_pull_rider.get_standard_4_minute_pull_watts())}w "
-        f"({format_number_1dp(lower_bound_pull_rider.get_standard_4_minute_pull_watts()/lower_bound_pull_rider.weight_kg)}wkg) by {lower_bound_pull_rider.name} "
+        f"{format_number_1dp(lower_bound_pull_rider.get_standard_4_minute_pull_watts()/lower_bound_pull_rider.weight_kg)}wkg by {lower_bound_pull_rider.name} "
         f"for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
         f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_1_hour_watts())}w "
-        f"({format_number_1dp(lower_bound_1_hour_rider.get_1_hour_watts()/lower_bound_1_hour_rider.weight_kg)}wkg) by {lower_bound_1_hour_rider.name}."
+        f"{format_number_1dp(lower_bound_1_hour_rider.get_1_hour_watts()/lower_bound_1_hour_rider.weight_kg)}wkg by {lower_bound_1_hour_rider.name}."
     ]
 
     log_multiline(logger, message_lines)
 
     return safe_lowest_bound_speed
+
 
 def log_summary_message(total_compute_iterations: int, total_num_of_all_conceivable_plans: int, compute_time : float, intensity_factor: float, logger: logging.Logger
 ) -> None:
@@ -59,71 +63,118 @@ def log_summary_message(total_compute_iterations: int, total_num_of_all_conceiva
         "3 minute pull capacity  = best power for 15 minutes",
         "4 minute pull capacity  = best power for 20 minutes",
         "",
-        "The pattern of circulation of the paceline puts stronger riders around the outside and weaker riders in the middle.",
         "Riders with superior pull capacity are prioritised for longer pulls.",
-        "The speed of paceline is constant and does not vary from one rider to the next.",
+        "The speed of the paceline is constant and does not vary from one rider to the next.",
         "The pull capacity of the slowest puller governs the speed, leaving room for upside.",
+        "The circle of the paceline puts stronger riders around the outside and weaker riders in the middle.",
         "Based on data from Zwiftpower as at March/April 2025. Some ZSUN riders have more comprehensive data than others.\n\n",
     ]
     log_multiline(logger, message_lines)
 
 
+def log_simple_pull_plan(riders: List[ZsunRiderItem], simple_pull_period: float, safe_lowest_bound_speed: float, intensity_factor: float, logger: logging.Logger) -> Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
+    """
+    Creates and logs a simple pull plan where all riders pull for the same duration and speed.
+    """
+    simplest_pull_duration_as_array = [simple_pull_period] * len(riders)
+    safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
 
+    answer = make_a_pull_plan_complying_with_exertion_constraints(
+        riders, simplest_pull_duration_as_array, safe_lowest_bound_speed_as_array, intensity_factor
+    )
+
+    _, simple_plan_line_items, simple_plan_halted_rider = answer
+
+    if simple_plan_halted_rider is None:
+        calculated_speed = 0.0
+    else:
+        calculated_speed = round(simple_plan_line_items[simple_plan_halted_rider].speed_kph, 1)
+
+    plan_line_items_displayobjects = populate_pullplan_displayobjects(simple_plan_line_items)
+    log_concise_pullplan_displayobjects(
+        f"\nSIMPLE PULL-PLAN: {calculated_speed}kph. Same pulls for everybody. IF capped at {round(100*intensity_factor)}%.",
+        plan_line_items_displayobjects,
+        logger
+    )
+
+    return answer
+
+
+def log_two_optimized_pull_plans(riders: List[ZsunRiderItem], pull_periods: List[float], binary_search_parameter: float, intensity_factor: float, logger: logging.Logger) -> Tuple[
+    List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
+    int,
+    int,
+    float
+]:
+
+    """
+    Runs the optimal pull plan search and logs the summary and details for both low dispersion and high speed plans.
+    """
+    answer = search_for_optimal_pull_plans_using_most_efficient_algorithm( riders, pull_periods, binary_search_parameter, intensity_factor)
+
+    (two_pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = answer
+
+    low_dispersion_plan, high_speed_plan = two_pull_plans
+
+    _, low_dispersion_plan_line_items, low_dispersion_halted_rider = low_dispersion_plan
+    _, high_speed_plan_line_items, high_speed_halted_rider = high_speed_plan
+
+    low_dispersion_plan_line_items_displayobjects = populate_pullplan_displayobjects(low_dispersion_plan_line_items)
+    high_speed_plan_line_items_displayobjects = populate_pullplan_displayobjects(high_speed_plan_line_items)
+
+    low_dispersion_plan_title = (
+        f"\nBALANCED EFFORT PULL-PLAN: {round(low_dispersion_plan_line_items[low_dispersion_halted_rider].speed_kph,1)}kph. "
+        f"IF capped at {round(100*intensity_factor)}%."
+    )
+    high_speed_plan_title = (
+        f"\nTEMPO PULL-PLAN: {round(high_speed_plan_line_items[high_speed_halted_rider].speed_kph,1)}kph. "
+        f"IF capped at {round(100*intensity_factor)}%."
+    )
+
+    log_concise_pullplan_displayobjects(low_dispersion_plan_title, low_dispersion_plan_line_items_displayobjects, logger)
+    log_concise_pullplan_displayobjects(high_speed_plan_title, high_speed_plan_line_items_displayobjects, logger)
+
+    log_summary_message(
+        total_compute_iterations,
+        total_num_of_all_conceivable_plans,
+        compute_time,
+        intensity_factor,
+        logger,
+    )
+
+    return answer
 
 def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
+    # GET READY
+
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     riderIDs = get_team_riderIDs("betel")
 
     riders : list[ZsunRiderItem] = []
+
     for riderID in riderIDs:
         riders.append(dict_of_zsunrideritems[riderID])
 
     riders = arrange_riders_in_optimal_order(riders)
 
-    safe_lowest_bound_speed = calculate_binary_search_startpoint_to_locate_top_speeds(riders, True, logger)
-
+    binary_search_parameter = calculate_safe_binary_search_startpoint_to_locate_speeds(riders, True, logger)
 
     # MAKE A SIMPLE PULL PLAN AT LOW INTENSITY
 
-    simple_pull_duration = 60.0  # seconds
+    pull_period = 60.0
     intensity_factor = 0.80 
+    _ = log_simple_pull_plan(riders, pull_period, binary_search_parameter, intensity_factor, logger)
 
-    simplest_pull_duration_as_array = [simple_pull_duration] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
-    safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
+    # DO BRUTE-FORCE SEARCH FOR TWO DIFFERENTLY OPTIMAL PULL PLANS - ONE FOR LOW DISPERSION OF INTENSITY, ANOTHER FOR SPEED
 
-    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_duration_as_array, safe_lowest_bound_speed_as_array, intensity_factor)
-    
-    if halted_rider is None:
-        calculated_speed = 0.0
-    else:
-        calculated_speed = round(plan_line_items[halted_rider].speed_kph, 1)
-    
-    plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-    log_concise_pullplan_displayobjects(f"\nSIMPLE PULL-PLAN: {calculated_speed}kph. Same pulls for everybody. IF capped at {round(100*intensity_factor)}%.", plan_line_items_displayobjects, logger)
-
-    # SEARCH FOR TWO OPTIMAL PULL PLANS - ONE FOR BALANCED EFFORT AND ANOTHER FOR TEMPO PULLING
-
+    pull_periods = STANDARD_PULL_PERIODS_SEC
     intensity_factor = MAX_INTENSITY_FACTOR
-
-    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = search_for_optimal_pull_plans_using_most_efficient_algorithm(riders, STANDARD_PULL_PERIODS_SEC, safe_lowest_bound_speed, intensity_factor)
-
-    plan01, plan02 = pull_plans
-    _, plan_line_items01, halted_rider01 = plan01
-    plan_line_items_displayobjects01 = populate_pullplan_displayobjects(plan_line_items01)
-    log_concise_pullplan_displayobjects(f"\nBALANCED EFFORT PULL-PLAN: {round(plan_line_items01[halted_rider01].speed_kph,1)}kph. IF capped at {round(100*intensity_factor)}%.", plan_line_items_displayobjects01, logger)
-
-    _, plan_line_items02, halted_rider02 = plan02
-    plan_line_items_displayobjects02 = populate_pullplan_displayobjects(plan_line_items02)
-    log_concise_pullplan_displayobjects(f"\nTEMPO PULL-PLAN: {round(plan_line_items02[halted_rider02].speed_kph,1)}kph. IF capped at {round(100*intensity_factor)}%.", plan_line_items_displayobjects02, logger)
-  
-    # LOG THE SUMMARY MESSAGE
-
-    log_summary_message( total_compute_iterations, total_num_of_all_conceivable_plans, compute_time, intensity_factor, logger,)
+    _ = log_two_optimized_pull_plans(riders, pull_periods, binary_search_parameter, intensity_factor, logger)
 
 if __name__ == "__main__":
     main()

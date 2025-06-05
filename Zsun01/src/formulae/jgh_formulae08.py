@@ -1,4 +1,4 @@
-from typing import  List, Tuple, Union
+from typing import  List, DefaultDict, Tuple, Union
 import os
 from collections import defaultdict
 import concurrent.futures
@@ -42,7 +42,7 @@ def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) ->
     return plan.normalized_watts / rider.get_1_hour_watts()
 
 
-def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logger):
+def log_rider_one_hour_speeds(riders: List[ZsunRiderItem], logger: logging.Logger):
     from tabulate import tabulate
 
     table = []
@@ -71,7 +71,7 @@ def log_rider_one_hour_speeds(riders: list[ZsunRiderItem], logger: logging.Logge
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
 
 
-def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_upper_bound_pull_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     """
     Determines the maxima of permitted pull speed among all standard pull durations of all riders.
     For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
@@ -105,7 +105,7 @@ def calculate_upper_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
     return fastest_rider, fastest_duration, highest_speed
 
 
-def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_lower_bound_pull_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     """
     Determines the minima permitted pull speed among all standard pull durations of all riders.
 
@@ -145,7 +145,7 @@ def calculate_lower_bound_pull_speed(riders: list[ZsunRiderItem]) -> Tuple[ZsunR
     return slowest_rider, slowest_duration, slowest_speed
 
 
-def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_lower_bound_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
     slowest_duration = 3600.0  # 1 hour in seconds
@@ -162,7 +162,7 @@ def calculate_lower_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
     return slowest_rider, slowest_duration, slowest_speed
 
 
-def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_upper_bound_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
     fastest_duration = 3600.0  # 1 hour in seconds
@@ -177,7 +177,7 @@ def calculate_upper_bound_speed_at_one_hour_watts(riders: list[ZsunRiderItem]) -
     return fastest_rider, fastest_duration, highest_speed
 
 
-def populate_rider_pull_plans(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float], pull_speeds_kph: List[float], max_exertion_intensity_factor : float)-> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_rider_pull_plans(riders: List[ZsunRiderItem], standard_pull_periods_seconds: List[float], pull_speeds_kph: List[float], max_exertion_intensity_factor : float)-> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
     
     work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
 
@@ -197,7 +197,7 @@ def populate_rider_pull_plans(riders: List[ZsunRiderItem], standard_pull_periods
     return rider_pullplan_items
 
 
-def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem, RiderPullPlanItem], max_exertion_intensity_factor : float = 0.95) -> defaultdict[ZsunRiderItem, RiderPullPlanItem]:
+def diagnose_what_governed_the_top_speed(rider_plans: DefaultDict[ZsunRiderItem, RiderPullPlanItem], max_exertion_intensity_factor : float = 0.95) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
     for rider, plan in rider_plans.items():
         msg = ""
         # Step 1: Intensity factor checks
@@ -214,10 +214,10 @@ def diagnose_what_governed_the_top_speed(rider_plans: defaultdict[ZsunRiderItem,
     return rider_plans
 
 
-def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderItem], standard_pull_periods_seconds: list[float], lowest_conceivable_kph: list[float], max_exertion_intensity_factor : float,
+def make_a_pull_plan_complying_with_exertion_constraints(riders: List[ZsunRiderItem], standard_pull_periods_seconds: list[float], lowest_conceivable_kph: list[float], max_exertion_intensity_factor : float,
     precision: float = 0.1,
     max_iter: int = 20
-) -> tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
+) -> Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
     """
     Uses binary search to find the maximum speed before a diagnostic message appears.
     Returns (compute_iterations, rider_pullplan_items, halting_rider).
@@ -239,7 +239,7 @@ def make_a_pull_plan_complying_with_exertion_constraints(riders: list[ZsunRiderI
 
     compute_iterations : int = 0
     halting_rider : Union[None, ZsunRiderItem] = None
-    last_valid_items : Union[None, defaultdict[ZsunRiderItem, RiderPullPlanItem]] = None # the last known good solution. not currently needed or used
+    last_valid_items : Union[None, DefaultDict[ZsunRiderItem, RiderPullPlanItem]] = None # the last known good solution. not currently needed or used
 
     while (upper - lower) > precision and compute_iterations < max_iter:
         mid = (lower + upper) / 2
@@ -583,7 +583,7 @@ def search_for_optimal_pull_plans_with_serial_processing(
     max_exertion_intensity_factor: float,
     pull_plan_period_schedules: List[Tuple[float, ...]]
 ) -> Tuple[
-    List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
+    List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
     int,
     int,
     float
@@ -717,7 +717,7 @@ def search_for_optimal_pull_plans_with_parallel_workstealing(
     max_exertion_intensity_factor: float,
     pull_plan_period_schedules: List[Tuple[float, ...]]
 ) -> Tuple[
-    List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
+    List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
     int,
     int,
     float
@@ -853,7 +853,7 @@ def search_for_optimal_pull_plans_using_most_efficient_algorithm(
     binary_search_seed: float,
     max_exertion_intensity_factor: float
 ) -> Tuple[
-    List[Tuple[int, defaultdict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
+    List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
     int,
     int,
     float
