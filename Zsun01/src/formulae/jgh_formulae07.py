@@ -15,6 +15,70 @@ def populate_pullplan_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderPul
 
     return answer
 
+
+def log_concise_pullplan_displayobjectsV2(
+    test_description: str,
+    result: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject],
+    logger: logging.Logger
+) -> None:
+    import pandas as pd
+
+    logger.info(test_description)
+
+    data = []
+    for rider, z in result.items():
+        data.append([
+            rider.name,
+            z.concatenated_racing_cat_descriptor,
+            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
+            z.pretty_pull,
+            z.pretty_average_watts,
+            f"{round(z.normalised_power_watts)}w",
+            f"{round(100*z.np_intensity_factor)}%",
+            z.diagnostic_message if z.diagnostic_message else "",
+            z.pretty_p2_3_4_w,
+        ])
+
+    columns = [
+        "name",
+        "cat",
+        "zFTP",
+        "pull",
+        "ave",
+        "NP",
+        "IF",
+        "limit",
+        "  2   3   4",
+    ]
+
+    df = pd.DataFrame(data, columns=columns)
+
+    # Right-align the 'pull' column, left-align others
+    col_formats = {col: '<' for col in df.columns}
+    col_formats['pull'] = '>'  # right-align 'pull'
+
+    # Build formatted string for logging
+    formatted_rows = []
+    header = "  ".join([f"{col:{col_formats[col]}15}" for col in df.columns])
+    formatted_rows.append(header)
+    for _, row in df.iterrows():
+        formatted_row = "  ".join(
+            f"{str(val):{col_formats[col]}15}" for col, val in row.items()
+        )
+        formatted_rows.append(formatted_row)
+
+    logger.info("\n" + "\n".join(formatted_rows))
+
+
+
+
+
+
+
+
+
+
+
 def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
@@ -28,14 +92,6 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
             z.concatenated_racing_cat_descriptor,
             f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
-            # round(z.p1_duration),
-            # round_to_nearest_10(z.p1_w), 
-            # z.pretty_p2_3_4_w, 
-            # round(z.zsun_one_hour_watts),
-            # round(z.zwiftracingapp_zpFTP),
-            # format_number_2dp(z.zwiftracingapp_zpFTP_wkg),
-            # format_number_1dp(z.p1_wkg),
-            # format_number_2dp(z.p1_ratio_to_zwiftracingapp_zpFTP),
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.np_intensity_factor)}%",
@@ -49,13 +105,6 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
         "cat",
         "zFTP", 
         "pull", 
-        # "p1", 
-        # "  2   3   4", 
-        # "bFTP", 
-        # "zFTP", 
-        # "zFTP", 
-        # "p1",
-        # "x",
         "ave",
         "NP",
         "IF",
@@ -63,7 +112,7 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
         "  2   3   4", 
 
     ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple",disable_numparse=True))
+    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple", stralign="left", disable_numparse=True))
 
 def main() -> None:
     from jgh_logging import jgh_configure_logging

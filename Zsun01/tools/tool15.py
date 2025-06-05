@@ -1,21 +1,23 @@
-from typing import List, Union, DefaultDict, Tuple, Optional
+from typing import List, Union, DefaultDict, Tuple
 from jgh_formatting import format_number_1dp, format_number_comma_separators, format_duration_hms, truncate 
 from zsun_rider_item import ZsunRiderItem
 from zsun_rider_pullplan_item import RiderPullPlanItem
-
 from handy_utilities import read_dict_of_zsunriderItems, log_multiline
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
-from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
-from jgh_formulae08 import search_for_optimal_pull_plans_using_most_efficient_algorithm,  make_a_pull_plan_complying_with_exertion_constraints
+from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects, log_concise_pullplan_displayobjectsV2
+from jgh_formulae08 import (
+    calculate_lower_bound_pull_speed, 
+    calculate_lower_bound_speed_at_one_hour_watts, 
+    calculate_upper_bound_pull_speed, 
+    calculate_upper_bound_speed_at_one_hour_watts,
+    search_for_optimal_pull_plans_using_most_efficient_algorithm,  
+    make_a_pull_plan_complying_with_exertion_constraints
+    )
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
 from jgh_logging import jgh_configure_logging
-
-from typing import List
-import logging
 
 def calculate_safe_binary_search_startpoint_to_locate_speeds(riders: List[ZsunRiderItem], verbose : bool, logger: logging.Logger) -> float:
 
@@ -143,6 +145,7 @@ def log_two_optimized_pull_plans(riders: List[ZsunRiderItem], pull_periods: List
     )
 
     return answer
+
 
 def main():
     jgh_configure_logging("appsettings.json")

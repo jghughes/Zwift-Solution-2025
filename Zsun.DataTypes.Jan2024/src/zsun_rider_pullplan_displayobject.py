@@ -70,10 +70,13 @@ class RiderPullPlanDisplayObject():
 
     @staticmethod
     def make_pretty_pull(rider : ZsunRiderItem, plan: RiderPullPlanItem) -> str:
-        if plan.p1_duration >= 100:
-            duration_str = f"{str(round(plan.p1_duration))}sec"
-        else:
-            duration_str = f" {str(round(plan.p1_duration))}sec"
+
+        duration_str = f"{int(round(plan.p1_duration)):3d}sec"
+        # if plan.p1_duration >= 100:
+        #     duration_str = f"{str(round(plan.p1_duration))}sec"
+        # else:
+        #     duration_str = f"\u00A0{str(round(plan.p1_duration))}sec"  # Non-breaking space that tabulate will respect
+
 
         p1_w = f"{str(round_to_nearest_10(plan.p1_w))}w"
 
