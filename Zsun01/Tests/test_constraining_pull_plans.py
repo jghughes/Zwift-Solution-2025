@@ -5,7 +5,7 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts
-from jgh_formulae08 import search_for_optimal_pull_plans_using_parallel_workstealing,  make_a_pull_plan_complying_with_exertion_constraints
+from jgh_formulae08 import search_for_optimal_pull_plans_using_parallel_workstealing,  make_a_single_pull_plan_complying_with_exertion_constraints
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -41,7 +41,7 @@ def main():
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    _, plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
+    _, plan_line_items, halted_rider = make_a_single_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
     plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
     log_concise_pullplan_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 

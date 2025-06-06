@@ -12,7 +12,7 @@ from jgh_formulae08 import (
     calculate_upper_bound_pull_speed, 
     calculate_upper_bound_speed_at_one_hour_watts,
     search_for_optimal_pull_plans_using_most_performant_algorithm,  
-    make_a_pull_plan_complying_with_exertion_constraints
+    make_a_single_pull_plan_complying_with_exertion_constraints
     )
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
@@ -96,7 +96,7 @@ def show_simple_pull_plan(
         max_exertion_intensity_factor=intensity_factor
     )
 
-    result = make_a_pull_plan_complying_with_exertion_constraints(params)
+    result = make_a_single_pull_plan_complying_with_exertion_constraints(params)
     simple_plan_line_items = result.rider_pull_plans
     simple_plan_halted_rider = result.limiting_rider
 

@@ -9,14 +9,10 @@ from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullpla
 from jgh_formulae08 import (
         calculate_upper_bound_pull_speed,
         calculate_upper_bound_speed_at_one_hour_watts,
-        search_for_optimal_pull_plans_using_most_performant_algorithm,)
+        search_for_optimal_pull_plans_using_most_performant_algorithm,
+        make_a_single_pull_plan_complying_with_exertion_constraints)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
-
-import logging
-from jgh_logging import jgh_configure_logging
-
-
 
 
 def evaluate_permutation(params: PullPlanComputationParams) -> OptimalPullPlansResult:
@@ -37,6 +33,8 @@ def evaluate_permutation(params: PullPlanComputationParams) -> OptimalPullPlansR
     return result
 
 def main():
+    import logging
+    from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
@@ -50,20 +48,23 @@ def main():
         riders.append(dict_of_zsunrideritems[riderID])
 
     rider_permutations = generate_rider_permutations(riders)
+    logger.info(f"Ranking the speed of {len(rider_permutations)} variations in the circulation order of {len(riders)} riders...\n")
+
+    #Note to self: don't try this for more than 3 riders. it will paralyse this machine with memory saturation.
 
     # --- Evaluate all permutations for optimal pull plans in parallel ---
-    params_list = [
+    list_of_instructions = [
         PullPlanComputationParams(
             riders_list=perm_riders,
             standard_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
-            pull_speeds_kph=None,  # Will be set in evaluate_permutation
+            pull_speeds_kph=[],  # Will be set in evaluate_permutation
             max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
         )
-        for perm_idx, perm_riders in rider_permutations.items()
+        for _, perm_riders in rider_permutations.items()
     ]
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-        results = executor.map(evaluate_permutation, params_list)
+        results = executor.map(evaluate_permutation, list_of_instructions)
         all_permutation_results = list(results)
 
     # 4. Sort by speed of halted_rider in lowest_dispersion_plan
@@ -96,10 +97,10 @@ def main():
         plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
         speed = round(getattr(plan_line_items[limiting_rider], "speed_kph", 0), 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
-        logger.info(f"\nPermutation {idx+1}: lowest_dispersion_plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        log_concise_pullplan_displayobjects(
-            f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
-        )
+        logger.info(f"Permutation {idx+1}: lowest_dispersion_plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
+        # log_concise_pullplan_displayobjects(
+        #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
+        # )
 
 if __name__ == "__main__":
         main()
