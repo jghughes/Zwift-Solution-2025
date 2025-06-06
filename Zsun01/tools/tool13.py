@@ -5,7 +5,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_pull_plan
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, make_pull_plan_rotation_schedule_solution_space
-from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints, search_for_optimal_pull_plans_with_parallel_workstealing
+from jgh_formulae08 import make_a_pull_plan_complying_with_exertion_constraints, search_for_optimal_pull_plans_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
@@ -45,7 +45,7 @@ def main():
     _, simple_plan_line_items, halted_rider = make_a_pull_plan_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
 
     all_conceivable_paceline_rotation_schedules =make_pull_plan_rotation_schedule_solution_space(riders, STANDARD_PULL_PERIODS_SEC)
-    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans_with_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR, all_conceivable_paceline_rotation_schedules)
+    (pull_plans, total_alternatives, total_iterations, compute_time) = search_for_optimal_pull_plans_using_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR, all_conceivable_paceline_rotation_schedules)
 
     low_dispersion_plan, high_speed_plan = pull_plans
     _, low_dispersion_plan_line_items, halted_rider = low_dispersion_plan

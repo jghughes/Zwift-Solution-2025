@@ -11,7 +11,7 @@ from jgh_formulae08 import (
     calculate_lower_bound_speed_at_one_hour_watts, 
     calculate_upper_bound_pull_speed, 
     calculate_upper_bound_speed_at_one_hour_watts,
-    search_for_optimal_pull_plans_using_most_efficient_algorithm,  
+    search_for_optimal_pull_plans_using_most_performant_algorithm,  
     make_a_pull_plan_complying_with_exertion_constraints
     )
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
@@ -74,18 +74,31 @@ def log_summary_message(total_compute_iterations: int, total_num_of_all_conceiva
     log_multiline(logger, message_lines)
 
 
-def log_simple_pull_plan(riders: List[ZsunRiderItem], simple_pull_period: float, safe_lowest_bound_speed: float, intensity_factor: float, logger: logging.Logger) -> Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], Union[None, ZsunRiderItem]]:
+from computation_classes import PullPlanComputationParams  # Add this import at the top
+
+def show_simple_pull_plan(
+    riders: List[ZsunRiderItem],
+    simple_pull_period: float,
+    safe_lowest_bound_speed: float,
+    intensity_factor: float,
+    logger: logging.Logger
+):
     """
     Creates and logs a simple pull plan where all riders pull for the same duration and speed.
     """
     simplest_pull_duration_as_array = [simple_pull_period] * len(riders)
     safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
 
-    answer = make_a_pull_plan_complying_with_exertion_constraints(
-        riders, simplest_pull_duration_as_array, safe_lowest_bound_speed_as_array, intensity_factor
+    params = PullPlanComputationParams(
+        riders_list                  =riders,
+        standard_pull_periods_sec    =simplest_pull_duration_as_array,
+        pull_speeds_kph              =safe_lowest_bound_speed_as_array,
+        max_exertion_intensity_factor=intensity_factor
     )
 
-    _, simple_plan_line_items, simple_plan_halted_rider = answer
+    result = make_a_pull_plan_complying_with_exertion_constraints(params)
+    simple_plan_line_items = result.rider_pull_plans
+    simple_plan_halted_rider = result.limiting_rider
 
     if simple_plan_halted_rider is None:
         calculated_speed = 0.0
@@ -99,27 +112,39 @@ def log_simple_pull_plan(riders: List[ZsunRiderItem], simple_pull_period: float,
         logger
     )
 
-    return answer
+    return result
 
-
-def log_two_optimized_pull_plans(riders: List[ZsunRiderItem], pull_periods: List[float], binary_search_parameter: float, intensity_factor: float, logger: logging.Logger) -> Tuple[
-    List[Tuple[int, DefaultDict[ZsunRiderItem, RiderPullPlanItem], ZsunRiderItem]],
-    int,
-    int,
-    float
-]:
-
+def show_two_optimized_pull_plans(
+    riders: List[ZsunRiderItem],
+    pull_periods: List[float],
+    binary_search_parameter: float,
+    intensity_factor: float,
+    logger: logging.Logger
+):
     """
     Runs the optimal pull plan search and logs the summary and details for both low dispersion and high speed plans.
     """
-    answer = search_for_optimal_pull_plans_using_most_efficient_algorithm( riders, pull_periods, binary_search_parameter, intensity_factor)
+    params = PullPlanComputationParams(
+        riders_list                     =riders,
+        standard_pull_periods_sec       =pull_periods,
+        pull_speeds_kph                 =[binary_search_parameter] * len(riders),
+        max_exertion_intensity_factor   =intensity_factor
+    )
 
-    (two_pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = answer
+    result = search_for_optimal_pull_plans_using_most_performant_algorithm(params)
 
-    low_dispersion_plan, high_speed_plan = two_pull_plans
+    two_pull_plans = result.solutions
+    total_num_of_all_conceivable_plans = result.total_num_of_all_pull_plan_period_schedules
+    total_compute_iterations = result.total_compute_iterations_count
+    compute_time = result.computational_time
 
-    _, low_dispersion_plan_line_items, low_dispersion_halted_rider = low_dispersion_plan
-    _, high_speed_plan_line_items, high_speed_halted_rider = high_speed_plan
+    low_dispersion_plan = two_pull_plans[0]
+    high_speed_plan = two_pull_plans[1]
+
+    low_dispersion_plan_line_items = low_dispersion_plan.rider_pull_plans
+    low_dispersion_halted_rider = low_dispersion_plan.limiting_rider
+    high_speed_plan_line_items = high_speed_plan.rider_pull_plans
+    high_speed_halted_rider = high_speed_plan.limiting_rider
 
     low_dispersion_plan_line_items_displayobjects = populate_pullplan_displayobjects(low_dispersion_plan_line_items)
     high_speed_plan_line_items_displayobjects = populate_pullplan_displayobjects(high_speed_plan_line_items)
@@ -144,7 +169,7 @@ def log_two_optimized_pull_plans(riders: List[ZsunRiderItem], pull_periods: List
         logger,
     )
 
-    return answer
+    return result
 
 
 def main():
@@ -171,13 +196,13 @@ def main():
 
     pull_period = 60.0
     intensity_factor = 0.80 
-    _ = log_simple_pull_plan(riders, pull_period, binary_search_parameter, intensity_factor, logger)
+    show_simple_pull_plan(riders, pull_period, binary_search_parameter, intensity_factor, logger)
 
     # DO BRUTE-FORCE SEARCH FOR TWO DIFFERENTLY OPTIMAL PULL PLANS - ONE FOR LOW DISPERSION OF INTENSITY, ANOTHER FOR SPEED
 
     pull_periods = STANDARD_PULL_PERIODS_SEC
     intensity_factor = MAX_INTENSITY_FACTOR
-    _ = log_two_optimized_pull_plans(riders, pull_periods, binary_search_parameter, intensity_factor, logger)
+    show_two_optimized_pull_plans(riders, pull_periods, binary_search_parameter, intensity_factor, logger)
 
 if __name__ == "__main__":
     main()
