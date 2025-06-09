@@ -52,13 +52,13 @@ class OptimalPullPlansResult:
 
 
 @dataclass
-class PullPlanComputationResult:
+class PacelineComputationReport:
     num_compute_iterations_done : int  = 0
     rider_pull_plans            : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = field(default_factory=lambda: defaultdict(RiderPullPlanItem))
     limiting_rider              : Optional[ZsunRiderItem]  = None
 
 @dataclass
-class PullPlanComputationParams:
+class PacelineComputationInstruction:
     riders_list                  : List[ZsunRiderItem] = field(default_factory=list)
     standard_pull_periods_sec    : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)

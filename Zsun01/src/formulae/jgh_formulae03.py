@@ -375,7 +375,7 @@ def main3():
         [
             rider.name,
             format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
-            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_one_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in riders_sorted
@@ -402,7 +402,7 @@ def main3():
         [
             rider.name,
             format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
-            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_one_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in strong
@@ -426,7 +426,7 @@ def main3():
         [
             rider.name,
             format_number_2sig(calculate_speed_at_standard_2_minute_pull_watts(rider)),
-            format_number_2sig(rider.get_1_hour_watts() / rider.weight_kg),
+            format_number_2sig(rider.get_one_hour_watts() / rider.weight_kg),
             format_number_2sig(rider.get_standard_2_minute_pull_watts() / rider.weight_kg),
         ]
         for rider in weak

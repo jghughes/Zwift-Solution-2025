@@ -419,7 +419,7 @@ class ZsunRiderItem:
         return self.get_standard_1_minute_pull_watts()/self.weight_kg
 
     def get_standard_pull_watts(self, seconds : float)-> float:
-        permissable_watts = self.get_1_hour_watts() # default
+        permissable_watts = self.get_one_hour_watts() # default
 
         if seconds == 30:
             permissable_watts = self.get_standard_30sec_pull_watts()
@@ -467,7 +467,7 @@ class ZsunRiderItem:
         answer = one_hour[0]
         return answer
 
-    def get_1_hour_watts(self) -> float:
+    def get_one_hour_watts(self) -> float:
 
         ftp = decay_model_numpy(np.array([3_600]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
 
@@ -475,10 +475,10 @@ class ZsunRiderItem:
 
         return answer
 
-    def get_zsun_1_hour_wkg(self) -> float:
+    def get_one_hour_wkg(self) -> float:
         if self.weight_kg == 0:
             return 0.0
-        return self.get_1_hour_watts()/ self.weight_kg
+        return self.get_one_hour_watts()/ self.weight_kg
 
     def get_watts_per_kg(self, wattage : float) -> float:
         if self.weight_kg == 0:
@@ -526,7 +526,7 @@ class ZsunRiderItem:
             zwift_ftp                         = item.zwift_ftp,
             zwiftpower_zFTP                   = item.zwiftpower_zFTP,
             zwiftracingapp_zpFTP              = item.zwiftracingapp_zpFTP,
-            zsun_one_hour_watts               = item.get_1_hour_watts(),
+            zsun_one_hour_watts               = item.get_one_hour_watts(),
             zsun_CP                           = item.zsun_CP,
             zsun_AWC                          = item.zsun_AWC,
             zwift_zrs                         = item.zwift_zrs,

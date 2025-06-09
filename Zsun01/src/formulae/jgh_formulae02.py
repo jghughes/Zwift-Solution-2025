@@ -156,7 +156,7 @@ def calculate_speed_at_one_hour_watts(rider : ZsunRiderItem) -> float:
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_1_hour_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_one_hour_watts(), rider.weight_kg, rider.height_cm)
         
     return round(speed_kph, 3)
 

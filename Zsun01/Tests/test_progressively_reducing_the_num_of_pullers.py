@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PullPlanComputationParams, OptimalPullPlansResult
+from computation_classes import PacelineComputationInstruction, OptimalPullPlansResult
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
@@ -9,13 +9,13 @@ from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullpla
 from jgh_formulae08 import (
         calculate_upper_bound_pull_speed,
         calculate_upper_bound_speed_at_one_hour_watts,
-        search_for_optimal_pull_plans_using_most_performant_algorithm,
-        make_a_single_pull_plan_complying_with_exertion_constraints)
+        search_for_paceline_solutions_using_most_performant_algorithm,
+        compute_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
-def evaluate_permutation(params: PullPlanComputationParams) -> OptimalPullPlansResult:
+def evaluate_permutation(params: PacelineComputationInstruction) -> OptimalPullPlansResult:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -28,7 +28,7 @@ def evaluate_permutation(params: PullPlanComputationParams) -> OptimalPullPlansR
 
     # GO!
 
-    result = search_for_optimal_pull_plans_using_most_performant_algorithm(params)
+    result = search_for_paceline_solutions_using_most_performant_algorithm(params)
 
     return result
 
@@ -50,11 +50,13 @@ def main():
     rider_permutations = generate_rider_permutations(riders)
     logger.info(f"Ranking the speed of {len(rider_permutations)} variations in the circulation order of {len(riders)} riders...\n")
 
-    #Note to self: don't try this for more than 3 riders. it will paralyse this machine with memory saturation.
 
     # --- Evaluate all permutations for optimal pull plans in parallel ---
+
+    STANDARD_PULL_PERIODS_SEC = [30.0,60.0, 240.0]
+
     list_of_instructions = [
-        PullPlanComputationParams(
+        PacelineComputationInstruction(
             riders_list=perm_riders,
             standard_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
@@ -71,8 +73,14 @@ def main():
     def get_halted_rider_speed(optimal_result: OptimalPullPlansResult):
         if not optimal_result.solutions:
             return 0
-        # Assume the first solution is the "lowest_dispersion_plan"
-        solution = optimal_result.solutions[0]
+        # # Assume the first solution is the "lowest_dispersion_plan"
+        # solution = optimal_result.solutions[0]
+
+        # Assume the 2nd solution is the "fastest_plan"
+        solution = optimal_result.solutions[1]
+
+
+
         # Each solution has rider_pull_plans: DefaultDict[ZsunRiderItem, RiderPullPlanItem]
         # and limiting_rider: Optional[ZsunRiderItem]
         if solution.limiting_rider is None:
@@ -97,7 +105,7 @@ def main():
         plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
         speed = round(getattr(plan_line_items[limiting_rider], "speed_kph", 0), 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
-        logger.info(f"Permutation {idx+1}: lowest_dispersion_plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
+        logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
         # log_concise_pullplan_displayobjects(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )

@@ -4,8 +4,8 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_pull_plan
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
-from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, generate_all_conceivable_pull_period_assignments
-from jgh_formulae08 import make_a_single_pull_plan_complying_with_exertion_constraints, search_for_optimal_pull_plans_using_parallel_workstealing
+from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, generate_a_scaffold_of_the_total_solution_space
+from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, search_for_paceline_solutions_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
@@ -26,41 +26,41 @@ def main():
     r01, r01_duration, r01_speed = calculate_upper_bound_pull_speed(riders)
     r02, _, r02_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
     logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_30sec_pull_watts())} W ({round(r01.get_standard_30sec_pull_watts()/r01.weight_kg, 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({round(r02.get_1_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
+    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
 
     r01, r01_duration, r01_speed = calculate_lower_bound_pull_speed(riders)
     r02, _, r02_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
     logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_4_minute_pull_watts())} W ({round(r01.get_standard_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_1_hour_watts())} W ({round(r02.get_1_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
+    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
 
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed, 0), 1))  # round to lowest 1 kph, as a float
     simplest_pull_durations = [60.0] * len(riders)  # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    from computation_classes import PullPlanComputationParams
+    from computation_classes import PacelineComputationInstruction
 
     # Prepare params for single plan
-    simple_params = PullPlanComputationParams(
+    simple_params = PacelineComputationInstruction(
         riders_list=riders,
         standard_pull_periods_sec=simplest_pull_durations,
         pull_speeds_kph=lowest_bound_speed_as_array,
         max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
     )
-    simple_result = make_a_single_pull_plan_complying_with_exertion_constraints(simple_params)
+    simple_result = compute_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_pull_plans
     halted_rider = simple_result.limiting_rider
 
-    all_conceivable_paceline_rotation_schedules = generate_all_conceivable_pull_period_assignments(len(riders), STANDARD_PULL_PERIODS_SEC)
+    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
 
     # Prepare params for optimal search
-    standard_params = PullPlanComputationParams(
+    standard_params = PacelineComputationInstruction(
         riders_list=riders,
         standard_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph=[lowest_bound_speed] * len(riders),
         max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
     )
 
-    optimal_result = search_for_optimal_pull_plans_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
+    optimal_result = search_for_paceline_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
     pull_plans = optimal_result.solutions
     total_alternatives = optimal_result.total_num_of_all_pull_plan_period_schedules
     total_iterations = optimal_result.total_compute_iterations_count

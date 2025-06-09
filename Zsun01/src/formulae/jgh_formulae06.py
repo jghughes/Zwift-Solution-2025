@@ -190,31 +190,27 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
-
+    from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
+    from jgh_formulae08 import insert_ex_post_facto_message_about_cause_of_top_speed_limit
 
 
     from handy_utilities import read_dict_of_zsunriderItems
+    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    RIDERDATA_FILE_NAME = "betel_ZsunRiderItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERDATA_FILE_NAME, DATA_DIRPATH)
-
-
-    davek : ZsunRiderItem = dict_of_zwiftrideritem['3147366'] # davek
-    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    scottm : ZsunRiderItem = dict_of_zwiftrideritem['11526'] # markb
-    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    meredith_leubner : ZsunRiderItem = dict_of_zwiftrideritem['1707548'] # davek
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # barryb
+    matt_steeve : ZsunRiderItem = dict_of_zwiftrideritem['1024413'] # markb
+    roland_segal : ZsunRiderItem = dict_of_zwiftrideritem['384442'] # richardm
+    lynsey_segal : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    melissa_warwick : ZsunRiderItem = dict_of_zwiftrideritem['1657744'] # joshn
     
-    pull_speeds_kph = [39.0, 39.0,39.0, 39.0, 39.0, 39.0, 39.0, 39.0]
-    pull_durations = [120.0, 90.0, 60.0, 30.0, 30.0, 30.0, 30.0, 30.0]
-    riders : list[ZsunRiderItem] = [davek, scottm, barryb, johnh, lynseys, joshn, richardm]
+    riders : list[ZsunRiderItem] = [meredith_leubner, johnh, matt_steeve, roland_segal, lynsey_segal, melissa_warwick]
+
+    pull_speeds_kph = [38.8, 38.8,38.8, 38.8, 38.8, 38.8, 38.8, 38.8]
+    pull_durations = [240.0, 120.0, 60.0, 30.0, 60.0, 180.0]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
@@ -222,7 +218,8 @@ def main() -> None:
 
     rider_pull_plans = populate_pull_plan_from_rider_exertions(rider_exertions)
 
-    log_pull_plan("7-riders @39kph", rider_pull_plans, logger)
+
+    log_pull_plan(f"{len(riders)}-riders @38,8kph.", rider_pull_plans, logger)
 
 
 if __name__ == "__main__":

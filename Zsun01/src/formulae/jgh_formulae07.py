@@ -70,15 +70,6 @@ def log_concise_pullplan_displayobjectsV2(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-
-
-
-
-
-
-
-
-
 def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
@@ -126,22 +117,24 @@ def main() -> None:
     from jgh_formulae06 import populate_pull_plan_from_rider_exertions
 
     from handy_utilities import read_dict_of_zsunriderItems
+    from repository_of_teams import get_team_riderIDs    
+    from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
-    RIDERDATA_FILE_NAME = "betel_ZsunRiderItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERDATA_FILE_NAME, DATA_DIRPATH)
+    meredith_leubner : ZsunRiderItem = dict_of_zwiftrideritem['1707548'] # davek
+    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # barryb
+    matt_steeve : ZsunRiderItem = dict_of_zwiftrideritem['1024413'] # markb
+    roland_segal : ZsunRiderItem = dict_of_zwiftrideritem['384442'] # richardm
+    lynsey_segal : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
+    melissa_warwick : ZsunRiderItem = dict_of_zwiftrideritem['1657744'] # joshn
+    
+    riders : list[ZsunRiderItem] = [meredith_leubner, johnh, matt_steeve, roland_segal, lynsey_segal, melissa_warwick]
 
 
-    barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
-    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh
-    lynseys : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    joshn : ZsunRiderItem = dict_of_zwiftrideritem['2508033'] # joshn
-    richardm : ZsunRiderItem = dict_of_zwiftrideritem['1193'] # richardm
+    pull_speeds_kph = [38.8, 38.8,38.8, 38.8, 38.8, 38.8, 38.8, 38.8]
+    pull_durations = [240.0, 120.0, 60.0, 30.0, 60.0, 180.0]
 
-    pull_speeds_kph = [42.0, 42.0, 42.0, 42.0, 42.0]
-    pull_durations = [30.0, 30.0, 30.0, 30.0, 30.0]
-    riders : list[ZsunRiderItem] = [barryb, johnh, lynseys, joshn, richardm]
 
     work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
@@ -149,10 +142,9 @@ def main() -> None:
 
     dict_of_rider_pullplans = populate_pull_plan_from_rider_exertions(rider_exertions)
 
-
     dict_of_rider_pullplan_displayobjects = populate_pullplan_displayobjects(dict_of_rider_pullplans)
 
-    log_concise_pullplan_displayobjects("Comparative rider metrics [RiderPullPlanItem]:", dict_of_rider_pullplan_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"Comparative rider metrics [RiderPullPlanItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ save_filename_without_ext = "compare_concurrent_programming_strategies_9_riders"
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from jgh_formulae08 import search_for_optimal_pull_plans_using_parallel_workstealing
+    from jgh_formulae08 import search_for_paceline_solutions_using_parallel_workstealing
     from jgh_formulae09 import search_for_optimal_pull_plans_with_parallel_chunking
     from constants import STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
@@ -24,11 +24,11 @@ def main01():
 
     results = []
 
-    # 1. Baseline: search_for_optimal_pull_plans_using_parallel_workstealing
+    # 1. Baseline: search_for_paceline_solutions_using_parallel_workstealing
     start = time.perf_counter()
-    res1 = search_for_optimal_pull_plans_using_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR)
+    res1 = search_for_paceline_solutions_using_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR)
     elapsed1 = time.perf_counter() - start
-    logger.info(f"search_for_optimal_pull_plans_using_parallel_workstealing: {elapsed1:.4f}s with work-stealing algorithm")
+    logger.info(f"search_for_paceline_solutions_using_parallel_workstealing: {elapsed1:.4f}s with work-stealing algorithm")
 
     # 2. Chunking with None args
     start = time.perf_counter()
@@ -78,7 +78,7 @@ def main01():
     report_lines = [
         "Benchmark Report: Concurrent Programming Strategies\n",
         "Tested strategies:",
-        "1. search_for_optimal_pull_plans_using_parallel_workstealing",
+        "1. search_for_paceline_solutions_using_parallel_workstealing",
         "2. search_for_optimal_pull_plans_with_parallel_chunking (chunk_size=None, max_workers=None)",
         "3. search_for_optimal_pull_plans_with_parallel_chunking (default args)\n",
         f"Data saved to: {csv_path}",

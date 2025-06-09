@@ -129,6 +129,6 @@ class RiderPullPlanDisplayObject():
             average_wkg                            = plan.average_watts/rider.weight_kg if rider.weight_kg != 0 else 0,
             pretty_average_watts                   = RiderPullPlanDisplayObject.make_pretty_average_watts(rider, plan),
             normalised_power_watts                 = plan.normalized_watts,
-            np_intensity_factor                    = plan.normalized_watts/rider.get_1_hour_watts(),
+            np_intensity_factor                    = plan.normalized_watts/rider.get_one_hour_watts(),
             diagnostic_message                     = plan.diagnostic_message
         )
