@@ -5,7 +5,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_pull_plan
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, generate_a_scaffold_of_the_total_solution_space
-from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, search_for_paceline_solutions_using_parallel_workstealing
+from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, search_for_paceline_rotation_solutions_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
@@ -37,12 +37,12 @@ def main():
     simplest_pull_durations = [60.0] * len(riders)  # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    from computation_classes import PacelineComputationInstruction
+    from computation_classes import PacelineSpecification
 
     # Prepare params for single plan
-    simple_params = PacelineComputationInstruction(
+    simple_params = PacelineSpecification(
         riders_list=riders,
-        standard_pull_periods_sec=simplest_pull_durations,
+        sequence_of_pull_periods_sec=simplest_pull_durations,
         pull_speeds_kph=lowest_bound_speed_as_array,
         max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
     )
@@ -53,17 +53,17 @@ def main():
     all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
 
     # Prepare params for optimal search
-    standard_params = PacelineComputationInstruction(
+    standard_params = PacelineSpecification(
         riders_list=riders,
-        standard_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph=[lowest_bound_speed] * len(riders),
         max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
     )
 
-    optimal_result = search_for_paceline_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
+    optimal_result = search_for_paceline_rotation_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
     pull_plans = optimal_result.solutions
-    total_alternatives = optimal_result.total_num_of_all_pull_plan_period_schedules
-    total_iterations = optimal_result.total_compute_iterations_count
+    total_alternatives = optimal_result.candidate_rotation_sequences_count
+    total_iterations = optimal_result.total_compute_iterations_performed_count
     compute_time = optimal_result.computational_time
 
     low_dispersion_plan, high_speed_plan = pull_plans

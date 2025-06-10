@@ -39,27 +39,27 @@ class RiderExertionItem:
 
 @dataclass
 class PullPlanSolution:
-    compute_iterations_count      : int
+    compute_iterations_performed_count      : int
     rider_pull_plans              : DefaultDict[ZsunRiderItem, RiderPullPlanItem]
     limiting_rider                : Optional[ZsunRiderItem]
 
 @dataclass
-class OptimalPullPlansResult:
-    total_num_of_all_pull_plan_period_schedules : int   = 0
-    total_compute_iterations_count              : int   = 0
+class DesireablePacelineRotationSolutionsComputationOutcome:
+    candidate_rotation_sequences_count : int   = 0
+    total_compute_iterations_performed_count              : int   = 0
     computational_time                          : float = 0.0
     solutions                                   : List[PullPlanSolution] = field(default_factory=list)
 
 
 @dataclass
 class PacelineComputationReport:
-    num_compute_iterations_done : int  = 0
+    num_compute_iterations_performed : int  = 0
     rider_pull_plans            : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = field(default_factory=lambda: defaultdict(RiderPullPlanItem))
     limiting_rider              : Optional[ZsunRiderItem]  = None
 
 @dataclass
-class PacelineComputationInstruction:
+class PacelineSpecification:
     riders_list                  : List[ZsunRiderItem] = field(default_factory=list)
-    standard_pull_periods_sec    : List[float]         = field(default_factory=list)
+    sequence_of_pull_periods_sec    : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)
     max_exertion_intensity_factor: float               = 0.95

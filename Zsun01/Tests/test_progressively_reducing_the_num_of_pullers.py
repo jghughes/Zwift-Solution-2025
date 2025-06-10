@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineComputationInstruction, OptimalPullPlansResult
+from computation_classes import PacelineSpecification, DesireablePacelineRotationSolutionsComputationOutcome
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
@@ -9,13 +9,13 @@ from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullpla
 from jgh_formulae08 import (
         calculate_upper_bound_pull_speed,
         calculate_upper_bound_speed_at_one_hour_watts,
-        search_for_paceline_solutions_using_most_performant_algorithm,
+        search_for_paceline_rotation_solutions_using_most_performant_algorithm,
         compute_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
-def evaluate_permutation(params: PacelineComputationInstruction) -> OptimalPullPlansResult:
+def evaluate_permutation(params: PacelineSpecification) -> DesireablePacelineRotationSolutionsComputationOutcome:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -28,7 +28,7 @@ def evaluate_permutation(params: PacelineComputationInstruction) -> OptimalPullP
 
     # GO!
 
-    result = search_for_paceline_solutions_using_most_performant_algorithm(params)
+    result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
 
     return result
 
@@ -56,9 +56,9 @@ def main():
     STANDARD_PULL_PERIODS_SEC = [30.0,60.0, 240.0]
 
     list_of_instructions = [
-        PacelineComputationInstruction(
+        PacelineSpecification(
             riders_list=perm_riders,
-            standard_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
+            sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
             max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
         )
@@ -70,7 +70,7 @@ def main():
         all_permutation_results = list(results)
 
     # 4. Sort by speed of halted_rider in lowest_dispersion_plan
-    def get_halted_rider_speed(optimal_result: OptimalPullPlansResult):
+    def get_halted_rider_speed(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome):
         if not optimal_result.solutions:
             return 0
         # # Assume the first solution is the "lowest_dispersion_plan"

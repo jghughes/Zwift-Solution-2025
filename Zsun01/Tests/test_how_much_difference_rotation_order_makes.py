@@ -1,29 +1,29 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineComputationInstruction, OptimalPullPlansResult
+from computation_classes import PacelineSpecification, DesireablePacelineRotationSolutionsComputationOutcome
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
 from jgh_formulae08 import (
         calculate_upper_bound_pull_speed,
         calculate_upper_bound_speed_at_one_hour_watts,
-        search_for_paceline_solutions_using_most_performant_algorithm,
+        search_for_paceline_rotation_solutions_using_most_performant_algorithm,
         weaker_than_weakest_rider_filter,)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
-standard_pull_periods_sec = [30.0, 60.0, 240.0]
+sequence_of_pull_periods_sec = [30.0, 60.0, 240.0]
 desired_solution_index = 1  # 0 means lowest dispersion plan, 1 means fastest plan, etc.
 max_intensity_factor = 100 #arbitrarily big number, so that we can get the fastest plan without worrying about the intensity factor.
 
-def first_rider_is_strongest(strongest_rider : ZsunRiderItem, result : OptimalPullPlansResult, desired_solution_index : int ) -> bool:
+def first_rider_is_strongest(strongest_rider : ZsunRiderItem, result : DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int ) -> bool:
     if not result.solutions or not result.solutions[desired_solution_index].rider_pull_plans:
         return False
     first_rider = next(iter(result.solutions[desired_solution_index].rider_pull_plans.keys()))
     return first_rider == strongest_rider
 
-def evaluate_permutation(params: PacelineComputationInstruction) -> OptimalPullPlansResult:
+def evaluate_permutation(params: PacelineSpecification) -> DesireablePacelineRotationSolutionsComputationOutcome:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -36,11 +36,11 @@ def evaluate_permutation(params: PacelineComputationInstruction) -> OptimalPullP
 
     # GO!
 
-    result = search_for_paceline_solutions_using_most_performant_algorithm(params)
+    result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
 
     return result
 
-def get_solution_speed(optimal_result: OptimalPullPlansResult, desired_solution_index : int) -> float:
+def get_solution_speed(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
@@ -49,7 +49,7 @@ def get_solution_speed(optimal_result: OptimalPullPlansResult, desired_solution_
     solution_speed_kph = a_pull_plan.speed_kph if a_pull_plan else 0
     return solution_speed_kph
 
-def get_hardest_intensity(optimal_result: OptimalPullPlansResult, desired_solution_index : int) -> float:
+def get_hardest_intensity(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
@@ -60,7 +60,7 @@ def get_hardest_intensity(optimal_result: OptimalPullPlansResult, desired_soluti
 
     return round(hardest_intensity, 2)
 
-def get_intensity_suffered_by_weakest_rider(optimal_result: OptimalPullPlansResult, desired_solution_index : int) -> float:
+def get_intensity_suffered_by_weakest_rider(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
@@ -97,15 +97,15 @@ def main():
 
     logger.info(f"Ranking the implications on speed and intensity of {len(rider_permutations)} variations in the circulation order of {len(riders)} riders...\n")
 
-    #Note to self: don't try this for more iterations/riders/alternatives than the threshold where search_for_paceline_solutions_using_most_performant_algorithm() transitions from serial to parallel processing. it unleashes a flood of parallel workers that will saturate the memory of the machine and cause it to grind to a halt. This is empirically determined to be around 512 permutations for 4 standard pull periods and 5 riders.
+    #Note to self: don't try this for more iterations/riders/alternatives than the threshold where search_for_paceline_rotation_solutions_using_most_performant_algorithm() transitions from serial to parallel processing. it unleashes a flood of parallel workers that will saturate the memory of the machine and cause it to grind to a halt. This is empirically determined to be around 512 permutations for 4 standard pull periods and 5 riders.
 
     title = "lowest dispersion plan" if desired_solution_index == 0 else "fastest plan"
 
     # --- Evaluate all permutations for optimal pull plans in parallel ---
     list_of_instructions = [
-        PacelineComputationInstruction(
+        PacelineSpecification(
             riders_list=perm_riders,
-            standard_pull_periods_sec=standard_pull_periods_sec,
+            sequence_of_pull_periods_sec=sequence_of_pull_periods_sec,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
             max_exertion_intensity_factor=max_intensity_factor
         )
@@ -129,7 +129,7 @@ def main():
     logger.info(f"The strongest rider is {strongest_rider.name} with {strongest_rider.get_strength_wkg()} w/kg.")
     logger.info(f"The second strongest rider is {second_strongest_rider.name} with {second_strongest_rider.get_strength_wkg()} w/kg.\n")
 
-    def first_and_last_rider_filter(result: OptimalPullPlansResult, desired_solution_index: int) -> bool:
+    def first_and_last_rider_filter(result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index: int) -> bool:
         if not result.solutions or not result.solutions[desired_solution_index].rider_pull_plans:
             return False
         rider_order = list(result.solutions[desired_solution_index].rider_pull_plans.keys())

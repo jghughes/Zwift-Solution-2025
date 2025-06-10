@@ -2,8 +2,7 @@ Benchmark Summary Report
 Number of riders: 3
 
 Ordinary (non-parallel) run:
-  Compute time (measured): 3.84 seconds
+  Compute time (measured): 1.77 seconds
 Parallel run (work-stealing):
-  Compute time (measured): 11.48 seconds
-Time saved: -7.64 seconds
-
+  Compute time (measured): 7.27 seconds
+Time saved: -5.5 seconds

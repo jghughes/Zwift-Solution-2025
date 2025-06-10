@@ -11,7 +11,7 @@ from jgh_formulae08 import (
     calculate_lower_bound_speed_at_one_hour_watts, 
     calculate_upper_bound_pull_speed, 
     calculate_upper_bound_speed_at_one_hour_watts,
-    search_for_paceline_solutions_using_most_performant_algorithm,  
+    search_for_paceline_rotation_solutions_using_most_performant_algorithm,  
     compute_a_single_paceline_solution_complying_with_exertion_constraints
     )
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
@@ -74,7 +74,7 @@ def log_summary_message(total_compute_iterations: int, total_num_of_all_conceiva
     log_multiline(logger, message_lines)
 
 
-from computation_classes import PacelineComputationInstruction  # Add this import at the top
+from computation_classes import PacelineSpecification  # Add this import at the top
 
 def show_simple_pull_plan(
     riders: List[ZsunRiderItem],
@@ -89,9 +89,9 @@ def show_simple_pull_plan(
     simplest_pull_duration_as_array = [simple_pull_period] * len(riders)
     safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
 
-    params = PacelineComputationInstruction(
+    params = PacelineSpecification(
         riders_list                  =riders,
-        standard_pull_periods_sec    =simplest_pull_duration_as_array,
+        sequence_of_pull_periods_sec    =simplest_pull_duration_as_array,
         pull_speeds_kph              =safe_lowest_bound_speed_as_array,
         max_exertion_intensity_factor=intensity_factor
     )
@@ -124,18 +124,18 @@ def show_two_optimized_pull_plans(
     """
     Runs the optimal pull plan search and logs the summary and details for both low dispersion and high speed plans.
     """
-    params = PacelineComputationInstruction(
+    params = PacelineSpecification(
         riders_list                     =riders,
-        standard_pull_periods_sec       =pull_periods,
+        sequence_of_pull_periods_sec       =pull_periods,
         pull_speeds_kph                 =[binary_search_parameter] * len(riders),
         max_exertion_intensity_factor   =intensity_factor
     )
 
-    result = search_for_paceline_solutions_using_most_performant_algorithm(params)
+    result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
 
     two_pull_plans = result.solutions
-    total_num_of_all_conceivable_plans = result.total_num_of_all_pull_plan_period_schedules
-    total_compute_iterations = result.total_compute_iterations_count
+    total_num_of_all_conceivable_plans = result.candidate_rotation_sequences_count
+    total_compute_iterations = result.total_compute_iterations_performed_count
     compute_time = result.computational_time
 
     low_dispersion_plan = two_pull_plans[0]
