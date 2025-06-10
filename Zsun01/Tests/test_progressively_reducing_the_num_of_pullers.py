@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineSpecification, DesireablePacelineRotationSolutionsComputationOutcome
+from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReport
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
@@ -15,7 +15,7 @@ from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
-def evaluate_permutation(params: PacelineSpecification) -> DesireablePacelineRotationSolutionsComputationOutcome:
+def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReport:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -56,7 +56,7 @@ def main():
     STANDARD_PULL_PERIODS_SEC = [30.0,60.0, 240.0]
 
     list_of_instructions = [
-        PacelineSpecification(
+        PacelineIngredientsItem(
             riders_list=perm_riders,
             sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
@@ -70,7 +70,7 @@ def main():
         all_permutation_results = list(results)
 
     # 4. Sort by speed of halted_rider in lowest_dispersion_plan
-    def get_halted_rider_speed(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome):
+    def get_halted_rider_speed(optimal_result: PacelineSolutionsComputationReport):
         if not optimal_result.solutions:
             return 0
         # # Assume the first solution is the "lowest_dispersion_plan"
@@ -81,12 +81,12 @@ def main():
 
 
 
-        # Each solution has rider_pull_plans: DefaultDict[ZsunRiderItem, RiderPullPlanItem]
+        # Each solution has rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]
         # and limiting_rider: Optional[ZsunRiderItem]
         if solution.limiting_rider is None:
             return 0
         limiting_rider = solution.limiting_rider
-        plan_line_items = solution.rider_pull_plans
+        plan_line_items = solution.rider_contributions
         if limiting_rider not in plan_line_items:
             return 0
         return getattr(plan_line_items[limiting_rider], "speed_kph", 0)
@@ -98,7 +98,7 @@ def main():
         if not optimal_result.solutions:
             continue
         solution = optimal_result.solutions[0]
-        plan_line_items = solution.rider_pull_plans
+        plan_line_items = solution.rider_contributions
         limiting_rider = solution.limiting_rider
         if limiting_rider is None or limiting_rider not in plan_line_items:
             continue

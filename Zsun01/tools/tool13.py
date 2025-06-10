@@ -37,27 +37,27 @@ def main():
     simplest_pull_durations = [60.0] * len(riders)  # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    from computation_classes import PacelineSpecification
+    from computation_classes import PacelineIngredientsItem
 
     # Prepare params for single plan
-    simple_params = PacelineSpecification(
-        riders_list=riders,
-        sequence_of_pull_periods_sec=simplest_pull_durations,
-        pull_speeds_kph=lowest_bound_speed_as_array,
-        max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
+    simple_params = PacelineIngredientsItem(
+        riders_list                     =riders,
+        sequence_of_pull_periods_sec    =simplest_pull_durations,
+        pull_speeds_kph                 =lowest_bound_speed_as_array,
+        max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
     )
     simple_result = compute_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
-    simple_plan_line_items = simple_result.rider_pull_plans
+    simple_plan_line_items = simple_result.rider_contributions
     halted_rider = simple_result.limiting_rider
 
     all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
 
     # Prepare params for optimal search
-    standard_params = PacelineSpecification(
-        riders_list=riders,
-        sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC,
-        pull_speeds_kph=[lowest_bound_speed] * len(riders),
-        max_exertion_intensity_factor=MAX_INTENSITY_FACTOR
+    standard_params = PacelineIngredientsItem(
+        riders_list                     =riders,
+        sequence_of_pull_periods_sec    =STANDARD_PULL_PERIODS_SEC,
+        pull_speeds_kph                 =[lowest_bound_speed] * len(riders),
+        max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
     )
 
     optimal_result = search_for_paceline_rotation_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
@@ -67,9 +67,9 @@ def main():
     compute_time = optimal_result.computational_time
 
     low_dispersion_plan, high_speed_plan = pull_plans
-    low_dispersion_plan_line_items = low_dispersion_plan.rider_pull_plans
+    low_dispersion_plan_line_items = low_dispersion_plan.rider_contributions
     halted_rider = low_dispersion_plan.limiting_rider
-    high_speed_plan_line_items = high_speed_plan.rider_pull_plans
+    high_speed_plan_line_items = high_speed_plan.rider_contributions
 
     log_pull_plan(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items, logger)
     log_pull_plan(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)

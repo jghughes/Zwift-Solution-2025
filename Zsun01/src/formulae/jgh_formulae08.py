@@ -1,18 +1,18 @@
-from typing import  List, DefaultDict, Tuple, Union
+from typing import  List, DefaultDict, Tuple, Union, Callable
 import os
 from collections import defaultdict
+import copy
 import concurrent.futures
 import time
 import numpy as np
 import itertools
 from jgh_formatting import format_number_2sig, truncate
 from zsun_rider_item import ZsunRiderItem
-from zsun_rider_pullplan_item import RiderPullPlanItem
 from computation_classes import (
+    PacelineIngredientsItem, 
+    RiderContributionItem,
     PacelineComputationReport, 
-    PacelineSpecification, 
-    PullPlanSolution, 
-    DesireablePacelineRotationSolutionsComputationOutcome)
+    PacelineSolutionsComputationReport)
 from jgh_formulae02 import (
     calculate_speed_at_standard_30sec_pull_watts,
     calculate_speed_at_standard_1_minute_pull_watts,
@@ -23,7 +23,7 @@ from jgh_formulae02 import (
 )
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
-from jgh_formulae06 import populate_pull_plan_from_rider_exertions
+from jgh_formulae06 import populate_rider_contributions
 from constants import SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD
 
 import logging
@@ -33,18 +33,26 @@ logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
 
 
-def calculate_intensity_factor(rider: ZsunRiderItem, plan: RiderPullPlanItem) -> float:
+def calculate_intensity_factor(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
     """
-    Calculate the intensity factor for a given rider and exertion.
+    Calculate the intensity factor for a given rider and their contribution plan.
+
+    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
+    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
+    to their sustainable threshold.
+
     Args:
-        rider (ZsunRiderItem): The rider object.
-        exertion (RiderPullPlanItem): The exertion object.
+        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
+        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
+
     Returns:
-        float: The intensity factor.
+        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
+
     """
+
     if rider.get_one_hour_watts() == 0:
         return 0.0
-    return plan.normalized_watts / rider.get_one_hour_watts()
+    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
 
 
 def log_rider_one_hour_speeds(riders: List[ZsunRiderItem], logger: logging.Logger):
@@ -182,71 +190,117 @@ def calculate_upper_bound_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -
     return fastest_rider, fastest_duration, highest_speed
 
 
-def insert_ex_post_facto_message_about_cause_of_top_speed_limit(rider_plans: DefaultDict[ZsunRiderItem, RiderPullPlanItem], max_exertion_intensity_factor : float = 0.95) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
-    for rider, plan in rider_plans.items():
+def annotate_comments_about_what_constrained_the_speed_of_the_paceline(
+    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem],
+    max_exertion_intensity_factor: float = 0.95
+) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
+    """
+    Annotate each rider's contribution with diagnostic messages indicating what limited the overall paceline speed.
+
+    This function examines each rider's contribution plan and determines if their exertion intensity factor
+    or pull power exceeded the allowed limits. It appends a diagnostic message to each RiderContributionItem
+    indicating whether the intensity factor or pull wattage was the limiting factor for that rider.
+
+    Args:
+        dict_of_rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
+            Mapping of riders to their computed contribution plans.
+        max_exertion_intensity_factor (float, optional):
+            The maximum allowed exertion intensity factor for any rider (default: 0.95).
+
+    Returns:
+        DefaultDict[ZsunRiderItem, RiderContributionItem]:
+            The same mapping, with each RiderContributionItem's `diagnostic_message` field updated to
+            reflect any limiting factors (e.g., intensity factor or pull watt limit).
+    """
+
+    for rider, rider_contribution in dict_of_rider_contributions.items():
         msg = ""
         # Step 1: Intensity factor checks
-        intensity_factor = calculate_intensity_factor(rider, plan)
-        if intensity_factor >= max_exertion_intensity_factor:
+        rider_intensity_factor = calculate_intensity_factor(rider, rider_contribution)
+        if rider_intensity_factor >= max_exertion_intensity_factor:
             msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
 
-        # Step 2: Pull watt limit checks
-        pull_limit = rider.get_standard_pull_watts(plan.p1_duration)
-        if plan.p1_w >= pull_limit:
+        # Step 2: Pull power limit checks
+        rider_pull_watts_limitation = rider.get_standard_pull_watts(rider_contribution.p1_duration)
+        if rider_contribution.p1_w >= rider_pull_watts_limitation:
             msg += " pull>max W"
 
-        plan.diagnostic_message = msg
-    return rider_plans
+        rider_contribution.diagnostic_message = msg
+
+    return dict_of_rider_contributions
 
 
 def populate_paceline_solution_alternative(
-    riders: List[ZsunRiderItem],
+    riders:                        List[ZsunRiderItem],
     standard_pull_periods_seconds: List[float],
-    pull_speeds_kph: List[float],
+    pull_speeds_kph:               List[float],
     max_exertion_intensity_factor: float
-) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
+) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
     """
-    Generates pull plan items for each rider based on specified pull durations, target speeds, and exertion constraints.
+    Generate a mapping of riders to their computed pull plan contributions for a given paceline configuration.
 
-    This function computes the work assignments, exertions, and resulting pull plans for a list of riders,
-    given the standard pull periods and target speeds. It applies exertion intensity constraints and annotates
-    each plan with diagnostic information if any constraint is exceeded.
+    This function calculates the work assignments, exertions, and resulting contributions for each rider
+    based on the provided pull durations and target speeds. It also annotates each rider's contribution
+    with diagnostic messages indicating if their plan is limited by intensity factor or pull watt constraints.
 
     Args:
-        riders (List[ZsunRiderItem]): List of rider objects to generate pull plans for.
-        standard_pull_periods_seconds (List[float]): Allowed pull durations (in seconds) for each rider.
-        pull_speeds_kph (List[float]): Target speeds (in kph) for each rider's pull.
-        max_exertion_intensity_factor (float): Maximum allowed exertion intensity factor for any rider.
+        riders:                        List of rider objects to generate pull plans for.
+        standard_pull_periods_seconds: Allowed pull durations (in seconds) for each rider.
+        pull_speeds_kph:               Target speeds (in kph) for each rider's pull.
+        max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
 
     Returns:
-        DefaultDict[ZsunRiderItem, RiderPullPlanItem]: Mapping of each rider to their computed pull plan item,
-        including diagnostic messages if constraints are exceeded.
+        DefaultDict[ZsunRiderItem, RiderContributionItem]: Mapping of each rider to their computed contribution plan,
+            including diagnostic messages if constraints are exceeded.
 
     Raises:
-        ValueError: If input lists are empty or lengths do not match.
+        ValueError:  If input lists are empty or their lengths do not match.
         RuntimeError: If downstream computations fail.
 
     Notes:
-        - Diagnostic messages are attached to each RiderPullPlanItem to indicate if a rider's plan is limited
+        - Diagnostic messages are attached to each RiderContributionItem to indicate if a rider's plan is limited
           by intensity factor or pull watt constraints.
         - This function is typically used as part of the paceline optimization workflow.
     """
     
-    work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
 
-    rider_exertions = populate_rider_exertions(work_assignments)
+    dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    rider_pullplan_items = populate_pull_plan_from_rider_exertions(rider_exertions)
+    dict_of_rider_contributions = populate_rider_contributions(dict_of_rider_exertions)
 
-    rider_pullplan_items = insert_ex_post_facto_message_about_cause_of_top_speed_limit(rider_pullplan_items, max_exertion_intensity_factor)
+    annotated_dict_of_rider_contributions = annotate_comments_about_what_constrained_the_speed_of_the_paceline(dict_of_rider_contributions, max_exertion_intensity_factor)
 
-    return rider_pullplan_items
+    return annotated_dict_of_rider_contributions
 
 
 def weaker_than_weakest_rider_filter(
     paceline_rotation_alternatives_being_filtered: List[List[float]],
     riders: List[ZsunRiderItem]
 ) -> List[List[float]]:
+    """
+    Filter out paceline rotation schedules where any rider's pull period is less than that of the weakest rider.
+
+    This function examines each candidate paceline rotation schedule (a list of pull periods for each rider)
+    and removes any schedule where a rider (other than the second weakest) is assigned a pull period
+    shorter than the weakest rider's pull period. The filter is based on the relative strength of riders,
+    as determined by their w/kg values.
+
+    Args:
+        paceline_rotation_alternatives_being_filtered: List of candidate paceline rotation schedules,
+            where each schedule is a list of pull periods (seconds) for each rider.
+        riders: List of ZsunRiderItem objects representing the riders, used to determine strength order.
+
+    Returns:
+        List[List[float]]: The filtered list of paceline rotation schedules, with schedules violating
+            the weakest rider constraint removed.
+
+    Notes:
+        - The function assumes that the order of pull periods in each schedule corresponds to the order of riders.
+        - The second weakest rider is exempt from this filter to allow for some flexibility in assignments.
+    """
+
+
     if not riders:
         # logger.info("weaker_than_weakest_rider_filter: No riders, returning empty list.")
         return []
@@ -269,15 +323,15 @@ def weaker_than_weakest_rider_filter(
             continue
         answer.append(sequence)
 
-    input_len = len(paceline_rotation_alternatives_being_filtered)
-    output_len = len(answer)
-    reduction = input_len - output_len
-    percent = (reduction / input_len * 100) if input_len else 0.0
+    # input_len = len(paceline_rotation_alternatives_being_filtered)
+    # output_len = len(answer)
+    # reduction = input_len - output_len
+    # percent = (reduction / input_len * 100) if input_len else 0.0
+    # logger.info(
+    #     f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
 
-    logger.info(
-        f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
-        f"reduction: {reduction} ({percent:.1f}%)"
-    )
     return answer
 
 
@@ -286,6 +340,35 @@ def stronger_than_nth_strongest_rider_filter(
     riders: List[ZsunRiderItem],
     n: int
 ) -> List[List[float]]:
+    """
+    Filter out paceline rotation schedules where any rider's pull period is greater than that of the nth strongest rider.
+
+    This function examines each candidate paceline rotation schedule (a list of pull periods for each rider)
+    and removes any schedule where a rider (other than the top (n-1) strongest) is assigned a pull period
+    longer than the nth strongest rider's pull period. The filter is based on the relative strength of riders,
+    as determined by their w/kg values, in descending order.
+
+    Args:
+        paceline_rotation_alternatives_being_filtered: List of candidate paceline rotation schedules,
+            where each schedule is a list of pull periods (seconds) for each rider.
+        riders: List of ZsunRiderItem objects representing the riders, used to determine strength order.
+        n: The rank of the strongest rider to use as the threshold (1 = strongest, 2 = second strongest, etc.).
+
+    Returns:
+        List[List[float]]: The filtered list of paceline rotation schedules, with schedules violating
+            the nth strongest rider constraint removed.
+
+    Notes:
+        - The function assumes that the order of pull periods in each schedule corresponds to the order of riders.
+        - The top (n-1) strongest riders are exempt from this filter to allow for flexibility in assignments.
+    """
+
+
+
+
+
+
+
     if not riders or n < 1:
         return []
     answer: List[List[float]] = []
@@ -305,15 +388,15 @@ def stronger_than_nth_strongest_rider_filter(
         ):
             continue
         answer.append(sequence)
-    input_len = len(paceline_rotation_alternatives_being_filtered)
-    output_len = len(answer)
-    reduction = input_len - output_len
-    percent = (reduction / input_len * 100) if input_len else 0.0
-    label = f"stronger_than_{n}_strongest_rider_filter"
-    logger.info(
-        f"{label} applied: input {input_len} output {output_len} "
-        f"reduction: {reduction} ({percent:.1f}%)"
-    )
+    # input_len = len(paceline_rotation_alternatives_being_filtered)
+    # output_len = len(answer)
+    # reduction = input_len - output_len
+    # percent = (reduction / input_len * 100) if input_len else 0.0
+    # label = f"stronger_than_{n}_strongest_rider_filter"
+    # logger.info(
+    #     f"{label} applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
     return answer
 
 
@@ -359,7 +442,7 @@ def radically_shrink_the_solution_space(
     if len(paceline_rotation_alternatives_being_filtered) < SOLUTION_SPACE_SIZE_CONSTRAINT + 1:
         return paceline_rotation_alternatives_being_filtered
 
-    filters = [
+    filters: List[Callable[[List[List[float]], List[ZsunRiderItem]], List[List[float]]]] = [
         weaker_than_weakest_rider_filter,
         lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 1),
         lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 2),
@@ -410,9 +493,9 @@ def generate_a_scaffold_of_the_total_solution_space(
 
 
 def compute_a_single_paceline_solution_complying_with_exertion_constraints(
-    instruction: PacelineSpecification,
-    precision: float = 0.1,
-    max_iter: int = 20
+    instruction: PacelineIngredientsItem,
+    precision: float = 0.01,
+    max_iter: int = 30
 ) -> PacelineComputationReport:
     """
     Computes a feasible paceline solution for a group of riders, subject to exertion and power constraints.
@@ -423,13 +506,13 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     violations, until it finds the highest feasible speed within the given precision and iteration limits.
 
     Args:
-        instruction (PacelineSpecification): Dataclass containing all input parameters for the computation.
-        precision (float, optional): Precision for the binary search on speed (default: 0.1).
-        max_iter (int, optional): Maximum number of binary search iterations (default: 20).
+        instruction (PacelineIngredientsItem): Dataclass containing all input parameters for the computation.
+        precision (float, optional): Precision for the binary search on speed (default: 0.01).
+        max_iter (int, optional): Maximum number of binary search iterations (default: 30).
 
     Returns:
         PacelineComputationReport: Dataclass containing the number of search iterations, the mapping of each rider
-        to their computed RiderPullPlanItem, and the limiting rider (who first hit the exertion constraint, or None).
+        to their computed RiderContributionItem, and the limiting rider (who first hit the exertion constraint, or None).
     """
 
     riders = instruction.riders_list
@@ -441,22 +524,22 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     lower = truncate(lowest_conceivable_kph[0], 0)
     upper = lower
 
-    rider_pullplan_items: DefaultDict[ZsunRiderItem, RiderPullPlanItem] = defaultdict(RiderPullPlanItem)  # <-- Initialization
+    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- Initialization
 
     # Find an upper bound where a diagnostic message appears
     for _ in range(10):
         test_speeds = [upper] * len(riders)
-        rider_pullplan_items = populate_paceline_solution_alternative(
+        dict_of_rider_contributions = populate_paceline_solution_alternative(
             riders, standard_pull_periods_seconds, test_speeds, max_exertion_intensity_factor
         )
-        if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
+        if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
             break
         upper += 5.0  # Increase by a reasonable chunk
     else:
         # If we never find an upper bound, just return the last result
         return PacelineComputationReport(
             num_compute_iterations_performed=1,
-            rider_pull_plans=rider_pullplan_items,
+            rider_contributions=dict_of_rider_contributions,
             limiting_rider=None
         )
 
@@ -466,39 +549,64 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     while (upper - lower) > precision and compute_iterations < max_iter:
         mid = (lower + upper) / 2
         test_speeds = [mid] * len(riders)
-        rider_pullplan_items = populate_paceline_solution_alternative(
+        dict_of_rider_contributions = populate_paceline_solution_alternative(
             riders, standard_pull_periods_seconds, test_speeds, max_exertion_intensity_factor
         )
         compute_iterations += 1
-        if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
+        if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
             upper = mid
-            halting_rider = next(rider for rider, answer in rider_pullplan_items.items() if answer.diagnostic_message)
+            halting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.diagnostic_message)
         else:
             lower = mid
-            last_valid_items = rider_pullplan_items # not halting, so save this as the last valid plan, not sure whether to use this or not
+            last_valid_items = dict_of_rider_contributions # not halting, so save this as the last valid plan, not sure whether to use this or not
 
     # Use the halting (upper) speed after binary search
     final_speeds = [upper] * len(riders)
-    rider_pullplan_items = populate_paceline_solution_alternative(
+    dict_of_rider_contributions = populate_paceline_solution_alternative(
         riders, standard_pull_periods_seconds, final_speeds, max_exertion_intensity_factor
     )
-    if any(answer.diagnostic_message for answer in rider_pullplan_items.values()):
-        halting_rider = next(rider for rider, answer in rider_pullplan_items.items() if answer.diagnostic_message)
+    if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
+        halting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.diagnostic_message)
     else:
         halting_rider = None
 
     return PacelineComputationReport(
         num_compute_iterations_performed=compute_iterations,
-        rider_pull_plans=rider_pullplan_items,
+        rider_contributions=dict_of_rider_contributions,
         limiting_rider=halting_rider
     )
 
 
-def summarize_pull_plan_solutions(
-    solutions: List[PullPlanSolution],
-    candidate_rotation_sequences_count: int,
+def summarize_paceline_solutions(
+    solutions: List[PacelineComputationReport],
+    num_of_alternatives_examined: int,
     time_taken_to_compute: float
-) -> DesireablePacelineRotationSolutionsComputationOutcome:
+) -> PacelineSolutionsComputationReport:
+    """
+    Summarize and select the most desirable paceline solutions from a list of computed alternatives.
+
+    This function analyzes a list of PacelineComputationReport objects, each representing a computed paceline solution,
+    and identifies two key solutions: the one with the highest speed and the one with the lowest dispersion
+    (standard deviation) of intensity factors among riders. It also aggregates statistics such as the total number
+    of compute iterations performed and the total computation time.
+
+    Args:
+        solutions: List of PacelineComputationReport objects, each representing a computed paceline solution.
+        num_of_alternatives_examined: The total number of candidate rotation sequences that were evaluated.
+        time_taken_to_compute: The total time taken to compute all solutions, in seconds.
+
+    Returns:
+        PacelineSolutionsComputationReport: An object containing summary statistics and the most desirable solutions,
+        specifically the highest speed and lowest dispersion solutions.
+
+    Raises:
+        RuntimeError: If no valid solution is found, or if either the highest speed or lowest dispersion solution is missing.
+
+    Notes:
+        - The function logs warnings for invalid or non-finite solutions.
+        - The desirable solutions list will contain up to two solutions: [lowest_dispersion, highest_speed].
+    """
+
     highest_speed_pull_plan_solution = None
     highest_speed: float = float('-inf')
     lowest_dispersion_pull_plan_solution = None
@@ -506,11 +614,11 @@ def summarize_pull_plan_solutions(
     total_compute_iterations = 0  # Now local
 
     for solution in solutions:
-        total_compute_iterations += solution.compute_iterations_performed_count
+        total_compute_iterations += solution.num_compute_iterations_performed
         if solution.limiting_rider is None:
             logger.warning(f"Invalid result in solutions list. No rider halted the attempt to compute solution: {solution}. ")
             continue
-        pull_plan_speed_limit = solution.rider_pull_plans[solution.limiting_rider].speed_kph
+        pull_plan_speed_limit = solution.rider_contributions[solution.limiting_rider].speed_kph
         if not np.isfinite(pull_plan_speed_limit):
             logger.warning(f"Binary search iteration error. Non-finite pull_plan_speed_limit encountered: {pull_plan_speed_limit}")
             continue
@@ -519,9 +627,9 @@ def summarize_pull_plan_solutions(
             highest_speed = pull_plan_speed_limit
             highest_speed_pull_plan_solution = solution
 
-        np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in solution.rider_pull_plans.items()]
+        np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in solution.rider_contributions.items()]
         if not np_intensity_factors:
-            logger.warning("No valid np_intensity_factors in rider_pullplan_items.")
+            logger.warning("No valid np_intensity_factors in dict_of_rider_contributions.")
             continue
         dispersion = float(np.std(np_intensity_factors))
         if not np.isfinite(dispersion):
@@ -540,52 +648,67 @@ def summarize_pull_plan_solutions(
 
     desirable_solutions = [lowest_dispersion_pull_plan_solution, highest_speed_pull_plan_solution]
 
-    return DesireablePacelineRotationSolutionsComputationOutcome(
-        candidate_rotation_sequences_count=candidate_rotation_sequences_count,
-        total_compute_iterations_performed_count=total_compute_iterations,
-        computational_time=time_taken_to_compute,
-        solutions=desirable_solutions
+    return PacelineSolutionsComputationReport(
+        candidate_rotation_sequences_count       =num_of_alternatives_examined,
+        total_compute_iterations_performed_count =total_compute_iterations,
+        computational_time                       =time_taken_to_compute,
+        solutions                                =desirable_solutions
     )
 
 
 def search_for_paceline_rotation_solutions_using_serial_processing(
-    paceline_description: PacelineSpecification,
+    paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
-) -> DesireablePacelineRotationSolutionsComputationOutcome:
+) -> PacelineSolutionsComputationReport:
     """
-    Performs an exhaustive serial search for optimal paceline pull plans given a set of riders and candidate pull period schedules.
+    Perform an exhaustive serial search for optimal paceline pull plans given a set of riders and candidate pull period schedules.
+
+    This function evaluates each candidate paceline rotation schedule in sequence, computing the resulting paceline solution
+    for each. It collects all valid solutions, tracks the number of alternatives examined, and measures the total computation time.
+    The function returns a summary report containing the most desirable solutions (highest speed and lowest dispersion) and statistics.
 
     Args:
-        paceline_description (PacelineSpecification): Dataclass containing all input parameters for the computation except the schedules.
-        paceline_rotation_sequence_alternatives (List[Tuple[float, ...]]): List of candidate pull period schedules to evaluate.
+        paceline_ingredients:                  PacelineIngredientsItem containing all input parameters for the computation except the schedules.
+        paceline_rotation_sequence_alternatives: List of candidate pull period schedules to evaluate, where each schedule is a list of pull periods (seconds).
 
     Returns:
-        DesireablePacelineRotationSolutionsComputationOutcome: Contains all solutions and summary statistics.
+        PacelineSolutionsComputationReport: Summary report containing all solutions, the number of alternatives examined,
+            total compute iterations, computation time, and the most desirable solutions.
+
+    Raises:
+        Exception: If an error occurs during the computation of a single paceline solution, it is logged and the process continues.
+
+    Notes:
+        - Logs a warning if the number of alternatives to be computed is very large.
+        - Only valid solutions are included in the summary report.
+        - This function is intended for use when the number of alternatives is small enough to be processed serially.
     """
 
+    num_of_alternatives_examined: int = len(paceline_rotation_sequence_alternatives)
 
-    candidate_rotation_sequences_count: int = len(paceline_rotation_sequence_alternatives)
+    if num_of_alternatives_examined > 10_000:
+        logger.warning(f"Warning. Number of alternatives to be computed and evaluated is very large: {num_of_alternatives_examined}")
 
-    if candidate_rotation_sequences_count > 10_000:
-        logger.warning(f"Warning. Number of alternatives to be computed and evaluated is very large: {candidate_rotation_sequences_count}")
+    paceline_description = PacelineIngredientsItem(
+        riders_list                     = paceline_ingredients.riders_list,
+        pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+        max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-    solutions: List[PullPlanSolution] = []
+
+    solutions: List[PacelineComputationReport] = []
 
     start_time = time.perf_counter()
 
     for sequence in paceline_rotation_sequence_alternatives:
         try:
-            paceline_specification = PacelineSpecification(
-                riders_list=paceline_description.riders_list,
-                sequence_of_pull_periods_sec=list(sequence),
-                pull_speeds_kph=[paceline_description.pull_speeds_kph[0]] * len(paceline_description.riders_list),
-                max_exertion_intensity_factor=paceline_description.max_exertion_intensity_factor
-            )
-            result = compute_a_single_paceline_solution_complying_with_exertion_constraints(paceline_specification)
-            solutions.append(PullPlanSolution(
-                compute_iterations_performed_count=result.num_compute_iterations_performed,
-                rider_pull_plans=result.rider_pull_plans,
-                limiting_rider=result.limiting_rider
+            paceline_description.sequence_of_pull_periods_sec = list(sequence)
+
+            result = compute_a_single_paceline_solution_complying_with_exertion_constraints(paceline_description)
+
+            solutions.append(PacelineComputationReport(
+                num_compute_iterations_performed    = result.num_compute_iterations_performed,
+                rider_contributions                    = result.rider_contributions,
+                limiting_rider                      = result.limiting_rider
             ))
         except Exception as exc:
             logger.error(f"Exception in function compute_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -593,44 +716,58 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_pull_plan_solutions(
+    return summarize_paceline_solutions(
         solutions,
-        candidate_rotation_sequences_count,
+        num_of_alternatives_examined,
         time_taken_to_compute
     )
 
 
 def search_for_paceline_rotation_solutions_using_parallel_workstealing(
-    paceline_description: PacelineSpecification,
+    paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
-) -> DesireablePacelineRotationSolutionsComputationOutcome:
+) -> PacelineSolutionsComputationReport:
     """
-    Performs an exhaustive parallelized search for optimal paceline pull plans using a work-stealing process pool.
+    Perform an exhaustive parallelized search for optimal paceline pull plans using a work-stealing process pool.
+
+    This function evaluates each candidate paceline rotation schedule in parallel, distributing the computation
+    across available CPU cores using a process pool. Each schedule is used to generate a PacelineIngredientsItem,
+    and the resulting solutions are collected and summarized. The function returns a report containing the most
+    desirable solutions (highest speed and lowest dispersion) and summary statistics.
 
     Args:
-        paceline_description (PacelineSpecification): Dataclass containing all input parameters for the computation except the schedules.
-        paceline_rotation_sequence_alternatives (List[Tuple[float, ...]]): List of candidate pull period schedules to evaluate.
+        paceline_ingredients:                  PacelineIngredientsItem containing all input parameters for the computation except the schedules.
+        paceline_rotation_sequence_alternatives: List of candidate pull period schedules to evaluate, where each schedule is a list of pull periods (seconds).
 
     Returns:
-        DesireablePacelineRotationSolutionsComputationOutcome: Contains all solutions and summary statistics.
+        PacelineSolutionsComputationReport: Summary report containing all solutions, the number of alternatives examined,
+            total compute iterations, computation time, and the most desirable solutions.
+
+    Notes:
+        - Logs a warning if the number of alternatives to be computed is very large.
+        - Invalid or incomplete results are skipped and logged as warnings.
+        - This function is intended for use when the number of alternatives is large enough to benefit from parallel processing.
     """
 
 
-    candidate_rotation_sequences_count: int = len(paceline_rotation_sequence_alternatives)
+    num_of_alternatives_examined: int = len(paceline_rotation_sequence_alternatives)
 
-    if candidate_rotation_sequences_count > 10_000:
-        logger.warning(f"Warning. Number of alternatives to be computed and evaluated is very large: {candidate_rotation_sequences_count}")
+    if num_of_alternatives_examined > 10_000:
+        logger.warning(f"Warning. Number of alternatives to be computed and evaluated is very large: {num_of_alternatives_examined}")
 
-    list_of_instructions = [
-        PacelineSpecification(
-            riders_list=paceline_description.riders_list,
-            sequence_of_pull_periods_sec=list(sequence),
-            pull_speeds_kph=[paceline_description.pull_speeds_kph[0]] * len(paceline_description.riders_list),
-            max_exertion_intensity_factor=paceline_description.max_exertion_intensity_factor
-        )
-        for sequence in paceline_rotation_sequence_alternatives
-    ]
-    solutions: List[PullPlanSolution] = []
+    paceline_description = PacelineIngredientsItem(
+        riders_list                     = paceline_ingredients.riders_list,
+        pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+        max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
+
+
+    list_of_instructions: List[PacelineIngredientsItem] = []    
+    
+    for sequence in paceline_rotation_sequence_alternatives:
+        paceline_description.sequence_of_pull_periods_sec = list(sequence)
+        list_of_instructions.append(copy.deepcopy(paceline_description))
+
+    solutions: List[PacelineComputationReport] = []
 
     start_time = time.perf_counter()
 
@@ -643,15 +780,15 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
             try:
                 result = future.result()
                 if (result is None or
-                    not hasattr(result, "rider_pull_plans") or
-                    result.rider_pull_plans is None or
+                    not hasattr(result, "rider_contributions") or
+                    result.rider_contributions is None or
                     result.limiting_rider is None or
-                    not isinstance(result.rider_pull_plans, dict)):
+                    not isinstance(result.rider_contributions, dict)):
                     logger.warning(f"Skipping invalid result: {result}")
                     continue
-                solutions.append(PullPlanSolution(
-                    compute_iterations_performed_count=result.num_compute_iterations_performed,
-                    rider_pull_plans=result.rider_pull_plans,
+                solutions.append(PacelineComputationReport(
+                    num_compute_iterations_performed=result.num_compute_iterations_performed,
+                    rider_contributions=result.rider_contributions,
                     limiting_rider=result.limiting_rider
                 ))
             except Exception as exc:
@@ -660,48 +797,61 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_pull_plan_solutions(
+    return summarize_paceline_solutions(
         solutions,
-        candidate_rotation_sequences_count,
+        num_of_alternatives_examined,
         time_taken_to_compute
     )
 
 
 def search_for_paceline_rotation_solutions_using_most_performant_algorithm(
-    paceline_description: PacelineSpecification
-) -> DesireablePacelineRotationSolutionsComputationOutcome:
+    paceline_ingredients: PacelineIngredientsItem
+) -> PacelineSolutionsComputationReport:
     """
-    Determines the optimal paceline pull plans for a set of riders using the most efficient available algorithm.
+    Determine the optimal paceline pull plans for a set of riders using the most efficient available algorithm.
+
+    This function generates all possible paceline rotation alternatives based on the provided riders and pull periods,
+    then applies empirical filters to reduce the solution space. Depending on the number of remaining alternatives,
+    it selects either serial or parallel processing to compute and evaluate all feasible paceline solutions.
+    The function returns a summary report containing the most desirable solutions (highest speed and lowest dispersion)
+    and relevant statistics.
 
     Args:
-        paceline_description (PacelineSpecification): Dataclass containing all input parameters for the computation.
+        paceline_ingredients: PacelineIngredientsItem containing all input parameters for the computation,
+            including the list of riders, allowed pull periods, target speeds, and exertion constraints.
 
     Returns:
-        DesireablePacelineRotationSolutionsComputationOutcome: Contains all solutions and summary statistics.
+        PacelineSolutionsComputationReport: Summary report containing all solutions, the number of alternatives examined,
+            total compute iterations, computation time, and the most desirable solutions.
+
+    Raises:
+        ValueError: If required input parameters are missing or invalid (e.g., no riders, no pull periods, or non-finite values).
+
+    Notes:
+        - The function automatically chooses between serial and parallel processing based on the size of the solution space.
+        - Empirical filters are applied to reduce computational load before solution evaluation.
+        - This is the recommended entry point for finding optimal paceline solutions in production code.
     """
 
-    if not paceline_description.riders_list:
+    if not paceline_ingredients.riders_list:
         raise ValueError("No riders provided to search_for_paceline_rotation_solutions_using_serial_processing.")
-    if not paceline_description.sequence_of_pull_periods_sec:
+    if not paceline_ingredients.sequence_of_pull_periods_sec:
         raise ValueError("No standard pull durations provided to search_for_paceline_rotation_solutions_using_serial_processing.")
-    if any(d <= 0 or not np.isfinite(d) for d in paceline_description.sequence_of_pull_periods_sec):
+    if any(d <= 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
         raise ValueError("All standard pull durations must be positive and finite.")
-    if not paceline_description.pull_speeds_kph or not np.isfinite(paceline_description.pull_speeds_kph[0]) or paceline_description.pull_speeds_kph[0] <= 0:
+    if not paceline_ingredients.pull_speeds_kph or not np.isfinite(paceline_ingredients.pull_speeds_kph[0]) or paceline_ingredients.pull_speeds_kph[0] <= 0:
         raise ValueError("binary_search_seed must be positive and finite.")
 
     all_conceivable_paceline_rotation_alternatives= generate_a_scaffold_of_the_total_solution_space(
-        len(paceline_description.riders_list), paceline_description.sequence_of_pull_periods_sec
-    )
+        len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
 
     paceline_rotation_sequence_alternatives = radically_shrink_the_solution_space(
-        all_conceivable_paceline_rotation_alternatives, paceline_description.riders_list)
+        all_conceivable_paceline_rotation_alternatives, paceline_ingredients.riders_list)
 
     if len(paceline_rotation_sequence_alternatives) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-        return search_for_paceline_rotation_solutions_using_serial_processing(paceline_description, paceline_rotation_sequence_alternatives)
+        return search_for_paceline_rotation_solutions_using_serial_processing(paceline_ingredients, paceline_rotation_sequence_alternatives)
     else:
-        return search_for_paceline_rotation_solutions_using_parallel_workstealing(paceline_description, paceline_rotation_sequence_alternatives)
-
-
+        return search_for_paceline_rotation_solutions_using_parallel_workstealing(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
 
 def main01():
@@ -727,7 +877,7 @@ def main01():
 
     all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
 
-    plan_params = PacelineSpecification(
+    plan_params = PacelineIngredientsItem(
         riders_list                   = riders,
         sequence_of_pull_periods_sec     = STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph               = [30.0] * len(riders),
@@ -750,7 +900,7 @@ def main01():
     report_lines.append(f"  Compute time (measured): {round(serial_result.computational_time, 2)} seconds\n")
     report_lines.append("Parallel run (work-stealing):\n")
     report_lines.append(f"  Compute time (measured): {round(parallel_result.computational_time,2)} seconds\n")
-    report_lines.append(f"Time saved: {round(serial_result.computational_time - parallel_result.computational_time, 2)} seconds")
+    report_lines.append(f"Time saved by parallelisation: {round(serial_result.computational_time - parallel_result.computational_time, 2)} seconds")
     report_lines.append("\n")
 
     logger.info("".join(report_lines))
@@ -794,7 +944,7 @@ def main02():
 
     logger.info(f"Testing: running sensible empirically-measured thresholds for no-filtering -> filtering and serial -> parallel processing with {len(riders)} riders")
 
-    params = PacelineSpecification(
+    params = PacelineIngredientsItem(
         riders_list                  = riders,
         sequence_of_pull_periods_sec    = STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph              = [30.0] * len(riders),
@@ -802,14 +952,14 @@ def main02():
     )
 
     optimised_result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
-    logger.info(f"Test-case: compute time using most performant algorithm (measured): {optimised_result.computational_time:.2f} seconds")
+    logger.info(f"Test-case: compute time using most performant algorithm (measured): {round(optimised_result.computational_time,2)} seconds")
 
     # --- Summary Report ---
     report_lines = []
     report_lines.append("Benchmark Summary Report\n")
     report_lines.append(f"Number of riders: {len(riders)}\n\n")
-    report_lines.append("Most performant run (work-stealing):\n")
-    report_lines.append(f"  Compute time (measured): {optimised_result.computational_time:.2f} seconds\n")
+    report_lines.append("Most performant algorithm:\n")
+    report_lines.append(f"  Compute time (measured): {round(optimised_result.computational_time,2)} seconds\n")
     report_lines.append("\n")
 
     logger.info("".join(report_lines))
@@ -819,5 +969,5 @@ def main02():
     logger.info(f"Summary report written to {save_filename_without_ext}.txt")
 
 if __name__ == "__main__":
-    main01()    
-    # main02()
+    # main01()    
+    main02()

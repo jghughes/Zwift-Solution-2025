@@ -20,18 +20,18 @@ def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, 
     Returns:
         Dict[ZsunRiderItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
-            a single workload is (position, speed, duration, wattage). Each rider has a list of rider_exertions
+            a single workload is (position, speed, duration, wattage). Each rider has a list of dict_of_rider_exertions
     """
     rider_workloads: DefaultDict[ZsunRiderItem, List[RiderExertionItem]] = defaultdict(list)
     
-    for rider, work_assignments in rider_work_assignments.items():
-        rider_exertions: List[RiderExertionItem] = []
-        for assignment in work_assignments:
+    for rider, dict_of_rider_work_assignments in rider_work_assignments.items():
+        dict_of_rider_exertions: List[RiderExertionItem] = []
+        for assignment in dict_of_rider_work_assignments:
             wattage = calculate_wattage_riding_in_the_paceline(rider, assignment.speed, assignment.position)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
-            rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
-        rider_workloads[rider] = rider_exertions
+            dict_of_rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
+        rider_workloads[rider] = dict_of_rider_exertions
     
     return rider_workloads
 
@@ -92,11 +92,11 @@ def main() -> None:
     pull_durations = [60.0] * len(riders)
     pull_speeds_kph = [40.0] * len(riders)
 
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    rider_exertions = populate_rider_exertions(work_assignments)
+    dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", rider_exertions, logger)
+    log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", dict_of_rider_exertions, logger)
 
 if __name__ == "__main__":
     main()

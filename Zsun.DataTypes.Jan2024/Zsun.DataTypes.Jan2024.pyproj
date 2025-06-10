@@ -37,8 +37,6 @@
     </Compile>
     <Compile Include="src\zsun_rider_item.py" />
     <Compile Include="src\zsun_bestpower_item.py" />
-    <Compile Include="src\zsun_rider_pullplan_displayobject.py" />
-    <Compile Include="src\zsun_rider_pullplan_item.py" />
     <Compile Include="src\zwiftpower_profile_item.py" />
     <Compile Include="src\zwiftracingapp_profile_item.py" />
     <Compile Include="src\zwift_profile_item.py" />

@@ -1,16 +1,15 @@
 from typing import  DefaultDict
 from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
-from zsun_rider_pullplan_item import RiderPullPlanItem
-from zsun_rider_pullplan_displayobject import RiderPullPlanDisplayObject
+from computation_classes import RiderContributionItem, RiderContributionDisplayObject
 import logging
 
-def populate_pullplan_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderPullPlanItem]) -> DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject]:
+def populate_pullplan_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
 
-    answer: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject] = DefaultDict(RiderPullPlanDisplayObject)
+    answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = DefaultDict(RiderContributionDisplayObject)
 
     for rider, item in riders.items():
-        rider_display_object = RiderPullPlanDisplayObject.from_RiderPullPlanItem(rider, item)
+        rider_display_object = RiderContributionDisplayObject.from_RiderPullPlanItem(rider, item)
         answer[rider] = rider_display_object
 
     return answer
@@ -18,7 +17,7 @@ def populate_pullplan_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderPul
 
 def log_concise_pullplan_displayobjectsV2(
     test_description: str,
-    result: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject],
+    result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger
 ) -> None:
     import pandas as pd
@@ -70,7 +69,7 @@ def log_concise_pullplan_displayobjectsV2(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanDisplayObject], logger: logging.Logger) -> None:
+def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
    
@@ -114,7 +113,7 @@ def main() -> None:
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
-    from jgh_formulae06 import populate_pull_plan_from_rider_exertions
+    from jgh_formulae06 import populate_rider_contributions
 
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs    
@@ -136,15 +135,15 @@ def main() -> None:
     pull_durations = [240.0, 120.0, 60.0, 30.0, 60.0, 180.0]
 
 
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    rider_exertions = populate_rider_exertions(work_assignments)
+    dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    dict_of_rider_pullplans = populate_pull_plan_from_rider_exertions(rider_exertions)
+    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions)
 
     dict_of_rider_pullplan_displayobjects = populate_pullplan_displayobjects(dict_of_rider_pullplans)
 
-    log_concise_pullplan_displayobjects(f"Comparative rider metrics [RiderPullPlanItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_concise_pullplan_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

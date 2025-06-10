@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineSpecification, DesireablePacelineRotationSolutionsComputationOutcome
+from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReport
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
@@ -17,13 +17,13 @@ sequence_of_pull_periods_sec = [30.0, 60.0, 240.0]
 desired_solution_index = 1  # 0 means lowest dispersion plan, 1 means fastest plan, etc.
 max_intensity_factor = 100 #arbitrarily big number, so that we can get the fastest plan without worrying about the intensity factor.
 
-def first_rider_is_strongest(strongest_rider : ZsunRiderItem, result : DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int ) -> bool:
-    if not result.solutions or not result.solutions[desired_solution_index].rider_pull_plans:
+def first_rider_is_strongest(strongest_rider : ZsunRiderItem, result : PacelineSolutionsComputationReport, desired_solution_index : int ) -> bool:
+    if not result.solutions or not result.solutions[desired_solution_index].rider_contributions:
         return False
-    first_rider = next(iter(result.solutions[desired_solution_index].rider_pull_plans.keys()))
+    first_rider = next(iter(result.solutions[desired_solution_index].rider_contributions.keys()))
     return first_rider == strongest_rider
 
-def evaluate_permutation(params: PacelineSpecification) -> DesireablePacelineRotationSolutionsComputationOutcome:
+def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReport:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -40,39 +40,39 @@ def evaluate_permutation(params: PacelineSpecification) -> DesireablePacelineRot
 
     return result
 
-def get_solution_speed(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
+def get_solution_speed(optimal_result: PacelineSolutionsComputationReport, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
-    pull_plans_for_all_riders = solution.rider_pull_plans.values()
+    pull_plans_for_all_riders = solution.rider_contributions.values()
     a_pull_plan = next(iter(pull_plans_for_all_riders), None) # arbitrarily take the first pull plan. the speed should be the same for all riders in a solution.
     solution_speed_kph = a_pull_plan.speed_kph if a_pull_plan else 0
     return solution_speed_kph
 
-def get_hardest_intensity(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
+def get_hardest_intensity(optimal_result: PacelineSolutionsComputationReport, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
-    pull_plans_for_all_riders = solution.rider_pull_plans.items()
+    pull_plans_for_all_riders = solution.rider_contributions.items()
 
     #find the hardest intensity factor across all riders in the solution
     hardest_intensity = max(pull_plan.normalized_watts/rider.get_one_hour_watts() for rider, pull_plan in pull_plans_for_all_riders)
 
     return round(hardest_intensity, 2)
 
-def get_intensity_suffered_by_weakest_rider(optimal_result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index : int) -> float:
+def get_intensity_suffered_by_weakest_rider(optimal_result: PacelineSolutionsComputationReport, desired_solution_index : int) -> float:
     if not optimal_result.solutions:
         return 0
     solution = optimal_result.solutions[desired_solution_index]
 
     # identify the weakest rider
     weakest_rider = min(
-        (rider for rider, _ in solution.rider_pull_plans.items()),
+        (rider for rider, _ in solution.rider_contributions.items()),
         key=lambda r: r.get_strength_wkg()
     )
 
     # obtain pull plan of weakest rider
-    pull_plan_of_weakest_rider = solution.rider_pull_plans[weakest_rider]
+    pull_plan_of_weakest_rider = solution.rider_contributions[weakest_rider]
 
     # calculate intensity factor of the weakest rider
     intensity_factor = pull_plan_of_weakest_rider.normalized_watts / weakest_rider.get_one_hour_watts()
@@ -103,7 +103,7 @@ def main():
 
     # --- Evaluate all permutations for optimal pull plans in parallel ---
     list_of_instructions = [
-        PacelineSpecification(
+        PacelineIngredientsItem(
             riders_list=perm_riders,
             sequence_of_pull_periods_sec=sequence_of_pull_periods_sec,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
@@ -129,10 +129,10 @@ def main():
     logger.info(f"The strongest rider is {strongest_rider.name} with {strongest_rider.get_strength_wkg()} w/kg.")
     logger.info(f"The second strongest rider is {second_strongest_rider.name} with {second_strongest_rider.get_strength_wkg()} w/kg.\n")
 
-    def first_and_last_rider_filter(result: DesireablePacelineRotationSolutionsComputationOutcome, desired_solution_index: int) -> bool:
-        if not result.solutions or not result.solutions[desired_solution_index].rider_pull_plans:
+    def first_and_last_rider_filter(result: PacelineSolutionsComputationReport, desired_solution_index: int) -> bool:
+        if not result.solutions or not result.solutions[desired_solution_index].rider_contributions:
             return False
-        rider_order = list(result.solutions[desired_solution_index].rider_pull_plans.keys())
+        rider_order = list(result.solutions[desired_solution_index].rider_contributions.keys())
         return rider_order[0] == strongest_rider and rider_order[-1] == second_strongest_rider
 
     all_permutation_results = [
@@ -148,7 +148,7 @@ def main():
     #         continue
     #     speed_kph = get_solution_speed(optimal_result, desired_solution_index)
     #     solution = optimal_result.solutions[desired_solution_index]
-    #     plan_line_items = solution.rider_pull_plans
+    #     plan_line_items = solution.rider_contributions
     #     rider_names = [rider.name for rider in plan_line_items.keys()]        
     #     logger.info(f"Permutation {index+1}: {title} {speed_kph}kph | Riders: {', '.join(rider_names)}")
 
@@ -160,7 +160,7 @@ def main():
     #         continue
     #     hardest_intensity = get_hardest_intensity(optimal_result, desired_solution_index)
     #     solution = optimal_result.solutions[desired_solution_index]
-    #     plan_line_items = solution.rider_pull_plans
+    #     plan_line_items = solution.rider_contributions
     #     rider_names = [rider.name for rider in plan_line_items.keys()]        
     #     logger.info(f"Permutation {index+1}: {title}: IF={hardest_intensity} | Riders: {', '.join(rider_names)}")
 
@@ -172,7 +172,7 @@ def main():
             continue
         hardest_intensity = get_intensity_suffered_by_weakest_rider(optimal_result, desired_solution_index)
         solution = optimal_result.solutions[desired_solution_index]
-        plan_line_items = solution.rider_pull_plans
+        plan_line_items = solution.rider_contributions
         rider_names = [rider.name for rider in plan_line_items.keys()]        
         logger.info(f"Permutation {index+1}: {title}: IF={hardest_intensity} | Riders: {', '.join(rider_names)}")
 

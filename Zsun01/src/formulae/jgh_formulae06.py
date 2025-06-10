@@ -1,8 +1,7 @@
 from typing import List, Tuple, DefaultDict
 from collections import defaultdict
 from zsun_rider_item import ZsunRiderItem
-from zsun_rider_pullplan_item import RiderPullPlanItem
-from computation_classes import RiderExertionItem
+from computation_classes import RiderExertionItem, RiderContributionItem
 from rolling_average import calculate_rolling_averages
 
 import logging
@@ -89,7 +88,7 @@ def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     return normalized_watts
 
 
-def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderPullPlanItem]:
+def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
@@ -127,12 +126,12 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
 
         return p1_speed_kph, p1_duration
  
-    answer : DefaultDict[ZsunRiderItem, RiderPullPlanItem] = defaultdict(RiderPullPlanItem)
+    answer : DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
-        rider_answer_item = RiderPullPlanItem(
+        rider_answer_item = RiderContributionItem(
             speed_kph           = p1_speed_kph,
             p1_duration         = p1_duration,
             p1_w                = p1w,
@@ -151,7 +150,7 @@ def populate_pull_plan_from_rider_exertions(riders: DefaultDict[ZsunRiderItem, L
     return answer
 
 
-def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, RiderPullPlanItem], logger: logging.Logger) -> None:
+def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -212,14 +211,14 @@ def main() -> None:
     pull_speeds_kph = [38.8, 38.8,38.8, 38.8, 38.8, 38.8, 38.8, 38.8]
     pull_durations = [240.0, 120.0, 60.0, 30.0, 60.0, 180.0]
 
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    rider_exertions = populate_rider_exertions(work_assignments)
+    dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    rider_pull_plans = populate_pull_plan_from_rider_exertions(rider_exertions)
+    rider_contributions = populate_rider_contributions(dict_of_rider_exertions)
 
 
-    log_pull_plan(f"{len(riders)}-riders @38,8kph.", rider_pull_plans, logger)
+    log_pull_plan(f"{len(riders)}-riders @38,8kph.", rider_contributions, logger)
 
 
 if __name__ == "__main__":

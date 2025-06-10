@@ -110,9 +110,9 @@ def main() -> None:
     pull_durations = [60.0] * len(riders)
     pull_speeds_kph = [40.0] * len(riders)
 
-    work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    log_rider_work_assignments("Example riders",work_assignments, logger)
+    log_rider_work_assignments("Example riders",dict_of_rider_work_assignments, logger)
 
 if __name__ == "__main__":
     main()

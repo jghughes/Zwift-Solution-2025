@@ -1,11 +1,10 @@
-from typing import List, Union, DefaultDict, Tuple
+from typing import List
 from jgh_formatting import format_number_1dp, format_number_comma_separators, format_duration_hms, truncate 
 from zsun_rider_item import ZsunRiderItem
-from zsun_rider_pullplan_item import RiderPullPlanItem
 from handy_utilities import read_dict_of_zsunriderItems, log_multiline
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects, log_concise_pullplan_displayobjectsV2
+from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
 from jgh_formulae08 import (
     calculate_lower_bound_pull_speed, 
     calculate_lower_bound_speed_at_one_hour_watts, 
@@ -21,10 +20,10 @@ from jgh_logging import jgh_configure_logging
 
 def calculate_safe_binary_search_startpoint_to_locate_speeds(riders: List[ZsunRiderItem], verbose : bool, logger: logging.Logger) -> float:
 
-    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed = calculate_upper_bound_pull_speed(riders)
-    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
-    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed = calculate_lower_bound_pull_speed(riders)
-    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
+    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_pull_speed(riders)
+    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_speed_at_one_hour_watts(riders)
+    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = calculate_lower_bound_pull_speed(riders)
+    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = calculate_lower_bound_speed_at_one_hour_watts(riders)
 
     # Calculate safe_lowest_bound_speed required as the safe floor/start-point for iterating using binary search to determine speed limit
     safe_lowest_bound_speed = round(min(truncate(lower_bound_pull_rider_speed, 0), truncate(lower_bound_1_hour_rider_speed, 0)), 1)
@@ -74,7 +73,7 @@ def log_summary_message(total_compute_iterations: int, total_num_of_all_conceiva
     log_multiline(logger, message_lines)
 
 
-from computation_classes import PacelineSpecification  # Add this import at the top
+from computation_classes import PacelineIngredientsItem  # Add this import at the top
 
 def show_simple_pull_plan(
     riders: List[ZsunRiderItem],
@@ -89,16 +88,16 @@ def show_simple_pull_plan(
     simplest_pull_duration_as_array = [simple_pull_period] * len(riders)
     safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
 
-    params = PacelineSpecification(
+    params = PacelineIngredientsItem(
         riders_list                  =riders,
-        sequence_of_pull_periods_sec    =simplest_pull_duration_as_array,
+        sequence_of_pull_periods_sec =simplest_pull_duration_as_array,
         pull_speeds_kph              =safe_lowest_bound_speed_as_array,
         max_exertion_intensity_factor=intensity_factor
     )
 
-    result = compute_a_single_paceline_solution_complying_with_exertion_constraints(params)
-    simple_plan_line_items = result.rider_pull_plans
-    simple_plan_halted_rider = result.limiting_rider
+    result                      = compute_a_single_paceline_solution_complying_with_exertion_constraints(params)
+    simple_plan_line_items      = result.rider_contributions
+    simple_plan_halted_rider    = result.limiting_rider
 
     if simple_plan_halted_rider is None:
         calculated_speed = 0.0
@@ -124,27 +123,27 @@ def show_two_optimized_pull_plans(
     """
     Runs the optimal pull plan search and logs the summary and details for both low dispersion and high speed plans.
     """
-    params = PacelineSpecification(
+    params = PacelineIngredientsItem(
         riders_list                     =riders,
-        sequence_of_pull_periods_sec       =pull_periods,
+        sequence_of_pull_periods_sec    =pull_periods,
         pull_speeds_kph                 =[binary_search_parameter] * len(riders),
         max_exertion_intensity_factor   =intensity_factor
     )
 
     result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
 
-    two_pull_plans = result.solutions
-    total_num_of_all_conceivable_plans = result.candidate_rotation_sequences_count
-    total_compute_iterations = result.total_compute_iterations_performed_count
-    compute_time = result.computational_time
+    two_pull_plans                      = result.solutions
+    total_num_of_all_conceivable_plans  = result.candidate_rotation_sequences_count
+    total_compute_iterations            = result.total_compute_iterations_performed_count
+    compute_time                        = result.computational_time
 
     low_dispersion_plan = two_pull_plans[0]
     high_speed_plan = two_pull_plans[1]
 
-    low_dispersion_plan_line_items = low_dispersion_plan.rider_pull_plans
-    low_dispersion_halted_rider = low_dispersion_plan.limiting_rider
-    high_speed_plan_line_items = high_speed_plan.rider_pull_plans
-    high_speed_halted_rider = high_speed_plan.limiting_rider
+    low_dispersion_plan_line_items  = low_dispersion_plan.rider_contributions
+    low_dispersion_halted_rider     = low_dispersion_plan.limiting_rider
+    high_speed_plan_line_items      = high_speed_plan.rider_contributions
+    high_speed_halted_rider         = high_speed_plan.limiting_rider
 
     low_dispersion_plan_line_items_displayobjects = populate_pullplan_displayobjects(low_dispersion_plan_line_items)
     high_speed_plan_line_items_displayobjects = populate_pullplan_displayobjects(high_speed_plan_line_items)
