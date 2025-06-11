@@ -5,10 +5,10 @@ from computation_classes import PacelineIngredientsItem, PacelineSolutionsComput
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
-from jgh_formulae07 import populate_pullplan_displayobjects, log_concise_pullplan_displayobjects
+from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_ridercontribution_displayobjects
 from jgh_formulae08 import (
-        calculate_upper_bound_pull_speed,
-        calculate_upper_bound_speed_at_one_hour_watts,
+        calculate_upper_bound_paceline_speed,
+        calculate_upper_bound_paceline_speed_at_one_hour_watts,
         search_for_paceline_rotation_solutions_using_most_performant_algorithm,
         compute_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
@@ -20,8 +20,8 @@ def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsCo
 
     perm_riders = params.riders_list
 
-    _, _, r01_speed = calculate_upper_bound_pull_speed(perm_riders)
-    _, _, r02_speed = calculate_upper_bound_speed_at_one_hour_watts(perm_riders)
+    _, _, r01_speed = calculate_upper_bound_paceline_speed(perm_riders)
+    _, _, r02_speed = calculate_upper_bound_paceline_speed_at_one_hour_watts(perm_riders)
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed, 0)), 1)
 
     params.pull_speeds_kph = [lowest_bound_speed] * len(perm_riders)
@@ -82,14 +82,14 @@ def main():
 
 
         # Each solution has rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]
-        # and limiting_rider: Optional[ZsunRiderItem]
-        if solution.limiting_rider is None:
+        # and rider_that_breeched_contraints: Optional[ZsunRiderItem]
+        if solution.rider_that_breeched_contraints is None:
             return 0
-        limiting_rider = solution.limiting_rider
+        rider_that_breeched_contraints = solution.rider_that_breeched_contraints
         plan_line_items = solution.rider_contributions
-        if limiting_rider not in plan_line_items:
+        if rider_that_breeched_contraints not in plan_line_items:
             return 0
-        return getattr(plan_line_items[limiting_rider], "speed_kph", 0)
+        return getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0)
 
     all_permutation_results.sort(key=get_halted_rider_speed, reverse=True)
 
@@ -99,14 +99,14 @@ def main():
             continue
         solution = optimal_result.solutions[0]
         plan_line_items = solution.rider_contributions
-        limiting_rider = solution.limiting_rider
-        if limiting_rider is None or limiting_rider not in plan_line_items:
+        rider_that_breeched_contraints = solution.rider_that_breeched_contraints
+        if rider_that_breeched_contraints is None or rider_that_breeched_contraints not in plan_line_items:
             continue
-        plan_line_items_displayobjects = populate_pullplan_displayobjects(plan_line_items)
-        speed = round(getattr(plan_line_items[limiting_rider], "speed_kph", 0), 1)
+        plan_line_items_displayobjects = populate_ridercontribution_displayobjects(plan_line_items)
+        speed = round(getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0), 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_concise_pullplan_displayobjects(
+        # log_concise_ridercontribution_displayobjects(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )
 

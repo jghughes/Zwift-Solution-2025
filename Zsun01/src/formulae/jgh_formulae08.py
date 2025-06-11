@@ -1,4 +1,4 @@
-from typing import  List, DefaultDict, Tuple, Union, Callable
+from typing import  List, DefaultDict, Union, Callable
 import os
 from collections import defaultdict
 import copy
@@ -6,25 +6,14 @@ import concurrent.futures
 import time
 import numpy as np
 import itertools
-from jgh_formatting import format_number_2sig, truncate
+from jgh_formatting import truncate
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import (
-    PacelineIngredientsItem, 
-    RiderContributionItem,
-    PacelineComputationReport, 
-    PacelineSolutionsComputationReport)
-from jgh_formulae02 import (
-    calculate_speed_at_standard_30sec_pull_watts,
-    calculate_speed_at_standard_1_minute_pull_watts,
-    calculate_speed_at_standard_2_minute_pull_watts,
-    calculate_speed_at_standard_3_minute_pull_watts,
-    calculate_speed_at_standard_4_minute_pull_watts,
-    calculate_speed_at_one_hour_watts,
-)
+from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport
+from jgh_formulae02 import calculate_overall_intensity_factor_of_rider_contribution
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-from constants import SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD
+from constants import (SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SAFE_NUM_OF_ITERATIONS_TO_FIND_UPPER_BOUND_CONSTRAINT_BUSTING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH)
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -33,201 +22,8 @@ logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
 
 
-def calculate_intensity_factor(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
-    """
-    Calculate the intensity factor for a given rider and their contribution plan.
-
-    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
-    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
-    to their sustainable threshold.
-
-    Args:
-        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
-        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
-
-    Returns:
-        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
-
-    """
-
-    if rider.get_one_hour_watts() == 0:
-        return 0.0
-    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
 
 
-def log_rider_one_hour_speeds(riders: List[ZsunRiderItem], logger: logging.Logger):
-    from tabulate import tabulate
-
-    table = []
-    for rider in riders:
-        table.append([
-            rider.name,
-            format_number_2sig(rider.get_strength_wkg()),
-            format_number_2sig(rider.get_zwiftracingapp_zpFTP_wkg()),
-            format_number_2sig(rider.get_one_hour_wkg()),
-            format_number_2sig(calculate_speed_at_one_hour_watts(rider)),
-            format_number_2sig(rider.zsun_one_hour_watts),
-            format_number_2sig(calculate_speed_at_standard_30sec_pull_watts(rider)),
-            format_number_2sig(rider.get_standard_30sec_pull_watts()),
-        ])
-
-    headers = [
-        "Rider",
-        "Pull 2m (w/kg)",
-        "zFTP (w/kg)",
-        "1hr (w/kg)",
-        "1hr (kph)",
-        "1hr (W)",
-        "Pull 30s (kph)",
-        "Pull 30s (W)",
-    ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain"))
-
-
-def calculate_upper_bound_pull_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
-    """
-    Determines the maxima of permitted pull speed among all standard pull durations of all riders.
-    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
-    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall fastest speed found.
-    Args:
-        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
-    Returns:
-        Tuple[ZsunRiderItem, float, float]: A tuple containing:
-            - The ZsunRiderItem with the highest speed,
-            - The pull duration in seconds for which this maxima occurs,
-            - The maxima speed in kph.
-    """
-    fastest_rider = riders[0]
-    fastest_duration = 30.0  # arbitrary short
-    highest_speed = 0.0  # Arbitrarily low speed
-    duration_functions = [
-        (30.0, calculate_speed_at_standard_30sec_pull_watts),
-        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
-        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
-        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
-        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
-    ]
-    for rider in riders:
-        for duration, func in duration_functions:
-            speed = func(rider)
-            if speed > highest_speed:
-                highest_speed = speed
-                fastest_rider = rider
-                fastest_duration = duration
-    return fastest_rider, fastest_duration, highest_speed
-
-
-def calculate_lower_bound_pull_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
-    """
-    Determines the minima permitted pull speed among all standard pull durations of all riders.
-
-    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
-    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall slowest speed found.
-
-    Args:
-        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
-
-    Returns:
-        Tuple[ZsunRiderItem, float, float]: A tuple containing:
-            - The ZsunRiderItem with the lowest speed,
-            - The pull duration in seconds for which this minima occurs,
-            - The minima speed in kph.
-    """
-    slowest_rider = riders[0]
-    slowest_duration = 30.0  # arbitrary short
-    slowest_speed = 100.0  # Arbitrarily high speed
-
-    duration_functions = [
-        (30.0, calculate_speed_at_standard_30sec_pull_watts),
-        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
-        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
-        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
-        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
-    ]
-
-    for rider in riders:
-        for duration, func in duration_functions:
-            speed = func(rider)
-            if speed < slowest_speed:
-                slowest_speed = speed
-                slowest_rider = rider
-                slowest_duration = duration
-
-    return slowest_rider, slowest_duration, slowest_speed
-
-
-def calculate_lower_bound_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
-    # (rider, duration_sec, speed_kph)
-    slowest_rider = riders[0]
-    slowest_duration = 3600.0  # 1 hour in seconds
-    slowest_speed = calculate_speed_at_one_hour_watts(slowest_rider)
-
-    for rider in riders:
-        speed = calculate_speed_at_one_hour_watts(rider)
-        if speed < slowest_speed:
-            slowest_speed = speed
-            slowest_rider = rider
-            # duration is always 1 hour for this function
-            slowest_duration = 3600.0
-
-    return slowest_rider, slowest_duration, slowest_speed
-
-
-def calculate_upper_bound_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
-    # (rider, duration_sec, speed_kph)
-    fastest_rider = riders[0]
-    fastest_duration = 3600.0  # 1 hour in seconds
-    highest_speed = calculate_speed_at_one_hour_watts(fastest_rider)
-    for rider in riders:
-        speed = calculate_speed_at_one_hour_watts(rider)
-        if speed > highest_speed:
-            highest_speed = speed
-            fastest_rider = rider
-            # duration is always 1 hour for this function
-            fastest_duration = 3600.0
-    return fastest_rider, fastest_duration, highest_speed
-
-
-def annotate_comments_about_what_constrained_the_speed_of_the_paceline(
-    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem],
-    max_exertion_intensity_factor: float = 0.95
-) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
-    """
-    Annotate each rider's contribution with diagnostic messages indicating what limited the overall paceline speed.
-
-    This function examines each rider's contribution plan and determines if their exertion intensity factor
-    or pull power exceeded the allowed limits. It appends a diagnostic message to each RiderContributionItem
-    indicating whether the intensity factor or pull wattage was the limiting factor for that rider.
-
-    Args:
-        dict_of_rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
-            Mapping of riders to their computed contribution plans.
-        max_exertion_intensity_factor (float, optional):
-            The maximum allowed exertion intensity factor for any rider (default: 0.95).
-
-    Returns:
-        DefaultDict[ZsunRiderItem, RiderContributionItem]:
-            The same mapping, with each RiderContributionItem's `diagnostic_message` field updated to
-            reflect any limiting factors (e.g., intensity factor or pull watt limit).
-    """
-
-    for rider, rider_contribution in dict_of_rider_contributions.items():
-        msg = ""
-        # Step 1: Intensity factor checks
-        rider_intensity_factor = calculate_intensity_factor(rider, rider_contribution)
-        if rider_intensity_factor >= max_exertion_intensity_factor:
-            msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
-
-        # Step 2: Pull power limit checks
-        rider_pull_watts_limitation = rider.get_standard_pull_watts(rider_contribution.p1_duration)
-        if rider_contribution.p1_w >= rider_pull_watts_limitation:
-            msg += " pull>max W"
-
-        rider_contribution.diagnostic_message = msg
-
-    return dict_of_rider_contributions
 
 
 def populate_paceline_solution_alternative(
@@ -262,14 +58,53 @@ def populate_paceline_solution_alternative(
           by intensity factor or pull watt constraints.
         - This function is typically used as part of the paceline optimization workflow.
     """
-    
+
+    def invalidate_rider_contribution_if_it_breeches_pulling_power_or_intensity_factor_constraints(
+        dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem],
+        max_exertion_intensity_factor: float = 0.95
+    ) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
+        """
+        Annotate each rider's contribution with diagnostic messages indicating what limited the overall paceline speed.
+
+        This function examines each rider's contribution plan and determines if their exertion intensity factor
+        or pull power exceeded the allowed limits. It appends a diagnostic message to each RiderContributionItem
+        indicating whether the intensity factor or pull wattage was the limiting factor for that rider.
+
+        Args:
+            dict_of_rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
+                Mapping of riders to their computed contribution plans.
+            max_exertion_intensity_factor (float, optional):
+                The maximum allowed exertion intensity factor for any rider (default: 0.95).
+
+        Returns:
+            DefaultDict[ZsunRiderItem, RiderContributionItem]:
+                The same mapping, with each RiderContributionItem's `invalidation_reason` field updated to
+                reflect any limiting factors (e.g., intensity factor or pull watt limit).
+        """
+
+        for rider, rider_contribution in dict_of_rider_contributions.items():
+            msg = ""
+            # Step 1: Intensity factor checks
+            rider_intensity_factor = calculate_overall_intensity_factor_of_rider_contribution(rider, rider_contribution)
+            if rider_intensity_factor >= max_exertion_intensity_factor:
+                msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
+
+            # Step 2: Pull power limit checks
+            rider_pull_watts_limitation = rider.get_standard_pull_watts(rider_contribution.p1_duration)
+            if rider_contribution.p1_w >= rider_pull_watts_limitation:
+                msg += " pull>max W"
+
+            rider_contribution.invalidation_reason = msg
+
+        return dict_of_rider_contributions
+
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
     dict_of_rider_contributions = populate_rider_contributions(dict_of_rider_exertions)
 
-    annotated_dict_of_rider_contributions = annotate_comments_about_what_constrained_the_speed_of_the_paceline(dict_of_rider_contributions, max_exertion_intensity_factor)
+    annotated_dict_of_rider_contributions = invalidate_rider_contribution_if_it_breeches_pulling_power_or_intensity_factor_constraints(dict_of_rider_contributions, max_exertion_intensity_factor)
 
     return annotated_dict_of_rider_contributions
 
@@ -363,12 +198,6 @@ def stronger_than_nth_strongest_rider_filter(
         - The top (n-1) strongest riders are exempt from this filter to allow for flexibility in assignments.
     """
 
-
-
-
-
-
-
     if not riders or n < 1:
         return []
     answer: List[List[float]] = []
@@ -409,12 +238,14 @@ def radically_shrink_the_solution_space(
     (pull period assignments) considered for further computation.
 
     This function is designed to efficiently prune the solution space when the number of candidate
-    schedules exceeds a configurable threshold. It applies the following filters in order:
+    schedules exceeds a configurable size threshold in terms of computation speed. 
+    The goal is too use as few filters as possible so as not not inadventantly excluded non-obvious but ingenious
+    solutions that only a brute-force algorithm can reliably detect. It applies the following filters in order:
       1. Removes any sequence where a rider's pull period is less than that of the weakest rider.
       2. Removes any sequence where a rider's pull period is greater than the strongest rider's pull period.
       3. Progressively applies similar filters for the 2nd, 3rd, ..., up to the 12th strongest rider,
          each time removing schedules where a rider's pull period exceeds that of the nth strongest rider.
-    Filtering stops early as soon as the number of remaining schedules drops below the solution space constraint.
+    Filtering stops early the instant the number of remaining schedules drops below the solution space constraint.
     The function is intended to improve computational performance by discarding unlikely or suboptimal
     schedules before more expensive computations are performed. The savings can be spectacular, but are dependent
     on the number of riders and the distribution of their strengths. For example, for a case of nine riders 
@@ -444,18 +275,18 @@ def radically_shrink_the_solution_space(
 
     filters: List[Callable[[List[List[float]], List[ZsunRiderItem]], List[List[float]]]] = [
         weaker_than_weakest_rider_filter,
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 1),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 2),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 3),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 4),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 5),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 6),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 7),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 8),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 9),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 10),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 11),
-        lambda s, r: stronger_than_nth_strongest_rider_filter(s, r, 12),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 1),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 2),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 3),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 4),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 5),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 6),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 7),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 8),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 9),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 10),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 11),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 12),
     ]
 
     filtered_schedules = paceline_rotation_alternatives_being_filtered
@@ -494,7 +325,6 @@ def generate_a_scaffold_of_the_total_solution_space(
 
 def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     instruction: PacelineIngredientsItem,
-    precision: float = 0.01,
     max_iter: int = 30
 ) -> PacelineComputationReport:
     """
@@ -503,11 +333,11 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     This function uses a binary search to determine the maximum paceline speed at which all riders can
     complete their pulls without exceeding a specified exertion intensity factor or pull watts. 
     It iteratively tests increasing speeds, generating pull plans and checking for constraint 
-    violations, until it finds the highest feasible speed within the given precision and iteration limits.
+    violations, until it finds the highest feasible speed within the given desired_precision_kph and iteration limits.
 
     Args:
         instruction (PacelineIngredientsItem): Dataclass containing all input parameters for the computation.
-        precision (float, optional): Precision for the binary search on speed (default: 0.01).
+        desired_precision_kph (float, optional): Precision for the binary search on speed (default: 0.01).
         max_iter (int, optional): Maximum number of binary search iterations (default: 30).
 
     Returns:
@@ -520,64 +350,70 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     lowest_conceivable_kph = instruction.pull_speeds_kph
     max_exertion_intensity_factor = instruction.max_exertion_intensity_factor
 
-    # Initial lower and upper bounds of speed for the binary search
-    lower = truncate(lowest_conceivable_kph[0], 0)
-    upper = lower
+    # Initial lowest_bound_for_binary_search_kph and highest_bound_for_binary_search_kph bounds of speed for the binary search
+    lowest_bound_for_binary_search_kph = truncate(lowest_conceivable_kph[0], 0)
+    highest_bound_for_binary_search_kph = lowest_bound_for_binary_search_kph
 
     dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- Initialization
 
-    # Find an upper bound where a diagnostic message appears
-    for _ in range(10):
-        test_speeds = [upper] * len(riders)
+
+    # Find a highest_bound_for_binary_search_kph bound speed at which at least one rider's plan is invalid.
+    # This is required for the binary search to work correctly.
+
+    for _ in range(SAFE_NUM_OF_ITERATIONS_TO_FIND_UPPER_BOUND_CONSTRAINT_BUSTING_SPEED_KPH):
+        cadidate_busting_speed_as_array_kph = [highest_bound_for_binary_search_kph] * len(riders)
         dict_of_rider_contributions = populate_paceline_solution_alternative(
-            riders, standard_pull_periods_seconds, test_speeds, max_exertion_intensity_factor
+            riders, standard_pull_periods_seconds, cadidate_busting_speed_as_array_kph, max_exertion_intensity_factor
         )
-        if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
+        if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
             break
-        upper += 5.0  # Increase by a reasonable chunk
+        highest_bound_for_binary_search_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
     else:
-        # If we never find an upper bound, just return the last result
+        # If we never find an highest_bound_for_binary_search_kph bound, just return the last result
         return PacelineComputationReport(
             num_compute_iterations_performed=1,
             rider_contributions=dict_of_rider_contributions,
-            limiting_rider=None
+            rider_that_breeched_contraints=None
         )
 
-    compute_iterations: int = 0
-    halting_rider: Union[None, ZsunRiderItem] = None
+    # Do the binary search. The concept is to search by bouncing back and forth between  
+    # lowest_bound_for_binary_search_kph and highest_bound_for_binary_search_kph
+    # to zero in on the precise speed that invalidates the contribution of any one or more riders.
+    # Invalidation is determined inside populate_paceline_solution_alternative(..)
 
-    while (upper - lower) > precision and compute_iterations < max_iter:
-        mid = (lower + upper) / 2
-        test_speeds = [mid] * len(riders)
+
+    compute_iterations_performed: int = 0 # Number of iterations performed in the binary search, for reporting purposes
+    constraint_busting_rider: Union[None, ZsunRiderItem] = None
+
+    while (highest_bound_for_binary_search_kph - lowest_bound_for_binary_search_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < max_iter:
+        mid = (lowest_bound_for_binary_search_kph + highest_bound_for_binary_search_kph) / 2
+        cadidate_busting_speed_as_array_kph = [mid] * len(riders)
         dict_of_rider_contributions = populate_paceline_solution_alternative(
-            riders, standard_pull_periods_seconds, test_speeds, max_exertion_intensity_factor
-        )
-        compute_iterations += 1
-        if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
-            upper = mid
-            halting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.diagnostic_message)
+            riders, standard_pull_periods_seconds, cadidate_busting_speed_as_array_kph, max_exertion_intensity_factor)
+        compute_iterations_performed += 1
+        if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
+            highest_bound_for_binary_search_kph = mid
+            constraint_busting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.invalidation_reason)
         else:
-            lower = mid
-            last_valid_items = dict_of_rider_contributions # not halting, so save this as the last valid plan, not sure whether to use this or not
+            lowest_bound_for_binary_search_kph = mid
 
-    # Use the halting (upper) speed after binary search
-    final_speeds = [upper] * len(riders)
+    # Use the halting (highest_bound_for_binary_search_kph) speed after binary search
+    precise_constraint_busting_speed_as_array = [highest_bound_for_binary_search_kph] * len(riders)
     dict_of_rider_contributions = populate_paceline_solution_alternative(
-        riders, standard_pull_periods_seconds, final_speeds, max_exertion_intensity_factor
-    )
-    if any(answer.diagnostic_message for answer in dict_of_rider_contributions.values()):
-        halting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.diagnostic_message)
+        riders, standard_pull_periods_seconds, precise_constraint_busting_speed_as_array, max_exertion_intensity_factor)
+    if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
+        constraint_busting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.invalidation_reason)
     else:
-        halting_rider = None
+        constraint_busting_rider = None
 
     return PacelineComputationReport(
-        num_compute_iterations_performed=compute_iterations,
-        rider_contributions=dict_of_rider_contributions,
-        limiting_rider=halting_rider
+        num_compute_iterations_performed    = compute_iterations_performed,
+        rider_contributions                 = dict_of_rider_contributions,
+        rider_that_breeched_contraints                      = constraint_busting_rider
     )
 
 
-def summarize_paceline_solutions(
+def summarize_paceline_rotation_solutions(
     solutions: List[PacelineComputationReport],
     num_of_alternatives_examined: int,
     time_taken_to_compute: float
@@ -586,7 +422,7 @@ def summarize_paceline_solutions(
     Summarize and select the most desirable paceline solutions from a list of computed alternatives.
 
     This function analyzes a list of PacelineComputationReport objects, each representing a computed paceline solution,
-    and identifies two key solutions: the one with the highest speed and the one with the lowest dispersion
+    and identifies two key solutions: the one with the highest speed and the one with the lowest std_deviation_of_intensity_factors
     (standard deviation) of intensity factors among riders. It also aggregates statistics such as the total number
     of compute iterations performed and the total computation time.
 
@@ -597,62 +433,69 @@ def summarize_paceline_solutions(
 
     Returns:
         PacelineSolutionsComputationReport: An object containing summary statistics and the most desirable solutions,
-        specifically the highest speed and lowest dispersion solutions.
+        specifically the highest speed and lowest std_deviation_of_intensity_factors solutions.
 
     Raises:
-        RuntimeError: If no valid solution is found, or if either the highest speed or lowest dispersion solution is missing.
+        RuntimeError: If no valid solution is found, or if either the highest speed or lowest std_deviation_of_intensity_factors solution is missing.
 
     Notes:
         - The function logs warnings for invalid or non-finite solutions.
-        - The desirable solutions list will contain up to two solutions: [lowest_dispersion, highest_speed].
+        - The desirable solutions list will contain up to two solutions: [candidate_lowest_std_deviation, candidate_highest_speed].
     """
 
-    highest_speed_pull_plan_solution = None
-    highest_speed: float = float('-inf')
-    lowest_dispersion_pull_plan_solution = None
-    lowest_dispersion: float = float('inf')
-    total_compute_iterations = 0  # Now local
+    highest_speed_paceline_solution = None
+    candidate_highest_speed: float = float('-inf')
+    lowest_std_deviation_paceline_solution = None
+    candidate_lowest_std_deviation: float = float('inf')
+    total_compute_iterations_performed = 0 
 
     for solution in solutions:
-        total_compute_iterations += solution.num_compute_iterations_performed
-        if solution.limiting_rider is None:
+
+        total_compute_iterations_performed += solution.num_compute_iterations_performed
+
+        if solution.rider_that_breeched_contraints is None:
             logger.warning(f"Invalid result in solutions list. No rider halted the attempt to compute solution: {solution}. ")
             continue
-        pull_plan_speed_limit = solution.rider_contributions[solution.limiting_rider].speed_kph
-        if not np.isfinite(pull_plan_speed_limit):
-            logger.warning(f"Binary search iteration error. Non-finite pull_plan_speed_limit encountered: {pull_plan_speed_limit}")
+
+        paceline_speed_ceiling = solution.rider_contributions[solution.rider_that_breeched_contraints].speed_kph # criterion
+        if not np.isfinite(paceline_speed_ceiling):
+            logger.warning(f"Binary search iteration error. Non-finite paceline_speed_ceiling encountered: {paceline_speed_ceiling}")
             continue
 
-        if pull_plan_speed_limit > highest_speed:
-            highest_speed = pull_plan_speed_limit
-            highest_speed_pull_plan_solution = solution
+        if paceline_speed_ceiling > candidate_highest_speed:
+            candidate_highest_speed = paceline_speed_ceiling
+            highest_speed_paceline_solution = solution # the meat
 
-        np_intensity_factors = [calculate_intensity_factor(rider, plan) for rider, plan in solution.rider_contributions.items()]
-        if not np_intensity_factors:
-            logger.warning("No valid np_intensity_factors in dict_of_rider_contributions.")
+        rider_contibution_intensity_factors = [calculate_overall_intensity_factor_of_rider_contribution(rider, contribution) for rider, contribution in solution.rider_contributions.items()]
+
+        if not rider_contibution_intensity_factors:
+            logger.warning("No valid rider_contibution_intensity_factors in dict_of_rider_contributions.")
             continue
-        dispersion = float(np.std(np_intensity_factors))
-        if not np.isfinite(dispersion):
-            logger.warning(f"Non-finite dispersion encountered: {dispersion}")
+
+        std_deviation_of_intensity_factors = float(np.std(rider_contibution_intensity_factors)) # criterion
+
+        if not np.isfinite(std_deviation_of_intensity_factors):
+            logger.warning(f"Non-finite std_deviation_of_intensity_factors encountered: {std_deviation_of_intensity_factors}")
             continue
-        if dispersion < lowest_dispersion:
-            lowest_dispersion = dispersion
-            lowest_dispersion_pull_plan_solution = solution
 
-    if highest_speed_pull_plan_solution is None and lowest_dispersion_pull_plan_solution is None:
-        raise RuntimeError("No valid solution found (both highest_speed_pull_plan_solution and lowest_dispersion_pull_plan_solution are None)")
-    elif highest_speed_pull_plan_solution is None:
-        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (highest_speed_pull_plan_solution is None)")
-    elif lowest_dispersion_pull_plan_solution is None:
-        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (lowest_dispersion_pull_plan_solution is None)")
+        if std_deviation_of_intensity_factors < candidate_lowest_std_deviation:
+            candidate_lowest_std_deviation = std_deviation_of_intensity_factors
+            lowest_std_deviation_paceline_solution = solution # the meat
 
-    desirable_solutions = [lowest_dispersion_pull_plan_solution, highest_speed_pull_plan_solution]
+    if highest_speed_paceline_solution is None and lowest_std_deviation_paceline_solution is None:
+        raise RuntimeError("No valid solution found (both highest_speed_paceline_solution and lowest_std_deviation_paceline_solution are None)")
+    elif highest_speed_paceline_solution is None:
+        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (highest_speed_paceline_solution is None)")
+    elif lowest_std_deviation_paceline_solution is None:
+        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (lowest_std_deviation_paceline_solution is None)")
+
+    desirable_solutions = [lowest_std_deviation_paceline_solution, highest_speed_paceline_solution]
 
     return PacelineSolutionsComputationReport(
-        candidate_rotation_sequences_count       =num_of_alternatives_examined,
-        total_compute_iterations_performed_count =total_compute_iterations,
-        computational_time                       =time_taken_to_compute,
-        solutions                                =desirable_solutions
+        candidate_rotation_sequences_count       = num_of_alternatives_examined,
+        total_compute_iterations_performed_count = total_compute_iterations_performed,
+        computational_time                       = time_taken_to_compute,
+        solutions                                = desirable_solutions
     )
 
 
@@ -665,7 +508,7 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
 
     This function evaluates each candidate paceline rotation schedule in sequence, computing the resulting paceline solution
     for each. It collects all valid solutions, tracks the number of alternatives examined, and measures the total computation time.
-    The function returns a summary report containing the most desirable solutions (highest speed and lowest dispersion) and statistics.
+    The function returns a summary report containing the most desirable solutions (highest speed and lowest std_deviation_of_intensity_factors) and statistics.
 
     Args:
         paceline_ingredients:                  PacelineIngredientsItem containing all input parameters for the computation except the schedules.
@@ -708,7 +551,7 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
             solutions.append(PacelineComputationReport(
                 num_compute_iterations_performed    = result.num_compute_iterations_performed,
                 rider_contributions                    = result.rider_contributions,
-                limiting_rider                      = result.limiting_rider
+                rider_that_breeched_contraints                      = result.rider_that_breeched_contraints
             ))
         except Exception as exc:
             logger.error(f"Exception in function compute_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -716,7 +559,7 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_paceline_solutions(
+    return summarize_paceline_rotation_solutions(
         solutions,
         num_of_alternatives_examined,
         time_taken_to_compute
@@ -733,7 +576,7 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
     This function evaluates each candidate paceline rotation schedule in parallel, distributing the computation
     across available CPU cores using a process pool. Each schedule is used to generate a PacelineIngredientsItem,
     and the resulting solutions are collected and summarized. The function returns a report containing the most
-    desirable solutions (highest speed and lowest dispersion) and summary statistics.
+    desirable solutions (highest speed and lowest std_deviation_of_intensity_factors) and summary statistics.
 
     Args:
         paceline_ingredients:                  PacelineIngredientsItem containing all input parameters for the computation except the schedules.
@@ -782,14 +625,14 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
                 if (result is None or
                     not hasattr(result, "rider_contributions") or
                     result.rider_contributions is None or
-                    result.limiting_rider is None or
+                    result.rider_that_breeched_contraints is None or
                     not isinstance(result.rider_contributions, dict)):
                     logger.warning(f"Skipping invalid result: {result}")
                     continue
                 solutions.append(PacelineComputationReport(
                     num_compute_iterations_performed=result.num_compute_iterations_performed,
                     rider_contributions=result.rider_contributions,
-                    limiting_rider=result.limiting_rider
+                    rider_that_breeched_contraints=result.rider_that_breeched_contraints
                 ))
             except Exception as exc:
                 logger.error(f"Exception in function compute_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -797,7 +640,7 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_paceline_solutions(
+    return summarize_paceline_rotation_solutions(
         solutions,
         num_of_alternatives_examined,
         time_taken_to_compute
@@ -813,7 +656,7 @@ def search_for_paceline_rotation_solutions_using_most_performant_algorithm(
     This function generates all possible paceline rotation alternatives based on the provided riders and pull periods,
     then applies empirical filters to reduce the solution space. Depending on the number of remaining alternatives,
     it selects either serial or parallel processing to compute and evaluate all feasible paceline solutions.
-    The function returns a summary report containing the most desirable solutions (highest speed and lowest dispersion)
+    The function returns a summary report containing the most desirable solutions (highest speed and lowest std_deviation_of_intensity_factors)
     and relevant statistics.
 
     Args:

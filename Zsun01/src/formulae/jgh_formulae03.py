@@ -57,24 +57,6 @@ def rider_combinations(
     """
     return generate_combinations_of_riders(riders, combination_size)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def allocate_riders_to_groups(riders: List[ZsunRiderItem]) -> Tuple[List[ZsunRiderItem], List[ZsunRiderItem]]:
     if not riders:
         return [], []

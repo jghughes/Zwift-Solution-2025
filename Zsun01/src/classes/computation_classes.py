@@ -50,7 +50,7 @@ class RiderContributionItem():
     p8_w                  : float = 0.0 
     average_watts         : float = 0.0 
     normalized_watts      : float = 0.0 
-    diagnostic_message    : str = ""
+    invalidation_reason   : str = ""
 
 
 @dataclass
@@ -79,8 +79,8 @@ class RiderContributionDisplayObject():
     average_wkg                            : float = 0.0 
     pretty_average_watts                   : str   = ""
     normalised_power_watts                 : float = 0.0 
-    np_intensity_factor                    : float = 0.0 
-    diagnostic_message                     : str   = ""
+    intensity_factor                       : float = 0.0 
+    invalidation_reason                     : str   = ""
 
     @staticmethod
     def calculate_zwift_racing_score_cat(rider: ZsunRiderItem) -> str:
@@ -141,15 +141,15 @@ class RiderContributionDisplayObject():
         return f"{pretty(p2_w)}w {pretty(p3_w)}w {pretty(p4_w)}w"
 
     @staticmethod
-    def make_pretty_average_watts(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
+    def make_pretty_average_watts(rider : ZsunRiderItem, contribution: RiderContributionItem) -> str:
 
-        av_wkg = rider.get_watts_per_kg(plan.average_watts)
+        av_wkg = rider.get_watts_per_kg(contribution.average_watts)
 
-        return f"{round(av_wkg,1)}wkg {round(plan.average_watts)}w"
+        return f"{round(av_wkg,1)}wkg {round(contribution.average_watts)}w"
 
     @staticmethod
-    def from_RiderPullPlanItem(rider : ZsunRiderItem, plan: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
-        if plan is None:
+    def from_RiderContributionItem(rider : ZsunRiderItem, contribution: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
+        if contribution is None:
             return RiderContributionDisplayObject()
         return RiderContributionDisplayObject(
             name                                   = rider.name,
@@ -160,24 +160,24 @@ class RiderContributionDisplayObject():
             zwiftracingapp_pretty_cat_descriptor   = RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider),
             zwiftracingapp_zpFTP                   = rider.zwiftracingapp_zpFTP,
             zwiftracingapp_zpFTP_wkg               = RiderContributionDisplayObject.calculate_zwiftracingapp_zpFTP_wkg(rider),
-            speed_kph                              = plan.speed_kph,
-            p1_duration                            = plan.p1_duration,
-            p1_wkg                                 = plan.p1_w/rider.weight_kg,
-            pretty_pull                            = RiderContributionDisplayObject.make_pretty_pull(rider, plan),
-            p1_ratio_to_1hr_w                      = plan.p1_w/rider.zsun_one_hour_watts,
-            p1_ratio_to_zwiftracingapp_zpFTP       = plan.p1_w/rider.zwiftracingapp_zpFTP,
-            p1_w                                   = plan.p1_w,
-            p2_w                                   = plan.p2_w,
-            p3_w                                   = plan.p3_w,
-            p4_w                                   = plan.p4_w,     
-            pretty_p2_3_4_w                        = RiderContributionDisplayObject.make_pretty_p2_3_4_w(plan.p2_w, plan.p3_w, plan.p4_w),
+            speed_kph                              = contribution.speed_kph,
+            p1_duration                            = contribution.p1_duration,
+            p1_wkg                                 = contribution.p1_w/rider.weight_kg,
+            pretty_pull                            = RiderContributionDisplayObject.make_pretty_pull(rider, contribution),
+            p1_ratio_to_1hr_w                      = contribution.p1_w/rider.zsun_one_hour_watts,
+            p1_ratio_to_zwiftracingapp_zpFTP       = contribution.p1_w/rider.zwiftracingapp_zpFTP,
+            p1_w                                   = contribution.p1_w,
+            p2_w                                   = contribution.p2_w,
+            p3_w                                   = contribution.p3_w,
+            p4_w                                   = contribution.p4_w,     
+            pretty_p2_3_4_w                        = RiderContributionDisplayObject.make_pretty_p2_3_4_w(contribution.p2_w, contribution.p3_w, contribution.p4_w),
             zsun_one_hour_watts                    = rider.zsun_one_hour_watts,
-            average_watts                          = plan.average_watts,
-            average_wkg                            = plan.average_watts/rider.weight_kg if rider.weight_kg != 0 else 0,
-            pretty_average_watts                   = RiderContributionDisplayObject.make_pretty_average_watts(rider, plan),
-            normalised_power_watts                 = plan.normalized_watts,
-            np_intensity_factor                    = plan.normalized_watts/rider.get_one_hour_watts(),
-            diagnostic_message                     = plan.diagnostic_message
+            average_watts                          = contribution.average_watts,
+            average_wkg                            = contribution.average_watts/rider.weight_kg if rider.weight_kg != 0 else 0,
+            pretty_average_watts                   = RiderContributionDisplayObject.make_pretty_average_watts(rider, contribution),
+            normalised_power_watts                 = contribution.normalized_watts,
+            intensity_factor                    = contribution.normalized_watts/rider.get_one_hour_watts(),
+            invalidation_reason                     = contribution.invalidation_reason
         )
 
 
@@ -193,7 +193,7 @@ class PacelineIngredientsItem:
 class PacelineComputationReport:
     num_compute_iterations_performed : int  = 0
     rider_contributions              : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
-    limiting_rider                   : Optional[ZsunRiderItem]  = None
+    rider_that_breeched_contraints   : Optional[ZsunRiderItem]  = None
 
 
 @dataclass

@@ -11,7 +11,7 @@ def main01():
     from repository_of_teams import get_team_riderIDs
     from jgh_formulae08 import search_for_paceline_rotation_solutions_using_parallel_workstealing
     from jgh_formulae09 import search_for_optimal_pull_plans_with_parallel_chunking
-    from constants import STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    from constants import STANDARD_PULL_PERIODS_SEC, SAFE_LOWER_BOUND_TO_COMMENCE_BINARY_SEARCH_FOR_A_CONSTRAINT_BUSTING_SPEED_KPH, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     import time
     import pandas as pd
@@ -26,19 +26,19 @@ def main01():
 
     # 1. Baseline: search_for_paceline_rotation_solutions_using_parallel_workstealing
     start = time.perf_counter()
-    res1 = search_for_paceline_rotation_solutions_using_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, MAX_INTENSITY_FACTOR)
+    res1 = search_for_paceline_rotation_solutions_using_parallel_workstealing(riders, STANDARD_PULL_PERIODS_SEC, SAFE_LOWER_BOUND_TO_COMMENCE_BINARY_SEARCH_FOR_A_CONSTRAINT_BUSTING_SPEED_KPH, MAX_INTENSITY_FACTOR)
     elapsed1 = time.perf_counter() - start
     logger.info(f"search_for_paceline_rotation_solutions_using_parallel_workstealing: {elapsed1:.4f}s with work-stealing algorithm")
 
     # 2. Chunking with None args
     start = time.perf_counter()
-    res2 = search_for_optimal_pull_plans_with_parallel_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH, chunk_size=None, max_workers=None)
+    res2 = search_for_optimal_pull_plans_with_parallel_chunking(riders, STANDARD_PULL_PERIODS_SEC, SAFE_LOWER_BOUND_TO_COMMENCE_BINARY_SEARCH_FOR_A_CONSTRAINT_BUSTING_SPEED_KPH, chunk_size=None, max_workers=None)
     elapsed2 = time.perf_counter() - start
     logger.info(f"search_for_optimal_pull_plans_with_parallel_chunking (None args): {elapsed2:.4f}s")
 
     # 3. Chunking with default args (omit chunk_size and max_workers)
     start = time.perf_counter()
-    res3 = search_for_optimal_pull_plans_with_parallel_chunking(riders, STANDARD_PULL_PERIODS_SEC, BINARY_SEARCH_SEED_KPH)
+    res3 = search_for_optimal_pull_plans_with_parallel_chunking(riders, STANDARD_PULL_PERIODS_SEC, SAFE_LOWER_BOUND_TO_COMMENCE_BINARY_SEARCH_FOR_A_CONSTRAINT_BUSTING_SPEED_KPH)
     elapsed3 = time.perf_counter() - start
     logger.info(f"search_for_optimal_pull_plans_with_parallel_chunking (default args): {elapsed3:.4f}s")
 

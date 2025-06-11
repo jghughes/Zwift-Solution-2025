@@ -4,18 +4,18 @@ from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionItem, RiderContributionDisplayObject
 import logging
 
-def populate_pullplan_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
+def populate_ridercontribution_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
 
     answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = DefaultDict(RiderContributionDisplayObject)
 
     for rider, item in riders.items():
-        rider_display_object = RiderContributionDisplayObject.from_RiderPullPlanItem(rider, item)
+        rider_display_object = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
         answer[rider] = rider_display_object
 
     return answer
 
 
-def log_concise_pullplan_displayobjectsV2(
+def log_concise_ridercontribution_displayobjectsV2(
     test_description: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger
@@ -33,8 +33,8 @@ def log_concise_pullplan_displayobjectsV2(
             z.pretty_pull,
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
-            f"{round(100*z.np_intensity_factor)}%",
-            z.diagnostic_message if z.diagnostic_message else "",
+            f"{round(100*z.intensity_factor)}%",
+            z.invalidation_reason if z.invalidation_reason else "",
             z.pretty_p2_3_4_w,
         ])
 
@@ -69,7 +69,7 @@ def log_concise_pullplan_displayobjectsV2(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
+def log_concise_ridercontribution_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
    
@@ -84,8 +84,8 @@ def log_concise_pullplan_displayobjects(test_description: str, result: DefaultDi
             z.pretty_pull,
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
-            f"{round(100*z.np_intensity_factor)}%",
-            z.diagnostic_message if z.diagnostic_message else "",
+            f"{round(100*z.intensity_factor)}%",
+            z.invalidation_reason if z.invalidation_reason else "",
             z.pretty_p2_3_4_w, 
 
         ])
@@ -141,9 +141,9 @@ def main() -> None:
 
     dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions)
 
-    dict_of_rider_pullplan_displayobjects = populate_pullplan_displayobjects(dict_of_rider_pullplans)
+    dict_of_rider_pullplan_displayobjects = populate_ridercontribution_displayobjects(dict_of_rider_pullplans)
 
-    log_concise_pullplan_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_concise_ridercontribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

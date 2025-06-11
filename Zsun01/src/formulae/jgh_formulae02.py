@@ -1,5 +1,8 @@
 from zsun_rider_item import ZsunRiderItem
+from rolling_average import calculate_rolling_averages
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
+from computation_classes import RiderContributionItem, RiderExertionItem
+from typing import List, Tuple
 
 def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
     """
@@ -159,5 +162,211 @@ def calculate_speed_at_one_hour_watts(rider : ZsunRiderItem) -> float:
     speed_kph = estimate_speed_from_wattage(rider.get_one_hour_watts(), rider.weight_kg, rider.height_cm)
         
     return round(speed_kph, 3)
+
+def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
+    """
+    Calculate the average power for a list of efforts.
+    The average power is calculated as the total work done (in kilojoules) divided by 
+    the total duration (in seconds). The function sums the kilojoules for each workload 
+    item and divides by the total duration to obtain the average power.
+
+    Args:
+        efforts (List[RiderExertionItem]): The list of efforts.
+    Returns:
+        float: The average power.
+    """
+    if not efforts:
+        return 0
+
+    total_kilojoules = sum(item.kilojoules for item in efforts)
+    total_duration = sum(item.duration for item in efforts)
+    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
+    return average_watts
+
+def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> float:
+    """
+    Calculate the normalized power for a list of efforts.
+
+    Normalized Power (NP) is a metric used to better quantify the physiological 
+    demands of a workout compared to average power. It accounts for the variability 
+    in power output and provides a more accurate representation of the effort 
+    required. The calculation involves several steps:
+
+    1. Create a list of instantaneous wattages for every second of the durations 
+       of all efforts.
+    2. Calculate the 30-second rolling average power.
+    3. Raise the smoothed power values to the fourth power.
+    4. Calculate the average of these values.
+    5. Take the fourth root of the average.
+
+    Args:
+        efforts (List[RiderExertionItem]): The list of efforts. 
+        Each item contains the wattage and duration for a specific segment of the 
+        workout.
+
+    Returns:
+        float: The normalized power.
+
+    Example:
+        >>> efforts = [
+        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
+        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
+        ... ]
+        >>> calculate_overall_normalized_watts(efforts)
+        192.0
+
+    In this example, the normalized power is calculated for two efforts. 
+    The first item has a duration of 60 seconds and a wattage of 200, and the 
+    second item has a duration of 30 seconds and a wattage of 180. The function 
+    computes the normalized power based on these values.
+    """
+    if not efforts:
+        return 0
+
+    # Create a list of instantaneous wattages for every second of the durations of all efforts
+    instantaneous_wattages: List[float] = []
+    for item in efforts:
+        instantaneous_wattages.extend([item.wattage] * int(item.duration))
+
+    # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
+    # Our pulls are 30, 60, and 120 seconds long, so we'll use a (arbitrary) 5-second rolling average
+    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
+
+    # Raise the smoothed power values to the fourth power
+    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
+
+    # Calculate the average of these values
+    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
+
+    # Take the fourth root of the average
+    normalized_watts = mean_power_4 ** 0.25
+
+    return normalized_watts
+
+def calculate_upper_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+    """
+    Determines the maxima of permitted pull speed among all standard pull durations of all riders.
+    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
+    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
+    corresponding to the overall fastest speed found.
+    Args:
+        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
+    Returns:
+        Tuple[ZsunRiderItem, float, float]: A tuple containing:
+            - The ZsunRiderItem with the highest speed,
+            - The pull duration in seconds for which this maxima occurs,
+            - The maxima speed in kph.
+    """
+    fastest_rider = riders[0]
+    fastest_duration = 30.0  # arbitrary short
+    highest_speed = 0.0  # Arbitrarily low speed
+    duration_functions = [
+        (30.0, calculate_speed_at_standard_30sec_pull_watts),
+        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
+        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
+        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
+        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
+    ]
+    for rider in riders:
+        for duration, func in duration_functions:
+            speed = func(rider)
+            if speed > highest_speed:
+                highest_speed = speed
+                fastest_rider = rider
+                fastest_duration = duration
+    return fastest_rider, fastest_duration, highest_speed
+
+def calculate_lower_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+    """
+    Determines the minima permitted pull speed among all standard pull durations of all riders.
+
+    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
+    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
+    corresponding to the overall slowest speed found.
+
+    Args:
+        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
+
+    Returns:
+        Tuple[ZsunRiderItem, float, float]: A tuple containing:
+            - The ZsunRiderItem with the lowest speed,
+            - The pull duration in seconds for which this minima occurs,
+            - The minima speed in kph.
+    """
+    slowest_rider = riders[0]
+    slowest_duration = 30.0  # arbitrary short
+    slowest_speed = 100.0  # Arbitrarily high speed
+
+    duration_functions = [
+        (30.0, calculate_speed_at_standard_30sec_pull_watts),
+        (60.0, calculate_speed_at_standard_1_minute_pull_watts),
+        (120.0, calculate_speed_at_standard_2_minute_pull_watts),
+        (180.0, calculate_speed_at_standard_3_minute_pull_watts),
+        (240.0, calculate_speed_at_standard_4_minute_pull_watts),
+    ]
+
+    for rider in riders:
+        for duration, func in duration_functions:
+            speed = func(rider)
+            if speed < slowest_speed:
+                slowest_speed = speed
+                slowest_rider = rider
+                slowest_duration = duration
+
+    return slowest_rider, slowest_duration, slowest_speed
+
+def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+    # (rider, duration_sec, speed_kph)
+    slowest_rider = riders[0]
+    slowest_duration = 3600.0  # 1 hour in seconds
+    slowest_speed = calculate_speed_at_one_hour_watts(slowest_rider)
+
+    for rider in riders:
+        speed = calculate_speed_at_one_hour_watts(rider)
+        if speed < slowest_speed:
+            slowest_speed = speed
+            slowest_rider = rider
+            # duration is always 1 hour for this function
+            slowest_duration = 3600.0
+
+    return slowest_rider, slowest_duration, slowest_speed
+
+def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+    # (rider, duration_sec, speed_kph)
+    fastest_rider = riders[0]
+    fastest_duration = 3600.0  # 1 hour in seconds
+    highest_speed = calculate_speed_at_one_hour_watts(fastest_rider)
+    for rider in riders:
+        speed = calculate_speed_at_one_hour_watts(rider)
+        if speed > highest_speed:
+            highest_speed = speed
+            fastest_rider = rider
+            # duration is always 1 hour for this function
+            fastest_duration = 3600.0
+    return fastest_rider, fastest_duration, highest_speed
+
+
+def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
+    """
+    Calculate the intensity factor for a given rider and their contribution plan.
+
+    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
+    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
+    to their sustainable threshold.
+
+    Args:
+        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
+        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
+
+    Returns:
+        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
+
+    """
+
+    if rider.get_one_hour_watts() == 0:
+        return 0.0
+    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
+
+
 
 

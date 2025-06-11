@@ -2,9 +2,9 @@ from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae06 import log_pull_plan
+from jgh_formulae06 import log_rider_contributions
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
-from jgh_formulae08 import calculate_lower_bound_pull_speed, calculate_lower_bound_speed_at_one_hour_watts, calculate_upper_bound_pull_speed, calculate_upper_bound_speed_at_one_hour_watts, generate_a_scaffold_of_the_total_solution_space
+from jgh_formulae08 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, generate_a_scaffold_of_the_total_solution_space
 from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, search_for_paceline_rotation_solutions_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
@@ -23,13 +23,13 @@ def main():
 
     logger.info(f"\nPACELINE PULL SPEED: upper and lower bounds: -\n")
 
-    r01, r01_duration, r01_speed = calculate_upper_bound_pull_speed(riders)
-    r02, _, r02_speed = calculate_upper_bound_speed_at_one_hour_watts(riders)
+    r01, r01_duration, r01_speed = calculate_upper_bound_paceline_speed(riders)
+    r02, _, r02_speed = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
     logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_30sec_pull_watts())} W ({round(r01.get_standard_30sec_pull_watts()/r01.weight_kg, 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
     logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
 
-    r01, r01_duration, r01_speed = calculate_lower_bound_pull_speed(riders)
-    r02, _, r02_speed = calculate_lower_bound_speed_at_one_hour_watts(riders)
+    r01, r01_duration, r01_speed = calculate_lower_bound_paceline_speed(riders)
+    r02, _, r02_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
     logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_4_minute_pull_watts())} W ({round(r01.get_standard_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
     logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
 
@@ -48,7 +48,7 @@ def main():
     )
     simple_result = compute_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
-    halted_rider = simple_result.limiting_rider
+    halted_rider = simple_result.rider_that_breeched_contraints
 
     all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
 
@@ -68,12 +68,12 @@ def main():
 
     low_dispersion_plan, high_speed_plan = pull_plans
     low_dispersion_plan_line_items = low_dispersion_plan.rider_contributions
-    halted_rider = low_dispersion_plan.limiting_rider
+    halted_rider = low_dispersion_plan.rider_that_breeched_contraints
     high_speed_plan_line_items = high_speed_plan.rider_contributions
 
-    log_pull_plan(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items, logger)
-    log_pull_plan(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)
-    log_pull_plan(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items, logger)
+    log_rider_contributions(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items, logger)
+    log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)
+    log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items, logger)
 
     logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
 

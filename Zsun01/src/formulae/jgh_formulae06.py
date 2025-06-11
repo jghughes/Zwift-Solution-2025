@@ -2,90 +2,10 @@ from typing import List, Tuple, DefaultDict
 from collections import defaultdict
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderExertionItem, RiderContributionItem
-from rolling_average import calculate_rolling_averages
+from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
 
 import logging
 
-def calculate_average_watts(efforts: List[RiderExertionItem]) -> float:
-    """
-    Calculate the average power for a list of efforts.
-    The average power is calculated as the total work done (in kilojoules) divided by 
-    the total duration (in seconds). The function sums the kilojoules for each workload 
-    item and divides by the total duration to obtain the average power.
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts.
-    Returns:
-        float: The average power.
-    """
-    if not efforts:
-        return 0
-
-    total_kilojoules = sum(item.kilojoules for item in efforts)
-    total_duration = sum(item.duration for item in efforts)
-    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
-    return average_watts
-
-
-def calculate_normalized_watts(efforts: List[RiderExertionItem]) -> float:
-    """
-    Calculate the normalized power for a list of efforts.
-
-    Normalized Power (NP) is a metric used to better quantify the physiological 
-    demands of a workout compared to average power. It accounts for the variability 
-    in power output and provides a more accurate representation of the effort 
-    required. The calculation involves several steps:
-
-    1. Create a list of instantaneous wattages for every second of the durations 
-       of all efforts.
-    2. Calculate the 30-second rolling average power.
-    3. Raise the smoothed power values to the fourth power.
-    4. Calculate the average of these values.
-    5. Take the fourth root of the average.
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts. 
-        Each item contains the wattage and duration for a specific segment of the 
-        workout.
-
-    Returns:
-        float: The normalized power.
-
-    Example:
-        >>> efforts = [
-        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
-        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
-        ... ]
-        >>> calculate_normalized_watts(efforts)
-        192.0
-
-    In this example, the normalized power is calculated for two efforts. 
-    The first item has a duration of 60 seconds and a wattage of 200, and the 
-    second item has a duration of 30 seconds and a wattage of 180. The function 
-    computes the normalized power based on these values.
-    """
-    if not efforts:
-        return 0
-
-    # Create a list of instantaneous wattages for every second of the durations of all efforts
-    instantaneous_wattages: List[float] = []
-    for item in efforts:
-        instantaneous_wattages.extend([item.wattage] * int(item.duration))
-
-    # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
-    # Our pulls are 30, 60, and 120 seconds long, so we'll use a (arbitrary) 5-second rolling average
-    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
-
-    # Raise the smoothed power values to the fourth power
-    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
-
-    # Calculate the average of these values
-    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
-
-    # Take the fourth root of the average
-    normalized_watts = mean_power_4 ** 0.25
-
-    return normalized_watts
 
 
 def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
@@ -142,15 +62,15 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
             p6_w                = p6w,
             p7_w                = p7w,
             p8_w                = p8w,
-            average_watts       = calculate_average_watts(exertions),
-            normalized_watts    = calculate_normalized_watts(exertions),
+            average_watts       = calculate_overall_average_watts(exertions),
+            normalized_watts    = calculate_overall_normalized_watts(exertions),
         )
         answer[rider] = rider_answer_item
 
     return answer
 
 
-def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionItem], logger: logging.Logger) -> None:
+def log_rider_contributions(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -168,7 +88,7 @@ def log_pull_plan(test_description: str, result: DefaultDict[ZsunRiderItem, Ride
             round(z.p8_w), 
             round(z.average_watts), 
             round(z.normalized_watts), 
-            z.diagnostic_message if z.diagnostic_message else ""
+            z.invalidation_reason if z.invalidation_reason else ""
         ])
     headers = [
         "name", 
@@ -218,7 +138,7 @@ def main() -> None:
     rider_contributions = populate_rider_contributions(dict_of_rider_exertions)
 
 
-    log_pull_plan(f"{len(riders)}-riders @38,8kph.", rider_contributions, logger)
+    log_rider_contributions(f"{len(riders)}-riders @38,8kph.", rider_contributions, logger)
 
 
 if __name__ == "__main__":

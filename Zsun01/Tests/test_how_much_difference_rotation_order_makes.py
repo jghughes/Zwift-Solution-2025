@@ -6,8 +6,8 @@ from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
 from jgh_formulae08 import (
-        calculate_upper_bound_pull_speed,
-        calculate_upper_bound_speed_at_one_hour_watts,
+        calculate_upper_bound_paceline_speed,
+        calculate_upper_bound_paceline_speed_at_one_hour_watts,
         search_for_paceline_rotation_solutions_using_most_performant_algorithm,
         weaker_than_weakest_rider_filter,)
 from jgh_formatting import truncate
@@ -28,8 +28,8 @@ def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsCo
 
     perm_riders = params.riders_list
 
-    _, _, r01_speed = calculate_upper_bound_pull_speed(perm_riders)
-    _, _, r02_speed = calculate_upper_bound_speed_at_one_hour_watts(perm_riders)
+    _, _, r01_speed = calculate_upper_bound_paceline_speed(perm_riders)
+    _, _, r02_speed = calculate_upper_bound_paceline_speed_at_one_hour_watts(perm_riders)
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed, 0)), 1)
 
     params.pull_speeds_kph = [lowest_bound_speed] * len(perm_riders)
