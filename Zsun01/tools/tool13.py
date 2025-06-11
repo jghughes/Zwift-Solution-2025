@@ -5,7 +5,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_rider_contributions
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, generate_a_scaffold_of_the_total_solution_space
-from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, search_for_paceline_rotation_solutions_using_parallel_workstealing
+from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_rotation_solutions_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
@@ -60,10 +60,10 @@ def main():
         max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
     )
 
-    optimal_result = search_for_paceline_rotation_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
+    optimal_result = generate_paceline_rotation_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
     pull_plans = optimal_result.solutions
-    total_alternatives = optimal_result.candidate_rotation_sequences_count
-    total_iterations = optimal_result.total_compute_iterations_performed_count
+    total_alternatives = optimal_result.total_pull_sequences_examined
+    total_iterations = optimal_result.total_compute_iterations_performed
     compute_time = optimal_result.computational_time
 
     low_dispersion_plan, high_speed_plan = pull_plans

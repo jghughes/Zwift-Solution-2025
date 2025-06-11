@@ -34,7 +34,7 @@ def log_concise_ridercontribution_displayobjectsV2(
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.intensity_factor)}%",
-            z.invalidation_reason if z.invalidation_reason else "",
+            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
             z.pretty_p2_3_4_w,
         ])
 
@@ -85,7 +85,7 @@ def log_concise_ridercontribution_displayobjects(test_description: str, result: 
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.intensity_factor)}%",
-            z.invalidation_reason if z.invalidation_reason else "",
+            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
             z.pretty_p2_3_4_w, 
 
         ])

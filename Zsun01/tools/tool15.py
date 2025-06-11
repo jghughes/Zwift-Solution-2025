@@ -7,7 +7,7 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_ridercontribution_displayobjects
-from jgh_formulae08 import search_for_paceline_rotation_solutions_using_most_performant_algorithm, compute_a_single_paceline_solution_complying_with_exertion_constraints
+from jgh_formulae08 import generate_paceline_rotation_solutions_using_most_performant_algorithm, compute_a_single_paceline_solution_complying_with_exertion_constraints
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -124,11 +124,11 @@ def show_two_optimized_pull_plans(
         max_exertion_intensity_factor   =intensity_factor
     )
 
-    result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_rotation_solutions_using_most_performant_algorithm(params)
 
     two_pull_plans                      = result.solutions
-    total_num_of_all_conceivable_plans  = result.candidate_rotation_sequences_count
-    total_compute_iterations            = result.total_compute_iterations_performed_count
+    total_num_of_all_conceivable_plans  = result.total_pull_sequences_examined
+    total_compute_iterations            = result.total_compute_iterations_performed
     compute_time                        = result.computational_time
 
     low_dispersion_plan = two_pull_plans[0]

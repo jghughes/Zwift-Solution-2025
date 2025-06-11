@@ -88,7 +88,7 @@ def log_rider_contributions(test_description: str, result: DefaultDict[ZsunRider
             round(z.p8_w), 
             round(z.average_watts), 
             round(z.normalized_watts), 
-            z.invalidation_reason if z.invalidation_reason else ""
+            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else ""
         ])
     headers = [
         "name", 

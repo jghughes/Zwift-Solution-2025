@@ -1,7 +1,7 @@
 Benchmark Report: Concurrent Programming Strategies
 
 Tested strategies:
-1. search_for_paceline_rotation_solutions_using_parallel_workstealing
+1. generate_paceline_rotation_solutions_using_parallel_workstealing
 2. search_for_optimal_pull_plans_with_parallel_chunking (chunk_size=None, max_workers=None)
 3. search_for_optimal_pull_plans_with_parallel_chunking (default args)
 

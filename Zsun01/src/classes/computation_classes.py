@@ -50,7 +50,7 @@ class RiderContributionItem():
     p8_w                  : float = 0.0 
     average_watts         : float = 0.0 
     normalized_watts      : float = 0.0 
-    invalidation_reason   : str = ""
+    effort_constraint_violation_reason : str = ""
 
 
 @dataclass
@@ -80,7 +80,7 @@ class RiderContributionDisplayObject():
     pretty_average_watts                   : str   = ""
     normalised_power_watts                 : float = 0.0 
     intensity_factor                       : float = 0.0 
-    invalidation_reason                     : str   = ""
+    effort_constraint_violation_reason                     : str   = ""
 
     @staticmethod
     def calculate_zwift_racing_score_cat(rider: ZsunRiderItem) -> str:
@@ -177,7 +177,7 @@ class RiderContributionDisplayObject():
             pretty_average_watts                   = RiderContributionDisplayObject.make_pretty_average_watts(rider, contribution),
             normalised_power_watts                 = contribution.normalized_watts,
             intensity_factor                    = contribution.normalized_watts/rider.get_one_hour_watts(),
-            invalidation_reason                     = contribution.invalidation_reason
+            effort_constraint_violation_reason                     = contribution.effort_constraint_violation_reason
         )
 
 
@@ -198,10 +198,10 @@ class PacelineComputationReport:
 
 @dataclass
 class PacelineSolutionsComputationReport:
-    candidate_rotation_sequences_count          : int   = 0
-    total_compute_iterations_performed_count    : int   = 0
-    computational_time                          : float = 0.0
-    solutions                                   : List[PacelineComputationReport] = field(default_factory=list)
+    total_pull_sequences_examined     : int   = 0
+    total_compute_iterations_performed    : int   = 0
+    computational_time                    : float = 0.0
+    solutions                             : List[PacelineComputationReport] = field(default_factory=list)
 
 
 

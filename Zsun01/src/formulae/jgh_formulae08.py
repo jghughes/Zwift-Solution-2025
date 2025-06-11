@@ -13,18 +13,13 @@ from jgh_formulae02 import calculate_overall_intensity_factor_of_rider_contribut
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-from constants import (SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SAFE_NUM_OF_ITERATIONS_TO_FIND_UPPER_BOUND_CONSTRAINT_BUSTING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH)
+from constants import (SOLUTION_SPACE_SIZE_CONSTRAINT, SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS)
 
 import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
-
-
-
-
-
 
 def populate_paceline_solution_alternative(
     riders:                        List[ZsunRiderItem],
@@ -78,7 +73,7 @@ def populate_paceline_solution_alternative(
 
         Returns:
             DefaultDict[ZsunRiderItem, RiderContributionItem]:
-                The same mapping, with each RiderContributionItem's `invalidation_reason` field updated to
+                The same mapping, with each RiderContributionItem's `effort_constraint_violation_reason` field updated to
                 reflect any limiting factors (e.g., intensity factor or pull watt limit).
         """
 
@@ -94,7 +89,7 @@ def populate_paceline_solution_alternative(
             if rider_contribution.p1_w >= rider_pull_watts_limitation:
                 msg += " pull>max W"
 
-            rider_contribution.invalidation_reason = msg
+            rider_contribution.effort_constraint_violation_reason = msg
 
         return dict_of_rider_contributions
 
@@ -325,20 +320,24 @@ def generate_a_scaffold_of_the_total_solution_space(
 
 def compute_a_single_paceline_solution_complying_with_exertion_constraints(
     instruction: PacelineIngredientsItem,
-    max_iter: int = 30
 ) -> PacelineComputationReport:
     """
     Computes a feasible paceline solution for a group of riders, subject to exertion and power constraints.
 
-    This function uses a binary search to determine the maximum paceline speed at which all riders can
-    complete their pulls without exceeding a specified exertion intensity factor or pull watts. 
-    It iteratively tests increasing speeds, generating pull plans and checking for constraint 
-    violations, until it finds the highest feasible speed within the given desired_precision_kph and iteration limits.
+    This function uses a binary search to determine the (highest possible) paceline speed that triggers a constraint violation
+    for one or possibly more riders by forcing them to exceeding the allowed exertion intensity (a system constant) or their pull watts. 
+    It is a numerical method to zero in on a topmost speed for the paceline 
+    solution, checking for constraint violations along the way until it finds the nearest speed which first 
+    violates the constraint within the given desired_precision_kph and iteration limits.
+
+    Counterintuitively - all solutions returned by this function are guaranteed to contain at least
+    one rider who is in violation. This is the limiting rider. If a solution does not contian a violation, 
+    it is invalid. Something went wrong in the binary search, or the input parameters are invalid.
+
+
 
     Args:
         instruction (PacelineIngredientsItem): Dataclass containing all input parameters for the computation.
-        desired_precision_kph (float, optional): Precision for the binary search on speed (default: 0.01).
-        max_iter (int, optional): Maximum number of binary search iterations (default: 30).
 
     Returns:
         PacelineComputationReport: Dataclass containing the number of search iterations, the mapping of each rider
@@ -347,124 +346,134 @@ def compute_a_single_paceline_solution_complying_with_exertion_constraints(
 
     riders = instruction.riders_list
     standard_pull_periods_seconds = list(instruction.sequence_of_pull_periods_sec)
-    lowest_conceivable_kph = instruction.pull_speeds_kph
+    lowest_conceivable_kph = truncate(instruction.pull_speeds_kph[0],3)
     max_exertion_intensity_factor = instruction.max_exertion_intensity_factor
 
-    # Initial lowest_bound_for_binary_search_kph and highest_bound_for_binary_search_kph bounds of speed for the binary search
-    lowest_bound_for_binary_search_kph = truncate(lowest_conceivable_kph[0], 0)
-    highest_bound_for_binary_search_kph = lowest_bound_for_binary_search_kph
+    num_riders = len(riders)
 
-    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- Initialization
+    compute_iterations_performed: int = 0 # Number of iterations performed in the binary search, part of the answer
+    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- part of the answer
 
+    # Initial parameters used to determine a safe upper_bound for the binary search
+    lower_bound_for_next_search_iteration_kph = lowest_conceivable_kph
+    upper_bound_for_next_search_iteration_kph = lower_bound_for_next_search_iteration_kph
 
-    # Find a highest_bound_for_binary_search_kph bound speed at which at least one rider's plan is invalid.
-    # This is required for the binary search to work correctly.
+    # Find a speed at which at least one rider's plan has already become in violation.
+    # This is done by iteratively increasing the speed until we stumble upon a speed 
+    # that violates the contribution of at least one rider. This speed is not the answer 
+    # we are looking for. It will most likely be way above the precise speed that 
+    # triggered the violation, but it is a safe upper bound. This is required for 
+    # the binary search to work correctly to piun down the precise speed.
 
-    for _ in range(SAFE_NUM_OF_ITERATIONS_TO_FIND_UPPER_BOUND_CONSTRAINT_BUSTING_SPEED_KPH):
-        cadidate_busting_speed_as_array_kph = [highest_bound_for_binary_search_kph] * len(riders)
-        dict_of_rider_contributions = populate_paceline_solution_alternative(
-            riders, standard_pull_periods_seconds, cadidate_busting_speed_as_array_kph, max_exertion_intensity_factor
-        )
-        if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
-            break
-        highest_bound_for_binary_search_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
+    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH):
+        dict_of_rider_contributions = populate_paceline_solution_alternative(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, max_exertion_intensity_factor)
+        if any(answer.effort_constraint_violation_reason for answer in dict_of_rider_contributions.values()):
+            break # break out of the loop as soon as we successfuly find a speed that violates at least one rider's ability
+        upper_bound_for_next_search_iteration_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
+        compute_iterations_performed += 1
     else:
-        # If we never find an highest_bound_for_binary_search_kph bound, just return the last result
+        # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
         return PacelineComputationReport(
-            num_compute_iterations_performed=1,
-            rider_contributions=dict_of_rider_contributions,
-            rider_that_breeched_contraints=None
+            num_compute_iterations_performed    = compute_iterations_performed,
+            rider_contributions                 = dict_of_rider_contributions,
+            rider_that_breeched_contraints      = None
         )
 
-    # Do the binary search. The concept is to search by bouncing back and forth between  
-    # lowest_bound_for_binary_search_kph and highest_bound_for_binary_search_kph
-    # to zero in on the precise speed that invalidates the contribution of any one or more riders.
-    # Invalidation is determined inside populate_paceline_solution_alternative(..)
+    # Do the binary search. The concept is to search by bouncing back and forth between speeds bounded by  
+    # lower_bound_for_next_search_iteration_kph and upper_bound_for_next_search_iteration_kph, continuing
+    # until the difference between the two bounds is less than DESIRED_PRECISION_KPH i.e. until we are within a small enough range
+    # of speeds that we can consider the solution precise enough. We have thus found the speed at the point at which it 
+    # violates the contribution of at least one rider. The cause of the violation is flagged inside populate_paceline_solution_alternative(..). 
+    # At this moment, we know that the speed of the paceline is somewhere between the lower and upper bounds, the difference 
+    # between which is negligible i.e. less than DESIRED_PRECISION_KPH.
 
-
-    compute_iterations_performed: int = 0 # Number of iterations performed in the binary search, for reporting purposes
     constraint_busting_rider: Union[None, ZsunRiderItem] = None
 
-    while (highest_bound_for_binary_search_kph - lowest_bound_for_binary_search_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < max_iter:
-        mid = (lowest_bound_for_binary_search_kph + highest_bound_for_binary_search_kph) / 2
-        cadidate_busting_speed_as_array_kph = [mid] * len(riders)
-        dict_of_rider_contributions = populate_paceline_solution_alternative(
-            riders, standard_pull_periods_seconds, cadidate_busting_speed_as_array_kph, max_exertion_intensity_factor)
+    while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < MAX_PERMITTED_ITERATIONS:
+        mid_point_kph = (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph) / 2
+        dict_of_rider_contributions = populate_paceline_solution_alternative(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, max_exertion_intensity_factor)
         compute_iterations_performed += 1
-        if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
-            highest_bound_for_binary_search_kph = mid
-            constraint_busting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.invalidation_reason)
+        if any(rider_contribution.effort_constraint_violation_reason for rider_contribution in dict_of_rider_contributions.values()):
+            upper_bound_for_next_search_iteration_kph = mid_point_kph
+            constraint_busting_rider = next(rider for rider, rider_contribution in dict_of_rider_contributions.items() if rider_contribution.effort_constraint_violation_reason)
         else:
-            lowest_bound_for_binary_search_kph = mid
+            lower_bound_for_next_search_iteration_kph = mid_point_kph
 
-    # Use the halting (highest_bound_for_binary_search_kph) speed after binary search
-    precise_constraint_busting_speed_as_array = [highest_bound_for_binary_search_kph] * len(riders)
-    dict_of_rider_contributions = populate_paceline_solution_alternative(
-        riders, standard_pull_periods_seconds, precise_constraint_busting_speed_as_array, max_exertion_intensity_factor)
-    if any(answer.invalidation_reason for answer in dict_of_rider_contributions.values()):
-        constraint_busting_rider = next(rider for rider, answer in dict_of_rider_contributions.items() if answer.invalidation_reason)
-    else:
-        constraint_busting_rider = None
+    # Using the mid_point_kph we have happily found as the governing speed of the paceline as a whole, rework the contributions and thus the solution
 
+    dict_of_rider_contributions = populate_paceline_solution_alternative(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
+
+    # Pluck out the first rider that has a non-empty effort_constraint_violation_reason and use him as the scapegoat
+    constraint_busting_rider = next(
+        (rider for rider, rider_contribution in dict_of_rider_contributions.items() if rider_contribution.effort_constraint_violation_reason),
+        None
+    )
     return PacelineComputationReport(
         num_compute_iterations_performed    = compute_iterations_performed,
         rider_contributions                 = dict_of_rider_contributions,
-        rider_that_breeched_contraints                      = constraint_busting_rider
+        rider_that_breeched_contraints      = constraint_busting_rider
     )
 
 
-def summarize_paceline_rotation_solutions(
-    solutions: List[PacelineComputationReport],
+def select_winning_paceline_rotation_solutions(
+    all_paceline_solutions: List[PacelineComputationReport],
     num_of_alternatives_examined: int,
     time_taken_to_compute: float
 ) -> PacelineSolutionsComputationReport:
     """
-    Summarize and select the most desirable paceline solutions from a list of computed alternatives.
+    Summarize and select the most desirable paceline all_paceline_solutions from the entire universe of all computed alternatives.
 
     This function analyzes a list of PacelineComputationReport objects, each representing a computed paceline solution,
-    and identifies two key solutions: the one with the highest speed and the one with the lowest std_deviation_of_intensity_factors
+    and identifies two key all_paceline_solutions: the one with the highest speed and the one with the lowest std_deviation_of_intensity_factors
     (standard deviation) of intensity factors among riders. It also aggregates statistics such as the total number
-    of compute iterations performed and the total computation time.
+    of compute iterations performed and the total computation time. The function first of all does various checks that the 
+    all_paceline_solutions delivered by the binary search algorithm are valid, i.e. that they contain a rider that has breached the exertion constraints
+    and that other metrics are not outlandish.
 
     Args:
-        solutions: List of PacelineComputationReport objects, each representing a computed paceline solution.
+        all_paceline_solutions: List of PacelineComputationReport objects, each representing a computed paceline solution.
         num_of_alternatives_examined: The total number of candidate rotation sequences that were evaluated.
-        time_taken_to_compute: The total time taken to compute all solutions, in seconds.
+        time_taken_to_compute: The total time taken to compute all all_paceline_solutions, in seconds.
 
     Returns:
-        PacelineSolutionsComputationReport: An object containing summary statistics and the most desirable solutions,
-        specifically the highest speed and lowest std_deviation_of_intensity_factors solutions.
+        PacelineSolutionsComputationReport: An object containing summary statistics and the most desirable all_paceline_solutions,
+        specifically the highest speed and lowest std_deviation_of_intensity_factors all_paceline_solutions.
 
     Raises:
         RuntimeError: If no valid solution is found, or if either the highest speed or lowest std_deviation_of_intensity_factors solution is missing.
 
     Notes:
-        - The function logs warnings for invalid or non-finite solutions.
-        - The desirable solutions list will contain up to two solutions: [candidate_lowest_std_deviation, candidate_highest_speed].
+        - The function logs warnings for invalid or non-finite all_paceline_solutions.
+        - The desirable all_paceline_solutions list will contain up to two all_paceline_solutions: [lowest_std_deviation, best_highest_speed].
     """
 
-    highest_speed_paceline_solution = None
-    candidate_highest_speed: float = float('-inf')
+    # we have potentially hundreds or even thousands of all_paceline_solutions to run through, to find just the top two the feature the best best_highest_speed
+    # and the best lowest_std_deviation.
+    # so let's get ready  ..
+    best_highest_speed: float = float('-inf')
+    best_highest_speed_paceline_solution = None
+
+    lowest_std_deviation: float = float('inf')
     lowest_std_deviation_paceline_solution = None
-    candidate_lowest_std_deviation: float = float('inf')
     total_compute_iterations_performed = 0 
 
-    for solution in solutions:
+    for solution in all_paceline_solutions:
 
         total_compute_iterations_performed += solution.num_compute_iterations_performed
 
         if solution.rider_that_breeched_contraints is None:
-            logger.warning(f"Invalid result in solutions list. No rider halted the attempt to compute solution: {solution}. ")
+            logger.warning(f"Invalid result in all_paceline_solutions list. No rider halted the attempt to compute solution: {solution}. ")
             continue
 
-        paceline_speed_ceiling = solution.rider_contributions[solution.rider_that_breeched_contraints].speed_kph # criterion
-        if not np.isfinite(paceline_speed_ceiling):
-            logger.warning(f"Binary search iteration error. Non-finite paceline_speed_ceiling encountered: {paceline_speed_ceiling}")
+        speed_of_paceline = solution.rider_contributions[solution.rider_that_breeched_contraints].speed_kph # criterion
+
+        if not np.isfinite(speed_of_paceline):
+            logger.warning(f"Binary search iteration error. Non-finite speed_of_paceline encountered: {speed_of_paceline}")
             continue
 
-        if paceline_speed_ceiling > candidate_highest_speed:
-            candidate_highest_speed = paceline_speed_ceiling
-            highest_speed_paceline_solution = solution # the meat
+        if speed_of_paceline > best_highest_speed:
+            best_highest_speed = speed_of_paceline
+            best_highest_speed_paceline_solution = solution # the meat
 
         rider_contibution_intensity_factors = [calculate_overall_intensity_factor_of_rider_contribution(rider, contribution) for rider, contribution in solution.rider_contributions.items()]
 
@@ -478,28 +487,28 @@ def summarize_paceline_rotation_solutions(
             logger.warning(f"Non-finite std_deviation_of_intensity_factors encountered: {std_deviation_of_intensity_factors}")
             continue
 
-        if std_deviation_of_intensity_factors < candidate_lowest_std_deviation:
-            candidate_lowest_std_deviation = std_deviation_of_intensity_factors
+        if std_deviation_of_intensity_factors < lowest_std_deviation:
+            lowest_std_deviation = std_deviation_of_intensity_factors
             lowest_std_deviation_paceline_solution = solution # the meat
 
-    if highest_speed_paceline_solution is None and lowest_std_deviation_paceline_solution is None:
-        raise RuntimeError("No valid solution found (both highest_speed_paceline_solution and lowest_std_deviation_paceline_solution are None)")
-    elif highest_speed_paceline_solution is None:
-        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (highest_speed_paceline_solution is None)")
+    if best_highest_speed_paceline_solution is None and lowest_std_deviation_paceline_solution is None:
+        raise RuntimeError("No valid solution found (both best_highest_speed_paceline_solution and lowest_std_deviation_paceline_solution are None)")
+    elif best_highest_speed_paceline_solution is None:
+        raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (best_highest_speed_paceline_solution is None)")
     elif lowest_std_deviation_paceline_solution is None:
         raise RuntimeError("search_for_paceline_rotation_solutions: No valid solution found (lowest_std_deviation_paceline_solution is None)")
 
-    desirable_solutions = [lowest_std_deviation_paceline_solution, highest_speed_paceline_solution]
+    desirable_solutions = [lowest_std_deviation_paceline_solution, best_highest_speed_paceline_solution]
 
     return PacelineSolutionsComputationReport(
-        candidate_rotation_sequences_count       = num_of_alternatives_examined,
-        total_compute_iterations_performed_count = total_compute_iterations_performed,
-        computational_time                       = time_taken_to_compute,
-        solutions                                = desirable_solutions
+        total_pull_sequences_examined  = num_of_alternatives_examined,
+        total_compute_iterations_performed = total_compute_iterations_performed,
+        computational_time                 = time_taken_to_compute,
+        solutions                          = desirable_solutions
     )
 
 
-def search_for_paceline_rotation_solutions_using_serial_processing(
+def generate_for_paceline_rotation_solutions_using_serial_processing(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> PacelineSolutionsComputationReport:
@@ -550,8 +559,8 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
 
             solutions.append(PacelineComputationReport(
                 num_compute_iterations_performed    = result.num_compute_iterations_performed,
-                rider_contributions                    = result.rider_contributions,
-                rider_that_breeched_contraints                      = result.rider_that_breeched_contraints
+                rider_contributions                 = result.rider_contributions,
+                rider_that_breeched_contraints      = result.rider_that_breeched_contraints
             ))
         except Exception as exc:
             logger.error(f"Exception in function compute_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -559,14 +568,14 @@ def search_for_paceline_rotation_solutions_using_serial_processing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_paceline_rotation_solutions(
+    return select_winning_paceline_rotation_solutions(
         solutions,
         num_of_alternatives_examined,
         time_taken_to_compute
     )
 
 
-def search_for_paceline_rotation_solutions_using_parallel_workstealing(
+def generate_paceline_rotation_solutions_using_parallel_workstealing(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> PacelineSolutionsComputationReport:
@@ -640,14 +649,14 @@ def search_for_paceline_rotation_solutions_using_parallel_workstealing(
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
-    return summarize_paceline_rotation_solutions(
+    return select_winning_paceline_rotation_solutions(
         solutions,
         num_of_alternatives_examined,
         time_taken_to_compute
     )
 
 
-def search_for_paceline_rotation_solutions_using_most_performant_algorithm(
+def generate_paceline_rotation_solutions_using_most_performant_algorithm(
     paceline_ingredients: PacelineIngredientsItem
 ) -> PacelineSolutionsComputationReport:
     """
@@ -677,9 +686,9 @@ def search_for_paceline_rotation_solutions_using_most_performant_algorithm(
     """
 
     if not paceline_ingredients.riders_list:
-        raise ValueError("No riders provided to search_for_paceline_rotation_solutions_using_serial_processing.")
+        raise ValueError("No riders provided to generate_for_paceline_rotation_solutions_using_serial_processing.")
     if not paceline_ingredients.sequence_of_pull_periods_sec:
-        raise ValueError("No standard pull durations provided to search_for_paceline_rotation_solutions_using_serial_processing.")
+        raise ValueError("No standard pull durations provided to generate_for_paceline_rotation_solutions_using_serial_processing.")
     if any(d <= 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not paceline_ingredients.pull_speeds_kph or not np.isfinite(paceline_ingredients.pull_speeds_kph[0]) or paceline_ingredients.pull_speeds_kph[0] <= 0:
@@ -692,16 +701,16 @@ def search_for_paceline_rotation_solutions_using_most_performant_algorithm(
         all_conceivable_paceline_rotation_alternatives, paceline_ingredients.riders_list)
 
     if len(paceline_rotation_sequence_alternatives) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-        return search_for_paceline_rotation_solutions_using_serial_processing(paceline_ingredients, paceline_rotation_sequence_alternatives)
+        return generate_for_paceline_rotation_solutions_using_serial_processing(paceline_ingredients, paceline_rotation_sequence_alternatives)
     else:
-        return search_for_paceline_rotation_solutions_using_parallel_workstealing(paceline_ingredients, paceline_rotation_sequence_alternatives)
+        return generate_paceline_rotation_solutions_using_parallel_workstealing(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
 
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae08 import search_for_paceline_rotation_solutions_using_parallel_workstealing, search_for_paceline_rotation_solutions_using_serial_processing
+    from jgh_formulae08 import generate_paceline_rotation_solutions_using_parallel_workstealing, generate_for_paceline_rotation_solutions_using_serial_processing
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
@@ -728,11 +737,11 @@ def main01():
     )
 
     # Serial run as the base case
-    serial_result = search_for_paceline_rotation_solutions_using_serial_processing(plan_params, all_conceivable_paceline_rotation_schedules)
+    serial_result = generate_for_paceline_rotation_solutions_using_serial_processing(plan_params, all_conceivable_paceline_rotation_schedules)
     logger.info(f"Base-case: ordinary run compute time (measured): {round(serial_result.computational_time, 2)} seconds")
 
     # Parallel run
-    parallel_result = search_for_paceline_rotation_solutions_using_parallel_workstealing(plan_params, all_conceivable_paceline_rotation_schedules)
+    parallel_result = generate_paceline_rotation_solutions_using_parallel_workstealing(plan_params, all_conceivable_paceline_rotation_schedules)
     logger.info(f"Test-case: parallel run compute time (measured): {round(parallel_result.computational_time,2)} seconds")
 
     # --- Summary Report ---
@@ -773,7 +782,7 @@ def main02():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae08 import search_for_paceline_rotation_solutions_using_most_performant_algorithm
+    from jgh_formulae08 import generate_paceline_rotation_solutions_using_most_performant_algorithm
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -794,7 +803,7 @@ def main02():
         max_exertion_intensity_factor= 0.95
     )
 
-    optimised_result = search_for_paceline_rotation_solutions_using_most_performant_algorithm(params)
+    optimised_result = generate_paceline_rotation_solutions_using_most_performant_algorithm(params)
     logger.info(f"Test-case: compute time using most performant algorithm (measured): {round(optimised_result.computational_time,2)} seconds")
 
     # --- Summary Report ---
