@@ -132,7 +132,7 @@ class RiderContributionDisplayObject():
 
         p1_wkg = f"{round(rider.get_watts_per_kg(plan.p1_w),1)}wkg"
 
-        p1_over_zFtp_ratio = f"{round(100*plan.p1_w/rider.zwiftracingapp_zpFTP)}%"
+        p1_over_zFtp_ratio = f"{round(100*plan.p1_w/rider.zwiftracingapp_zpFTP):>4}%"
 
         return f"{duration_str} {p1_w} {p1_wkg} {p1_over_zFtp_ratio}"
 
