@@ -6,8 +6,8 @@ from handy_utilities import read_dict_of_zsunriderItems, log_multiline
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_rider_contribution_displayobjects
-from jgh_formulae08v2 import generate_two_groovy_paceline_solutions, generate_a_single_paceline_solution_complying_with_exertion_constraints
+from jgh_formulae07 import (populate_rider_contribution_displayobjects, log_rider_contribution_displayobjectsV3, save_rider_contributions_as_html_file)
+from jgh_formulae08v2 import generate_two_groovy_paceline_solutions, generate_a_single_paceline_solution_complying_with_exertion_constraints 
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -78,48 +78,47 @@ def show_summary_of_work_performed(total_compute_iterations_done: int, total_num
     log_multiline(logger, message_lines)
 
 
-def show_simple_paceline_solution(riders: List[ZsunRiderItem], simple_pull_period: float, safe_lowest_bound_speed: float, intensity_factor: float, logger: logging.Logger):
+def generate_and_show_simple_paceline_solution(riders: List[ZsunRiderItem], simple_pull_period: float, safe_lowest_bound_speed: float, intensity_factor: float, logger: logging.Logger):
     """
     Creates and logs a simple pull plan where all riders pull for the same duration and speed.
     """
     simplest_pull_duration_as_array = [simple_pull_period] * len(riders)
     safe_lowest_bound_speed_as_array = [safe_lowest_bound_speed] * len(riders)
 
-    params = PacelineIngredientsItem(
+    ingredients = PacelineIngredientsItem(
         riders_list                   = riders,
         sequence_of_pull_periods_sec  = simplest_pull_duration_as_array,
         pull_speeds_kph               = safe_lowest_bound_speed_as_array,
         max_exertion_intensity_factor = intensity_factor
     )
 
-    simple_solution                     = generate_a_single_paceline_solution_complying_with_exertion_constraints(params)
+    simple_solution                     = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
     simple_solution_rider_contributions = simple_solution.rider_contributions
+    calculated_speed                    = round(simple_solution.average_speed_of_paceline_kph, 1)
 
-    calculated_speed = round(simple_solution.average_speed_of_paceline_kph, 1)
+    simple_solution_rider_contribution_displayobjects = populate_rider_contribution_displayobjects(simple_solution_rider_contributions)
 
-    simple_solution_rider_contribution_dicplayobjects = populate_ridercontribution_displayobjects(simple_solution_rider_contributions)
-    log_concise_rider_contribution_displayobjects(
-        f"\nSIMPLE PULL-PLAN: {calculated_speed}kph. Same pulls for everybody. IF capped at {round(100*intensity_factor)}%.",
-        simple_solution_rider_contribution_dicplayobjects,
+    log_rider_contribution_displayobjectsV3(f"\nSIMPLE PULL-PLAN: {calculated_speed}kph. Same pulls for everybody. IF capped at {round(100*intensity_factor)}%.",
+        simple_solution_rider_contribution_displayobjects,
         logger
     )
 
     return simple_solution
 
 
-def show_two_groovy_paceline_solutions(riders: List[ZsunRiderItem], pull_periods: List[float], seed_speed_kph: float, intensity_factor: float, logger: logging.Logger
+def generate_and_show_two_groovy_paceline_solutions(riders: List[ZsunRiderItem], pull_periods: List[float], seed_speed_kph: float, intensity_factor: float, logger: logging.Logger
 ):
     """
     Runs the optimal pull plan generation and logs the summary and details for both low dispersion and high speed plans.
     """
-    params = PacelineIngredientsItem(
+    ingredients = PacelineIngredientsItem(
         riders_list                    = riders,
         sequence_of_pull_periods_sec   = pull_periods,
         pull_speeds_kph                = [seed_speed_kph] * len(riders),
         max_exertion_intensity_factor  = intensity_factor
     )
 
-    groovy_solution_computation_outcome = generate_two_groovy_paceline_solutions(params)
+    groovy_solution_computation_outcome = generate_two_groovy_paceline_solutions(ingredients)
 
     list_of_groovy_solutions        = groovy_solution_computation_outcome.solutions
     total_solutions_examined        = groovy_solution_computation_outcome.total_pull_sequences_examined
@@ -132,22 +131,22 @@ def show_two_groovy_paceline_solutions(riders: List[ZsunRiderItem], pull_periods
     low_std_deviation_solution_rider_contributions  = low_std_deviation_solution.rider_contributions
     fast_speed_solution_rider_contributions         = fast_speed_solution.rider_contributions
 
-    low_std_deviation_solution_rider_contribution_displayobjects = populate_ridercontribution_displayobjects(low_std_deviation_solution_rider_contributions)
-    fast_speed_solution_rider_contribution_displayobjects        = populate_ridercontribution_displayobjects(fast_speed_solution_rider_contributions)
+    low_std_deviation_solution_kph = round(low_std_deviation_solution.average_speed_of_paceline_kph, 1)
+    fast_speed_solution_kph       = round(fast_speed_solution.average_speed_of_paceline_kph, 1)
 
-    low_std_deviation_solution_title = (
-        f"\nBALANCED EFFORT PULL-PLAN: {round(low_std_deviation_solution.average_speed_of_paceline_kph)}"
-        f"IF capped at {round(100*intensity_factor)}%."
-    )
-    fast_speed_solution_title = (
-        f"\nTEMPO PULL-PLAN: {round(fast_speed_solution.average_speed_of_paceline_kph,1)}kph. "
-        f"IF capped at {round(100*intensity_factor)}%."
-    )
 
-    log_concise_rider_contribution_displayobjects(low_std_deviation_solution_title, low_std_deviation_solution_rider_contribution_displayobjects, logger)
-    log_concise_rider_contribution_displayobjects(fast_speed_solution_title, fast_speed_solution_rider_contribution_displayobjects, logger)
+    low_std_deviation_solution_rider_contribution_displayobjects = populate_rider_contribution_displayobjects(low_std_deviation_solution_rider_contributions)
+    fast_speed_solution_rider_contribution_displayobjects        = populate_rider_contribution_displayobjects(fast_speed_solution_rider_contributions)
+
+    low_std_deviation_solution_title = f"\nBALANCED EFFORT PULL-PLAN: {low_std_deviation_solution_kph}kph  IF capped at {round(100*intensity_factor)}%."
+    fast_speed_solution_title = f"\nTEMPO PULL-PLAN: {fast_speed_solution_kph}kph  IF capped at {round(100*intensity_factor)}%."
+
+    log_rider_contribution_displayobjectsV3(low_std_deviation_solution_title, low_std_deviation_solution_rider_contribution_displayobjects, logger)
+    log_rider_contribution_displayobjectsV3(fast_speed_solution_title, fast_speed_solution_rider_contribution_displayobjects, logger)
 
     show_summary_of_work_performed(total_compute_iterations_done, total_solutions_examined, compute_time, intensity_factor, logger,)
+
+    save_rider_contributions_as_html_file(low_std_deviation_solution_title, low_std_deviation_solution_rider_contribution_displayobjects, logger)
 
     return groovy_solution_computation_outcome
 
@@ -176,13 +175,13 @@ def main():
 
     pull_period = 60.0
     intensity_factor = 0.80 
-    show_simple_paceline_solution(riders, pull_period, seed_speed_kph, intensity_factor, logger)
+    generate_and_show_simple_paceline_solution(riders, pull_period, seed_speed_kph, intensity_factor, logger)
 
     # DO BRUTE-FORCE SEARCH FOR TWO DIFFERENTLY OPTIMAL PULL PLANS - ONE FOR LOW STD DEVIATION OF INTENSITY, ANOTHER FOR SPEED
 
     pull_periods = STANDARD_PULL_PERIODS_SEC
     intensity_factor = MAX_INTENSITY_FACTOR
-    show_two_groovy_paceline_solutions(riders, pull_periods, seed_speed_kph, intensity_factor, logger)
+    generate_and_show_two_groovy_paceline_solutions(riders, pull_periods, seed_speed_kph, intensity_factor, logger)
 
 
 if __name__ == "__main__":

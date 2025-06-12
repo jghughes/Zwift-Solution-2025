@@ -168,7 +168,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     )
 
 
-def generate_paceline_solutions_using_serial_processing(
+def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReport]:
@@ -211,7 +211,9 @@ def generate_paceline_solutions_using_serial_processing(
             result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_description)
 
             solutions.append(PacelineComputationReport(
+                algorithm_ran_to_completion         = result.algorithm_ran_to_completion,
                 num_compute_iterations_performed    = result.num_compute_iterations_performed,
+                average_speed_of_paceline_kph       = result.average_speed_of_paceline_kph,
                 rider_contributions                 = result.rider_contributions,
             ))
         except Exception as exc:
@@ -220,7 +222,7 @@ def generate_paceline_solutions_using_serial_processing(
     return solutions
 
 
-def generate_paceline_solutions_using_parallel_workstealing(
+def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReport]:
@@ -270,15 +272,19 @@ def generate_paceline_solutions_using_parallel_workstealing(
         for future in concurrent.futures.as_completed(future_to_params):
             try:
                 result = future.result()
+
                 if (result is None or
                     not hasattr(result, "rider_contributions") or
                     result.rider_contributions is None or
                     not isinstance(result.rider_contributions, dict)):
                     logger.warning(f"Skipping invalid result: {result}")
                     continue
+
                 solutions.append(PacelineComputationReport(
-                    num_compute_iterations_performed=result.num_compute_iterations_performed,
-                    rider_contributions=result.rider_contributions,
+                    algorithm_ran_to_completion         = result.algorithm_ran_to_completion,
+                    num_compute_iterations_performed    = result.num_compute_iterations_performed,
+                    average_speed_of_paceline_kph       = result.average_speed_of_paceline_kph,
+                    rider_contributions                 = result.rider_contributions,
                 ))
             except Exception as exc:
                 logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -287,7 +293,7 @@ def generate_paceline_solutions_using_parallel_workstealing(
     return solutions
 
 
-def generate_paceline_solutions_using_most_performant_algorithm(
+def generate_paceline_solutions_using_combined_algorithms(
     paceline_ingredients: PacelineIngredientsItem, paceline_rotation_sequence_alternatives : List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
@@ -316,9 +322,9 @@ def generate_paceline_solutions_using_most_performant_algorithm(
     """
 
     if len(paceline_rotation_sequence_alternatives) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-        return generate_paceline_solutions_using_serial_processing(paceline_ingredients, paceline_rotation_sequence_alternatives)
+        return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
     else:
-        return generate_paceline_solutions_using_parallel_workstealing(paceline_ingredients, paceline_rotation_sequence_alternatives)
+        return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
 
 def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
@@ -359,9 +365,9 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
     """
 
     if not paceline_ingredients.riders_list:
-        raise ValueError("No riders provided to generate_paceline_solutions_using_serial_processing.")
+        raise ValueError("No riders provided to generate_paceline_solutions_using_serial_processing_algorithm.")
     if not paceline_ingredients.sequence_of_pull_periods_sec:
-        raise ValueError("No standard pull durations provided to generate_paceline_solutions_using_serial_processing.")
+        raise ValueError("No standard pull durations provided to generate_paceline_solutions_using_serial_processing_algorithm.")
     if any(d <= 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not paceline_ingredients.pull_speeds_kph or not np.isfinite(paceline_ingredients.pull_speeds_kph[0]) or paceline_ingredients.pull_speeds_kph[0] <= 0:
@@ -376,7 +382,7 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
 
     start_time = time.perf_counter()
 
-    all_paceline_solutions = generate_paceline_solutions_using_most_performant_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
+    all_paceline_solutions = generate_paceline_solutions_using_combined_algorithms(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
     end_time = time.perf_counter()
 
@@ -471,13 +477,13 @@ def main01():
 
     # Serial run as the base case
     s1 = time.perf_counter()
-    serial_result = generate_paceline_solutions_using_serial_processing(plan_params, all_conceivable_paceline_rotation_schedules)
+    _ = generate_paceline_solutions_using_serial_processing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
     s2 = time.perf_counter()
     logger.info(f"Base-case: serial run compute time (measured): {round(s2 - s1, 2)} seconds")
 
     # Parallel run
     p1 = time.perf_counter()
-    parallel_result = generate_paceline_solutions_using_parallel_workstealing(plan_params, all_conceivable_paceline_rotation_schedules)
+    _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
     p2 = time.perf_counter()
 
     logger.info(f"Test-case: parallel run compute time (measured): {round(p2 - p1,2)} seconds")
@@ -520,7 +526,7 @@ def main02():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC
-    from jgh_formulae08v2 import generate_paceline_solutions_using_most_performant_algorithm
+
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"

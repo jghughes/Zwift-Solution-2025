@@ -5,11 +5,11 @@ from computation_classes import PacelineIngredientsItem, PacelineSolutionsComput
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
-from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_rider_contribution_displayobjects
+from jgh_formulae07 import populate_rider_contribution_displayobjects, log_rider_contribution_displayobjects
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
-        generate_paceline_solutions_using_most_performant_algorithm,
+        generate_paceline_solutions_using_combined_algorithms,
         generate_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
@@ -28,7 +28,7 @@ def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsCo
 
     # GO!
 
-    result = generate_paceline_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_solutions_using_combined_algorithms(params)
 
     return result
 
@@ -102,11 +102,11 @@ def main():
         rider_that_breeched_contraints = solution.rider_that_breeched_contraints
         if rider_that_breeched_contraints is None or rider_that_breeched_contraints not in plan_line_items:
             continue
-        plan_line_items_displayobjects = populate_ridercontribution_displayobjects(plan_line_items)
+        plan_line_items_displayobjects = populate_rider_contribution_displayobjects(plan_line_items)
         speed = round(getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0), 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_concise_rider_contribution_displayobjects(
+        # log_rider_contribution_displayobjects(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )
 

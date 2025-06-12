@@ -6,8 +6,8 @@ from handy_utilities import read_dict_of_zsunriderItems, log_multiline
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae03 import arrange_riders_in_optimal_order
-from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_rider_contribution_displayobjects
-from jgh_formulae08 import generate_paceline_solutions_using_most_performant_algorithm, generate_a_single_paceline_solution_complying_with_exertion_constraints
+from jgh_formulae07 import populate_rider_contribution_displayobjects, log_rider_contribution_displayobjects
+from jgh_formulae08 import generate_paceline_solutions_using_combined_algorithms, generate_a_single_paceline_solution_complying_with_exertion_constraints
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -68,7 +68,7 @@ def show_summary_of_work_performed(total_compute_iterations: int, total_num_of_a
     log_multiline(logger, message_lines)
 
 
-def show_simple_paceline_solution(
+def generate_and_show_simple_paceline_solution(
     riders: List[ZsunRiderItem],
     simple_pull_period: float,
     safe_lowest_bound_speed: float,
@@ -97,8 +97,8 @@ def show_simple_paceline_solution(
     else:
         calculated_speed = round(simple_plan_line_items[simple_plan_halted_rider].speed_kph, 1)
 
-    plan_line_items_displayobjects = populate_ridercontribution_displayobjects(simple_plan_line_items)
-    log_concise_rider_contribution_displayobjects(
+    plan_line_items_displayobjects = populate_rider_contribution_displayobjects(simple_plan_line_items)
+    log_rider_contribution_displayobjects(
         f"\nSIMPLE PULL-PLAN: {calculated_speed}kph. Same pulls for everybody. IF capped at {round(100*intensity_factor)}%.",
         plan_line_items_displayobjects,
         logger
@@ -124,7 +124,7 @@ def show_two_optimized_paceline_solutions(
         max_exertion_intensity_factor   =intensity_factor
     )
 
-    result = generate_paceline_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_solutions_using_combined_algorithms(params)
 
     two_pull_plans                      = result.solutions
     total_num_of_all_conceivable_plans  = result.total_pull_sequences_examined
@@ -139,8 +139,8 @@ def show_two_optimized_paceline_solutions(
     high_speed_plan_line_items      = high_speed_plan.rider_contributions
     high_speed_halted_rider         = high_speed_plan.rider_that_breeched_contraints
 
-    low_dispersion_plan_line_items_displayobjects = populate_ridercontribution_displayobjects(low_dispersion_plan_line_items)
-    high_speed_plan_line_items_displayobjects = populate_ridercontribution_displayobjects(high_speed_plan_line_items)
+    low_dispersion_plan_line_items_displayobjects = populate_rider_contribution_displayobjects(low_dispersion_plan_line_items)
+    high_speed_plan_line_items_displayobjects = populate_rider_contribution_displayobjects(high_speed_plan_line_items)
 
     low_dispersion_plan_title = (
         f"\nBALANCED EFFORT PULL-PLAN: {round(low_dispersion_plan_line_items[low_dispersion_halted_rider].speed_kph,1)}kph. "
@@ -151,8 +151,8 @@ def show_two_optimized_paceline_solutions(
         f"IF capped at {round(100*intensity_factor)}%."
     )
 
-    log_concise_rider_contribution_displayobjects(low_dispersion_plan_title, low_dispersion_plan_line_items_displayobjects, logger)
-    log_concise_rider_contribution_displayobjects(high_speed_plan_title, high_speed_plan_line_items_displayobjects, logger)
+    log_rider_contribution_displayobjects(low_dispersion_plan_title, low_dispersion_plan_line_items_displayobjects, logger)
+    log_rider_contribution_displayobjects(high_speed_plan_title, high_speed_plan_line_items_displayobjects, logger)
 
     show_summary_of_work_performed(
         total_compute_iterations,
@@ -189,7 +189,7 @@ def main():
 
     pull_period = 60.0
     intensity_factor = 0.80 
-    show_simple_paceline_solution(riders, pull_period, binary_search_parameter, intensity_factor, logger)
+    generate_and_show_simple_paceline_solution(riders, pull_period, binary_search_parameter, intensity_factor, logger)
 
     # DO BRUTE-FORCE SEARCH FOR TWO DIFFERENTLY OPTIMAL PULL PLANS - ONE FOR LOW DISPERSION OF INTENSITY, ANOTHER FOR SPEED
 
