@@ -7,7 +7,7 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_rider_contribution_displayobjects
-from jgh_formulae08 import generate_paceline_rotation_solutions_using_most_performant_algorithm, compute_a_single_paceline_solution_complying_with_exertion_constraints
+from jgh_formulae08 import generate_paceline_solutions_using_most_performant_algorithm, generate_a_single_paceline_solution_complying_with_exertion_constraints
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
@@ -88,7 +88,7 @@ def show_simple_paceline_solution(
         max_exertion_intensity_factor=intensity_factor
     )
 
-    result                      = compute_a_single_paceline_solution_complying_with_exertion_constraints(params)
+    result                      = generate_a_single_paceline_solution_complying_with_exertion_constraints(params)
     simple_plan_line_items      = result.rider_contributions
     simple_plan_halted_rider    = result.rider_that_breeched_contraints
 
@@ -124,7 +124,7 @@ def show_two_optimized_paceline_solutions(
         max_exertion_intensity_factor   =intensity_factor
     )
 
-    result = generate_paceline_rotation_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_solutions_using_most_performant_algorithm(params)
 
     two_pull_plans                      = result.solutions
     total_num_of_all_conceivable_plans  = result.total_pull_sequences_examined

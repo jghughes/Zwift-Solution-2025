@@ -8,7 +8,7 @@ from jgh_formulae03 import generate_rider_permutations
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
-        generate_paceline_rotation_solutions_using_most_performant_algorithm,
+        generate_paceline_solutions_using_most_performant_algorithm,
         weaker_than_weakest_rider_filter,)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
@@ -36,7 +36,7 @@ def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsCo
 
     # GO!
 
-    result = generate_paceline_rotation_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_solutions_using_most_performant_algorithm(params)
 
     return result
 
@@ -97,7 +97,7 @@ def main():
 
     logger.info(f"Ranking the implications on speed and intensity of {len(rider_permutations)} variations in the circulation order of {len(riders)} riders...\n")
 
-    #Note to self: don't try this for more iterations/riders/alternatives than the threshold where generate_paceline_rotation_solutions_using_most_performant_algorithm() transitions from serial to parallel processing. it unleashes a flood of parallel workers that will saturate the memory of the machine and cause it to grind to a halt. This is empirically determined to be around 512 permutations for 4 standard pull periods and 5 riders.
+    #Note to self: don't try this for more iterations/riders/alternatives than the threshold where generate_paceline_solutions_using_most_performant_algorithm() transitions from serial to parallel processing. it unleashes a flood of parallel workers that will saturate the memory of the machine and cause it to grind to a halt. This is empirically determined to be around 512 permutations for 4 standard pull periods and 5 riders.
 
     title = "lowest dispersion plan" if desired_solution_index == 0 else "fastest plan"
 

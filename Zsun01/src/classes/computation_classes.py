@@ -196,9 +196,8 @@ class PacelineIngredientsItem:
 class PacelineComputationReport:
     algorithm_ran_to_completion           : bool = False
     num_compute_iterations_performed      : int  = 0
-    average_speed_of_paceline_kph : float = 0.0
+    average_speed_of_paceline_kph         : float = 0.0
     rider_contributions                   : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
-    rider_that_breeched_contraints        : Optional[ZsunRiderItem]  = None
 
 
 @dataclass

@@ -6,7 +6,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_rider_contributions
 from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
 from jgh_formulae08 import generate_a_scaffold_of_the_total_solution_space
-from jgh_formulae08 import compute_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_rotation_solutions_using_parallel_workstealing
+from jgh_formulae08 import generate_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_solutions_using_parallel_workstealing
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
@@ -47,7 +47,7 @@ def main():
         pull_speeds_kph                 =lowest_bound_speed_as_array,
         max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
     )
-    simple_result = compute_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
+    simple_result = generate_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
     halted_rider = simple_result.rider_that_breeched_contraints
 
@@ -61,7 +61,7 @@ def main():
         max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
     )
 
-    optimal_result = generate_paceline_rotation_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
+    optimal_result = generate_paceline_solutions_using_parallel_workstealing(standard_params, all_conceivable_paceline_rotation_schedules)
     pull_plans = optimal_result.solutions
     total_alternatives = optimal_result.total_pull_sequences_examined
     total_iterations = optimal_result.total_compute_iterations_performed

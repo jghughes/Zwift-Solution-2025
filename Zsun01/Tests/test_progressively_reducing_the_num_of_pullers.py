@@ -9,8 +9,8 @@ from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concis
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
-        generate_paceline_rotation_solutions_using_most_performant_algorithm,
-        compute_a_single_paceline_solution_complying_with_exertion_constraints)
+        generate_paceline_solutions_using_most_performant_algorithm,
+        generate_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
 from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
@@ -28,7 +28,7 @@ def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsCo
 
     # GO!
 
-    result = generate_paceline_rotation_solutions_using_most_performant_algorithm(params)
+    result = generate_paceline_solutions_using_most_performant_algorithm(params)
 
     return result
 

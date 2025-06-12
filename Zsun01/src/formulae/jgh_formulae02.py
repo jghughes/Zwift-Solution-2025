@@ -1,8 +1,11 @@
-from zsun_rider_item import ZsunRiderItem
+from typing import  List, DefaultDict, Union, Callable, Tuple
+import itertools
+
+from constants import SOLUTION_SPACE_SIZE_CONSTRAINT
 from rolling_average import calculate_rolling_averages
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
+from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionItem, RiderExertionItem
-from typing import List, Tuple,DefaultDict
 
 def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
     """
@@ -401,6 +404,215 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
     return fastest_rider, fastest_duration, highest_speed
 
 
+def weaker_than_weakest_rider_filter(
+    paceline_rotation_alternatives_being_filtered: List[List[float]],
+    riders: List[ZsunRiderItem]
+) -> List[List[float]]:
+    """
+    Filter out paceline rotation schedules where any rider's pull period is less than that of the weakest rider.
+
+    This function examines each candidate paceline rotation schedule (a list of pull periods for each rider)
+    and removes any schedule where a rider (other than the second weakest) is assigned a pull period
+    shorter than the weakest rider's pull period. The filter is based on the relative strength of riders,
+    as determined by their w/kg values.
+
+    Args:
+        paceline_rotation_alternatives_being_filtered: List of candidate paceline rotation schedules,
+            where each schedule is a list of pull periods (seconds) for each rider.
+        riders: List of ZsunRiderItem objects representing the riders, used to determine strength order.
+
+    Returns:
+        List[List[float]]: The filtered list of paceline rotation schedules, with schedules violating
+            the weakest rider constraint removed.
+
+    Notes:
+        - The function assumes that the order of pull periods in each schedule corresponds to the order of riders.
+        - The second weakest rider is exempt from this filter to allow for some flexibility in assignments.
+    """
+
+
+    if not riders:
+        # logger.info("weaker_than_weakest_rider_filter: No riders, returning empty list.")
+        return []
+    answer: List[List[float]] = []
+
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i])
+    weakest_rider_index = sorted_indices[0] if sorted_indices else None
+    second_weakest_rider_index = sorted_indices[1] if len(sorted_indices) > 1 else None
+
+    for sequence in paceline_rotation_alternatives_being_filtered:
+        if weakest_rider_index is None or weakest_rider_index >= len(sequence):
+            continue
+        weakest_value = sequence[weakest_rider_index]
+        if any(
+            value < weakest_value
+            for idx, value in enumerate(sequence)
+            if idx != second_weakest_rider_index
+        ):
+            continue
+        answer.append(sequence)
+
+    # input_len = len(paceline_rotation_alternatives_being_filtered)
+    # output_len = len(answer)
+    # reduction = input_len - output_len
+    # percent = (reduction / input_len * 100) if input_len else 0.0
+    # logger.info(
+    #     f"weaker_than_weakest_rider_filter applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
+
+    return answer
+
+def stronger_than_nth_strongest_rider_filter(
+    paceline_rotation_alternatives_being_filtered: List[List[float]],
+    riders: List[ZsunRiderItem],
+    n: int
+) -> List[List[float]]:
+    """
+    Filter out paceline rotation schedules where any rider's pull period is greater than that of the nth strongest rider.
+
+    This function examines each candidate paceline rotation schedule (a list of pull periods for each rider)
+    and removes any schedule where a rider (other than the top (n-1) strongest) is assigned a pull period
+    longer than the nth strongest rider's pull period. The filter is based on the relative strength of riders,
+    as determined by their w/kg values, in descending order.
+
+    Args:
+        paceline_rotation_alternatives_being_filtered: List of candidate paceline rotation schedules,
+            where each schedule is a list of pull periods (seconds) for each rider.
+        riders: List of ZsunRiderItem objects representing the riders, used to determine strength order.
+        n: The rank of the strongest rider to use as the threshold (1 = strongest, 2 = second strongest, etc.).
+
+    Returns:
+        List[List[float]]: The filtered list of paceline rotation schedules, with schedules violating
+            the nth strongest rider constraint removed.
+
+    Notes:
+        - The function assumes that the order of pull periods in each schedule corresponds to the order of riders.
+        - The top (n-1) strongest riders are exempt from this filter to allow for flexibility in assignments.
+    """
+
+    if not riders or n < 1:
+        return []
+    answer: List[List[float]] = []
+    strengths = [r.get_strength_wkg() for r in riders]
+    sorted_indices = sorted(range(len(strengths)), key=lambda i: strengths[i], reverse=True)
+    indices = [sorted_indices[i] if len(sorted_indices) > i else None for i in range(n)]
+    nth_strongest_rider_index = indices[n-1]
+    for sequence in paceline_rotation_alternatives_being_filtered:
+        if nth_strongest_rider_index is None or nth_strongest_rider_index >= len(sequence):
+            answer.append(sequence)
+            continue
+        nth_strongest_value = sequence[nth_strongest_rider_index]
+        if any(
+            value > nth_strongest_value
+            for idx, value in enumerate(sequence)
+            if idx not in indices[:n-1]
+        ):
+            continue
+        answer.append(sequence)
+    # input_len = len(paceline_rotation_alternatives_being_filtered)
+    # output_len = len(answer)
+    # reduction = input_len - output_len
+    # percent = (reduction / input_len * 100) if input_len else 0.0
+    # label = f"stronger_than_{n}_strongest_rider_filter"
+    # logger.info(
+    #     f"{label} applied: input {input_len} output {output_len} "
+    #     f"reduction: {reduction} ({percent:.1f}%)"
+    # )
+    return answer
+
+def radically_shrink_the_solution_space(
+    paceline_rotation_alternatives_being_filtered: List[List[float]],
+    riders: List[ZsunRiderItem]
+) -> List[List[float]]:
+    """
+    Applies a sequence of empirical filters to reduce the number of paceline rotation schedules
+    (pull period assignments) considered for further computation.
+
+    This function is designed to efficiently prune the solution space when the number of candidate
+    schedules exceeds a configurable size threshold in terms of computation speed. 
+    The goal is too use as few filters as possible so as not not inadventantly excluded non-obvious but ingenious
+    solutions that only a brute-force algorithm can reliably detect. It applies the following filters in order:
+      1. Removes any sequence where a rider's pull period is less than that of the weakest rider.
+      2. Removes any sequence where a rider's pull period is greater than the strongest rider's pull period.
+      3. Progressively applies similar filters for the 2nd, 3rd, ..., up to the 12th strongest rider,
+         each time removing schedules where a rider's pull period exceeds that of the nth strongest rider.
+    Filtering stops early the instant the number of remaining schedules drops below the solution space constraint.
+    The function is intended to improve computational performance by discarding unlikely or suboptimal
+    schedules before more expensive computations are performed. The savings can be spectacular, but are dependent
+    on the number of riders and the distribution of their strengths. For example, for a case of nine riders 
+    I studied, the number of pull plan period schedules were reduced from 1.9 million to just 220 where 
+    the SOLUTION_SPACE_SIZE_CONSTRAINT = 1024. For eight riders using a similar case, the reduction was 
+    from 390k to to 825 schedules!
+
+    Args:
+        paceline_rotation_alternatives_being_filtered (List[List[float]]): 
+            List of candidate paceline rotation schedules, where each sequence is a list of pull periods (seconds).
+        riders (List[ZsunRiderItem]): 
+            List of rider objects, used to determine rider strength order for filtering.
+
+    Returns:
+        List[List[float]]: 
+            The filtered list of paceline rotation schedules, reduced according to empirical rules.
+
+    Notes:
+        - Filtering is only applied if the number of input schedules exceeds the solution space size constraint.
+        - The function is intended to improve computational performance by discarding unlikely or suboptimal
+          schedules before more expensive computations are performed.
+        - Filtering logic is based on empirical observations and may be tuned for best performance.
+    """
+
+    if len(paceline_rotation_alternatives_being_filtered) < SOLUTION_SPACE_SIZE_CONSTRAINT + 1:
+        return paceline_rotation_alternatives_being_filtered
+
+    filters: List[Callable[[List[List[float]], List[ZsunRiderItem]], List[List[float]]]] = [
+        weaker_than_weakest_rider_filter,
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 1),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 2),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 3),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 4),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 5),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 6),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 7),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 8),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 9),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 10),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 11),
+        lambda schedules, riders: stronger_than_nth_strongest_rider_filter(schedules, riders, 12),
+    ]
+
+    filtered_schedules = paceline_rotation_alternatives_being_filtered
+
+    for filter_func in filters:
+        filtered_schedules = filter_func(filtered_schedules, riders)
+        if len(filtered_schedules) < SOLUTION_SPACE_SIZE_CONSTRAINT:
+            return filtered_schedules
+
+    return filtered_schedules
+
+def generate_a_scaffold_of_the_total_solution_space(
+    length_of_paceline: int,
+    standard_pull_periods_seconds: List[float]
+) -> List[List[float]]:
+    """
+    Generate all possible assignments of pull periods to a paceline.
+
+    This function produces the Cartesian product of the allowed pull periods for each rider.
+    For n riders and k allowed pull periods, it generates k^n possible schedules.
+    Each sequence is a list of length n, where each element is a pull period assigned to a rider.
+    This is not a permutation or combination in the strict combinatorial sense, but rather
+    the full Cartesian product of options for each rider.
+
+    Args:
+        length_of_paceline (int) : number of riders in the paceline.
+        standard_pull_periods_seconds (List[float]): Allowed pull durations (in seconds).
+
+    Returns:
+        List[List[float]]: All possible paceline rotation schedules as lists of pull periods.
+    """
+    all_schedules = [list(sequence) for sequence in itertools.product(standard_pull_periods_seconds, repeat=length_of_paceline)]
+    return all_schedules
 
 
 
