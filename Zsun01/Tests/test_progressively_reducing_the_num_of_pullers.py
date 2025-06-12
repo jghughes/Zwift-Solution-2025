@@ -5,7 +5,7 @@ from computation_classes import PacelineIngredientsItem, PacelineSolutionsComput
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
-from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_ridercontribution_displayobjects
+from jgh_formulae07 import populate_ridercontribution_displayobjects, log_concise_rider_contribution_displayobjects
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
@@ -106,7 +106,7 @@ def main():
         speed = round(getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0), 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_concise_ridercontribution_displayobjects(
+        # log_concise_rider_contribution_displayobjects(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )
 

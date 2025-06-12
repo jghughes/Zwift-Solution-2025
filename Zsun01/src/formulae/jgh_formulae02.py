@@ -2,7 +2,7 @@ from zsun_rider_item import ZsunRiderItem
 from rolling_average import calculate_rolling_averages
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
 from computation_classes import RiderContributionItem, RiderExertionItem
-from typing import List, Tuple
+from typing import List, Tuple,DefaultDict
 
 def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
     """
@@ -183,6 +183,7 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
     return average_watts
 
+
 def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the normalized power for a list of efforts.
@@ -242,6 +243,60 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
     normalized_watts = mean_power_4 ** 0.25
 
     return normalized_watts
+
+def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> float:
+    """
+    Calculate the average speed (km/h) for the rider is the paceline to whom 
+    this list of paceline efforts belong.
+
+    The average speed is calculated as the total distance covered divided by the total duration.
+    Each effort should have a speed (km/h) and a duration (seconds).
+
+    Args:
+        efforts (List[RiderExertionItem]): The list of efforts.
+
+    Returns:
+        float: The average speed in km/h.
+    """
+    if not exertions:
+        return 0.0
+
+    # arbitrarily get the first RiderExertionItem in the exertions dict
+    efforts = next(iter(exertions.values()))
+
+    total_distance_km = sum((item.speed_kph * item.duration) / 3600.0 for item in efforts)
+    total_duration_sec = sum(item.duration for item in efforts)
+
+    if total_duration_sec == 0:
+        return 0.0
+
+    average_speed_kph = total_distance_km / (total_duration_sec / 3600.0)
+
+    return average_speed_kph
+
+
+
+def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
+    """
+    Calculate the intensity factor for a given rider and their contribution plan.
+
+    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
+    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
+    to their sustainable threshold.
+
+    Args:
+        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
+        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
+
+    Returns:
+        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
+
+    """
+
+    if rider.get_one_hour_watts() == 0:
+        return 0.0
+    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
+
 
 def calculate_upper_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
     """
@@ -346,26 +401,6 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
     return fastest_rider, fastest_duration, highest_speed
 
 
-def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
-    """
-    Calculate the intensity factor for a given rider and their contribution plan.
-
-    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
-    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
-    to their sustainable threshold.
-
-    Args:
-        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
-        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
-
-    Returns:
-        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
-
-    """
-
-    if rider.get_one_hour_watts() == 0:
-        return 0.0
-    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
 
 
 

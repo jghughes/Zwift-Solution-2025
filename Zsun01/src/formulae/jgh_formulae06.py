@@ -8,11 +8,11 @@ import logging
 
 
 
-def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
+def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
-            return 0, 0, 0, 0, 0
+            return 0, 0, 0, 0, 0,0,0,0
 
         dict_wattages = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
 
@@ -29,7 +29,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
 
     def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float]:
         if not exertions:
-            return 0, 0, 0, 0
+            return 0, 0
 
         p1_speed_kph = 0
         p1_duration : float = 0
@@ -51,7 +51,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
-        rider_answer_item = RiderContributionItem(
+        rider_contribution = RiderContributionItem(
             speed_kph           = p1_speed_kph,
             p1_duration         = p1_duration,
             p1_w                = p1w,
@@ -65,7 +65,18 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
             average_watts       = calculate_overall_average_watts(exertions),
             normalized_watts    = calculate_overall_normalized_watts(exertions),
         )
-        answer[rider] = rider_answer_item
+        rider_contribution.intensity_factor = rider_contribution.normalized_watts / rider.get_one_hour_watts() if rider.get_one_hour_watts() > 0 else 0.0
+
+        msg = ""
+        if rider_contribution.intensity_factor >= max_exertion_intensity_factor:
+            msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
+
+        if rider_contribution.p1_w >= rider.get_standard_pull_watts(rider_contribution.p1_duration):
+            msg += " pull>max W"
+
+        rider_contribution.effort_constraint_violation_reason = msg
+
+        answer[rider] = rider_contribution
 
     return answer
 

@@ -3,6 +3,8 @@ from typing import Optional, List
 from dataclasses import dataclass, field
 from typing import DefaultDict, Optional
 from collections import defaultdict
+
+from networkx import incremental_closeness_centrality
 from jgh_formatting import round_to_nearest_10
 from zsun_rider_item import ZsunRiderItem
 
@@ -49,7 +51,8 @@ class RiderContributionItem():
     p7_w                  : float = 0.0 
     p8_w                  : float = 0.0 
     average_watts         : float = 0.0 
-    normalized_watts      : float = 0.0 
+    normalized_watts      : float = 0.0
+    intensity_factor      : float = 0.0
     effort_constraint_violation_reason : str = ""
 
 
@@ -80,7 +83,7 @@ class RiderContributionDisplayObject():
     pretty_average_watts                   : str   = ""
     normalised_power_watts                 : float = 0.0 
     intensity_factor                       : float = 0.0 
-    effort_constraint_violation_reason                     : str   = ""
+    effort_constraint_violation_reason     : str   = ""
 
     @staticmethod
     def calculate_zwift_racing_score_cat(rider: ZsunRiderItem) -> str:
@@ -176,8 +179,8 @@ class RiderContributionDisplayObject():
             average_wkg                            = contribution.average_watts/rider.weight_kg if rider.weight_kg != 0 else 0,
             pretty_average_watts                   = RiderContributionDisplayObject.make_pretty_average_watts(rider, contribution),
             normalised_power_watts                 = contribution.normalized_watts,
-            intensity_factor                    = contribution.normalized_watts/rider.get_one_hour_watts(),
-            effort_constraint_violation_reason                     = contribution.effort_constraint_violation_reason
+            intensity_factor                       = contribution.intensity_factor,
+            effort_constraint_violation_reason     = contribution.effort_constraint_violation_reason
         )
 
 
@@ -186,14 +189,16 @@ class PacelineIngredientsItem:
     riders_list                  : List[ZsunRiderItem] = field(default_factory=list)
     sequence_of_pull_periods_sec : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)
-    max_exertion_intensity_factor: float               = 0.95
+    max_exertion_intensity_factor: float               = 0.95 # Default to 95% of one hour power, can be overridden by caller
 
 
 @dataclass
 class PacelineComputationReport:
-    num_compute_iterations_performed : int  = 0
-    rider_contributions              : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
-    rider_that_breeched_contraints   : Optional[ZsunRiderItem]  = None
+    algorithm_ran_to_completion           : bool = False
+    num_compute_iterations_performed      : int  = 0
+    average_speed_of_paceline_kph : float = 0.0
+    rider_contributions                   : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
+    rider_that_breeched_contraints        : Optional[ZsunRiderItem]  = None
 
 
 @dataclass

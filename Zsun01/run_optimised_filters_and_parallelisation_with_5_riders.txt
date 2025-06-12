@@ -1,6 +1,6 @@
 Benchmark Summary Report
 Number of riders: 5
 
-Parallel run (work-stealing):
-  Compute time (measured): 9.19 seconds
+Most performant algorithm:
+  Compute time (measured): 12.73 seconds
 

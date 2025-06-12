@@ -34,7 +34,7 @@ def log_concise_ridercontribution_displayobjectsV2(
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.intensity_factor)}%",
-            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
+            z.effort_constraint_violation_reason,
             z.pretty_p2_3_4_w,
         ])
 
@@ -69,7 +69,7 @@ def log_concise_ridercontribution_displayobjectsV2(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def log_concise_ridercontribution_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
+def log_concise_rider_contribution_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
     
     from tabulate import tabulate
    
@@ -143,7 +143,7 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = populate_ridercontribution_displayobjects(dict_of_rider_pullplans)
 
-    log_concise_ridercontribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_concise_rider_contribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":
