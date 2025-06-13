@@ -11,7 +11,7 @@ from jgh_formulae08 import (
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
         weaker_than_weakest_rider_filter,)
 from jgh_formatting import truncate
-from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 sequence_of_pull_periods_sec = [30.0, 60.0, 240.0]
 desired_solution_index = 1  # 0 means lowest dispersion plan, 1 means fastest plan, etc.

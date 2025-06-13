@@ -70,6 +70,7 @@ class RiderContributionDisplayObject():
     p1_duration                            : float = 0.0 
     p1_wkg                                 : float = 0.0 
     pretty_pull                            : str   = ""
+    pretty_pull_suffix                     : str   = ""
     p1_ratio_to_1hr_w                      : float = 0.0 
     p1_ratio_to_zwiftracingapp_zpFTP       : float = 0.0 
     p1_w                                   : float = 0.0 
@@ -122,19 +123,19 @@ class RiderContributionDisplayObject():
     def make_pretty_pull(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
 
         duration_str = f"{int(round(plan.p1_duration)):3d}sec"
-        # if plan.p1_duration >= 100:
-        #     duration_str = f"{str(round(plan.p1_duration))}sec"
-        # else:
-        #     duration_str = f"\u00A0{str(round(plan.p1_duration))}sec"  # Non-breaking space that tabulate will respect
-
 
         p1_w = f"{str(round_to_nearest_10(plan.p1_w))}w"
+
+        return f"{duration_str} {p1_w}"
+
+    @staticmethod
+    def make_pretty_pull_suffix(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
 
         p1_wkg = f"{round(rider.get_watts_per_kg(plan.p1_w),1)}wkg"
 
         p1_over_zFtp_ratio = f"{round(100*plan.p1_w/rider.zwiftracingapp_zpFTP):>4}%"
 
-        return f"{duration_str} {p1_w} {p1_wkg} {p1_over_zFtp_ratio}"
+        return f"{p1_wkg} {p1_over_zFtp_ratio}"
 
 
     @staticmethod
@@ -149,6 +150,7 @@ class RiderContributionDisplayObject():
         av_wkg = rider.get_watts_per_kg(contribution.average_watts)
 
         return f"{round(av_wkg,1)}wkg {round(contribution.average_watts)}w"
+
 
     @staticmethod
     def from_RiderContributionItem(rider : ZsunRiderItem, contribution: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
@@ -167,6 +169,7 @@ class RiderContributionDisplayObject():
             p1_duration                            = contribution.p1_duration,
             p1_wkg                                 = contribution.p1_w/rider.weight_kg,
             pretty_pull                            = RiderContributionDisplayObject.make_pretty_pull(rider, contribution),
+            pretty_pull_suffix                     = RiderContributionDisplayObject.make_pretty_pull_suffix(rider, contribution),
             p1_ratio_to_1hr_w                      = contribution.p1_w/rider.zsun_one_hour_watts,
             p1_ratio_to_zwiftracingapp_zpFTP       = contribution.p1_w/rider.zwiftracingapp_zpFTP,
             p1_w                                   = contribution.p1_w,
@@ -183,6 +186,17 @@ class RiderContributionDisplayObject():
             effort_constraint_violation_reason     = contribution.effort_constraint_violation_reason
         )
 
+
+    @staticmethod
+    def from_RiderContributionItems(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, "RiderContributionDisplayObject"]:
+
+        answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = DefaultDict(RiderContributionDisplayObject)
+
+        for rider, item in riders.items():
+            rider_display_object = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
+            answer[rider] = rider_display_object
+
+        return answer
 
 @dataclass
 class PacelineIngredientsItem:

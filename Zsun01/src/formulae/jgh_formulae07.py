@@ -1,114 +1,10 @@
 from typing import  DefaultDict
 from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import RiderContributionItem, RiderContributionDisplayObject
+from computation_classes import RiderContributionDisplayObject
 import logging
 
-def populate_rider_contribution_displayobjects(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
-
-    answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = DefaultDict(RiderContributionDisplayObject)
-
-    for rider, item in riders.items():
-        rider_display_object = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
-        answer[rider] = rider_display_object
-
-    return answer
-
-
-def log_rider_contribution_displayobjects(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], logger: logging.Logger) -> None:
-    
-    from tabulate import tabulate
-   
-    logger.info(test_description)
-
-    table = []
-    for rider, z in result.items():
-        table.append([
-            rider.name,
-            z.concatenated_racing_cat_descriptor,
-            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
-            z.pretty_pull,
-            z.pretty_average_watts,
-            f"{round(z.normalised_power_watts)}w",
-            f"{round(100*z.intensity_factor)}%",
-            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
-            z.pretty_p2_3_4_w, 
-
-        ])
-
-    headers = [
-        "name",
-        "cat",
-        "zFTP", 
-        "pull", 
-        "ave",
-        "NP",
-        "IF",
-        "limit",
-        "  2   3   4", 
-
-    ]
-    logger.info("\n" + tabulate(table, headers=headers, tablefmt="simple", stralign="left", disable_numparse=True))
-
-
-def log_rider_contribution_displayobjectsV2(
-    test_description: str,
-    result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
-    logger: logging.Logger
-) -> None:
-    logger.info(test_description)
-
-    # Prepare data rows
-    data = []
-    for rider, z in result.items():
-        data.append([
-            rider.name,
-            z.concatenated_racing_cat_descriptor,
-            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
-            z.pretty_pull,
-            z.pretty_average_watts,
-            f"{round(z.normalised_power_watts)}w",
-            f"{round(100*z.intensity_factor)}%",
-            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
-            z.pretty_p2_3_4_w,
-        ])
-
-    columns = [
-        "name",
-        "cat",
-        "zFTP",
-        "pull",
-        "ave",
-        "NP",
-        "IF",
-        "limit",
-        "  2   3   4",
-    ]
-
-    # Calculate max width for each column (header or any data)
-    col_widths = []
-    for col_idx, col in enumerate(columns):
-        max_data_width = max([len(str(row[col_idx])) for row in data] + [len(col)])
-        col_widths.append(max_data_width)
-
-    # Build header (center-aligned)
-    header = "  ".join(f"{col:^{col_widths[i]}}" for i, col in enumerate(columns))
-    # Build underline
-    underline = "  ".join("-" * col_widths[i] for i in range(len(columns)))
-
-    # Build rows: all left-aligned except 'pull' (index 3), which is right-aligned
-    formatted_rows = [header, underline]
-    for row in data:
-        formatted_row = "  ".join(
-            f"{str(val):>{col_widths[i]}}" if i == 3 else f"{str(val):<{col_widths[i]}}"
-            for i, val in enumerate(row)
-        )
-        formatted_rows.append(formatted_row)
-
-    logger.info("\n" + "\n".join(formatted_rows))
-
-
-def log_rider_contribution_displayobjectsV3(
+def log_pretty_paceline_solution_report(
     test_description: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger
@@ -125,6 +21,7 @@ def log_rider_contribution_displayobjectsV3(
             z.concatenated_racing_cat_descriptor,
             f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
+            z.pretty_pull_suffix,
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.intensity_factor)}%",
@@ -137,6 +34,7 @@ def log_rider_contribution_displayobjectsV3(
         "cat",
         "zFTP",
         "pull",
+        "/zFTP",
         "ave",
         "NP",
         "IF",
@@ -167,7 +65,7 @@ def log_rider_contribution_displayobjectsV3(
 
     logger.info("\n" + "\n".join(formatted_rows))
 
-def save_rider_contributions_as_html_file(
+def save_pretty_paceline_solution_as_html_file(
     test_description: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger,
@@ -181,10 +79,11 @@ def save_rider_contributions_as_html_file(
         "Race Cat",
         "zFTP<sup>1</sup>",
         "Pull<sup>2</sup>",
+        "/zFTP",
         "Ave W/kg",
         "NP<sup>3</sup>",
         "IF<sup>4</sup>",
-        "Limit",
+        "Limit<sup>5</sup>",
         "2nd 3rd 4th"
     ]
 
@@ -195,6 +94,7 @@ def save_rider_contributions_as_html_file(
             z.concatenated_racing_cat_descriptor,
             f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
+            z.pretty_pull_suffix,
             z.pretty_average_watts,
             f"{round(z.normalised_power_watts)}w",
             f"{round(100*z.intensity_factor)}%",
@@ -221,10 +121,11 @@ def save_rider_contributions_as_html_file(
 
     footnotes = """
     <div class="footnote">
-        <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg).<br>
-        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull.<br>
+        <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg). zFTP metrics are displayed, but play no role in computations.<br>
+        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Pull abilities are calibrated from 90-day best power graphs on ZwiftPower. Riders with superior pull power are prioritised for longer pulls. Stronger riders are at the front and rear of the paceline, protecting weaker riders in the middle.<br>
         <sup>3</sup> NP: Normalized Power.<br>
-        <sup>4</sup> IF: Intensity Factor (NP as % of 1-hour power).<br>
+        <sup>4</sup> IF: Intensity Factor (NP as % of one-hour power).<br>
+        <sup>5</sup> Limit: Pull plan logic is such that paceline speed is constant and all riders get to pull. In a no-drop plan, speed is governed by pulling power and IF%. Sprinters are relatively stronger for short pulls, but weaker for longer pulls - the opposite is true for endurance riders. Pulling power is unrelated to zFTP.<br>
     </div>
     """
 
@@ -297,10 +198,12 @@ def save_rider_contributions_as_html_file(
             font-size: 0.9em;
             color: #666;
             margin-top: 1.5em;
+            font-weight: bold;
         }}
         .footnote sup, .rider-table th sup {{
             font-size: 0.8em;
             vertical-align: super;
+            font-weight: bold;
         }}
     </style>
 </head>
@@ -333,7 +236,7 @@ def main() -> None:
 
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs    
-    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    from constants import EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
@@ -355,11 +258,11 @@ def main() -> None:
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions)
+    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR)
 
-    dict_of_rider_pullplan_displayobjects = populate_rider_contribution_displayobjects(dict_of_rider_pullplans)
+    dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
 
-    log_rider_contribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_pretty_paceline_solution_report(f"Comparative rider metrics [RiderContributionItem]: IF capped at {EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

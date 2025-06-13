@@ -67,8 +67,6 @@
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
-    <Compile Include="tests\test_constraining_pull_plans.py" />
-    <Compile Include="tests\test_concurrent_programming_strategies.py" />
     <Compile Include="tests\test_progressively_reducing_the_num_of_pullers.py" />
     <Compile Include="tools\tool02.py" />
     <Compile Include="tools\tool01.py" />
@@ -85,7 +83,6 @@
     <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="tests\test_critical_power_models.py" />
     <Compile Include="tools\tool03.py">
       <SubType>Code</SubType>
     </Compile>

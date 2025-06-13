@@ -1,18 +1,17 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReport
+from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReport, RiderContributionDisplayObject
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
-from jgh_formulae07 import populate_rider_contribution_displayobjects, log_rider_contribution_displayobjects
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
         generate_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
-from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
 def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReport:
@@ -60,7 +59,7 @@ def main():
             riders_list=perm_riders,
             sequence_of_pull_periods_sec=ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
-            max_exertion_intensity_factor=MAX_EXERTION_INTENSITY_FACTOR
+            max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR
         )
         for _, perm_riders in rider_permutations.items()
     ]
@@ -99,14 +98,13 @@ def main():
             continue
         solution = optimal_result.solutions[0]
         plan_line_items = solution.rider_contributions
-        rider_that_breeched_contraints = solution.rider_that_breeched_contraints
-        if rider_that_breeched_contraints is None or rider_that_breeched_contraints not in plan_line_items:
+        if solution.algorithm_ran_to_completion == False:
             continue
-        plan_line_items_displayobjects = populate_rider_contribution_displayobjects(plan_line_items)
-        speed = round(getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0), 1)
+        plan_line_items_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(plan_line_items)
+        speed = round(solution., 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_rider_contribution_displayobjects(
+        # log_pretty_paceline_solution_report(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )
 
