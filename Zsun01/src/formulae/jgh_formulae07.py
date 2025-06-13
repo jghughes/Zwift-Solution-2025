@@ -333,7 +333,7 @@ def main() -> None:
 
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs    
-    from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
@@ -359,7 +359,7 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = populate_rider_contribution_displayobjects(dict_of_rider_pullplans)
 
-    log_rider_contribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_rider_contribution_displayobjects(f"Comparative rider metrics [RiderContributionItem]: IF capped at {MAX_EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

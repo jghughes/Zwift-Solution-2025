@@ -4,10 +4,10 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_rider_contributions
-from jgh_formatting import format_number_comma_separators, format_duration_hms, truncate 
+from jgh_formatting import format_number_comma_separators, format_pretty_duration_hms, truncate 
 from jgh_formulae08 import generate_a_scaffold_of_the_total_solution_space
 from jgh_formulae08 import generate_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_solutions_using_parallel_workstealing_algorithm
-from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
 
@@ -45,20 +45,20 @@ def main():
         riders_list                     =riders,
         sequence_of_pull_periods_sec    =simplest_pull_durations,
         pull_speeds_kph                 =lowest_bound_speed_as_array,
-        max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
+        max_exertion_intensity_factor   =MAX_EXERTION_INTENSITY_FACTOR
     )
     simple_result = generate_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
     halted_rider = simple_result.rider_that_breeched_contraints
 
-    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
+    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
 
     # Prepare params for optimal search
     standard_params = PacelineIngredientsItem(
         riders_list                     =riders,
-        sequence_of_pull_periods_sec    =STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec    =ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph                 =[lowest_bound_speed] * len(riders),
-        max_exertion_intensity_factor   =MAX_INTENSITY_FACTOR
+        max_exertion_intensity_factor   =MAX_EXERTION_INTENSITY_FACTOR
     )
 
     optimal_result = generate_paceline_solutions_using_parallel_workstealing_algorithm(standard_params, all_conceivable_paceline_rotation_schedules)
@@ -76,7 +76,7 @@ def main():
     log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)
     log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items, logger)
 
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
 
 
 

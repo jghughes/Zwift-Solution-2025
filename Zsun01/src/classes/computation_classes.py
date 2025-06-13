@@ -194,10 +194,11 @@ class PacelineIngredientsItem:
 
 @dataclass
 class PacelineComputationReport:
-    algorithm_ran_to_completion           : bool = False
-    num_compute_iterations_performed      : int  = 0
-    average_speed_of_paceline_kph         : float = 0.0
-    rider_contributions                   : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
+    algorithm_ran_to_completion              : bool = False
+    compute_iterations_performed_count       : int  = 0
+    exertion_intensity_constraint_used       : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
+    calculated_average_speed_of_paceline_kph : float = 0.0
+    rider_contributions                      : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 
 @dataclass

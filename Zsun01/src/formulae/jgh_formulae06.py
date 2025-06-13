@@ -120,7 +120,7 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
-    from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions

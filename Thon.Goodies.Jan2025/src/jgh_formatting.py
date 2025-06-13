@@ -82,7 +82,7 @@ def format_number_comma_separators(x: Union[int, float]) -> str:
     else:
         return str(x)
 
-def format_duration_hms(seconds: float) -> str:
+def format_pretty_duration_hms(seconds: float) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, secs = divmod(remainder, 60)
     # Format seconds with one leading zero if < 10, else no leading zero

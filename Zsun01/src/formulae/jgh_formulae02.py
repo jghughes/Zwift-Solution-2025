@@ -1,8 +1,9 @@
-from typing import  List, DefaultDict, Union, Callable, Tuple
+from typing import  List, DefaultDict, Callable, Tuple
 import itertools
 
 from constants import SOLUTION_SPACE_SIZE_CONSTRAINT
 from rolling_average import calculate_rolling_averages
+from jgh_formatting import truncate 
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionItem, RiderExertionItem
@@ -277,7 +278,14 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunR
 
     return average_speed_kph
 
+def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[ZsunRiderItem]) -> float:
 
+    _, _, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
+    _, _, lower_bound_1_hour_rider_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
+
+    safe_lowest_bound_speed = round(min(truncate(lower_bound_pull_rider_speed, 0), truncate(lower_bound_1_hour_rider_speed, 0)), 1)
+
+    return safe_lowest_bound_speed
 
 def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
     """

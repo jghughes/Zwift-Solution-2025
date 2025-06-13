@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
 
 
-def populate_rider_contributions_in_a_single_paceline_solution(
+def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
     riders:                        List[ZsunRiderItem],
     standard_pull_periods_seconds: List[float],
     pull_speeds_kph:               List[float],
@@ -81,8 +81,8 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     Returns:
         PacelineComputationReport: An object containing:
             - algorithm_ran_to_completion (bool): Whether the binary search completed within the permitted iterations.
-            - num_compute_iterations_performed (int): Number of iterations performed during the search.
-            - average_speed_of_paceline_kph (float): The computed average speed of the paceline (kph).
+            - compute_iterations_performed_count (int): Number of iterations performed during the search.
+            - calculated_average_speed_of_paceline_kph (float): The computed average speed of the paceline (kph).
             - rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]): Mapping of each rider to their computed contribution,
               including effort metrics and any constraint violations.
 
@@ -115,7 +115,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH):
 
-        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, max_exertion_intensity_factor)
+        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, max_exertion_intensity_factor)
 
         if any(contribution.effort_constraint_violation_reason for contribution in dict_of_rider_contributions.values()):
             break # break out of the loop as soon as we successfuly find a speed that violates at least one rider's ability
@@ -127,7 +127,8 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
         # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
         return PacelineComputationReport(
             algorithm_ran_to_completion         = False,  # We did not run to completion, we hit the max iterations
-            num_compute_iterations_performed    = compute_iterations_performed,
+            exertion_intensity_constraint_used  = paceline_ingredients.max_exertion_intensity_factor,
+            compute_iterations_performed_count  = compute_iterations_performed,
             rider_contributions                 = dict_of_rider_contributions,
         )
 
@@ -135,36 +136,34 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     # lower_bound_for_next_search_iteration_kph and upper_bound_for_next_search_iteration_kph, continuing
     # until the difference between the two bounds is less than DESIRED_PRECISION_KPH i.e. until we are within a small enough range
     # of speeds that we can consider the solution precise enough. We have thus found the speed at the point at which it 
-    # violates the contribution of at least one rider. The cause of the violation is flagged inside populate_rider_contributions_in_a_single_paceline_solution(..). 
+    # violates the contribution of at least one rider. The cause of the violation is flagged inside populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(..). 
     # At this moment, we know that the speed of the paceline is somewhere between the lower and upper bounds, the difference 
-    # between which is negligible i.e. less than DESIRED_PRECISION_KPH.
+    # between which is negligible i.e. less than DESIRED_PRECISION_KPH. Use the upper_bound_for_next_search_iteration_kph as our answer
 
-    # constraint_busting_rider: Union[None, ZsunRiderItem] = None
 
     while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < MAX_PERMITTED_ITERATIONS:
+
         mid_point_kph = (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph) / 2
-        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, max_exertion_intensity_factor)
+
+        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, max_exertion_intensity_factor)
+
         compute_iterations_performed += 1
+
         if any(rider_contribution.effort_constraint_violation_reason for rider_contribution in dict_of_rider_contributions.values()):
             upper_bound_for_next_search_iteration_kph = mid_point_kph
-            constraint_busting_rider = next(rider for rider, rider_contribution in dict_of_rider_contributions.items() if rider_contribution.effort_constraint_violation_reason)
         else:
             lower_bound_for_next_search_iteration_kph = mid_point_kph
 
-    # Using the upper_bound_for_next_search_iteration_kph we have happily found as the governing speed of the paceline as a whole, rework the contributions and thus the solution
+    # Knowing the speed, we can rework the contributions and thus the solution
 
-    speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
+    speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
 
-    # Pluck out the first rider that has a non-empty effort_constraint_violation_reason and use him as the scapegoat
-    # constraint_busting_rider = next(
-    #     (rider for rider, rider_contribution in dict_of_rider_contributions.items() if rider_contribution.effort_constraint_violation_reason),
-    #     None
-    # )
     return PacelineComputationReport(
-        algorithm_ran_to_completion             = True,  
-        num_compute_iterations_performed        = compute_iterations_performed,
-        average_speed_of_paceline_kph           = speed_of_paceline,
-        rider_contributions                     = dict_of_rider_contributions,
+        algorithm_ran_to_completion              = True,  
+        compute_iterations_performed_count       = compute_iterations_performed,
+        exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
+        calculated_average_speed_of_paceline_kph = speed_of_paceline,
+        rider_contributions                      = dict_of_rider_contributions,
     )
 
 
@@ -211,10 +210,11 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
             result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_description)
 
             solutions.append(PacelineComputationReport(
-                algorithm_ran_to_completion         = result.algorithm_ran_to_completion,
-                num_compute_iterations_performed    = result.num_compute_iterations_performed,
-                average_speed_of_paceline_kph       = result.average_speed_of_paceline_kph,
-                rider_contributions                 = result.rider_contributions,
+                algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
+                compute_iterations_performed_count       = result.compute_iterations_performed_count,
+                exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
+                calculated_average_speed_of_paceline_kph = result.calculated_average_speed_of_paceline_kph,
+                rider_contributions                      = result.rider_contributions,
             ))
         except Exception as exc:
             logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -281,10 +281,11 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
                     continue
 
                 solutions.append(PacelineComputationReport(
-                    algorithm_ran_to_completion         = result.algorithm_ran_to_completion,
-                    num_compute_iterations_performed    = result.num_compute_iterations_performed,
-                    average_speed_of_paceline_kph       = result.average_speed_of_paceline_kph,
-                    rider_contributions                 = result.rider_contributions,
+                    algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
+                    compute_iterations_performed_count       = result.compute_iterations_performed_count,
+                    calculated_average_speed_of_paceline_kph = result.calculated_average_speed_of_paceline_kph,
+                exertion_intensity_constraint_used           = paceline_ingredients.max_exertion_intensity_factor,
+                    rider_contributions                      = result.rider_contributions,
                 ))
             except Exception as exc:
                 logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -293,7 +294,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     return solutions
 
 
-def generate_paceline_solutions_using_combined_algorithms(
+def generate_paceline_solutions_using_serial_and_parallel_algorithms(
     paceline_ingredients: PacelineIngredientsItem, paceline_rotation_sequence_alternatives : List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
@@ -382,7 +383,7 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
 
     start_time = time.perf_counter()
 
-    all_paceline_solutions = generate_paceline_solutions_using_combined_algorithms(paceline_ingredients, paceline_rotation_sequence_alternatives)
+    all_paceline_solutions = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
     end_time = time.perf_counter()
 
@@ -400,9 +401,9 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
 
     for this_solution in all_paceline_solutions:
 
-        total_compute_iterations_performed += this_solution.num_compute_iterations_performed
+        total_compute_iterations_performed += this_solution.compute_iterations_performed_count
 
-        scratchpatch_speed_kph = this_solution.average_speed_of_paceline_kph # criterion
+        scratchpatch_speed_kph = this_solution.calculated_average_speed_of_paceline_kph # criterion
 
         if not np.isfinite(scratchpatch_speed_kph):
             logger.warning(f"Binary search iteration error. Non-finite scratchpatch_speed_kph encountered: {scratchpatch_speed_kph}")
@@ -449,7 +450,7 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from constants import STANDARD_PULL_PERIODS_SEC
+    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
@@ -466,11 +467,11 @@ def main01():
 
     logger.info(f"Starting: benchmarking serial vs parallel processing with {len(riders)} riders")
 
-    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC)
+    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
 
     plan_params = PacelineIngredientsItem(
         riders_list                   = riders,
-        sequence_of_pull_periods_sec  = STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec  = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph               = [30.0] * len(riders),
         max_exertion_intensity_factor = 0.95
     )
@@ -525,7 +526,7 @@ def main01():
 def main02():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from constants import STANDARD_PULL_PERIODS_SEC
+    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
 
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
@@ -542,7 +543,7 @@ def main02():
 
     params = PacelineIngredientsItem(
         riders_list                  = riders,
-        sequence_of_pull_periods_sec    = STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec    = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
         pull_speeds_kph              = [30.0] * len(riders),
         max_exertion_intensity_factor= 0.95
     )

@@ -1,4 +1,4 @@
-from jgh_formatting import format_number_1dp, format_number_comma_separators, format_duration_hms, truncate 
+from jgh_formatting import format_number_1dp, format_number_comma_separators, format_pretty_duration_hms, truncate 
 from zsun_rider_item import ZsunRiderItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
@@ -6,7 +6,7 @@ from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import populate_rider_contribution_displayobjects, log_rider_contribution_displayobjects
 from jgh_formulae08 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae08 import generate_paceline_solutions_using_parallel_workstealing_algorithm,  generate_a_single_paceline_solution_complying_with_exertion_constraints
-from constants import STANDARD_PULL_PERIODS_SEC, MAX_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, MAX_EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -41,11 +41,11 @@ def main():
     simplest_pull_durations = [60.0] * len(riders) # seed: 60 seconds for everyone for Simplest case to execute as a team
     lowest_bound_speed_as_array = [lowest_bound_speed] * len(riders)
 
-    _, plan_line_items, halted_rider = generate_a_single_paceline_solution_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_INTENSITY_FACTOR)
+    _, plan_line_items, halted_rider = generate_a_single_paceline_solution_complying_with_exertion_constraints(riders, simplest_pull_durations, lowest_bound_speed_as_array, MAX_EXERTION_INTENSITY_FACTOR)
     plan_line_items_displayobjects = populate_rider_contribution_displayobjects(plan_line_items)
     log_rider_contribution_displayobjects(f"\n\nSIMPLEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
 
-    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = generate_paceline_solutions_using_parallel_workstealing_algorithm(riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR)
+    (pull_plans, total_num_of_all_conceivable_plans, total_compute_iterations, compute_time) = generate_paceline_solutions_using_parallel_workstealing_algorithm(riders, ARRAY_OF_STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_EXERTION_INTENSITY_FACTOR)
 
     plan01, plan02 = pull_plans
     _, plan_line_items, halted_rider = plan02
@@ -55,7 +55,7 @@ def main():
     plan_line_items_displayobjects = populate_rider_contribution_displayobjects(plan_line_items)
     log_rider_contribution_displayobjects(f"\n\nFASTEST PLAN: {round(plan_line_items[halted_rider].speed_kph,1)} kph", plan_line_items_displayobjects, logger)
     
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_compute_iterations)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
 
 
     # --- Begin iterative weakest-rider removal process for FASTEST PLAN (plan01) ---
@@ -77,7 +77,7 @@ def main():
 
         # Recompute the fastest plan for the reduced team
         (pull_plans, num_alternatives, num_iterations, compute_time) = generate_paceline_solutions_using_parallel_workstealing_algorithm(
-            current_riders, STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_INTENSITY_FACTOR
+            current_riders, ARRAY_OF_STANDARD_PULL_PERIODS_SEC, lowest_bound_speed, MAX_EXERTION_INTENSITY_FACTOR
         )
         plan01, plan02 = pull_plans
         _, plan_line_items, halted_rider = plan01
@@ -104,7 +104,7 @@ def main():
             logger
         )
 
-    logger.info(f"\n\n\nFASTEST PLAN PLUS: {len(speed_records)} iterations, {format_number_comma_separators(total_iterations)} total iterations, {format_number_comma_separators(total_alternatives)} alternatives, {format_duration_hms(total_time)} compute time.\n\n")
+    logger.info(f"\n\n\nFASTEST PLAN PLUS: {len(speed_records)} iterations, {format_number_comma_separators(total_iterations)} total iterations, {format_number_comma_separators(total_alternatives)} alternatives, {format_pretty_duration_hms(total_time)} compute time.\n\n")
 
 
 
