@@ -229,30 +229,36 @@ def main() -> None:
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
-
+    from constants import EXERTION_INTENSITY_FACTOR
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
+    from zsun_rider_dto import ZsunRiderDTO
 
-    from handy_utilities import read_dict_of_zsunriderItems
-    from repository_of_teams import get_team_riderIDs    
-    from constants import EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    # Example: Instantiate riders using the Config class
+    example_riders_data = [
+        # ZsunRiderItem.Config.json_schema_extra["meridithl"],
+        ZsunRiderItem.Config.json_schema_extra["melissaw"],
+        ZsunRiderItem.Config.json_schema_extra["richardm"],
+        ZsunRiderItem.Config.json_schema_extra["davek"],
+        # ZsunRiderItem.Config.json_schema_extra["huskyc"],
+        ZsunRiderItem.Config.json_schema_extra["scottm"],
+        # ZsunRiderItem.Config.json_schema_extra["johnh"],
+        # ZsunRiderItem.Config.json_schema_extra["joshn"],
+        # ZsunRiderItem.Config.json_schema_extra["brent"],
+        # ZsunRiderItem.Config.json_schema_extra["coryc"],
+        # ZsunRiderItem.Config.json_schema_extra["davide"],
+    ]
 
-    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    # Convert example data to ZsunRiderItem instances
+    riders = [
+        ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
+        for data in example_riders_data
+    ]
 
-    meredith_leubner : ZsunRiderItem = dict_of_zwiftrideritem['1707548'] # davek
-    johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # barryb
-    matt_steeve : ZsunRiderItem = dict_of_zwiftrideritem['1024413'] # markb
-    roland_segal : ZsunRiderItem = dict_of_zwiftrideritem['384442'] # richardm
-    lynsey_segal : ZsunRiderItem = dict_of_zwiftrideritem['383480'] # lynseys
-    melissa_warwick : ZsunRiderItem = dict_of_zwiftrideritem['1657744'] # joshn
-    
-    riders : list[ZsunRiderItem] = [meredith_leubner, johnh, matt_steeve, roland_segal, lynsey_segal, melissa_warwick]
-
-
-    pull_speeds_kph = [38.8, 38.8,38.8, 38.8, 38.8, 38.8, 38.8, 38.8]
-    pull_durations = [240.0, 120.0, 60.0, 30.0, 60.0, 180.0]
-
+    pull_durations = [120.0, 0.0, 120.0, 120.0]
+    pull_speed = 39.0  # Example speed in kph
+    pull_speeds_kph = [pull_speed] * len(riders)
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 

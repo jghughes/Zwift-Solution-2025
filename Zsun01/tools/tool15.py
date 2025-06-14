@@ -4,7 +4,7 @@ from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph
 from jgh_formulae03 import arrange_riders_in_optimal_order
 from jgh_formulae07 import log_pretty_paceline_solution_report, save_pretty_paceline_solution_as_html_file
-from jgh_formulae08 import generate_two_groovy_paceline_solutions, generate_a_single_paceline_solution_complying_with_exertion_constraints, log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
+from jgh_formulae08 import generate_groovy_paceline_solutions, generate_a_single_paceline_solution_complying_with_exertion_constraints, log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
 from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem, RiderContributionDisplayObject
@@ -53,7 +53,7 @@ def main():
 
     ingredients.sequence_of_pull_periods_sec = ARRAY_OF_STANDARD_PULL_PERIODS_SEC
 
-    two_solutions_computation_report = generate_two_groovy_paceline_solutions(ingredients)
+    two_solutions_computation_report = generate_groovy_paceline_solutions(ingredients)
 
     balanced = two_solutions_computation_report.solutions[0]
     balanced_title = f"\nBALANCED-EFFORT PULL-PLAN: {format_number_2dp(balanced.calculated_average_speed_of_paceline_kph)}kph  IF capped at {round(100*balanced.exertion_intensity_constraint_used)}%"

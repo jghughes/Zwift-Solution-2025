@@ -71,17 +71,18 @@ def main() -> None:
     # Example: Instantiate riders using the Config class
     example_riders_data = [
         # ZsunRiderItem.Config.json_schema_extra["meridithl"],
-        # ZsunRiderItem.Config.json_schema_extra["melissaw"],
+        ZsunRiderItem.Config.json_schema_extra["melissaw"],
         ZsunRiderItem.Config.json_schema_extra["richardm"],
-        # ZsunRiderItem.Config.json_schema_extra["davek"],
+        ZsunRiderItem.Config.json_schema_extra["davek"],
         # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-        # ZsunRiderItem.Config.json_schema_extra["scottm"],
+        ZsunRiderItem.Config.json_schema_extra["scottm"],
         # ZsunRiderItem.Config.json_schema_extra["johnh"],
-        ZsunRiderItem.Config.json_schema_extra["joshn"],
+        # ZsunRiderItem.Config.json_schema_extra["joshn"],
         # ZsunRiderItem.Config.json_schema_extra["brent"],
         # ZsunRiderItem.Config.json_schema_extra["coryc"],
         # ZsunRiderItem.Config.json_schema_extra["davide"],
     ]
+
 
     # Convert example data to ZsunRiderItem instances
     riders = [
@@ -89,7 +90,7 @@ def main() -> None:
         for data in example_riders_data
     ]
 
-    pull_durations = [60.0] * len(riders)
+    pull_durations = [120.0, 0.0, 120.0, 120.0]
     pull_speeds_kph = [40.0] * len(riders)
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)

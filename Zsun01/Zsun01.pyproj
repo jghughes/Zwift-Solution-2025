@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tools\tool15.py</StartupFile>
+    <StartupFile>src\formulae\jgh_formulae08.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -68,6 +68,7 @@
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
+    <Compile Include="tests\test_current_highest_speed_drop_paceline_solution.py" />
     <Compile Include="tests\test_progressively_reducing_the_num_of_pullers.py" />
     <Compile Include="tools\tool02.py" />
     <Compile Include="tools\tool01.py" />
