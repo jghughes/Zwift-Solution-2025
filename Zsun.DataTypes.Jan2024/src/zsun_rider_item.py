@@ -1,6 +1,7 @@
 from dataclasses import dataclass,  asdict
 from typing import Optional
 import numpy as np
+from jgh_number import safe_divide
 from zsun_rider_dto import ZsunRiderDTO 
 from jgh_power_curve_fit_models import decay_model_numpy
 
@@ -415,8 +416,8 @@ class ZsunRiderItem:
 
     def get_strength_wkg(self) -> float:
         if self.weight_kg == 0:
-            return self.get_standard_1_minute_pull_watts()/80.0 # arbitrary default 80kg
-        return self.get_standard_1_minute_pull_watts()/self.weight_kg
+            return safe_divide(self.get_standard_1_minute_pull_watts(),80.0) # arbitrary default 80kg
+        return safe_divide(self.get_standard_1_minute_pull_watts(),self.weight_kg)
 
     def get_standard_pull_watts(self, seconds : float)-> float:
         permissable_watts = self.get_one_hour_watts() # default
@@ -478,12 +479,12 @@ class ZsunRiderItem:
     def get_one_hour_wkg(self) -> float:
         if self.weight_kg == 0:
             return 0.0
-        return self.get_one_hour_watts()/ self.weight_kg
+        return safe_divide( self.get_one_hour_watts(), self.weight_kg)
 
     def get_watts_per_kg(self, wattage : float) -> float:
         if self.weight_kg == 0:
             return 0.0
-        return wattage/ self.weight_kg
+        return safe_divide(wattage,self.weight_kg)
 
     def get_n_second_watts(self, seconds: float) -> float:
 
@@ -501,12 +502,12 @@ class ZsunRiderItem:
         return self.zsun_CP
 
     def get_anaerobic_work_capacity_kj(self) -> float:
-        return self.zsun_AWC / 1_000.0
+        return safe_divide(self.zsun_AWC,1_000.0)
 
     def get_zwiftracingapp_zpFTP_wkg(self) -> float:
         if self.weight_kg == 0:
             return 0.0
-        return self.zwiftracingapp_zpFTP / self.weight_kg
+        return safe_divide(self.zwiftracingapp_zpFTP, self.weight_kg)
 
     def get_when_models_fitted(self) -> str:
         return self.zsun_when_curves_fitted

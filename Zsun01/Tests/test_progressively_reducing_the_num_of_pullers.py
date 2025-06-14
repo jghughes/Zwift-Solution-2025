@@ -11,7 +11,7 @@ from jgh_formulae08 import (
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
         generate_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
-from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
 def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReport:
@@ -78,17 +78,7 @@ def main():
         # Assume the 2nd solution is the "fastest_plan"
         solution = optimal_result.solutions[1]
 
-
-
-        # Each solution has rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]
-        # and rider_that_breeched_contraints: Optional[ZsunRiderItem]
-        if solution.rider_that_breeched_contraints is None:
-            return 0
-        rider_that_breeched_contraints = solution.rider_that_breeched_contraints
-        plan_line_items = solution.rider_contributions
-        if rider_that_breeched_contraints not in plan_line_items:
-            return 0
-        return getattr(plan_line_items[rider_that_breeched_contraints], "speed_kph", 0)
+        return solution.calculated_average_speed_of_paceline_kph
 
     all_permutation_results.sort(key=get_halted_rider_speed, reverse=True)
 

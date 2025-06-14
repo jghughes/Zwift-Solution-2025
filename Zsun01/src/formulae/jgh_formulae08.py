@@ -5,10 +5,12 @@ import copy
 import concurrent.futures
 import time
 import numpy as np
-from jgh_formatting import truncate
+from jgh_formatting import truncate, format_number_comma_separators, format_number_1dp, format_pretty_duration_hms
+from jgh_number import safe_divide
+from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport
-from jgh_formulae02 import (calculate_overall_intensity_factor_of_rider_contribution, calculate_overall_average_speed_of_paceline_kph, generate_a_scaffold_of_the_total_solution_space, radically_shrink_the_solution_space)
+from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_a_scaffold_of_the_total_solution_space, prune_the_scaffold_of_the_total_solution_space)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
@@ -19,6 +21,51 @@ from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
+
+def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunRiderItem], logger: logging.Logger):
+
+    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_paceline_speed(riders)
+    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
+    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
+    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
+
+    message_lines = [
+        "\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans:\n",
+        f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_standard_30sec_pull_watts())}w "
+        f"{format_number_1dp(safe_divide(upper_bound_pull_rider.get_standard_30sec_pull_watts(), upper_bound_pull_rider.weight_kg))}wkg by {upper_bound_pull_rider.name} "
+        f"for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
+        f"Upper bound 1-hour pull :  {round(upper_bound_1_hour_rider_speed)}kph @ {round(upper_bound_1_hour_rider.get_one_hour_watts())}w "
+        f"{format_number_1dp(safe_divide(upper_bound_1_hour_rider.get_one_hour_watts(), upper_bound_1_hour_rider.weight_kg))}wkg by {upper_bound_1_hour_rider.name}.",
+        f"Lower bound pull        :  {round(lower_bound_pull_rider_speed)}kph @ {round(lower_bound_pull_rider.get_standard_4_minute_pull_watts())}w "
+        f"{format_number_1dp(safe_divide(lower_bound_pull_rider.get_standard_4_minute_pull_watts(), lower_bound_pull_rider.weight_kg))}wkg by {lower_bound_pull_rider.name} "
+        f"for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
+        f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_one_hour_watts())}w "
+        f"{format_number_1dp(safe_divide(lower_bound_1_hour_rider.get_one_hour_watts(), lower_bound_1_hour_rider.weight_kg))}wkg by {lower_bound_1_hour_rider.name}."
+    ]
+    log_multiline(logger, message_lines)
+
+
+def log_workload_suffix_message(total_compute_iterations_done: int, total_num_of_all_conceivable_plans: int, compute_time : float, logger: logging.Logger
+) -> None:
+
+    message_lines = [
+        f"\nBrute report: did {format_number_comma_separators(total_compute_iterations_done)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_pretty_duration_hms(compute_time)}.",
+        "Intensity Factor is Normalized Power/one-hour power. zFTP metrics are displayed, but play no role in computations.",
+        "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
+        "",
+        "30 second pull capacity = best power for 3.5 minutes",
+        "1 minute pull capacity  = best power for  5 minutes",
+        "2 minute pull capacity  = best power for 12 minutes",
+        "3 minute pull capacity  = best power for 15 minutes",
+        "4 minute pull capacity  = best power for 20 minutes",
+        "",
+        "Riders with superior pull capacity are prioritised for longer pulls.",
+        "The speed of the paceline is constant and does not vary from one rider to the next.",
+        "The pull capacity of the slowest puller governs the speed, leaving room for upside.",
+        "The paceline puts weaker riders in the middle.",
+        "Based on data from Zwiftpower as at March/April 2025. Some ZSUN riders have more comprehensive data than others.\n\n",
+    ]
+    log_multiline(logger, message_lines)
 
 
 def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
@@ -46,7 +93,6 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
             - dict_of_rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
                 Mapping of each rider to their computed RiderContributionItem, including effort metrics and constraint violations.
     """
-
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
@@ -91,7 +137,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
           and sets algorithm_ran_to_completion to False.
         - The function assumes all input parameters are valid and finite.
     """
-
+    # logger.info(f"Generating a single paceline solution complying with exertion constraints.")
     riders = paceline_ingredients.riders_list
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
     lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3)
@@ -112,6 +158,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     # we are looking for. It will most likely be way above the precise speed that 
     # triggered the violation, but it is a safe upper bound. This is required for 
     # the binary search to work correctly to piun down the precise speed.
+    # logger.info(f"Finding a speed that violates at least one rider's contribution. Starting at {lower_bound_for_next_search_iteration_kph}kph.")
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH):
 
@@ -123,6 +170,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
         upper_bound_for_next_search_iteration_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
 
         compute_iterations_performed += 1
+        # logger.info(f"Compute iterations performed = {compute_iterations_performed}")
     else:
         # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
         return PacelineComputationReport(
@@ -143,7 +191,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 
     while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < MAX_PERMITTED_ITERATIONS:
 
-        mid_point_kph = (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph) / 2
+        mid_point_kph =safe_divide( (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph), 2)
 
         _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, max_exertion_intensity_factor)
 
@@ -155,7 +203,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
             lower_bound_for_next_search_iteration_kph = mid_point_kph
 
     # Knowing the speed, we can rework the contributions and thus the solution
-
+    # logger.info(f"Knowing the speed, we can rework the contributions and thus the solution")
     speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
 
     return PacelineComputationReport(
@@ -369,14 +417,14 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
         raise ValueError("No riders provided to generate_paceline_solutions_using_serial_processing_algorithm.")
     if not paceline_ingredients.sequence_of_pull_periods_sec:
         raise ValueError("No standard pull durations provided to generate_paceline_solutions_using_serial_processing_algorithm.")
-    if any(d <= 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
+    if any(d < 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
         raise ValueError("All standard pull durations must be positive and finite.")
     if not paceline_ingredients.pull_speeds_kph or not np.isfinite(paceline_ingredients.pull_speeds_kph[0]) or paceline_ingredients.pull_speeds_kph[0] <= 0:
         raise ValueError("binary_search_seed must be positive and finite.")
     
     all_conceivable_paceline_rotation_alternatives= generate_a_scaffold_of_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
 
-    paceline_rotation_sequence_alternatives = radically_shrink_the_solution_space(all_conceivable_paceline_rotation_alternatives, paceline_ingredients.riders_list)
+    paceline_rotation_sequence_alternatives = prune_the_scaffold_of_the_total_solution_space(all_conceivable_paceline_rotation_alternatives, paceline_ingredients.riders_list)
 
     if len(paceline_rotation_sequence_alternatives) > 2_000:
         logger.warning(f"Warning. Number of alternatives to be computed and evaluated is very large: {len(paceline_rotation_sequence_alternatives)}")
@@ -425,7 +473,7 @@ def generate_two_groovy_paceline_solutions(paceline_ingredients: PacelineIngredi
             logger.warning(f"Non-finite std_deviation_of_intensity_factors encountered: {std_deviation_of_intensity_factors}")
             continue
 
-        if std_deviation_of_intensity_factors < current_lowest_std_deviation:
+        if std_deviation_of_intensity_factors < current_lowest_std_deviation and std_deviation_of_intensity_factors != 0.0:
             current_lowest_std_deviation = std_deviation_of_intensity_factors
             current_lowest_std_deviation_paceline_solution = this_solution # the meat
 

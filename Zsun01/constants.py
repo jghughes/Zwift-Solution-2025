@@ -9,7 +9,7 @@ DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 # POWER_CURVE_IN_PACELINE = np.array([350, 252, 236, 217], dtype=np.float64) #Follower's in the paceline are based on ZwiftInsider's power matrix.
 POWER_CURVE_IN_PACELINE = np.array([350, 252, 236, 217, 202, 190, 180, 172], dtype=np.float64) #extras added arbitrarily by JGH to cater for more riders in the paceline. 
 
-ARRAY_OF_STANDARD_PULL_PERIODS_SEC: list[float] = [30.0, 60.0, 120.0, 180.0, 240.0] # Constant: Standard pull periods (in seconds) for all pull planning
+ARRAY_OF_STANDARD_PULL_PERIODS_SEC: list[float] = [0.00, 30.0, 60.0, 120.0, 180.0, 240.0] # Constant: Standard pull periods (in seconds) for all pull planning
 
 
 SAFE_LOWER_BOUND_TO_COMMENCE_BINARY_SEARCH_FOR_A_CONSTRAINT_BUSTING_SPEED_KPH = 30.0 # let's conservatively assume 30 kph is the highest safe speed to launch the binary search. most TTT will be 35 - 55 kph, but this is a safe start. ssay, 60 is the highest, therefore the afe num of iterations is 7. round it to 10 to be safe.

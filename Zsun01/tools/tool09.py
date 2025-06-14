@@ -1,14 +1,15 @@
 # load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
 from typing import Any
-import pandas as pd
-from zsun_rider_item import ZsunRiderItem
 from dataclasses import asdict
-from scraped_zwift_data_repository import ScrapedZwiftDataRepository
+import pandas as pd
+import numpy as np
+from jgh_number import safe_divide
 from jgh_sanitise_string import cleanup_name_string
 from handy_utilities import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
-import numpy as np
 from jgh_power_curve_fit_models import decay_model_numpy
+from zsun_rider_item import ZsunRiderItem
+from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 
 
 
@@ -71,8 +72,8 @@ def main():
         zwift = ZsunRiderItem(
             zwift_id                          = zwift.zwift_id,
             name                              = cleanup_name_string(name),
-            weight_kg                         = round((zwift.weight_grams or 0.0) / 1_000.0, 1),
-            height_cm                         = round((zwift.height_mm or 0.0) / 10.0),
+            weight_kg                         = round((safe_divide(zwift.weight_grams, 1_000.0)), 1),
+            height_cm                         = round(safe_divide(zwift.height_mm, 10.0 )),
             gender                            = "m" if zwift.male else "f",
             age_years                         = zwift.age_years,
             age_group                          = zwiftracingapp.age_group,
@@ -88,7 +89,7 @@ def main():
             zwiftracingapp_cat_num            = zwiftracingapp.raceitem.max90.mixed.number,
             zwiftracingapp_cat_name           = zwiftracingapp.raceitem.max90.mixed.category,
             zwiftracingapp_CP                 = round(zwiftracingapp.poweritem.CP),
-            zwiftracingapp_AWC                = round(zwiftracingapp.poweritem.AWC / 1_000.0),
+            zwiftracingapp_AWC                = round(safe_divide(zwiftracingapp.poweritem.AWC, 1_000.0)),
             zsun_one_hour_curve_coefficient   = zsun_curve_fit.one_hour_curve_coefficient,
             zsun_one_hour_curve_exponent      = zsun_curve_fit.one_hour_curve_exponent,
             zsun_TTT_pull_curve_coefficient   = zsun_curve_fit.TTT_pull_curve_coefficient,

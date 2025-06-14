@@ -122,10 +122,10 @@ def save_pretty_paceline_solution_as_html_file(
     footnotes = """
     <div class="footnote">
         <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg). zFTP metrics are displayed, but play no role in computations.<br>
-        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Pull abilities are calibrated from 90-day best power graphs on ZwiftPower. Riders with superior pull power are prioritised for longer pulls. Stronger riders are at the front and rear of the paceline, protecting weaker riders in the middle.<br>
+        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Pull abilities are taken from 90-day best power graphs on ZwiftPower. Riders with superior pull power are prioritised for longer pulls. Stronger riders are placed at the front and rear of the paceline, protecting weaker riders in between.<br>
         <sup>3</sup> NP: Normalized Power.<br>
         <sup>4</sup> IF: Intensity Factor (NP as % of one-hour power).<br>
-        <sup>5</sup> Limit: Pull plan logic is such that paceline speed is constant and all riders get to pull. In a no-drop plan, speed is governed by pulling power and IF%. Sprinters are relatively stronger for short pulls, but weaker for longer pulls - the opposite is true for endurance riders. Pulling power is unrelated to zFTP.<br>
+        <sup>5</sup> Limit: Pull plan logic is such that paceline speed is constant and all riders have a chance to pull. The speed of the paceline is capped by the pulling power and/or IF% of riders as they go beyond their limits. Pulling power is unrelated to zFTP. Pulling power for periods ranging from thirty seconds to four minutes relate to 90-day best power ranging from 3.5 to 20 minutes.<br>
     </div>
     """
 

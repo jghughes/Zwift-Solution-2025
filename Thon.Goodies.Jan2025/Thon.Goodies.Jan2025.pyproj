@@ -23,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\jgh_formatting.py" />
+    <Compile Include="src\jgh_number.py" />
     <Compile Include="src\jgh_sanitise_string.py" />
     <Compile Include="setup.py">
       <SubType>Code</SubType>

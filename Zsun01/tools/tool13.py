@@ -1,4 +1,5 @@
 from zsun_rider_item import ZsunRiderItem
+from jgh_number import safe_divide
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
@@ -26,13 +27,13 @@ def main():
 
     r01, r01_duration, r01_speed = calculate_upper_bound_paceline_speed(riders)
     r02, _, r02_speed = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
-    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_30sec_pull_watts())} W ({round(r01.get_standard_30sec_pull_watts()/r01.weight_kg, 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
+    logger.info(f"Upper bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_30sec_pull_watts())} W ({round(safe_divide(r01.get_standard_30sec_pull_watts(), r01.weight_kg), 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Upper bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(safe_divide(r02.get_one_hour_watts(), r02.weight_kg), 1)} W/kg) by {r02.name}.")
 
     r01, r01_duration, r01_speed = calculate_lower_bound_paceline_speed(riders)
     r02, _, r02_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
-    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_4_minute_pull_watts())} W ({round(r01.get_standard_4_minute_pull_watts()/r01.weight_kg)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
-    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(r02.get_one_hour_watts()/r02.weight_kg, 1)} W/kg) by {r02.name}.")
+    logger.info(f"Lower bound pull        :  {round(r01_speed)} kph @ {round(r01.get_standard_4_minute_pull_watts())} W ({round(safe_divide(r01.get_standard_4_minute_pull_watts(), r01.get_one_hour_watts()), 1)} W/kg) by {r01.name} for a pull of {round(r01_duration)} seconds.")
+    logger.info(f"Lower bound 1-hour pull :  {round(r02_speed)} kph @ {round(r02.get_one_hour_watts())} W ({round(safe_divide(r02.get_one_hour_watts(), r02.weight_kg), 1)} W/kg) by {r02.name}.")
 
     lowest_bound_speed = round(min(truncate(r01_speed, 0), truncate(r02_speed, 0), 1))  # round to lowest 1 kph, as a float
     simplest_pull_durations = [60.0] * len(riders)  # seed: 60 seconds for everyone for Simplest case to execute as a team
@@ -49,7 +50,6 @@ def main():
     )
     simple_result = generate_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
-    halted_rider = simple_result.rider_that_breeched_contraints
 
     all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
 

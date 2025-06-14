@@ -1,7 +1,7 @@
 from typing import  List, DefaultDict, Callable, Tuple
 import itertools
-
 from constants import SOLUTION_SPACE_SIZE_CONSTRAINT
+from jgh_number import safe_divide
 from rolling_average import calculate_rolling_averages
 from jgh_formatting import truncate 
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
@@ -80,7 +80,7 @@ def calculate_speed_riding_in_the_paceline(rider : ZsunRiderItem, power: float, 
     power_factor = estimate_drag_ratio_in_paceline(position)
 
     # Adjust the power based on the power factor
-    adjusted_watts = power / power_factor
+    adjusted_watts = safe_divide(power, power_factor)
 
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(adjusted_watts, rider.weight_kg, rider.height_cm)
@@ -184,7 +184,7 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
 
     total_kilojoules = sum(item.kilojoules for item in efforts)
     total_duration = sum(item.duration for item in efforts)
-    average_watts = 1_000 * total_kilojoules / total_duration if total_duration != 0 else 0
+    average_watts = safe_divide(1_000 * total_kilojoules, total_duration)
     return average_watts
 
 
@@ -241,7 +241,7 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
     rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
 
     # Calculate the average of these values
-    mean_power_4 = sum(rolling_avg_power_4) / len(rolling_avg_power_4)
+    mean_power_4 = safe_divide(sum(rolling_avg_power_4), len(rolling_avg_power_4))
 
     # Take the fourth root of the average
     normalized_watts = mean_power_4 ** 0.25
@@ -268,13 +268,13 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunR
     # arbitrarily get the first RiderExertionItem in the exertions dict
     efforts = next(iter(exertions.values()))
 
-    total_distance_km = sum((item.speed_kph * item.duration) / 3600.0 for item in efforts)
+    total_distance_km = sum(safe_divide((item.speed_kph * item.duration), 3600.0) for item in efforts)
     total_duration_sec = sum(item.duration for item in efforts)
 
     if total_duration_sec == 0:
         return 0.0
 
-    average_speed_kph = total_distance_km / (total_duration_sec / 3600.0)
+    average_speed_kph = safe_divide(total_distance_km, safe_divide(total_duration_sec, 3600.0))
 
     return average_speed_kph
 
@@ -304,9 +304,7 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderIte
 
     """
 
-    if rider.get_one_hour_watts() == 0:
-        return 0.0
-    return rider_contribution.normalized_watts / rider.get_one_hour_watts()
+    return  safe_divide(rider_contribution.normalized_watts, rider.get_one_hour_watts())
 
 
 def calculate_upper_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
@@ -530,7 +528,7 @@ def stronger_than_nth_strongest_rider_filter(
     # )
     return answer
 
-def radically_shrink_the_solution_space(
+def prune_the_scaffold_of_the_total_solution_space(
     paceline_rotation_alternatives_being_filtered: List[List[float]],
     riders: List[ZsunRiderItem]
 ) -> List[List[float]]:

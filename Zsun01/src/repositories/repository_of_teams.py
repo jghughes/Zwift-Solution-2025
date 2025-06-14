@@ -32,7 +32,7 @@ betelguese_Roster = defaultdict(
         # "9011": "bryan_bumpas",
         # "5569057": "cory_cook",
         # "3147366": "dave_konicek",
-        "4945836": "david_evanetich",
+        # "4945836": "david_evanetich",
         # "183277": "giao_nguyen",
         # "5134": "husky_crone",
         # "1884456": "john_hughes",

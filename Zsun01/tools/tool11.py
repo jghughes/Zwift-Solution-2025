@@ -1,7 +1,8 @@
 # load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
-from typing import Any
+from git import safe_decode
 import pandas as pd
 from dataclasses import asdict
+from jgh_number import safe_divide
 
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
 from handy_utilities import *
@@ -58,7 +59,7 @@ def main():
         if y_pred == 0.0 or y_actual == 0 or zsunriderItem.zwift_zrs == 0 or zsunriderItem.zwiftracingapp_score == 0:
             continue
         delta = round(y_pred - y_actual)
-        percent = abs(round(((y_pred - y_actual) * 100) / y_actual))
+        percent = abs(round( safe_divide(((y_pred - y_actual) * 100), y_actual)))  # percent difference between zsun one hour power and zwiftracingapp zpFTP
         curve = dict_of_curve_fits[zsunriderItem.zwift_id]
         curve_x_ordinate = solve_decay_model_for_x_numpy(curve.one_hour_curve_coefficient, curve.one_hour_curve_exponent, np.array([y_actual]))
         logger.info(f"zpFTP/Zsun one-hour_power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {zsunriderItem.name}")
@@ -72,7 +73,7 @@ def main():
             zwiftracingapp_zpFTP                    = y_actual,
             delta                                   = delta,
             percent                                 = percent,
-            value_of_curve_x_for_zwiftracingapp_zpFTP_y = round(curve_x_ordinate[0] / 60),
+            value_of_curve_x_for_zwiftracingapp_zpFTP_y = round(safe_divide(curve_x_ordinate[0],60)),
             zwift_zrs                               = zsunriderItem.zwift_zrs,
             zwift_cat                               = zsunriderItem.zwift_cat,
             zwiftracingapp_score                    = zsunriderItem.zwiftracingapp_score,

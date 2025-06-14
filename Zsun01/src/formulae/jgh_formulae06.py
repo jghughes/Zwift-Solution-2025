@@ -1,5 +1,6 @@
 from typing import List, Tuple, DefaultDict
 from collections import defaultdict
+from jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderExertionItem, RiderContributionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
@@ -65,7 +66,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
             average_watts       = calculate_overall_average_watts(exertions),
             normalized_watts    = calculate_overall_normalized_watts(exertions),
         )
-        rider_contribution.intensity_factor = rider_contribution.normalized_watts / rider.get_one_hour_watts() if rider.get_one_hour_watts() > 0 else 0.0
+        rider_contribution.intensity_factor = safe_divide(rider_contribution.normalized_watts,rider.get_one_hour_watts())
 
         msg = ""
         if rider_contribution.intensity_factor >= max_exertion_intensity_factor:
@@ -120,11 +121,10 @@ def main() -> None:
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
-    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+    from constants import RIDERS_FILE_NAME, DATA_DIRPATH
 
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
-    from jgh_formulae08 import insert_ex_post_facto_message_about_cause_of_top_speed_limit
 
 
     from handy_utilities import read_dict_of_zsunriderItems
@@ -146,8 +146,7 @@ def main() -> None:
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    rider_contributions = populate_rider_contributions(dict_of_rider_exertions)
-
+    rider_contributions = populate_rider_contributions(dict_of_rider_exertions, 0.95)
 
     log_rider_contributions(f"{len(riders)}-riders @38,8kph.", rider_contributions, logger)
 
