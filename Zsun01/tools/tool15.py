@@ -97,10 +97,10 @@ def main():
     )
 
 
-    simple_title = f"\nSIMPLE PULL-PLAN: {format_number_4dp(simple_kph)}kph  IF capped at {simple_intensity}%"
-    balanced_title = f"\nBALANCED-EFFORT PULL-PLAN: {format_number_4dp(balanced_kph)}kph  IF capped at {balanced_intensity}%"
-    tempo_title = f"\nTEMPO PULL-PLAN: {format_number_4dp(tempo_kph)}kph  IF capped at {tempo_intensity}%"
-    drop_title = f"\nDROP PULL-PLAN: {format_number_4dp(drop_kph)}kph  IF capped at {drop_intensity}%"
+    simple_title = f"\nSIMPLE PULL-PLAN: {simple.guid} {format_number_4dp(simple_kph)}kph  IF capped at {simple_intensity}%"
+    balanced_title = f"\nBALANCED-EFFORT PULL-PLAN: {balanced.guid} {format_number_4dp(balanced_kph)}kph  IF capped at {balanced_intensity}%"
+    tempo_title = f"\nTEMPO PULL-PLAN: {tempo.guid} {format_number_4dp(tempo_kph)}kph  IF capped at {tempo_intensity}%"
+    drop_title = f"\nDROP PULL-PLAN: {drop.guid} {format_number_4dp(drop_kph)}kph  IF capped at {drop_intensity}%"
 
     log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
