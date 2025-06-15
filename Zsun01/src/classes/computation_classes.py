@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, List
+import numpy as np
+import uuid
+
+from typing import Optional, List, Union
 from dataclasses import dataclass, field
 from typing import DefaultDict, Optional
 from collections import defaultdict
-
-from networkx import incremental_closeness_centrality
 from jgh_formatting import round_to_nearest_10
 from zsun_rider_item import ZsunRiderItem
 
@@ -189,6 +190,8 @@ class RiderContributionDisplayObject():
 
     @staticmethod
     def from_RiderContributionItems(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, "RiderContributionDisplayObject"]:
+        if not riders:
+            return DefaultDict(RiderContributionDisplayObject)
 
         answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = DefaultDict(RiderContributionDisplayObject)
 
@@ -208,19 +211,27 @@ class PacelineIngredientsItem:
 
 @dataclass
 class PacelineComputationReport:
+    guid                                     : str = field(default_factory=lambda: str(uuid.uuid4()))
     algorithm_ran_to_completion              : bool = False
     compute_iterations_performed_count       : int  = 0
     exertion_intensity_constraint_used       : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph : float = 0.0
+    calculated_dispersion_of_intensity_of_effort : float = 0.0
     rider_contributions                      : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 
 @dataclass
 class PacelineSolutionsComputationReport:
-    total_pull_sequences_examined     : int   = 0
+    guid                                  : str = field(default_factory=lambda: str(uuid.uuid4()))
+    total_pull_sequences_examined         : int   = 0
     total_compute_iterations_performed    : int   = 0
     computational_time                    : float = 0.0
-    solutions                             : List[PacelineComputationReport] = field(default_factory=list)
+    simple_solution                       : Union[PacelineComputationReport, None] = None
+    balanced_intensity_of_effort_solution : Union[PacelineComputationReport, None] = None
+    tempo_solution                        : Union[PacelineComputationReport, None] = None
+    drop_solution                         : Union[PacelineComputationReport, None] = None
+
+    # solutions                             : List[PacelineComputationReport] = field(default_factory=list)
 
 
 

@@ -1,5 +1,6 @@
 from typing import  List, DefaultDict, Callable, Tuple
 import itertools
+import numpy as np
 from constants import SOLUTION_SPACE_SIZE_CONSTRAINT
 from jgh_number import safe_divide
 from rolling_average import calculate_rolling_averages
@@ -409,6 +410,14 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
             fastest_duration = 3600.0
     return fastest_rider, fastest_duration, highest_speed
 
+def calculate_dispersion_of_intensity_of_effortV2(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem])-> float:
+    array_of_rider_effort_intensity_factors = [contribution.intensity_factor for _, contribution in rider_contributions.items()]
+    if not array_of_rider_effort_intensity_factors:
+        return 100 #arbitrarily big
+    std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
+    if not np.isfinite(std_deviation_of_intensity_factors):
+        return 100 #arbitrarily big
+    return std_deviation_of_intensity_factors
 
 def weaker_than_weakest_rider_filter(
     paceline_rotation_alternatives_being_filtered: List[List[float]],
