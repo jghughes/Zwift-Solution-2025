@@ -272,7 +272,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
                 rider_contributions                      = result.rider_contributions,
             )
             solutions.append(answer)
-            logger.info(f"Sequence {sequence}: {answer.calculated_average_speed_of_paceline_kph} kph")
+            # logger.debug(f"Sequence {sequence}: {answer.calculated_average_speed_of_paceline_kph} kph")
 
         except Exception as exc:
             logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -350,6 +350,8 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
             except Exception as exc:
                 logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
 
+    # for sequence in paceline_rotation_sequence_alternatives:
+            # logger.debug(f"Sequence {sequence}")
 
     return solutions
 
@@ -447,121 +449,93 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
-    for idx, solution in enumerate(all_computation_reports):
-        logger.info(f"sln: {idx+1} {solution.guid} speed (kph): {solution.calculated_average_speed_of_paceline_kph}")
+    # for idx, solution in enumerate(all_computation_reports):
+    #     logger.info(f"sln: {idx+1} {solution.guid} speed (kph): {solution.calculated_average_speed_of_paceline_kph}")
 
     end_time = time.perf_counter()
     time_taken_to_compute = end_time - start_time
 
     speed_kph_of_simple_solution: float = float('-inf')
+    dispersion_of_simple_solution: float = float('inf')
+
     simple_solution = None
 
     dispersion_of_balanced_solution: float = float('inf')
     balanced_solution = None
 
     speed_kph_of_tempo_solution: float = float('-inf')
+    dispersion_of_tempo_solution: float = float('inf')
     tempo_solution = None
 
     speed_kph_of_drop_solution: float = float('-inf')
+    dispersion_of_drop_solution: float = float('inf')
     drop_solution = None
 
     total_compute_iterations_performed = 0 
-    for this_report in all_computation_reports:
 
-        # logger.debug(f"guid = {this_report.guid}")
-        # logger.debug(f"{this_report.compute_iterations_performed_count} iterations")
+    for this_solution in all_computation_reports:
 
-        total_compute_iterations_performed += this_report.compute_iterations_performed_count
+        total_compute_iterations_performed += this_solution.compute_iterations_performed_count
 
-        this_solution_speed_kph = this_report.calculated_average_speed_of_paceline_kph # criterion
+        this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph # criterion
 
-        logger.debug(f"{this_report.guid} {this_report.calculated_dispersion_of_intensity_of_effort} dispersion")
+        # logger.debug(f"{this_solution.guid} {this_solution.calculated_dispersion_of_intensity_of_effort} dispersion")
         # logger.debug(f"{this_solution_speed_kph} kph")
 
-        # if not np.isfinite(this_solution_speed_kph):
-        #     logger.warning(f"Binary search algorithm failure: iteration error: Non-finite speed_kph encountered: {this_solution_speed_kph}")
-        #     # continue
+        if not np.isfinite(this_solution_speed_kph):
+            logger.warning(f"Binary search algorithm failure: iteration error: Non-finite speed_kph encountered: {this_solution_speed_kph}")
+            continue
 
-        this_solution_dispersion = this_report.calculated_dispersion_of_intensity_of_effort
+        this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
 
-        # if not np.isfinite(this_solution_dispersion) or this_solution_dispersion == 100: # 100 is the error value for dispersion_of_intensity_of_effort, indicating a problem
-        #     logger.warning(f"Error: failed to calculate std_deviation of intensity of effort: error value = {this_solution_dispersion}")
-        #     # continue
+        if not np.isfinite(this_solution_dispersion) or this_solution_dispersion == 100: # 100 is the error value for dispersion_of_intensity_of_effort, indicating a problem
+            logger.warning(f"Error: failed to calculate std_deviation of intensity of effort: error value = {this_solution_dispersion}")
+            continue
 
 
         if (this_solution_speed_kph > speed_kph_of_simple_solution
-            and all(rider.p1_duration != 0.0 for rider in this_report.rider_contributions.values())
-            and len({rider.p1_duration for rider in this_report.rider_contributions.values()}) == 1):
-            speed_kph_of_simple_solution = this_solution_speed_kph
-            simple_solution = this_report
+            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+            and len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1):
+            if (this_solution_dispersion <= dispersion_of_simple_solution and this_solution_dispersion != 0.0):
+                dispersion_of_simple_solution = this_solution_dispersion
+                speed_kph_of_simple_solution = this_solution_speed_kph
+                simple_solution = this_solution
+                logger.debug(f"simple kph :{this_solution_speed_kph}")
 
-        if (this_solution_dispersion < dispersion_of_balanced_solution and this_solution_dispersion != 0.0
-            and all(rider.p1_duration != 0.0 for rider in this_report.rider_contributions.values())):
+        if (this_solution_dispersion <= dispersion_of_balanced_solution and this_solution_dispersion != 0.0
+            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
             dispersion_of_balanced_solution = this_solution_dispersion
-            balanced_solution = this_report
+            balanced_solution = this_solution
+            logger.debug(f"balanced dispersion :{this_solution_dispersion}")
 
-        if (this_solution_speed_kph > speed_kph_of_tempo_solution 
-            and all(rider.p1_duration != 0.0 for rider in this_report.rider_contributions.values())):
-            speed_kph_of_tempo_solution = this_solution_speed_kph
-            tempo_solution = this_report
+        if (this_solution_speed_kph >= speed_kph_of_tempo_solution 
+            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
+            if (this_solution_dispersion <= dispersion_of_tempo_solution and this_solution_dispersion != 0.0):
+                dispersion_of_tempo_solution = this_solution_dispersion
+                speed_kph_of_tempo_solution = this_solution_speed_kph
+                tempo_solution = this_solution
+                # logger.debug(f"tempo kph :{this_solution_speed_kph}")
 
         if (this_solution_speed_kph > speed_kph_of_drop_solution
-            and any(rider.p1_duration == 0.0 for rider in this_report.rider_contributions.values())
-            and any(rider.p1_duration != 0.0 for rider in this_report.rider_contributions.values())):
-            speed_kph_of_drop_solution = this_solution_speed_kph
-            drop_solution = this_report
+            and any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
+            and any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
+            if (this_solution_dispersion <= dispersion_of_drop_solution and this_solution_dispersion != 0.0):
+                dispersion_of_drop_solution = this_solution_dispersion
+                speed_kph_of_drop_solution = this_solution_speed_kph
+                drop_solution = this_solution
+                # logger.debug(f"drop kph :{this_solution_speed_kph}")
 
 
-
-        # if (this_solution_speed_kph > speed_kph_of_simple_solution):
-        #     speed_kph_of_simple_solution = this_solution_speed_kph
-        #     simple_solution = this_report
-
-        # if (this_solution_dispersion < dispersion_of_balanced_solution):
-        #     dispersion_of_balanced_solution = this_solution_dispersion
-        #     balanced_solution = this_report
-
-        # if (this_solution_speed_kph > speed_kph_of_tempo_solution):
-        #     speed_kph_of_tempo_solution = this_solution_speed_kph
-        #     tempo_solution = this_report
-
-        # if (this_solution_speed_kph > speed_kph_of_drop_solution):
-        #     speed_kph_of_drop_solution = this_solution_speed_kph
-        #     drop_solution = this_report
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # if simple_solution is None and balanced_solution is None and drop_solution is None and simple_solution is None:
-    #     raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
-    # if simple_solution is None:
-    #     raise RuntimeError("No valid this_report found (simple_solution is None)")
-    # if tempo_solution is None:
-    #     raise RuntimeError("No valid this_report found (tempo_solution is None)")
-    # if balanced_solution is None:
-    #     raise RuntimeError("No valid this_report found (balanced_solution is None)")
+    if simple_solution is None and balanced_solution is None and drop_solution is None and simple_solution is None:
+        raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
+    if simple_solution is None:
+        raise RuntimeError("No valid this_solution found (simple_solution is None)")
+    if tempo_solution is None:
+        raise RuntimeError("No valid this_solution found (tempo_solution is None)")
+    if balanced_solution is None:
+        raise RuntimeError("No valid this_solution found (balanced_solution is None)")
     # if drop_solution is None:
-    #     raise RuntimeError("No valid this_report found (drop_solution is None)")
+    #     raise RuntimeError("No valid this_solution found (drop_solution is None)")
 
     return PacelineSolutionsComputationReport(
         total_pull_sequences_examined           = len(paceline_rotation_sequence_alternatives),
