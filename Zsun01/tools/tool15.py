@@ -1,5 +1,7 @@
+from typing import Optional, DefaultDict
 from collections import defaultdict
-from jgh_formatting import format_number_2dp, format_number_4dp
+from jgh_string import JghString
+from jgh_formatting import format_number_2dp, format_number_4dp, format_number_3dp
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph
@@ -42,65 +44,40 @@ def main():
         max_exertion_intensity_factor = EXERTION_INTENSITY_FACTOR
     )
 
-    # DO A SIMPLE PULL PLAN - FOR PRACTICING TECHNIQUE
+    # DO A SIMPLE PULL PLAN WITH A SINGLE UNIFORM PULL PERIOD
 
     ingredients.sequence_of_pull_periods_sec = [30.0] * len(riders)
 
-    practice = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
-    computation_report_title = f"\nSIMPLE PULL-PLAN: {format_number_2dp(practice.calculated_average_speed_of_paceline_kph)}kph  IF capped at {round(100*practice.exertion_intensity_constraint_used)}%"
-    log_pretty_paceline_solution_report(computation_report_title, RiderContributionDisplayObject.from_RiderContributionItems(practice.rider_contributions), logger)
+    basic = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
+    computation_report_title = f"\nBASIC PULL-PLAN: {format_number_4dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma  (ID: {JghString.first_n_chars(basic.guid,4)})"
+    log_pretty_paceline_solution_report(computation_report_title, RiderContributionDisplayObject.from_RiderContributionItems(basic.rider_contributions), logger)
 
-    # DO BRUTE-FORCE SEARCH FOR TWO DIFFERENTLY OPTIMAL PULL PLANS - FOR BALANCED EXERTION INTENSITY, AND SPEED
+    # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
 
     ingredients.sequence_of_pull_periods_sec = ARRAY_OF_STANDARD_PULL_PERIODS_SEC
 
     computation_report = generate_ingenious_paceline_solutions(ingredients)
 
-    simple = computation_report.simple_solution if computation_report.simple_solution else PacelineComputationReport()
-    balanced = computation_report.balanced_intensity_of_effort_solution if computation_report.balanced_intensity_of_effort_solution else PacelineComputationReport()
-    tempo = computation_report.tempo_solution if computation_report.tempo_solution else PacelineComputationReport()
-    drop = computation_report.drop_solution if computation_report.drop_solution else PacelineComputationReport()
+    def get_solution(solution: Optional[PacelineComputationReport])-> PacelineComputationReport:
+        return solution if solution else PacelineComputationReport()
 
-    simple_kph = simple.calculated_average_speed_of_paceline_kph if simple else 0.0
-    balanced_kph = balanced.calculated_average_speed_of_paceline_kph if balanced else 0.0
-    tempo_kph = tempo.calculated_average_speed_of_paceline_kph if tempo else 0.0
-    drop_kph = drop.calculated_average_speed_of_paceline_kph if drop else 0.0
+    simple   = get_solution(computation_report.simple_solution)
+    balanced = get_solution(computation_report.balanced_intensity_of_effort_solution)
+    tempo    = get_solution(computation_report.tempo_solution)
+    drop     = get_solution(computation_report.drop_solution)
 
-    simple_intensity = round(100 * simple.exertion_intensity_constraint_used) if simple else None
-    balanced_intensity = round(100 * balanced.exertion_intensity_constraint_used) if balanced else None
-    tempo_intensity = round(100 * tempo.exertion_intensity_constraint_used) if tempo else None
-    drop_intensity = round(100 * drop.exertion_intensity_constraint_used) if drop else None
+    def get_contributions(solution: PacelineComputationReport)-> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
+        return RiderContributionDisplayObject.from_RiderContributionItems(solution.rider_contributions if solution.rider_contributions else defaultdict(RiderContributionItem))
 
+    simple_contributions   = get_contributions(simple)
+    balanced_contributions = get_contributions(balanced)
+    tempo_contributions    = get_contributions(tempo)
+    drop_contributions     = get_contributions(drop)
 
-    simple_contributions = (
-        RiderContributionDisplayObject.from_RiderContributionItems(simple.rider_contributions)
-        if simple and simple.rider_contributions
-        else RiderContributionDisplayObject.from_RiderContributionItems(defaultdict(RiderContributionItem))
-    )
-
-    balanced_contributions = (
-        RiderContributionDisplayObject.from_RiderContributionItems(balanced.rider_contributions)
-        if balanced and balanced.rider_contributions
-        else RiderContributionDisplayObject.from_RiderContributionItems(defaultdict(RiderContributionItem))
-    )
-
-    tempo_contributions = (
-        RiderContributionDisplayObject.from_RiderContributionItems(tempo.rider_contributions)
-        if tempo and tempo.rider_contributions
-        else RiderContributionDisplayObject.from_RiderContributionItems(defaultdict(RiderContributionItem))
-    )
-
-    drop_contributions = (
-        RiderContributionDisplayObject.from_RiderContributionItems(drop.rider_contributions)
-        if drop and drop.rider_contributions
-        else RiderContributionDisplayObject.from_RiderContributionItems(defaultdict(RiderContributionItem))
-    )
-
-
-    simple_title = f"\nSIMPLE PULL-PLAN: {simple.guid} {format_number_4dp(simple_kph)}kph  IF capped at {simple_intensity}%"
-    balanced_title = f"\nBALANCED-EFFORT PULL-PLAN: {balanced.guid} {format_number_4dp(balanced_kph)}kph  IF capped at {balanced_intensity}%"
-    tempo_title = f"\nTEMPO PULL-PLAN: {tempo.guid} {format_number_4dp(tempo_kph)}kph  IF capped at {tempo_intensity}%"
-    drop_title = f"\nDROP PULL-PLAN: {drop.guid} {format_number_4dp(drop_kph)}kph  IF capped at {drop_intensity}%"
+    simple_title = f"\nSIMPLE PULL-PLAN: {format_number_4dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma  (ID: {JghString.first_n_chars(simple.guid,4)})"
+    balanced_title = f"\nBALANCED PULL-PLAN: {format_number_4dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma  (ID: {JghString.first_n_chars(balanced.guid,4)})"
+    tempo_title = f"\nTEMPO PULL-PLAN: {format_number_4dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma  (ID: {JghString.first_n_chars(tempo.guid,4)})"
+    drop_title = f"\nDROP PULL-PLAN:  {format_number_4dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma  (ID: {JghString.first_n_chars(drop.guid,4)})"
 
     log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
@@ -109,7 +86,7 @@ def main():
 
     # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
 
-    log_workload_suffix_message(computation_report.total_compute_iterations_performed, computation_report.total_pull_sequences_examined, computation_report.computational_time, logger,)
+    log_workload_suffix_message(computation_report, logger,)
 
     # SAVE A SOLUTION AS HTML FILE
 

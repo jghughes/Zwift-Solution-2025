@@ -3,7 +3,6 @@ import numpy as np
 import numba
 from constants import POWER_CURVE_IN_PACELINE
 
-@numba.njit
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
     Calculate the missing parameter (speed, time, or distance) given the other two.
@@ -28,23 +27,22 @@ def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: floa
     # Calculate the missing parameter
     if kph == 0:
         # Calculate speed in km/h
-        kph = (meters / 1000) / (seconds / 3600)
+        kph = (meters / 1000.0) / (seconds / 3600.0)
     elif seconds == 0:
         # Calculate time in seconds
-        seconds = (meters / 1000) / (kph / 3600)
+        seconds = (meters / 1000.0) / (kph / 3600.0)
     elif meters == 0:
         # Calculate distance in meters
-        meters = (kph * 1000) / (3600 / seconds)
+        meters = (kph * 1000.0) / (3600.0 / seconds)
 
     # Round the results to 3 decimal places
-    kph = round(kph, 3)
-    seconds = round(seconds, 3)
-    meters = round(meters, 3)
+    kph = kph
+    seconds = seconds
+    meters = meters
 
     return kph, seconds, meters
 
 
-@numba.njit
 def estimate_drag_ratio_in_paceline(position: int) -> float:
     """
     Calculate the power factor based on the rider's position in the peloton.
@@ -61,7 +59,6 @@ def estimate_drag_ratio_in_paceline(position: int) -> float:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator
 
-@numba.njit
 def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
@@ -76,7 +73,6 @@ def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -
     return wattage * duration/1_000
 
 
-@numba.njit
 def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight (kg), and height (cm).
@@ -93,7 +89,7 @@ def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float
     """
     kph3 = kph * kph * kph
     watts = 0.0186 * weight * kph + ( -0.000537 + 0.0000223 * weight + 0.0000133 * height ) * kph3 
-    return round(watts, 3)
+    return watts
 
 
 @numba.njit
@@ -123,14 +119,10 @@ def estimate_speed_from_wattage(wattage: float, weight: float, height: float) ->
         new_speed = v - f / f_prime
 
         if abs(new_speed - v) < tolerance:
-            return round(new_speed, 2)
+            return new_speed
         v = new_speed
 
     raise ValueError("Newton-Raphson method did not converge")
-
-
-
-
 
 
 def main01():

@@ -2,8 +2,7 @@
 This module defines various string utility functions.
 """
 
-# Standard library imports
-# Local application imports
+from typing import Optional
 
 class JghString:
     
@@ -90,6 +89,23 @@ class JghString:
 
         result = JghString.concat_with_separator("\n\n", *array_of_texts)
         return result
+
+   @staticmethod
+   def first_n_chars(text: Optional[str], n: int) -> str:
+        """
+        Returns the first n characters of the input string s.
+        Handles cases where s is None or shorter than n characters.
+
+        Args:
+            s (str): The input string (can be None).
+            n (int): The number of characters to return.
+
+        Returns:
+            str: The first n characters, or an empty string if s is None.
+        """
+        if text is None:
+            return ""
+        return text[:n]
 
 # Example usage
 def main():

@@ -28,17 +28,6 @@ def format_number_1dp(x: float) -> str:
     """
     return f"{x:.1f}"
 
-def format_number_4dp(x: float) -> str:
-    """
-    Format a float to two decimal places, always showing the decimal digit (including trailing zero).
-    
-    Args:
-        x (float): The number to format.
-    
-    Returns:
-        str: The formatted string, e.g., '12.0000', '3.5600', '0.0100'.
-    """
-    return f"{x:.4f}"
 def format_number_2dp(x: float) -> str:
     """
     Format a float to two decimal places, always showing the decimal digit (including trailing zero).
@@ -50,6 +39,30 @@ def format_number_2dp(x: float) -> str:
         str: The formatted string, e.g., '12.00', '3.56', '0.01'.
     """
     return f"{x:.2f}"
+
+def format_number_3dp(x: float) -> str:
+    """
+    Format a float to two decimal places, always showing the decimal digit (including trailing zero).
+    
+    Args:
+        x (float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '12.00', '3.56', '0.01'.
+    """
+    return f"{x:.3f}"
+
+def format_number_4dp(x: float) -> str:
+    """
+    Format a float to two decimal places, always showing the decimal digit (including trailing zero).
+    
+    Args:
+        x (float): The number to format.
+    
+    Returns:
+        str: The formatted string, e.g., '12.0000', '3.5600', '0.0100'.
+    """
+    return f"{x:.4f}"
 
 def format_number_2sig(x : Union[int, float]):
     """

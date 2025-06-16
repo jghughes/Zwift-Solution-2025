@@ -420,8 +420,11 @@ class ZsunRiderItem:
         return safe_divide(self.get_standard_1_minute_pull_watts(),self.weight_kg)
 
     def get_standard_pull_watts(self, seconds : float)-> float:
+
         permissable_watts = self.get_one_hour_watts() # default
 
+        if seconds == 0:
+            permissable_watts = self.get_standard_30sec_pull_watts()
         if seconds == 30:
             permissable_watts = self.get_standard_30sec_pull_watts()
         if seconds == 60:
@@ -434,6 +437,9 @@ class ZsunRiderItem:
             permissable_watts = self.get_standard_4_minute_pull_watts()
          
         return permissable_watts
+
+    def get_standard_00sec_pull_watts(self) -> float:
+        return self.get_standard_30sec_pull_watts()
 
     def get_standard_30sec_pull_watts(self) -> float:
         # apply 3.5 minute watts
@@ -461,12 +467,6 @@ class ZsunRiderItem:
         pull_long = decay_model_numpy(np.array([900]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([900]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
-
-
-
-
-        # one_hour = decay_model_numpy(np.array([900]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
-        # answer = one_hour[0]
         return answer
 
     def get_standard_4_minute_pull_watts(self) -> float:
@@ -495,14 +495,22 @@ class ZsunRiderItem:
 
     def get_n_second_watts(self, seconds: float) -> float:
 
-        if seconds < 900:
-            pull = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
-            one_hour = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
-            answer = max(pull[0], one_hour[0])
-            return answer
+        one_hour_curve = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
 
-        power = decay_model_numpy(np.array([seconds]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
-        answer = power[0]
+        if seconds < 900:
+            pull_curve = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
+            answer = max(pull_curve[0], one_hour_curve[0])
+
+        elif seconds >= 900 and seconds < 1200:
+            pull_curve = decay_model_numpy(np.array([seconds]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
+            # Linear transition from max(...) at 900s to one_hour_curve[0] at 1200s
+            t = (seconds - 900) / 300.0
+            start_val = max(pull_curve[0], one_hour_curve[0])
+            end_val = one_hour_curve[0]
+            answer = (1 - t) * start_val + t * end_val
+        else: 
+            answer = one_hour_curve[0]
+
         return answer
 
     def get_critical_power_watts(self) -> float:

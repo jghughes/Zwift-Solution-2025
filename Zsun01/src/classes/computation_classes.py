@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import DefaultDict, Optional
 from collections import defaultdict
 from jgh_formatting import round_to_nearest_10
+from  jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
 
 @dataclass
@@ -105,9 +106,7 @@ class RiderContributionDisplayObject():
 
     @staticmethod
     def calculate_zwiftracingapp_zpFTP_wkg(rider: ZsunRiderItem)-> float:
-        return rider.zwiftracingapp_zpFTP/rider.weight_kg if rider.weight_kg != 0 else 0
-
-        return round(wkg, 2) if rider.weight_kg != 0 else 0
+        return safe_divide(rider.zwiftracingapp_zpFTP,rider.weight_kg)
 
     @staticmethod
     def make_pretty_zwiftracingapp_cat(rider: ZsunRiderItem) -> str:

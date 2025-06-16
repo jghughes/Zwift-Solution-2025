@@ -62,7 +62,7 @@ def calculate_wattage_riding_in_the_paceline(rider : ZsunRiderItem, speed: float
     # Adjust the power based on the power factor
     adjusted_power = base_power * power_factor
 
-    return round(adjusted_power, 3)
+    return adjusted_power
 
 def calculate_speed_riding_in_the_paceline(rider : ZsunRiderItem, power: float, position: int
 ) -> float:
@@ -86,7 +86,11 @@ def calculate_speed_riding_in_the_paceline(rider : ZsunRiderItem, power: float, 
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(adjusted_watts, rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
+
+def calculate_speed_at_standard_00sec_pull_watts(rider : ZsunRiderItem) -> float:
+      
+    return calculate_speed_at_standard_30sec_pull_watts(rider)
 
 def calculate_speed_at_standard_30sec_pull_watts(rider : ZsunRiderItem) -> float:
     """
@@ -97,7 +101,7 @@ def calculate_speed_at_standard_30sec_pull_watts(rider : ZsunRiderItem) -> float
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_standard_30sec_pull_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_standard_1_minute_pull_watts(rider : ZsunRiderItem) -> float:
     """
@@ -108,7 +112,7 @@ def calculate_speed_at_standard_1_minute_pull_watts(rider : ZsunRiderItem) -> fl
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_standard_1_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_standard_2_minute_pull_watts(rider : ZsunRiderItem) -> float:
     """
@@ -119,7 +123,7 @@ def calculate_speed_at_standard_2_minute_pull_watts(rider : ZsunRiderItem) -> fl
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_standard_2_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_standard_3_minute_pull_watts(rider : ZsunRiderItem) -> float:
     """
@@ -130,7 +134,7 @@ def calculate_speed_at_standard_3_minute_pull_watts(rider : ZsunRiderItem) -> fl
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_standard_3_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunRiderItem) -> float:
     """
@@ -141,7 +145,7 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunRiderItem) -> fl
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_standard_4_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_n_second_watts(rider : ZsunRiderItem, seconds: float) -> float:
     """
@@ -155,7 +159,7 @@ def calculate_speed_at_n_second_watts(rider : ZsunRiderItem, seconds: float) -> 
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_n_second_watts(seconds), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_speed_at_one_hour_watts(rider : ZsunRiderItem) -> float: 
     """
@@ -166,7 +170,7 @@ def calculate_speed_at_one_hour_watts(rider : ZsunRiderItem) -> float:
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
     speed_kph = estimate_speed_from_wattage(rider.get_one_hour_watts(), rider.weight_kg, rider.height_cm)
         
-    return round(speed_kph, 3)
+    return speed_kph
 
 def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
@@ -284,7 +288,7 @@ def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(rid
     _, _, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
     _, _, lower_bound_1_hour_rider_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
 
-    safe_lowest_bound_speed = round(min(truncate(lower_bound_pull_rider_speed, 0), truncate(lower_bound_1_hour_rider_speed, 0)), 1)
+    safe_lowest_bound_speed = min(truncate(lower_bound_pull_rider_speed, 0), truncate(lower_bound_1_hour_rider_speed, 0))
 
     return safe_lowest_bound_speed
 

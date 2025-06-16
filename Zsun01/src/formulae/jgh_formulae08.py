@@ -45,11 +45,11 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
     log_multiline(logger, message_lines)
 
 
-def log_workload_suffix_message(total_compute_iterations_done: int, total_num_of_all_conceivable_plans: int, compute_time : float, logger: logging.Logger
+def log_workload_suffix_message(report : PacelineSolutionsComputationReport, logger: logging.Logger
 ) -> None:
 
     message_lines = [
-        f"\nBrute report: did {format_number_comma_separators(total_compute_iterations_done)} iterations to evaluate {format_number_comma_separators(total_num_of_all_conceivable_plans)} alternative plans in {format_pretty_duration_hms(compute_time)}.",
+        f"\nBrute report: did {format_number_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
         "Intensity Factor is Normalized Power/one-hour power. zFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
         "",
