@@ -1,4 +1,4 @@
-from typing import  List, DefaultDict, Tuple, Optional
+from typing import  List, DefaultDict, Tuple
 import os
 from collections import defaultdict
 import concurrent.futures
@@ -9,7 +9,7 @@ from jgh_formatting import truncate, format_number_comma_separators, format_numb
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport
+from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport, WorthyCandidateSolution
 from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_a_scaffold_of_the_total_solution_space, prune_the_scaffold_of_the_total_solution_space, calculate_dispersion_of_intensity_of_effortV2)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
@@ -223,7 +223,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 
 def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
-    paceline_rotation_sequence_alternatives: List[List[float]]
+    rotation_sequences: List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
     Compute paceline solutions for a set of candidate pull period sequences using serial (single-threaded) processing.
@@ -237,7 +237,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
         paceline_ingredients: PacelineIngredientsItem
             The base input parameters for the computation, including the list of riders, initial pull speeds,
             and exertion constraints. The pull periods are overridden for each alternative.
-        paceline_rotation_sequence_alternatives: List[List[float]]
+        rotation_sequences: List[List[float]]
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
@@ -257,7 +257,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
 
     solutions: List[PacelineComputationReport] = []
 
-    for sequence in paceline_rotation_sequence_alternatives:
+    for sequence in rotation_sequences:
         try:
             paceline_description.sequence_of_pull_periods_sec = list(sequence)
 
@@ -282,7 +282,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
 
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
-    paceline_rotation_sequence_alternatives: List[List[float]]
+    rotation_sequences: List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
     Computes paceline solutions for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
@@ -296,7 +296,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         paceline_ingredients: PacelineIngredientsItem
             The base input parameters for the computation, including the list of riders, initial pull speeds,
             and exertion constraints. The pull periods are overridden for each alternative.
-        paceline_rotation_sequence_alternatives: List[List[float]]
+        rotation_sequences: List[List[float]]
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
@@ -316,7 +316,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
 
     list_of_instructions: List[PacelineIngredientsItem] = []    
     
-    for sequence in paceline_rotation_sequence_alternatives:
+    for sequence in rotation_sequences:
         paceline_description.sequence_of_pull_periods_sec = list(sequence)
         list_of_instructions.append(paceline_description)
 
@@ -350,14 +350,14 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
             except Exception as exc:
                 logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
 
-    # for sequence in paceline_rotation_sequence_alternatives:
+    # for sequence in rotation_sequences:
             # logger.debug(f"Sequence {sequence}")
 
     return solutions
 
 
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
-    paceline_ingredients: PacelineIngredientsItem, paceline_rotation_sequence_alternatives : List[List[float]]
+    paceline_ingredients: PacelineIngredientsItem, rotation_sequences : List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
     Computes paceline solutions for a set of candidate pull period sequences using the most efficient processing strategy.
@@ -371,7 +371,7 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
         paceline_ingredients: PacelineIngredientsItem
             The base input parameters for the computation, including the list of riders, initial pull speeds,
             and exertion constraints. The pull periods are overridden for each alternative.
-        paceline_rotation_sequence_alternatives: List[List[float]]
+        rotation_sequences: List[List[float]]
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
@@ -384,25 +384,60 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
         - For large numbers of alternatives, parallel processing can significantly reduce computation time.
     """
 
-    if len(paceline_rotation_sequence_alternatives) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-        return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
+    if len(rotation_sequences) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
+        return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, rotation_sequences)
     else:
-        return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
+        return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, rotation_sequences)
 
+
+def validate_paceline_ingredients(paceline_ingredients: PacelineIngredientsItem) -> None:
+    """
+    Validates the input PacelineIngredientsItem for paceline solution generation.
+    Raises ValueError if any required field is missing or invalid.
+    """
+    if not paceline_ingredients.riders_list:
+        raise ValueError("No riders provided to generate_paceline_solutions_using_serial_processing_algorithm.")
+    if not paceline_ingredients.sequence_of_pull_periods_sec:
+        raise ValueError("No standard pull durations provided to generate_paceline_solutions_using_serial_processing_algorithm.")
+    if any(d < 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
+        raise ValueError("All standard pull durations must be positive and finite.")
+    if (
+        not paceline_ingredients.pull_speeds_kph
+        or not np.isfinite(paceline_ingredients.pull_speeds_kph[0])
+        or paceline_ingredients.pull_speeds_kph[0] <= 0
+    ):
+        raise ValueError("binary_search_seed must be positive and finite.")
+
+
+def is_valid_solution(this_solution: PacelineComputationReport, logger: logging.Logger) -> bool:
+    """
+    Validates the solution's speed and dispersion.
+    Returns True if both are finite and dispersion is not the error value (100).
+    Logs a warning and returns False otherwise.
+    """
+    speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    if not np.isfinite(speed_kph):
+        logger.warning(f"Binary search algorithm failure: iteration error: Non-finite speed_kph encountered: {speed_kph}")
+        return False
+
+    dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+    if not np.isfinite(dispersion) or dispersion == 100:
+        logger.warning(f"Error: failed to calculate std_deviation of intensity of effort: error value = {dispersion}")
+        return False
+
+    return True
 
 
 def is_simple_solution_candidate(
     this_solution: PacelineComputationReport,
-    speed_kph_of_simple_solution: float,
-    dispersion_of_simple_solution: float
+    candidate: "WorthyCandidateSolution"
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'simple solution' candidate.
 
     Args:
         this_solution: The candidate PacelineComputationReport.
-        speed_kph_of_simple_solution: The current best simple solution speed.
-        dispersion_of_simple_solution: The current best simple solution dispersion.
+        candidate: The current WorthyCandidateSolution to compare against.
 
     Returns:
         True if the solution is a valid simple solution candidate, False otherwise.
@@ -414,51 +449,73 @@ def is_simple_solution_candidate(
     all_equal = len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1
 
     return (
-        this_solution_speed_kph > speed_kph_of_simple_solution
+        this_solution_speed_kph >= candidate.speed_kph
+        and this_solution_dispersion < candidate.dispersion
+        and this_solution_dispersion != 0.0
         and all_nonzero
         and all_equal
-        and this_solution_dispersion <= dispersion_of_simple_solution
-        and this_solution_dispersion != 0.0
     )
 
 def is_balanced_solution_candidate(
     this_solution: PacelineComputationReport,
-    speed_kph_of_balanced_solution: float,
-    dispersion_of_balanced_solution: float
+    candidate: "WorthyCandidateSolution"
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'balanced solution' candidate.
 
     Args:
         this_solution: The candidate PacelineComputationReport.
-        speed_kph_of_balanced_solution: The current best balanced solution speed (not used in logic, for signature consistency).
-        dispersion_of_balanced_solution: The current best balanced solution dispersion.
+        candidate: The current WorthyCandidateSolution to compare against.
 
     Returns:
         True if the solution is a valid balanced solution candidate, False otherwise.
+    """
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+
+    return (
+        this_solution_dispersion <= candidate.dispersion
+        and this_solution_dispersion != 0.0
+        and all_nonzero
+        # and this_solution_speed_kph >= candidate.speed_kph # do not make this a requirement for a balanced solution! you will get unintended consequences if you do so!
+    )
+
+def is_tempo_solution_candidate(
+    this_solution: PacelineComputationReport,
+    candidate: "WorthyCandidateSolution"
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'tempo solution' candidate.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        candidate: The current WorthyCandidateSolution to compare against.
+
+    Returns:
+        True if the solution is a valid tempo solution candidate, False otherwise.
     """
     this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
     all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
     return (
-        this_solution_dispersion <= dispersion_of_balanced_solution
+        this_solution_speed_kph >= candidate.speed_kph
+        and this_solution_dispersion < candidate.dispersion
         and this_solution_dispersion != 0.0
         and all_nonzero
+
     )
 
 def is_drop_solution_candidate(
     this_solution: PacelineComputationReport,
-    speed_kph_of_drop_solution: float,
-    dispersion_of_drop_solution: float
+    candidate: "WorthyCandidateSolution"
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'drop solution' candidate.
 
     Args:
         this_solution: The candidate PacelineComputationReport.
-        speed_kph_of_drop_solution: The current best drop solution speed.
-        dispersion_of_drop_solution: The current best drop solution dispersion.
+        candidate: The current WorthyCandidateSolution to compare against.
 
     Returns:
         True if the solution is a valid drop solution candidate, False otherwise.
@@ -469,85 +526,82 @@ def is_drop_solution_candidate(
     any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
     return (
-        this_solution_speed_kph > speed_kph_of_drop_solution
+        this_solution_speed_kph >= candidate.speed_kph
+        and this_solution_dispersion < candidate.dispersion
+        and this_solution_dispersion != 0.0
         and any_zero
         and any_nonzero
-        and this_solution_dispersion <= dispersion_of_drop_solution
-        and this_solution_dispersion != 0.0
+
     )
 
-def is_tempo_solution_candidate(
+
+def replace_candidate_solution(
     this_solution: PacelineComputationReport,
-    speed_kph_of_tempo_solution: float,
-    dispersion_of_tempo_solution: float
-) -> bool:
-    """
-    Determines if the given solution qualifies as a 'tempo solution' candidate.
-
-    Args:
-        this_solution: The candidate PacelineComputationReport.
-        speed_kph_of_tempo_solution: The current best tempo solution speed.
-        dispersion_of_tempo_solution: The current best tempo solution dispersion.
-
-    Returns:
-        True if the solution is a valid tempo solution candidate, False otherwise.
-    """
-    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
-    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
-
-    return (
-        this_solution_speed_kph >= speed_kph_of_tempo_solution
-        and all_nonzero
-        and this_solution_dispersion <= dispersion_of_tempo_solution
-        and this_solution_dispersion != 0.0
-    )
-
-def replace_solution(
-    this_solution: PacelineComputationReport,
-    solution_type: str,
-    current_best_speed: float,
-    current_best_dispersion: float,
-    current_best_solution: Optional[PacelineComputationReport],
+    candidate: "WorthyCandidateSolution",
     logger: logging.Logger
-) -> Tuple[float, float, PacelineComputationReport]:
+) -> None:
     """
-    Updates the best solution variables if the current solution is better.
+    Updates the candidate WorthyCandidateSolution in-place if the current solution is better.
 
     Args:
         this_solution: The candidate PacelineComputationReport.
-        solution_type: A short string label for the solution type (e.g., 'simpl', 'bal', 't', 'drop').
-        current_best_speed: The current best speed value.
-        current_best_dispersion: The current best dispersion value.
-        current_best_solution: The current best solution object.
+        candidate: The WorthyCandidateSolution instance to update.
         logger: Logger instance.
 
     Returns:
-        Tuple of (updated_speed, updated_dispersion, updated_solution)
+        None. The candidate object is updated in-place.
     """
     this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
 
-    updated_speed = this_solution_speed_kph
-    updated_dispersion = this_solution_dispersion
-    updated_solution = this_solution
+    candidate.speed_kph  = this_solution_speed_kph
+    candidate.dispersion = this_solution_dispersion
+    candidate.solution   = this_solution
 
     logger.debug(
-        f"{JghString.first_n_chars(this_solution.guid,4)} {solution_type} kph: {format_number_4dp(this_solution_speed_kph)} sigma: {format_number_3dp(this_solution_dispersion)}"
+        f"{JghString.first_n_chars(this_solution.guid,3)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma"
     )
 
-    return updated_speed, updated_dispersion, updated_solution
+def validate_candidate_solutions_found(
+    simple_candidate: "WorthyCandidateSolution",
+    balanced_candidate: "WorthyCandidateSolution",
+    tempo_candidate: "WorthyCandidateSolution",
+    drop_candidate: "WorthyCandidateSolution"
+) -> None:
+    """
+    Raises RuntimeError if any required candidate solution is missing.
+    """
+    if (
+        simple_candidate.solution is None
+        and balanced_candidate.solution is None
+        and tempo_candidate.solution is None
+        # and drop_candidate.solution is None
+    ):
+        raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
+    if simple_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (simple_solution is None)")
+    if tempo_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (tempo_solution is None)")
+    if balanced_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (balanced_solution is None)")
+    # if drop_candidate.solution is None:
+    #     raise RuntimeError("No valid this_solution found (drop_solution is None)")
 
 
 def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
     ) -> PacelineSolutionsComputationReport:
     """
-    Generates and returns two optimal paceline solutions based on the provided paceline ingredients.
+    Generates and returns optimal paceline solutions based on the provided paceline ingredients.
 
     This function explores a large space of possible paceline rotation schedules, evaluates each under exertion constraints,
-    and selects two "groovy" solutions: one with the highest average paceline speed, and one with the lowest standard deviation
-    of rider intensity factors (i.e., the most balanced effort distribution). The function leverages efficient serial or parallel
-    computation depending on the number of alternatives, and returns a detailed computation report including timing and iteration statistics.
+    and selects the best solutions for several categories:
+      - Simple: All riders pull for equal, nonzero durations.
+      - Balanced: The solution with the lowest standard deviation of rider intensity factors (most balanced effort).
+      - Tempo: The fastest solution where all riders contribute nonzero pulls.
+      - Drop: The fastest solution where at least one rider does not pull.
+
+    The function leverages efficient serial or parallel computation depending on the number of alternatives, and returns a detailed
+    computation report including timing and iteration statistics.
 
     Args:
         paceline_ingredients (PacelineIngredientsItem): 
@@ -560,14 +614,14 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
                 - total_pull_sequences_examined (int): Number of candidate paceline rotation schedules evaluated.
                 - total_compute_iterations_performed (int): Total number of compute iterations performed across all solutions.
                 - computational_time (float): Total time taken for the computation (seconds).
-                - solutions (List[PacelineComputationReport]): 
-                    A list containing two solutions:
-                        [0]: The solution with the lowest standard deviation of rider intensity factors (most balanced).
-                        [1]: The solution with the highest average paceline speed.
+                - simple_solution (PacelineComputationReport): The best simple solution found.
+                - balanced_intensity_of_effort_solution (PacelineComputationReport): The most balanced solution found.
+                - tempo_solution (PacelineComputationReport): The best tempo solution found.
+                - drop_solution (PacelineComputationReport): The best drop solution found.
 
     Raises:
         ValueError: If required input parameters are missing or invalid.
-        RuntimeError: If no valid solutions are found.
+        RuntimeError: If no valid solutions are found for any of the categories.
 
     Notes:
         - The function first generates all feasible paceline rotation alternatives, then prunes the solution space for efficiency.
@@ -576,50 +630,30 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         - The returned solutions are intended to represent both the fastest and the most equitable paceline configurations.
     """
 
-    if not paceline_ingredients.riders_list:
-        raise ValueError("No riders provided to generate_paceline_solutions_using_serial_processing_algorithm.")
-    if not paceline_ingredients.sequence_of_pull_periods_sec:
-        raise ValueError("No standard pull durations provided to generate_paceline_solutions_using_serial_processing_algorithm.")
-    if any(d < 0 or not np.isfinite(d) for d in paceline_ingredients.sequence_of_pull_periods_sec):
-        raise ValueError("All standard pull durations must be positive and finite.")
-    if not paceline_ingredients.pull_speeds_kph or not np.isfinite(paceline_ingredients.pull_speeds_kph[0]) or paceline_ingredients.pull_speeds_kph[0] <= 0:
-        raise ValueError("binary_search_seed must be positive and finite.")
-    
-    all_conceivable_paceline_rotation_alternatives= generate_a_scaffold_of_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
+    validate_paceline_ingredients(paceline_ingredients)    
 
-    paceline_rotation_sequence_alternatives = prune_the_scaffold_of_the_total_solution_space(all_conceivable_paceline_rotation_alternatives, paceline_ingredients.riders_list)
+    universe_of_rotation_sequences= generate_a_scaffold_of_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
 
-    # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(paceline_rotation_sequence_alternatives)}")
+    pruned_sequences = prune_the_scaffold_of_the_total_solution_space(universe_of_rotation_sequences, paceline_ingredients.riders_list)
 
-    if len(paceline_rotation_sequence_alternatives) > 2_000:
-        logger.warning(f"Warning. Number of alternatives to be computed is very large and will take inordinately long: {len(paceline_rotation_sequence_alternatives)} Specified limit is {SOLUTION_SPACE_SIZE_CONSTRAINT}")
+    # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
+
+    if len(pruned_sequences) > 2_000:
+        logger.warning(f"Warning. Number of alternatives to be computed is very large and will take inordinately long: {len(pruned_sequences)} Specified limit is {SOLUTION_SPACE_SIZE_CONSTRAINT}")
 
     start_time = time.perf_counter()
 
-    all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, paceline_rotation_sequence_alternatives)
+    all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, pruned_sequences)
 
     # for idx, solution in enumerate(all_computation_reports):
     #     logger.info(f"sln: {idx+1} {solution.guid} speed (kph): {solution.calculated_average_speed_of_paceline_kph}")
 
-    end_time = time.perf_counter()
-    time_taken_to_compute = end_time - start_time
+    time_taken_to_compute = time.perf_counter() - start_time
 
-    speed_kph_of_simple_solution: float = float('-inf')
-    dispersion_of_simple_solution: float = float('inf')
-
-    simple_solution = None
-
-    speed_kph_of_balanced_solution: float = float('-inf')
-    dispersion_of_balanced_solution: float = float('inf')
-    balanced_solution = None
-
-    speed_kph_of_tempo_solution: float = float('-inf')
-    dispersion_of_tempo_solution: float = float('inf')
-    tempo_solution = None
-
-    speed_kph_of_drop_solution: float = float('-inf')
-    dispersion_of_drop_solution: float = float('inf')
-    drop_solution = None
+    simple_candidate   = WorthyCandidateSolution(tag="simpl")
+    balanced_candidate = WorthyCandidateSolution(tag="bal  ")
+    tempo_candidate    = WorthyCandidateSolution(tag="t    ")
+    drop_candidate     = WorthyCandidateSolution(tag="drop ")
 
     total_compute_iterations_performed = 0 
 
@@ -627,54 +661,36 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
         total_compute_iterations_performed += this_solution.compute_iterations_performed_count
 
-        this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph # criterion
+        if not is_valid_solution(this_solution, logger):
+                continue
 
-        if not np.isfinite(this_solution_speed_kph):
-            logger.warning(f"Binary search algorithm failure: iteration error: Non-finite speed_kph encountered: {this_solution_speed_kph}")
-            continue
+        if is_simple_solution_candidate(this_solution, simple_candidate):
+            replace_candidate_solution(this_solution, simple_candidate, logger)
 
-        this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+        if is_balanced_solution_candidate(this_solution, balanced_candidate):
+            replace_candidate_solution(this_solution, balanced_candidate, logger)
 
-        if not np.isfinite(this_solution_dispersion) or this_solution_dispersion == 100: # 100 is the error value for dispersion_of_intensity_of_effort, indicating a problem
-            logger.warning(f"Error: failed to calculate std_deviation of intensity of effort: error value = {this_solution_dispersion}")
-            continue
+        if is_tempo_solution_candidate(this_solution, tempo_candidate):
+            replace_candidate_solution(this_solution, tempo_candidate, logger)
 
+        if is_drop_solution_candidate(this_solution, drop_candidate):
+            replace_candidate_solution(this_solution, drop_candidate, logger)
 
-        if is_simple_solution_candidate(this_solution, speed_kph_of_simple_solution, dispersion_of_simple_solution):
-            speed_kph_of_simple_solution, dispersion_of_simple_solution, simple_solution = replace_solution(this_solution, "simpl", speed_kph_of_simple_solution, dispersion_of_simple_solution, simple_solution, logger)
-
-
-        if is_balanced_solution_candidate(this_solution, speed_kph_of_balanced_solution, dispersion_of_balanced_solution):
-            speed_kph_of_balanced_solution, dispersion_of_balanced_solution, balanced_solution = replace_solution(this_solution, "bal  ", speed_kph_of_balanced_solution, dispersion_of_balanced_solution, balanced_solution, logger)
-
-
-        if is_tempo_solution_candidate(this_solution, speed_kph_of_tempo_solution, dispersion_of_tempo_solution):
-            speed_kph_of_tempo_solution, dispersion_of_tempo_solution, tempo_solution = replace_solution(this_solution, "t    ", speed_kph_of_tempo_solution, dispersion_of_tempo_solution, tempo_solution, logger)
-
-
-        if is_drop_solution_candidate(this_solution, speed_kph_of_drop_solution, dispersion_of_drop_solution):
-            speed_kph_of_drop_solution, dispersion_of_drop_solution, drop_solution = replace_solution(this_solution, "drop ", speed_kph_of_drop_solution, dispersion_of_drop_solution, drop_solution, logger)
-
-
-    if simple_solution is None and balanced_solution is None and tempo_solution is None and drop_solution is None:
-        raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
-    if simple_solution is None:
-        raise RuntimeError("No valid this_solution found (simple_solution is None)")
-    if tempo_solution is None:
-        raise RuntimeError("No valid this_solution found (tempo_solution is None)")
-    if balanced_solution is None:
-        raise RuntimeError("No valid this_solution found (balanced_solution is None)")
-    # if drop_solution is None:
-    #     raise RuntimeError("No valid this_solution found (drop_solution is None)")
+    validate_candidate_solutions_found(
+        simple_candidate,
+        balanced_candidate,
+        tempo_candidate,
+        drop_candidate
+    )
 
     return PacelineSolutionsComputationReport(
-        total_pull_sequences_examined           = len(paceline_rotation_sequence_alternatives),
+        total_pull_sequences_examined           = len(pruned_sequences),
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
-        simple_solution                         = simple_solution,
-        balanced_intensity_of_effort_solution   = balanced_solution,
-        tempo_solution                          = tempo_solution,
-        drop_solution                           = drop_solution,
+        simple_solution                         = simple_candidate.solution,
+        balanced_intensity_of_effort_solution   = balanced_candidate.solution,
+        tempo_solution                          = tempo_candidate.solution,
+        drop_solution                           = drop_candidate.solution,
     )
 
 

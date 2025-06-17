@@ -49,7 +49,7 @@ def main():
     ingredients.sequence_of_pull_periods_sec = [30.0] * len(riders)
 
     basic = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
-    computation_report_title = f"\nBASIC PULL-PLAN (ID: {JghString.first_n_chars(basic.guid,4)}): {format_number_4dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma"
+    computation_report_title = f"\nBASIC PULL-PLAN (ID: {JghString.first_n_chars(basic.guid,3)}): {format_number_2dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma"
     log_pretty_paceline_solution_report(computation_report_title, RiderContributionDisplayObject.from_RiderContributionItems(basic.rider_contributions), logger)
 
     # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
@@ -74,10 +74,10 @@ def main():
     tempo_contributions    = get_contributions(tempo)
     drop_contributions     = get_contributions(drop)
 
-    simple_title = f"\nSIMPLE PULL-PLAN (ID: {JghString.first_n_chars(simple.guid,4)}): {format_number_4dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma "
-    balanced_title = f"\nBALANCED PULL-PLAN (ID: {JghString.first_n_chars(balanced.guid,4)}): {format_number_4dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma"
-    tempo_title = f"\nTEMPO PULL-PLAN (ID: {JghString.first_n_chars(tempo.guid,4)}): {format_number_4dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma"
-    drop_title = f"\nDROP PULL-PLAN (ID: {JghString.first_n_chars(drop.guid,4)}):  {format_number_4dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma"
+    simple_title = f"\nSIMPLE PULL-PLAN (ID: {JghString.first_n_chars(simple.guid,3)}): {format_number_2dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma "
+    balanced_title = f"\nBALANCED PULL-PLAN (ID: {JghString.first_n_chars(balanced.guid,3)}): {format_number_2dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma"
+    tempo_title = f"\nTEMPO PULL-PLAN (ID: {JghString.first_n_chars(tempo.guid,3)}): {format_number_2dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma"
+    drop_title = f"\nDROP PULL-PLAN (ID: {JghString.first_n_chars(drop.guid,3)}):  {format_number_2dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma"
 
     log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
@@ -86,7 +86,7 @@ def main():
 
     # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
 
-    log_workload_suffix_message(computation_report, logger,)
+    log_workload_suffix_message(computation_report, logger)
 
     # SAVE A SOLUTION AS HTML FILE
 

@@ -231,5 +231,9 @@ class PacelineSolutionsComputationReport:
 
     # solutions                             : List[PacelineComputationReport] = field(default_factory=list)
 
-
-
+@dataclass
+class WorthyCandidateSolution:
+    tag        : str                                  = ""
+    speed_kph  : float                                = float('-inf')
+    dispersion : float                                = float('inf')
+    solution   : Optional[PacelineComputationReport]  = None
