@@ -1,11 +1,11 @@
-from typing import  List, DefaultDict, Tuple
+from typing import  List, DefaultDict, Tuple, Optional
 import os
 from collections import defaultdict
-import copy
 import concurrent.futures
 import time
 import numpy as np
-from jgh_formatting import truncate, format_number_comma_separators, format_number_1dp, format_pretty_duration_hms
+from jgh_string import JghString
+from jgh_formatting import truncate, format_number_comma_separators, format_number_1dp, format_number_2dp, format_number_4dp, format_number_3dp, format_pretty_duration_hms
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
@@ -390,6 +390,155 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
         return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, paceline_rotation_sequence_alternatives)
 
 
+
+def is_simple_solution_candidate(
+    this_solution: PacelineComputationReport,
+    speed_kph_of_simple_solution: float,
+    dispersion_of_simple_solution: float
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'simple solution' candidate.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        speed_kph_of_simple_solution: The current best simple solution speed.
+        dispersion_of_simple_solution: The current best simple solution dispersion.
+
+    Returns:
+        True if the solution is a valid simple solution candidate, False otherwise.
+    """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+
+    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+    all_equal = len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1
+
+    return (
+        this_solution_speed_kph > speed_kph_of_simple_solution
+        and all_nonzero
+        and all_equal
+        and this_solution_dispersion <= dispersion_of_simple_solution
+        and this_solution_dispersion != 0.0
+    )
+
+def is_balanced_solution_candidate(
+    this_solution: PacelineComputationReport,
+    speed_kph_of_balanced_solution: float,
+    dispersion_of_balanced_solution: float
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'balanced solution' candidate.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        speed_kph_of_balanced_solution: The current best balanced solution speed (not used in logic, for signature consistency).
+        dispersion_of_balanced_solution: The current best balanced solution dispersion.
+
+    Returns:
+        True if the solution is a valid balanced solution candidate, False otherwise.
+    """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+
+    return (
+        this_solution_dispersion <= dispersion_of_balanced_solution
+        and this_solution_dispersion != 0.0
+        and all_nonzero
+    )
+
+def is_drop_solution_candidate(
+    this_solution: PacelineComputationReport,
+    speed_kph_of_drop_solution: float,
+    dispersion_of_drop_solution: float
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'drop solution' candidate.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        speed_kph_of_drop_solution: The current best drop solution speed.
+        dispersion_of_drop_solution: The current best drop solution dispersion.
+
+    Returns:
+        True if the solution is a valid drop solution candidate, False otherwise.
+    """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+    any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
+    any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+
+    return (
+        this_solution_speed_kph > speed_kph_of_drop_solution
+        and any_zero
+        and any_nonzero
+        and this_solution_dispersion <= dispersion_of_drop_solution
+        and this_solution_dispersion != 0.0
+    )
+
+def is_tempo_solution_candidate(
+    this_solution: PacelineComputationReport,
+    speed_kph_of_tempo_solution: float,
+    dispersion_of_tempo_solution: float
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'tempo solution' candidate.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        speed_kph_of_tempo_solution: The current best tempo solution speed.
+        dispersion_of_tempo_solution: The current best tempo solution dispersion.
+
+    Returns:
+        True if the solution is a valid tempo solution candidate, False otherwise.
+    """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+
+    return (
+        this_solution_speed_kph >= speed_kph_of_tempo_solution
+        and all_nonzero
+        and this_solution_dispersion <= dispersion_of_tempo_solution
+        and this_solution_dispersion != 0.0
+    )
+
+def replace_solution(
+    this_solution: PacelineComputationReport,
+    solution_type: str,
+    current_best_speed: float,
+    current_best_dispersion: float,
+    current_best_solution: Optional[PacelineComputationReport],
+    logger: logging.Logger
+) -> Tuple[float, float, PacelineComputationReport]:
+    """
+    Updates the best solution variables if the current solution is better.
+
+    Args:
+        this_solution: The candidate PacelineComputationReport.
+        solution_type: A short string label for the solution type (e.g., 'simpl', 'bal', 't', 'drop').
+        current_best_speed: The current best speed value.
+        current_best_dispersion: The current best dispersion value.
+        current_best_solution: The current best solution object.
+        logger: Logger instance.
+
+    Returns:
+        Tuple of (updated_speed, updated_dispersion, updated_solution)
+    """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
+    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
+
+    updated_speed = this_solution_speed_kph
+    updated_dispersion = this_solution_dispersion
+    updated_solution = this_solution
+
+    logger.debug(
+        f"{JghString.first_n_chars(this_solution.guid,4)} {solution_type} kph: {format_number_4dp(this_solution_speed_kph)} sigma: {format_number_3dp(this_solution_dispersion)}"
+    )
+
+    return updated_speed, updated_dispersion, updated_solution
+
+
 def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
     ) -> PacelineSolutionsComputationReport:
     """
@@ -460,6 +609,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     simple_solution = None
 
+    speed_kph_of_balanced_solution: float = float('-inf')
     dispersion_of_balanced_solution: float = float('inf')
     balanced_solution = None
 
@@ -479,9 +629,6 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
         this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph # criterion
 
-        # logger.debug(f"{this_solution.guid} {this_solution.calculated_dispersion_of_intensity_of_effort} dispersion")
-        # logger.debug(f"{this_solution_speed_kph} kph")
-
         if not np.isfinite(this_solution_speed_kph):
             logger.warning(f"Binary search algorithm failure: iteration error: Non-finite speed_kph encountered: {this_solution_speed_kph}")
             continue
@@ -493,40 +640,23 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
             continue
 
 
-        if (this_solution_speed_kph > speed_kph_of_simple_solution
-            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
-            and len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1):
-            if (this_solution_dispersion <= dispersion_of_simple_solution and this_solution_dispersion != 0.0):
-                dispersion_of_simple_solution = this_solution_dispersion
-                speed_kph_of_simple_solution = this_solution_speed_kph
-                simple_solution = this_solution
-                logger.debug(f"simple kph :{this_solution_speed_kph}")
-
-        if (this_solution_dispersion <= dispersion_of_balanced_solution and this_solution_dispersion != 0.0
-            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
-            dispersion_of_balanced_solution = this_solution_dispersion
-            balanced_solution = this_solution
-            logger.debug(f"balanced dispersion :{this_solution_dispersion}")
-
-        if (this_solution_speed_kph >= speed_kph_of_tempo_solution 
-            and all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
-            if (this_solution_dispersion <= dispersion_of_tempo_solution and this_solution_dispersion != 0.0):
-                dispersion_of_tempo_solution = this_solution_dispersion
-                speed_kph_of_tempo_solution = this_solution_speed_kph
-                tempo_solution = this_solution
-                # logger.debug(f"tempo kph :{this_solution_speed_kph}")
-
-        if (this_solution_speed_kph > speed_kph_of_drop_solution
-            and any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
-            and any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())):
-            if (this_solution_dispersion <= dispersion_of_drop_solution and this_solution_dispersion != 0.0):
-                dispersion_of_drop_solution = this_solution_dispersion
-                speed_kph_of_drop_solution = this_solution_speed_kph
-                drop_solution = this_solution
-                # logger.debug(f"drop kph :{this_solution_speed_kph}")
+        if is_simple_solution_candidate(this_solution, speed_kph_of_simple_solution, dispersion_of_simple_solution):
+            speed_kph_of_simple_solution, dispersion_of_simple_solution, simple_solution = replace_solution(this_solution, "simpl", speed_kph_of_simple_solution, dispersion_of_simple_solution, simple_solution, logger)
 
 
-    if simple_solution is None and balanced_solution is None and drop_solution is None and simple_solution is None:
+        if is_balanced_solution_candidate(this_solution, speed_kph_of_balanced_solution, dispersion_of_balanced_solution):
+            speed_kph_of_balanced_solution, dispersion_of_balanced_solution, balanced_solution = replace_solution(this_solution, "bal  ", speed_kph_of_balanced_solution, dispersion_of_balanced_solution, balanced_solution, logger)
+
+
+        if is_tempo_solution_candidate(this_solution, speed_kph_of_tempo_solution, dispersion_of_tempo_solution):
+            speed_kph_of_tempo_solution, dispersion_of_tempo_solution, tempo_solution = replace_solution(this_solution, "t    ", speed_kph_of_tempo_solution, dispersion_of_tempo_solution, tempo_solution, logger)
+
+
+        if is_drop_solution_candidate(this_solution, speed_kph_of_drop_solution, dispersion_of_drop_solution):
+            speed_kph_of_drop_solution, dispersion_of_drop_solution, drop_solution = replace_solution(this_solution, "drop ", speed_kph_of_drop_solution, dispersion_of_drop_solution, drop_solution, logger)
+
+
+    if simple_solution is None and balanced_solution is None and tempo_solution is None and drop_solution is None:
         raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
     if simple_solution is None:
         raise RuntimeError("No valid this_solution found (simple_solution is None)")
