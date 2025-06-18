@@ -1,4 +1,5 @@
 from typing import  DefaultDict
+
 from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionDisplayObject
@@ -66,7 +67,7 @@ def log_pretty_paceline_solution_report(
     logger.info("\n" + "\n".join(formatted_rows))
 
 def save_pretty_paceline_solution_as_html_file(
-    test_description: str,
+    my_table_caption: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger,
     html_filename: str = "rider_contributions.html"
@@ -74,6 +75,7 @@ def save_pretty_paceline_solution_as_html_file(
     import pandas as pd
     import re
 
+    print("Pandas version at runtime:", pd.__version__)
     columns = [
         "Name",
         "Race Cat",
@@ -108,9 +110,14 @@ def save_pretty_paceline_solution_as_html_file(
         border=0,
         classes="rider-table",
         justify="center",
-        escape=False
+        escape=False,
     )
-
+    html_table = re.sub(
+        r'(<table[^>]*>)',
+        r'\1\n<caption>{}</caption>'.format(my_table_caption),
+        html_table,
+        count=1
+    )
     # Add a class to the "2nd 3rd 4th" header and its column cells
     html_table = re.sub(
         r'(<th[^>]*>2nd 3rd 4th</th>)',
@@ -122,10 +129,10 @@ def save_pretty_paceline_solution_as_html_file(
     footnotes = """
     <div class="footnote">
         <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg). zFTP metrics are displayed, but play no role in computations.<br>
-        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Pull abilities are taken from 90-day best power graphs on ZwiftPower. Riders with superior pull power are prioritised for longer pulls. Stronger riders are placed at the front and rear of the paceline, protecting weaker riders in between.<br>
+        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Stronger riders are prioritised for longer pulls and are located front and rear of the paceline, protecting weaker riders in the middle. Rider strength is a metric based on 90-day-best data from ZwiftPower for five-minute and one-hour intervals.<br>
         <sup>3</sup> NP: Normalized Power.<br>
-        <sup>4</sup> IF: Intensity Factor (NP as % of one-hour power).<br>
-        <sup>5</sup> Limit: Pull plan logic is such that paceline speed is constant and all riders have a chance to pull. The speed of the paceline is capped by the pulling power and/or IF% of riders as they go beyond their limits. Pulling power is unrelated to zFTP. Pulling power for periods ranging from thirty seconds to four minutes relate to 90-day best power ranging from 3.5 to 20 minutes.<br>
+        <sup>4</sup> IF: Intensity Factor (NP as % of 90-day-best one-hour power).<br>
+        <sup>5</sup> Limit: For no-drop rides, the speed of the paceline is governed by the pulling capabilities and intensity of effort of the riders working hardest to keep up. Pulling capabilities are related to individual 90-day-best data for durations ranging from 3.5 minutes up to 20 minutes.<br>
     </div>
     """
 
@@ -134,8 +141,9 @@ def save_pretty_paceline_solution_as_html_file(
 <head>
     <meta charset="UTF-8">
     <title>Rider Contribution Report</title>
-    <!-- Google Fonts: Roboto Mono -->
+    <!-- Google Fonts: Roboto Mono for table data, Roboto for headings, footnotes, and first two columns -->    
     <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
     <style>
         body {{
             font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
@@ -157,9 +165,10 @@ def save_pretty_paceline_solution_as_html_file(
         }}
         .rider-table caption {{
             caption-side: top;
-            font-size: 1.2em;
+            font-size: 1.05em;
             font-weight: bold;
             margin-bottom: 0.5em;
+            font-family: 'Roboto', Arial, sans-serif;
         }}
         .rider-table th {{
             background-color: #e6ecf5;
@@ -183,6 +192,14 @@ def save_pretty_paceline_solution_as_html_file(
             border: 1px solid #b0b0b0;
             white-space: nowrap;
         }}
+        <!--  Use Roboto for the first two columns (Name and Race Cat) in both header and data cells -->   
+        .rider-table th:nth-child(1),
+        .rider-table td:nth-child(1),
+        .rider-table th:nth-child(2),
+        .rider-table td:nth-child(2) {{
+            font-family: 'Roboto', Arial, sans-serif;
+            font-weight: 400;
+        }}
         .rider-table tr:nth-child(even) td {{
             background-color: #f7fafd;
         }}
@@ -199,6 +216,7 @@ def save_pretty_paceline_solution_as_html_file(
             color: #666;
             margin-top: 1.5em;
             font-weight: bold;
+            font-family: 'Roboto', Arial, sans-serif;
         }}
         .footnote sup, .rider-table th sup {{
             font-size: 0.8em;
@@ -208,7 +226,6 @@ def save_pretty_paceline_solution_as_html_file(
     </style>
 </head>
 <body>
-    <h2>{test_description}</h2>
     <div class="table-container">
         {html_table}
     </div>
@@ -270,7 +287,7 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
 
-    log_pretty_paceline_solution_report(f"Comparative rider metrics [RiderContributionItem]: IF capped at {EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_pretty_paceline_solution_report(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

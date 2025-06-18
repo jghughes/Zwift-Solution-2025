@@ -356,7 +356,6 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     return solutions
 
 
-
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
     paceline_ingredients: PacelineIngredientsItem, rotation_sequences : List[List[float]]
 ) -> List[PacelineComputationReport]:

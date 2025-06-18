@@ -1,7 +1,7 @@
 from typing import Optional, DefaultDict
 from collections import defaultdict
 from jgh_string import JghString
-from jgh_formatting import format_number_2dp, format_number_4dp, format_number_3dp
+from jgh_formatting import format_number_1dp, format_number_2dp, format_number_4dp, format_number_3dp
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order
@@ -20,11 +20,14 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
+
+
+
     # GET THE DATA READY
 
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_team_riderIDs("giants")
 
     riders : list[ZsunRiderItem] = []
 
@@ -48,7 +51,7 @@ def main():
     ingredients.sequence_of_pull_periods_sec = [30.0] * len(riders)
 
     basic = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
-    computation_report_title = f"\nBASIC PULL-PLAN (ID: {JghString.first_n_chars(basic.guid,3)}): {format_number_2dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma"
+    computation_report_title = f"\nBASIC PLAN (ID {JghString.first_n_chars(basic.guid,3)}): {format_number_1dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma"
     log_pretty_paceline_solution_report(computation_report_title, RiderContributionDisplayObject.from_RiderContributionItems(basic.rider_contributions), logger)
 
     # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
@@ -73,12 +76,12 @@ def main():
     tempo_contributions    = get_contributions(tempo)
     drop_contributions     = get_contributions(drop)
 
-    simple_title = f"\nSIMPLE PULL-PLAN (ID: {JghString.first_n_chars(simple.guid,3)}): {format_number_2dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma "
-    balanced_title = f"\nBALANCED PULL-PLAN (ID: {JghString.first_n_chars(balanced.guid,3)}): {format_number_2dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma"
-    tempo_title = f"\nTEMPO PULL-PLAN (ID: {JghString.first_n_chars(tempo.guid,3)}): {format_number_2dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma"
-    drop_title = f"\nDROP PULL-PLAN (ID: {JghString.first_n_chars(drop.guid,3)}):  {format_number_2dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma"
+    simple_title = f"\nSIMPLE PLAN (ID {JghString.first_n_chars(simple.guid,3)}): {format_number_1dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma "
+    balanced_title = f"\nBALANCED PLAN (ID {JghString.first_n_chars(balanced.guid,3)}): {format_number_2dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma"
+    tempo_title = f"\nTEMPO PLAN (ID {JghString.first_n_chars(tempo.guid,3)}): {format_number_1dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma"
+    drop_title = f"\nDROP PLAN (ID {JghString.first_n_chars(drop.guid,3)}):  {format_number_1dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma"
 
-    log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger)
+    log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger,)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
     log_pretty_paceline_solution_report(tempo_title, tempo_contributions, logger)
     log_pretty_paceline_solution_report(drop_title, drop_contributions, logger)
@@ -89,7 +92,10 @@ def main():
 
     # SAVE A SOLUTION AS HTML FILE
 
-    save_pretty_paceline_solution_as_html_file(balanced_title, balanced_contributions, logger)
+    save_pretty_paceline_solution_as_html_file(simple_title, simple_contributions, logger, "simple_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(balanced_title, balanced_contributions, logger, "balanced_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(tempo_title, tempo_contributions, logger, "tempo_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(drop_title, drop_contributions, logger, "drop_pull_plan.html")
 
 
 

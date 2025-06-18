@@ -121,6 +121,10 @@ class RiderContributionDisplayObject():
     @staticmethod
     def make_pretty_pull(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
 
+        if plan.p1_duration == 0:
+            return "            "
+            # return "   0sec   0w"
+
         duration_str = f"{int(round(plan.p1_duration)):3d}sec"
 
         p1_w = f"{str(round_to_nearest_10(plan.p1_w))}w"
@@ -129,6 +133,9 @@ class RiderContributionDisplayObject():
 
     @staticmethod
     def make_pretty_pull_suffix(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
+        if plan.p1_duration == 0:
+            return "           "
+            # return "   0wkg  0%"
 
         p1_wkg = f"{round(rider.get_watts_per_kg(plan.p1_w),1)}wkg"
 
