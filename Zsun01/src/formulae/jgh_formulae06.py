@@ -9,7 +9,7 @@ from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_no
 import logging
 
 
-
+# This function called during parallel processing. Logging forbidden
 def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:

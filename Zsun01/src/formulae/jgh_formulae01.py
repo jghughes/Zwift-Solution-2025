@@ -1,7 +1,7 @@
 import time
-import numpy as np
-import numba
 from constants import POWER_CURVE_IN_PACELINE
+
+# All of these functions are called during parallel processing. Logging forbidden
 
 def triangulate_speed_time_and_distance(kph: float, seconds: float, meters: float) -> tuple[float, float, float]:
     """
@@ -59,6 +59,7 @@ def estimate_drag_ratio_in_paceline(position: int) -> float:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator
 
+
 def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
@@ -92,7 +93,6 @@ def estimate_watts_from_speed(kph: float, weight: float, height: float) -> float
     return watts
 
 
-@numba.njit
 def estimate_speed_from_wattage(wattage: float, weight: float, height: float) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight (kg), and height (cm) using the Newton-Raphson method.

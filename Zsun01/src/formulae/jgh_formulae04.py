@@ -5,6 +5,7 @@ from computation_classes import RiderWorkAssignmentItem
 
 import logging
 
+# This function called during parallel processing. Logging forbidden
 def populate_rider_work_assignments(riders: List[ZsunRiderItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 

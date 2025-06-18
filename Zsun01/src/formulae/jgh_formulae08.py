@@ -1,6 +1,7 @@
 from typing import  List, DefaultDict, Tuple
 import os
 from collections import defaultdict
+from copy import deepcopy
 import concurrent.futures
 import time
 import numpy as np
@@ -22,8 +23,9 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
 
-# NB. AT NO STAGE USE LOGGING DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED BY THE PARALLEL PROCESSING CODE. IT WILL LEAD TO GARBAGE OUTPUT
-# THE LOGGER CANT HANDLE MULTIPLE PROCESSES WRITING TO IT AT THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD, AND ONLY FOR DEBUGGING PURPOSES.
+# NB. AT NO STAGE USE LOGGING DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED BY THE PARALLEL PROCESSING CODE. 
+# IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
+# THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE.
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunRiderItem], logger: logging.Logger):
 
@@ -273,14 +275,16 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
             solutions.append(answer)
 
         except Exception as exc:
+            # serial processing, so we can log the error, logging OK
             logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
 
     return solutions
 
 
+
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
-    rotation_sequences: List[List[float]]
+    paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReport]:
     """
     Computes paceline solutions for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
@@ -294,7 +298,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         paceline_ingredients: PacelineIngredientsItem
             The base input parameters for the computation, including the list of riders, initial pull speeds,
             and exertion constraints. The pull periods are overridden for each alternative.
-        rotation_sequences: List[List[float]]
+        paceline_rotation_sequence_alternatives: List[List[float]]
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
@@ -307,42 +311,50 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         - Invalid or incomplete results are logged as warnings and not included in the output list.
     """
 
+    paceline_description = PacelineIngredientsItem(
+        riders_list                     = paceline_ingredients.riders_list,
+        pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+        max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
+
+    list_of_instructions: List[PacelineIngredientsItem] = []    
+    
+    for sequence in paceline_rotation_sequence_alternatives:
+        paceline_description.sequence_of_pull_periods_sec = list(sequence)
+        list_of_instructions.append(deepcopy(paceline_description))
+
     solutions: List[PacelineComputationReport] = []
 
-    try:
-        paceline_description = PacelineIngredientsItem(
-            riders_list                     = paceline_ingredients.riders_list,
-            pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
-            max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
-
-        list_of_instructions: List[PacelineIngredientsItem] = []    
-    
-        for sequence in rotation_sequences:
-            paceline_description.sequence_of_pull_periods_sec = list(sequence)
-            list_of_instructions.append(paceline_description)
-
-        with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-            future_to_params = {
-                executor.submit(generate_a_single_paceline_solution_complying_with_exertion_constraints, p): p
-                for p in list_of_instructions
-            }
-            for future in concurrent.futures.as_completed(future_to_params):
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        future_to_params = {
+            executor.submit(generate_a_single_paceline_solution_complying_with_exertion_constraints, p): p
+            for p in list_of_instructions
+        }
+        for future in concurrent.futures.as_completed(future_to_params):
+            try:
                 result = future.result()
+
+                if (result is None or
+                    not hasattr(result, "rider_contributions") or
+                    result.rider_contributions is None or
+                    not isinstance(result.rider_contributions, dict)):
+                    logger.warning(f"Skipping invalid result: {result}")
+                    continue
 
                 answer = PacelineComputationReport(
                     algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
                     compute_iterations_performed_count       = result.compute_iterations_performed_count,
                     exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
                     calculated_average_speed_of_paceline_kph = result.calculated_average_speed_of_paceline_kph,
-                    calculated_dispersion_of_intensity_of_effort= calculate_dispersion_of_intensity_of_effortV2(result.rider_contributions),
+                    calculated_dispersion_of_intensity_of_effort = calculate_dispersion_of_intensity_of_effortV2(result.rider_contributions),
                     rider_contributions                      = result.rider_contributions,
                 )
                 solutions.append(answer)
+            except Exception as exc:
+                logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
 
-    except Exception as exc:
-        logger.error(f"Exception in function generate_paceline_solutions_using_parallel_workstealing_algorithm(): {exc}")
 
     return solutions
+
 
 
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
@@ -373,10 +385,10 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
         - For large numbers of alternatives, parallel processing can significantly reduce computation time.
     """
 
-    # if len(rotation_sequences) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-    return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, rotation_sequences)
-    # else:
-    # return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, rotation_sequences)
+    if len(rotation_sequences) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
+        return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, rotation_sequences)
+    else:
+        return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, rotation_sequences)
 
 
 def validate_paceline_ingredients(paceline_ingredients: PacelineIngredientsItem) -> None:
@@ -459,8 +471,8 @@ def is_simple_solution_candidate(
         and all_nonzero
         and all_equal
     )
-    if answer:
-        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+    # if answer:
+    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
 
     return answer
 
@@ -496,8 +508,8 @@ def is_balanced_solution_candidate(
         and all_nonzero
         # and this_solution_speed_kph >= candidate.speed_kph # do not make this a requirement for a balanced solution! you will get unintended consequences!
     )
-    if answer:
-        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+    # if answer:
+    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
 
     return answer
 
@@ -532,8 +544,8 @@ def is_tempo_solution_candidate(
         and all_nonzero
 
     )
-    if answer:
-        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+    # if answer:
+    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
 
     return answer
 
@@ -571,8 +583,8 @@ def is_drop_solution_candidate(
 
     )
 
-    if answer:
-        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+    # if answer:
+    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
 
 
     return answer
@@ -680,17 +692,17 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     # Convert to list of lists for downstream compatibility
     pruned_sequences = pruned_sequences.tolist()
 
-    logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
+    # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
 
     if len(pruned_sequences) > 1_024:
-        logger.warning(f"Warning. The total universe of {len(universe_of_rotation_sequences)} sequences has been pruned down to {len(pruned_sequences)} sequences. This is very large and will take long to process. Processing time is a function of a system constant named ARRAY_OF_STANDARD_PULL_PERIODS_SEC. This array currently contains {len(ARRAY_OF_STANDARD_PULL_PERIODS_SEC)} elements. Illustratively, seven elements take 75 seconds, six take 24 seconds, five take 17 seconds, and four take 11 sec. An array of five or six elements is the recommended compromise.")
+        logger.warning(f"\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of allowed pull-periods is {len(ARRAY_OF_STANDARD_PULL_PERIODS_SEC)}. For n riders and k allowed pull periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {len(universe_of_rotation_sequences)}. We have pruned these down to {len(pruned_sequences)} sequences. This is still a big number. Computation could take a while. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and should not be reduced if possible.\n")
 
     start_time = time.perf_counter()
 
     all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, pruned_sequences)
 
-    for idx, solution in enumerate(all_computation_reports):
-        logger.info(f"sln: {idx+1} {first_n_chars(solution.guid, 2)}  {format_number_3dp(solution.calculated_average_speed_of_paceline_kph)}kph")
+    # for idx, solution in enumerate(all_computation_reports):
+    #     logger.debug(f"sln: {idx+1} {first_n_chars(solution.guid, 2)}  {format_number_3dp(solution.calculated_average_speed_of_paceline_kph)}kph")
 
     time_taken_to_compute = time.perf_counter() - start_time
 
@@ -765,21 +777,21 @@ def main01():
 
     save_filename_without_ext = f"benchmark_parallel_processing_{len(riders)}_riders"
 
-    logger.info(f"Starting: benchmarking serial vs parallel processing with {len(riders)} riders")
+    logger.debug(f"Starting: benchmarking serial vs parallel processing with {len(riders)} riders")
 
 
     # Serial run as the base case
     s1 = time.perf_counter()
     _ = generate_paceline_solutions_using_serial_processing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
     s2 = time.perf_counter()
-    logger.info(f"Base-case: serial run compute time (measured): {round(s2 - s1, 2)} seconds")
+    logger.debug(f"Base-case: serial run compute time (measured): {round(s2 - s1, 2)} seconds")
 
     # Parallel run
     p1 = time.perf_counter()
     _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
     p2 = time.perf_counter()
 
-    logger.info(f"Test-case: parallel run compute time (measured): {round(p2 - p1,2)} seconds")
+    logger.debug(f"Test-case: parallel run compute time (measured): {round(p2 - p1,2)} seconds")
 
     # --- Summary Report ---
     report_lines = []
@@ -792,11 +804,11 @@ def main01():
     report_lines.append(f"Time saved by parallelisation: {round((s2 - s1) - (p2 - p1), 2)} seconds")
     report_lines.append("\n")
 
-    logger.info("".join(report_lines))
+    logger.debug("".join(report_lines))
 
     with open(f"{save_filename_without_ext}.txt", "w", encoding="utf-8") as f:
         f.writelines(report_lines)
-    logger.info(f"Summary report written to {save_filename_without_ext}.txt")
+    logger.debug(f"Summary report written to {save_filename_without_ext}.txt")
 
     # --- Visualization: Bar Chart ---
     df = pd.DataFrame([
@@ -812,7 +824,7 @@ def main01():
     plt.tight_layout()
     plt.savefig(f"{save_filename_without_ext}.png")
     plt.show()
-    logger.info(f"Bar chart saved to {save_filename_without_ext}.png")
+    logger.debug(f"Bar chart saved to {save_filename_without_ext}.png")
 
 
 def main02():
@@ -836,7 +848,7 @@ def main02():
 
     save_filename_without_ext = f"run_optimised_filters_and_parallelisation_with_{len(riders)}_riders"
 
-    logger.info(f"Testing: running sensible empirically-measured thresholds for no-filtering -> filtering and serial -> parallel processing with {len(riders)} riders")
+    logger.debug(f"Testing: running sensible empirically-measured thresholds for no-filtering -> filtering and serial -> parallel processing with {len(riders)} riders")
 
     computation_report = generate_ingenious_paceline_solutions(params)
 
@@ -850,17 +862,17 @@ def main02():
     tempo_speed = tempo_solution.calculated_average_speed_of_paceline_kph if tempo_solution else None
     drop_speed = drop_solution.calculated_average_speed_of_paceline_kph if drop_solution else None
 
-    logger.info(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
+    logger.debug(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
     simple_guid    = first_n_chars(simple_solution.guid, 2) if simple_solution else "--"
     balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
     tempo_guid     = first_n_chars(tempo_solution.guid, 2) if tempo_solution else "--"
     drop_guid      = first_n_chars(drop_solution.guid, 2) if drop_solution else "--"
 
-    logger.info(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
-    logger.info(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")
-    logger.info(f"tempo solution speed (kph)            : {tempo_guid} : {tempo_speed}")
-    logger.info(f"drop solution speed (kph)             : {drop_guid} : {drop_speed}")
+    logger.debug(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
+    logger.debug(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")
+    logger.debug(f"tempo solution speed (kph)            : {tempo_guid} : {tempo_speed}")
+    logger.debug(f"drop solution speed (kph)             : {drop_guid} : {drop_speed}")
 
     # --- Summary Report ---
     # --- Summary Report ---
@@ -871,11 +883,11 @@ def main02():
     report_lines.append(f"  Compute-time (measured): {round(computation_report.computational_time,2)} seconds\n")
     report_lines.append("\n")
 
-    logger.info("".join(report_lines))
+    logger.debug("".join(report_lines))
 
     with open(f"{save_filename_without_ext}.txt", "w", encoding="utf-8") as f:
         f.writelines(report_lines)
-    logger.info(f"Summary report written to {save_filename_without_ext}.txt")
+    logger.debug(f"Summary report written to {save_filename_without_ext}.txt")
 
 if __name__ == "__main__":
     # main01()    

@@ -10,6 +10,7 @@ from jgh_formulae04 import populate_rider_work_assignments
 
 import logging
 
+# This function called during parallel processing. Logging forbidden
 def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunRiderItem, List[RiderWorkAssignmentItem]]) -> DefaultDict[ZsunRiderItem, List[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.

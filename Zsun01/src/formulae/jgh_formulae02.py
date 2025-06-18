@@ -19,6 +19,7 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
 
+# All of these functions are called during parallel processing. Logging forbidden
 
 def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
     """
@@ -435,6 +436,56 @@ def calculate_dispersion_of_intensity_of_effortV2(rider_contributions: DefaultDi
     return std_deviation_of_intensity_factors
 
 
+def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRiderItem]:
+    """
+    Arrange the riders in an optimal order based on their strength metric.
+
+    Riders are ranked according to their strength, from strongest to weakest. 
+    The strongest rider is ranked 1, and the weakest rider is ranked n. 
+    The strength of a rider is determined by the value returned from the 
+    `ZsunRiderItem.get_strength_wkg()` method.
+
+    To arrange the riders in optimal order, the riders are interleaved as follows:
+    - The strongest rider is placed at the front (position 1).
+    - The second strongest rider is placed at the back (position n).
+    - The third strongest rider is placed behind the front (position 2).
+    - The fourth strongest rider is placed ahead of the second strongest (position n-1).
+    - This pattern continues until all riders are placed.
+
+    Args:
+        riders (List[ZsunRiderItem]): The list of riders to be arranged.
+
+    Returns:
+        List[ZsunRiderItem]: The list of riders arranged in the optimal interleaved order.
+    """
+    # Step 1: Calculate the strength of each rider and sort them in descending order
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_strength_wkg(), reverse=True)
+
+    # Step 2: Create an empty list to hold the optimal order
+    n = len(sorted_riders)
+    optimal_order: List[ZsunRiderItem] = [None] * n  # type: ignore
+
+    # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
+    front_idx = 0
+    for i in range(0, n, 2):
+        optimal_order[front_idx] = sorted_riders[i]
+        front_idx += 1
+
+    # Step 4: Fill back, 2nd last, ... (even positions from end) with 2nd, 4th, 6th, ... in reverse
+    back_idx = n - 1
+    for i in range(1, n, 2):
+        optimal_order[back_idx] = sorted_riders[i]
+        back_idx -= 1
+
+    return optimal_order
+
+
+
+
+
+
+
+
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
     pull_period_sequences_being_pruned: NDArray[np.float64],
     riders: List[ZsunRiderItem]
@@ -514,6 +565,11 @@ def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
     This function produces the Cartesian product of the allowed pull periods for each rider.
     For n riders and k allowed pull periods, it generates k^n possible sequences.
     Each row in the returned array is a sequence of pull periods for the paceline.
+
+    For n riders and k allowed pull periods, it generates k^n possible sequences. 
+    Six pull periods and eight riders generates 6^8 = 1,679,616 possible sequences. 
+    This is a large number, but it is manageable for the algorithm to process within 
+    a reasonable time frame, especially with the filtering applied later in the process.
 
     Args:
         length_of_paceline (int): Number of riders in the paceline.
