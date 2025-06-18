@@ -4,6 +4,111 @@ This module defines various string utility functions.
 
 from typing import Optional
 
+def concat(*array_of_texts: str) -> str:
+    """
+    Concatenates a variable length array of texts.
+    Skips texts that are null or whitespace.
+
+    Args:
+        array_of_texts (str): If any element in params array is null or empty, the element is skipped.
+
+    Returns:
+        str: Concatenated strings.
+    """
+    return JghString.concat_with_separator("", *array_of_texts)
+
+def concat_with_separator(separator: str, *array_of_texts: str) -> str:
+    """
+    Concatenates a variable length array of texts with a separator between each piece of text.
+    Skips texts that are null or whitespace.
+
+    Args:
+        separator (str): If separator is null, an empty string is used instead.
+        array_of_texts (str): If any element in params array is null or empty, the element is skipped.
+
+    Returns:
+        str: Concatenated strings.
+    """
+
+    # Rinse out all the empties
+    list_of_texts = [text for text in array_of_texts if text]
+
+    if not list_of_texts:
+        return ""
+
+    result = separator.join(list_of_texts)
+
+    return result
+
+def concat_as_sentences(*array_of_texts: str) -> str:
+    """
+    Concatenates a variable length array of texts with a space between each piece of text.
+    Skips texts that are null or whitespace.
+
+    Args:
+        array_of_texts (str): If any element in params array is null or empty, the element is skipped.
+
+    Returns:
+        str: Concatenated strings.
+    """
+    return JghString.concat_with_separator(" ", *array_of_texts)
+
+def concat_as_lines(*array_of_texts: str) -> str:
+    """
+    Concatenates a variable length array of texts with each piece of text on a new line.
+    Skips texts that are null or whitespace.
+
+    Args:
+        array_of_texts (str): If any element in params array is null or empty, the element is skipped.
+
+    Returns:
+        str: Lines of text.
+    """
+    result = JghString.concat_with_separator("\n", *array_of_texts)
+    return result
+
+def concat_as_paragraphs(*array_of_texts: str) -> str:
+    """
+    Concatenates a variable length array of texts with a linespace between each piece of text.
+    Skips texts that are null or whitespace. The first parameter in the array will be
+    the top paragraph. The last parameter will be the bottom paragraph.
+
+    Args:
+        array_of_texts (str): If any element in params array is null or empty, the element is skipped.
+
+    Returns:
+        str: Paragraphs of text.
+    """
+
+    result = JghString.concat_with_separator("\n\n", *array_of_texts)
+    return result
+
+@staticmethod
+def first_n_chars(text: Optional[str], n: int) -> str:
+    """
+    Returns the first n characters of the input string s.
+    Handles cases where s is None or shorter than n characters.
+
+    Args:
+        s (str): The input string (can be None).
+        n (int): The number of characters to return.
+
+    Returns:
+        str: The first n characters, or an empty string if s is None.
+    """
+    if text is None:
+        return ""
+    return text[:n]
+
+
+
+
+
+
+
+
+
+
 class JghString:
     
    @staticmethod

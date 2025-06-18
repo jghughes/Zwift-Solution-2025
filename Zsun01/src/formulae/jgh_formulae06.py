@@ -132,10 +132,10 @@ def main() -> None:
         # ZsunRiderItem.Config.json_schema_extra["meridithl"],
         ZsunRiderItem.Config.json_schema_extra["melissaw"],
         ZsunRiderItem.Config.json_schema_extra["richardm"],
-        ZsunRiderItem.Config.json_schema_extra["davek"],
+        # ZsunRiderItem.Config.json_schema_extra["davek"],
         # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-        ZsunRiderItem.Config.json_schema_extra["scottm"],
-        # ZsunRiderItem.Config.json_schema_extra["johnh"],
+        # ZsunRiderItem.Config.json_schema_extra["scottm"],
+        ZsunRiderItem.Config.json_schema_extra["johnh"],
         # ZsunRiderItem.Config.json_schema_extra["joshn"],
         # ZsunRiderItem.Config.json_schema_extra["brent"],
         # ZsunRiderItem.Config.json_schema_extra["coryc"],
@@ -148,8 +148,10 @@ def main() -> None:
         for data in example_riders_data
     ]
 
-    pull_durations = [120.0, 0.0, 120.0, 120.0]
-    pull_speed = 39.0  # Example speed in kph
+
+    pull_durations = [120.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
+    pull_speeds_kph = [40.0] * len(riders)
+    pull_speed = 40.0  # Example speed in kph
     pull_speeds_kph = [pull_speed] * len(riders)
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)

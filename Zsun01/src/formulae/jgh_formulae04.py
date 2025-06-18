@@ -107,7 +107,7 @@ def main() -> None:
         ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
         for data in example_riders_data
     ]
-    pull_durations = [120.0, 0.0, 120.0, 120.0]
+    pull_durations = [120.0, 0.0, 120.0, 120.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)

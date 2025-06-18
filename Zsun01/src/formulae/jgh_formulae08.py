@@ -4,23 +4,26 @@ from collections import defaultdict
 import concurrent.futures
 import time
 import numpy as np
-from jgh_string import JghString
+from jgh_string import first_n_chars
 from jgh_formatting import truncate, format_number_comma_separators, format_number_1dp, format_number_2dp, format_number_4dp, format_number_3dp, format_pretty_duration_hms
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport, WorthyCandidateSolution
-from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_a_scaffold_of_the_total_solution_space, prune_the_scaffold_of_the_total_solution_space, calculate_dispersion_of_intensity_of_effortV2)
+from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_sequences_of_pull_periods_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effortV2)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS, SOLUTION_SPACE_SIZE_CONSTRAINT)
+from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS, SOLUTION_SPACE_SIZE_CONSTRAINT, ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
 
 import logging
 from jgh_logging import jgh_configure_logging
 jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 logging.getLogger("numba").setLevel(logging.ERROR)
+
+# NB. AT NO STAGE USE LOGGING DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED BY THE PARALLEL PROCESSING CODE. IT WILL LEAD TO GARBAGE OUTPUT
+# THE LOGGER CANT HANDLE MULTIPLE PROCESSES WRITING TO IT AT THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD, AND ONLY FOR DEBUGGING PURPOSES.
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunRiderItem], logger: logging.Logger):
 
@@ -137,7 +140,6 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
           and sets algorithm_ran_to_completion to False.
         - The function assumes all input parameters are valid and finite.
     """
-    # logger.info(f"Generating a single paceline solution complying with exertion constraints.")
     riders = paceline_ingredients.riders_list
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
     lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3)
@@ -157,8 +159,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     # that violates the contribution of at least one rider. This speed is not the answer 
     # we are looking for. It will most likely be way above the precise speed that 
     # triggered the violation, but it is a safe upper bound. This is required for 
-    # the binary search to work correctly to piun down the precise speed.
-    # logger.info(f"Finding a speed that violates at least one rider's contribution. Starting at {lower_bound_for_next_search_iteration_kph}kph.")
+    # the binary search to work correctly to pin down the precise speed.
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH):
 
@@ -170,7 +171,6 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
         upper_bound_for_next_search_iteration_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
 
         compute_iterations_performed += 1
-        # logger.info(f"Compute iterations performed = {compute_iterations_performed}")
     else:
         # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
         return PacelineComputationReport(
@@ -205,7 +205,6 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
             lower_bound_for_next_search_iteration_kph = mid_point_kph
 
     # Knowing the speed, we can rework the contributions and thus the solution
-    # logger.info(f"Knowing the speed, we can rework the contributions and thus the solution")
     speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
 
     answer = PacelineComputationReport(
@@ -272,7 +271,6 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
                 rider_contributions                      = result.rider_contributions,
             )
             solutions.append(answer)
-            # logger.debug(f"Sequence {sequence}: {answer.calculated_average_speed_of_paceline_kph} kph")
 
         except Exception as exc:
             logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
@@ -309,34 +307,27 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         - Invalid or incomplete results are logged as warnings and not included in the output list.
     """
 
-    paceline_description = PacelineIngredientsItem(
-        riders_list                     = paceline_ingredients.riders_list,
-        pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
-        max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
-
-    list_of_instructions: List[PacelineIngredientsItem] = []    
-    
-    for sequence in rotation_sequences:
-        paceline_description.sequence_of_pull_periods_sec = list(sequence)
-        list_of_instructions.append(paceline_description)
-
     solutions: List[PacelineComputationReport] = []
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-        future_to_params = {
-            executor.submit(generate_a_single_paceline_solution_complying_with_exertion_constraints, p): p
-            for p in list_of_instructions
-        }
-        for future in concurrent.futures.as_completed(future_to_params):
-            try:
-                result = future.result()
+    try:
+        paceline_description = PacelineIngredientsItem(
+            riders_list                     = paceline_ingredients.riders_list,
+            pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+            max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-                if (result is None or
-                    not hasattr(result, "rider_contributions") or
-                    result.rider_contributions is None or
-                    not isinstance(result.rider_contributions, dict)):
-                    logger.warning(f"Skipping invalid result: {result}")
-                    continue
+        list_of_instructions: List[PacelineIngredientsItem] = []    
+    
+        for sequence in rotation_sequences:
+            paceline_description.sequence_of_pull_periods_sec = list(sequence)
+            list_of_instructions.append(paceline_description)
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+            future_to_params = {
+                executor.submit(generate_a_single_paceline_solution_complying_with_exertion_constraints, p): p
+                for p in list_of_instructions
+            }
+            for future in concurrent.futures.as_completed(future_to_params):
+                result = future.result()
 
                 answer = PacelineComputationReport(
                     algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
@@ -347,11 +338,9 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
                     rider_contributions                      = result.rider_contributions,
                 )
                 solutions.append(answer)
-            except Exception as exc:
-                logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
 
-    # for sequence in rotation_sequences:
-            # logger.debug(f"Sequence {sequence}")
+    except Exception as exc:
+        logger.error(f"Exception in function generate_paceline_solutions_using_parallel_workstealing_algorithm(): {exc}")
 
     return solutions
 
@@ -384,10 +373,10 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
         - For large numbers of alternatives, parallel processing can significantly reduce computation time.
     """
 
-    if len(rotation_sequences) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
-        return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, rotation_sequences)
-    else:
-        return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, rotation_sequences)
+    # if len(rotation_sequences) < SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD:
+    return generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, rotation_sequences)
+    # else:
+    # return generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, rotation_sequences)
 
 
 def validate_paceline_ingredients(paceline_ingredients: PacelineIngredientsItem) -> None:
@@ -428,19 +417,29 @@ def is_valid_solution(this_solution: PacelineComputationReport, logger: logging.
     return True
 
 
+def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineComputationReport) -> bool:
+    """
+    Returns True if a dispersion of 0.0 is permissible for a 'simple solution' candidate.
+    Rules:
+      - If there are no riders or only one rider, zero dispersion is allowed.
+      - If there are multiple riders, zero dispersion is only allowed if all pull durations
+        and all pull watts are identical.
+    """
+    rider_contributions = list(this_solution.rider_contributions.values())
+    num_riders = len(rider_contributions)
+    if num_riders <= 1:
+        return True
+    # Check if all pull durations are the same
+    durations = {r.p1_duration for r in rider_contributions}
+    watts = {getattr(r, "p1_watts", None) for r in rider_contributions}
+    return len(durations) == 1 and len(watts) == 1
+
 def is_simple_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: "WorthyCandidateSolution"
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'simple solution' candidate.
-
-    Args:
-        this_solution: The candidate PacelineComputationReport.
-        candidate: The current WorthyCandidateSolution to compare against.
-
-    Returns:
-        True if the solution is a valid simple solution candidate, False otherwise.
     """
     this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
@@ -448,13 +447,23 @@ def is_simple_solution_candidate(
     all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
     all_equal = len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1
 
-    return (
+    zero_dispersion_ok = (
+        this_solution_dispersion != 0.0 or
+        is_zero_dispersion_permissible_for_simple_solution(this_solution)
+    )
+
+    answer = (
         this_solution_speed_kph >= candidate.speed_kph
         and this_solution_dispersion < candidate.dispersion
-        and this_solution_dispersion != 0.0
+        and zero_dispersion_ok
         and all_nonzero
         and all_equal
     )
+    if answer:
+        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+
+    return answer
+
 
 def is_balanced_solution_candidate(
     this_solution: PacelineComputationReport,
@@ -470,15 +479,27 @@ def is_balanced_solution_candidate(
     Returns:
         True if the solution is a valid balanced solution candidate, False otherwise.
     """
+    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
     all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
-    return (
-        this_solution_dispersion <= candidate.dispersion
-        and this_solution_dispersion != 0.0
-        and all_nonzero
-        # and this_solution_speed_kph >= candidate.speed_kph # do not make this a requirement for a balanced solution! you will get unintended consequences if you do so!
+    zero_dispersion_ok = (
+        this_solution_dispersion != 0.0 or
+        is_zero_dispersion_permissible_for_simple_solution(this_solution)
     )
+
+
+
+    answer = (
+        this_solution_dispersion <= candidate.dispersion
+        and zero_dispersion_ok
+        and all_nonzero
+        # and this_solution_speed_kph >= candidate.speed_kph # do not make this a requirement for a balanced solution! you will get unintended consequences!
+    )
+    if answer:
+        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+
+    return answer
 
 def is_tempo_solution_candidate(
     this_solution: PacelineComputationReport,
@@ -498,13 +519,23 @@ def is_tempo_solution_candidate(
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
     all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
-    return (
+
+    zero_dispersion_ok = (
+        this_solution_dispersion != 0.0 or
+        is_zero_dispersion_permissible_for_simple_solution(this_solution)
+    )
+
+    answer = (
         this_solution_speed_kph >= candidate.speed_kph
         and this_solution_dispersion < candidate.dispersion
-        and this_solution_dispersion != 0.0
+        and zero_dispersion_ok
         and all_nonzero
 
     )
+    if answer:
+        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
+
+    return answer
 
 def is_drop_solution_candidate(
     this_solution: PacelineComputationReport,
@@ -525,17 +556,29 @@ def is_drop_solution_candidate(
     any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
     any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
-    return (
+    zero_dispersion_ok = (
+        this_solution_dispersion != 0.0 or
+        is_zero_dispersion_permissible_for_simple_solution(this_solution)
+    )
+
+
+    answer = (
         this_solution_speed_kph >= candidate.speed_kph
         and this_solution_dispersion < candidate.dispersion
-        and this_solution_dispersion != 0.0
+        and zero_dispersion_ok
         and any_zero
         and any_nonzero
 
     )
 
+    if answer:
+        logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma {answer}candidate")
 
-def replace_candidate_solution(
+
+    return answer
+
+
+def update_candidate_solution(
     this_solution: PacelineComputationReport,
     candidate: "WorthyCandidateSolution",
     logger: logging.Logger
@@ -557,10 +600,6 @@ def replace_candidate_solution(
     candidate.speed_kph  = this_solution_speed_kph
     candidate.dispersion = this_solution_dispersion
     candidate.solution   = this_solution
-
-    logger.debug(
-        f"{JghString.first_n_chars(this_solution.guid,3)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma"
-    )
 
 def validate_candidate_solutions_found(
     simple_candidate: "WorthyCandidateSolution",
@@ -632,21 +671,26 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     validate_paceline_ingredients(paceline_ingredients)    
 
-    universe_of_rotation_sequences= generate_a_scaffold_of_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
+    universe_of_rotation_sequences= generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
 
-    pruned_sequences = prune_the_scaffold_of_the_total_solution_space(universe_of_rotation_sequences, paceline_ingredients.riders_list)
+    pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(
+        universe_of_rotation_sequences, paceline_ingredients.riders_list
+    )
 
-    # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
+    # Convert to list of lists for downstream compatibility
+    pruned_sequences = pruned_sequences.tolist()
 
-    if len(pruned_sequences) > 2_000:
-        logger.warning(f"Warning. Number of alternatives to be computed is very large and will take inordinately long: {len(pruned_sequences)} Specified limit is {SOLUTION_SPACE_SIZE_CONSTRAINT}")
+    logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
+
+    if len(pruned_sequences) > 1_024:
+        logger.warning(f"Warning. The total universe of {len(universe_of_rotation_sequences)} sequences has been pruned down to {len(pruned_sequences)} sequences. This is very large and will take long to process. Processing time is a function of a system constant named ARRAY_OF_STANDARD_PULL_PERIODS_SEC. This array currently contains {len(ARRAY_OF_STANDARD_PULL_PERIODS_SEC)} elements. Illustratively, seven elements take 75 seconds, six take 24 seconds, five take 17 seconds, and four take 11 sec. An array of five or six elements is the recommended compromise.")
 
     start_time = time.perf_counter()
 
     all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, pruned_sequences)
 
-    # for idx, solution in enumerate(all_computation_reports):
-    #     logger.info(f"sln: {idx+1} {solution.guid} speed (kph): {solution.calculated_average_speed_of_paceline_kph}")
+    for idx, solution in enumerate(all_computation_reports):
+        logger.info(f"sln: {idx+1} {first_n_chars(solution.guid, 2)}  {format_number_3dp(solution.calculated_average_speed_of_paceline_kph)}kph")
 
     time_taken_to_compute = time.perf_counter() - start_time
 
@@ -665,16 +709,16 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
                 continue
 
         if is_simple_solution_candidate(this_solution, simple_candidate):
-            replace_candidate_solution(this_solution, simple_candidate, logger)
+            update_candidate_solution(this_solution, simple_candidate, logger)
 
         if is_balanced_solution_candidate(this_solution, balanced_candidate):
-            replace_candidate_solution(this_solution, balanced_candidate, logger)
+            update_candidate_solution(this_solution, balanced_candidate, logger)
 
         if is_tempo_solution_candidate(this_solution, tempo_candidate):
-            replace_candidate_solution(this_solution, tempo_candidate, logger)
+            update_candidate_solution(this_solution, tempo_candidate, logger)
 
         if is_drop_solution_candidate(this_solution, drop_candidate):
-            replace_candidate_solution(this_solution, drop_candidate, logger)
+            update_candidate_solution(this_solution, drop_candidate, logger)
 
     validate_candidate_solutions_found(
         simple_candidate,
@@ -701,41 +745,7 @@ def main01():
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
-    from zsun_rider_dto import ZsunRiderDTO
 
-    # # Example: Instantiate riders using the Config class
-    # example_riders_data = [
-    #     # ZsunRiderItem.Config.json_schema_extra["meridithl"],
-    #     ZsunRiderItem.Config.json_schema_extra["melissaw"],
-    #     ZsunRiderItem.Config.json_schema_extra["richardm"],
-    #     ZsunRiderItem.Config.json_schema_extra["davek"],
-    #     # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-    #     ZsunRiderItem.Config.json_schema_extra["scottm"],
-    #     # ZsunRiderItem.Config.json_schema_extra["johnh"],
-    #     # ZsunRiderItem.Config.json_schema_extra["joshn"],
-    #     # ZsunRiderItem.Config.json_schema_extra["brent"],
-    #     # ZsunRiderItem.Config.json_schema_extra["coryc"],
-    #     # ZsunRiderItem.Config.json_schema_extra["davide"],
-    # ]
-
-    # # Convert example data to ZsunRiderItem instances
-    # riders = [
-    #     ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
-    #     for data in example_riders_data
-    # ]
-
-    # pull_durations = [120.0, 0.0, 120.0, 120.0]
-    # pull_speed = 39.0 
-
-
-    # all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), pull_durations)
-
-    # plan_params = PacelineIngredientsItem(
-    #     riders_list                   = riders,
-    #     sequence_of_pull_periods_sec  = pull_durations,
-    #     pull_speeds_kph               = [pull_speed] * len(riders),
-    #     max_exertion_intensity_factor = 0.95
-    # )
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
@@ -743,7 +753,7 @@ def main01():
     riderIDs = get_team_riderIDs("betel")
     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 
-    all_conceivable_paceline_rotation_schedules = generate_a_scaffold_of_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
+    all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
 
     plan_params = PacelineIngredientsItem(
         riders_list                   = riders,
@@ -811,37 +821,6 @@ def main02():
     from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
     from zsun_rider_dto import ZsunRiderDTO
 
-    # # Example: Instantiate riders using the Config class
-    # example_riders_data = [
-    #     ZsunRiderItem.Config.json_schema_extra["meridithl"],
-    #     ZsunRiderItem.Config.json_schema_extra["melissaw"],
-    #     # ZsunRiderItem.Config.json_schema_extra["richardm"],
-    #     # ZsunRiderItem.Config.json_schema_extra["davek"],
-    #     # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-    #     # ZsunRiderItem.Config.json_schema_extra["scottm"],
-    #     ZsunRiderItem.Config.json_schema_extra["johnh"],
-    #     # ZsunRiderItem.Config.json_schema_extra["joshn"],
-    #     # ZsunRiderItem.Config.json_schema_extra["brent"],
-    #     # ZsunRiderItem.Config.json_schema_extra["coryc"],
-    #     ZsunRiderItem.Config.json_schema_extra["davide"],
-    # ]
-
-    # # Convert example data to ZsunRiderItem instances
-    # riders = [
-    #     ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
-    #     for data in example_riders_data
-    # ]
-
-    # # pull_durations = [120.0, 0.0, 120.0, 120.0, 120.0, 0.0, 120.0, 120.0]
-    # pull_speed = 30.0 
-
-    # params = PacelineIngredientsItem(
-    #     riders_list                   = riders,
-    #     sequence_of_pull_periods_sec  = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
-    #     pull_speeds_kph               = [pull_speed] * len(riders),
-    #     max_exertion_intensity_factor = 0.95
-    # )
-
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
@@ -851,7 +830,7 @@ def main02():
     params = PacelineIngredientsItem(
         riders_list                  = riders,
         sequence_of_pull_periods_sec = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
-        pull_speeds_kph              = [30.0] * len(riders),
+        pull_speeds_kph              = [10.0] * len(riders), # this is definitely not a dictated speed in this context, it's the seed speed for the binary search algorithm. arbitrary low value.
         max_exertion_intensity_factor= 0.95
     )
 
@@ -873,11 +852,17 @@ def main02():
 
     logger.info(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
-    logger.info(f"simple solution speed (kph)           : {simple_speed}")
-    logger.info(f"balanced-effort solution speed (kph)  : {balanced_speed}")
-    logger.info(f"tempo solution speed (kph)            : {tempo_speed}")
-    logger.info(f"drop solution speed (kph)             : {drop_speed}")
+    simple_guid    = first_n_chars(simple_solution.guid, 2) if simple_solution else "--"
+    balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
+    tempo_guid     = first_n_chars(tempo_solution.guid, 2) if tempo_solution else "--"
+    drop_guid      = first_n_chars(drop_solution.guid, 2) if drop_solution else "--"
 
+    logger.info(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
+    logger.info(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")
+    logger.info(f"tempo solution speed (kph)            : {tempo_guid} : {tempo_speed}")
+    logger.info(f"drop solution speed (kph)             : {drop_guid} : {drop_speed}")
+
+    # --- Summary Report ---
     # --- Summary Report ---
     report_lines = []
     report_lines.append("Benchmark Summary Report\n")
