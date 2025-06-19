@@ -426,15 +426,48 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
             fastest_duration = 3600.0
     return fastest_rider, fastest_duration, highest_speed
 
-def calculate_dispersion_of_intensity_of_effortV2(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem])-> float:
-    array_of_rider_effort_intensity_factors = [contribution.intensity_factor for _, contribution in rider_contributions.items()]
+
+
+
+# def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem])-> float:
+#     array_of_rider_effort_intensity_factors = [contribution.intensity_factor for _, contribution in rider_contributions.items()]
+#     if not array_of_rider_effort_intensity_factors:
+#         return 100 #arbitrarily big
+#     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
+#     if not np.isfinite(std_deviation_of_intensity_factors):
+#         return 100 #arbitrarily big
+#     return std_deviation_of_intensity_factors
+
+
+
+def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> float:
+    """
+    Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
+
+    This function computes the standard deviation of the intensity factors for all riders whose
+    primary pull duration (`p1_duration`) is not zero. Riders with `p1_duration == 0` are excluded
+    from the calculation, as they did not perform a pull.
+
+    Args:
+        rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
+            A mapping of riders to their contribution data, including intensity factor and pull duration.
+
+    Returns:
+        float: The standard deviation of intensity factors among all pullers.
+               Returns 100 if there are no valid pullers or if the result is not finite.
+    """
+
+    array_of_rider_effort_intensity_factors = [
+        contribution.intensity_factor
+        for _, contribution in rider_contributions.items()
+        if contribution.p1_duration != 0
+    ]
     if not array_of_rider_effort_intensity_factors:
-        return 100 #arbitrarily big
+        return 100  # arbitrarily big
     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
     if not np.isfinite(std_deviation_of_intensity_factors):
-        return 100 #arbitrarily big
+        return 100  # arbitrarily big
     return std_deviation_of_intensity_factors
-
 
 def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRiderItem]:
     """
@@ -478,12 +511,6 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
         back_idx -= 1
 
     return optimal_order
-
-
-
-
-
-
 
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(

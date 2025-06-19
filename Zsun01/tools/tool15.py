@@ -1,5 +1,7 @@
 from typing import Optional, DefaultDict
 from collections import defaultdict
+
+from sympy import Basic
 from jgh_string import JghString
 from jgh_formatting import format_number_1dp, format_number_2dp, format_number_4dp, format_number_3dp
 from handy_utilities import read_dict_of_zsunriderItems
@@ -20,14 +22,26 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
+    # SET UP HELPER FUNCTIONS
 
+    def get_solution(solution: Optional[PacelineComputationReport])-> PacelineComputationReport:
+        return solution if solution else PacelineComputationReport()
+
+    def get_contributions(solution: PacelineComputationReport)-> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
+        return RiderContributionDisplayObject.from_RiderContributionItems(solution.rider_contributions if solution.rider_contributions else defaultdict(RiderContributionItem))
+
+    def make_pretty_title(title: str, report : PacelineComputationReport, suffix : Optional[str]) -> str:
+        if suffix:
+            return f"\n{title} [ID {JghString.first_n_chars(report.guid,3)}]: {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma {suffix}"
+        else:
+            return f"\n{title} (ID {JghString.first_n_chars(report.guid,3)}): {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma"
 
 
     # GET THE DATA READY
 
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_team_riderIDs("giants")
+    riderIDs = get_team_riderIDs("betel")
 
     riders : list[ZsunRiderItem] = []
 
@@ -48,11 +62,15 @@ def main():
 
     # DO A SIMPLE PULL PLAN WITH A SINGLE UNIFORM PULL PERIOD
 
-    ingredients.sequence_of_pull_periods_sec = [30.0] * len(riders)
+    # ingredients.sequence_of_pull_periods_sec = [30.0] * len(riders)
 
-    basic = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
-    computation_report_title = f"\nBASIC PLAN (ID {JghString.first_n_chars(basic.guid,3)}): {format_number_1dp(basic.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(basic.calculated_dispersion_of_intensity_of_effort)}sigma"
-    log_pretty_paceline_solution_report(computation_report_title, RiderContributionDisplayObject.from_RiderContributionItems(basic.rider_contributions), logger)
+    # computation_report = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
+
+    # basic_contributions   = get_contributions(computation_report)
+
+    # basic_title = f"\nBASIC PLAN (ID {JghString.first_n_chars(computation_report.guid,3)}): {format_number_1dp(computation_report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(computation_report.calculated_dispersion_of_intensity_of_effort)} sigma"
+    # log_pretty_paceline_solution_report(basic_title, RiderContributionDisplayObject.from_RiderContributionItems(computation_report.rider_contributions), logger)
+    # save_pretty_paceline_solution_as_html_file(basic_title, basic_contributions, logger, "basic_pull_plan.html")
 
     # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
 
@@ -60,27 +78,26 @@ def main():
 
     computation_report = generate_ingenious_paceline_solutions(ingredients)
 
-    def get_solution(solution: Optional[PacelineComputationReport])-> PacelineComputationReport:
-        return solution if solution else PacelineComputationReport()
 
+    basic    = get_solution(computation_report.basic_solution)
     simple   = get_solution(computation_report.simple_solution)
     balanced = get_solution(computation_report.balanced_intensity_of_effort_solution)
     tempo    = get_solution(computation_report.tempo_solution)
     drop     = get_solution(computation_report.drop_solution)
 
-    def get_contributions(solution: PacelineComputationReport)-> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
-        return RiderContributionDisplayObject.from_RiderContributionItems(solution.rider_contributions if solution.rider_contributions else defaultdict(RiderContributionItem))
-
+    basic_contributions   = get_contributions(basic)
     simple_contributions   = get_contributions(simple)
     balanced_contributions = get_contributions(balanced)
     tempo_contributions    = get_contributions(tempo)
     drop_contributions     = get_contributions(drop)
 
-    simple_title = f"\nSIMPLE PLAN (ID {JghString.first_n_chars(simple.guid,3)}): {format_number_1dp(simple.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(simple.calculated_dispersion_of_intensity_of_effort)}sigma "
-    balanced_title = f"\nBALANCED PLAN (ID {JghString.first_n_chars(balanced.guid,3)}): {format_number_2dp(balanced.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(balanced.calculated_dispersion_of_intensity_of_effort)}sigma"
-    tempo_title = f"\nTEMPO PLAN (ID {JghString.first_n_chars(tempo.guid,3)}): {format_number_1dp(tempo.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(tempo.calculated_dispersion_of_intensity_of_effort)}sigma"
-    drop_title = f"\nDROP PLAN (ID {JghString.first_n_chars(drop.guid,3)}):  {format_number_1dp(drop.calculated_average_speed_of_paceline_kph)}kph  {format_number_3dp(drop.calculated_dispersion_of_intensity_of_effort)}sigma"
+    basic_title = make_pretty_title("\nBASIC PLAN", basic, "(thirty second pull)")
+    simple_title = make_pretty_title("\nSIMPLE PLAN", simple, "(uniform pull)")
+    balanced_title = make_pretty_title("\nBALANCED PLAN", balanced, "(prioritize a balanced workload over speed)")
+    tempo_title = make_pretty_title("\nTEMPO PLAN", tempo, "(prioritize speed over a balanced workload)") 
+    drop_title = make_pretty_title("\nDROP PLAN", drop, "(drop riders. prioritize speed over a balanced workload)")
 
+    log_pretty_paceline_solution_report(basic_title,  basic_contributions, logger,)
     log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger,)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
     log_pretty_paceline_solution_report(tempo_title, tempo_contributions, logger)
@@ -92,6 +109,7 @@ def main():
 
     # SAVE A SOLUTION AS HTML FILE
 
+    save_pretty_paceline_solution_as_html_file(basic_title, basic_contributions, logger, "basic_pull_plan.html")
     save_pretty_paceline_solution_as_html_file(simple_title, simple_contributions, logger, "simple_pull_plan.html")
     save_pretty_paceline_solution_as_html_file(balanced_title, balanced_contributions, logger, "balanced_pull_plan.html")
     save_pretty_paceline_solution_as_html_file(tempo_title, tempo_contributions, logger, "tempo_pull_plan.html")

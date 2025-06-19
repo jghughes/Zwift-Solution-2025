@@ -231,6 +231,7 @@ class PacelineSolutionsComputationReport:
     total_pull_sequences_examined         : int   = 0
     total_compute_iterations_performed    : int   = 0
     computational_time                    : float = 0.0
+    basic_solution                        : Union[PacelineComputationReport, None] = None
     simple_solution                       : Union[PacelineComputationReport, None] = None
     balanced_intensity_of_effort_solution : Union[PacelineComputationReport, None] = None
     tempo_solution                        : Union[PacelineComputationReport, None] = None
