@@ -239,9 +239,6 @@ class PacelineSolutionsComputationReport:
     balanced_intensity_of_effort_solution : Union[PacelineComputationReport, None] = None
     pull_hard_solution                    : Union[PacelineComputationReport, None] = None
     hang_in_solution                      : Union[PacelineComputationReport, None] = None
-    surviving_four_solution               : Union[PacelineComputationReport, None] = None
-
-    # solutions                             : List[PacelineComputationReport] = field(default_factory=list)
 
 @dataclass
 class WorthyCandidateSolution:

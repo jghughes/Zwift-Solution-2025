@@ -52,12 +52,12 @@ def main():
 
     # --- Evaluate all permutations for optimal pull plans in parallel ---
 
-    ARRAY_OF_STANDARD_PULL_PERIODS_SEC = [30.0,60.0, 240.0]
+    STANDARD_PULL_PERIODS_SEC_AS_LIST = [30.0,60.0, 240.0]
 
     list_of_instructions = [
         PacelineIngredientsItem(
             riders_list=perm_riders,
-            sequence_of_pull_periods_sec=ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
+            sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC_AS_LIST,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
             max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR
         )

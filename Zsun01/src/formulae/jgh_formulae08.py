@@ -15,7 +15,7 @@ from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_uppe
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS, SOLUTION_SPACE_SIZE_CONSTRAINT, ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
+from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS, SOLUTION_SPACE_SIZE_CONSTRAINT, STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -209,12 +209,12 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
 
     answer = PacelineComputationReport(
-        algorithm_ran_to_completion              = True,  
-        compute_iterations_performed_count       = compute_iterations_performed,
-        exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
-        calculated_average_speed_of_paceline_kph = speed_of_paceline,
+        algorithm_ran_to_completion                 = True,  
+        compute_iterations_performed_count          = compute_iterations_performed,
+        exertion_intensity_constraint_used          = paceline_ingredients.max_exertion_intensity_factor,
+        calculated_average_speed_of_paceline_kph    = speed_of_paceline,
         calculated_dispersion_of_intensity_of_effort= calculate_dispersion_of_intensity_of_effort(dict_of_rider_contributions),
-        rider_contributions                      = dict_of_rider_contributions,
+        rider_contributions                         = dict_of_rider_contributions,
 
     )
 
@@ -833,7 +833,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
 
     if len(pruned_sequences) > 1_024:
-        logger.warning(f"\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of allowed pull-periods is {len(ARRAY_OF_STANDARD_PULL_PERIODS_SEC)}. For n riders and k allowed pull periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {len(universe_of_rotation_sequences)}. We have pruned these down to {len(pruned_sequences)} sequences. This is still a big number. Computation could take a while. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and should not be reduced if possible.\n")
+        logger.warning(f"\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of allowed pull-periods is {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}. For n riders and k allowed pull periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {len(universe_of_rotation_sequences)}. We have pruned these down to {len(pruned_sequences)} sequences. This is still a big number. Computation could take a while. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and should not be reduced if possible.\n")
 
     start_time = time.perf_counter()
 
@@ -897,7 +897,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 def main01():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
+    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
@@ -909,11 +909,11 @@ def main01():
     riderIDs = get_team_riderIDs("betel")
     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 
-    all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
+    all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
     plan_params = PacelineIngredientsItem(
         riders_list                   = riders,
-        sequence_of_pull_periods_sec  = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec  = STANDARD_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph               = [30.0] * len(riders),
         max_exertion_intensity_factor = 0.95
     )
@@ -974,7 +974,7 @@ def main01():
 def main02():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
+    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     from zsun_rider_dto import ZsunRiderDTO
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
@@ -985,7 +985,7 @@ def main02():
 
     params = PacelineIngredientsItem(
         riders_list                  = riders,
-        sequence_of_pull_periods_sec = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph              = [10.0] * len(riders), # this is definitely not a dictated speed in this context, it's the seed speed for the binary search algorithm. arbitrary low value.
         max_exertion_intensity_factor= 0.95
     )

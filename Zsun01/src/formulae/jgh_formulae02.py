@@ -467,6 +467,7 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict
     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
     if not np.isfinite(std_deviation_of_intensity_factors):
         return 100  # arbitrarily big
+
     return std_deviation_of_intensity_factors
 
 def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRiderItem]:
@@ -511,6 +512,42 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
         back_idx -= 1
 
     return optimal_order
+
+
+
+def select_n_strongest_riders(riders: List[ZsunRiderItem], n : int) -> List[ZsunRiderItem]:
+    if not riders:
+        return []
+
+    #sort riders according to 1 minute pull speed
+    riders.sort(key=lambda r: r.get_strength_wkg(), reverse=True)
+
+    strong_riders: List[ZsunRiderItem] = []
+
+    if len(riders) <= n:
+        return riders
+    else:
+        # select the four strongest riders only 
+
+        strong_riders = riders[:n]
+
+    return strong_riders
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
@@ -615,7 +652,7 @@ def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
 def main():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
-    from constants import ARRAY_OF_STANDARD_PULL_PERIODS_SEC
+    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     from computation_classes import PacelineIngredientsItem
 
 
@@ -628,13 +665,13 @@ def main():
 
     params = PacelineIngredientsItem(
         riders_list                  = riders,
-        sequence_of_pull_periods_sec = ARRAY_OF_STANDARD_PULL_PERIODS_SEC,
+        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph              = [30.0] * len(riders),
         max_exertion_intensity_factor= 0.95)
 
     start_time = time.perf_counter()
 
-    universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), ARRAY_OF_STANDARD_PULL_PERIODS_SEC)
+    universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
     
     elapsed_time = time.perf_counter() - start_time
 

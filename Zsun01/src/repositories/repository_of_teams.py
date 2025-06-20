@@ -58,13 +58,13 @@ giants_Roster = defaultdict(
     {
         "4204538": "ceri_pritchard",
         "407780": "colin_humphrey",
-        # "3147366": "dave_konicek",
-        # "2449352": "ed_bentley",
-        # "106298": "eltjo_biemold",
-        # "2847282": "ivan_parks",
+        "3147366": "dave_konicek",
+        "2449352": "ed_bentley",
+        "106298": "eltjo_biemold",
+        "2847282": "ivan_parks",
         "172221": "john_glass",
         "197937": "roy_roesthuis",
-        # "1662067": "steve_james",
+        "1662067": "steve_james",
     }
 )
 
