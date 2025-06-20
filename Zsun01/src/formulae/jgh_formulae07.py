@@ -151,32 +151,33 @@ def save_pretty_paceline_solution_as_html_file(
             color: #222;
         }}
         .table-container {{
-            overflow-x: auto;
-            width: auto;
+            width: 260mm;
             max-width: 100vw;
-            margin-bottom: 2em;
+            margin-left: auto;
+            margin-right: auto;
+            overflow-x: auto;
         }}
         .rider-table {{
             border-collapse: collapse;
-            width: auto;           /* Let table shrink to fit content */
-            max-width: none;
-            font-size: 1.05em;
+            width: 100%;
+            font-size: 0.95em; /* Reduced from 1.05em */
             font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
         }}
         .rider-table caption {{
             caption-side: top;
-            font-size: 1.05em;
-            font-weight: bold;
+            font-size: 0.95em;
+            font-weight: 500; /* Reduced from bold which is 700 */
             margin-bottom: 0.5em;
             font-family: 'Roboto', Arial, sans-serif;
+            text-align: left; /* Left align the caption */
         }}
         .rider-table th {{
             background-color: #e6ecf5;
-            font-size: 1em;
+            font-size: 0.95em; /* (optional: reduce font size for compactness) */
             font-weight: bold;
             text-align: center;
             border-bottom: 2px solid #444;
-            padding: 10px 8px;
+            padding: 6px 6px;   /* Reduced from 10px 8px */
             letter-spacing: 0.02em;
             white-space: nowrap;
         }}
@@ -187,8 +188,8 @@ def save_pretty_paceline_solution_as_html_file(
             text-align: left;
         }}
         .rider-table td {{
-            font-size: 1em;
-            padding: 8px 8px;
+            font-size: 0.95em;  /* (optional: reduce font size for compactness) */
+            padding: 6px 6px;   /* Reduced from 8px 8px */
             border: 1px solid #b0b0b0;
             white-space: nowrap;
         }}
@@ -197,7 +198,8 @@ def save_pretty_paceline_solution_as_html_file(
         .rider-table td:nth-child(1),
         .rider-table th:nth-child(2),
         .rider-table td:nth-child(2) {{
-            font-family: 'Roboto', Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif !important;
+            font-size: 0.95em !important;
             font-weight: 400;
         }}
         .rider-table tr:nth-child(even) td {{
@@ -212,11 +214,13 @@ def save_pretty_paceline_solution_as_html_file(
             background-color: #f0f4fa;
         }}
         .footnote {{
-            font-size: 0.9em;
+            font-size: 0.95em;
             color: #666;
             margin-top: 1.5em;
-            font-weight: bold;
+            font-weight: 500;
             font-family: 'Roboto', Arial, sans-serif;
+            width: 100%;         /* Match table width */
+            text-align: left; /* Left align the footnotes */
         }}
         .footnote sup, .rider-table th sup {{
             font-size: 0.8em;
@@ -225,11 +229,13 @@ def save_pretty_paceline_solution_as_html_file(
         }}
     </style>
 </head>
+
 <body>
     <div class="table-container">
         {html_table}
+    <div class="footnote">
+        {footnotes}
     </div>
-    {footnotes}
 </body>
 </html>
 """

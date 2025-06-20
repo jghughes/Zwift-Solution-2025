@@ -723,42 +723,6 @@ def is_balanced_drop_solution_candidate(
 
     return answer
 
-
-
-
-
-
-
-# def is_wtrl_race_solution_candidate(
-#     this_solution: PacelineComputationReport,
-#     candidate: WorthyCandidateSolution
-# ) -> bool:
-
-#     this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
-#     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-#     any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
-#     any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
-
-#     zero_dispersion_ok = (
-#         this_solution_dispersion != 0.0 or
-#         is_zero_dispersion_permissible_for_simple_solution(this_solution)
-#     )
-
-#     answer = (
-#         this_solution_speed_kph >= candidate.speed_kph
-#         and this_solution_dispersion < candidate.dispersion
-#         and zero_dispersion_ok
-#         and any_zero
-#         and any_nonzero
-
-#     )
-
-#     # if answer:
-#     #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
-
-#     return answer
-
-
 def update_candidate_solution(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution,
@@ -802,15 +766,15 @@ def raise_error_if_any_solutions_missing(
         raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
 
     if basic_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (basic_solution is None)")
+        raise RuntimeError("No valid this_solution found (thirty_sec_solution is None)")
     if simple_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (simple_solution is None)")
+        raise RuntimeError("No valid this_solution found (uniform_pull_solution is None)")
     if tempo_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (tempo_solution is None)")
+        raise RuntimeError("No valid this_solution found (pull_hard_solution is None)")
     if balanced_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (balanced_solution is None)")
     if drop_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (drop_solution is None)")
+        raise RuntimeError("No valid this_solution found (hang_in_solution is None)")
 
 
 def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
@@ -839,10 +803,10 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
                 - total_pull_sequences_examined (int): Number of candidate paceline rotation schedules evaluated.
                 - total_compute_iterations_performed (int): Total number of compute iterations performed across all solutions.
                 - computational_time (float): Total time taken for the computation (seconds).
-                - simple_solution (PacelineComputationReport): The best simple solution found.
+                - uniform_pull_solution (PacelineComputationReport): The best simple solution found.
                 - balanced_intensity_of_effort_solution (PacelineComputationReport): The most balanced solution found.
-                - tempo_solution (PacelineComputationReport): The best tempo solution found.
-                - drop_solution (PacelineComputationReport): The best drop solution found.
+                - pull_hard_solution (PacelineComputationReport): The best tempo solution found.
+                - hang_in_solution (PacelineComputationReport): The best drop solution found.
 
     Raises:
         ValueError: If required input parameters are missing or invalid.
@@ -922,11 +886,11 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         total_pull_sequences_examined           = len(pruned_sequences),
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
-        basic_solution                          = basic_candidate.solution,
-        simple_solution                         = simple_candidate.solution,
+        thirty_sec_solution                          = basic_candidate.solution,
+        uniform_pull_solution                         = simple_candidate.solution,
         balanced_intensity_of_effort_solution   = balanced_candidate.solution,
-        tempo_solution                          = tempo_candidate.solution,
-        drop_solution                           = drop_candidate.solution,
+        pull_hard_solution                          = tempo_candidate.solution,
+        hang_in_solution                           = drop_candidate.solution,
     )
 
 
@@ -1032,22 +996,22 @@ def main02():
 
     computation_report = generate_ingenious_paceline_solutions(params)
 
-    simple_solution = computation_report.simple_solution
+    uniform_pull_solution = computation_report.uniform_pull_solution
     balanced_solution = computation_report.balanced_intensity_of_effort_solution
-    tempo_solution = computation_report.tempo_solution
-    drop_solution = computation_report.drop_solution
+    pull_hard_solution = computation_report.pull_hard_solution
+    hang_in_solution = computation_report.hang_in_solution
 
-    simple_speed = simple_solution.calculated_average_speed_of_paceline_kph if simple_solution else None
+    simple_speed = uniform_pull_solution.calculated_average_speed_of_paceline_kph if uniform_pull_solution else None
     balanced_speed = balanced_solution.calculated_average_speed_of_paceline_kph if balanced_solution else None
-    tempo_speed = tempo_solution.calculated_average_speed_of_paceline_kph if tempo_solution else None
-    drop_speed = drop_solution.calculated_average_speed_of_paceline_kph if drop_solution else None
+    tempo_speed = pull_hard_solution.calculated_average_speed_of_paceline_kph if pull_hard_solution else None
+    drop_speed = hang_in_solution.calculated_average_speed_of_paceline_kph if hang_in_solution else None
 
     logger.debug(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
-    simple_guid    = first_n_chars(simple_solution.guid, 2) if simple_solution else "--"
+    simple_guid    = first_n_chars(uniform_pull_solution.guid, 2) if uniform_pull_solution else "--"
     balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
-    tempo_guid     = first_n_chars(tempo_solution.guid, 2) if tempo_solution else "--"
-    drop_guid      = first_n_chars(drop_solution.guid, 2) if drop_solution else "--"
+    tempo_guid     = first_n_chars(pull_hard_solution.guid, 2) if pull_hard_solution else "--"
+    drop_guid      = first_n_chars(hang_in_solution.guid, 2) if hang_in_solution else "--"
 
     logger.debug(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
     logger.debug(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")

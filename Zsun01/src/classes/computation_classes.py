@@ -115,7 +115,10 @@ class RiderContributionDisplayObject():
 
     @staticmethod
     def make_pretty_consolidated_racing_cat_descriptor(rider: ZsunRiderItem) -> str:
-        answer = f"{rider.zwift_cat} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
+        if rider.zwift_cat:
+            answer = f"{rider.zwift_cat} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
+        else:
+            answer = f"{" "} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
         return answer
 
     @staticmethod
@@ -231,11 +234,12 @@ class PacelineSolutionsComputationReport:
     total_pull_sequences_examined         : int   = 0
     total_compute_iterations_performed    : int   = 0
     computational_time                    : float = 0.0
-    basic_solution                        : Union[PacelineComputationReport, None] = None
-    simple_solution                       : Union[PacelineComputationReport, None] = None
+    thirty_sec_solution                   : Union[PacelineComputationReport, None] = None
+    uniform_pull_solution                 : Union[PacelineComputationReport, None] = None
     balanced_intensity_of_effort_solution : Union[PacelineComputationReport, None] = None
-    tempo_solution                        : Union[PacelineComputationReport, None] = None
-    drop_solution                         : Union[PacelineComputationReport, None] = None
+    pull_hard_solution                    : Union[PacelineComputationReport, None] = None
+    hang_in_solution                      : Union[PacelineComputationReport, None] = None
+    surviving_four_solution               : Union[PacelineComputationReport, None] = None
 
     # solutions                             : List[PacelineComputationReport] = field(default_factory=list)
 

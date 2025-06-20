@@ -32,9 +32,9 @@ def main():
 
     def make_pretty_title(title: str, report : PacelineComputationReport, suffix : Optional[str]) -> str:
         if suffix:
-            return f"\n{title} [ID {JghString.first_n_chars(report.guid,3)}]: {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma {suffix}"
+            return f"\n{title} [ID {JghString.first_n_chars(report.guid,3)}]...{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma {suffix}"
         else:
-            return f"\n{title} (ID {JghString.first_n_chars(report.guid,3)}): {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma"
+            return f"\n{title} (ID {JghString.first_n_chars(report.guid,3)})...{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(report.calculated_dispersion_of_intensity_of_effort)} sigma"
 
 
     # GET THE DATA READY
@@ -66,11 +66,11 @@ def main():
 
     # computation_report = generate_a_single_paceline_solution_complying_with_exertion_constraints(ingredients)
 
-    # basic_contributions   = get_contributions(computation_report)
+    # thirty_contributions   = get_contributions(computation_report)
 
-    # basic_title = f"\nBASIC PLAN (ID {JghString.first_n_chars(computation_report.guid,3)}): {format_number_1dp(computation_report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(computation_report.calculated_dispersion_of_intensity_of_effort)} sigma"
-    # log_pretty_paceline_solution_report(basic_title, RiderContributionDisplayObject.from_RiderContributionItems(computation_report.rider_contributions), logger)
-    # save_pretty_paceline_solution_as_html_file(basic_title, basic_contributions, logger, "basic_pull_plan.html")
+    # thirty_title = f"\nBASIC PLAN (ID {JghString.first_n_chars(computation_report.guid,3)}): {format_number_1dp(computation_report.calculated_average_speed_of_paceline_kph)} kph  {format_number_3dp(computation_report.calculated_dispersion_of_intensity_of_effort)} sigma"
+    # log_pretty_paceline_solution_report(thirty_title, RiderContributionDisplayObject.from_RiderContributionItems(computation_report.rider_contributions), logger)
+    # save_pretty_paceline_solution_as_html_file(thirty_title, thirty_contributions, logger, "basic_pull_plan.html")
 
     # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
 
@@ -79,29 +79,33 @@ def main():
     computation_report = generate_ingenious_paceline_solutions(ingredients)
 
 
-    basic    = get_solution(computation_report.basic_solution)
-    simple   = get_solution(computation_report.simple_solution)
-    balanced = get_solution(computation_report.balanced_intensity_of_effort_solution)
-    tempo    = get_solution(computation_report.tempo_solution)
-    drop     = get_solution(computation_report.drop_solution)
+    thirty          = get_solution(computation_report.thirty_sec_solution)
+    uniform         = get_solution(computation_report.uniform_pull_solution)
+    balanced        = get_solution(computation_report.balanced_intensity_of_effort_solution)
+    pull_hard       = get_solution(computation_report.pull_hard_solution)
+    hang_in         = get_solution(computation_report.hang_in_solution)
+    surviving_four  = get_solution(computation_report.surviving_four_solution)
 
-    basic_contributions   = get_contributions(basic)
-    simple_contributions   = get_contributions(simple)
+    thirty_contributions    = get_contributions(thirty)
+    uniform_contributions   = get_contributions(uniform)
     balanced_contributions = get_contributions(balanced)
-    tempo_contributions    = get_contributions(tempo)
-    drop_contributions     = get_contributions(drop)
+    pull_hard_contributions = get_contributions(pull_hard)
+    hang_in_contributions  = get_contributions(hang_in)
+    surviving_four_contributions  = get_contributions(surviving_four)
 
-    basic_title = make_pretty_title("\nBASIC PLAN", basic, "(thirty second pull. no drop.)")
-    simple_title = make_pretty_title("\nSIMPLE PLAN", simple, "(uniform pull. no drop.)")
-    balanced_title = make_pretty_title("\nBALANCED PLAN", balanced, "(balanced workload. no drop)")
-    tempo_title = make_pretty_title("\nTEMPO PLAN", tempo, "(speedy. no drop)") 
-    drop_title = make_pretty_title("\nSPEED PLAN", drop, "(focus on speed alone)")
+    thirty_title = make_pretty_title("\nTHIRTY SECOND PLAN", thirty, "(thirty second pull for everyone)")
+    uniform_title = make_pretty_title("\nUNIFORM PULL PLAN", uniform, "(same pull for everyone)")
+    balanced_title = make_pretty_title("\nBALANCED INTENSITY PLAN", balanced, "(everybody pulls. work intensity is balanced)")
+    pull_hard_tempo = make_pretty_title("\nPULL HARD PLAN", pull_hard, "(everybody pulls. weaker riders work harder to pull)") 
+    hang_in_title = make_pretty_title("\nHANG-IN PLAN", hang_in, "(eveybody plays a part, maybe or maybe not pulling)")
+    surviving_four_title = make_pretty_title("\nSURVIVING FOUR PLAN", hang_in, "(down to the last four, eveybody plays a part, maybe or maybe not pulling)")
 
-    log_pretty_paceline_solution_report(basic_title,  basic_contributions, logger,)
-    log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger,)
+    log_pretty_paceline_solution_report(thirty_title,  thirty_contributions, logger,)
+    log_pretty_paceline_solution_report(uniform_title,  uniform_contributions, logger,)
     log_pretty_paceline_solution_report(balanced_title,  balanced_contributions, logger)
-    log_pretty_paceline_solution_report(tempo_title, tempo_contributions, logger)
-    log_pretty_paceline_solution_report(drop_title, drop_contributions, logger)
+    log_pretty_paceline_solution_report(pull_hard_tempo, pull_hard_contributions, logger)
+    log_pretty_paceline_solution_report(hang_in_title, hang_in_contributions, logger)
+    log_pretty_paceline_solution_report(surviving_four_title, surviving_four_contributions, logger)
 
     # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
 
@@ -109,11 +113,12 @@ def main():
 
     # SAVE A SOLUTION AS HTML FILE
 
-    save_pretty_paceline_solution_as_html_file(basic_title, basic_contributions, logger, "basic_pull_plan.html")
-    save_pretty_paceline_solution_as_html_file(simple_title, simple_contributions, logger, "simple_pull_plan.html")
-    save_pretty_paceline_solution_as_html_file(balanced_title, balanced_contributions, logger, "balanced_pull_plan.html")
-    save_pretty_paceline_solution_as_html_file(tempo_title, tempo_contributions, logger, "tempo_pull_plan.html")
-    save_pretty_paceline_solution_as_html_file(drop_title, drop_contributions, logger, "drop_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(thirty_title, thirty_contributions, logger, "thirty_sec_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(uniform_title, uniform_contributions, logger, "uniform_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(balanced_title, balanced_contributions, logger, "balanced_intensity_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(pull_hard_tempo, pull_hard_contributions, logger, "pull_hard_plan.html")
+    save_pretty_paceline_solution_as_html_file(hang_in_title, hang_in_contributions, logger, "hang_in_pull_plan.html")
+    save_pretty_paceline_solution_as_html_file(surviving_four_title, surviving_four_contributions, logger, "surviving_four_pull_plan.html")
 
 
 
