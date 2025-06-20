@@ -41,7 +41,7 @@ def main():
 
     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_team_riderIDs("giants")
 
     riders : list[ZsunRiderItem] = []
 
@@ -91,11 +91,11 @@ def main():
     tempo_contributions    = get_contributions(tempo)
     drop_contributions     = get_contributions(drop)
 
-    basic_title = make_pretty_title("\nBASIC PLAN", basic, "(thirty second pull)")
-    simple_title = make_pretty_title("\nSIMPLE PLAN", simple, "(uniform pull)")
-    balanced_title = make_pretty_title("\nBALANCED PLAN", balanced, "(prioritize a balanced workload over speed)")
-    tempo_title = make_pretty_title("\nTEMPO PLAN", tempo, "(prioritize speed over a balanced workload)") 
-    drop_title = make_pretty_title("\nDROP PLAN", drop, "(drop riders. prioritize speed over a balanced workload)")
+    basic_title = make_pretty_title("\nBASIC PLAN", basic, "(thirty second pull. no drop.)")
+    simple_title = make_pretty_title("\nSIMPLE PLAN", simple, "(uniform pull. no drop.)")
+    balanced_title = make_pretty_title("\nBALANCED PLAN", balanced, "(balanced workload. no drop)")
+    tempo_title = make_pretty_title("\nTEMPO PLAN", tempo, "(speedy. no drop)") 
+    drop_title = make_pretty_title("\nSPEED PLAN", drop, "(focus on speed alone)")
 
     log_pretty_paceline_solution_report(basic_title,  basic_contributions, logger,)
     log_pretty_paceline_solution_report(simple_title,  simple_contributions, logger,)

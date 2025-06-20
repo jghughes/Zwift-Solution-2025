@@ -651,8 +651,8 @@ def is_drop_solution_candidate(
 
     this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
     this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-    any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
-    any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
+    # any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
+    # any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
 
     zero_dispersion_ok = (
         this_solution_dispersion != 0.0 or
@@ -662,8 +662,8 @@ def is_drop_solution_candidate(
     answer = ((this_solution_speed_kph > candidate.speed_kph
             or (this_solution_speed_kph == candidate.speed_kph and this_solution_dispersion < candidate.dispersion))
         and zero_dispersion_ok
-        and any_zero
-        and any_nonzero
+        # and any_zero
+        # and any_nonzero
 
     )
 
