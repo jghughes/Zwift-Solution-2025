@@ -8,6 +8,7 @@ def get_teams() -> Dict[str, defaultdict[str, str]]:
         "betel": betelguese_Roster,
         "giants": giants_Roster,
         "fire": zsunderfire_Roster,
+        "kissed": sunkissed_Roster,
     }
 
 def get_team_riderIDs(team_name: str) -> List[str]:
@@ -79,6 +80,16 @@ zsunderfire_Roster = defaultdict(
         "2705238": "sjors_van_liempt",
         "11741": "tom_bick",
         "2419188": "xander_crawshaw",
+    }
+)
+sunkissed_Roster = defaultdict(
+    str,
+    {
+        "383480": "lynsey_segal",
+        "": "j_daniell",
+        "": "j_de_vries",
+        "": "z_mackay",
+        "": "c_williams",
     }
 )
 

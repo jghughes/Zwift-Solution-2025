@@ -280,7 +280,6 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
     return solutions
 
 
-
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
@@ -427,6 +426,37 @@ def is_valid_solution(this_solution: PacelineComputationReport, logger: logging.
     return True
 
 
+def raise_error_if_any_solutions_missing(
+    thirty_sec_candidate: WorthyCandidateSolution,
+    uniform_pull_candidate: WorthyCandidateSolution,
+    balanced_intensity_candidate: WorthyCandidateSolution,
+    pull_hard_candidate: WorthyCandidateSolution,
+    hang_in_candidate: WorthyCandidateSolution
+) -> None:
+    """
+    Raises RuntimeError if any required candidate solution is missing.
+    """
+    if (
+        thirty_sec_candidate.solution is None
+        and uniform_pull_candidate.solution is None
+        and balanced_intensity_candidate.solution is None
+        and pull_hard_candidate.solution is None
+        and hang_in_candidate.solution is None
+    ):
+        raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
+
+    if thirty_sec_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (thirty_sec_solution is None)")
+    if uniform_pull_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (uniform_pull_solution is None)")
+    if pull_hard_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (pull_hard_solution is None)")
+    if balanced_intensity_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (balanced_solution is None)")
+    if hang_in_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (hang_in_solution is None)")
+
+
 def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineComputationReport) -> bool:
     """
     Returns True if a dispersion of 0.0 is permissible for a 'simple solution' candidate.
@@ -444,7 +474,7 @@ def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineCo
     watts = {getattr(r, "p1_watts", None) for r in rider_contributions}
     return len(durations) == 1 and len(watts) == 1
 
-def is_basic_solution_candidate(
+def is_thirty_second_pull_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -473,7 +503,7 @@ def is_basic_solution_candidate(
 
     return answer
 
-def is_simple_solution_candidate(
+def is_uniform_pull_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -522,7 +552,7 @@ def is_simple_solution_candidate(
 
     return answer
 
-def is_balanced_solution_candidate(
+def is_balanced_intensity_solution_candidate(
         this_solution: PacelineComputationReport,
         candidate: WorthyCandidateSolution
     ) -> bool:
@@ -573,7 +603,7 @@ def is_balanced_solution_candidate(
 
     return answer
 
-def is_tempo_solution_candidate(
+def is_pull_hard_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -621,7 +651,7 @@ def is_tempo_solution_candidate(
 
     return answer
 
-def is_drop_solution_candidate(
+def is_hang_in_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -723,6 +753,7 @@ def is_balanced_drop_solution_candidate(
 
     return answer
 
+
 def update_candidate_solution(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution,
@@ -745,37 +776,6 @@ def update_candidate_solution(
     candidate.speed_kph  = this_solution_speed_kph
     candidate.dispersion = this_solution_dispersion
     candidate.solution   = this_solution
-
-def raise_error_if_any_solutions_missing(
-    basic_candidate: WorthyCandidateSolution,
-    simple_candidate: WorthyCandidateSolution,
-    balanced_candidate: WorthyCandidateSolution,
-    tempo_candidate: WorthyCandidateSolution,
-    drop_candidate: WorthyCandidateSolution
-) -> None:
-    """
-    Raises RuntimeError if any required candidate solution is missing.
-    """
-    if (
-        basic_candidate.solution is None
-        and simple_candidate.solution is None
-        and balanced_candidate.solution is None
-        and tempo_candidate.solution is None
-        and drop_candidate.solution is None
-    ):
-        raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
-
-    if basic_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (thirty_sec_solution is None)")
-    if simple_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (uniform_pull_solution is None)")
-    if tempo_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (pull_hard_solution is None)")
-    if balanced_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (balanced_solution is None)")
-    if drop_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (hang_in_solution is None)")
-
 
 def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
     ) -> PacelineSolutionsComputationReport:
@@ -844,11 +844,11 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     time_taken_to_compute = time.perf_counter() - start_time
 
-    basic_candidate   = WorthyCandidateSolution(tag="basic")
-    simple_candidate   = WorthyCandidateSolution(tag="simpl")
-    balanced_candidate = WorthyCandidateSolution(tag="bal   ")
-    tempo_candidate    = WorthyCandidateSolution(tag="t    ")
-    drop_candidate     = WorthyCandidateSolution(tag="drop ")
+    thirty_sec_candidate   = WorthyCandidateSolution(tag="30sec")
+    uniform_pull_candidate   = WorthyCandidateSolution(tag="unif ")
+    balanced_intensity_candidate = WorthyCandidateSolution(tag="bal  ")
+    pull_hard_candidate    = WorthyCandidateSolution(tag="pull ")
+    hang_in_candidate     = WorthyCandidateSolution(tag="hang ")
 
     total_compute_iterations_performed = 0 
 
@@ -859,38 +859,38 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         if not is_valid_solution(this_solution, logger):
                 continue
 
-        if is_basic_solution_candidate(this_solution, basic_candidate):
-            update_candidate_solution(this_solution, basic_candidate, logger)
+        if is_thirty_second_pull_solution_candidate(this_solution, thirty_sec_candidate):
+            update_candidate_solution(this_solution, thirty_sec_candidate, logger)
 
-        if is_simple_solution_candidate(this_solution, simple_candidate):
-            update_candidate_solution(this_solution, simple_candidate, logger)
+        if is_uniform_pull_solution_candidate(this_solution, uniform_pull_candidate):
+            update_candidate_solution(this_solution, uniform_pull_candidate, logger)
 
-        if is_balanced_solution_candidate(this_solution, balanced_candidate):
-            update_candidate_solution(this_solution, balanced_candidate, logger)
+        if is_balanced_intensity_solution_candidate(this_solution, balanced_intensity_candidate):
+            update_candidate_solution(this_solution, balanced_intensity_candidate, logger)
 
-        if is_tempo_solution_candidate(this_solution, tempo_candidate):
-            update_candidate_solution(this_solution, tempo_candidate, logger)
+        if is_pull_hard_solution_candidate(this_solution, pull_hard_candidate):
+            update_candidate_solution(this_solution, pull_hard_candidate, logger)
 
-        if is_drop_solution_candidate(this_solution, drop_candidate):
-            update_candidate_solution(this_solution, drop_candidate, logger)
+        if is_hang_in_solution_candidate(this_solution, hang_in_candidate):
+            update_candidate_solution(this_solution, hang_in_candidate, logger)
 
     raise_error_if_any_solutions_missing(
-        basic_candidate,
-        simple_candidate,
-        balanced_candidate,
-        tempo_candidate,
-        drop_candidate
+        thirty_sec_candidate,
+        uniform_pull_candidate,
+        balanced_intensity_candidate,
+        pull_hard_candidate,
+        hang_in_candidate
     )
 
     return PacelineSolutionsComputationReport(
         total_pull_sequences_examined           = len(pruned_sequences),
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
-        thirty_sec_solution                          = basic_candidate.solution,
-        uniform_pull_solution                         = simple_candidate.solution,
-        balanced_intensity_of_effort_solution   = balanced_candidate.solution,
-        pull_hard_solution                          = tempo_candidate.solution,
-        hang_in_solution                           = drop_candidate.solution,
+        thirty_sec_solution                          = thirty_sec_candidate.solution,
+        uniform_pull_solution                         = uniform_pull_candidate.solution,
+        balanced_intensity_of_effort_solution   = balanced_intensity_candidate.solution,
+        pull_hard_solution                          = pull_hard_candidate.solution,
+        hang_in_solution                           = hang_in_candidate.solution,
     )
 
 
