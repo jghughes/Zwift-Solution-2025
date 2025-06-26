@@ -427,19 +427,6 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
     return fastest_rider, fastest_duration, highest_speed
 
 
-
-
-# def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem])-> float:
-#     array_of_rider_effort_intensity_factors = [contribution.intensity_factor for _, contribution in rider_contributions.items()]
-#     if not array_of_rider_effort_intensity_factors:
-#         return 100 #arbitrarily big
-#     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
-#     if not np.isfinite(std_deviation_of_intensity_factors):
-#         return 100 #arbitrarily big
-#     return std_deviation_of_intensity_factors
-
-
-
 def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
@@ -532,6 +519,23 @@ def select_n_strongest_riders(riders: List[ZsunRiderItem], n : int) -> List[Zsun
         strong_riders = riders[:n]
 
     return strong_riders
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
     pull_period_sequences_being_pruned: NDArray[np.float64],
@@ -632,47 +636,222 @@ def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
 
     return all_combinations
 
+import itertools
+
+def generate_all_sequences_of_pull_periods_in_the_total_solution_spaceV2(num_riders : int, pull_periods : List[float]):
+    return itertools.product(pull_periods, repeat=num_riders)  # returns a generator
+
+from typing import Iterable, Iterator, Tuple, List
+import numpy as np
+from zsun_rider_item import ZsunRiderItem
+
+def prune_all_sequences_of_pull_periods_in_the_total_solution_spaceV2(
+    pull_period_sequences_being_pruned: Iterable[Tuple[float, ...]],
+    riders: List[ZsunRiderItem]
+) -> Iterator[Tuple[float, ...]]:
+    """
+    Generator version of the pruning function.
+    Yields only those sequences that pass the empirical pruning rules.
+
+    Args:
+        pull_period_sequences_being_pruned: Iterable of candidate sequences (tuples of floats).
+        riders: List of ZsunRiderItem objects.
+
+    Yields:
+        Sequence (tuple of floats) that passes all pruning rules.
+    """
+    strengths = np.array([r.get_strength_wkg() for r in riders])
+    sorted_indices = np.argsort(strengths)
+    weakest_idx = sorted_indices[0]
+    second_weakest_idx = sorted_indices[1] if len(sorted_indices) > 1 else None
+
+    strengths_desc = np.argsort(-strengths)
+    n_riders = len(riders)
+    max_n = min(13, n_riders + 1)
+
+    for seq in pull_period_sequences_being_pruned:
+        arr = np.array(seq)
+
+        # Filter 1: No rider (except 2nd weakest) can have a pull shorter than the weakest
+        weakest_value = arr[weakest_idx]
+        filter1_ok = True
+        for idx in range(n_riders):
+            if idx == second_weakest_idx:
+                continue
+            if arr[idx] < weakest_value:
+                filter1_ok = False
+                break
+        if not filter1_ok:
+            continue
+
+        # Filter 2: For n in 1..12, no rider (except top n-1) can have a pull longer than the nth strongest
+        filter2_ok = True
+        for n in range(1, max_n):
+            indices = strengths_desc[:n]
+            nth_strongest_idx = strengths_desc[n-1]
+            nth_value = arr[nth_strongest_idx]
+            for idx in range(n_riders):
+                if idx in indices[:-1]:
+                    continue
+                if arr[idx] > nth_value:
+                    filter2_ok = False
+                    break
+            if not filter2_ok:
+                break
+
+        if filter2_ok:
+            yield seq
+
+
+import time
+import tracemalloc
+import numpy as np
+
+from jgh_formulae02V2 import (
+    generate_all_sequences_of_pull_periods_in_the_total_solution_space,
+    prune_all_sequences_of_pull_periods_in_the_total_solution_space,
+    generate_all_sequences_of_pull_periods_in_the_total_solution_spaceV2,
+    prune_all_sequences_of_pull_periods_in_the_total_solution_spaceV2,
+)
+from zsun_rider_item import ZsunRiderItem
+
+def dummy_rider(strength):
+    class DummyRider:
+        def get_strength_wkg(self):
+            return strength
+    return DummyRider()
+
+import math
+
 def main():
-    from handy_utilities import read_dict_of_zsunriderItems
-    from repository_of_teams import get_team_riderIDs
-    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-    from computation_classes import PacelineIngredientsItem
+    import time
+    import tracemalloc
+    import math
+
+    num_riders = 8
+    pull_periods = [0.0, 30.0, 60.0, 120, 180]
+    riders = [dummy_rider(5.0 - i*0.5) for i in range(num_riders)]
+
+    def compare_pruned_outputs(pruned_list, pruned_list_v2, tol=1e-8):
+        """
+        Compare two pruned outputs (from original and V2 functions) for equivalence,
+        allowing for type and floating-point differences.
+        Raises AssertionError if they differ.
+        """
+        def canonicalize(row):
+            return tuple(float(x) for x in row)
+
+        def tuples_close(a, b, tol=1e-8):
+            return all(math.isclose(x, y, abs_tol=tol) for x, y in zip(a, b))
+
+        pruned_list_tuples = [canonicalize(row) for row in pruned_list]
+        pruned_list_v2_tuples = [canonicalize(row) for row in pruned_list_v2]
+
+        if len(pruned_list_tuples) != len(pruned_list_v2_tuples):
+            raise AssertionError(f"Different number of pruned sequences: {len(pruned_list_tuples)} vs {len(pruned_list_v2_tuples)}")
+
+        unmatched = []
+        v2_tuples_copy = pruned_list_v2_tuples.copy()
+        for tup in pruned_list_tuples:
+            found = False
+            for idx, other in enumerate(v2_tuples_copy):
+                if tuples_close(tup, other, tol=tol):
+                    del v2_tuples_copy[idx]
+                    found = True
+                    break
+            if not found:
+                unmatched.append(tup)
+
+        if unmatched or v2_tuples_copy:
+            raise AssertionError(f"Outputs differ! Unmatched: {unmatched}, Extra in V2: {v2_tuples_copy}")
+
+        print("Outputs are equivalent (within tolerance).")
+
+    # --- Original ---
+    tracemalloc.start()
+    t0 = time.perf_counter()
+    arr = generate_all_sequences_of_pull_periods_in_the_total_solution_space(num_riders, pull_periods)
+    pruned = prune_all_sequences_of_pull_periods_in_the_total_solution_space(arr, riders)
+    pruned_list = pruned.tolist() if hasattr(pruned, "tolist") else list(pruned)
+    t1 = time.perf_counter()
+    mem_orig, _ = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    # --- V2 ---
+    tracemalloc.start()
+    t2 = time.perf_counter()
+    gen = generate_all_sequences_of_pull_periods_in_the_total_solution_spaceV2(num_riders, pull_periods)
+    pruned_gen = prune_all_sequences_of_pull_periods_in_the_total_solution_spaceV2(gen, riders)
+    pruned_list_v2 = list(pruned_gen)
+    t3 = time.perf_counter()
+    mem_v2, _ = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    print(f"Original: {len(pruned_list)} pruned, time: {t1-t0:.3f}s, mem: {mem_orig/1024/1024:.2f}MB")
+    print(f"V2:       {len(pruned_list_v2)} pruned, time: {t3-t2:.3f}s, mem: {mem_v2/1024/1024:.2f}MB")
+
+    # Robust equivalence check
+    compare_pruned_outputs(pruned_list, pruned_list_v2)
+
+if __name__ == "__main__":
+    main()
 
 
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 
-    params = PacelineIngredientsItem(
-        riders_list                  = riders,
-        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        pull_speeds_kph              = [30.0] * len(riders),
-        max_exertion_intensity_factor= 0.95)
 
-    start_time = time.perf_counter()
 
-    universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+
+
+
+
+
+
+
+
+
+
+# def main():
+#     from handy_utilities import read_dict_of_zsunriderItems
+#     from repository_of_teams import get_team_riderIDs
+#     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+#     from computation_classes import PacelineIngredientsItem
+
+
+
+#     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+#     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+#     dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+#     riderIDs = get_team_riderIDs("betel")
+#     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+
+#     params = PacelineIngredientsItem(
+#         riders_list                  = riders,
+#         sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+#         pull_speeds_kph              = [30.0] * len(riders),
+#         max_exertion_intensity_factor= 0.95)
+
+#     start_time = time.perf_counter()
+
+#     universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
     
-    elapsed_time = time.perf_counter() - start_time
+#     elapsed_time = time.perf_counter() - start_time
 
-    # for sequence in universe_of_sequences:
-    #     logger.debug(sequence)
+#     # for sequence in universe_of_sequences:
+#     #     logger.debug(sequence)
 
-    logger.debug(f"Generated universe_of_sequences of {len(universe_of_sequences)} paceline rotation sequences in {elapsed_time} seconds.")
+#     logger.debug(f"Generated universe_of_sequences of {len(universe_of_sequences)} paceline rotation sequences in {elapsed_time} seconds.")
 
-    start_time = time.perf_counter()
+#     start_time = time.perf_counter()
 
-    pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(universe_of_sequences, riders)
+#     pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(universe_of_sequences, riders)
 
-    elapsed_time = time.perf_counter() - start_time
+#     elapsed_time = time.perf_counter() - start_time
 
-    for sequence in pruned_sequences:
-        logger.debug(sequence)
+#     for sequence in pruned_sequences:
+#         logger.debug(sequence)
 
-    logger.debug(f"Generated pruned_sequences of {len(pruned_sequences)} paceline rotation sequences in {elapsed_time} seconds..")
+#     logger.debug(f"Generated pruned_sequences of {len(pruned_sequences)} paceline rotation sequences in {elapsed_time} seconds..")
 
 
 

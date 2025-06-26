@@ -75,7 +75,6 @@ def save_pretty_paceline_solution_as_html_file(
     import pandas as pd
     import re
 
-    print("Pandas version at runtime:", pd.__version__)
     columns = [
         "Name",
         "Race Cat",
@@ -129,10 +128,10 @@ def save_pretty_paceline_solution_as_html_file(
     footnotes = """
     <div class="footnote">
         <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg). zFTP metrics are displayed, but play no role in computations.<br>
-        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Stronger riders are prioritised for longer pulls and are located front and rear of the paceline, protecting weaker riders in the middle. Rider strength is a metric based on 90-day-best data from ZwiftPower for five-minute and one-hour intervals.<br>
-        <sup>3</sup> NP: Normalized Power.<br>
-        <sup>4</sup> IF: Intensity Factor (NP as % of 90-day-best one-hour power).<br>
-        <sup>5</sup> Limit: For no-drop rides, the speed of the paceline is governed by the pulling capabilities and intensity of effort of the riders working hardest to keep up. Pulling capabilities are related to individual 90-day-best data for durations ranging from 3.5 minutes up to 20 minutes.<br>
+        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Stronger riders are prioritised for longer pulls and are located front and rear of the paceline, protecting weaker riders in the middle. For this purpose, riders are ranked on the basis of an inverse-exponential graph of their Zwiftpower data in the two- to eight-minute range.<br>
+        <sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts based on a five-second window raised to the fourth power.<br>
+        <sup>4</sup> IF: Normalised power divided by 'real' FTP. 'Real' FTP is actual 60-minute power calculated from an inverse-exponential graph of eight- to forty-minute ZwiftPower data and extrapolated out to 60 minutes.<br>
+        <sup>5</sup> Limit: For no-drop ride plans where everybody pulls, the speed of the paceline does not exceed the pulling power of the weakest rider or the intensity factor of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans. Pulling watts are based on an inverse-exponential graph of three- to twenty-minute ZwiftPower data.<br>
     </div>
     """
 
@@ -243,7 +242,7 @@ def save_pretty_paceline_solution_as_html_file(
     with open(html_filename, "w", encoding="utf-8") as f:
         f.write(html_doc)
 
-    logger.info(f"Rider contribution HTML report written to: {html_filename}")
+    logger.info(f"\nPaceline pull-plan written and saved to hard-drive: {html_filename}")
 
 
 def main() -> None:
@@ -252,7 +251,7 @@ def main() -> None:
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
-    from constants import EXERTION_INTENSITY_FACTOR
+    from constants import EXERTION_INTENSITY_FACTOR_LIMIT
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
@@ -289,11 +288,11 @@ def main() -> None:
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR)
+    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR_LIMIT)
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
 
-    log_pretty_paceline_solution_report(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR}", dict_of_rider_pullplan_displayobjects, logger)
+    log_pretty_paceline_solution_report(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

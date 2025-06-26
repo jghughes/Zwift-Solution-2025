@@ -6,7 +6,7 @@ import concurrent.futures
 import time
 import numpy as np
 from jgh_string import first_n_chars
-from jgh_formatting import (truncate, format_number_comma_separators, format_number_1dp, format_number_2dp, format_number_4dp, format_number_3dp, format_pretty_duration_hms)
+from jgh_formatting import (truncate, format_number_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
@@ -15,7 +15,7 @@ from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_uppe
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH, INCREASE_IN_SPEED_PER_ITERATION_KPH, DESIRED_PRECISION_KPH, MAX_PERMITTED_ITERATIONS, SOLUTION_SPACE_SIZE_CONSTRAINT, STANDARD_PULL_PERIODS_SEC_AS_LIST)
+from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, CHUNK_OF_KPH_PER_ITERATION, REQUIRED_PRECISION_OF_SPEED, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION, SOLUTION_FILTERING_THRESHOLD, STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -162,14 +162,14 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     # triggered the violation, but it is a safe upper bound. This is required for 
     # the binary search to work correctly to pin down the precise speed.
 
-    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_CONSTRAINT_VIOLATING_SPEED_KPH):
+    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH):
 
         _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, max_exertion_intensity_factor)
 
         if any(contribution.effort_constraint_violation_reason for contribution in dict_of_rider_contributions.values()):
             break # break out of the loop as soon as we successfuly find a speed that violates at least one rider's ability
         
-        upper_bound_for_next_search_iteration_kph += INCREASE_IN_SPEED_PER_ITERATION_KPH
+        upper_bound_for_next_search_iteration_kph += CHUNK_OF_KPH_PER_ITERATION
 
         compute_iterations_performed += 1
     else:
@@ -185,14 +185,14 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 
     # Do the binary search. The concept is to search by bouncing back and forth between speeds bounded by  
     # lower_bound_for_next_search_iteration_kph and upper_bound_for_next_search_iteration_kph, continuing
-    # until the difference between the two bounds is less than DESIRED_PRECISION_KPH i.e. until we are within a small enough range
+    # until the difference between the two bounds is less than REQUIRED_PRECISION_OF_SPEED i.e. until we are within a small enough range
     # of speeds that we can consider the solution precise enough. We have thus found the speed at the point at which it 
     # violates the contribution of at least one rider. The cause of the violation is flagged inside populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(..). 
     # At this moment, we know that the speed of the paceline is somewhere between the lower and upper bounds, the difference 
-    # between which is negligible i.e. less than DESIRED_PRECISION_KPH. Use the upper_bound_for_next_search_iteration_kph as our answer
+    # between which is negligible i.e. less than REQUIRED_PRECISION_OF_SPEED. Use the upper_bound_for_next_search_iteration_kph as our answer
 
 
-    while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > DESIRED_PRECISION_KPH and compute_iterations_performed < MAX_PERMITTED_ITERATIONS:
+    while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > REQUIRED_PRECISION_OF_SPEED and compute_iterations_performed < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
 
         mid_point_kph =safe_divide( (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph), 2)
 
@@ -474,7 +474,7 @@ def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineCo
     watts = {getattr(r, "p1_watts", None) for r in rider_contributions}
     return len(durations) == 1 and len(watts) == 1
 
-def is_thirty_second_pull_solution_candidate(
+def is_thirty_second_pulls_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -503,7 +503,7 @@ def is_thirty_second_pull_solution_candidate(
 
     return answer
 
-def is_uniform_pull_solution_candidate(
+def is_identical_pulls_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -603,7 +603,7 @@ def is_balanced_intensity_solution_candidate(
 
     return answer
 
-def is_pull_hard_solution_candidate(
+def is_everone_pull_hard_solution_candidate(
     this_solution: PacelineComputationReport,
     candidate: WorthyCandidateSolution
 ) -> bool:
@@ -702,57 +702,6 @@ def is_hang_in_solution_candidate(
 
     return answer
 
-def is_balanced_drop_solution_candidate(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution
-) -> bool:
-    """
-    Determines if the given solution qualifies as a 'balanced drop solution' candidate.
-
-    Definition:
-        A 'drop solution' is a paceline configuration where at least one rider does not pull (i.e., has a zero pull duration),
-        allowing the strongest riders to do all the work or for the group to drop the weakest links to maximize speed.
-
-    Impact on Race Strategy:
-        - Maximum Speed: Allows the team to go as fast as possible by letting the strongest riders take over, or by dropping the weakest riders from pulling.
-        - Tactical Flexibility: Useful for late-race surges, time trials, or when the team must respond to attacks.
-        - Risk: Sacrifices inclusivity and may hurt team morale; dropped riders may not finish with the group.
-        - Best for: High-stakes races, time trials, or when only the fastest possible result matters.
-
-    Technical Description:
-        - Checks that at least one rider has a zero pull duration (`any_zero`) and at least one has a nonzero duration (`any_nonzero`).
-        - Ensures the solution is at least as fast as the current candidate and has lower dispersion.
-        - Allows zero dispersion only if all durations and watts are identical (using `is_zero_dispersion_permissible_for_simple_solution`).
-        - A solution is considered superior and will replace the current candidate if:
-            * It is faster than the current candidate (regardless of dispersion), OR
-            * It is the same speed as the current candidate and has lower dispersion.
-        - Returns True if all these conditions are met.
-    """
-
-
-    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
-    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-    any_zero = any(rider.p1_duration == 0.0 for rider in this_solution.rider_contributions.values())
-    any_nonzero = any(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
-
-    zero_dispersion_ok = (
-        this_solution_dispersion != 0.0 or
-        is_zero_dispersion_permissible_for_simple_solution(this_solution)
-    )
-
-    answer = ((this_solution_speed_kph > candidate.speed_kph
-            or (this_solution_speed_kph == candidate.speed_kph and this_solution_dispersion < candidate.dispersion))
-        and zero_dispersion_ok
-        and any_zero
-        and any_nonzero
-
-    )
-
-    # if answer:
-    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
-
-    return answer
-
 
 def update_candidate_solution(
     this_solution: PacelineComputationReport,
@@ -832,8 +781,8 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
 
-    if len(pruned_sequences) > 1_024:
-        logger.warning(f"\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of allowed pull-periods is {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}. For n riders and k allowed pull periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {len(universe_of_rotation_sequences)}. We have pruned these down to {len(pruned_sequences)} sequences. This is still a big number. Computation could take a while. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and should not be reduced if possible.\n")
+    if len(pruned_sequences) > SOLUTION_FILTERING_THRESHOLD:
+        logger.warning(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of pull-periods in the system is {format_number_comma_separators(len(STANDARD_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {format_number_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
 
     start_time = time.perf_counter()
 
@@ -845,9 +794,9 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     time_taken_to_compute = time.perf_counter() - start_time
 
     thirty_sec_candidate   = WorthyCandidateSolution(tag="30sec")
-    uniform_pull_candidate   = WorthyCandidateSolution(tag="unif ")
+    uniform_pull_candidate   = WorthyCandidateSolution(tag="ident")
     balanced_intensity_candidate = WorthyCandidateSolution(tag="bal  ")
-    pull_hard_candidate    = WorthyCandidateSolution(tag="pull ")
+    pull_hard_candidate    = WorthyCandidateSolution(tag="push ")
     hang_in_candidate     = WorthyCandidateSolution(tag="hang ")
 
     total_compute_iterations_performed = 0 
@@ -859,16 +808,16 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         if not is_valid_solution(this_solution, logger):
                 continue
 
-        if is_thirty_second_pull_solution_candidate(this_solution, thirty_sec_candidate):
+        if is_thirty_second_pulls_solution_candidate(this_solution, thirty_sec_candidate):
             update_candidate_solution(this_solution, thirty_sec_candidate, logger)
 
-        if is_uniform_pull_solution_candidate(this_solution, uniform_pull_candidate):
+        if is_identical_pulls_solution_candidate(this_solution, uniform_pull_candidate):
             update_candidate_solution(this_solution, uniform_pull_candidate, logger)
 
         if is_balanced_intensity_solution_candidate(this_solution, balanced_intensity_candidate):
             update_candidate_solution(this_solution, balanced_intensity_candidate, logger)
 
-        if is_pull_hard_solution_candidate(this_solution, pull_hard_candidate):
+        if is_everone_pull_hard_solution_candidate(this_solution, pull_hard_candidate):
             update_candidate_solution(this_solution, pull_hard_candidate, logger)
 
         if is_hang_in_solution_candidate(this_solution, hang_in_candidate):
@@ -975,7 +924,6 @@ def main02():
     from handy_utilities import read_dict_of_zsunriderItems
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-    from zsun_rider_dto import ZsunRiderDTO
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"

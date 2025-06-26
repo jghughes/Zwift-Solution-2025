@@ -8,7 +8,7 @@ from jgh_formulae06 import log_rider_contributions
 from jgh_formatting import format_number_comma_separators, format_pretty_duration_hms, truncate 
 from jgh_formulae08 import generate_all_sequences_of_pull_periods_in_the_total_solution_space
 from jgh_formulae08 import generate_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_solutions_using_parallel_workstealing_algorithm
-from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT, RIDERS_FILE_NAME, DATA_DIRPATH
 import logging
 from jgh_logging import jgh_configure_logging
 
@@ -46,7 +46,7 @@ def main():
         riders_list                     =riders,
         sequence_of_pull_periods_sec    =simplest_pull_durations,
         pull_speeds_kph                 =lowest_bound_speed_as_array,
-        max_exertion_intensity_factor   =EXERTION_INTENSITY_FACTOR
+        max_exertion_intensity_factor   =EXERTION_INTENSITY_FACTOR_LIMIT
     )
     simple_result = generate_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
@@ -58,7 +58,7 @@ def main():
         riders_list                     =riders,
         sequence_of_pull_periods_sec    =STANDARD_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph                 =[lowest_bound_speed] * len(riders),
-        max_exertion_intensity_factor   =EXERTION_INTENSITY_FACTOR
+        max_exertion_intensity_factor   =EXERTION_INTENSITY_FACTOR_LIMIT
     )
 
     optimal_result = generate_paceline_solutions_using_parallel_workstealing_algorithm(standard_params, all_conceivable_paceline_rotation_schedules)

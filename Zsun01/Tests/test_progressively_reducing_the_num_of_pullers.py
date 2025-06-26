@@ -11,7 +11,7 @@ from jgh_formulae08 import (
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
         generate_a_single_paceline_solution_complying_with_exertion_constraints)
 from jgh_formatting import truncate
-from constants import EXERTION_INTENSITY_FACTOR, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import EXERTION_INTENSITY_FACTOR_LIMIT, RIDERS_FILE_NAME, DATA_DIRPATH
 
 
 def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReport:
@@ -59,7 +59,7 @@ def main():
             riders_list=perm_riders,
             sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC_AS_LIST,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
-            max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR
+            max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR_LIMIT
         )
         for _, perm_riders in rider_permutations.items()
     ]
