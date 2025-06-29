@@ -1,6 +1,9 @@
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 import numpy as np
+from jgh_string import first_n_chars
+from jgh_formatting import format_number_1dp, format_number_comma_separators
+from computation_classes_display_objects import PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
 
 RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
 
@@ -42,27 +45,55 @@ class PacelineSolutionType(Enum):
     LAST_FOUR = "last_four"
 
 
-SOLUTION_CONFIG: List[Tuple[PacelineSolutionType, str, str]] = [
+LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS: List[Tuple[PacelineSolutionType, str, str]] = [
     (PacelineSolutionType.THIRTY_SEC_PULL,     "\nTHIRTY-SECOND PULLS PLAN",            "(everybody pulls for thirty seconds)"),
-    (PacelineSolutionType.IDENTICAL_PULL,      "\nIDENTICAL-PULLS PLAN",                "(everybody pulls for same period, maybe more than thirty seconds)"),
-    (PacelineSolutionType.BALANCED_INTENSITY,  "\nBALANCED-INTENSITY PLAN",             "(everybody pulls, maybe slowed to try equalise the workload for all)"),
-    (PacelineSolutionType.EVERYBODY_PULL_HARD, "\nPULL-HARD PLAN",                      "(everybody pulls, weaker riders work harder to pull and keep up)"),
-    (PacelineSolutionType.FASTEST,             "\nALL-RIDERS FASTEST PLAN",             "(fastest plan, weaker riders might or might not pull or survive)"),
-    (PacelineSolutionType.LAST_FIVE,           "\nLAST-FIVE RIDERS FASTEST PLAN",       "(fastest plan, weaker riders might or might not pull or survive)"),
-    (PacelineSolutionType.LAST_FOUR,           "\nLAST-FOUR RIDERS FASTEST PLAN",       "(fastest plan, weaker riders might or might not pull or survive)"),
+    (PacelineSolutionType.IDENTICAL_PULL,      "\nIDENTICAL-PULLS PLAN",                "(everybody pulls for same period, pehaps more than thirty seconds)"),
+    (PacelineSolutionType.BALANCED_INTENSITY,  "\nNO-DROP BALANCED-WORKLOAD PLAN",      "(everybody pulls, perhaps slowed to help balance workloads)"),
+    (PacelineSolutionType.EVERYBODY_PULL_HARD, "\nNO-DROP PULL HARD PLAN",              "(everybody pulls, weaker riders work hardest)"),
+    (PacelineSolutionType.FASTEST,             "\nFASTEST PLAN - FULL-TEAM",            "(fastest plan, weaker riders might fall behind)"),
+    (PacelineSolutionType.LAST_FIVE,           "\nFASTEST PLAN - LAST-FIVE RIDERS",     "(fastest plan, weaker riders might fall behind)"),
+    (PacelineSolutionType.LAST_FOUR,           "\nFASTEST PLAN - LAST-FOUR RIDERS",     "(fastest plan, weaker riders might fall behind)"),
 ]
 
 SAVE_FILE_NAMES_FOR_PULL_PLANS = {
-    PacelineSolutionType.THIRTY_SEC_PULL:    "thirty_second_pulls_plan.html",
-    PacelineSolutionType.IDENTICAL_PULL:     "identical_pulls_plan.html",
-    PacelineSolutionType.BALANCED_INTENSITY: "balanced_intensity_plan.html",
-    PacelineSolutionType.EVERYBODY_PULL_HARD:"everybody_pull_hard_plan.html",
-    PacelineSolutionType.FASTEST:            "all_riders_fastest_plan.html",
-    PacelineSolutionType.LAST_FIVE:          "last_five_riders_fastest_plan.html",
-    PacelineSolutionType.LAST_FOUR:          "last_four_riders_fastest_plan.html",
+    PacelineSolutionType.THIRTY_SEC_PULL:    "everybody_does_thirty_second_pulls_plan.html",
+    PacelineSolutionType.IDENTICAL_PULL:     "everybody_does_identical_pulls_plan.html",
+    PacelineSolutionType.BALANCED_INTENSITY: "no_drop_balanced_workload_plan.html",
+    PacelineSolutionType.EVERYBODY_PULL_HARD:"no_drop_pull_hard_plan.html",
+    PacelineSolutionType.FASTEST:            "fastest_plan_for_full_team.html",
+    PacelineSolutionType.LAST_FIVE:          "fastest_plan_for_last_five_riders.html",
+    PacelineSolutionType.LAST_FOUR:          "fastest_plan_for_last_four_riders.html",
 }
 
-def get_consolidated_report_filename(team_name: str) -> str:
+def get_pretty_table_caption(
+    title: str,
+    report: PacelineComputationReportDisplayObject,
+    overall_report: PacelineSolutionsComputationReportDisplayObject,
+    suffix: Optional[str],
+) -> str:
+    if suffix:
+        return (
+            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
+            f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
+            f"{suffix} "
+            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+        )
+    else:
+        return (
+            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
+            f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
+            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+        )
+
+def get_consolidated_report_caption(team_name: str) -> str:
+    return f"TTT paceline plans for {team_name}"
+
+
+def get_consolidated_report_save_filename(team_name: str) -> str:
     return f"consolidation_of_all_paceline_plans_for_{team_name}.html"
 
 
@@ -81,10 +112,10 @@ DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS = [
 
 FOOTNOTES = """
 <div class="footnote">
-    <div class="footnote-item"><sup>1</sup> Pull: Watts and duration for each rider's main pull. Higher ranking riders are prioritised for longer pulls and are located top and bottom of the list, protecting weaker riders in the middle. Standard pulls range between 30 seconds and five minutes and corresponding pulling capabilities are based on a curve fitted to a rider's ZwiftPower data in their 3.5 - 20 minute window. Riders are not ranked according to zFTP, they are ranked according to how hard they can pull for one-minute.</div>
+    <div class="footnote-item"><sup>1</sup> Pull: Watts and duration for each rider's main pull. Higher ranking riders are prioritised for longer pulls and are located top and bottom of the paceline list, protecting weaker riders in the middle. Standard pulls range between 30 seconds and five minutes and corresponding pull capabilities are taken from a curve fitted to a rider's ZwiftPower data in their 3.5 - 20 minute window. Riders are not ranked according to zFTP, they are ranked according to how hard they can pull for one-minute.</div>
     <div class="footnote-item"><sup>2</sup> zFTP: Zwift Functional Threshold Power. zFTP metrics are displayed, but play no role in computations.</div>
     <div class="footnote-item"><sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts using a five-second window.</div>
-    <div class="footnote-item"><sup>4</sup> IF: Intensity factor. Intensity of effort measured in terms of normalised power divided by one-hour pulling capability. One-hour capability is based on a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated out to one hour.</div>
+    <div class="footnote-item"><sup>4</sup> IF: Intensity factor. Intensity of effort measured in terms of normalised power divided by one-hour pulling capability. One-hour capability is taken from a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated to one hour.</div>
     <div class="footnote-item"><sup>5</sup> Limit: For ride plans where everybody pulls, the speed of the paceline is restricted to the available pulling capability of the weakest rider and the intensity of effort of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans.</div>
 </div>
 """

@@ -1,42 +1,24 @@
-from typing import DefaultDict, Optional, Dict, Any, List
-from collections import defaultdict
-
-from computation_classes_display_objects import (
-    PacelineSolutionType,
-    PacelineSolutionsComputationReportDisplayObject,
-    PacelineComputationReportDisplayObject,
-    RiderContributionDisplayObject,
-)
+from typing import Optional, Dict, Any, List
+from computation_classes_display_objects import PacelineSolutionType, PacelineSolutionsComputationReportDisplayObject, PacelineComputationReportDisplayObject
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
+from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders
+from jgh_formulae07 import log_pretty_paceline_solution_report, save_pretty_paceline_plan_as_html_file, save_all_pretty_paceline_plans_in_consolidated_html_file
+from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
 from constants import (
     STANDARD_PULL_PERIODS_SEC_AS_LIST,
     EXERTION_INTENSITY_FACTOR_LIMIT,
     RIDERS_FILE_NAME,
     DATA_DIRPATH,
-    SOLUTION_CONFIG,
+    LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS,
     SAVE_FILE_NAMES_FOR_PULL_PLANS,
-    get_consolidated_report_filename,
+    get_pretty_table_caption,
+    get_consolidated_report_caption,
+    get_consolidated_report_save_filename,
     FOOTNOTES
 )
-from jgh_string import JghString
-from jgh_formatting import format_number_1dp, format_number_comma_separators
-from jgh_formulae02 import (
-    calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
-    arrange_riders_in_optimal_order,
-    select_n_strongest_riders,
-)
-from jgh_formulae07 import (
-    log_pretty_paceline_solution_report,
-    save_pretty_paceline_plan_as_html_file,
-    save_all_pretty_paceline_plans_in_consolidated_html_file,
-)
-from jgh_formulae08 import (
-    generate_ingenious_paceline_solutions,
-    log_speed_bounds_of_exertion_constrained_paceline_solutions,
-    log_workload_suffix_message)
 
 def main() -> None:
     # SET UP LOGGING
@@ -54,32 +36,10 @@ def main() -> None:
     ) -> PacelineComputationReportDisplayObject:
         return report if report else PacelineComputationReportDisplayObject()
 
-    def make_pretty_table_caption(
-        title: str,
-        report: PacelineComputationReportDisplayObject,
-        overall_report: PacelineSolutionsComputationReportDisplayObject,
-        suffix: Optional[str],
-    ) -> str:
-        if suffix:
-            return (
-                f"\n{title} [ID {JghString.first_n_chars(report.guid,3)}] "
-                f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
-                f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-                f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-                f"itr={format_number_comma_separators(report.compute_iterations_performed_count)} {suffix}"
-            )
-        else:
-            return (
-                f"\n{title} (ID {JghString.first_n_chars(report.guid,3)}) "
-                f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
-                f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-                f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-                f"itr={format_number_comma_separators(report.compute_iterations_performed_count)} {suffix}"
-            )
 
     # GET THE DATA READY
     team_name = "betel"
-    consolidated_report_caption = f"Paceline plans for {team_name}"
+    # consolidated_report_caption = f"Paceline plans for {team_name}"
     dict_of_zsunrideritems: Dict[str, ZsunRiderItem] = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs: List[str] = get_team_riderIDs(team_name)
     riders: List[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]
@@ -126,7 +86,7 @@ def main() -> None:
 
     # CONSOLIDATED REPORT
     consolidated_report_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject(
-        caption                            = consolidated_report_caption,
+        caption                            = get_consolidated_report_caption(team_name),
         total_pull_sequences_examined      = report_displayobject.total_pull_sequences_examined,
         total_compute_iterations_performed = report_displayobject.total_compute_iterations_performed,
         computational_time                 = report_displayobject.computational_time,
@@ -144,18 +104,17 @@ def main() -> None:
     default_overall_report: PacelineSolutionsComputationReportDisplayObject = report_displayobject
 
     # log and save all paceline plans one by one
-    for plan_enum, caption_prefix, caption_suffix in SOLUTION_CONFIG:
-        report_obj: PacelineComputationReportDisplayObject = consolidated_report_display_object.solutions[plan_enum]
-        overall_report: PacelineSolutionsComputationReportDisplayObject = overall_report_map.get(plan_enum, default_overall_report)
-        caption: str = make_pretty_table_caption(caption_prefix, report_obj, overall_report, caption_suffix)
+    for plan_type_enum, caption_prefix, caption_suffix in LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS:
+        report_obj: PacelineComputationReportDisplayObject = consolidated_report_display_object.solutions[plan_type_enum]
+        overall_report: PacelineSolutionsComputationReportDisplayObject = overall_report_map.get(plan_type_enum, default_overall_report)
+        caption: str = get_pretty_table_caption(caption_prefix, report_obj, overall_report, caption_suffix)
         report_obj.display_caption = caption
-        # Log and save individual HTML files
         log_pretty_paceline_solution_report(report_obj, logger)
-        filename = SAVE_FILE_NAMES_FOR_PULL_PLANS[plan_enum]
+        filename = SAVE_FILE_NAMES_FOR_PULL_PLANS[plan_type_enum]
         save_pretty_paceline_plan_as_html_file(report_obj, filename, SAVE_FILE_DIRPATH, FOOTNOTES,logger)
 
     # Save all solutions as a single HTML file
-    save_all_pretty_paceline_plans_in_consolidated_html_file(consolidated_report_display_object, get_consolidated_report_filename(team_name), SAVE_FILE_DIRPATH, FOOTNOTES, logger)
+    save_all_pretty_paceline_plans_in_consolidated_html_file(consolidated_report_display_object, get_consolidated_report_save_filename(team_name), SAVE_FILE_DIRPATH, FOOTNOTES, logger)
 
 if __name__ == "__main__":
     main()
