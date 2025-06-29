@@ -17,7 +17,8 @@ from constants import (
     RIDERS_FILE_NAME,
     DATA_DIRPATH,
     SOLUTION_CONFIG,
-    SOLUTION_FILENAMES,
+    SAVE_FILE_NAMES_FOR_PULL_PLANS,
+    get_consolidated_report_filename,
     FOOTNOTES
 )
 from jgh_string import JghString
@@ -29,14 +30,13 @@ from jgh_formulae02 import (
 )
 from jgh_formulae07 import (
     log_pretty_paceline_solution_report,
-    save_pretty_paceline_solution_as_html_file,
-    save_all_pretty_paceline_solutions_as_html_file,
+    save_pretty_paceline_plan_as_html_file,
+    save_all_pretty_paceline_plans_in_consolidated_html_file,
 )
 from jgh_formulae08 import (
     generate_ingenious_paceline_solutions,
     log_speed_bounds_of_exertion_constrained_paceline_solutions,
-    log_workload_suffix_message,
-)
+    log_workload_suffix_message)
 
 def main() -> None:
     # SET UP LOGGING
@@ -53,15 +53,6 @@ def main() -> None:
         report: Optional[PacelineComputationReportDisplayObject]
     ) -> PacelineComputationReportDisplayObject:
         return report if report else PacelineComputationReportDisplayObject()
-
-    def get_contributions(
-        report: PacelineComputationReportDisplayObject
-    ) -> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
-        return (
-            report.rider_contributions_display_objects
-            if report.rider_contributions_display_objects
-            else defaultdict(RiderContributionDisplayObject)
-        )
 
     def make_pretty_table_caption(
         title: str,
@@ -86,11 +77,11 @@ def main() -> None:
                 f"itr={format_number_comma_separators(report.compute_iterations_performed_count)} {suffix}"
             )
 
-
-
     # GET THE DATA READY
+    team_name = "betel"
+    consolidated_report_caption = f"Paceline plans for {team_name}"
     dict_of_zsunrideritems: Dict[str, ZsunRiderItem] = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs: List[str] = get_team_riderIDs("betel")
+    riderIDs: List[str] = get_team_riderIDs(team_name)
     riders: List[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)
 
@@ -133,17 +124,17 @@ def main() -> None:
     report_last_four_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_four)
     last_four: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_four_display_object.solutions[PacelineSolutionType.FASTEST])
 
-    # OMNIBUS REPORT OBJECT
-    omnibus_report_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject(
-        guid                              = report_displayobject.guid,
+    # CONSOLIDATED REPORT
+    consolidated_report_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject(
+        caption                            = consolidated_report_caption,
         total_pull_sequences_examined      = report_displayobject.total_pull_sequences_examined,
         total_compute_iterations_performed = report_displayobject.total_compute_iterations_performed,
         computational_time                 = report_displayobject.computational_time,
         solutions                          = report_displayobject.solutions.copy(),
     )
     # Add LAST_FIVE and LAST_FOUR externally
-    omnibus_report_display_object.solutions[PacelineSolutionType.LAST_FIVE] = last_five
-    omnibus_report_display_object.solutions[PacelineSolutionType.LAST_FOUR] = last_four
+    consolidated_report_display_object.solutions[PacelineSolutionType.LAST_FIVE] = last_five
+    consolidated_report_display_object.solutions[PacelineSolutionType.LAST_FOUR] = last_four
 
     # Map for overall report context for each solution type
     overall_report_map: Dict[PacelineSolutionType, PacelineSolutionsComputationReportDisplayObject] = {
@@ -152,22 +143,19 @@ def main() -> None:
     }
     default_overall_report: PacelineSolutionsComputationReportDisplayObject = report_displayobject
 
-    # Map solution types to filenames
-
-    # Populate and process all solutions
-    for sol_type, title, suffix in SOLUTION_CONFIG:
-        report_obj: PacelineComputationReportDisplayObject = omnibus_report_display_object.solutions[sol_type]
-        overall_report: PacelineSolutionsComputationReportDisplayObject = overall_report_map.get(sol_type, default_overall_report)
-        contributions: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = get_contributions(report_obj)
-        caption: str = make_pretty_table_caption(title, report_obj, overall_report, suffix)
+    # log and save all paceline plans one by one
+    for plan_enum, caption_prefix, caption_suffix in SOLUTION_CONFIG:
+        report_obj: PacelineComputationReportDisplayObject = consolidated_report_display_object.solutions[plan_enum]
+        overall_report: PacelineSolutionsComputationReportDisplayObject = overall_report_map.get(plan_enum, default_overall_report)
+        caption: str = make_pretty_table_caption(caption_prefix, report_obj, overall_report, caption_suffix)
         report_obj.display_caption = caption
         # Log and save individual HTML files
-        log_pretty_paceline_solution_report(caption, contributions, logger)
-        filename = SOLUTION_FILENAMES[sol_type]
-        save_pretty_paceline_solution_as_html_file(caption, contributions, filename, SAVE_FILE_DIRPATH, FOOTNOTES,logger)
+        log_pretty_paceline_solution_report(report_obj, logger)
+        filename = SAVE_FILE_NAMES_FOR_PULL_PLANS[plan_enum]
+        save_pretty_paceline_plan_as_html_file(report_obj, filename, SAVE_FILE_DIRPATH, FOOTNOTES,logger)
 
     # Save all solutions as a single HTML file
-    save_all_pretty_paceline_solutions_as_html_file('Paceline options for Betel', omnibus_report_display_object, "consolidated_paceline_plans_for_betel.html", SAVE_FILE_DIRPATH, FOOTNOTES, logger)
+    save_all_pretty_paceline_plans_in_consolidated_html_file(consolidated_report_display_object, get_consolidated_report_filename(team_name), SAVE_FILE_DIRPATH, FOOTNOTES, logger)
 
 if __name__ == "__main__":
     main()

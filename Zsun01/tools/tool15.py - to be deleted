@@ -6,7 +6,7 @@ from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formatting import format_number_comma_separators
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders 
-from jgh_formulae07 import log_pretty_paceline_solution_report, save_pretty_paceline_solution_as_html_file, save_all_pretty_paceline_solutions_as_html_file
+from jgh_formulae07 import log_pretty_paceline_solution_report, save_pretty_paceline_plan_as_html_file, save_all_pretty_paceline_plans_in_consolidated_html_file
 from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
 from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT, RIDERS_FILE_NAME, DATA_DIRPATH
 from zsun_rider_item import ZsunRiderItem
@@ -153,13 +153,13 @@ def main():
 
     # SAVE ALL REPORTS TO HARD DRIVE AS HTML FILES
 
-    save_pretty_paceline_solution_as_html_file(thirty_sec_pull_caption, thirty_sec_contributions, logger, "thirty_sec_pulls_plan.html")
-    save_pretty_paceline_solution_as_html_file(identical_pull_caption, identical_pull_contributions, logger, "identical_pulls_plan.html")
-    save_pretty_paceline_solution_as_html_file(balanced_intensity_caption, balanced_intensity_contributions, logger, "balanced_intensity_plan.html")
-    save_pretty_paceline_solution_as_html_file(everybody_pull_hard_caption, everyone_pull_hard_contributions, logger, "everybody_pulls_hard_plan.html")
-    save_pretty_paceline_solution_as_html_file(hang_in_caption, hang_in_contributions, logger, "hang_in_plan.html")
-    save_pretty_paceline_solution_as_html_file(last_five_caption, last_five_contributions, logger, "last_five_plan.html")
-    save_pretty_paceline_solution_as_html_file(last_four_caption, last_four_contributions, logger, "last_four_plan.html")
+    save_pretty_paceline_plan_as_html_file(thirty_sec_pull_caption, thirty_sec_contributions, logger, "thirty_sec_pulls_plan.html")
+    save_pretty_paceline_plan_as_html_file(identical_pull_caption, identical_pull_contributions, logger, "identical_pulls_plan.html")
+    save_pretty_paceline_plan_as_html_file(balanced_intensity_caption, balanced_intensity_contributions, logger, "balanced_intensity_plan.html")
+    save_pretty_paceline_plan_as_html_file(everybody_pull_hard_caption, everyone_pull_hard_contributions, logger, "everybody_pulls_hard_plan.html")
+    save_pretty_paceline_plan_as_html_file(hang_in_caption, hang_in_contributions, logger, "hang_in_plan.html")
+    save_pretty_paceline_plan_as_html_file(last_five_caption, last_five_contributions, logger, "last_five_plan.html")
+    save_pretty_paceline_plan_as_html_file(last_four_caption, last_four_contributions, logger, "last_four_plan.html")
 
     omnibus_report_display_object : PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject()
 
@@ -182,7 +182,7 @@ def main():
     
 
 
-    save_all_pretty_paceline_solutions_as_html_file('Paceline options for Betel', omnibus_report_display_object, logger, "all_paceline_plans.html")
+    save_all_pretty_paceline_plans_in_consolidated_html_file('Paceline options for Betel', omnibus_report_display_object, logger, "all_paceline_plans.html")
 
 
 if __name__ == "__main__":

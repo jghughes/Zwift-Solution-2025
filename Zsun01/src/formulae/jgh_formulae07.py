@@ -1,50 +1,52 @@
 from typing import DefaultDict, Optional, Union
 import io
+from constants import DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS
 from jgh_read_write import write_html_file
 from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
 from computation_classes_display_objects import (
+    PacelineSolutionType,
     RiderContributionDisplayObject,
+    PacelineComputationReportDisplayObject,
     PacelineSolutionsComputationReportDisplayObject,
 )
 import logging
 
 def log_pretty_paceline_solution_report(
-    pretty_table_caption: str,
-    result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
+    report: PacelineComputationReportDisplayObject,
     logger: logging.Logger
 ) -> None:
     import pandas as pd
 
-    logger.info(pretty_table_caption)
+    logger.info(report.display_caption)
 
     # Prepare data rows
     data = []
-    for rider, z in result.items():
+    for rider, z in report.rider_contributions_display_objects.items():
         data.append([
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
-            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
+            z.pretty_zwiftracingapp_zpFTP_wkg,
             z.pretty_pull_suffix,
             z.pretty_average_watts,
-            f"{round(z.normalised_power_watts)}w",
-            f"{round(100*z.intensity_factor)}%",
-            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
+            z.pretty_normalised_power_watts,
+            z.pretty_intensity_factor,
+            z.pretty_effort_constraint_violation_reason,
             z.pretty_p2_3_4_w,
         ])
 
     columns = [
-        "name",
-        "cat",
+        "Name",
+        "Race Cat",
+        "Pull",
         "zFTP",
-        "pull",
-        "/zFTP",
-        "ave",
+        "Pull/zFTP",
+        "Ave w/kg",
         "NP",
         "IF",
-        "limit",
-        "  2   3   4",
+        "Limit",
+        "2nd 3rd 4th"
     ]
 
     df = pd.DataFrame(data, columns=columns)
@@ -71,9 +73,8 @@ def log_pretty_paceline_solution_report(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def save_pretty_paceline_solution_as_html_file(
-    pretty_table_caption: str,
-    result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], 
+def save_pretty_paceline_plan_as_html_file(
+    report: PacelineComputationReportDisplayObject,
     filename : Union[str, io.StringIO], #
     dir_path : str,
     footnotes: str,
@@ -97,7 +98,7 @@ def save_pretty_paceline_solution_as_html_file(
 
     data = []
 
-    for rider, z in result.items():
+    for rider, z in report.rider_contributions_display_objects.items():
         data.append([
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
@@ -121,7 +122,7 @@ def save_pretty_paceline_solution_as_html_file(
     )
     html_table = re.sub(
         r'(<table[^>]*>)',
-        r'\1\n<caption>{}</caption>'.format(pretty_table_caption),
+        r'\1\n<caption>{}</caption>'.format(report.display_caption),
         html_table,
         count=1
     )
@@ -260,8 +261,7 @@ def save_pretty_paceline_solution_as_html_file(
         filename.write(html_doc)
         # logger.info(f"\nPaceline pull-plan written to file-like object (not saved to disk).")
 
-def save_all_pretty_paceline_solutions_as_html_file(
-    html_document_caption: str,
+def save_all_pretty_paceline_plans_in_consolidated_html_file(
     computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
     filename: str,
     dir_path: str,
@@ -269,33 +269,20 @@ def save_all_pretty_paceline_solutions_as_html_file(
     logger: logging.Logger,
 
 ) -> None:
-    from computation_classes_display_objects import PacelineSolutionType
 
     if computation_report_display_object is None:
         logger.error("No computation report provided to save as HTML.")
         return
 
-    # Define the order and captions for each solution type
-    solution_order = [
-        (PacelineSolutionType.THIRTY_SEC_PULL,     "Thirty Second Pulls Plan"),
-        (PacelineSolutionType.IDENTICAL_PULL,      "Identical Pulls Plan"),
-        (PacelineSolutionType.BALANCED_INTENSITY,  "Balanced-Intensity Plan"),
-        (PacelineSolutionType.EVERYBODY_PULL_HARD, "Push Hard Plan"),
-        (PacelineSolutionType.FASTEST,             "Hang-In Plan"),
-        (PacelineSolutionType.LAST_FIVE,           "Last-Five Plan"),
-        (PacelineSolutionType.LAST_FOUR,           "Last-Four Plan"),
-    ]
 
     html_sections : list[str] = []
-    for sol_type, caption in solution_order:
+    for sol_type in DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS:
         solution = computation_report_display_object.solutions[sol_type]
         if not solution.rider_contributions_display_objects:
             continue
         # Generate HTML for this solution using the single-solution HTML function
         buf= io.StringIO()
-        save_pretty_paceline_solution_as_html_file(
-            pretty_table_caption=caption,
-            result=solution.rider_contributions_display_objects,
+        save_pretty_paceline_plan_as_html_file(solution,
             filename=buf,  # We'll capture the HTML as a string
             dir_path=dir_path,  # Directory path for saving the file
             footnotes="",  # Don't repeat footnotes in each section
@@ -331,7 +318,7 @@ def save_all_pretty_paceline_solutions_as_html_file(
     </style>
 </head>
 <body>
-    <h1>{html_document_caption}</h1>
+    <h1>{computation_report_display_object.caption}</h1>
     {''.join(html_sections)}
     <div class="footnote">{html_footnotes}</div>
 </body>

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, List, Union, DefaultDict
 from collections import defaultdict
+
 from jgh_formatting import round_to_nearest_10, format_number_2dp
 from  jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
@@ -177,12 +178,12 @@ class RiderContributionDisplayObject():
 @dataclass
 class PacelineComputationReportDisplayObject:
     guid                                        : str = ""
+    display_caption                             : str = ""
     algorithm_ran_to_completion                 : bool = False
     compute_iterations_performed_count          : int  = 0
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    display_caption                              :  str = ""
     rider_contributions_display_objects          : DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = field(default_factory=lambda: defaultdict(RiderContributionDisplayObject))
 
     @staticmethod
@@ -216,11 +217,11 @@ class PacelineComputationReportDisplayObject:
 
 @dataclass
 class PacelineSolutionsComputationReportDisplayObject:
-    guid                               : str = ""
+    caption                            : str = ""
     total_pull_sequences_examined      : int = 0
     total_compute_iterations_performed : int = 0
     computational_time                 : float = 0.0
-    solutions                          :  DefaultDict[PacelineSolutionType, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
+    solutions                          : DefaultDict[PacelineSolutionType, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
 
     @staticmethod
     def from_PacelineSolutionsComputationReportItem(
@@ -233,62 +234,19 @@ class PacelineSolutionsComputationReportDisplayObject:
         if report is None:
             return PacelineSolutionsComputationReportDisplayObject()
 
-        solutions = defaultdict(PacelineComputationReportDisplayObject)
-        solutions[PacelineSolutionType.THIRTY_SEC_PULL     ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution)
-        solutions[PacelineSolutionType.IDENTICAL_PULL      ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
-        solutions[PacelineSolutionType.BALANCED_INTENSITY  ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
-        solutions[PacelineSolutionType.EVERYBODY_PULL_HARD ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
-        solutions[PacelineSolutionType.FASTEST             ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
-        # LAST_FIVE and LAST_FOUR must be set externally
+        solutions : DefaultDict[PacelineSolutionType, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
+
+        solutions[PacelineSolutionType.THIRTY_SEC_PULL]     = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution)
+        solutions[PacelineSolutionType.IDENTICAL_PULL]      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
+        solutions[PacelineSolutionType.BALANCED_INTENSITY]  = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
+        solutions[PacelineSolutionType.EVERYBODY_PULL_HARD] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
+        solutions[PacelineSolutionType.FASTEST]             = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
+        # LAST_FIVE and LAST_FOUR must be set externally - not here, as they are not computed in the report
 
         return PacelineSolutionsComputationReportDisplayObject(
-            guid                               = report.guid,
             total_pull_sequences_examined      = report.total_pull_sequences_examined,
             total_compute_iterations_performed = report.total_compute_iterations_performed,
             computational_time                 = report.computational_time,
             solutions                          = solutions,
         )
     
-    #     guid                                                : str = ""
-#     total_pull_sequences_examined                       : int   = 0
-#     total_compute_iterations_performed                  : int   = 0
-#     computational_time                                  : float = 0.0
-#     thirty_sec_solution_display_object                   : Union[PacelineComputationReportDisplayObject, None] = None
-#     identical_pull_solution_display_object               : Union[PacelineComputationReportDisplayObject, None] = None
-#     balanced_intensity_of_effort_solution_display_object : Union[PacelineComputationReportDisplayObject, None] = None
-#     everybody_pull_hard_solution_display_object          : Union[PacelineComputationReportDisplayObject, None] = None
-#     hang_in_solution_display_object                      : Union[PacelineComputationReportDisplayObject, None] = None
-#     last_five_solution_display_object                    : Union[PacelineComputationReportDisplayObject, None] = None
-#     last_four_solution_display_object                    : Union[PacelineComputationReportDisplayObject, None] = None
-#     # thirty_sec_solution_display_title                  :  str = ""
-#     # identical_pull_solution_display_title              :  str = ""
-#     # balanced_intensity_of_effort_solution_display_title:  str = ""
-#     # everybody_pull_hard_solution_display_title         :  str = ""
-#     # hang_in_solution_display_title                     :  str = ""
-#     # last_five_solution_display_title                   :  str = ""
-#     # last_four_solution_display_title                   :  str = ""
-
-
-
-#     @staticmethod
-#     def from_PacelineSolutionsComputationReportItem(report: Union[PacelineSolutionsComputationReportItem, None]) -> "PacelineSolutionsComputationReportDisplayObject":
-#         if report is None:
-#             return PacelineSolutionsComputationReportDisplayObject()
-        
-#         answer = PacelineSolutionsComputationReportDisplayObject(
-#             guid                                                 = report.guid,
-#             total_pull_sequences_examined                        = report.total_pull_sequences_examined,
-#             total_compute_iterations_performed                   = report.total_compute_iterations_performed,
-#             computational_time                                   = report.computational_time,
-#             thirty_sec_solution_display_object                   = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution),
-#             identical_pull_solution_display_object               = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution),
-#             balanced_intensity_of_effort_solution_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution),
-#             everybody_pull_hard_solution_display_object          = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution),
-#             hang_in_solution_display_object                      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution),
-#             )
-
-#         # NB. last_five_solution_display_object and last_four_solution_display_object are not set in the original report, they are computed separately. they must be set by the caller if needed.
-#         # ditto all the display titles
-
-#         return answer
-

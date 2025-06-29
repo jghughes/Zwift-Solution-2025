@@ -77,7 +77,7 @@ footnotes = """
     """
 
 
-def save_pretty_paceline_solution_as_html_file(
+def save_pretty_paceline_plan_as_html_file(
     html_table_caption: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], 
     logger: logging.Logger,
@@ -247,7 +247,7 @@ def save_pretty_paceline_solution_as_html_file(
 
     logger.info(f"\nPaceline pull-plan written and saved to hard-drive: {html_filename}")
     
-def save_all_pretty_paceline_solutions_as_html_file(html_document_caption: str, computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject], logger: logging.Logger, html_footnotes: str = footnotes, html_filename: str = "all_paceline_plans.html") -> None:
+def save_all_pretty_paceline_plans_in_consolidated_html_file(html_document_caption: str, computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject], logger: logging.Logger, html_footnotes: str = footnotes, html_filename: str = "all_paceline_plans.html") -> None:
     if computation_report_display_object is None:
         logger.error("No computation report provided to save as HTML.")
         return
