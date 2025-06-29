@@ -238,7 +238,7 @@ class PacelineSolutionsComputationReportDisplayObject:
         solutions[PacelineSolutionType.IDENTICAL_PULL      ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
         solutions[PacelineSolutionType.BALANCED_INTENSITY  ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
         solutions[PacelineSolutionType.EVERYBODY_PULL_HARD ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
-        solutions[PacelineSolutionType.HANG_IN             ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
+        solutions[PacelineSolutionType.FASTEST             ] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
         # LAST_FIVE and LAST_FOUR must be set externally
 
         return PacelineSolutionsComputationReportDisplayObject(

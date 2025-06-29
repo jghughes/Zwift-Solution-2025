@@ -37,38 +37,37 @@ class PacelineSolutionType(Enum):
     IDENTICAL_PULL = "identical_pull"
     BALANCED_INTENSITY = "balanced_intensity"
     EVERYBODY_PULL_HARD = "everybody_pull_hard"
-    HANG_IN = "hang_in"
+    FASTEST = "fastest"
     LAST_FIVE = "last_five"
     LAST_FOUR = "last_four"
 
 
 SOLUTION_CONFIG: List[Tuple[PacelineSolutionType, str, str]] = [
-    (PacelineSolutionType.THIRTY_SEC_PULL,     "\nTHIRTY-SECOND PULLS PLAN", "(thirty_sec second pull for everyone)"),
-    (PacelineSolutionType.IDENTICAL_PULL,      "\nIDENTICAL-PULLS PLAN",     "(identical pull for everyone)"),
-    (PacelineSolutionType.BALANCED_INTENSITY,  "\nBALANCED-INTENSITY PLAN",  "(intensity is balanced. everybody pulls.)"),
-    (PacelineSolutionType.EVERYBODY_PULL_HARD, "\nPUSH-HARD PLAN",           "(everybody pulls. weaker riders work hardest.)"),
-    (PacelineSolutionType.HANG_IN,             "\nHANG-IN PLAN",             "(everybody rotates, maybe or maybe not pulling)"),
-    (PacelineSolutionType.LAST_FIVE,           "\nLAST-FIVE RIDERS PLAN",    "(last five. everybody rotates, maybe or maybe not pulling)"),
-    (PacelineSolutionType.LAST_FOUR,           "\nLAST-FOUR RIDERS PLAN",    "(last four. everybody rotates, maybe or maybe not pulling)"),
+    (PacelineSolutionType.THIRTY_SEC_PULL,     "\nTHIRTY-SECOND PULLS PLAN",            "(everybody pulls for thirty seconds)"),
+    (PacelineSolutionType.IDENTICAL_PULL,      "\nIDENTICAL-PULLS PLAN",                "(everybody pulls for same period, maybe more than thirty seconds)"),
+    (PacelineSolutionType.BALANCED_INTENSITY,  "\nBALANCED-INTENSITY PLAN",             "(everybody pulls, likely slowly to balance workload)"),
+    (PacelineSolutionType.EVERYBODY_PULL_HARD, "\nPULL-HARD PLAN",                      "(everybody pulls, weaker riders work harder to pull and keep up)"),
+    (PacelineSolutionType.FASTEST,             "\nALL-RIDERS FASTEST PLAN",             "(fastest plan, weaker riders might or might not pull or survive)"),
+    (PacelineSolutionType.LAST_FIVE,           "\nLAST-FIVE RIDERS FASTEST PLAN",       "(fastest plan, weaker riders might or might not pull or survive)"),
+    (PacelineSolutionType.LAST_FOUR,           "\nLAST-FOUR RIDERS FASTEST PLAN",       "(fastest plan, weaker riders might or might not pull or survive)"),
 ]
 
 SOLUTION_FILENAMES = {
     PacelineSolutionType.THIRTY_SEC_PULL:    "thirty_second_pulls_plan.html",
     PacelineSolutionType.IDENTICAL_PULL:     "identical_pulls_plan.html",
     PacelineSolutionType.BALANCED_INTENSITY: "balanced_intensity_plan.html",
-    PacelineSolutionType.EVERYBODY_PULL_HARD:"everybody_push_hard_plan.html",
-    PacelineSolutionType.HANG_IN:            "hang_in_plan.html",
-    PacelineSolutionType.LAST_FIVE:          "last_five_riders_plan.html",
-    PacelineSolutionType.LAST_FOUR:          "last_four_riders_plan.html",
+    PacelineSolutionType.EVERYBODY_PULL_HARD:"everybody_pull_hard_plan.html",
+    PacelineSolutionType.FASTEST:            "all_riders_fastest_plan.html",
+    PacelineSolutionType.LAST_FIVE:          "last_five_riders_fastest_plan.html",
+    PacelineSolutionType.LAST_FOUR:          "last_four_riders_fastest_plan.html",
 }
 
 FOOTNOTES = """
-    <div class="footnote">
-        <sup>1</sup> Pull: Watts and duration of each rider's main pull. Higher ranking riders are prioritised for longer pulls and are located front and rear of the paceline, protecting weaker riders in the middle. Standard pulls range between 30 seconds and five minutes and corresponding pulling capabilities are based on a curve fitted to a rider's ZwiftPower data in their 3.5 - 20 minute window. Riders are not ranked according to zFTP, they are ranked according to how hard they can pull for one-minute.<br>
-        <sup>2</sup> zFTP: Zwift Functional Threshold Power. zFTP metrics are displayed, but play no role in computations.<br>
-        <sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts using a five-second window.<br>
-        <sup>4</sup> IF: Intensity factor. Normalised power divided by calculated one-hour pulling capability. One-hour capability is based on a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated out to one hour. This is a rider's real FTP. <br>
-        <sup>5</sup> Limit: For ride plans where everybody pulls, the speed of the paceline is restricted to the pulling capability of the weakest rider and/or the intensity of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans.<br>
-    </div>
-    """
-
+<div class="footnote">
+    <div class="footnote-item"><sup>1</sup> Pull: Watts and duration for each rider's main pull. Higher ranking riders are prioritised for longer pulls and are located top and bottom of the list, protecting weaker riders in the middle. Standard pulls range between 30 seconds and five minutes and corresponding pulling capabilities are based on a curve fitted to a rider's ZwiftPower data in their 3.5 - 20 minute window. Riders are not ranked according to zFTP, they are ranked according to how hard they can pull for one-minute.</div>
+    <div class="footnote-item"><sup>2</sup> zFTP: Zwift Functional Threshold Power. zFTP metrics are displayed, but play no role in computations.</div>
+    <div class="footnote-item"><sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts using a five-second window.</div>
+    <div class="footnote-item"><sup>4</sup> IF: Intensity factor. Intensity of effort. Measured in terms of normalised power divided by calculated one-hour pulling capability. One-hour capability is based on a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated out to one hour.</div>
+    <div class="footnote-item"><sup>5</sup> Limit: For ride plans where everybody pulls, the speed of the paceline is restricted to the pulling capability of the weakest rider and the intensity of effort of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans.</div>
+</div>
+"""

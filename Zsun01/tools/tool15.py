@@ -117,7 +117,7 @@ def main() -> None:
     )
     report_last_five: Any = generate_ingenious_paceline_solutions(ingredients_last_five)
     report_last_five_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_five)
-    last_five: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_five_displayobject.solutions[PacelineSolutionType.HANG_IN])
+    last_five: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_five_displayobject.solutions[PacelineSolutionType.FASTEST])
 
     # LAST FOUR
     riders_last_four: List[ZsunRiderItem] = select_n_strongest_riders(ingredients.riders_list, 4)
@@ -131,7 +131,7 @@ def main() -> None:
     )
     report_last_four: Any = generate_ingenious_paceline_solutions(ingredients_last_four)
     report_last_four_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_four)
-    last_four: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_four_display_object.solutions[PacelineSolutionType.HANG_IN])
+    last_four: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_four_display_object.solutions[PacelineSolutionType.FASTEST])
 
     # OMNIBUS REPORT OBJECT
     omnibus_report_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject(

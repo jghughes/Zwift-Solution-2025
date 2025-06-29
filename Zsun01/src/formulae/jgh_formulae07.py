@@ -96,6 +96,7 @@ def save_pretty_paceline_solution_as_html_file(
     ]
 
     data = []
+
     for rider, z in result.items():
         data.append([
             rider.name,
@@ -144,6 +145,7 @@ def save_pretty_paceline_solution_as_html_file(
             font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
             background: #fff;
             color: #222;
+            padding: 6px 12px;
         }}
         .table-container {{
             width: 260mm;
@@ -202,10 +204,22 @@ def save_pretty_paceline_solution_as_html_file(
         .rider-table tr:hover td {{
             background-color: #dbeafe;
         }}
-        .rider-table td:nth-child(4) {{
+        .rider-table td:nth-child(3) {{
             text-align: right;
             font-weight: bold;
             background-color: #f0f4fa;
+        }}
+        .rider-table td:nth-child(4) {{
+            text-align: right;
+        }}
+        .rider-table td:nth-child(5) {{
+            text-align: right;
+        }}
+        .rider-table td:nth-child(7) {{
+            text-align: right;
+        }}
+        .rider-table td:nth-child(8) {{
+            text-align: right;
         }}
         .footnote {{
             font-size: 0.95em;
@@ -216,22 +230,25 @@ def save_pretty_paceline_solution_as_html_file(
             width: 100%;
             text-align: left;
         }}
-        .footnote sup, .rider-table th sup {{
+        .footnote-item {{
+            margin-bottom: 0.5em;
+            padding-left: 2em;
+            text-indent: -2em;
+        }}
+        .footnote sup, .rider-table th sup  {{
             font-size: 0.8em;
             vertical-align: super;
             font-weight: bold;
-        }}
+        }}        
     </style>
 </head>
 
 <body>
     <div class="table-container">
         {html_table}
-    <div class="footnote">
-        {footnotes}
     </div>
-</body>
-</html>
+    {footnotes}
+</body></html>
 """
 
     # Determine if filename is a string (file path) or a file-like object
@@ -264,12 +281,12 @@ def save_all_pretty_paceline_solutions_as_html_file(
         (PacelineSolutionType.IDENTICAL_PULL,      "Identical Pulls Plan"),
         (PacelineSolutionType.BALANCED_INTENSITY,  "Balanced-Intensity Plan"),
         (PacelineSolutionType.EVERYBODY_PULL_HARD, "Push Hard Plan"),
-        (PacelineSolutionType.HANG_IN,             "Hang-In Plan"),
+        (PacelineSolutionType.FASTEST,             "Hang-In Plan"),
         (PacelineSolutionType.LAST_FIVE,           "Last-Five Plan"),
         (PacelineSolutionType.LAST_FOUR,           "Last-Four Plan"),
     ]
 
-    html_sections = []
+    html_sections : list[str] = []
     for sol_type, caption in solution_order:
         solution = computation_report_display_object.solutions[sol_type]
         if not solution.rider_contributions_display_objects:
@@ -284,9 +301,7 @@ def save_all_pretty_paceline_solutions_as_html_file(
             footnotes="",  # Don't repeat footnotes in each section
             logger=logger,
         )
-        html_sections.append(buf.getvalue())
-        # html_sections.append(f"<h2>{caption}</h2>\n" + buf.getvalue())
-
+        html_sections.append(f'<section class="section-separator">{buf.getvalue()}</section>')
     # Combine all html_sections and write to file
     full_html = f"""<!DOCTYPE html>
 <html>
@@ -310,13 +325,11 @@ def save_all_pretty_paceline_solutions_as_html_file(
             color: #1a365d;
             letter-spacing: 0.01em;
         }}
+        .section-separator {{
+            margin: 32px 0;
+        }}
     </style>
 </head>
-
-
-
-
-
 <body>
     <h1>{html_document_caption}</h1>
     {''.join(html_sections)}
