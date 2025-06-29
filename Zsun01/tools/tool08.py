@@ -3,7 +3,7 @@ from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with
 from datetime import datetime
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
-from computation_classes import CurveFittingResult
+from computation_classes import CurveFittingResultItem
 from bestpower_for_model_training_item import BestPowerModelTrainingItem
 
 
@@ -45,7 +45,7 @@ def main():
     zwiftIds_with_high_fidelity : list[str] = []
     zwiftids_with_low_fidelity : list[str] = []
 
-    power_curves_for_everybody : dict[str, CurveFittingResult] = {}
+    power_curves_for_everybody : dict[str, CurveFittingResultItem] = {}
 
     for my_zwiftID, my_jghbestpoweritem in dict_of_bestpower_for_everybody.items():
 
@@ -95,7 +95,7 @@ def main():
         # load results into answer
 
         #load results into a dataclass
-        curve = CurveFittingResult(
+        curve = CurveFittingResultItem(
             zwift_id=my_zwiftID,
             one_hour_curve_coefficient=coefficient_ftp,
             one_hour_curve_exponent=exponent_ftp,

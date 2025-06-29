@@ -456,7 +456,7 @@ class ZsunRiderItem:
         return answer
 
     def get_standard_2_minute_pull_watts(self) -> float:
-        # apply 12 minute watts
+        # # apply 12 minute watts
         pull_long = decay_model_numpy(np.array([720]), self.zsun_TTT_pull_curve_coefficient, self.zsun_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([720]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
@@ -470,6 +470,12 @@ class ZsunRiderItem:
         return answer
 
     def get_standard_4_minute_pull_watts(self) -> float:
+        # apply 18 minute watts
+        one_hour = decay_model_numpy(np.array([1080]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
+        answer = one_hour[0]
+        return answer
+
+    def get_standard_5_minute_pull_watts(self) -> float:
         # apply 20 minute watts
         one_hour = decay_model_numpy(np.array([1200]), self.zsun_one_hour_curve_coefficient, self.zsun_one_hour_curve_exponent)
         answer = one_hour[0]

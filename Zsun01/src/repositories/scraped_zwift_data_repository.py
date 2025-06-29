@@ -12,7 +12,7 @@ from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zsun_rider_item import ZsunRiderItem
 from zsun_bestpower_item import ZsunBestPowerItem
 import pandas as pd
-from computation_classes import CurveFittingResult
+from computation_classes import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
 
 T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
@@ -305,11 +305,11 @@ class ScrapedZwiftDataRepository:
     def get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, ZsunBestPowerItem]:
         return self._get_dict_of_items(self.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem, zwift_ids, ZsunBestPowerItem)
 
-    def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResult]:
+    def get_dict_of_CurveFittingResult(self, zwift_ids: Optional[list[str]]) -> defaultdict[str, CurveFittingResultItem]:
 
         min_coordinates = 5 # minimum I desire for reliable curve fitting
         skipped_count = 0
-        answer : defaultdict[str, CurveFittingResult] = defaultdict(CurveFittingResult)
+        answer : defaultdict[str, CurveFittingResultItem] = defaultdict(CurveFittingResultItem)
 
         if zwift_ids is None:
             zwift_ids = []
@@ -345,7 +345,7 @@ class ScrapedZwiftDataRepository:
             coefficient_pull, exponent_pull, r_squared_pull, _, _ = do_curve_fit_with_decay_model(raw_xy_data_pull)
             critical_power, anaerobic_work_capacity, _, _, _  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
-            curvefit = CurveFittingResult(
+            curvefit = CurveFittingResultItem(
                 zwift_id=zwiftID,
                 one_hour_curve_coefficient = coefficient_ftp,
                 one_hour_curve_exponent= exponent_ftp,

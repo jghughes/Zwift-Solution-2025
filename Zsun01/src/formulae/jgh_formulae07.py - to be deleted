@@ -1,22 +1,18 @@
-from typing import DefaultDict, Optional, Union
-import io
-from jgh_read_write import write_html_file
+from typing import  DefaultDict, Optional
+
 from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
-from computation_classes_display_objects import (
-    RiderContributionDisplayObject,
-    PacelineSolutionsComputationReportDisplayObject,
-)
+from computation_classes_display_objects import RiderContributionDisplayObject, PacelineSolutionsComputationReportDisplayObject
 import logging
 
 def log_pretty_paceline_solution_report(
-    pretty_table_caption: str,
+    test_description: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject],
     logger: logging.Logger
 ) -> None:
     import pandas as pd
 
-    logger.info(pretty_table_caption)
+    logger.info(test_description)
 
     # Prepare data rows
     data = []
@@ -70,14 +66,23 @@ def log_pretty_paceline_solution_report(
 
     logger.info("\n" + "\n".join(formatted_rows))
 
+footnotes = """
+    <div class="footnote">
+        <sup>1</sup> zFTP: Zwift Functional Threshold Power (W/kg). zFTP metrics are displayed, but play no role in computations.<br>
+        <sup>2</sup> Pull: Duration, power, and ratio to zFTP for each rider's main pull. Stronger riders are prioritised for longer pulls and are located front and rear of the paceline, protecting weaker riders in the middle. Pull durations range from 30 seconds minimum to five minutes maximum and pull watts are based on ZwiftPower data in the 3.5 - 20 minute window. The strength metric a rider's 60 sec pull power.<br>
+        <sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts based on a five-second window.<br>
+        <sup>4</sup> IF: Normalised power divided by one-hour pwer. One hour power is determined from an extrapolation of ZwiftPower data in the 8 - 40 minute window.<br>
+        <sup>5</sup> Limit: For ride plans where everybody pulls, the speed of the paceline is constrained by the pulling power of the weakest rider and/or the intensity factor of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans.<br>
+    </div>
+    """
+
 
 def save_pretty_paceline_solution_as_html_file(
-    pretty_table_caption: str,
+    html_table_caption: str,
     result: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject], 
-    filename : Union[str, io.StringIO], #
-    dir_path : str,
-    footnotes: str,
     logger: logging.Logger,
+    html_footnotes: str = footnotes,
+    html_filename: str = "rider_contributions.html"
 ) -> None:
     import pandas as pd
     import re
@@ -85,10 +90,10 @@ def save_pretty_paceline_solution_as_html_file(
     columns = [
         "Name",
         "Race Cat",
-        "Pull<sup>1</sup>",
-        "zFTP<sup>2</sup>",
-        "Pull/zFTP",
-        "Ave w/kg",
+        "zFTP<sup>1</sup>",
+        "Pull<sup>2</sup>",
+        "/zFTP",
+        "Ave W/kg",
         "NP<sup>3</sup>",
         "IF<sup>4</sup>",
         "Limit<sup>5</sup>",
@@ -100,13 +105,13 @@ def save_pretty_paceline_solution_as_html_file(
         data.append([
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
+            f"{format_number_2dp(z.zwiftracingapp_zpFTP_wkg)}wkg",
             z.pretty_pull,
-            z.pretty_zwiftracingapp_zpFTP_wkg,
             z.pretty_pull_suffix,
             z.pretty_average_watts,
-            z.pretty_normalised_power_watts,
-            z.pretty_intensity_factor,
-            z.pretty_effort_constraint_violation_reason,
+            f"{round(z.normalised_power_watts)}w",
+            f"{round(100*z.intensity_factor)}%",
+            z.effort_constraint_violation_reason if z.effort_constraint_violation_reason else "",
             z.pretty_p2_3_4_w,
         ])
 
@@ -120,7 +125,7 @@ def save_pretty_paceline_solution_as_html_file(
     )
     html_table = re.sub(
         r'(<table[^>]*>)',
-        r'\1\n<caption>{}</caption>'.format(pretty_table_caption),
+        r'\1\n<caption>{}</caption>'.format(html_table_caption),
         html_table,
         count=1
     )
@@ -130,6 +135,8 @@ def save_pretty_paceline_solution_as_html_file(
         r'<th class="left-header">2nd 3rd 4th</th>',
         html_table
     )
+    # Optionally, add more column classes as needed
+
 
     html_doc = f"""<!DOCTYPE html>
 <html>
@@ -148,31 +155,31 @@ def save_pretty_paceline_solution_as_html_file(
         .table-container {{
             width: 260mm;
             max-width: 100vw;
-            margin-left: 0;
+            margin-left: auto;
             margin-right: auto;
             overflow-x: auto;
         }}
         .rider-table {{
             border-collapse: collapse;
             width: 100%;
-            font-size: 0.95em;
+            font-size: 0.95em; /* Reduced from 1.05em */
             font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
         }}
         .rider-table caption {{
             caption-side: top;
             font-size: 0.95em;
-            font-weight: 500;
+            font-weight: 500; /* Reduced from bold which is 700 */
             margin-bottom: 0.5em;
             font-family: 'Roboto', Arial, sans-serif;
-            text-align: left;
+            text-align: left; /* Left align the caption */
         }}
         .rider-table th {{
             background-color: #e6ecf5;
-            font-size: 0.95em;
+            font-size: 0.95em; /* (optional: reduce font size for compactness) */
             font-weight: bold;
             text-align: center;
             border-bottom: 2px solid #444;
-            padding: 6px 6px;
+            padding: 6px 6px;   /* Reduced from 10px 8px */
             letter-spacing: 0.02em;
             white-space: nowrap;
         }}
@@ -183,11 +190,12 @@ def save_pretty_paceline_solution_as_html_file(
             text-align: left;
         }}
         .rider-table td {{
-            font-size: 0.95em;
-            padding: 6px 6px;
+            font-size: 0.95em;  /* (optional: reduce font size for compactness) */
+            padding: 6px 6px;   /* Reduced from 8px 8px */
             border: 1px solid #b0b0b0;
             white-space: nowrap;
         }}
+        <!--  Use Roboto for the first two columns (Name and Race Cat) in both header and data cells -->   
         .rider-table th:nth-child(1),
         .rider-table td:nth-child(1),
         .rider-table th:nth-child(2),
@@ -213,8 +221,8 @@ def save_pretty_paceline_solution_as_html_file(
             margin-top: 1.5em;
             font-weight: 500;
             font-family: 'Roboto', Arial, sans-serif;
-            width: 100%;
-            text-align: left;
+            width: 100%;         /* Match table width */
+            text-align: left; /* Left align the footnotes */
         }}
         .footnote sup, .rider-table th sup {{
             font-size: 0.8em;
@@ -228,105 +236,27 @@ def save_pretty_paceline_solution_as_html_file(
     <div class="table-container">
         {html_table}
     <div class="footnote">
-        {footnotes}
+        {html_footnotes}
     </div>
 </body>
 </html>
 """
 
-    # Determine if filename is a string (file path) or a file-like object
-    if isinstance(filename, str):
-        write_html_file(html_doc, filename, dir_path)
-        # logger.info(f"\nPaceline pull-plan written and saved to hard-drive: path={dir_path} file={filename}")
-    else:
-        # Assume file-like object (e.g., io.StringIO)
-        filename.write(html_doc)
-        # logger.info(f"\nPaceline pull-plan written to file-like object (not saved to disk).")
+    with open(html_filename, "w", encoding="utf-8") as f:
+        f.write(html_doc)
 
-def save_all_pretty_paceline_solutions_as_html_file(
-    html_document_caption: str,
-    computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
-    filename: str,
-    dir_path: str,
-    html_footnotes: str,
-    logger: logging.Logger,
-
-) -> None:
-    from computation_classes_display_objects import PacelineSolutionType
-
+    logger.info(f"\nPaceline pull-plan written and saved to hard-drive: {html_filename}")
+    
+def save_all_pretty_paceline_solutions_as_html_file(html_document_caption: str, computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject], logger: logging.Logger, html_footnotes: str = footnotes, html_filename: str = "all_paceline_plans.html") -> None:
     if computation_report_display_object is None:
         logger.error("No computation report provided to save as HTML.")
         return
 
-    # Define the order and captions for each solution type
-    solution_order = [
-        (PacelineSolutionType.THIRTY_SEC_PULL,     "Thirty Second Pulls Plan"),
-        (PacelineSolutionType.IDENTICAL_PULL,      "Identical Pulls Plan"),
-        (PacelineSolutionType.BALANCED_INTENSITY,  "Balanced-Intensity Plan"),
-        (PacelineSolutionType.EVERYBODY_PULL_HARD, "Push Hard Plan"),
-        (PacelineSolutionType.HANG_IN,             "Hang-In Plan"),
-        (PacelineSolutionType.LAST_FIVE,           "Last-Five Plan"),
-        (PacelineSolutionType.LAST_FOUR,           "Last-Four Plan"),
-    ]
-
-    html_sections = []
-    for sol_type, caption in solution_order:
-        solution = computation_report_display_object.solutions[sol_type]
-        if not solution.rider_contributions_display_objects:
-            continue
-        # Generate HTML for this solution using the single-solution HTML function
-        buf= io.StringIO()
-        save_pretty_paceline_solution_as_html_file(
-            pretty_table_caption=caption,
-            result=solution.rider_contributions_display_objects,
-            filename=buf,  # We'll capture the HTML as a string
-            dir_path=dir_path,  # Directory path for saving the file
-            footnotes="",  # Don't repeat footnotes in each section
-            logger=logger,
-        )
-        html_sections.append(buf.getvalue())
-        # html_sections.append(f"<h2>{caption}</h2>\n" + buf.getvalue())
-
-    # Combine all html_sections and write to file
-    full_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Paceline Plans</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <style>
-        body {{
-            font-family: 'Roboto', Arial, sans-serif;
-            background: #fff;
-            color: #222;
-            margin: 0;
-            padding-left: 18px;
-        }}
-        h1 {{
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1.05em;
-            font-weight: 700;
-            color: #1a365d;
-            letter-spacing: 0.01em;
-        }}
-    </style>
-</head>
 
 
 
 
 
-<body>
-    <h1>{html_document_caption}</h1>
-    {''.join(html_sections)}
-    <div class="footnote">{html_footnotes}</div>
-</body>
-</html>
-"""
-    write_html_file(full_html, filename, dir_path)
-
-    logger.info(f"\nPaceline plans written to consolidated document and saved to hard-drive: path={dir_path}/{filename}")
 
 
 def main() -> None:

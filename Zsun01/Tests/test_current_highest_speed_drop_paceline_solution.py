@@ -9,7 +9,7 @@ from jgh_formatting import truncate, format_number_comma_separators, format_numb
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport
+from computation_classes import PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem
 from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_sequences_of_pull_periods_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
@@ -24,7 +24,7 @@ def test_current_highest_speed_drop_paceline_solution():
             self.p1_duration = p1_duration
             self.intensity_factor = intensity_factor
 
-    # Mock PacelineComputationReport
+    # Mock PacelineComputationReportItem
     class MockSolution:
         def __init__(self, speed, p1_durations):
             self.calculated_average_speed_of_paceline_kph = speed

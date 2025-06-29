@@ -427,19 +427,6 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
     return fastest_rider, fastest_duration, highest_speed
 
 
-
-
-# def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem])-> float:
-#     array_of_rider_effort_intensity_factors = [contribution.intensity_factor for _, contribution in rider_contributions.items()]
-#     if not array_of_rider_effort_intensity_factors:
-#         return 100 #arbitrarily big
-#     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
-#     if not np.isfinite(std_deviation_of_intensity_factors):
-#         return 100 #arbitrarily big
-#     return std_deviation_of_intensity_factors
-
-
-
 def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
@@ -512,7 +499,6 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
         back_idx -= 1
 
     return optimal_order
-
 
 
 def select_n_strongest_riders(riders: List[ZsunRiderItem], n : int) -> List[ZsunRiderItem]:

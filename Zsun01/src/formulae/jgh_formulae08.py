@@ -10,7 +10,8 @@ from jgh_formatting import (truncate, format_number_comma_separators, format_num
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReport, PacelineSolutionsComputationReport, WorthyCandidateSolution)
+from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem, WorthyCandidateSolutionItem)
+from computation_classes_display_objects import PacelineSolutionsComputationReportDisplayObject
 from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_sequences_of_pull_periods_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effort)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
@@ -50,18 +51,19 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
     log_multiline(logger, message_lines)
 
 
-def log_workload_suffix_message(report : PacelineSolutionsComputationReport, logger: logging.Logger) -> None:
+def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject, logger: logging.Logger) -> None:
 
     message_lines = [
         f"\nBrute report: did {format_number_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
         "Intensity Factor is Normalized Power/one-hour power. zFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
         "",
-        "30 second pull capacity = best power for 3.5 minutes",
-        "1 minute pull capacity  = best power for  5 minutes",
-        "2 minute pull capacity  = best power for 12 minutes",
-        "3 minute pull capacity  = best power for 15 minutes",
-        "4 minute pull capacity  = best power for 20 minutes",
+        "30 second pull capacity = 3.5 minute pull-curve ordinate",
+        "1 minute pull capacity  =  5 minute pull-curve ordinate",
+        "2 minute pull capacity  = 12 minute pull-curve ordinate",
+        "3 minute pull capacity  = 15 minute pull-curve ordinate",
+        "4 minute pull capacity  = 18 minute pull-curve ordinate",
+        "5 minute pull capacity  = 20 minute pull-curve ordinate",
         "",
         "Riders with superior pull capacity are prioritised for longer pulls.",
         "The speed of the paceline is constant and does not vary from one rider to the next.",
@@ -110,7 +112,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
 
 def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     paceline_ingredients: PacelineIngredientsItem,
-) -> PacelineComputationReport:
+) -> PacelineComputationReportItem:
     """
     Computes a single paceline solution that adheres to rider exertion constraints using a binary search approach.
 
@@ -129,7 +131,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
                 - max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
 
     Returns:
-        PacelineComputationReport: An object containing:
+        PacelineComputationReportItem: An object containing:
             - algorithm_ran_to_completion (bool): Whether the binary search completed within the permitted iterations.
             - compute_iterations_performed_count (int): Number of iterations performed during the search.
             - calculated_average_speed_of_paceline_kph (float): The computed average speed of the paceline (kph).
@@ -174,7 +176,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
         compute_iterations_performed += 1
     else:
         # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
-        return PacelineComputationReport(
+        return PacelineComputationReportItem(
             algorithm_ran_to_completion                     = False,  # We did not run to completion, we hit the max iterations
             exertion_intensity_constraint_used              = paceline_ingredients.max_exertion_intensity_factor,
             compute_iterations_performed_count              = compute_iterations_performed,
@@ -208,7 +210,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     # Knowing the speed, we can rework the contributions and thus the solution
     speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
 
-    answer = PacelineComputationReport(
+    answer = PacelineComputationReportItem(
         algorithm_ran_to_completion                 = True,  
         compute_iterations_performed_count          = compute_iterations_performed,
         exertion_intensity_constraint_used          = paceline_ingredients.max_exertion_intensity_factor,
@@ -224,7 +226,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     rotation_sequences: List[List[float]]
-) -> List[PacelineComputationReport]:
+) -> List[PacelineComputationReportItem]:
     """
     Compute paceline solutions for a set of candidate pull period sequences using serial (single-threaded) processing.
 
@@ -241,7 +243,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
-        List[PacelineComputationReport]: A list of computation reports, one for each successfully evaluated alternative.
+        List[PacelineComputationReportItem]: A list of computation reports, one for each successfully evaluated alternative.
             Each report contains the number of compute iterations performed and the computed rider contributions.
 
     Notes:
@@ -255,7 +257,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-    solutions: List[PacelineComputationReport] = []
+    solutions: List[PacelineComputationReportItem] = []
 
     for sequence in rotation_sequences:
         try:
@@ -263,7 +265,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
 
             result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_description)
 
-            answer = PacelineComputationReport(
+            answer = PacelineComputationReportItem(
                 algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
                 compute_iterations_performed_count       = result.compute_iterations_performed_count,
                 exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
@@ -283,7 +285,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
-) -> List[PacelineComputationReport]:
+) -> List[PacelineComputationReportItem]:
     """
     Computes paceline solutions for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
 
@@ -300,7 +302,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
-        List[PacelineComputationReport]: A list of computation reports, one for each successfully evaluated alternative.
+        List[PacelineComputationReportItem]: A list of computation reports, one for each successfully evaluated alternative.
             Each report contains the number of compute iterations performed and the computed rider contributions.
 
     Notes:
@@ -320,7 +322,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         paceline_description.sequence_of_pull_periods_sec = list(sequence)
         list_of_instructions.append(deepcopy(paceline_description))
 
-    solutions: List[PacelineComputationReport] = []
+    solutions: List[PacelineComputationReportItem] = []
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         future_to_params = {
@@ -338,7 +340,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
                     logger.warning(f"Skipping invalid result: {result}")
                     continue
 
-                answer = PacelineComputationReport(
+                answer = PacelineComputationReportItem(
                     algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
                     compute_iterations_performed_count       = result.compute_iterations_performed_count,
                     exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
@@ -356,7 +358,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
 
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
     paceline_ingredients: PacelineIngredientsItem, rotation_sequences : List[List[float]]
-) -> List[PacelineComputationReport]:
+) -> List[PacelineComputationReportItem]:
     """
     Computes paceline solutions for a set of candidate pull period sequences using the most efficient processing strategy.
 
@@ -373,7 +375,7 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
-        List[PacelineComputationReport]: A list of computation reports, one for each successfully evaluated alternative.
+        List[PacelineComputationReportItem]: A list of computation reports, one for each successfully evaluated alternative.
             Each report contains the number of compute iterations performed and the computed rider contributions.
 
     Notes:
@@ -407,7 +409,7 @@ def validate_paceline_ingredients(paceline_ingredients: PacelineIngredientsItem)
         raise ValueError("binary_search_seed must be positive and finite.")
 
 
-def is_valid_solution(this_solution: PacelineComputationReport, logger: logging.Logger) -> bool:
+def is_valid_solution(this_solution: PacelineComputationReportItem, logger: logging.Logger) -> bool:
     """
     Validates the solution's speed and dispersion.
     Returns True if both are finite and dispersion is not the error value (100).
@@ -427,37 +429,37 @@ def is_valid_solution(this_solution: PacelineComputationReport, logger: logging.
 
 
 def raise_error_if_any_solutions_missing(
-    thirty_sec_candidate: WorthyCandidateSolution,
-    uniform_pull_candidate: WorthyCandidateSolution,
-    balanced_intensity_candidate: WorthyCandidateSolution,
-    pull_hard_candidate: WorthyCandidateSolution,
-    hang_in_candidate: WorthyCandidateSolution
+    thirty_sec_candidate: WorthyCandidateSolutionItem,
+    identical_pull_duration_candidate: WorthyCandidateSolutionItem,
+    balanced_intensity_candidate: WorthyCandidateSolutionItem,
+    everybody_pulls_hard_candidate: WorthyCandidateSolutionItem,
+    hang_in_candidate: WorthyCandidateSolutionItem
 ) -> None:
     """
     Raises RuntimeError if any required candidate solution is missing.
     """
     if (
         thirty_sec_candidate.solution is None
-        and uniform_pull_candidate.solution is None
+        and identical_pull_duration_candidate.solution is None
         and balanced_intensity_candidate.solution is None
-        and pull_hard_candidate.solution is None
+        and everybody_pulls_hard_candidate.solution is None
         and hang_in_candidate.solution is None
     ):
         raise RuntimeError("No valid solutions found for simple, balanced-IF, tempo, and drop solutions.")
 
     if thirty_sec_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (thirty_sec_solution is None)")
-    if uniform_pull_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (uniform_pull_solution is None)")
-    if pull_hard_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (pull_hard_solution is None)")
+    if identical_pull_duration_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (identical_pull_solution is None)")
+    if everybody_pulls_hard_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (everybody_pull_hard_solution is None)")
     if balanced_intensity_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (balanced_solution is None)")
     if hang_in_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (hang_in_solution is None)")
 
 
-def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineComputationReport) -> bool:
+def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineComputationReportItem) -> bool:
     """
     Returns True if a dispersion of 0.0 is permissible for a 'simple solution' candidate.
     Rules:
@@ -475,8 +477,8 @@ def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineCo
     return len(durations) == 1 and len(watts) == 1
 
 def is_thirty_second_pulls_solution_candidate(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'basic solution' candidate.
@@ -504,8 +506,8 @@ def is_thirty_second_pulls_solution_candidate(
     return answer
 
 def is_identical_pulls_solution_candidate(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'simple solution' candidate.
@@ -553,8 +555,8 @@ def is_identical_pulls_solution_candidate(
     return answer
 
 def is_balanced_intensity_solution_candidate(
-        this_solution: PacelineComputationReport,
-        candidate: WorthyCandidateSolution
+        this_solution: PacelineComputationReportItem,
+        candidate: WorthyCandidateSolutionItem
     ) -> bool:
     """
     Determines if the given solution qualifies as a 'balanced solution' candidate.
@@ -603,9 +605,9 @@ def is_balanced_intensity_solution_candidate(
 
     return answer
 
-def is_everone_pull_hard_solution_candidate(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution
+def is_everyone_pull_hard_solution_candidate(
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'tempo solution' candidate.
@@ -652,8 +654,8 @@ def is_everone_pull_hard_solution_candidate(
     return answer
 
 def is_hang_in_solution_candidate(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
     Determines if the given solution qualifies as a 'drop solution' candidate.
@@ -704,16 +706,16 @@ def is_hang_in_solution_candidate(
 
 
 def update_candidate_solution(
-    this_solution: PacelineComputationReport,
-    candidate: WorthyCandidateSolution,
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem,
     logger: logging.Logger
 ) -> None:
     """
-    Updates the candidate WorthyCandidateSolution in-place if the current solution is better.
+    Updates the candidate WorthyCandidateSolutionItem in-place if the current solution is better.
 
     Args:
-        this_solution: The candidate PacelineComputationReport.
-        candidate: The WorthyCandidateSolution instance to update.
+        this_solution: The candidate PacelineComputationReportItem.
+        candidate: The WorthyCandidateSolutionItem instance to update.
         logger: Logger instance.
 
     Returns:
@@ -727,7 +729,7 @@ def update_candidate_solution(
     candidate.solution   = this_solution
 
 def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
-    ) -> PacelineSolutionsComputationReport:
+    ) -> PacelineSolutionsComputationReportItem:
     """
     Generates and returns optimal paceline solutions based on the provided paceline ingredients.
 
@@ -747,15 +749,15 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
             and maximum exertion intensity factor.
 
     Returns:
-        PacelineSolutionsComputationReport: 
+        PacelineSolutionsComputationReportItem: 
             An object containing:
                 - total_pull_sequences_examined (int): Number of candidate paceline rotation schedules evaluated.
                 - total_compute_iterations_performed (int): Total number of compute iterations performed across all solutions.
                 - computational_time (float): Total time taken for the computation (seconds).
-                - uniform_pull_solution (PacelineComputationReport): The best simple solution found.
-                - balanced_intensity_of_effort_solution (PacelineComputationReport): The most balanced solution found.
-                - pull_hard_solution (PacelineComputationReport): The best tempo solution found.
-                - hang_in_solution (PacelineComputationReport): The best drop solution found.
+                - identical_pull_solution (PacelineComputationReportItem): The best simple solution found.
+                - balanced_intensity_of_effort_solution (PacelineComputationReportItem): The most balanced solution found.
+                - everybody_pull_hard_solution (PacelineComputationReportItem): The best tempo solution found.
+                - hang_in_solution (PacelineComputationReportItem): The best drop solution found.
 
     Raises:
         ValueError: If required input parameters are missing or invalid.
@@ -782,7 +784,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
 
     if len(pruned_sequences) > SOLUTION_FILTERING_THRESHOLD:
-        logger.warning(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of pull-periods in the system is {format_number_comma_separators(len(STANDARD_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible sequences to be evaluated. This is {format_number_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
+        logger.warning(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_comma_separators(len(STANDARD_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
 
     start_time = time.perf_counter()
 
@@ -793,11 +795,11 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     time_taken_to_compute = time.perf_counter() - start_time
 
-    thirty_sec_candidate   = WorthyCandidateSolution(tag="30sec")
-    uniform_pull_candidate   = WorthyCandidateSolution(tag="ident")
-    balanced_intensity_candidate = WorthyCandidateSolution(tag="bal  ")
-    pull_hard_candidate    = WorthyCandidateSolution(tag="push ")
-    hang_in_candidate     = WorthyCandidateSolution(tag="hang ")
+    thirty_sec_candidate                = WorthyCandidateSolutionItem(tag="30sec")
+    identical_pull_duration_candidate   = WorthyCandidateSolutionItem(tag="ident")
+    balanced_intensity_candidate        = WorthyCandidateSolutionItem(tag="bal  ")
+    everybody_pulls_hard_candidate      = WorthyCandidateSolutionItem(tag="push ")
+    hang_in_candidate                   = WorthyCandidateSolutionItem(tag="hang ")
 
     total_compute_iterations_performed = 0 
 
@@ -811,35 +813,36 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         if is_thirty_second_pulls_solution_candidate(this_solution, thirty_sec_candidate):
             update_candidate_solution(this_solution, thirty_sec_candidate, logger)
 
-        if is_identical_pulls_solution_candidate(this_solution, uniform_pull_candidate):
-            update_candidate_solution(this_solution, uniform_pull_candidate, logger)
+        if is_identical_pulls_solution_candidate(this_solution, identical_pull_duration_candidate):
+            update_candidate_solution(this_solution, identical_pull_duration_candidate, logger)
 
         if is_balanced_intensity_solution_candidate(this_solution, balanced_intensity_candidate):
             update_candidate_solution(this_solution, balanced_intensity_candidate, logger)
 
-        if is_everone_pull_hard_solution_candidate(this_solution, pull_hard_candidate):
-            update_candidate_solution(this_solution, pull_hard_candidate, logger)
+        if is_everyone_pull_hard_solution_candidate(this_solution, everybody_pulls_hard_candidate):
+            update_candidate_solution(this_solution, everybody_pulls_hard_candidate, logger)
 
         if is_hang_in_solution_candidate(this_solution, hang_in_candidate):
             update_candidate_solution(this_solution, hang_in_candidate, logger)
 
     raise_error_if_any_solutions_missing(
         thirty_sec_candidate,
-        uniform_pull_candidate,
+        identical_pull_duration_candidate,
         balanced_intensity_candidate,
-        pull_hard_candidate,
+        everybody_pulls_hard_candidate,
         hang_in_candidate
     )
 
-    return PacelineSolutionsComputationReport(
+    return PacelineSolutionsComputationReportItem(
         total_pull_sequences_examined           = len(pruned_sequences),
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
-        thirty_sec_solution                          = thirty_sec_candidate.solution,
-        uniform_pull_solution                         = uniform_pull_candidate.solution,
+        thirty_sec_solution                     = thirty_sec_candidate.solution,
+        identical_pull_solution                   = identical_pull_duration_candidate.solution,
         balanced_intensity_of_effort_solution   = balanced_intensity_candidate.solution,
-        pull_hard_solution                          = pull_hard_candidate.solution,
-        hang_in_solution                           = hang_in_candidate.solution,
+        everybody_pull_hard_solution                      = everybody_pulls_hard_candidate.solution,
+        hang_in_solution                        = hang_in_candidate.solution,
+        all_solutions                           = all_computation_reports
     )
 
 
@@ -944,21 +947,21 @@ def main02():
 
     computation_report = generate_ingenious_paceline_solutions(params)
 
-    uniform_pull_solution = computation_report.uniform_pull_solution
+    identical_pull_solution = computation_report.identical_pull_solution
     balanced_solution = computation_report.balanced_intensity_of_effort_solution
-    pull_hard_solution = computation_report.pull_hard_solution
+    everybody_pull_hard_solution = computation_report.everybody_pull_hard_solution
     hang_in_solution = computation_report.hang_in_solution
 
-    simple_speed = uniform_pull_solution.calculated_average_speed_of_paceline_kph if uniform_pull_solution else None
+    simple_speed = identical_pull_solution.calculated_average_speed_of_paceline_kph if identical_pull_solution else None
     balanced_speed = balanced_solution.calculated_average_speed_of_paceline_kph if balanced_solution else None
-    tempo_speed = pull_hard_solution.calculated_average_speed_of_paceline_kph if pull_hard_solution else None
+    tempo_speed = everybody_pull_hard_solution.calculated_average_speed_of_paceline_kph if everybody_pull_hard_solution else None
     drop_speed = hang_in_solution.calculated_average_speed_of_paceline_kph if hang_in_solution else None
 
     logger.debug(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
-    simple_guid    = first_n_chars(uniform_pull_solution.guid, 2) if uniform_pull_solution else "--"
+    simple_guid    = first_n_chars(identical_pull_solution.guid, 2) if identical_pull_solution else "--"
     balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
-    tempo_guid     = first_n_chars(pull_hard_solution.guid, 2) if pull_hard_solution else "--"
+    tempo_guid     = first_n_chars(everybody_pull_hard_solution.guid, 2) if everybody_pull_hard_solution else "--"
     drop_guid      = first_n_chars(hang_in_solution.guid, 2) if hang_in_solution else "--"
 
     logger.debug(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
@@ -982,5 +985,5 @@ def main02():
     logger.debug(f"Summary report written to {save_filename_without_ext}.txt")
 
 if __name__ == "__main__":
-    # main01()    
-    main02()
+    main01()    
+    # main02()

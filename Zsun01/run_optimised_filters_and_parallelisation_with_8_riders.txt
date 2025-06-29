@@ -1,6 +1,0 @@
-Benchmark Summary Report
-Number of riders: 8
-
-Most performant algorithm:
-  Compute-time (measured): 15.47 seconds
-

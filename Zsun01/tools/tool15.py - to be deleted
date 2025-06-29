@@ -1,0 +1,191 @@
+from typing import Optional, DefaultDict, Union
+from collections import defaultdict
+from jgh_string import JghString
+from jgh_formatting import format_number_1dp
+from handy_utilities import read_dict_of_zsunriderItems
+from repository_of_teams import get_team_riderIDs
+from jgh_formatting import format_number_comma_separators
+from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders 
+from jgh_formulae07 import log_pretty_paceline_solution_report, save_pretty_paceline_solution_as_html_file, save_all_pretty_paceline_solutions_as_html_file
+from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
+from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT, RIDERS_FILE_NAME, DATA_DIRPATH
+from zsun_rider_item import ZsunRiderItem
+from computation_classes import PacelineIngredientsItem
+from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
+
+def main():
+    # SET UP LOGGING
+    import logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
+    # SET UP HELPER FUNCTIONS
+
+    def get_computation_report_safely(report: Union[PacelineComputationReportDisplayObject, None])-> PacelineComputationReportDisplayObject:
+        return report if report else PacelineComputationReportDisplayObject()
+
+    def get_contributions(report: PacelineComputationReportDisplayObject)-> DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]:
+        return report.rider_contributions_display_objects if report.rider_contributions_display_objects else defaultdict(RiderContributionDisplayObject)
+
+    def make_pretty_table_caption(title: str, report : PacelineComputationReportDisplayObject, overall_report: PacelineSolutionsComputationReportDisplayObject, suffix : Optional[str]) -> str:
+        if suffix:
+            return f"\n{title} [ID {JghString.first_n_chars(report.guid,3)}] speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} itr={format_number_comma_separators(report.compute_iterations_performed_count)} {suffix}"
+        else:
+            return f"\n{title} (ID {JghString.first_n_chars(report.guid,3)}) speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} itr={format_number_comma_separators(report.compute_iterations_performed_count)} {suffix}"
+
+
+    # GET THE DATA READY
+
+    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+
+    riderIDs = get_team_riderIDs("fire")
+
+    riders : list[ZsunRiderItem] = []
+
+    for riderID in riderIDs:
+        riders.append(dict_of_zsunrideritems[riderID])
+
+    riders = arrange_riders_in_optimal_order(riders)
+
+    # SET UP PACELINE INGREDIENTS
+
+    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders, logger)
+
+    ingredients = PacelineIngredientsItem(
+        riders_list                     = riders,
+        pull_speeds_kph                 = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        sequence_of_pull_periods_sec    = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        max_exertion_intensity_factor   = EXERTION_INTENSITY_FACTOR_LIMIT
+    )
+
+    # DO BRUTE-FORCE SEARCHES WITH ARRAY OF STANDARD PULL PERIODS
+
+    report = generate_ingenious_paceline_solutions(ingredients)
+
+    report_displayobject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report)
+
+    thirty_sec          = get_computation_report_safely(report_displayobject.thirty_sec_solution_display_object)
+    identical_pull      = get_computation_report_safely(report_displayobject.identical_pull_solution_display_object)
+    balanced_intensity  = get_computation_report_safely(report_displayobject.balanced_intensity_of_effort_solution_display_object)
+    everyone_pull_hard  = get_computation_report_safely(report_displayobject.everybody_pull_hard_solution_display_object)
+    hang_in             = get_computation_report_safely(report_displayobject.hang_in_solution_display_object)
+
+    thirty_sec_contributions         = get_contributions(thirty_sec)
+    identical_pull_contributions     = get_contributions(identical_pull)
+    balanced_intensity_contributions = get_contributions(balanced_intensity)
+    everyone_pull_hard_contributions = get_contributions(everyone_pull_hard)
+    hang_in_contributions            = get_contributions(hang_in)
+
+    thirty_sec_pull_caption= make_pretty_table_caption("\nTHIRTY SECOND PULLS PLAN", thirty_sec, report_displayobject,"(thirty_sec second pull for everyone)")
+    identical_pull_caption = make_pretty_table_caption("\nIDENTICAL PULLS PLAN", identical_pull, report_displayobject, "(identical pull for everyone)")
+    balanced_intensity_caption  = make_pretty_table_caption("\nBALANCED-INTENSITY PLAN", balanced_intensity, report_displayobject, "(intensity is balanced. everybody pulls.)")
+    everybody_pull_hard_caption = make_pretty_table_caption("\nPUSH HARD PLAN", everyone_pull_hard, report_displayobject, "(everybody pulls. weaker riders work hardest.)") 
+    hang_in_caption   = make_pretty_table_caption("\nHANG-IN PLAN", hang_in,report_displayobject, "(eveybody rotates, maybe or maybe not pulling)")
+
+    log_pretty_paceline_solution_report(thirty_sec_pull_caption,  thirty_sec_contributions, logger,)
+    log_pretty_paceline_solution_report(identical_pull_caption,  identical_pull_contributions, logger,)
+    log_pretty_paceline_solution_report(balanced_intensity_caption,  balanced_intensity_contributions, logger)
+    log_pretty_paceline_solution_report(everybody_pull_hard_caption, everyone_pull_hard_contributions, logger)
+    log_pretty_paceline_solution_report(hang_in_caption, hang_in_contributions, logger)
+
+    # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
+
+    log_workload_suffix_message(report_displayobject, logger)
+
+
+    # RINSE AND REPEAT FOR THE LAST FIVE
+
+    riders = select_n_strongest_riders(ingredients.riders_list, 5)
+
+    riders = arrange_riders_in_optimal_order(riders)
+
+    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders, logger)
+
+    ingredients = PacelineIngredientsItem(
+        riders_list                     = riders,
+        pull_speeds_kph                 = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        sequence_of_pull_periods_sec    = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        max_exertion_intensity_factor   = EXERTION_INTENSITY_FACTOR_LIMIT
+    )
+
+    report_last_five = generate_ingenious_paceline_solutions(ingredients)
+
+    report_last_five_displayobject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_five)
+
+    last_five                   = get_computation_report_safely(report_last_five_displayobject.hang_in_solution_display_object)
+    last_five_contributions     = get_contributions(last_five)
+    last_five_caption             = make_pretty_table_caption("\nLAST-FIVE PLAN", last_five, report_last_five_displayobject, "(last five. everybody rotates, maybe or maybe not pulling)")
+    log_pretty_paceline_solution_report(last_five_caption, last_five_contributions, logger)
+
+    # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
+
+    log_workload_suffix_message(report_last_five_displayobject, logger)
+
+
+    # RINSE AND REPEAT FOR THE FINAL FOUR
+
+    riders = select_n_strongest_riders(ingredients.riders_list, 4)
+
+    riders = arrange_riders_in_optimal_order(riders)
+
+    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders, logger)
+
+    ingredients = PacelineIngredientsItem(
+        riders_list                     = riders,
+        pull_speeds_kph                 = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        sequence_of_pull_periods_sec    = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        max_exertion_intensity_factor   = EXERTION_INTENSITY_FACTOR_LIMIT
+    )
+
+    report_last_four = generate_ingenious_paceline_solutions(ingredients)
+    report_last_four_display_object = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_four)
+
+    last_four  = get_computation_report_safely(report_last_four_display_object.hang_in_solution_display_object)
+    last_four_contributions  = get_contributions(last_four)
+    last_four_caption = make_pretty_table_caption("\nLAST-FOUR PLAN", last_four, report_last_four_display_object, "(last four. everybody rotates, maybe or maybe not pulling)")
+    log_pretty_paceline_solution_report(last_four_caption, last_four_contributions, logger)
+
+    # LOG SUFFIX MESSAGE ABOUT BRUTE-FORCE COMPUTATIONS
+
+    log_workload_suffix_message(report_last_four_display_object, logger)
+
+    # SAVE ALL REPORTS TO HARD DRIVE AS HTML FILES
+
+    save_pretty_paceline_solution_as_html_file(thirty_sec_pull_caption, thirty_sec_contributions, logger, "thirty_sec_pulls_plan.html")
+    save_pretty_paceline_solution_as_html_file(identical_pull_caption, identical_pull_contributions, logger, "identical_pulls_plan.html")
+    save_pretty_paceline_solution_as_html_file(balanced_intensity_caption, balanced_intensity_contributions, logger, "balanced_intensity_plan.html")
+    save_pretty_paceline_solution_as_html_file(everybody_pull_hard_caption, everyone_pull_hard_contributions, logger, "everybody_pulls_hard_plan.html")
+    save_pretty_paceline_solution_as_html_file(hang_in_caption, hang_in_contributions, logger, "hang_in_plan.html")
+    save_pretty_paceline_solution_as_html_file(last_five_caption, last_five_contributions, logger, "last_five_plan.html")
+    save_pretty_paceline_solution_as_html_file(last_four_caption, last_four_contributions, logger, "last_four_plan.html")
+
+    omnibus_report_display_object : PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject()
+
+    omnibus_report_display_object.thirty_sec_solution_display_object = thirty_sec
+    omnibus_report_display_object.identical_pull_solution_display_object = identical_pull
+    omnibus_report_display_object.balanced_intensity_of_effort_solution_display_object = balanced_intensity
+    omnibus_report_display_object.everybody_pull_hard_solution_display_object = everyone_pull_hard
+    omnibus_report_display_object.hang_in_solution_display_object = hang_in
+    omnibus_report_display_object.last_five_solution_display_object = last_five
+    omnibus_report_display_object.last_four_solution_display_object = last_four
+
+
+    omnibus_report_display_object.thirty_sec_solution_display_object.display_caption = thirty_sec_pull_caption
+    omnibus_report_display_object.identical_pull_solution_display_object.display_caption = identical_pull_caption
+    omnibus_report_display_object.balanced_intensity_of_effort_solution_display_object.display_caption = balanced_intensity_caption
+    omnibus_report_display_object.everybody_pull_hard_solution_display_object.display_caption = everybody_pull_hard_caption
+    omnibus_report_display_object.hang_in_solution_display_object.display_caption = hang_in_caption
+    omnibus_report_display_object.last_five_solution_display_object.display_caption= last_five_caption
+    omnibus_report_display_object.last_four_solution_display_object.display_caption = last_four_caption
+    
+
+
+    save_all_pretty_paceline_solutions_as_html_file('Paceline options for Betel', omnibus_report_display_object, logger, "all_paceline_plans.html")
+
+
+if __name__ == "__main__":
+    main()
+
+

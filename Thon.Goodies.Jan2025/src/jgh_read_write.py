@@ -408,3 +408,18 @@ def write_json_file(text: str, file_name: str, dir_path : str):
     output_file_path = os.path.join(dir_path, file_name)
     with open(output_file_path, 'w', encoding='utf-8') as json_file:
         json_file.write(text)
+
+def write_html_file(text: str, file_name: str, dir_path : str):
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+    if not file_name or not file_name.endswith(".html"):
+        raise ValueError(f"Invalid file name: '{file_name}'. Ensure it ends with '.html'.")
+
+    raise_exception_if_invalid(dir_path, file_name, ".html", must_read_not_write=False)
+    output_file_path = os.path.join(dir_path, file_name)
+    with open(output_file_path, 'w', encoding='utf-8') as html_file:
+        html_file.write(text)
