@@ -1,16 +1,39 @@
-from typing import DefaultDict, Optional, Union
+from typing import Optional, Union
 import io
+from jgh_string import first_n_chars
+from jgh_formatting import format_number_1dp, format_number_comma_separators
 from constants import DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS
 from jgh_read_write import write_html_file
-from jgh_formatting import format_number_2dp
 from zsun_rider_item import ZsunRiderItem
-from computation_classes_display_objects import (
-    PacelineSolutionType,
-    RiderContributionDisplayObject,
-    PacelineComputationReportDisplayObject,
-    PacelineSolutionsComputationReportDisplayObject,
-)
+from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
+
 import logging
+
+def get_pretty_pull_plan_table_caption(
+    title: str,
+    report: PacelineComputationReportDisplayObject,
+    overall_report: PacelineSolutionsComputationReportDisplayObject,
+    suffix: Optional[str],
+) -> str:
+    if suffix:
+        return (
+            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
+            f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
+            f"{suffix} "
+            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+        )
+    else:
+        return (
+            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
+            f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
+            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+        )
+
+
 
 def log_pretty_paceline_solution_report(
     report: PacelineComputationReportDisplayObject,
@@ -73,7 +96,7 @@ def log_pretty_paceline_solution_report(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def save_pretty_paceline_plan_as_html_file(
+def save_pretty_paceline_plan_to_html_file(
     report: PacelineComputationReportDisplayObject,
     filename : Union[str, io.StringIO], #
     dir_path : str,
@@ -261,7 +284,7 @@ def save_pretty_paceline_plan_as_html_file(
         filename.write(html_doc)
         # logger.info(f"\nPaceline pull-plan written to file-like object (not saved to disk).")
 
-def save_all_pretty_paceline_plans_in_consolidated_html_file(
+def save_all_pretty_paceline_plans_to_consolidated_html_file(
     computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
     filename: str,
     dir_path: str,
@@ -282,7 +305,7 @@ def save_all_pretty_paceline_plans_in_consolidated_html_file(
             continue
         # Generate HTML for this solution using the single-solution HTML function
         buf= io.StringIO()
-        save_pretty_paceline_plan_as_html_file(solution,
+        save_pretty_paceline_plan_to_html_file(solution,
             filename=buf,  # We'll capture the HTML as a string
             dir_path=dir_path,  # Directory path for saving the file
             footnotes="",  # Don't repeat footnotes in each section

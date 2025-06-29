@@ -94,7 +94,7 @@ class RiderContributionDisplayObject():
 
         p1_w = f"{str(round_to_nearest_10(plan.p1_w))}"
 
-        return f"{p1_w} {duration_str}"
+        return f"{duration_str} {p1_w}"
 
     @staticmethod
     def make_pretty_pull_suffix(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:

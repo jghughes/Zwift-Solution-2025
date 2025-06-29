@@ -6,6 +6,7 @@ from collections import defaultdict
 def get_teams() -> Dict[str, defaultdict[str, str]]:
     return {
         "betel": betelguese_Roster,
+        "sirius": sirius_Roster,
         "giants": giants_Roster,
         "fire": zsunderfire_Roster,
         "kissed": sunkissed_Roster,
@@ -37,18 +38,37 @@ betelguese_Roster = defaultdict(
         # "183277": "giao_nguyen",
         # "5134": "husky_crone",
         "1884456": "john_hughes",
-        # "2508033": "josh_neil",
-        # "383480": "lynsey_segal",
+        "2508033": "josh_neil",
+        "383480": "lynsey_segal",
         # "5530045": "mark_brzezinski",
         # "1024413": "matt_steeve",
-        # "1657744": "melissa_warwick",
-        # "1707548": "meridith_leubner",
+        "1657744": "melissa_warwick",
+        "1707548": "meridith_leubner",
         # # "1193": "richard_mann",
         # "384442": "roland_segal",
         # "11526": "scott_mcveigh",
         # "1956": "scott_yarosh",
         # "2682791": "selena_shaikh",
         # "6142432": "steve_seiler",
+        # "5421258": "tim_reid",
+        # "11741": "tom_bick",
+    }
+)
+
+sirius_Roster = defaultdict(
+    str,
+    {
+        "5490373": "barry_beck",
+        "9011": "bryan_bumpas",
+        "5569057": "cory_cook",
+        "3147366": "dave_konicek",
+        "5134": "husky_crone",
+        # "1884456": "john_hughes",
+        # "383480": "lynsey_segal",
+        "1657744": "melissa_warwick",
+        "1707548": "meridith_leubner",
+        # "11526": "scott_mcveigh",
+        # "1956": "scott_yarosh",
         # "5421258": "tim_reid",
         # "11741": "tom_bick",
     }
@@ -82,6 +102,7 @@ zsunderfire_Roster = defaultdict(
         "2419188": "xander_crawshaw",
     }
 )
+
 sunkissed_Roster = defaultdict(
     str,
     {

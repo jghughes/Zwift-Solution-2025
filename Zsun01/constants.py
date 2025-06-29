@@ -1,9 +1,6 @@
 from enum import Enum
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 import numpy as np
-from jgh_string import first_n_chars
-from jgh_formatting import format_number_1dp, format_number_comma_separators
-from computation_classes_display_objects import PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
 
 RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
 
@@ -65,29 +62,6 @@ SAVE_FILE_NAMES_FOR_PULL_PLANS = {
     PacelineSolutionType.LAST_FOUR:          "fastest_plan_for_last_four_riders.html",
 }
 
-def get_pretty_table_caption(
-    title: str,
-    report: PacelineComputationReportDisplayObject,
-    overall_report: PacelineSolutionsComputationReportDisplayObject,
-    suffix: Optional[str],
-) -> str:
-    if suffix:
-        return (
-            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
-            f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
-            f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-            f"{suffix} "
-            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-            f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
-        )
-    else:
-        return (
-            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
-            f"speed {format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
-            f"sigma {format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-            f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
-        )
 
 def get_consolidated_report_caption(team_name: str) -> str:
     return f"TTT paceline plans for {team_name}"
