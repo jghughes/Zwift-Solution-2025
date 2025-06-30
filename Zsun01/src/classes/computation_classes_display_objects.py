@@ -6,7 +6,7 @@ from jgh_formatting import round_to_nearest_10, format_number_2dp
 from  jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem
-from constants import PacelineSolutionType
+from constants import PacelinePlanTypeEnum
 
 @dataclass
 @dataclass
@@ -120,7 +120,7 @@ class RiderContributionDisplayObject():
 
         av_wkg = rider.get_watts_per_kg(contribution.average_watts)
 
-        return f"{round(contribution.average_watts)} {round(av_wkg,1)}wkg"
+        return f"{round(av_wkg,1)}wkg {round(contribution.average_watts)}"
 
 
     @staticmethod
@@ -155,7 +155,7 @@ class RiderContributionDisplayObject():
             normalised_power_watts                 = contribution.normalized_watts,
             pretty_normalised_power_watts          = f"{round(contribution.normalized_watts)}",
             intensity_factor                       = contribution.intensity_factor,
-            pretty_intensity_factor                = f"{round(100*contribution.intensity_factor,1)}%",
+            pretty_intensity_factor                = f"{round(100*contribution.intensity_factor)}%",
             effort_constraint_violation_reason     = contribution.effort_constraint_violation_reason,
             pretty_effort_constraint_violation_reason = contribution.effort_constraint_violation_reason if contribution.effort_constraint_violation_reason else ""
         )
@@ -221,7 +221,7 @@ class PacelineSolutionsComputationReportDisplayObject:
     total_pull_sequences_examined      : int = 0
     total_compute_iterations_performed : int = 0
     computational_time                 : float = 0.0
-    solutions                          : DefaultDict[PacelineSolutionType, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
+    solutions                          : DefaultDict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
 
     @staticmethod
     def from_PacelineSolutionsComputationReportItem(
@@ -234,13 +234,13 @@ class PacelineSolutionsComputationReportDisplayObject:
         if report is None:
             return PacelineSolutionsComputationReportDisplayObject()
 
-        solutions : DefaultDict[PacelineSolutionType, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
+        solutions : DefaultDict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
 
-        solutions[PacelineSolutionType.THIRTY_SEC_PULL]     = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution)
-        solutions[PacelineSolutionType.IDENTICAL_PULL]      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
-        solutions[PacelineSolutionType.BALANCED_INTENSITY]  = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
-        solutions[PacelineSolutionType.EVERYBODY_PULL_HARD] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
-        solutions[PacelineSolutionType.FASTEST]             = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
+        solutions[PacelinePlanTypeEnum.THIRTY_SEC_PULL]     = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution)
+        solutions[PacelinePlanTypeEnum.IDENTICAL_PULL]      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
+        solutions[PacelinePlanTypeEnum.BALANCED_INTENSITY]  = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
+        solutions[PacelinePlanTypeEnum.EVERYBODY_PULL_HARD] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
+        solutions[PacelinePlanTypeEnum.FASTEST]             = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
         # LAST_FIVE and LAST_FOUR must be set externally - not here, as they are not computed in the report
 
         return PacelineSolutionsComputationReportDisplayObject(

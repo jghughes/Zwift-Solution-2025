@@ -1,50 +1,84 @@
+import logging
 from typing import Optional, Dict, Any, List
-from computation_classes_display_objects import PacelineSolutionType, PacelineSolutionsComputationReportDisplayObject, PacelineComputationReportDisplayObject
+from computation_classes_display_objects import PacelinePlanTypeEnum, PacelineSolutionsComputationReportDisplayObject, PacelineComputationReportDisplayObject
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders
-from jgh_formulae07 import get_pretty_pull_plan_table_caption, log_pretty_paceline_solution_report, save_pretty_paceline_plan_to_html_file, save_all_pretty_paceline_plans_to_consolidated_html_file
+from jgh_formulae07 import get_single_paceline_plan_caption, log_single_paceline_plan, save_single_paceline_plan_as_html, save_summary_of_all_paceline_plans_as_html
 from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
 from constants import (
     STANDARD_PULL_PERIODS_SEC_AS_LIST,
     EXERTION_INTENSITY_FACTOR_LIMIT,
     RIDERS_FILE_NAME,
     DATA_DIRPATH,
-    LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS,
-    SAVE_FILE_NAMES_FOR_PULL_PLANS,
-    get_consolidated_report_caption,
-    get_consolidated_report_save_filename,
-    FOOTNOTES
+    LIST_OF_PACELINE_PLAN_TYPES_AND_CAPTIONS,
+    get_caption_for_summary_of_all_paceline_plans,
+    get_save_filename_for_summary_of_all_paceline_plans,
+    get_save_filename_for_single_paceline_plan,
+    FOOTNOTES,
 )
 
-def main() -> None:
-    # SET UP LOGGING
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger: logging.Logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
-    SAVE_FILE_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-
-    # HELPER FUNCTIONS
+def generate_fastest_solution_for_n_strongest(ingredients: PacelineIngredientsItem, n: int, logger: logging.Logger) -> PacelineComputationReportDisplayObject:
+        
     def get_computation_report_safely(
         report: Optional[PacelineComputationReportDisplayObject]
     ) -> PacelineComputationReportDisplayObject:
         return report if report else PacelineComputationReportDisplayObject()
 
+    riders_n = select_n_strongest_riders(ingredients.riders_list, n)
+    riders_n = arrange_riders_in_optimal_order(riders_n)
+    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders_n, logger)
+    ingredients_n = PacelineIngredientsItem(
+        riders_list=riders_n,
+        pull_speeds_kph=[calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders_n)] * len(riders_n),
+        sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR_LIMIT,
+    )
+    report_n = generate_ingenious_paceline_solutions(ingredients_n)
+    report_n_displayobject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_n)
+    answer = get_computation_report_safely(report_n_displayobject.solutions[PacelinePlanTypeEnum.FASTEST])
+    return answer
 
-    # GET THE DATA READY
-    team_name = "sirius"
-    # consolidated_report_caption = f"Paceline plans for {team_name}"
+
+def log_and_save_all_solutions(
+    report_displayobject: PacelineSolutionsComputationReportDisplayObject,
+    team_name: str,
+    save_dir: str,
+    logger: logging.Logger
+) -> None:
+    for plan_type_enum, caption_prefix, caption_suffix in LIST_OF_PACELINE_PLAN_TYPES_AND_CAPTIONS:
+        paceline_report: PacelineComputationReportDisplayObject = report_displayobject.solutions[plan_type_enum]
+        caption: str = get_single_paceline_plan_caption(caption_prefix, paceline_report, report_displayobject, caption_suffix)
+        paceline_report.display_caption = caption
+        log_single_paceline_plan(paceline_report, logger)
+        filename = get_save_filename_for_single_paceline_plan(team_name, plan_type_enum)
+        save_single_paceline_plan_as_html(paceline_report, filename, save_dir, FOOTNOTES, logger)
+
+
+
+
+
+
+def main() -> None:
+    # SET UP LOGGING
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger: logging.Logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
+    SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+
+    # GET THE SOURCE DATA READY
+    team_name = "betel"
     dict_of_zsunrideritems: Dict[str, ZsunRiderItem] = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs: List[str] = get_team_riderIDs(team_name)
     riders: List[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)
 
-    # 1 - 5 MAIN PACELINE SOLUTIONS
+    # COMPUTE 1st TO 5th PLANS - FULL TEAM
     log_speed_bounds_of_exertion_constrained_paceline_solutions(riders, logger)
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
@@ -55,65 +89,15 @@ def main() -> None:
     report: Any = generate_ingenious_paceline_solutions(ingredients)
     report_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report)
 
-    # 6th SOLUTION - LAST FIVE RIDERS
-    riders_last_five: List[ZsunRiderItem] = select_n_strongest_riders(ingredients.riders_list, 5)
-    riders_last_five                      = arrange_riders_in_optimal_order(riders_last_five)
-    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders_last_five, logger)
-    ingredients_last_five: PacelineIngredientsItem = PacelineIngredientsItem(
-        riders_list                  = riders_last_five,
-        pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders_last_five)] * len(riders_last_five),
-        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        max_exertion_intensity_factor= EXERTION_INTENSITY_FACTOR_LIMIT,
-    )
-    report_last_five: Any = generate_ingenious_paceline_solutions(ingredients_last_five)
-    report_last_five_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_five)
-    last_five: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_five_displayobject.solutions[PacelineSolutionType.FASTEST])
+    # COMPUTE 6th and 7th PLANS - DIMINISHING TEAM
+    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FIVE] = generate_fastest_solution_for_n_strongest(ingredients, 5, logger)
+    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FOUR] = generate_fastest_solution_for_n_strongest(ingredients, 4, logger)
 
-    # 7th SOLUTION - LAST FOUR RIDERS
-    riders_last_four: List[ZsunRiderItem] = select_n_strongest_riders(ingredients.riders_list, 4)
-    riders_last_four                      = arrange_riders_in_optimal_order(riders_last_four)
-    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders_last_four, logger)
-    ingredients_last_four: PacelineIngredientsItem = PacelineIngredientsItem(
-        riders_list                  = riders_last_four,
-        pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders_last_four)] * len(riders_last_four),
-        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        max_exertion_intensity_factor= EXERTION_INTENSITY_FACTOR_LIMIT,
-    )
-    report_last_four: Any = generate_ingenious_paceline_solutions(ingredients_last_four)
-    report_last_four_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report_last_four)
-    last_four: PacelineComputationReportDisplayObject = get_computation_report_safely(report_last_four_display_object.solutions[PacelineSolutionType.FASTEST])
+    report_displayobject.caption = get_caption_for_summary_of_all_paceline_plans(team_name)
 
-    # CONSOLIDATED REPORT OF ALL 7 SOLUTIONS
-    consolidated_report_display_object: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject(
-        caption                            = get_consolidated_report_caption(team_name),
-        total_pull_sequences_examined      = report_displayobject.total_pull_sequences_examined,
-        total_compute_iterations_performed = report_displayobject.total_compute_iterations_performed,
-        computational_time                 = report_displayobject.computational_time,
-        solutions                          = report_displayobject.solutions.copy(),
-    )
-    # Add LAST_FIVE and LAST_FOUR externally
-    consolidated_report_display_object.solutions[PacelineSolutionType.LAST_FIVE] = last_five
-    consolidated_report_display_object.solutions[PacelineSolutionType.LAST_FOUR] = last_four
-
-    # Map for overall report context for each solution type
-    overall_report_map: Dict[PacelineSolutionType, PacelineSolutionsComputationReportDisplayObject] = {
-        PacelineSolutionType.LAST_FIVE: report_last_five_displayobject,
-        PacelineSolutionType.LAST_FOUR: report_last_four_display_object,
-    }
-    default_overall_report: PacelineSolutionsComputationReportDisplayObject = report_displayobject
-
-    # LOG AND SAVE ALL 7 SOLUTIONS ONE BY ONE
-    for plan_type_enum, caption_prefix, caption_suffix in LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS:
-        report_obj: PacelineComputationReportDisplayObject = consolidated_report_display_object.solutions[plan_type_enum]
-        overall_report: PacelineSolutionsComputationReportDisplayObject = overall_report_map.get(plan_type_enum, default_overall_report)
-        caption: str = get_pretty_pull_plan_table_caption(caption_prefix, report_obj, overall_report, caption_suffix)
-        report_obj.display_caption = caption
-        log_pretty_paceline_solution_report(report_obj, logger)
-        filename = SAVE_FILE_NAMES_FOR_PULL_PLANS[plan_type_enum]
-        save_pretty_paceline_plan_to_html_file(report_obj, filename, SAVE_FILE_DIRPATH, FOOTNOTES,logger)
-
-    # LOG AND SAVE CONSOLIDATED REPORT OF ALL 7 SOLUTIONS
-    save_all_pretty_paceline_plans_to_consolidated_html_file(consolidated_report_display_object, get_consolidated_report_save_filename(team_name), SAVE_FILE_DIRPATH, FOOTNOTES, logger)
+    # LOG AND SAVE ALL 7 PLANS. SAVE SUMMARY REPORT
+    log_and_save_all_solutions(report_displayobject, team_name, SAVE_OUTPUT_DIRPATH, logger)
+    save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_name), SAVE_OUTPUT_DIRPATH, FOOTNOTES, logger)
 
 if __name__ == "__main__":
     main()

@@ -9,7 +9,7 @@ from computation_classes_display_objects import RiderContributionDisplayObject, 
 
 import logging
 
-def get_pretty_pull_plan_table_caption(
+def get_single_paceline_plan_caption(
     title: str,
     report: PacelineComputationReportDisplayObject,
     overall_report: PacelineSolutionsComputationReportDisplayObject,
@@ -17,25 +17,26 @@ def get_pretty_pull_plan_table_caption(
 ) -> str:
     if suffix:
         return (
-            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"\n{title} "
             f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
             f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"{suffix} "
             f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
             # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+            f"ID={first_n_chars(report.guid,3)}"
         )
     else:
         return (
-            f"\n{title} (ID {first_n_chars(report.guid,3)}) "
+            f"\n{title} "
             f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
             f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
             # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+            f"ID={first_n_chars(report.guid,3)}"
         )
 
 
-
-def log_pretty_paceline_solution_report(
+def log_single_paceline_plan(
     report: PacelineComputationReportDisplayObject,
     logger: logging.Logger
 ) -> None:
@@ -50,26 +51,27 @@ def log_pretty_paceline_solution_report(
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
             z.pretty_pull,
+            z.pretty_p2_3_4_w,
             z.pretty_zwiftracingapp_zpFTP_wkg,
             z.pretty_pull_suffix,
             z.pretty_average_watts,
             z.pretty_normalised_power_watts,
             z.pretty_intensity_factor,
             z.pretty_effort_constraint_violation_reason,
-            z.pretty_p2_3_4_w,
+
         ])
 
     columns = [
         "Name",
         "Race Cat",
         "Pull",
+        "2nd 3rd 4th",
         "zFTP",
         "Pull/zFTP",
         "Ave w/kg",
         "NP",
         "IF",
         "Limit",
-        "2nd 3rd 4th"
     ]
 
     df = pd.DataFrame(data, columns=columns)
@@ -96,7 +98,7 @@ def log_pretty_paceline_solution_report(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def save_pretty_paceline_plan_to_html_file(
+def save_single_paceline_plan_as_html(
     report: PacelineComputationReportDisplayObject,
     filename : Union[str, io.StringIO], #
     dir_path : str,
@@ -110,13 +112,14 @@ def save_pretty_paceline_plan_to_html_file(
         "Name",
         "Race Cat",
         "Pull<sup>1</sup>",
+        "2nd 3rd 4th",
         "zFTP<sup>2</sup>",
         "Pull/zFTP",
         "Ave w/kg",
         "NP<sup>3</sup>",
         "IF<sup>4</sup>",
         "Limit<sup>5</sup>",
-        "2nd 3rd 4th"
+
     ]
 
     data = []
@@ -126,13 +129,14 @@ def save_pretty_paceline_plan_to_html_file(
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
             z.pretty_pull,
+            z.pretty_p2_3_4_w,
             z.pretty_zwiftracingapp_zpFTP_wkg,
             z.pretty_pull_suffix,
             z.pretty_average_watts,
             z.pretty_normalised_power_watts,
             z.pretty_intensity_factor,
             z.pretty_effort_constraint_violation_reason,
-            z.pretty_p2_3_4_w,
+
         ])
 
     df = pd.DataFrame(data, columns=columns)
@@ -234,9 +238,12 @@ def save_pretty_paceline_plan_to_html_file(
             background-color: #f0f4fa;
         }}
         .rider-table td:nth-child(4) {{
-            text-align: right;
+            text-align: left;
         }}
         .rider-table td:nth-child(5) {{
+            text-align: right;
+        }}
+        .rider-table td:nth-child(6) {{
             text-align: right;
         }}
         .rider-table td:nth-child(7) {{
@@ -284,7 +291,8 @@ def save_pretty_paceline_plan_to_html_file(
         filename.write(html_doc)
         # logger.info(f"\nPaceline pull-plan written to file-like object (not saved to disk).")
 
-def save_all_pretty_paceline_plans_to_consolidated_html_file(
+
+def save_summary_of_all_paceline_plans_as_html(
     computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
     filename: str,
     dir_path: str,
@@ -305,7 +313,7 @@ def save_all_pretty_paceline_plans_to_consolidated_html_file(
             continue
         # Generate HTML for this solution using the single-solution HTML function
         buf= io.StringIO()
-        save_pretty_paceline_plan_to_html_file(solution,
+        save_single_paceline_plan_as_html(solution,
             filename=buf,  # We'll capture the HTML as a string
             dir_path=dir_path,  # Directory path for saving the file
             footnotes="",  # Don't repeat footnotes in each section
@@ -399,7 +407,7 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
 
-    log_pretty_paceline_solution_report(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
+    log_single_paceline_plan(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":

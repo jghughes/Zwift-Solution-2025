@@ -94,7 +94,7 @@ def main():
         speed = round(solution., 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_pretty_paceline_solution_report(
+        # log_single_paceline_plan(
         #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
         # )
 

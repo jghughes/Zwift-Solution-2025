@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import numpy as np
 
 RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
@@ -31,8 +31,9 @@ SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD = 512 # Below this threshold, serial-pro
 
 SOLUTION_FILTERING_THRESHOLD = 1024 # Somewhat arbirtary. A threshold for the number of alternative solutions we are willing to analyse by uncompromising brute force before we lose patience with the amount of time it is taking to compute. More than this and our strategy to limt the time is to apply a heuristic to prune the solution space. It is preferable to avoid filtering because filtering is a heuristic and all heuristics entail risk (albeit tiny in this case) that they will inadvertently exclude a winning solution. The Cartesian cross product of eight riders and six pull sequences generates a solution space of 1.7 million. By filtering, we prune these very nearly down to the SOLUTION_FILTERING_THRESHOLD. Compute time is about twenty seconds.
 
-# SOLUTION CONFIGURATION
-class PacelineSolutionType(Enum):
+# SOLUTION CONFIGURATION STUFF
+
+class PacelinePlanTypeEnum(Enum):
     THIRTY_SEC_PULL = "thirty_sec_pull"
     IDENTICAL_PULL = "identical_pull"
     BALANCED_INTENSITY = "balanced_intensity"
@@ -41,47 +42,51 @@ class PacelineSolutionType(Enum):
     LAST_FIVE = "last_five"
     LAST_FOUR = "last_four"
 
-
-LIST_OF_PULL_PLAN_TYPES_AND_CAPTIONS: List[Tuple[PacelineSolutionType, str, str]] = [
-    (PacelineSolutionType.THIRTY_SEC_PULL,     "\nTHIRTY-SECOND PULLS PLAN",            "(everybody pulls for thirty seconds)"),
-    (PacelineSolutionType.IDENTICAL_PULL,      "\nIDENTICAL-PULLS PLAN",                "(everybody pulls for same period, pehaps more than thirty seconds)"),
-    (PacelineSolutionType.BALANCED_INTENSITY,  "\nNO-DROP BALANCED-WORKLOAD PLAN",      "(everybody pulls, perhaps slowed to help balance workloads)"),
-    (PacelineSolutionType.EVERYBODY_PULL_HARD, "\nNO-DROP PULL HARD PLAN",              "(everybody pulls, weaker riders work hardest)"),
-    (PacelineSolutionType.FASTEST,             "\nFASTEST PLAN - FULL-TEAM",            "(fastest plan, weaker riders might fall behind)"),
-    (PacelineSolutionType.LAST_FIVE,           "\nFASTEST PLAN - LAST-FIVE RIDERS",     "(fastest plan, weaker riders might fall behind)"),
-    (PacelineSolutionType.LAST_FOUR,           "\nFASTEST PLAN - LAST-FOUR RIDERS",     "(fastest plan, weaker riders might fall behind)"),
+DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS = [
+    PacelinePlanTypeEnum.THIRTY_SEC_PULL,
+    PacelinePlanTypeEnum.IDENTICAL_PULL,
+    PacelinePlanTypeEnum.BALANCED_INTENSITY,
+    PacelinePlanTypeEnum.EVERYBODY_PULL_HARD,
+    PacelinePlanTypeEnum.FASTEST,
+    PacelinePlanTypeEnum.LAST_FIVE,
+    PacelinePlanTypeEnum.LAST_FOUR,
 ]
 
-SAVE_FILE_NAMES_FOR_PULL_PLANS = {
-    PacelineSolutionType.THIRTY_SEC_PULL:    "everybody_does_thirty_second_pulls_plan.html",
-    PacelineSolutionType.IDENTICAL_PULL:     "everybody_does_identical_pulls_plan.html",
-    PacelineSolutionType.BALANCED_INTENSITY: "no_drop_balanced_workload_plan.html",
-    PacelineSolutionType.EVERYBODY_PULL_HARD:"no_drop_pull_hard_plan.html",
-    PacelineSolutionType.FASTEST:            "fastest_plan_for_full_team.html",
-    PacelineSolutionType.LAST_FIVE:          "fastest_plan_for_last_five_riders.html",
-    PacelineSolutionType.LAST_FOUR:          "fastest_plan_for_last_four_riders.html",
+
+LIST_OF_PACELINE_PLAN_TYPES_AND_CAPTIONS: List[Tuple[PacelinePlanTypeEnum, str, str]] = [
+    (PacelinePlanTypeEnum.THIRTY_SEC_PULL,     "\n1. THIRTY-SECOND PULLS",            "(everybody pulls for thirty seconds)"),
+    (PacelinePlanTypeEnum.IDENTICAL_PULL,      "\n2. IDENTICAL-PULLS",                "(everybody pulls for same period, pehaps more than thirty seconds)"),
+    (PacelinePlanTypeEnum.BALANCED_INTENSITY,  "\n3. NO-DROP BALANCED-WORKLOAD",      "(everybody pulls, perhaps slowed to help balance workloads)"),
+    (PacelinePlanTypeEnum.EVERYBODY_PULL_HARD, "\n4. NO-DROP PULL-HARD",              "(everybody pulls, weaker riders work hardest)"),
+    (PacelinePlanTypeEnum.FASTEST,             "\n5. FASTEST - FULL-TEAM",            "(fastest plan, weaker riders might fall behind)"),
+    (PacelinePlanTypeEnum.LAST_FIVE,           "\n6. FASTEST - LAST-FIVE RIDERS",     "(fastest plan, weaker riders might fall behind)"),
+    (PacelinePlanTypeEnum.LAST_FOUR,           "\n7. FASTEST - LAST-FOUR RIDERS",     "(fastest plan, weaker riders might fall behind)"),
+]
+
+DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
+    PacelinePlanTypeEnum.THIRTY_SEC_PULL:    "1_everybody_does_thirty_second_pulls_plan.html",
+    PacelinePlanTypeEnum.IDENTICAL_PULL:     "2_everybody_does_identical_pulls_plan.html",
+    PacelinePlanTypeEnum.BALANCED_INTENSITY: "3_no_drop_balanced_workload_plan.html",
+    PacelinePlanTypeEnum.EVERYBODY_PULL_HARD:"4_no_drop_pull_hard_plan.html",
+    PacelinePlanTypeEnum.FASTEST:            "5_fastest_plan_for_full_team.html",
+    PacelinePlanTypeEnum.LAST_FIVE:          "6_fastest_plan_for_last_five_riders.html",
+    PacelinePlanTypeEnum.LAST_FOUR:          "7_fastest_plan_for_last_four_riders.html",
 }
 
+def get_save_filename_for_single_paceline_plan(team_name: str, plan_type: PacelinePlanTypeEnum) -> str:
+    suffix = DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS.get(plan_type, "unknown_plan_type.html")
+    answer = f"{team_name}_{suffix}"
+    return answer
 
-def get_consolidated_report_caption(team_name: str) -> str:
+
+def get_caption_for_summary_of_all_paceline_plans(team_name: str) -> str:
     return f"TTT paceline plans for {team_name}"
 
 
-def get_consolidated_report_save_filename(team_name: str) -> str:
-    return f"consolidation_of_all_paceline_plans_for_{team_name}.html"
+def get_save_filename_for_summary_of_all_paceline_plans(team_name: str) -> str:
+    return f"{team_name}_0_summary_of_all_paceline_plans.html"
 
 
-
-# Define the display order in the consolidated report for all paceline plans
-DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS = [
-    PacelineSolutionType.THIRTY_SEC_PULL,
-    PacelineSolutionType.IDENTICAL_PULL,
-    PacelineSolutionType.BALANCED_INTENSITY,
-    PacelineSolutionType.EVERYBODY_PULL_HARD,
-    PacelineSolutionType.FASTEST,
-    PacelineSolutionType.LAST_FIVE,
-    PacelineSolutionType.LAST_FOUR,
-]
 
 
 FOOTNOTES = """
@@ -89,7 +94,7 @@ FOOTNOTES = """
     <div class="footnote-item"><sup>1</sup> Pull: Watts and duration for each rider's main pull. Higher ranking riders are prioritised for longer pulls and are located top and bottom of the paceline list, protecting weaker riders in the middle. Standard pulls range between 30 seconds and five minutes and corresponding pull capabilities are taken from a curve fitted to a rider's ZwiftPower data in their 3.5 - 20 minute window. Riders are not ranked according to zFTP, they are ranked according to how hard they can pull for one-minute.</div>
     <div class="footnote-item"><sup>2</sup> zFTP: Zwift Functional Threshold Power. zFTP metrics are displayed, but play no role in computations.</div>
     <div class="footnote-item"><sup>3</sup> NP: Normalized Power. Calculated from rolling-average watts using a five-second window.</div>
-    <div class="footnote-item"><sup>4</sup> IF: Intensity factor. Intensity of effort measured in terms of normalised power divided by one-hour pulling capability. One-hour capability is taken from a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated to one hour.</div>
+    <div class="footnote-item"><sup>4</sup> IF: Intensity factor. Intensity of effort measured in terms of normalised power divided by one-hour pulling capability. One-hour capability is taken from a curve fitted to a rider's ZwiftPower data in the 8 - 40-minute window and extrapolated to one hour. Sigma is the standard deviation of all IFs for the team. Smaller is superior.</div>
     <div class="footnote-item"><sup>5</sup> Limit: For ride plans where everybody pulls, the speed of the paceline is restricted to the available pulling capability of the weakest rider and the intensity of effort of the hardest-working rider. There is no protection for weaker or harder-working riders in other plans.</div>
 </div>
 """
