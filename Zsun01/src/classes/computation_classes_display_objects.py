@@ -6,7 +6,7 @@ from jgh_formatting import round_to_nearest_10, format_number_2dp
 from  jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem
-from constants import PacelinePlanTypeEnum
+from jgh_enums import PacelinePlanTypeEnum
 
 @dataclass
 @dataclass

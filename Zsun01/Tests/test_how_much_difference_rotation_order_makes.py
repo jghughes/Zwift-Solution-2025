@@ -4,7 +4,7 @@ from jgh_number import safe_divide
 from zsun_rider_item import ZsunRiderItem
 from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
 from handy_utilities import read_dict_of_zsunriderItems
-from repository_of_teams import get_team_riderIDs
+from teams import get_team_riderIDs
 from jgh_formulae03 import generate_rider_permutations
 from jgh_formulae08 import generate_paceline_solutions_using_serial_and_parallel_algorithms
 from jgh_formatting import truncate

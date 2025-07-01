@@ -1,5 +1,4 @@
 # load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
-from git import safe_decode
 import pandas as pd
 from dataclasses import asdict
 from jgh_number import safe_divide

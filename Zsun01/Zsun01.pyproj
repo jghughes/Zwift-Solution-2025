@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>tools\tool15.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae;src\html;src\enums;src\paths;src\miscellaneous;data</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -35,6 +35,10 @@
     <Folder Include="docs\" />
     <Folder Include="src\classes\" />
     <Folder Include="src\formulae\" />
+    <Folder Include="src\enums\" />
+    <Folder Include="src\html\" />
+    <Folder Include="src\miscellaneous\" />
+    <Folder Include="src\paths\" />
     <Folder Include="src\repositories\" />
     <Folder Include="tools\" />
     <Folder Include="src\" />
@@ -58,14 +62,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="constants.py" />
+    <Compile Include="src\miscellaneous\paceline_plan_display_ingredients.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\classes\computation_classes_display_objects.py" />
+    <Compile Include="src\enums\jgh_enums.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
     <Compile Include="src\formulae\jgh_formulae07.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
-    <Compile Include="src\repositories\repository_of_teams.py" />
+    <Compile Include="src\html\html_fragments.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\paths\dirpaths.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\paths\filenames.py" />
+    <Compile Include="data\teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
@@ -83,7 +98,7 @@
     <Compile Include="src\functions\cyclic_paceline_algebra.py" />
     <Compile Include="src\formulae\jgh_formulae04.py" />
     <Compile Include="src\formulae\jgh_formulae05.py" />
-    <Compile Include="src\formulae\ttt_solution.py" />
+    <Compile Include="src\formulae\ttt_solution.py - to be deleted" />
     <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>
     </Compile>

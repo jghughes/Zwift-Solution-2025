@@ -4,12 +4,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from scipy.optimize import curve_fit
-from datetime import datetime
-from bestpower_for_model_training_item import BestPowerModelTrainingItem
 from handy_utilities import read_dict_of_bestpowermodeltrainingItems
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_units_ticks,set_y_axis_units_ticks
-from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
+from jgh_power_curve_fit_models import decay_model_numpy
 
 
 

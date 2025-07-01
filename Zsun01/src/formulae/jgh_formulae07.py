@@ -2,7 +2,8 @@ from typing import Optional, Union
 import io
 from jgh_string import first_n_chars
 from jgh_formatting import format_number_1dp, format_number_comma_separators
-from constants import DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS, PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
+from paceline_plan_display_ingredients import DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS
+from html_fragments import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
 from zsun_rider_item import ZsunRiderItem
 from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
@@ -106,8 +107,7 @@ def save_a_paceline_plan_as_html(
     filename: Union[str, io.StringIO],
     dir_path: str,
     footnotes: str,
-    include_minimal_css: bool,
-    logger: logging.Logger,
+    include_internally_provided_css: bool
 ) -> None:
     import pandas as pd
 
@@ -139,31 +139,26 @@ def save_a_paceline_plan_as_html(
             z.pretty_effort_constraint_violation_reason,
         ])
     df = pd.DataFrame(data, columns=columns)
-    html_table = df.to_html(
+    html_table : str = df.to_html(
         index=False,
         border=1,
-        classes="rider-table",
+        classes=["rider-table"],
         escape=False,
     )
 
-    # Minimal CSS for basic table readability if this is a standalone HTML file
-    minimal_css = """
-    <style>
-    table.rider-table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
-    table.rider-table th, table.rider-table td { border: 1px solid #888; padding: 4px 8px; }
-    table.rider-table th { background: #eee; }
-    </style>
-    """
+    # only apply css if this is a standalone function. If called 
+    # from function that already contains the css, this css must be empty
+    css = PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET if include_internally_provided_css else ""
 
-    # Compose the HTML fragment (no <html> or <head>) - eliminate css entirely if not standalone
+    # Compose a HTML fragment. but with no <html> or <head> elements because this is a fragment included in a larger HTML document
     html_fragment = f"""
-    {minimal_css if include_minimal_css else ""}
-    <div>
-        <div><strong>{report.display_caption}</strong></div>
-        {html_table}
-        <div>{footnotes}</div>
-    </div>
-    """
+        {css}
+        <div>
+            <div><strong>{report.display_caption}</strong></div>
+            {html_table}
+            <div>{footnotes}</div>
+        </div>
+        """
 
     if isinstance(filename, str):
         write_html_file(html_fragment, filename, dir_path)
@@ -190,19 +185,12 @@ def save_summary_of_all_paceline_plans_as_html(
 
     import re
 
-    for sol_type in DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS:
+    for sol_type in DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS:
         solution = computation_report_display_object.solutions[sol_type]
         if not solution.rider_contributions_display_objects:
             continue
         buf = io.StringIO()
-        save_a_paceline_plan_as_html(
-            solution,
-            filename=buf,
-            dir_path=dir_path,
-            footnotes="",
-            include_minimal_css=False,
-            logger=logger,
-        )
+        save_a_paceline_plan_as_html(solution, filename=buf, dir_path=dir_path, footnotes="",  include_internally_provided_css=False)
         fragment = buf.getvalue()
         # Move caption into table
         fragment = re.sub(
@@ -235,7 +223,7 @@ def save_summary_of_all_paceline_plans_as_html(
 
     write_html_file(full_html, filename, dir_path)
 
-    logger.info(f"\nPaceline plans written to consolidated document and saved to hard-drive: path={dir_path}/{filename}")
+    logger.info(f"\nPaceline plans written to summary document and saved to hard-drive: path={dir_path}/{filename}")
 
 
 def main() -> None:

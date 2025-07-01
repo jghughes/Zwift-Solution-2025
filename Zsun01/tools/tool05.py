@@ -17,7 +17,9 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-    from constants import RIDERS_FILE_NAME, DATA_DIRPATH
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
+
 
 
     barryb ='5490373' #ftp 273

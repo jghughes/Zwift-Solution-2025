@@ -1,4 +1,5 @@
-from constants import RIDERS_FILE_NAME, DATA_DIRPATH
+from filenames import RIDERS_FILE_NAME
+from dirpaths import DATA_DIRPATH
 
 import logging
 from jgh_logging import jgh_configure_logging

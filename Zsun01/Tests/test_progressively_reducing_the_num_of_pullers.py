@@ -1,17 +1,18 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunRiderItem
-from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem, RiderContributionDisplayObject
+from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
 from handy_utilities import read_dict_of_zsunriderItems
-from repository_of_teams import get_team_riderIDs
-from jgh_formulae03 import generate_rider_permutations
+from teams import get_team_riderIDs
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
-        generate_a_single_paceline_solution_complying_with_exertion_constraints)
+        )
 from jgh_formatting import truncate
-from constants import EXERTION_INTENSITY_FACTOR_LIMIT, RIDERS_FILE_NAME, DATA_DIRPATH
+from constants import EXERTION_INTENSITY_FACTOR_LIMIT
+from filenames import RIDERS_FILE_NAME
+from dirpaths import DATA_DIRPATH
 
 
 def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReportItem:

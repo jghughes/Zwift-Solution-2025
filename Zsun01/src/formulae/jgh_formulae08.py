@@ -422,7 +422,6 @@ def is_valid_solution(this_solution: PacelineComputationReportItem, logger: logg
 
     dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
     if not np.isfinite(dispersion) or dispersion == 100:
-        logger.warning(f"Error: failed to calculate std_deviation of intensity of effort: error value = {dispersion}")
         return False
 
     return True
