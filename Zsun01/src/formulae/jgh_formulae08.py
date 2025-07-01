@@ -1,4 +1,4 @@
-from typing import  List, DefaultDict, Tuple
+from typing import  List, DefaultDict, Tuple, Optional, Dict, Any, List
 import os
 from collections import defaultdict
 from copy import deepcopy
@@ -16,7 +16,9 @@ from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_uppe
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
+
 from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, CHUNK_OF_KPH_PER_ITERATION, REQUIRED_PRECISION_OF_SPEED, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION, SOLUTION_FILTERING_THRESHOLD, STANDARD_PULL_PERIODS_SEC_AS_LIST)
+
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -843,6 +845,10 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         hang_in_solution                        = hang_in_candidate.solution,
         all_solutions                           = all_computation_reports
     )
+
+
+
+
 
 
 def main01():

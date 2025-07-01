@@ -62,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="constants.py" />
+    <Compile Include="src\formulae\jgh_formulae09.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\miscellaneous\paceline_plan_display_ingredients.py">
       <SubType>Code</SubType>
     </Compile>
