@@ -61,7 +61,9 @@
     <Compile Include="src\classes\computation_classes_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
-    <Compile Include="src\formulae\jgh_formulae07.py" />
+    <Compile Include="src\formulae\jgh_formulae07.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
     <Compile Include="src\repositories\repository_of_teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />

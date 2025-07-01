@@ -6,7 +6,7 @@ from computation_classes import PacelineIngredientsItem
 from handy_utilities import read_dict_of_zsunriderItems
 from repository_of_teams import get_team_riderIDs
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders
-from jgh_formulae07 import get_single_paceline_plan_caption, log_single_paceline_plan, save_single_paceline_plan_as_html, save_summary_of_all_paceline_plans_as_html
+from jgh_formulae07 import make_pretty_caption_for_a_paceline_plan, log_a_paceline_plan, save_a_paceline_plan_as_html, save_summary_of_all_paceline_plans_as_html
 from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions, log_workload_suffix_message
 from constants import (
     STANDARD_PULL_PERIODS_SEC_AS_LIST,
@@ -51,15 +51,11 @@ def log_and_save_all_solutions(
 ) -> None:
     for plan_type_enum, caption_prefix, caption_suffix in LIST_OF_PACELINE_PLAN_TYPES_AND_CAPTIONS:
         paceline_report: PacelineComputationReportDisplayObject = report_displayobject.solutions[plan_type_enum]
-        caption: str = get_single_paceline_plan_caption(caption_prefix, paceline_report, report_displayobject, caption_suffix)
+        caption: str = make_pretty_caption_for_a_paceline_plan(caption_prefix, paceline_report, report_displayobject, caption_suffix)
         paceline_report.display_caption = caption
-        log_single_paceline_plan(paceline_report, logger)
+        log_a_paceline_plan(paceline_report, logger)
         filename = get_save_filename_for_single_paceline_plan(team_name, plan_type_enum)
-        save_single_paceline_plan_as_html(paceline_report, filename, save_dir, FOOTNOTES, logger)
-
-
-
-
+        save_a_paceline_plan_as_html(paceline_report, filename, save_dir, FOOTNOTES, True, logger)
 
 
 def main() -> None:

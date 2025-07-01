@@ -2,14 +2,14 @@ from typing import Optional, Union
 import io
 from jgh_string import first_n_chars
 from jgh_formatting import format_number_1dp, format_number_comma_separators
-from constants import DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS
+from constants import DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS, PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
 from zsun_rider_item import ZsunRiderItem
 from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
-
 import logging
 
-def get_single_paceline_plan_caption(
+
+def make_pretty_caption_for_a_paceline_plan(
     title: str,
     report: PacelineComputationReportDisplayObject,
     overall_report: PacelineSolutionsComputationReportDisplayObject,
@@ -18,25 +18,28 @@ def get_single_paceline_plan_caption(
     if suffix:
         return (
             f"\n{title} "
-            f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
-            f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
+            f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)}kph "
             f"{suffix} "
+            f"[sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"t={format_number_comma_separators(overall_report.computational_time)}sec "
             # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
-            f"ID={first_n_chars(report.guid,3)}"
+            f"ID={first_n_chars(report.guid,3)}]"
         )
     else:
         return (
             f"\n{title} "
             f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
+            f"[sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"t={format_number_comma_separators(overall_report.computational_time)}sec"
             # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
-            f"ID={first_n_chars(report.guid,3)}"
+            f"ID={first_n_chars(report.guid,3)}]"
         )
 
 
-def log_single_paceline_plan(
+def log_a_paceline_plan(
     report: PacelineComputationReportDisplayObject,
     logger: logging.Logger
 ) -> None:
@@ -98,32 +101,30 @@ def log_single_paceline_plan(
     logger.info("\n" + "\n".join(formatted_rows))
 
 
-def save_single_paceline_plan_as_html(
+def save_a_paceline_plan_as_html(
     report: PacelineComputationReportDisplayObject,
-    filename : Union[str, io.StringIO], #
-    dir_path : str,
+    filename: Union[str, io.StringIO],
+    dir_path: str,
     footnotes: str,
+    include_minimal_css: bool,
     logger: logging.Logger,
 ) -> None:
     import pandas as pd
-    import re
 
+    # Minimal columns and data
     columns = [
         "Name",
         "Race Cat",
-        "Pull<sup>1</sup>",
+        "Pull",
         "2nd 3rd 4th",
-        "zFTP<sup>2</sup>",
+        "zFTP",
         "Pull/zFTP",
         "Ave w/kg",
-        "NP<sup>3</sup>",
-        "IF<sup>4</sup>",
-        "Limit<sup>5</sup>",
-
+        "NP",
+        "IF",
+        "Limit",
     ]
-
     data = []
-
     for rider, z in report.rider_contributions_display_objects.items():
         data.append([
             rider.name,
@@ -136,160 +137,40 @@ def save_single_paceline_plan_as_html(
             z.pretty_normalised_power_watts,
             z.pretty_intensity_factor,
             z.pretty_effort_constraint_violation_reason,
-
         ])
-
     df = pd.DataFrame(data, columns=columns)
     html_table = df.to_html(
         index=False,
-        border=0,
+        border=1,
         classes="rider-table",
-        justify="center",
         escape=False,
     )
-    html_table = re.sub(
-        r'(<table[^>]*>)',
-        r'\1\n<caption>{}</caption>'.format(report.display_caption),
-        html_table,
-        count=1
-    )
-    # Add a class to the "2nd 3rd 4th" header and its column cells
-    html_table = re.sub(
-        r'(<th[^>]*>2nd 3rd 4th</th>)',
-        r'<th class="left-header">2nd 3rd 4th</th>',
-        html_table
-    )
 
-    html_doc = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Rider Contribution Report</title>
-    <!-- Google Fonts: Roboto Mono for table data, Roboto for headings, footnotes, and first two columns -->    
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    # Minimal CSS for basic table readability if this is a standalone HTML file
+    minimal_css = """
     <style>
-        body {{
-            font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
-            background: #fff;
-            color: #222;
-            padding: 6px 12px;
-        }}
-        .table-container {{
-            width: 260mm;
-            max-width: 100vw;
-            margin-left: 0;
-            margin-right: auto;
-            overflow-x: auto;
-        }}
-        .rider-table {{
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 0.95em;
-            font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
-        }}
-        .rider-table caption {{
-            caption-side: top;
-            font-size: 0.95em;
-            font-weight: 500;
-            margin-bottom: 0.5em;
-            font-family: 'Roboto', Arial, sans-serif;
-            text-align: left;
-        }}
-        .rider-table th {{
-            background-color: #e6ecf5;
-            font-size: 0.95em;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 2px solid #444;
-            padding: 6px 6px;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-        }}
-        .rider-table th.left-header {{
-            text-align: left;
-        }}
-        .rider-table td.left-header {{
-            text-align: left;
-        }}
-        .rider-table td {{
-            font-size: 0.95em;
-            padding: 6px 6px;
-            border: 1px solid #b0b0b0;
-            white-space: nowrap;
-        }}
-        .rider-table th:nth-child(1),
-        .rider-table td:nth-child(1),
-        .rider-table th:nth-child(2),
-        .rider-table td:nth-child(2) {{
-            font-family: 'Roboto', Arial, sans-serif !important;
-            font-size: 0.95em !important;
-            font-weight: 400;
-        }}
-        .rider-table tr:nth-child(even) td {{
-            background-color: #f7fafd;
-        }}
-        .rider-table tr:hover td {{
-            background-color: #dbeafe;
-        }}
-        .rider-table td:nth-child(3) {{
-            text-align: right;
-            font-weight: bold;
-            background-color: #f0f4fa;
-        }}
-        .rider-table td:nth-child(4) {{
-            text-align: left;
-        }}
-        .rider-table td:nth-child(5) {{
-            text-align: right;
-        }}
-        .rider-table td:nth-child(6) {{
-            text-align: right;
-        }}
-        .rider-table td:nth-child(7) {{
-            text-align: right;
-        }}
-        .rider-table td:nth-child(8) {{
-            text-align: right;
-        }}
-        .footnote {{
-            font-size: 0.95em;
-            color: #666;
-            margin-top: 1.5em;
-            font-weight: 500;
-            font-family: 'Roboto', Arial, sans-serif;
-            width: 100%;
-            text-align: left;
-        }}
-        .footnote-item {{
-            margin-bottom: 0.5em;
-            padding-left: 2em;
-            text-indent: -2em;
-        }}
-        .footnote sup, .rider-table th sup  {{
-            font-size: 0.8em;
-            vertical-align: super;
-            font-weight: bold;
-        }}        
+    table.rider-table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
+    table.rider-table th, table.rider-table td { border: 1px solid #888; padding: 4px 8px; }
+    table.rider-table th { background: #eee; }
     </style>
-</head>
+    """
 
-<body>
-    <div class="table-container">
+    # Compose the HTML fragment (no <html> or <head>) - eliminate css entirely if not standalone
+    html_fragment = f"""
+    {minimal_css if include_minimal_css else ""}
+    <div>
+        <div><strong>{report.display_caption}</strong></div>
         {html_table}
+        <div>{footnotes}</div>
     </div>
-    {footnotes}
-</body></html>
-"""
+    """
 
-    # Determine if filename is a string (file path) or a file-like object
     if isinstance(filename, str):
-        write_html_file(html_doc, filename, dir_path)
-        # logger.info(f"\nPaceline pull-plan written and saved to hard-drive: path={dir_path} file={filename}")
+        write_html_file(html_fragment, filename, dir_path)
     else:
-        # Assume file-like object (e.g., io.StringIO)
-        filename.write(html_doc)
-        # logger.info(f"\nPaceline pull-plan written to file-like object (not saved to disk).")
+        filename.write(html_fragment)
+
+
 
 
 def save_summary_of_all_paceline_plans_as_html(
@@ -305,56 +186,53 @@ def save_summary_of_all_paceline_plans_as_html(
         logger.error("No computation report provided to save as HTML.")
         return
 
-
     html_sections : list[str] = []
+
+    import re
+
     for sol_type in DISPLAY_ORDER_OF_CONSOLIDATED_PACELINE_PLANS:
         solution = computation_report_display_object.solutions[sol_type]
         if not solution.rider_contributions_display_objects:
             continue
-        # Generate HTML for this solution using the single-solution HTML function
-        buf= io.StringIO()
-        save_single_paceline_plan_as_html(solution,
-            filename=buf,  # We'll capture the HTML as a string
-            dir_path=dir_path,  # Directory path for saving the file
-            footnotes="",  # Don't repeat footnotes in each section
+        buf = io.StringIO()
+        save_a_paceline_plan_as_html(
+            solution,
+            filename=buf,
+            dir_path=dir_path,
+            footnotes="",
+            include_minimal_css=False,
             logger=logger,
         )
-        html_sections.append(f'<section class="section-separator">{buf.getvalue()}</section>')
-    # Combine all html_sections and write to file
+        fragment = buf.getvalue()
+        # Move caption into table
+        fragment = re.sub(
+            r'<div><strong>(.*?)</strong></div>\s*(<table[^>]*>)',
+            r'\2\n<caption>\1</caption>',
+            fragment,
+            flags=re.DOTALL
+        )
+        html_sections.append(f'<section class="section-separator">{fragment}</section>')
+
+
     full_html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Paceline Plans</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <style>
-        body {{
-            font-family: 'Roboto', Arial, sans-serif;
-            background: #fff;
-            color: #222;
-            margin: 0;
-            padding-left: 18px;
-        }}
-        h1 {{
-            font-family: 'Roboto', Arial, sans-serif;
-            font-size: 1.05em;
-            font-weight: 700;
-            color: #1a365d;
-            letter-spacing: 0.01em;
-        }}
-        .section-separator {{
-            margin: 32px 0;
-        }}
-    </style>
-</head>
-<body>
-    <h1>{computation_report_display_object.caption}</h1>
-    {''.join(html_sections)}
-    <div class="footnote">{html_footnotes}</div>
-</body>
-</html>
-"""
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Paceline Plans</title>
+            <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+            {PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET}
+        </head>
+        <body>
+            <h1>{computation_report_display_object.caption}</h1>
+            {''.join(html_sections)}
+            <div class="table-container">
+                <div class="footnote summary-footnote">{html_footnotes}</div>
+            </div>
+        </body>
+    </html>
+    """
+
     write_html_file(full_html, filename, dir_path)
 
     logger.info(f"\nPaceline plans written to consolidated document and saved to hard-drive: path={dir_path}/{filename}")
@@ -407,8 +285,9 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
 
-    log_single_paceline_plan(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
+    log_a_paceline_plan(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":
     main()
+
