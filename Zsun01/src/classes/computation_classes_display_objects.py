@@ -237,7 +237,7 @@ class PacelineSolutionsComputationReportDisplayObject:
         solutions : DefaultDict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
 
         solutions[PacelinePlanTypeEnum.THIRTY_SEC_PULL]     = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.thirty_sec_solution)
-        solutions[PacelinePlanTypeEnum.IDENTICAL_PULL]      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.identical_pull_solution)
+        solutions[PacelinePlanTypeEnum.SIXTY_SEC_PULL]      = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.sixty_sec_solution)
         solutions[PacelinePlanTypeEnum.BALANCED_INTENSITY]  = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.balanced_intensity_of_effort_solution)
         solutions[PacelinePlanTypeEnum.EVERYBODY_PULL_HARD] = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.everybody_pull_hard_solution)
         solutions[PacelinePlanTypeEnum.FASTEST]             = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)

@@ -101,7 +101,6 @@
     <Compile Include="src\functions\cyclic_paceline_algebra.py" />
     <Compile Include="src\formulae\jgh_formulae04.py" />
     <Compile Include="src\formulae\jgh_formulae05.py" />
-    <Compile Include="src\formulae\ttt_solution.py - to be deleted" />
     <Compile Include="src\functions\critical_power.py">
       <SubType>Code</SubType>
     </Compile>

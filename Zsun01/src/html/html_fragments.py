@@ -166,9 +166,9 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
         }
 
         /* =========================================================================
-           5. Utility/Helpers
+           5. Utility and Helper Classes
            -------------------------------------------------------------------------
-           Styles for footnotes and other helper classes.
+           Styles for footnotes, summary footnotes, and superscripts.
            ========================================================================= */
         .footnote {
             font-family: 'Roboto', Arial, sans-serif;
@@ -191,7 +191,8 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
             cursor: pointer;
         }
 
-        .footnote sup, .rider-table th sup {
+        .footnote sup,
+        .rider-table th sup {
             font-size: 0.8em;
             vertical-align: super;
             font-weight: bold;
@@ -199,6 +200,8 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
 
         .summary-footnote {
             margin-top: 0.25em;
+            font-size: 0.9em; /* Base size, overridden in media queries */
+            color: #666;
         }
 
         /* =========================================================================
@@ -209,43 +212,77 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
            readable on mobile and print-friendly.
            ========================================================================= */
 
-        /* --- Mobile: Stack table rows and add data-labels for accessibility --- */
-        @media (max-width: 600px) {
-            .rider-table, .rider-table thead, .rider-table tbody, .rider-table th, .rider-table td, .rider-table tr {
-                display: block;
-                width: 100%;
+        /* --- Extra small devices (max-width: 480px) --- *
+        @media (max-width: 480px) {
+            body {
+                padding: 0.1rem 0.1rem;
             }
-            .rider-table thead {
-                display: none;
+            .table-container {
+                padding: 0;
             }
-            .rider-table tr {
-                margin-bottom: 1em;
-                border-bottom: 2px solid #ccc;
+            .section-separator {
+                margin: 8px 0;
             }
+            h1 {
+                font-size: 0.85em;
+            }
+            .rider-table {
+                font-size: 0.75em;
+            }
+            .rider-table caption {
+                font-size: 0.75em;
+                margin-bottom: 0.15em;
+            }
+            .rider-table th,
             .rider-table td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-                min-height: 2.5em;
-                border: none;
-                border-bottom: 1px solid #eee;
-                background: #fff;
+                font-size: 0.7em;
+                padding: 2px 1px;
             }
-            .rider-table td::before {
-                /* Shows the column name before each cell for accessibility */
-                content: attr(data-label);
-                position: absolute;
-                left: 0;
-                width: 50%;
-                padding-left: 6px;
-                font-weight: bold;
-                text-align: left;
-                color: #333;
-                white-space: normal;
+            .footnote,
+            .footnote-item {
+                font-size: 0.7em;
+            }
+            .summary-footnote {
+                font-size: 0.7em;
             }
         }
 
-        /* --- Tablet: Slightly smaller font and padding --- */
+        /* --- Small devices (max-width: 600px) --- */        
+        @media (max-width: 600px) {
+            body {
+                padding: 0.25rem 0.25rem;
+            }
+            .table-container {
+                padding: 0;
+            }
+            .section-separator {
+                margin: 16px 0;
+            }
+            h1 {
+                font-size: 0.95em;
+            }
+            .rider-table {
+                font-size: 0.85em;
+            }
+            .rider-table caption {
+                font-size: 0.85em;
+                margin-bottom: 0.2em;
+            }
+            .rider-table th,
+            .rider-table td {
+                font-size: 0.8em;
+                padding: 3px 2px;
+            }
+            .footnote,
+            .footnote-item {
+                font-size: 0.8em;
+            }
+            .summary-footnote {
+                font-size: 0.8em;
+            }
+        }
+
+        /* --- Tablets (max-width: 900px) --- */
         @media (max-width: 900px) {
             body {
                 padding: 0.5rem 0.5rem;
@@ -253,11 +290,32 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
             .table-container {
                 padding: 0;
             }
+            .section-separator {
+                margin: 24px 0;
+            }
+            h1 {
+                font-size: 1.05em;
+            }
             .rider-table {
+                font-size: 0.95em;
+            }
+            .rider-table caption {
+                font-size: 0.95em;
+                margin-bottom: 0.3em;
+            }
+            .rider-table th,
+            .rider-table td {
+                font-size: 0.9em;
+                padding: 5px 4px;
+            }
+            .footnote,
+            .footnote-item {
+                font-size: 0.9em;
+            }
+            .summary-footnote {
                 font-size: 0.9em;
             }
         }
-
         /* --- Print: Optimized for paper, removes backgrounds, adjusts font sizes --- */
         @media print {
             body {
@@ -272,10 +330,23 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
                 max-width: 100% !important;
                 padding: 0 !important;
             }
+            .section-separator {
+                page-break-before: always;
+            }
+            h1 {
+                color: #000 !important;
+                font-size: 1.2em !important;
+                margin-bottom: 0.75em !important;
+            }
             .rider-table {
                 font-size: 10pt !important;
                 width: 100% !important;
                 page-break-inside: avoid;
+            }
+            .rider-table caption {
+                font-size: 1em !important;
+                color: #000 !important;
+                margin-bottom: 0.5em !important;
             }
             .rider-table th,
             .rider-table td {
@@ -298,13 +369,16 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
             .footnote-item {
                 color: #000 !important;
                 background: none !important;
+                font-size: 0.85em !important;
+            }
+            .summary-footnote {
+                color: #000 !important;
+                background: none !important;
+                font-size: 0.8em !important;
             }
             @page {
                 size: A4 landscape;
                 margin: 12mm 10mm 12mm 10mm;
-            }
-            .section-separator {
-                page-break-before: always;
             }
         }
     </style>

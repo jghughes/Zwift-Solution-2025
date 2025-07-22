@@ -5,11 +5,13 @@ from collections import defaultdict
 
 def get_teams() -> Dict[str, defaultdict[str, str]]:
     return {
-        "betel": betelguese_Roster,
-        "sirius": sirius_Roster,
-        "giants": giants_Roster,
-        "fire": zsunderfire_Roster,
-        "kissed": sunkissed_Roster,
+        "betel": betelguese_roster,
+        "sirius": sirius_roster,
+        "giants": giants_roster,
+        "fire": zsunderfire_roster,
+        "kissed": sunkissed_roster,
+        "bojo": bojo_roster,
+        "dome": dome_roster,
     }
 
 def get_team_riderIDs(team_name: str) -> List[str]:
@@ -26,7 +28,7 @@ def get_rider_name_by_zwiftID(zwiftID: str) -> str:
             return roster[zwiftID]
     return ""
 
-betelguese_Roster = defaultdict(
+betelguese_roster = defaultdict(
     str,
     {
         # "5490373": "barry_beck",
@@ -55,7 +57,7 @@ betelguese_Roster = defaultdict(
     }
 )
 
-sirius_Roster = defaultdict(
+sirius_roster = defaultdict(
     str,
     {
         "5490373": "barry_beck",
@@ -74,7 +76,40 @@ sirius_Roster = defaultdict(
     }
 )
 
-giants_Roster = defaultdict(
+bojo_roster = defaultdict(
+    str,
+    {
+        "4945836": "david_evanetich",
+        "1884456": "john_hughes",
+        "1024413": "matt_steeve",
+        "11526": "scott_mcveigh",
+        "947338": "mark_pietz",
+        "276319": "mark_goveia",
+    }
+)
+
+dome_roster = defaultdict(
+    str,
+    {
+        "5569057": "cory_cook",
+        "107802": "jaroslav_kurka",
+        "5530045": "mark_brzezinski",
+        "6705678": "david_goff",
+        "481901": "scott_peirson",
+        "5268724": "thomas_elliott",
+        # "1707548": "meridith_leubner",
+        # # "1193": "richard_mann",
+        # # "384442": "roland_segal",
+        # # "11526": "scott_mcveigh",
+        # # "1956": "scott_yarosh",
+        # # "2682791": "selena_shaikh",
+        # # "6142432": "steve_seiler",
+        # # "5421258": "tim_reid",
+        # # "11741": "tom_bick",
+    }
+)
+
+giants_roster = defaultdict(
     str,
     {
         "4204538": "ceri_pritchard",
@@ -89,7 +124,7 @@ giants_Roster = defaultdict(
     }
 )
 
-zsunderfire_Roster = defaultdict(
+zsunderfire_roster = defaultdict(
     str,
     {
         "3147366": "dave_konicek",
@@ -103,7 +138,7 @@ zsunderfire_Roster = defaultdict(
     }
 )
 
-sunkissed_Roster = defaultdict(
+sunkissed_roster = defaultdict(
     str,
     {
         "383480": "lynsey_segal",

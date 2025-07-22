@@ -431,7 +431,7 @@ def is_valid_solution(this_solution: PacelineComputationReportItem, logger: logg
 
 def raise_error_if_any_solutions_missing(
     thirty_sec_candidate: WorthyCandidateSolutionItem,
-    identical_pull_duration_candidate: WorthyCandidateSolutionItem,
+    sixty_sec_candidate: WorthyCandidateSolutionItem,
     balanced_intensity_candidate: WorthyCandidateSolutionItem,
     everybody_pulls_hard_candidate: WorthyCandidateSolutionItem,
     hang_in_candidate: WorthyCandidateSolutionItem
@@ -441,7 +441,7 @@ def raise_error_if_any_solutions_missing(
     """
     if (
         thirty_sec_candidate.solution is None
-        and identical_pull_duration_candidate.solution is None
+        and sixty_sec_candidate.solution is None
         and balanced_intensity_candidate.solution is None
         and everybody_pulls_hard_candidate.solution is None
         and hang_in_candidate.solution is None
@@ -450,8 +450,8 @@ def raise_error_if_any_solutions_missing(
 
     if thirty_sec_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (thirty_sec_solution is None)")
-    if identical_pull_duration_candidate.solution is None:
-        raise RuntimeError("No valid this_solution found (identical_pull_solution is None)")
+    if sixty_sec_candidate.solution is None:
+        raise RuntimeError("No valid this_solution found (sixty_sec_solution is None)")
     if everybody_pulls_hard_candidate.solution is None:
         raise RuntimeError("No valid this_solution found (everybody_pull_hard_solution is None)")
     if balanced_intensity_candidate.solution is None:
@@ -506,7 +506,36 @@ def is_thirty_second_pulls_solution_candidate(
 
     return answer
 
-def is_identical_pulls_solution_candidate(
+def is_sixty_second_pulls_solution_candidate(
+    this_solution: PacelineComputationReportItem,
+    candidate: WorthyCandidateSolutionItem
+) -> bool:
+    """
+    Determines if the given solution qualifies as a 'basic solution' candidate.
+
+    Definition:
+        A 'basic solution' is a paceline configuration where all riders pull for equal intervals of 60 seconds.
+        Every rider contributes the same amount of time at the front, and no one is left out.
+
+    Impact on Race Strategy:
+        - Predictability: Simplifies rotation and communication
+        - Best for: Training
+
+    Technical Description:
+        - Checks that all riders have pull durations of 60 seconds ('all_sixty_seconds`).
+        - Returns True if this condition is met.
+    """
+
+    all_sixty_seconds = all(rider.p1_duration == 60.0 for rider in this_solution.rider_contributions.values())
+
+    answer = all_sixty_seconds
+
+    # if answer:
+    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
+
+    return answer
+
+def is_sixty_second_pulls_solution_candidate_to_be_deleted(
     this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
@@ -755,7 +784,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
                 - total_pull_sequences_examined (int): Number of candidate paceline rotation schedules evaluated.
                 - total_compute_iterations_performed (int): Total number of compute iterations performed across all solutions.
                 - computational_time (float): Total time taken for the computation (seconds).
-                - identical_pull_solution (PacelineComputationReportItem): The best simple solution found.
+                - sixty_sec_solution (PacelineComputationReportItem): The best simple solution found.
                 - balanced_intensity_of_effort_solution (PacelineComputationReportItem): The most balanced solution found.
                 - everybody_pull_hard_solution (PacelineComputationReportItem): The best tempo solution found.
                 - hang_in_solution (PacelineComputationReportItem): The best drop solution found.
@@ -797,7 +826,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     time_taken_to_compute = time.perf_counter() - start_time
 
     thirty_sec_candidate                = WorthyCandidateSolutionItem(tag="30sec")
-    identical_pull_duration_candidate   = WorthyCandidateSolutionItem(tag="ident")
+    sixty_sec_candidate                 = WorthyCandidateSolutionItem(tag="60sec")
     balanced_intensity_candidate        = WorthyCandidateSolutionItem(tag="bal  ")
     everybody_pulls_hard_candidate      = WorthyCandidateSolutionItem(tag="push ")
     hang_in_candidate                   = WorthyCandidateSolutionItem(tag="hang ")
@@ -814,8 +843,8 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         if is_thirty_second_pulls_solution_candidate(this_solution, thirty_sec_candidate):
             update_candidate_solution(this_solution, thirty_sec_candidate, logger)
 
-        if is_identical_pulls_solution_candidate(this_solution, identical_pull_duration_candidate):
-            update_candidate_solution(this_solution, identical_pull_duration_candidate, logger)
+        if is_sixty_second_pulls_solution_candidate(this_solution, sixty_sec_candidate):
+            update_candidate_solution(this_solution, sixty_sec_candidate, logger)
 
         if is_balanced_intensity_solution_candidate(this_solution, balanced_intensity_candidate):
             update_candidate_solution(this_solution, balanced_intensity_candidate, logger)
@@ -828,7 +857,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     raise_error_if_any_solutions_missing(
         thirty_sec_candidate,
-        identical_pull_duration_candidate,
+        sixty_sec_candidate,
         balanced_intensity_candidate,
         everybody_pulls_hard_candidate,
         hang_in_candidate
@@ -839,9 +868,9 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
         thirty_sec_solution                     = thirty_sec_candidate.solution,
-        identical_pull_solution                   = identical_pull_duration_candidate.solution,
+        sixty_sec_solution                      = sixty_sec_candidate.solution,
         balanced_intensity_of_effort_solution   = balanced_intensity_candidate.solution,
-        everybody_pull_hard_solution                      = everybody_pulls_hard_candidate.solution,
+        everybody_pull_hard_solution            = everybody_pulls_hard_candidate.solution,
         hang_in_solution                        = hang_in_candidate.solution,
         all_solutions                           = all_computation_reports
     )
@@ -952,19 +981,19 @@ def main02():
 
     computation_report = generate_ingenious_paceline_solutions(params)
 
-    identical_pull_solution = computation_report.identical_pull_solution
+    sixty_sec_solution = computation_report.sixty_sec_solution
     balanced_solution = computation_report.balanced_intensity_of_effort_solution
     everybody_pull_hard_solution = computation_report.everybody_pull_hard_solution
     hang_in_solution = computation_report.hang_in_solution
 
-    simple_speed = identical_pull_solution.calculated_average_speed_of_paceline_kph if identical_pull_solution else None
+    simple_speed = sixty_sec_solution.calculated_average_speed_of_paceline_kph if sixty_sec_solution else None
     balanced_speed = balanced_solution.calculated_average_speed_of_paceline_kph if balanced_solution else None
     tempo_speed = everybody_pull_hard_solution.calculated_average_speed_of_paceline_kph if everybody_pull_hard_solution else None
     drop_speed = hang_in_solution.calculated_average_speed_of_paceline_kph if hang_in_solution else None
 
     logger.debug(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
-    simple_guid    = first_n_chars(identical_pull_solution.guid, 2) if identical_pull_solution else "--"
+    simple_guid    = first_n_chars(sixty_sec_solution.guid, 2) if sixty_sec_solution else "--"
     balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
     tempo_guid     = first_n_chars(everybody_pull_hard_solution.guid, 2) if everybody_pull_hard_solution else "--"
     drop_guid      = first_n_chars(hang_in_solution.guid, 2) if hang_in_solution else "--"

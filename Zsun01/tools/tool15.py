@@ -28,7 +28,7 @@ def main() -> None:
     SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
     # GET THE SOURCE DATA READY
-    team_name = "betel"
+    team_name = "dome"
     dict_of_zsunrideritems: Dict[str, ZsunRiderItem] = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs: List[str] = get_team_riderIDs(team_name)
     riders: List[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]

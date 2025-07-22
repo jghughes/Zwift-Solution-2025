@@ -80,7 +80,7 @@ class PacelineSolutionsComputationReportItem:
     total_compute_iterations_performed    : int   = 0
     computational_time                    : float = 0.0
     thirty_sec_solution                   : Union[PacelineComputationReportItem, None] = None
-    identical_pull_solution               : Union[PacelineComputationReportItem, None] = None
+    sixty_sec_solution               : Union[PacelineComputationReportItem, None] = None
     balanced_intensity_of_effort_solution : Union[PacelineComputationReportItem, None] = None
     everybody_pull_hard_solution          : Union[PacelineComputationReportItem, None] = None
     hang_in_solution                      : Union[PacelineComputationReportItem, None] = None
