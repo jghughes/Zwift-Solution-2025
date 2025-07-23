@@ -34,7 +34,7 @@ def main():
 
     betel_IDs = get_betel_IDs()
 
-    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/power-graph-watts/"
+    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
     betel_cp_dict = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
@@ -42,20 +42,15 @@ def main():
 
     # function to make nick-names 
 
-    # Clean up names in each JghFlattened90DayBestPowerCurveItem
-
     for rider_id, rider_cp_data in betel_cp_dict.items():
-        rider_cp_data.zwiftid = int(rider_id) # write filename into zwiftId field
-        rider_cp_data.name = make_short_displayname(betel_rider_profiles_dict[rider_id].name) # add short name
-        # betel_cp_dict[rider_id] = rider_cp_data
-        logger.debug(f"{rider_id} {rider_cp_data.name}")
-
-
+        rider_cp_data.zwift_id = rider_id # write filename into zwiftId field
+        display_name = make_short_displayname(betel_rider_profiles_dict[rider_id].name) # add short name
+        logger.debug(f"{rider_id} {display_name}")
 
     # Write the cleaned-up data to a file
 
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
-    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
     write_dict_of_zsunbestpowerItems(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
