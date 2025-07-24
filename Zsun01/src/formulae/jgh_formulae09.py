@@ -9,7 +9,7 @@ from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bound
 
 from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
 
-from html_fragments import FOOTNOTES
+from html_css import FOOTNOTES
 from paceline_plan_display_ingredients import  LIST_OF_CAPTIONS_FOR_PACELINE_PLANS
 from filenames import get_save_filename_for_single_paceline_plan
 

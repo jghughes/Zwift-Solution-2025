@@ -76,7 +76,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
-    <Compile Include="src\html\html_fragments.py">
+    <Compile Include="html_css.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="dirpaths.py">

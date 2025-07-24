@@ -3,7 +3,7 @@ import io
 from jgh_string import first_n_chars
 from jgh_formatting import format_number_1dp, format_number_comma_separators
 from paceline_plan_display_ingredients import DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS
-from html_fragments import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
+from html_css import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
 from zsun_rider_item import ZsunRiderItem
 from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
