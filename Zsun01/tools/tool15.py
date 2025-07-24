@@ -25,10 +25,10 @@ def main() -> None:
     logger: logging.Logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
-    SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+    SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel_new/"
 
     # GET THE SOURCE DATA READY
-    team_name = "dome"
+    team_name = "betel"
     dict_of_zsunrideritems: Dict[str, ZsunRiderItem] = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs: List[str] = get_team_riderIDs(team_name)
     riders: List[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]

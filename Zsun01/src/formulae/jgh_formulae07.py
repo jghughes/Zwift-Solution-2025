@@ -166,8 +166,6 @@ def save_a_paceline_plan_as_html(
         filename.write(html_fragment)
 
 
-
-
 def save_summary_of_all_paceline_plans_as_html(
     computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
     filename: str,
@@ -206,6 +204,7 @@ def save_summary_of_all_paceline_plans_as_html(
     <html>
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Paceline Plans</title>
             <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
             <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">

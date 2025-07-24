@@ -212,7 +212,7 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
            readable on mobile and print-friendly.
            ========================================================================= */
 
-        /* --- Extra small devices (max-width: 480px) --- *
+        /* --- Extra small devices (max-width: 480px) --- */
         @media (max-width: 480px) {
             body {
                 padding: 0.1rem 0.1rem;
@@ -374,7 +374,7 @@ PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = """
             .summary-footnote {
                 color: #000 !important;
                 background: none !important;
-                font-size: 0.8em !important;
+                font-size: 0.85em !important;
             }
             @page {
                 size: A4 landscape;

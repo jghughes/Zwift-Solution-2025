@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tools\tool13.py</StartupFile>
+    <StartupFile>tools\tool15.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae;src\html;src\enums;src\paths;src\miscellaneous;data</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -38,7 +38,6 @@
     <Folder Include="src\enums\" />
     <Folder Include="src\html\" />
     <Folder Include="src\miscellaneous\" />
-    <Folder Include="src\paths\" />
     <Folder Include="src\repositories\" />
     <Folder Include="tools\" />
     <Folder Include="src\" />
@@ -80,10 +79,10 @@
     <Compile Include="src\html\html_fragments.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\paths\dirpaths.py">
+    <Compile Include="dirpaths.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\paths\filenames.py" />
+    <Compile Include="filenames.py" />
     <Compile Include="data\teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
