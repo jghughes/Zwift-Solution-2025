@@ -112,17 +112,17 @@ def save_a_paceline_plan_as_html(
     import pandas as pd
 
     # Minimal columns and data
-    columns = [
+    column_header_labels = [
         "Name",
         "Race Cat",
-        "Pull",
+        "Pull<sup>1</sup>",
         "2nd 3rd 4th",
-        "zFTP",
+        "zFTP<sup>2</sup>",
         "Pull/zFTP",
         "Ave w/kg",
-        "NP",
-        "IF",
-        "Limit",
+        "NP<sup>3</sup>",
+        "IF<sup>4</sup>",
+        "Limit<sup>5</sup>",
     ]
     data = []
     for rider, z in report.rider_contributions_display_objects.items():
@@ -138,7 +138,7 @@ def save_a_paceline_plan_as_html(
             z.pretty_intensity_factor,
             z.pretty_effort_constraint_violation_reason,
         ])
-    df = pd.DataFrame(data, columns=columns)
+    df = pd.DataFrame(data, columns=column_header_labels)
     html_table : str = df.to_html(
         index=False,
         border=1,
