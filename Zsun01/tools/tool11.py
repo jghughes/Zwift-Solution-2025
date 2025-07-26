@@ -1,3 +1,18 @@
+"""
+This tool performs a comparative analysis of functional threshold power (FTP) estimates for Zwift riders by contrasting model-derived power values with values from ZwiftRacingApp profiles.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best power data, using a unified data repository.
+- Retrieves precomputed power curve fitting results for all available riders.
+- For each rider, calculates the predicted 40-minute power (as a proxy for FTP) using the model, and compares it to the zwiftracingapp_zpFTP value.
+- Computes the absolute and percentage difference between the two FTP estimates, and determines the time (in minutes) at which the model curve reaches the zwiftracingapp_zpFTP value.
+- Aggregates demographic, performance, and comparative metrics for each rider into a summary item.
+- Exports the comparative FTP analysis for all riders to an Excel file for further review.
+
+This tool demonstrates data integration, model application, and comparative analytics for cycling performance data using Python.
+"""
+
 import pandas as pd
 from dataclasses import asdict
 from jgh_number import safe_divide

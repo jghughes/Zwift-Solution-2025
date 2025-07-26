@@ -1,3 +1,19 @@
+"""
+This tool generates, analyzes, and exports detailed paceline plans for a specified cycling team, focusing on exertion-constrained and optimal strategies.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads rider data for a specified team and arranges riders in an optimal order for paceline efficiency.
+- Logs the speed bounds for exertion-constrained paceline solutions.
+- Constructs the input parameters for paceline planning, including rider list, pull speeds, pull periods, and exertion limits.
+- Computes a set of paceline plans for the full team using an advanced solution generation algorithm.
+- Computes additional plans for smaller team sizes (last five and last four riders) to analyze diminishing team scenarios.
+- Prepares a display object summarizing all computed paceline solutions, including captions and metadata.
+- Saves individual and summary paceline plans as HTML reports for further review and sharing.
+
+This tool demonstrates advanced team time trial (TTT) strategy modeling, combinatorial optimization, and automated report generation for cycling performance analysis using Python.
+"""
+
 import logging
 from typing import Dict, Any, List
 from computation_classes_display_objects import PacelinePlanTypeEnum, PacelineSolutionsComputationReportDisplayObject
@@ -14,9 +30,6 @@ from paceline_plan_display_ingredients import  get_caption_for_summary_of_all_pa
 from filenames import RIDERS_FILE_NAME, get_save_filename_for_summary_of_all_paceline_plans
 from dirpaths import DATA_DIRPATH
 from teams import get_team_riderIDs
-
-
-
 
 def main() -> None:
     # SET UP LOGGING

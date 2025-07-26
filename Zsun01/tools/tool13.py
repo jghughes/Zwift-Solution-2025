@@ -1,3 +1,24 @@
+"""
+This tool analyzes and optimizes paceline strategies for a specified team of riders, focusing on pull speed bounds and rotation schedules.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads rider data for a specified team and arranges riders in an optimal order for paceline efficiency.
+- Calculates upper and lower bounds for paceline pull speeds using both maximum and one-hour power metrics, logging the results.
+- Generates a simple paceline plan using equal pull durations and evaluates it for exertion constraints.
+- Enumerates all possible pull period rotation schedules within defined standard pull periods.
+- Searches for optimal paceline solutions using a parallelized work-stealing algorithm, considering exertion constraints and speed.
+- Logs detailed rider contributions for the simplest, most balanced, and highest-speed paceline plans.
+- Summarizes the computational effort, including the number of alternatives evaluated and total compute time.
+
+This tool demonstrates advanced team time trial (TTT) strategy modeling, combinatorial optimization, and performance analytics for cycling using Python.
+"""
+
+
+
+
+
+
 from zsun_rider_item import ZsunRiderItem
 from jgh_number import safe_divide
 from handy_utilities import read_dict_of_zsunriderItems

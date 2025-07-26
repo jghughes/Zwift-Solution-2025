@@ -1,4 +1,20 @@
-# load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
+"""
+This tool aggregates, models, and exports comprehensive rider data for all eligible club members using multiple data sources and power curve models.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best power data, using a unified data repository.
+- Identifies the set of eligible riders with complete and valid data across all sources.
+- Retrieves and applies precomputed power curve fitting results for each rider.
+- Constructs a unified rider data object for each member, combining demographic, performance, and modeled metrics.
+- Filters out riders without valid curve fitting results.
+- Exports the full set of rider profiles to both JSON and Excel files for further analysis or integration into other systems.
+
+This tool demonstrates large-scale data integration, model application, and dataset preparation for club-level cycling analytics and reporting.
+"""
+
+
+
 import numpy as np
 import pandas as pd
 from dataclasses import asdict

@@ -1,3 +1,17 @@
+"""
+This tool aggregates and exports best power data for a set of riders, and logs their power-duration data in tabular form.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Retrieves a list of rider IDs (Betel IDs) to process.
+- Loads Zwift profile data and ZwiftPower best power data for these riders from specified input directories.
+- Writes the best power data for all riders to a JSON file in the specified output directory.
+- For each rider, logs a formatted table of their power-duration data (time vs. watts) using the tabulate library for clear presentation.
+
+This tool demonstrates data loading, aggregation, export, and formatted logging for cycling performance analysis using Python.
+"""
+
+
 from handy_utilities import *
 import pandas as pd
 

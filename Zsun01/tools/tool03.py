@@ -1,3 +1,18 @@
+"""
+This tool extracts and processes best power data for a specific set of riders, then writes the cleaned data to a new JSON file.
+
+The tool performs the following steps:
+- Configures logging for the application.
+- Loads all rider profiles from a JSON file into a dictionary.
+- Retrieves a list of rider IDs (Betel IDs) to process.
+- Reads best power data files for these riders from a specified input directory.
+- For each rider, updates the best power data with the rider's Zwift ID and generates a short display name for logging.
+- Writes the processed best power data for all riders to a new JSON file in the specified output directory.
+
+This script demonstrates reading and writing JSON data, integrating multiple utility functions, and basic data transformation and logging in Python.
+"""
+
+
 from filenames import RIDERS_FILE_NAME
 from dirpaths import DATA_DIRPATH
 
@@ -7,24 +22,6 @@ from handy_utilities import read_dict_of_zsunriderItems, read_many_zwiftpower_be
 from jgh_sanitise_string import make_short_displayname
 
 def main():
-    """
-    Function Main reads and validates raw ZwiftPower files for all ZSUN riders in the power-graph-watts folder. 
-    
-    There are something like 1,500 riders in the ZSUN project, and each rider has a best power graph file. The best power files are stored in a folder named "power-graph-watts" in the INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH. The purpose of Main() is to read and process all of these one by one, mapping each one into a ZsunRiderItem and then consolidating all of them into single file that is subsequently the sourcefile of best power data that is used for curve fitting that uses machine learning to distill each riders best power graph into a pair of curves that are then used throughout the project.
-
-    To start with, all the rider names need to be cleaned up to remove commonplace special characters and redundant text, so that the rider names can be displyed prettily. This is done using the make_short_displayname() function.
-
-    Main() consolidates the Write the consolidated data as a JSON dict and save for storage in the Zsun01 project data folder
-    named "input_cp_data_for_betel_from_zwiftpower.json". This file is subsequently used in `tool04` to 
-    do critical_power data modelling and curve fitting to generate the modelled data stored in "betel_cp_data.json"
-
-    Dependencies:
-        - Requires `handy_utilities` for reading and writing CP data.
-        - Uses `JghFlattened90DayBestPowerCurveDTO` for data validation and processing.
-
-    Returns:
-        None
-    """
     # configure logging
 
     jgh_configure_logging("appsettings.json")

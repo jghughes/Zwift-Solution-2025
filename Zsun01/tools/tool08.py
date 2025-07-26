@@ -1,3 +1,20 @@
+"""
+This tool performs automated power curve modeling and dataset generation for a set of Zwift riders using their best power data.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads Zwift profile and best power data for all available riders from specified directories.
+- For each rider, validates the data and extracts power-duration data for three modeling zones: critical power (CP & W'), TTT pull power, and one-hour (FTP) power.
+- Fits mathematical models to each zone using curve fitting techniques to estimate physiological parameters such as critical power, anaerobic work capacity, and power curve coefficients.
+- Aggregates the modeling results and merges them with rider profile data into a single dataset.
+- Writes the merged dataset to an Excel file for further analysis.
+- Identifies riders with high-fidelity model fits and generates a separate dataset for these riders, saving it in both Excel and JSON formats for use in advanced machine learning applications.
+
+This tool demonstrates large-scale data loading, validation, model fitting, aggregation, and export for cycling performance analysis and machine learning dataset preparation using Python.
+"""
+
+
+
 from handy_utilities import *
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from datetime import datetime
@@ -169,6 +186,8 @@ def main():
     # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
+
+    # HEAP POWERFUL
     repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     dict_of_zsunriderItems : defaultdict[str, ZsunRiderItem] = repository.get_dict_of_ZsunRiderItem(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)

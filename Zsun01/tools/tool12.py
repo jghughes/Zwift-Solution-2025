@@ -1,3 +1,23 @@
+"""
+This tool performs exploratory data analysis and regression modeling on best power and FTP data for Zwift riders, with a focus on comparing model-derived and empirical power values.
+
+The script performs the following steps:
+- Configures logging for the application.
+- Loads a dataset of rider best power and model training items from a JSON file.
+- Filters out incomplete or invalid data entries to create a clean sample for analysis.
+- Visualizes relationships between various ZwiftPower 90-day best power values (at multiple durations) and FTP values from ZwiftProfile and ZwiftRacingApp using scatter plots.
+- (Commented sections) Provides templates for multiple linear regression analyses to predict FTP from different combinations of best power features, including feature selection and model evaluation (R², RMSE, coefficients, residuals).
+- Compares the predicted 40-minute power from a custom model (zsun TTT model) to the actual 40-minute ZwiftPower best value, evaluating the model's accuracy and visualizing predicted vs. actual values.
+
+This tool demonstrates data cleaning, feature engineering, regression modeling, and visualization for cycling performance analytics using Python and scikit-learn.
+"""
+
+
+
+
+
+
+
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split

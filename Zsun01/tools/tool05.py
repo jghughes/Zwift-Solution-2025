@@ -1,3 +1,18 @@
+"""
+This tool models and visualizes power-duration relationships for a selected rider using their ZwiftPower best power data.
+
+The script performs the following steps:
+- Loads rider profiles and best power data for a predefined set of riders.
+- Selects a specific rider by Zwift ID for analysis.
+- Extracts power-duration data for three modeling zones: critical power (CP & W'), TTT pull power, and one-hour (FTP) power.
+- Fits mathematical models to each zone using curve fitting techniques to estimate physiological parameters such as critical power, anaerobic work capacity, and power curve coefficients.
+- Instantiates a results object to store the fitted parameters and logs summary statistics for each modeled zone.
+- Plots the measured and modeled power-duration curves for visual inspection.
+
+This tool demonstrates data loading, model fitting, logging, and visualization for cycling performance analysis using Python.
+"""
+
+
 import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
