@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="setup.py" />
-    <Compile Include="src\bestpower_for_model_training_item.py" />
+    <Compile Include="src\regression_modelling_item.py" />
     <Compile Include="src\hub_item_base.py">
       <SubType>Code</SubType>
     </Compile>

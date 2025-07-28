@@ -1,16 +1,31 @@
 """
-This tool aggregates and exports best power data for a set of riders, and logs their power-duration data in tabular form.
+This little tool is not used directly in the Brute production pipeline.
+It is a helper tool. It is written to help in the process of iterative
+fine-tuning of curve parameters. It is used to do reality checks of
+modelled best-fit inverse-exponential curves by applying the fitted
+parameters to a small subset of riders with whom I am personally
+familiar: such as myself, DaveK, and the other Betels. I use their
+calculated inverse-exponential curves to print their synthetic power-
+duration graphs to the console in tabular form so that I can inspect
+them visually to decide if they are realistic compared to their actual
+power curves or wildly out of whack. I save the output to a JSON file
+for later reference. This tool provides an interim sanity check to
+ensure that the power-duration relationships are being modeled well
+before applying them to the entire Zsun database.
 
 The script performs the following steps:
 - Configures logging for the application.
 - Retrieves a list of rider IDs (Betel IDs) to process.
-- Loads Zwift profile data and ZwiftPower best power data for these riders from specified input directories.
-- Writes the best power data for all riders to a JSON file in the specified output directory.
-- For each rider, logs a formatted table of their power-duration data (time vs. watts) using the tabulate library for clear presentation.
+- Loads Zwift profile data and ZwiftPower best power data for these
+  riders from specified input directories.
+- Writes the best power data for all riders to a JSON file in the
+  specified output directory.
+- For each rider, logs a formatted table of their power-duration data
+  (time vs. watts) using the tabulate library for clear presentation.
 
-This tool demonstrates data loading, aggregation, export, and formatted logging for cycling performance analysis using Python.
+This tool demonstrates data loading, aggregation, export, and formatted
+logging for cycling performance analysis using Python.
 """
-
 
 from handy_utilities import *
 import pandas as pd
@@ -37,9 +52,9 @@ def main():
     betel_IDs = get_betel_IDs()
     # betel_IDs = ['4945836'] # david_evanetich
 
-    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH)
+    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH) # merely need this to get the first and last names of the riders
 
-    dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH) # read all the raw 90-day best power files for the riders in betel_IDs
 
     OUTPUT_FILE_NAME = "jghbestpoweritems_for_betel.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"

@@ -1,17 +1,46 @@
 """
-This tool models and visualizes power-duration relationships for a selected rider using their ZwiftPower best power data.
+This tool is for iterative development. It follows on from 
+Tool03, assuming that the methods and functions tested
+there all work correctly to generate a clean ZsunBestPowerItem from
+ZwiftPower 90-day data from DaveK. The tool commences by repeating the steps
+of Tool03, which involves reading the raw ZwiftPower 90-day best power data.
+
+For a single rider, it uses machine learning software libraries
+to do curve fitting (sklearn and scipy) to model critical_power and
+w_prime, model the TTT-pull power curve, and model the one-hour power curve.
+It then uses matplotlib.pyplot to display its handiwork. We take a snippet
+of the plotted chart to visualise how their ZwiftPower 90-day
+data is translated into the power curves used by Brute.
+
+I used this tool iteratively to fine-tune the power curves for a small 
+subset of riders, including myself and DaveK. The art of finding the 
+ideal windows for datapoints for the three very-different
+inverse-exponential power curves is a bit of a black art. I did it
+by hand, using the chart produced by this tool hundreds of times! You can 
+see the windows I finally settled on in the static methods of the 
+ZsunBestPowerItem where x-y data is exported for each of the three 
+windows. The quality of the fit is measured by the 
+r-squared value, which is logged to the console. The tool logs a 
+summary of the fitted parameters and displays the power-graph for a 
+specified rider for visual inspection.
 
 The script performs the following steps:
-- Loads rider profiles and best power data for a predefined set of riders.
+- Repeats everything that Tool03 does - thus to obtain ZsunBestPowerItem
+  for a small predefined subset of riders.
 - Selects a specific rider by Zwift ID for analysis.
-- Extracts power-duration data for three modeling zones: critical power (CP & W'), TTT pull power, and one-hour (FTP) power.
-- Fits mathematical models to each zone using curve fitting techniques to estimate physiological parameters such as critical power, anaerobic work capacity, and power curve coefficients.
-- Instantiates a results object to store the fitted parameters and logs summary statistics for each modeled zone.
-- Plots the measured and modeled power-duration curves for visual inspection.
+- Extracts power-duration data for three modeling zones: critical power
+  (CP & W'), TTT pull power, and one-hour (FTP) power.
+- Fits mathematical models to each zone using curve fitting techniques to
+  estimate physiological parameters such as critical power, anaerobic work
+  capacity, and power curve coefficients.
+- Instantiates a results object to store the fitted parameters and logs
+  summary statistics for each modeled zone.
+- Plots the measured and modeled power-duration curves for visual
+  inspection.
 
-This tool demonstrates data loading, model fitting, logging, and visualization for cycling performance analysis using Python.
+This tool demonstrates data loading, machine learning for curve fitting,
+and visualization for cycling performance analysis using matplotlib.
 """
-
 
 import numpy as np
 from sklearn.metrics import r2_score
@@ -61,7 +90,7 @@ def main():
 
     # choose a rider to model
 
-    zwiftID = richardm
+    zwiftID = davek
 
     # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
     # ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
@@ -87,7 +116,7 @@ def main():
 
     coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_pulling)
 
-    # model ftp curve 
+    # model ftp curve (one hour power)
 
     x_y_ordinates_for_FTP_60min = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_one_hour_zone_modelling()
 

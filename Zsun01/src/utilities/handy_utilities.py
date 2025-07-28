@@ -14,7 +14,7 @@ from collections import defaultdict
 from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zwiftracingapp_profile_item import ZwiftRacingAppProfileItem
 from zwift_profile_item import ZwiftProfileItem
-from bestpower_for_model_training_item import BestPowerModelTrainingItem
+from regression_modelling_item import RegressionModellingItem
 from bestpower_for_model_training_dto import BestPowerModelTrainingDTO
 
 import logging
@@ -92,7 +92,7 @@ def write_dict_of_zsunbestpowerItems(data: Dict[str, ZsunBestPowerItem], file_na
 
     logger.debug(f"File saved : {file_name}")
 
-def read_dict_of_bestpowermodeltrainingItems(file_name: str, dir_path: str) -> defaultdict[str, BestPowerModelTrainingItem]:
+def read_dict_of_bestpowermodeltrainingItems(file_name: str, dir_path: str) -> defaultdict[str, RegressionModellingItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -103,14 +103,14 @@ def read_dict_of_bestpowermodeltrainingItems(file_name: str, dir_path: str) -> d
     inputjson = read_text(dir_path, file_name)
     answer = JghSerialization.validate(inputjson, Dict[str, BestPowerModelTrainingDTO])
     answer = cast(Dict[str, BestPowerModelTrainingDTO], answer)
-    return defaultdict(BestPowerModelTrainingItem,
+    return defaultdict(RegressionModellingItem,
         {
-            key: BestPowerModelTrainingItem.from_dataTransferObject(dto)
+            key: RegressionModellingItem.from_dataTransferObject(dto)
             for key, dto in answer.items()
         }
     )
 
-def write_dict_of_bestpowermodeltrainingItems(data: Dict[str, BestPowerModelTrainingItem], file_name: str, dir_path: str) -> None:
+def write_dict_of_bestpowermodeltrainingItems(data: Dict[str, RegressionModellingItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -233,7 +233,7 @@ def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        temp = ZsunBestPowerItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp = ZsunBestPowerItem.from_ZwiftPowerBestPowerDTO(dto) # the meat
         temp.zwift_id = zwift_id  # zwift_id is obtained from the file name, this is the only place it is set
         answer[zwift_id] = temp
 
