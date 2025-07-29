@@ -1,22 +1,20 @@
 """
-This tool performs exploratory data analysis and regression modeling on best power and FTP data for Zwift riders, with a focus on comparing model-derived and empirical power values.
+This little tool is not used directly in the Brute production pipeline.
+
+It is a Mickey Mouse academic tool to try unearth what factors correlate with the inscrutable zFTP (if any) and by how much (if at all). In each run, this tool simply displays a pretty matplotlib chart. It of academic interest only. 
+
+This tool performs regression modeling on 90-day best power, Zsun curves, and Zwift zFTP data for Zwift riders using sklearn and scipy. It is our foremost usage of machine-learning in the Brute project. It is our most sophisticated example of matplotlib to create a pretty charts. Results are not printed or saved in a file, charts are displayed in a window for visualisation.
 
 The script performs the following steps:
 - Configures logging for the application.
 - Loads a dataset of rider best power and model training items from a JSON file.
 - Filters out incomplete or invalid data entries to create a clean sample for analysis.
 - Visualizes relationships between various ZwiftPower 90-day best power values (at multiple durations) and FTP values from ZwiftProfile and ZwiftRacingApp using scatter plots.
-- (Commented sections) Provides templates for multiple linear regression analyses to predict FTP from different combinations of best power features, including feature selection and model evaluation (R², RMSE, coefficients, residuals).
+- (Commented sections) Provides templates for multiple linear regression analyses to predict zFTP from different combinations of best power features, including feature selection and model evaluation.
 - Compares the predicted 40-minute power from a custom model (zsun TTT model) to the actual 40-minute ZwiftPower best value, evaluating the model's accuracy and visualizing predicted vs. actual values.
 
 This tool demonstrates data cleaning, feature engineering, regression modeling, and visualization for cycling performance analytics using Python and scikit-learn.
 """
-
-
-
-
-
-
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -40,9 +38,8 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    BESTPOWER_DATA_FOR_MODEL_TRAINING_FILE_NAME = "bestpower_dataset_for_model_training.json"
+    BESTPOWER_DATA_FOR_MODEL_TRAINING_FILE_NAME = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.json"
     INPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-04-00/"
-    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-04-00/"
 
     dict_of_candidate_modelTrainingItems = read_dict_of_bestpowermodeltrainingItems(BESTPOWER_DATA_FOR_MODEL_TRAINING_FILE_NAME, INPUT_DIRPATH)
 
@@ -64,7 +61,7 @@ def main():
     xdata_bp_300 = [item.bp_300 for item in dict_of_modelTrainingItems.values()] # 5 min best
     xdata_bp_600 = [item.bp_600 for item in dict_of_modelTrainingItems.values()] # 10 min best
     xdata_bp_720 = [item.bp_720 for item in dict_of_modelTrainingItems.values()] # 12 min best
-    xdata_bp_900 = [item.bp_900 for item in dict_of_modelTrainingItems.values()] # 12 min best
+    xdata_bp_900 = [item.bp_900 for item in dict_of_modelTrainingItems.values()] # 15 min best
     xdata_bp_1200 = [item.bp_1200 for item in dict_of_modelTrainingItems.values()] # 20 min best
     xdata_bp_1800 = [item.bp_1800 for item in dict_of_modelTrainingItems.values()] # 30 min best
     xdata_bp_2400 = [item.bp_2400 for item in dict_of_modelTrainingItems.values()] # 40 min best

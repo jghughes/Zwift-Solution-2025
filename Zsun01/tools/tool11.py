@@ -1,16 +1,44 @@
 """
-This tool performs a comparative analysis of functional threshold power (FTP) estimates for Zwift riders by contrasting model-derived power values with values from ZwiftRacingApp profiles.
+This little tool is not used directly in the Brute production pipeline.
+
+It is a Mickey Mouse academic tool. This tool simply generates an Excel
+file for a visual comparative analysis of zFTP and zsun_one_hour_power.
+Thus it compares and contrasts curve-fit model-derived Zsun one-hour
+power values with zFTP values from ZwiftRacingApp profiles and the
+delta between them. It is of academic interest only. Wide divergence
+doesn't really mean anything, it's just interesting to compare Zwift's
+inscrutable zFTP with one-hour power. The percentage difference
+provides a relative measure of how much the two estimates diverge,
+which can be useful for identifying outliers or unusual cases. The time
+at which the model curve is identical to the zFTP value might or might
+not provide insights. In Brute, we make no use of zFTP whatsoever, but
+other TTT tools do when calculating things like Intensity Factor (IF).
+Brute uses the zsun_one_hour_power as a proxy for FTP in the Intensity
+Factor denominator. This tool illuminates the extent to which
+divergences between Brute and third party TTT calculators are caused by
+the differences highlighted here. For 265 racers in the club, the
+deltas range from 28% maximum to 0% minimum, with a median of 2.0% for
+the July 2025 data.
 
 The script performs the following steps:
 - Configures logging for the application.
-- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best power data, using a unified data repository.
-- Retrieves precomputed power curve fitting results for all available riders.
-- For each rider, calculates the predicted 40-minute power (as a proxy for FTP) using the model, and compares it to the zwiftracingapp_zpFTP value.
-- Computes the absolute and percentage difference between the two FTP estimates, and determines the time (in minutes) at which the model curve reaches the zwiftracingapp_zpFTP value.
-- Aggregates demographic, performance, and comparative metrics for each rider into a summary item.
-- Exports the comparative FTP analysis for all riders to an Excel file for further review.
+- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best
+  power data, using a unified data repository.
+- Retrieves precomputed power curve fitting results for all available
+  riders.
+- For each rider, calculates the predicted 40-minute power (as a proxy
+  for FTP) using the model, and compares it to the zwiftracingapp_zpFTP
+  value.
+- Computes the absolute and percentage difference between the two FTP
+  estimates, and determines the time (in minutes) at which the model
+  curve reaches the zwiftracingapp_zpFTP value.
+- Aggregates demographic, performance, and comparative metrics for each
+  rider into a summary item.
+- Exports the comparative FTP analysis for all riders to an Excel file
+  for further review.
 
-This tool demonstrates data integration, model application, and comparative analytics for cycling performance data using Python.
+This tool demonstrates data integration, model application, and
+comparative analytics for cycling performance data using Python.
 """
 
 import pandas as pd
@@ -56,6 +84,8 @@ def main():
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
+    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
+
     betel_IDs = None
     # betel_IDs = get_betel_IDs()
 
@@ -97,14 +127,9 @@ def main():
 
     df = pd.DataFrame([asdict(item) for item in comparative_FTPs])
 
-    write_pandas_dataframe_as_xlsx(df, "comparative_FTP_analysis.xlsx", OUTPUT_DIRPATH)
-    # write_json_file(JghSerialization.serialise(answer_dict), "betels_for_copying_manually_into_ZSUN01.json", OUTPUT_DIRPATH)
-    logger.info(f"\n{len(comparative_FTPs)} line items saved to: {OUTPUT_DIRPATH}/comparative_FTP_analysis.xlsx\n")
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    logger.info(f"\n{len(comparative_FTPs)} line items saved to: {OUTPUT_DIRPATH}/{OUTPUT_FILENAME}\n")
 
-    # jghbestpoweritems = list(repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(betel_ids_found).values())
-
-    # df = pd.DataFrame([asdict(ZsunBestPowerItem) for ZsunBestPowerItem in jghbestpoweritems])
-    # write_pandas_dataframe_as_xlsx(df, "betels_best_power_items.xlsx", OUTPUT_DIRPATH)
 
 
 
