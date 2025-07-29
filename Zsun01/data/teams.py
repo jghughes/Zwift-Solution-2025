@@ -3,31 +3,6 @@ from collections import defaultdict
 from typing import List, Dict
 from collections import defaultdict
 
-def get_teams() -> Dict[str, defaultdict[str, str]]:
-    return {
-        "betel": betelguese_roster,
-        "sirius": sirius_roster,
-        "giants": giants_roster,
-        "fire": zsunderfire_roster,
-        "kissed": sunkissed_roster,
-        "bojo": bojo_roster,
-        "dome": dome_roster,
-    }
-
-def get_team_riderIDs(team_name: str) -> List[str]:
-    teams = get_teams()
-    if team_name in teams:
-        return list(teams[team_name].keys())
-    else:
-        raise ValueError(f"Team '{team_name}' not found. Available teams: {list(teams.keys())}")
-
-def get_rider_name_by_zwiftID(zwiftID: str) -> str:
-    teams = get_teams()
-    for roster in teams.values():
-        if zwiftID in roster:
-            return roster[zwiftID]
-    return ""
-
 betelguese_roster = defaultdict(
     str,
     {
@@ -149,4 +124,29 @@ sunkissed_roster = defaultdict(
         "": "c_williams",
     }
 )
+
+def get_teams() -> Dict[str, defaultdict[str, str]]:
+    return {
+        "betel": betelguese_roster,
+        "sirius": sirius_roster,
+        "giants": giants_roster,
+        "fire": zsunderfire_roster,
+        "kissed": sunkissed_roster,
+        "bojo": bojo_roster,
+        "dome": dome_roster,
+    }
+
+def get_team_riderIDs(team_name: str) -> List[str]:
+    teams = get_teams()
+    if team_name in teams:
+        return list(teams[team_name].keys())
+    else:
+        raise ValueError(f"Team '{team_name}' not found. Available teams: {list(teams.keys())}")
+
+def get_rider_name_by_zwiftID(zwiftID: str) -> str:
+    teams = get_teams()
+    for roster in teams.values():
+        if zwiftID in roster:
+            return roster[zwiftID]
+    return ""
 

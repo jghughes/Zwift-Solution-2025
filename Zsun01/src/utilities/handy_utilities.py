@@ -24,12 +24,38 @@ logger = logging.getLogger(__name__)
 logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
 def get_betel_IDs() -> List[str]:
-    file_name = "betel_IDs.json"
-    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    inputjson = read_text(dir_path, file_name)
-    anything = decode_json(inputjson)
-    answer = cast(List[str], anything)
-    return answer
+    return [
+  "1024413",
+  "11526",
+  "11741",
+  "1193",
+  "1657744",
+  "1707548",
+  "183277",
+  "1884456",
+  "2398312",
+  "2508033",
+  "2682791",
+  "3147366",
+  "383480",
+  "384442",
+  "480698",
+  "5134",
+  "5421258",
+  "5490373",
+  "5530045",
+  "5569057",
+  "9011",
+  "991817",
+  "4945836"
+]
+
+    # file_name = "betel_IDs.json"
+    # dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+    # inputjson = read_text(dir_path, file_name)
+    # anything = decode_json(inputjson)
+    # answer = cast(List[str], anything)
+    # return answer
 
 def get_betel_zsunriderItem(id : str) -> ZsunRiderItem:
     file_name = "betel_ZsunRiderItems.json"

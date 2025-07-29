@@ -332,24 +332,24 @@ class ScrapedZwiftDataRepository:
                 skipped_count += 1
                 continue
         
-            raw_xy_data_ftp = item.export_x_y_ordinates_for_one_hour_zone_modelling()
+            raw_xy_data_one_hour = item.export_x_y_ordinates_for_one_hour_zone_modelling()
             raw_xy_data_pull = item.export_x_y_ordinates_for_pull_zone_modelling()
             raw_xy_data_cp = item.export_x_y_ordinates_for_cp_w_prime_modelling()
 
-            if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < min_coordinates or len(raw_xy_data_ftp) < min_coordinates:
+            if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < min_coordinates or len(raw_xy_data_one_hour) < min_coordinates:
                 logger.warning(f"Repository message: {item.zwift_id} too sparse for reliable modelling.")
                 skipped_count += 1
                 continue
 
-            coefficient_ftp, exponent_ftp, r_squared_ftp, _, _ = do_curve_fit_with_decay_model(raw_xy_data_ftp)
+            coefficient_one_hour, exponent_one_hour, r_squared_one_hour, _, _ = do_curve_fit_with_decay_model(raw_xy_data_one_hour)
             coefficient_pull, exponent_pull, r_squared_pull, _, _ = do_curve_fit_with_decay_model(raw_xy_data_pull)
             critical_power, anaerobic_work_capacity, _, _, _  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
             curvefit = CurveFittingResultItem(
                 zwift_id=zwiftID,
-                one_hour_curve_coefficient = coefficient_ftp,
-                one_hour_curve_exponent= exponent_ftp,
-                one_hour_curve_r_squared= r_squared_ftp,
+                one_hour_curve_coefficient = coefficient_one_hour,
+                one_hour_curve_exponent= exponent_one_hour,
+                one_hour_curve_r_squared= r_squared_one_hour,
                 TTT_pull_curve_coefficient = coefficient_pull,
                 TTT_pull_curve_exponent= exponent_pull,
                 TTT_pull_curve_r_squared= r_squared_pull,

@@ -1,26 +1,57 @@
-# load Dave's zsun_CP data for everyone in the club, load all their names form somewhere else. do the modelling with the all the models. save all the data to a file I can load into excel and also save in the project data file. Then I am ready to move on!
-
 """
-This tool loads myriad files from Zwift, ZwifPower, and ZwiftRacingApp obtained by DaveK. It aggregates, models, and exports comprehensive rider data for all club members using the multiple data sources and power curve models.
+This tool is not used directly in the Brute production pipeline. I wrote
+this tool to develop a dictionary of minimally-valid ZsunRiderItem and
+save it to Excel for eyeballing. In tool08 my focus was on exploring a
+suitable value to cut-off poor curve fits. In this tool09, I couldn't
+care less about the quality of curve fits; instead I am concerned about
+filtering and selecting riders who are deemed to be recently active
+racers regardless of their curve fits.
+
+I went to a lot of trouble to write methods in the
+ScrapedZwiftDataRepository that return unions/intersections as subsets
+of power data from Zwift, ZwiftPower, and ZwiftRacingApp profiles
+respectively in order to discover and fine tune how many riders are or
+are not common to any two or three of them and to get to the bottom of
+choosing only currently active racers with a valid zwift racing score
+and velo racing score who deserve to be in the JSON database for Brute
+riders. One of the metrics I eyeball as a matter of curiosity in the
+output is zsun_TTT_pull_curve_fit_r_squared to monitor the fidelity of
+curve fits in the pull zone. Some are much better than others, but I
+don't filter out any of them, as I want to see the full range of curve
+fits in Excel and their r-squared values. In the April 2025 dataset,
+pull r-squared values for active racers range from 0.997 at best to
+0.673 at worst. In the July 2025 dataset, the comparable values are
+0.994 at best and 0.528 at worst.
+
+In the April 2025 dataset, there were 1,514 riders in the club, and 304
+actively racing riders. The comparable figures for July 2025 are 1,552
+riders in the club and 264 actively racing riders.
+
+This tool loads myriad files from Zwift, ZwiftPower, and ZwiftRacingApp
+obtained by DaveK. It aggregates, models, and exports comprehensive
+rider data for all club members using the multiple data sources and
+power curve models.
 
 The script performs the following steps:
 - Configures logging for the application.
-- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best power data, using a unified data repository.
-- Identifies the set of riders with complete and valid data across all sources.
-- Retrieves and applies precomputed power curve fitting results for each rider.
-- Constructs a unified rider data object for each member, combining demographic, performance, and modeled metrics.
+- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best
+  power data, using a unified data repository.
+- Identifies the set of riders with complete and valid data across all
+  sources.
+- Retrieves and applies precomputed power curve fitting results for
+  each rider.
+- Constructs a unified rider data object (ZsunRiderItem) for each
+  member, combining demographic, performance, and modeled metrics.
 - Exports the full set of rider profiles to Excel for further analysis.
-- Filters the dataset to include only recently active riders (based on racing score and category), and exports this subset to a separate Excel file.
+- Filters the dataset to include only recently active riders (based on
+  racing score and velo category), and exports this subset to a
+  separate Excel file.
 
-This tool demonstrates large-scale data integration, model application, and dataset preparation for club-level cycling analytics and reporting.
+This tool demonstrates large-scale data integration, model application,
+and dataset preparation for club-level cycling analytics and reporting.
+Note the use of Pandas for data manipulation and export to Excel, as
+well as NumPy for numerical operations related to power curve modeling.
 """
-
-
-
-
-
-
-
 from typing import Any
 from dataclasses import asdict
 import pandas as pd
@@ -32,8 +63,6 @@ from jgh_read_write import write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import decay_model_numpy
 from zsun_rider_item import ZsunRiderItem
 from scraped_zwift_data_repository import ScrapedZwiftDataRepository
-
-
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -131,7 +160,7 @@ def main():
     write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
     logger.info(f"Minimally valid subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
 
-    # Remove items where zwift_zrs is 0 or velo_cat_name is an empty string
+    # Remove items where zwift_zrs is 0 or velo_cat_name is an empty string i.e. only keep those with a valid racing score and velo registration and category
     answer_dict = {
         key: value
         for key, value in answer_dict.items()

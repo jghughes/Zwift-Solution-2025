@@ -1,18 +1,37 @@
 """
-This tool aggregates, models, and exports comprehensive rider data for all eligible club members using multiple data sources and power curve models.
+N.B. THIS CONCISE TOOL IS USED DIRECTLY IN THE BRUTE PRODUCTION
+PIPELINE. It builds on all the previous tools.
+
+Each time a batch of raw data is received from DaveK, run this tool10
+to generate a JSON dictionary file of all actively racing club
+members, with all relevant data aggregated in a ZsunRiderItem for each
+rider. Copy the JSON file manually into the data folder in Zsun01,
+carefully following the naming convention there and updating
+filenames.py accordingly. Older JSON files remain in the data folder
+for posterity.
+
+This tool aggregates, models, and exports comprehensive rider data for
+all eligible club members using multiple data sources and power curve
+models. As long as the riders are eligible, they are included
+regardless of the fidelity of their best fit curves.
 
 The script performs the following steps:
 - Configures logging for the application.
-- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best power data, using a unified data repository.
-- Identifies the set of eligible riders with complete and valid data across all sources.
-- Retrieves and applies precomputed power curve fitting results for each rider.
-- Constructs a unified rider data object for each member, combining demographic, performance, and modeled metrics.
+- Loads Zwift, ZwiftPower, and ZwiftRacingApp profiles, as well as best
+  power data, using a unified data repository.
+- Identifies the set of eligible riders with complete and valid data
+  across all sources.
+- Retrieves and applies precomputed power curve fitting results for
+  each rider.
+- Constructs a unified rider data object for each member, combining
+  demographic, performance, and modeled metrics.
 - Filters out riders without valid curve fitting results.
-- Exports the full set of rider profiles to both JSON and Excel files for further analysis or integration into other systems.
+- Exports the full set of rider profiles to both JSON and Excel files
+  for use by Brute in production.
 
-This tool demonstrates large-scale data integration, model application, and dataset preparation for club-level cycling analytics and reporting.
+This tool demonstrates large-scale data integration, model application,
+and dataset preparation for club-level cycling analytics and reporting.
 """
-
 
 
 import numpy as np
