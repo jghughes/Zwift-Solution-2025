@@ -170,7 +170,7 @@ class PowerItem:
 
 
 @dataclass
-class ZwiftRacingAppRiderParticularsItem:
+class ZwiftRacingAppItem:
     zwift_id          : str  = ""
     fullname          : str  = ""
     gender            : str  = ""
@@ -184,10 +184,10 @@ class ZwiftRacingAppRiderParticularsItem:
     raceitem          : RaceItem = field(default_factory=RaceItem)    
     
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZwiftRacingAppRiderParticularsDTO]) -> "ZwiftRacingAppRiderParticularsItem":
+    def from_dataTransferObject(dto: Optional[ZwiftRacingAppDTO]) -> "ZwiftRacingAppItem":
         if dto is None:
-            return ZwiftRacingAppRiderParticularsItem()
-        return ZwiftRacingAppRiderParticularsItem(
+            return ZwiftRacingAppItem()
+        return ZwiftRacingAppItem(
             zwift_id         = dto.zwift_id or "",
             fullname         = dto.fullname or "",
             gender           = dto.gender or "",
@@ -202,10 +202,10 @@ class ZwiftRacingAppRiderParticularsItem:
         )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["ZwiftRacingAppRiderParticularsItem"]) -> ZwiftRacingAppRiderParticularsDTO:
+    def to_dataTransferObject(item: Optional["ZwiftRacingAppItem"]) -> ZwiftRacingAppDTO:
         if item is None:
-            return ZwiftRacingAppRiderParticularsDTO()
-        return ZwiftRacingAppRiderParticularsDTO(
+            return ZwiftRacingAppDTO()
+        return ZwiftRacingAppDTO(
             zwift_id         = item.zwift_id,
             fullname         = item.fullname,
             gender           = item.gender,

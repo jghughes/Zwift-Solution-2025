@@ -25,7 +25,7 @@ class CompetitionMetricsDTO(BaseModel):
     categoryWomen : Optional[str]  = ""
 
 
-class ZwiftRiderParticularsDTO(BaseModel):
+class ZwiftDTO(BaseModel):
     model_config = preferred_config_dict
     zwift_id            : Optional[str]                      = "" # Unique identifier for the profile
     public_id           : Optional[str]                      = ""   # Public ID of the profile
@@ -65,10 +65,10 @@ def main():
     from jgh_read_write import read_filepath_as_text, help_select_filepaths_in_folder
     from jgh_serialization import JghSerialization
 
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwift/"
 
-    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFT_PROFILES_DIRPATH)
-    logger.info(f"Found {len(file_paths)} files in {ZWIFT_PROFILES_DIRPATH}")
+    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFT_DIRPATH)
+    logger.info(f"Found {len(file_paths)} files in {ZWIFT_DIRPATH}")
     file_count = 0
     error_count = 0
     for file_path in file_paths:
@@ -77,8 +77,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRiderParticularsDTO)
-            dto = cast(ZwiftRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftDTO)
+            dto = cast(ZwiftDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

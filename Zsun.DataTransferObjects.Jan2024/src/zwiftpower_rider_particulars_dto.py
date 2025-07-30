@@ -16,7 +16,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-class ZwiftPowerRiderParticularsDTO(BaseModel):
+class ZwiftPowerDTO(BaseModel):
     model_config             = preferred_config_dict
     zwift_id                 : Optional[str] = "" 
     profile_url              : Optional[str] = ""
@@ -67,10 +67,10 @@ def main():
     from jgh_read_write import read_filepath_as_text, help_select_filepaths_in_folder
     from jgh_serialization import JghSerialization
 
-    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftpower/profile-page/"
 
-    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFTPOWER_PROFILES_DIRPATH)
-    logger.info(f"Found {len(file_paths)} files in {ZWIFTPOWER_PROFILES_DIRPATH}")
+    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFTPOWER_DIRPATH)
+    logger.info(f"Found {len(file_paths)} files in {ZWIFTPOWER_DIRPATH}")
     file_count = 0
     error_count = 0
     for file_path in file_paths:
@@ -79,8 +79,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerRiderParticularsDTO)
-            dto = cast(ZwiftPowerRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerDTO)
+            dto = cast(ZwiftPowerDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

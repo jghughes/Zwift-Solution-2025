@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
-from typing import Optional, Union, Any, Dict, get_origin, get_args
+from typing import Optional, Union, Any, get_origin, get_args
 from jgh_sanitise_string import sanitise_string
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -76,13 +76,13 @@ class PowerDTO(BaseModel):
             # Return None for non-float values
             return None
 
-class ZwiftRacingAppRiderParticularsDTO(BaseModel):
+class ZwiftRacingAppDTO(BaseModel):
     model_config  = preferred_config_dict
     zwift_id            : Optional[str]        = ""   # Rider ID
     fullname            : Optional[str]        = ""   # Name of the rider
     gender              : Optional[str]        = ""   # Gender of the rider "M" or "F"
     country             : Optional[str]        = ""   # Country of the rider
-    age_group            : Optional[str]        = ""   # Age category of the rider eg 50+
+    age_group            : Optional[str]       = ""   # Age category of the rider eg 50+
     height_cm           : Optional[float]      = 0.0  # Height of the rider in centimeters
     weight_kg           : Optional[float]      = 0.0  # Weight of the rider in kilograms
     zp_race_category    : Optional[str]        = ""   # ZwiftPower category, such as C or D
@@ -111,10 +111,10 @@ def main():
     from jgh_read_write import read_filepath_as_text, help_select_filepaths_in_folder
     from jgh_serialization import JghSerialization
 
-    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_April_2025/zwiftracing-app-post/"
 
-    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFTRACINGAPP_PROFILES_DIRPATH)
-    logger.info(f"Found {len(file_paths)} files in {ZWIFTRACINGAPP_PROFILES_DIRPATH}")
+    file_paths = help_select_filepaths_in_folder(None,".json", ZWIFTRACINGAPP_DIRPATH)
+    logger.info(f"Found {len(file_paths)} files in {ZWIFTRACINGAPP_DIRPATH}")
     total_count = 0
     success_count = 0
     failure_count = 0
@@ -126,8 +126,8 @@ def main():
         logger.info(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppRiderParticularsDTO)
-            dto = cast(ZwiftRacingAppRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
+            dto = cast(ZwiftRacingAppDTO, dto)
             success_count += 1
         except Exception as e:
             failure_count += 1

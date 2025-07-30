@@ -3,31 +3,28 @@ from typing import Dict, cast, Optional, List, DefaultDict
 from collections import defaultdict
 from jgh_read_write import read_text, read_filepath_as_text, help_select_filepaths_in_folder
 from jgh_serialization import JghSerialization
-from zwift_rider_particulars_dto import ZwiftRiderParticularsDTO
-from zwift_rider_particulars_item import ZwiftRiderParticularsItem
-from zwiftpower_watts_ordinates_dto import ZwiftPowerWattsOrdinatesDTO
-from zwiftpower_rider_particulars_dto import ZwiftPowerRiderParticularsDTO
-from zwiftpower_rider_particulars_item import ZwiftPowerRiderParticularsItem
+from zwift_rider_particulars_dto import ZwiftDTO
+from zwift_rider_particulars_item import ZwiftItem
+from zwiftpower_watts_ordinates_dto import ZwiftPowerWattsDTO
+from zwiftpower_rider_particulars_dto import ZwiftPowerDTO
+from zwiftpower_rider_particulars_item import ZwiftPowerItem
 from zwiftracingapp_rider_particulars_dto import *
-from zwiftracingapp_rider_particulars_item import ZwiftRacingAppRiderParticularsItem
+from zwiftracingapp_rider_particulars_item import ZwiftRacingAppItem
 from regression_modelling_dto import RegressionModellingDTO
 from regression_modelling_item import RegressionModellingItem
-from zsun_watts_properties_dto import ZsunWattsPropertiesDTO
-from zsun_watts_properties_item import ZsunWattsPropertiesItem
-from zsun_rider_dto import ZsunRiderDTO
-from zsun_rider_item import ZsunRiderItem
+from zsun_watts_properties_dto import ZsunWattsDTO
+from zsun_watts_properties_item import ZsunWattsItem
+from zsun_rider_dto import ZsunDTO
+from zsun_rider_item import ZsunItem
 
 import logging
 from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-#functions used to read many files in a folder and return a dictionary of items. used to read raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute
+#functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute
 
-def read_many_zwift_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftRiderParticularsItem]:
+def read_zwift_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftItem]:
 
-    answer: defaultdict[str, ZwiftRiderParticularsItem] = defaultdict(ZwiftRiderParticularsItem)
+    answer: defaultdict[str, ZwiftItem] = defaultdict(ZwiftItem)
 
     file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -40,22 +37,22 @@ def read_many_zwift_profile_files_in_folder(file_names: Optional[list[str]], dir
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRiderParticularsDTO)
-            dto = cast(ZwiftRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftDTO)
+            dto = cast(ZwiftDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        item = ZwiftRiderParticularsItem.from_dataTransferObject(dto)
+        item = ZwiftItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_many_zwiftracingapp_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftRacingAppRiderParticularsItem]:
+def read_zwiftracingapp_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftRacingAppItem]:
     
-    answer: defaultdict[str, ZwiftRacingAppRiderParticularsItem] = defaultdict(ZwiftRacingAppRiderParticularsItem)
+    answer: defaultdict[str, ZwiftRacingAppItem] = defaultdict(ZwiftRacingAppItem)
 
     file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -68,21 +65,21 @@ def read_many_zwiftracingapp_profile_files_in_folder(file_names: Optional[list[s
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppRiderParticularsDTO)
-            dto = cast(ZwiftRacingAppRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
+            dto = cast(ZwiftRacingAppDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        item = ZwiftRacingAppRiderParticularsItem.from_dataTransferObject(dto)
+        item = ZwiftRacingAppItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_many_zwiftpower_profile_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftPowerRiderParticularsItem]:
-    answer: defaultdict[str, ZwiftPowerRiderParticularsItem] = defaultdict(ZwiftPowerRiderParticularsItem)
+def read_zwiftpower_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftPowerItem]:
+    answer: defaultdict[str, ZwiftPowerItem] = defaultdict(ZwiftPowerItem)
 
     file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -96,22 +93,22 @@ def read_many_zwiftpower_profile_files_in_folder(file_names: Optional[list[str]]
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerRiderParticularsDTO)
-            dto = cast(ZwiftPowerRiderParticularsDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerDTO)
+            dto = cast(ZwiftPowerDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        item = ZwiftPowerRiderParticularsItem.from_dataTransferObject(dto)
+        item = ZwiftPowerItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZsunWattsPropertiesItem]:
+def read_zwiftpower_graph_watts_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZsunWattsItem]:
 
-    answer: defaultdict[str, ZsunWattsPropertiesItem] = defaultdict(ZsunWattsPropertiesItem)
+    answer: defaultdict[str, ZsunWattsItem] = defaultdict(ZsunWattsItem)
 
     file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
     logger.info(f"Found {len(file_paths)} files in {dir_path}")
@@ -124,22 +121,22 @@ def read_many_zwiftpower_bestpower_files_in_folder(file_names: Optional[list[str
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerWattsOrdinatesDTO)
-            dto = cast(ZwiftPowerWattsOrdinatesDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerWattsDTO)
+            dto = cast(ZwiftPowerWattsDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
         zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        temp = ZsunWattsPropertiesItem.from_ZwiftPowerBestPowerDTO(dto) # the meat
+        temp = ZsunWattsItem.from_ZwiftPowerBestPowerDTO(dto) # the meat
         temp.zwift_id = zwift_id  # zwift_id is obtained from the file name, this is the only place it is set
         answer[zwift_id] = temp
 
 
     return answer
 
-# functions to get arbitrary Zwift IDs and zsunrideritems for testing.
+# functions to get arbitrary Zwift IDs and ZsunItems for testing.
 
 def get_test_IDs() -> List[str]:
     return [
@@ -175,16 +172,16 @@ def get_test_IDs() -> List[str]:
     # answer = cast(List[str], anything)
     # return answer
 
-def read_dict_of_test_zsunriderDTO(id : str) -> ZsunRiderItem:
-    file_name = "test_ZsunRiderItems.json"
+def get_test_ZsunDTO(id : str) -> ZsunItem:
+    file_name = "test_ZsunItems.json"
     dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_dict_of_zsunriderDTO(file_name, dir_path)
+    riders = read_json_dict_of_ZsunDTO(file_name, dir_path)
     answer = riders[id]
     return answer
 
-#functions used to read a pre-processed file in a folder and return a dictionary of its contents. 
+#functions used to read a pre-processed file and return its contents. 
 
-def read_dict_of_zsunriderDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunRiderItem]:
+def read_json_dict_of_ZsunDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -193,17 +190,17 @@ def read_dict_of_zsunriderDTO(file_name: str, dir_path: str) -> DefaultDict[str,
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
 
     inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, Dict[str, ZsunRiderDTO])
-    answer = cast(Dict[str, ZsunRiderDTO], answer)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZsunDTO])
+    answer = cast(Dict[str, ZsunDTO], answer)
     return defaultdict(
-        ZsunRiderItem, 
+        ZsunItem, 
         {
-            key: ZsunRiderItem.from_dataTransferObject(dto)
+            key: ZsunItem.from_dataTransferObject(dto)
             for key, dto in answer.items()
         }
     )
 
-def read_dict_of_zsunwattspropertiesDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunWattsPropertiesItem]:
+def read_json_dict_of_ZsunWattsDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunWattsItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -212,17 +209,17 @@ def read_dict_of_zsunwattspropertiesDTO(file_name: str, dir_path: str) -> Defaul
         raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
     
     inputjson = read_text(dir_path, file_name)
-    answer = JghSerialization.validate(inputjson, Dict[str, ZsunWattsPropertiesDTO])
-    answer = cast(Dict[str, ZsunWattsPropertiesDTO], answer)
+    answer = JghSerialization.validate(inputjson, Dict[str, ZsunWattsDTO])
+    answer = cast(Dict[str, ZsunWattsDTO], answer)
     return defaultdict(
-        ZsunWattsPropertiesItem,
+        ZsunWattsItem,
         {
-            key: ZsunWattsPropertiesItem.from_dataTransferObject(dto)
+            key: ZsunWattsItem.from_dataTransferObject(dto)
             for key, dto in answer.items()
         }
     )
 
-def write_dict_of_zsunwattspropertiesItem(data: Dict[str, ZsunWattsPropertiesItem], file_name: str, dir_path: str) -> None:
+def write_json_dict_of_ZsunWattsItem(data: Dict[str, ZsunWattsItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -238,7 +235,7 @@ def write_dict_of_zsunwattspropertiesItem(data: Dict[str, ZsunWattsPropertiesIte
 
     logger.debug(f"File saved : {file_name}")
 
-def read_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> DefaultDict[str, RegressionModellingItem]:
+def read_json_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> DefaultDict[str, RegressionModellingItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -256,7 +253,7 @@ def read_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> Defaul
         }
     )
 
-def write_dict_of_regressionmodellingItem(data: Dict[str, RegressionModellingItem], file_name: str, dir_path: str) -> None:
+def write_json_dict_of_regressionmodellingItem(data: Dict[str, RegressionModellingItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
     if not dir_path.strip():
@@ -279,60 +276,45 @@ def log_multiline(logger: logging.Logger, lines: list[str]) -> None:
 
     # tests
 
-def main():
+def main(logger: logging.Logger):
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
 
-
-    zsun_raw_cp_dict_for_betel = read_many_zwiftracingapp_profile_files_in_folder(get_test_IDs(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    zsun_raw_cp_dict_for_betel = read_zwiftracingapp_files(get_test_IDs(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
 
-    jgh_cp_dict = read_dict_of_zsunwattspropertiesDTO(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
+    jgh_cp_dict = read_json_dict_of_ZsunWattsDTO(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_dict_of_zsunwattspropertiesItem(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_json_dict_of_ZsunWattsItem(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
 
-def main02():
-    # configure logging
+def main02(logger: logging.Logger):
 
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
 
-    dict_of_zwift_profiles = read_many_zwift_profile_files_in_folder(None, ZWIFT_PROFILES_DIRPATH)
+    dict_of_zwift_profiles = read_zwift_files(None, ZWIFT_DIRPATH)
     logger.info(f"Imported {len(dict_of_zwift_profiles)} zwift profile items")
 
-    dict_of_zwiftracingapp_profiles = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
+    dict_of_zwiftracingapp_profiles = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH)
     logger.info (f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
 
-    dict_of_zwiftpower_profiles = read_many_zwiftpower_profile_files_in_folder(None, ZWIFTPOWER_PROFILES_DIRPATH)
+    dict_of_zwiftpower_profiles = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH)
     logger.info(f"Imported {len(dict_of_zwiftpower_profiles)} zwiftpower profile items")
 
-    dict_of_zwiftpower_90day_bestpower = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_zwiftpower_90day_bestpower = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
     logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower bestpower info items")
 
-def main03():
-    # configure logging
+def main03(logger: logging.Logger):
 
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
 
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-
-    my_dict = read_many_zwift_profile_files_in_folder(None, ZWIFT_PROFILES_DIRPATH)
+    my_dict = read_zwift_files(None, ZWIFT_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} zwift profile items")
     for zwift_id, item in my_dict.items():
@@ -342,18 +324,11 @@ def main03():
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main04():
-    # configure logging
+def main04(logger: logging.Logger):
 
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
 
-    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-
-    my_dict = read_many_zwiftracingapp_profile_files_in_folder(None, ZWIFTRACINGAPP_PROFILES_DIRPATH)
+    my_dict = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -363,18 +338,11 @@ def main04():
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main05():
-    # configure logging
+def main05(logger: logging.Logger):
 
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
 
-    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
-
-    my_dict = read_many_zwiftpower_profile_files_in_folder(None, ZWIFTPOWER_PROFILES_DIRPATH)
+    my_dict = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -384,18 +352,11 @@ def main05():
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main06():
-    # configure logging
-
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+def main06(logger: logging.Logger):
 
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
 
-    my_dict = read_many_zwiftpower_bestpower_files_in_folder(None, ZWIFTPOWER_GRAPHS_DIRPATH)
+    my_dict = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -407,4 +368,13 @@ def main06():
 
 
 if __name__ == "__main__":
-    main06()
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    # main(logger)
+    # main02(logger)
+    # main03(logger)
+    # main04(logger)
+    # main05(logger)
+    main06(logger)

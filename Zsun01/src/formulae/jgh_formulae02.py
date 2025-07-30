@@ -10,7 +10,7 @@ from jgh_number import safe_divide
 from rolling_average import calculate_rolling_averages
 from jgh_formatting import truncate 
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 from computation_classes import RiderContributionItem, RiderExertionItem
 
 import logging
@@ -21,7 +21,7 @@ logging.getLogger("numba").setLevel(logging.ERROR)
 
 # All of these functions are called during parallel processing. Logging forbidden
 
-def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
+def calculate_kph_riding_alone(rider : ZsunItem, power: float) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
     height_cm (cm) using the Newton-Raphson method.
@@ -36,7 +36,7 @@ def calculate_kph_riding_alone(rider : ZsunRiderItem, power: float) -> float:
     speed_kph = estimate_speed_from_wattage(power, rider.weight_kg, rider.height_cm)
     return speed_kph
 
-def calculate_wattage_riding_alone(rider : ZsunRiderItem, speed: float) -> float:
+def calculate_wattage_riding_alone(rider : ZsunItem, speed: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
     height_cm (cm).
@@ -51,14 +51,14 @@ def calculate_wattage_riding_alone(rider : ZsunRiderItem, speed: float) -> float
     power = estimate_watts_from_speed(speed, rider.weight_kg, rider.height_cm)
     return power
 
-def calculate_wattage_riding_in_the_paceline(rider : ZsunRiderItem, speed: float, position: int
+def calculate_wattage_riding_in_the_paceline(rider : ZsunItem, speed: float, position: int
 ) -> float:
     """
     Calculate the wattage required for a rider given their speed and position 
     in the peloton.
 
     Args:
-    rider (ZsunRiderItem): The rider object.
+    rider (ZsunItem): The rider object.
     speed (float): The speed in km/h.
     position (int): The position in the peloton.
 
@@ -76,7 +76,7 @@ def calculate_wattage_riding_in_the_paceline(rider : ZsunRiderItem, speed: float
 
     return adjusted_power
 
-def calculate_speed_riding_in_the_paceline(rider : ZsunRiderItem, power: float, position: int
+def calculate_speed_riding_in_the_paceline(rider : ZsunItem, power: float, position: int
 ) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 
@@ -100,11 +100,11 @@ def calculate_speed_riding_in_the_paceline(rider : ZsunRiderItem, power: float, 
         
     return speed_kph
 
-def calculate_speed_at_standard_00sec_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_00sec_pull_watts(rider : ZsunItem) -> float:
       
     return calculate_speed_at_standard_30sec_pull_watts(rider)
 
-def calculate_speed_at_standard_30sec_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_30sec_pull_watts(rider : ZsunItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
     Returns:
@@ -115,7 +115,7 @@ def calculate_speed_at_standard_30sec_pull_watts(rider : ZsunRiderItem) -> float
         
     return speed_kph
 
-def calculate_speed_at_standard_1_minute_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_1_minute_pull_watts(rider : ZsunItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
     Returns:
@@ -126,7 +126,7 @@ def calculate_speed_at_standard_1_minute_pull_watts(rider : ZsunRiderItem) -> fl
         
     return speed_kph
 
-def calculate_speed_at_standard_2_minute_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_2_minute_pull_watts(rider : ZsunItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
     Returns:
@@ -137,7 +137,7 @@ def calculate_speed_at_standard_2_minute_pull_watts(rider : ZsunRiderItem) -> fl
         
     return speed_kph
 
-def calculate_speed_at_standard_3_minute_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_3_minute_pull_watts(rider : ZsunItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
     Returns:
@@ -148,7 +148,7 @@ def calculate_speed_at_standard_3_minute_pull_watts(rider : ZsunRiderItem) -> fl
         
     return speed_kph
 
-def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunRiderItem) -> float:
+def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
     Returns:
@@ -159,7 +159,7 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : ZsunRiderItem) -> fl
         
     return speed_kph
 
-def calculate_speed_at_n_second_watts(rider : ZsunRiderItem, seconds: float) -> float:
+def calculate_speed_at_n_second_watts(rider : ZsunItem, seconds: float) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 
     for a specific duration in seconds.
@@ -173,7 +173,7 @@ def calculate_speed_at_n_second_watts(rider : ZsunRiderItem, seconds: float) -> 
         
     return speed_kph
 
-def calculate_speed_at_one_hour_watts(rider : ZsunRiderItem) -> float: 
+def calculate_speed_at_one_hour_watts(rider : ZsunItem) -> float: 
     """
     Calculate the speed (km/h) for a rider given their one-hour power output (watts).
     Returns:
@@ -265,7 +265,7 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
 
     return normalized_watts
 
-def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunRiderItem, List[RiderExertionItem]]) -> float:
+def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunItem, List[RiderExertionItem]]) -> float:
     """
     Calculate the average speed (km/h) for the rider is the paceline to whom 
     this list of paceline efforts belong.
@@ -295,7 +295,7 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: DefaultDict[ZsunR
 
     return average_speed_kph
 
-def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[ZsunRiderItem]) -> float:
+def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[ZsunItem]) -> float:
 
     _, _, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
     _, _, lower_bound_1_hour_rider_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
@@ -304,7 +304,7 @@ def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(rid
 
     return safe_lowest_bound_speed
 
-def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderItem, rider_contribution: RiderContributionItem) -> float:
+def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunItem, rider_contribution: RiderContributionItem) -> float:
     """
     Calculate the intensity factor for a given rider and their contribution plan.
 
@@ -313,7 +313,7 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderIte
     to their sustainable threshold.
 
     Args:
-        rider (ZsunRiderItem): The rider for whom the intensity factor is being calculated.
+        rider (ZsunItem): The rider for whom the intensity factor is being calculated.
         rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
 
     Returns:
@@ -324,17 +324,17 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunRiderIte
     return  safe_divide(rider_contribution.normalized_watts, rider.get_one_hour_watts())
 
 
-def calculate_upper_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_upper_bound_paceline_speed(riders: List[ZsunItem]) -> Tuple[ZsunItem, float, float]:
     """
     Determines the maxima of permitted pull speed among all standard pull durations of all riders.
     For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
     the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
     corresponding to the overall fastest speed found.
     Args:
-        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
+        riders (list[ZsunItem]): List of ZsunItem objects representing the riders.
     Returns:
-        Tuple[ZsunRiderItem, float, float]: A tuple containing:
-            - The ZsunRiderItem with the highest speed,
+        Tuple[ZsunItem, float, float]: A tuple containing:
+            - The ZsunItem with the highest speed,
             - The pull duration in seconds for which this maxima occurs,
             - The maxima speed in kph.
     """
@@ -357,7 +357,7 @@ def calculate_upper_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[Z
                 fastest_duration = duration
     return fastest_rider, fastest_duration, highest_speed
 
-def calculate_lower_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_lower_bound_paceline_speed(riders: List[ZsunItem]) -> Tuple[ZsunItem, float, float]:
     """
     Determines the minima permitted pull speed among all standard pull durations of all riders.
 
@@ -366,11 +366,11 @@ def calculate_lower_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[Z
     corresponding to the overall slowest speed found.
 
     Args:
-        riders (list[ZsunRiderItem]): List of ZsunRiderItem objects representing the riders.
+        riders (list[ZsunItem]): List of ZsunItem objects representing the riders.
 
     Returns:
-        Tuple[ZsunRiderItem, float, float]: A tuple containing:
-            - The ZsunRiderItem with the lowest speed,
+        Tuple[ZsunItem, float, float]: A tuple containing:
+            - The ZsunItem with the lowest speed,
             - The pull duration in seconds for which this minima occurs,
             - The minima speed in kph.
     """
@@ -396,7 +396,7 @@ def calculate_lower_bound_paceline_speed(riders: List[ZsunRiderItem]) -> Tuple[Z
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunItem]) -> Tuple[ZsunItem, float, float]:
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
     slowest_duration = 3600.0  # 1 hour in seconds
@@ -412,7 +412,7 @@ def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRiderItem]) -> Tuple[ZsunRiderItem, float, float]:
+def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunItem]) -> Tuple[ZsunItem, float, float]:
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
     fastest_duration = 3600.0  # 1 hour in seconds
@@ -427,7 +427,7 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunRide
     return fastest_rider, fastest_duration, highest_speed
 
 
-def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> float:
+def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
 
@@ -436,7 +436,7 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict
     from the calculation, as they did not perform a pull.
 
     Args:
-        rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
+        rider_contributions (DefaultDict[ZsunItem, RiderContributionItem]):
             A mapping of riders to their contribution data, including intensity factor and pull duration.
 
     Returns:
@@ -457,14 +457,14 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict
 
     return std_deviation_of_intensity_factors
 
-def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRiderItem]:
+def arrange_riders_in_optimal_order(riders: List[ZsunItem]) -> List[ZsunItem]:
     """
     Arrange the riders in an optimal order based on their strength metric.
 
     Riders are ranked according to their strength, from strongest to weakest. 
     The strongest rider is ranked 1, and the weakest rider is ranked n. 
     The strength of a rider is determined by the value returned from the 
-    `ZsunRiderItem.get_strength_wkg()` method.
+    `ZsunItem.get_strength_wkg()` method.
 
     To arrange the riders in optimal order, the riders are interleaved as follows:
     - The strongest rider is placed at the front (position 1).
@@ -474,17 +474,17 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
     - This pattern continues until all riders are placed.
 
     Args:
-        riders (List[ZsunRiderItem]): The list of riders to be arranged.
+        riders (List[ZsunItem]): The list of riders to be arranged.
 
     Returns:
-        List[ZsunRiderItem]: The list of riders arranged in the optimal interleaved order.
+        List[ZsunItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
     sorted_riders = sorted(riders, key=lambda rider: rider.get_strength_wkg(), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
-    optimal_order: List[ZsunRiderItem] = [None] * n  # type: ignore
+    optimal_order: List[ZsunItem] = [None] * n  # type: ignore
 
     # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
     front_idx = 0
@@ -501,14 +501,14 @@ def arrange_riders_in_optimal_order(riders: List[ZsunRiderItem]) -> List[ZsunRid
     return optimal_order
 
 
-def select_n_strongest_riders(riders: List[ZsunRiderItem], n : int) -> List[ZsunRiderItem]:
+def select_n_strongest_riders(riders: List[ZsunItem], n : int) -> List[ZsunItem]:
     if not riders:
         return []
 
     #sort riders according to 1 minute pull speed
     riders.sort(key=lambda r: r.get_strength_wkg(), reverse=True)
 
-    strong_riders: List[ZsunRiderItem] = []
+    strong_riders: List[ZsunItem] = []
 
     if len(riders) <= n:
         return riders
@@ -521,7 +521,7 @@ def select_n_strongest_riders(riders: List[ZsunRiderItem], n : int) -> List[Zsun
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
     pull_period_sequences_being_pruned: NDArray[np.float64],
-    riders: List[ZsunRiderItem]
+    riders: List[ZsunItem]
 ) -> NDArray[np.float64]:
     """
     Efficiently prunes a large set of paceline pull period sequences (pull period assignments) using empirical rules
@@ -538,7 +538,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
         pull_period_sequences_being_pruned (NDArray[np.float_]):
             2D NumPy array of candidate paceline pull period sequences, where each row is a sequence of pull periods (seconds)
             for each rider.
-        riders (List[ZsunRiderItem]):
+        riders (List[ZsunItem]):
             List of rider objects, used to determine rider strength order for filtering.
 
     Returns:
@@ -619,18 +619,18 @@ def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
     return all_combinations
 
 def main():
-    from handy_utilities import read_dict_of_zsunriderDTO
+    from handy_utilities import read_json_dict_of_ZsunDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     from computation_classes import PacelineIngredientsItem
 
 
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     params = PacelineIngredientsItem(
         riders_list                  = riders,

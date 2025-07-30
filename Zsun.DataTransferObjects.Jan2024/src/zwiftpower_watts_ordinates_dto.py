@@ -11,7 +11,7 @@ class EffortDTO(BaseModel):
     zid  : Optional[str] = ""   # Zwift ID
 
 # this class is used for inputting from DaveK source data. it only extracts the effort data. it leaves all the other stuff behind
-class ZwiftPowerWattsOrdinatesDTO(BaseModel):
+class ZwiftPowerWattsDTO(BaseModel):
     efforts : Optional[Union[Dict[str, List[EffortDTO]], Any]] = Field(default_factory=dict)  # Efforts dictionary
 
 def main():
@@ -38,8 +38,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerWattsOrdinatesDTO)
-            dto = cast(ZwiftPowerWattsOrdinatesDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerWattsDTO)
+            dto = cast(ZwiftPowerWattsDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

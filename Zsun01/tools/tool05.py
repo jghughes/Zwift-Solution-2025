@@ -1,7 +1,7 @@
 """
 This tool is for iterative development. It follows on from 
 Tool03, assuming that the methods and functions tested
-there all work correctly to generate a clean ZsunWattsPropertiesItem from
+there all work correctly to generate a clean ZsunWattsItem from
 ZwiftPower 90-day data from DaveK. The tool commences by repeating the steps
 of Tool03, which involves reading the raw ZwiftPower 90-day best power data.
 
@@ -18,14 +18,14 @@ ideal windows for datapoints for the three very-different
 inverse-exponential power curves is a bit of a black art. I did it
 by hand, using the chart produced by this tool hundreds of times! You can 
 see the windows I finally settled on in the static methods of the 
-ZsunWattsPropertiesItem where x-y data is exported for each of the three 
+ZsunWattsItem where x-y data is exported for each of the three 
 windows. The quality of the fit is measured by the 
 r-squared value, which is logged to the console. The tool logs a 
 summary of the fitted parameters and displays the power-graph for a 
 specified rider for visual inspection.
 
 The script performs the following steps:
-- Repeats everything that Tool03 does - thus to obtain ZsunWattsPropertiesItem
+- Repeats everything that Tool03 does - thus to obtain ZsunWattsItem
   for a small predefined subset of riders.
 - Selects a specific rider by Zwift ID for analysis.
 - Extracts power-duration data for three modeling zones: critical power
@@ -46,8 +46,8 @@ import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
-from zsun_rider_item import ZsunRiderItem
-from handy_utilities import read_dict_of_zsunriderDTO, get_test_IDs, read_many_zwiftpower_bestpower_files_in_folder
+from zsun_rider_item import ZsunItem
+from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs, read_zwiftpower_graph_watts_files
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
@@ -93,16 +93,16 @@ def main():
     zwiftID = davek
 
     # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    # ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-    # ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-    # ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
+    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
+    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
+    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
 
-    dict_of_zsun01_betel_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_zsun01_betel_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     betel_IDs = get_test_IDs()
 
-    dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     # model critical_power and w_prime
 
@@ -126,9 +126,9 @@ def main():
 
     # instantiate a power item to hold the results
 
-    pi = ZsunRiderItem(
+    pi = ZsunItem(
         zwift_id=zwiftID,
-        name=dict_of_zsun01_betel_zsunrideritems[zwiftID].name,
+        name=dict_of_zsun01_betel_ZsunItems[zwiftID].name,
         zsun_CP=critical_power,
         zsun_AWC=anaerobic_work_capacity,
         zsun_one_hour_curve_coefficient=coefficient_60min,
@@ -182,7 +182,7 @@ def main():
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
     plt.xlabel('Duration (minutes)')
     plt.ylabel('ZwiftPower 90-day best graph (Watts)')
-    plt.title(f'{dict_of_zsun01_betel_zsunrideritems[zwiftID].name}')
+    plt.title(f'{dict_of_zsun01_betel_ZsunItems[zwiftID].name}')
     # Set the x-axis and y-axis limits
     plt.xlim(0, lim_x)
     plt.ylim(0, lim_y)

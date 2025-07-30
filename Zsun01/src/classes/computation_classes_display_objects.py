@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from jgh_formatting import round_to_nearest_10, format_number_2dp
 from  jgh_number import safe_divide
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 from computation_classes import RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem
 from jgh_enums import PacelinePlanTypeEnum
 
@@ -44,7 +44,7 @@ class RiderContributionDisplayObject():
     pretty_effort_constraint_violation_reason     : str   = ""
 
     @staticmethod
-    def calculate_zwift_racing_score_cat(rider: ZsunRiderItem) -> str:
+    def calculate_zwift_racing_score_cat(rider: ZsunItem) -> str:
         if rider.zwift_zrs < 180:
             return "E"
         elif rider.zwift_zrs < 350:
@@ -57,20 +57,20 @@ class RiderContributionDisplayObject():
             return "A"
 
     @staticmethod
-    def calculate_zwiftracingapp_zpFTP_cat(rider: ZsunRiderItem)-> str:
+    def calculate_zwiftracingapp_zpFTP_cat(rider: ZsunItem)-> str:
         return rider.zwift_cat
 
     @staticmethod
-    def calculate_zwiftracingapp_zpFTP_wkg(rider: ZsunRiderItem)-> float:
+    def calculate_zwiftracingapp_zpFTP_wkg(rider: ZsunItem)-> float:
         return safe_divide(rider.zwiftracingapp_zpFTP,rider.weight_kg)
 
     @staticmethod
-    def make_pretty_zwiftracingapp_cat(rider: ZsunRiderItem) -> str:
+    def make_pretty_zwiftracingapp_cat(rider: ZsunItem) -> str:
 
         return f"{rider.zwiftracingapp_cat_num}-{rider.zwiftracingapp_cat_name}"
 
     @staticmethod
-    def make_pretty_consolidated_racing_cat_descriptor(rider: ZsunRiderItem) -> str:
+    def make_pretty_consolidated_racing_cat_descriptor(rider: ZsunItem) -> str:
         if rider.zwift_cat:
             answer = f"{rider.zwift_cat} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
         else:
@@ -78,13 +78,13 @@ class RiderContributionDisplayObject():
         return answer
 
     @staticmethod
-    def  make_pretty_zwiftracingapp_zpFTP_wkg(rider: ZsunRiderItem) -> str:
+    def  make_pretty_zwiftracingapp_zpFTP_wkg(rider: ZsunItem) -> str:
         xx = RiderContributionDisplayObject.calculate_zwiftracingapp_zpFTP_wkg(rider)
         return f"{format_number_2dp(xx)}wkg"
 
 
     @staticmethod
-    def make_pretty_pull(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
+    def make_pretty_pull(rider : ZsunItem, plan: RiderContributionItem) -> str:
 
         if plan.p1_duration == 0:
             return "            "
@@ -97,7 +97,7 @@ class RiderContributionDisplayObject():
         return f"{duration_str} {p1_w}"
 
     @staticmethod
-    def make_pretty_pull_suffix(rider : ZsunRiderItem, plan: RiderContributionItem) -> str:
+    def make_pretty_pull_suffix(rider : ZsunItem, plan: RiderContributionItem) -> str:
         if plan.p1_duration == 0:
             return "           "
             # return "   0wkg  0%"
@@ -116,7 +116,7 @@ class RiderContributionDisplayObject():
         return f"{pretty(p2_w)} {pretty(p3_w)} {pretty(p4_w)}"
 
     @staticmethod
-    def make_pretty_average_watts(rider : ZsunRiderItem, contribution: RiderContributionItem) -> str:
+    def make_pretty_average_watts(rider : ZsunItem, contribution: RiderContributionItem) -> str:
 
         av_wkg = rider.get_watts_per_kg(contribution.average_watts)
 
@@ -124,7 +124,7 @@ class RiderContributionDisplayObject():
 
 
     @staticmethod
-    def from_RiderContributionItem(rider : ZsunRiderItem, contribution: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
+    def from_RiderContributionItem(rider : ZsunItem, contribution: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
         if contribution is None:
             return RiderContributionDisplayObject()
         return RiderContributionDisplayObject(
@@ -162,11 +162,11 @@ class RiderContributionDisplayObject():
 
 
     @staticmethod
-    def from_RiderContributionItems(riders: DefaultDict[ZsunRiderItem, RiderContributionItem]) -> DefaultDict[ZsunRiderItem, "RiderContributionDisplayObject"]:
+    def from_RiderContributionItems(riders: DefaultDict[ZsunItem, RiderContributionItem]) -> DefaultDict[ZsunItem, "RiderContributionDisplayObject"]:
         if not riders:
             return DefaultDict(RiderContributionDisplayObject)
 
-        answer: DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = defaultdict(RiderContributionDisplayObject)
+        answer: DefaultDict[ZsunItem, RiderContributionDisplayObject] = defaultdict(RiderContributionDisplayObject)
 
         for rider, item in riders.items():
             rider_contribution_display_object = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
@@ -184,14 +184,14 @@ class PacelineComputationReportDisplayObject:
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    rider_contributions_display_objects          : DefaultDict[ZsunRiderItem, RiderContributionDisplayObject] = field(default_factory=lambda: defaultdict(RiderContributionDisplayObject))
+    rider_contributions_display_objects          : DefaultDict[ZsunItem, RiderContributionDisplayObject] = field(default_factory=lambda: defaultdict(RiderContributionDisplayObject))
 
     @staticmethod
     def from_PacelineComputationReportItem(report: Union[PacelineComputationReportItem, None]) -> "PacelineComputationReportDisplayObject":
         if report is None:
             return PacelineComputationReportDisplayObject()
 
-        rider_contributions_display_objects : DefaultDict[ZsunRiderItem, RiderContributionDisplayObject]  = RiderContributionDisplayObject.from_RiderContributionItems(report.rider_contributions) if report.rider_contributions else defaultdict(RiderContributionDisplayObject)
+        rider_contributions_display_objects : DefaultDict[ZsunItem, RiderContributionDisplayObject]  = RiderContributionDisplayObject.from_RiderContributionItems(report.rider_contributions) if report.rider_contributions else defaultdict(RiderContributionDisplayObject)
         
         answer = PacelineComputationReportDisplayObject(
             guid                                        = report.guid,

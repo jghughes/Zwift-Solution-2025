@@ -44,7 +44,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
 
@@ -52,26 +52,26 @@ def main():
     betel_IDs = get_test_IDs()
     # betel_IDs = ['4945836'] # david_evanetich
 
-    dict_of_profiles_for_everybody = read_many_zwift_profile_files_in_folder(betel_IDs, ZWIFT_PROFILES_DIRPATH) # merely need this to get the first and last names of the riders
+    dict_of_profiles_for_everybody = read_zwift_files(betel_IDs, ZWIFT_DIRPATH) # merely need this to get the first and last names of the riders
 
-    dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH) # read all the raw 90-day best power files for the riders in betel_IDs
+    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH) # read all the raw 90-day best power files for the riders in betel_IDs
 
     OUTPUT_FILE_NAME = "jghbestpoweritems_for_betel.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
-    write_dict_of_zsunwattspropertiesItem(dict_of_jghbestpoweritems_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_json_dict_of_ZsunWattsItem(dict_of_jghbestpoweritems_for_betel, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
     from tabulate import tabulate
 
     # log all the x and y data for all riders in pretty tables
 
-    for zwiftID, ZsunWattsPropertiesItem in dict_of_jghbestpoweritems_for_betel.items():
+    for zwiftID, ZsunWattsItem in dict_of_jghbestpoweritems_for_betel.items():
         name = dict_of_profiles_for_everybody[zwiftID].first_name + " " + dict_of_profiles_for_everybody[zwiftID].last_name
-        x_y_ordinates = ZsunWattsPropertiesItem.export_all_x_y_ordinates()  # Export critical power data as a dictionary
+        x_y_ordinates = ZsunWattsItem.export_all_x_y_ordinates()  # Export critical power data as a dictionary
         table_data = [[x, y] for x, y in x_y_ordinates.items()]  # Convert dictionary to a list of [x, y] pairs
         table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
 
-        logger.info(f"ZsunWattsPropertiesItem ordinates for ZwiftID: {zwiftID}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
+        logger.info(f"ZsunWattsItem ordinates for ZwiftID: {zwiftID}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
 
 
 

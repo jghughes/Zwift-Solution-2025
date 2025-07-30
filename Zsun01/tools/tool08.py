@@ -1,6 +1,9 @@
 """
 This monster tool is not used directly in the Brute production
-pipeline. I wrote this tool to investigate and compare and find
+pipeline. The output file from this tool08 is the input file 
+for tool12.py.
+
+I wrote this tool to investigate and compare and find
 correlations between raw and synthetic power data and Zwift's
 inscrutable zFTP metric. I am not remotely concerned with pull power
 curve modelling in this tool, only one-hour power curve modelling.
@@ -11,8 +14,8 @@ between zFTP and 40-minute power, 60-minute power, and 90-day best
 power data.
 
 The monster tool incorporates all the tested and proven steps in the
-previous tools. It repeats them, operating on all the files scraped by
-DaveK from all sources, namely Zwift, ZwiftPower, and ZwiftRacingApp.
+previous tools. It repeats them, operating on the thousands of files 
+scraped by DaveK from Zwift, ZwiftPower, and ZwiftRacingApp.
 It performs automated power curve modeling and dataset generation for
 the entire set of Zwift riders using their 90-day best power data. In
 the April 2025 dataset there were 1,515 riders in the club, and this
@@ -31,11 +34,11 @@ power data in the special purpose RegressionModellingItem for each
 rider.
 
 Note that this is the earliest tool in which we see the heap powerful
-ScrapedZwiftDataRepository class in action. Its .populate() method is
+RepositoryForScrapedDataFromDaveK class in action. Its .populate() method is
 used in the production pipeline in Brute to load all the Zwift
 profiles, ZwiftPower profiles, and ZwiftPower 90-day power data from
 all files for all riders in one fell swoop and output a JSON dictionary
-of ZsunRiderItems that can be copied manually in the data folder of
+of ZsunItems that can be copied manually in the data folder of
 Zsun01 in production. The repository has been extensively debugged.
 
 The script performs the following steps:
@@ -61,45 +64,38 @@ of Pandas for creating, merging, and writing tabular data as .csv files
 for Excel.
 """
 
-from handy_utilities import *
-from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
+import numpy as np
 from datetime import datetime
+import logging
+from handy_utilities import read_zwift_files, read_zwiftpower_graph_watts_files, write_json_dict_of_regressionmodellingItem
+from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from jgh_read_write import write_pandas_dataframe_as_xlsx
-from scraped_zwift_data_repository import ScrapedZwiftDataRepository
+from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
 from computation_classes import CurveFittingResultItem
 from regression_modelling_item import RegressionModellingItem
 
-
 def main():
-    # configure logging
-
-    import logging
-    import numpy as np
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-
-    # get all the data
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
     minimum_required_r_squared_fit_for_one_hour_power_curve = .90
 
-    OUTPUT_FILENAME_EXCEL = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.xlsx"
-    OUTPUT_FILENAME_JSON = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.json"
+    # output destination for results - the input ingested by tool12.py
+    REGRESSION_FILENAME_EXCEL = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
+    REGRESSION_FILENAME_JSON = "dataset_for_linear_regression_investigations_using_sklearn.json"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
+    # get all the raw input data from DaveK's scraping of Zwift, ZwiftPower, and ZwiftRacingApp - thousands of files
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+ 
     sample_IDs = None
     # sample_IDs = get_test_IDs()
 
-    dict_of_zwift_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
+    dict_of_zwift_profiles_for_everybody = read_zwift_files(sample_IDs, ZWIFT_DIRPATH)
 
-    dict_of_bestpower_for_everybody = read_many_zwiftpower_bestpower_files_in_folder(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
-    logger.info(f"Successfully read, validated, and loaded {len(dict_of_bestpower_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
+    logger.info(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
     # create a list of zwiftrider objects from the raw data
 
@@ -115,23 +111,23 @@ def main():
 
     power_curves_for_everybody : dict[str, CurveFittingResultItem] = {}
 
-    for my_zwiftID, my_jghbestpoweritem in dict_of_bestpower_for_everybody.items():
+    for my_zwiftID, my_zsunwattsgraphitem in dict_of_zsun_watts_graphs_for_everybody.items():
 
-        my_jghbestpoweritem.zwift_id = my_zwiftID
+        my_zsunwattsgraphitem.zwift_id = my_zwiftID
 
         total_count += 1
 
         # skip riders with no data
-        datapoints = my_jghbestpoweritem.export_all_x_y_ordinates()
+        datapoints = my_zsunwattsgraphitem.export_all_x_y_ordinates()
 
         if not datapoints:
-            logger.warning(f"ZwiftID {my_jghbestpoweritem.zwift_id} has no datapoints")
+            logger.warning(f"ZwiftID {my_zsunwattsgraphitem.zwift_id} has no datapoints")
             skipped_modelling_count += 1
             continue
 
         #skip riders where all the datapoints are zero
         if all(value == 0 for value in datapoints.values()):
-            logger.warning(f"ZwiftID {my_jghbestpoweritem.zwift_id} has empty data")
+            logger.warning(f"ZwiftID {my_zsunwattsgraphitem.zwift_id} has empty data")
             skipped_modelling_count += 1
             continue
         
@@ -139,13 +135,13 @@ def main():
 
         # obtain raw xy data for the various ranges - critical_power, pull, and ftp
 
-        raw_xy_data_cp = my_jghbestpoweritem.export_x_y_ordinates_for_cp_w_prime_modelling()
-        raw_xy_data_pull = my_jghbestpoweritem.export_x_y_ordinates_for_pull_zone_modelling()
-        raw_xy_data_one_hour = my_jghbestpoweritem.export_x_y_ordinates_for_one_hour_zone_modelling()
+        raw_xy_data_cp = my_zsunwattsgraphitem.export_x_y_ordinates_for_cp_w_prime_modelling()
+        raw_xy_data_pull = my_zsunwattsgraphitem.export_x_y_ordinates_for_pull_zone_modelling()
+        raw_xy_data_one_hour = my_zsunwattsgraphitem.export_x_y_ordinates_for_one_hour_zone_modelling()
 
         # skip riders where any of the three datasets contain less than 5 points
         if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < 5 or len(raw_xy_data_one_hour) < 5:
-            logger.warning(f"ZwiftID {my_jghbestpoweritem.zwift_id} has insufficient data for curve fitting")
+            logger.warning(f"ZwiftID {my_zsunwattsgraphitem.zwift_id} has insufficient data for curve fitting")
             skipped_modelling_count += 1
             continue
 
@@ -175,9 +171,9 @@ def main():
             AWC=round((anaerobic_work_capacity / 1_000.0), 1),
             when_curves_fitted=datetime.now().isoformat()  # Add timestamp
         )
-        power_curves_for_everybody[str(my_jghbestpoweritem.zwift_id)] = curve
+        power_curves_for_everybody[str(my_zsunwattsgraphitem.zwift_id)] = curve
 
-        # log results for my_jghbestpoweritem
+        # log results for my_zsunwattsgraphitem
 
         summary_cp_w_prime  =  f"Zsun CP = {round(critical_power)}W  AWC = {round(anaerobic_work_capacity/1_000)}kJ"
         summary_pull = f"TTT pull power (30 - 60 - 120 seconds) = {round(pull_short[0])} - {round(pull_medium[0])} - {round(pull_long[0])}W"
@@ -190,10 +186,10 @@ def main():
 
         if r_squared_one_hour >= minimum_required_r_squared_fit_for_one_hour_power_curve:
         # if r_squared_pull >= minimum_required_r_squared_fit_for_one_hour_power_curve and r_squared_one_hour >= minimum_required_r_squared_fit_for_one_hour_power_curve:
-            zwiftIds_with_high_fidelity.append(my_jghbestpoweritem.zwift_id)
+            zwiftIds_with_high_fidelity.append(my_zsunwattsgraphitem.zwift_id)
             count_of_riders_with_high_fidelity_models += 1
         else:
-            zwiftids_with_low_fidelity.append(my_jghbestpoweritem.zwift_id)
+            zwiftids_with_low_fidelity.append(my_zsunwattsgraphitem.zwift_id)
             count_of_riders_with_low_fidelity_models += 1
 
         valid_count += 1
@@ -209,7 +205,7 @@ def main():
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwift_id in zwiftIds_with_high_fidelity:
         logger.info(f"ZwiftID {zwift_id} {dict_of_zwift_profiles_for_everybody[zwift_id].first_name} {dict_of_zwift_profiles_for_everybody[zwift_id].last_name}")
-        # betel = read_dict_of_test_zsunriderDTO(zwift_id)
+        # betel = get_test_ZsunDTO(zwift_id)
         # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
     logger.info(f"\nTotal in sample : {total_count} Total valid: {valid_count} Total excellent one hr r2: {count_of_riders_with_high_fidelity_models} % excellent/valid: {round(count_of_riders_with_high_fidelity_models *100/valid_count)}%\n")
@@ -233,19 +229,19 @@ def main():
 
     # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
 
-    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
+    repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-    dict_of_zsunriderItems : defaultdict[str, ZsunRiderItem] = repository.get_dict_of_ZsunRiderItem(zwiftIds_with_high_fidelity)
-    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunWattsPropertiesItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
+    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    dict_of_ZsunItems : defaultdict[str, ZsunItem] = repository.get_dict_of_ZsunItem(zwiftIds_with_high_fidelity)
+    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunWattsItem] = repository.get_dict_of_ZsunWattsItem(zwiftIds_with_high_fidelity)
     
     
     dict_of_riders_with_high_fidelity : defaultdict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)
 
     for ID in zwiftIds_with_high_fidelity:
         zwift = dict_of_zwift_profiles_for_everybody[ID]
-        zsun = dict_of_zsunriderItems[ID]
+        zsun = dict_of_ZsunItems[ID]
         zp_90day_best = dict_of_zp_90day_graph_watts[ID]
         dict_of_riders_with_high_fidelity[ID] = RegressionModellingItem(
             zwift_id                   = ID,
@@ -284,13 +280,20 @@ def main():
     df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
 
-    write_pandas_dataframe_as_xlsx(df3, OUTPUT_FILENAME_EXCEL, OUTPUT_DIRPATH)
-    logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{OUTPUT_FILENAME_EXCEL}\n")
+    write_pandas_dataframe_as_xlsx(df3, REGRESSION_FILENAME_EXCEL, OUTPUT_DIRPATH)
+    logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{REGRESSION_FILENAME_EXCEL}\n")
 
 
-    write_dict_of_regressionmodellingItem(dict_of_riders_with_high_fidelity, OUTPUT_FILENAME_JSON, OUTPUT_DIRPATH)
+    write_json_dict_of_regressionmodellingItem(dict_of_riders_with_high_fidelity, REGRESSION_FILENAME_JSON, OUTPUT_DIRPATH)
 
 if __name__ == "__main__":
+    # configure logging
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+
     main()
 
 

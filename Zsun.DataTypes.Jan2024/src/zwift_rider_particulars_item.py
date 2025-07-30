@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from zwift_rider_particulars_dto import ZwiftRiderParticularsDTO, CompetitionMetricsDTO
+from zwift_rider_particulars_dto import ZwiftDTO, CompetitionMetricsDTO
 
 @dataclass
 class CompetitionMetricsItem:
@@ -31,7 +31,7 @@ class CompetitionMetricsItem:
         )
 
 @dataclass
-class ZwiftRiderParticularsItem:
+class ZwiftItem:
     zwift_id                  : str  = ""
     public_id                 : str  = ""
     first_name                : str  = ""
@@ -44,10 +44,10 @@ class ZwiftRiderParticularsItem:
     competitionMetrics        : CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZwiftRiderParticularsDTO]) -> "ZwiftRiderParticularsItem":
+    def from_dataTransferObject(dto: Optional[ZwiftDTO]) -> "ZwiftItem":
         if dto is None:
-            return ZwiftRiderParticularsItem()
-        return ZwiftRiderParticularsItem(
+            return ZwiftItem()
+        return ZwiftItem(
             zwift_id                  = dto.zwift_id or "",
             public_id                 = dto.public_id or "",
             first_name                = dto.first_name or "",
@@ -61,10 +61,10 @@ class ZwiftRiderParticularsItem:
         )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["ZwiftRiderParticularsItem"]) -> ZwiftRiderParticularsDTO:
+    def to_dataTransferObject(item: Optional["ZwiftItem"]) -> ZwiftDTO:
         if item is None:
-            return ZwiftRiderParticularsDTO()
-        return ZwiftRiderParticularsDTO(
+            return ZwiftDTO()
+        return ZwiftDTO(
             zwift_id                  = item.zwift_id,
             public_id                 = item.public_id,
             first_name                = item.first_name,

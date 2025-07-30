@@ -1,6 +1,6 @@
 """
 This tool is not used directly in the Brute production pipeline. I wrote
-this tool to develop a dictionary of minimally-valid ZsunRiderItem and
+this tool to develop a dictionary of minimally-valid ZsunItem and
 save it to Excel for eyeballing. In tool08 my focus was on exploring a
 suitable value to cut-off poor curve fits. In this tool09, I couldn't
 care less about the quality of curve fits; instead I am concerned about
@@ -8,7 +8,7 @@ filtering and selecting riders who are deemed to be recently active
 racers regardless of their curve fits.
 
 I went to a lot of trouble to write methods in the
-ScrapedZwiftDataRepository that return unions/intersections as subsets
+RepositoryForScrapedDataFromDaveK that return unions/intersections as subsets
 of power data from Zwift, ZwiftPower, and ZwiftRacingApp profiles
 respectively in order to discover and fine tune how many riders are or
 are not common to any two or three of them and to get to the bottom of
@@ -40,7 +40,7 @@ The script performs the following steps:
   sources.
 - Retrieves and applies precomputed power curve fitting results for
   each rider.
-- Constructs a unified rider data object (ZsunRiderItem) for each
+- Constructs a unified rider data object (ZsunItem) for each
   member, combining demographic, performance, and modeled metrics.
 - Exports the full set of rider profiles to Excel for further analysis.
 - Filters the dataset to include only recently active riders (based on
@@ -61,8 +61,8 @@ from jgh_sanitise_string import cleanup_name_string
 from handy_utilities import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import decay_model_numpy
-from zsun_rider_item import ZsunRiderItem
-from scraped_zwift_data_repository import ScrapedZwiftDataRepository
+from zsun_rider_item import ZsunItem
+from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
 
 import logging
 from jgh_logging import jgh_configure_logging
@@ -74,19 +74,19 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages,
 def main():
   
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-    ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
-    repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
-    repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
+    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     zwift_ids = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
-    dict_of_curve_fits = repository.get_dict_of_CurveFittingResult(None)
+    dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(None)
 
-    logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerRiderParticularsItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     zwift_profiles = [
@@ -101,11 +101,11 @@ def main():
     df.to_excel(output_file_path, index=False, engine="openpyxl")
     logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
-    answer_dict : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
+    answer_dict : dict[str, ZsunItem] = dict[str, ZsunItem]()
 
     for key in repository.dict_of_ZwiftProfileItem:
         zwift = repository.dict_of_ZwiftProfileItem[key]
-        zwiftpower = repository.dict_of_ZwiftPowerRiderParticularsItem[key]
+        zwiftpower = repository.dict_of_ZwiftPowerItem[key]
         zwiftracingapp = repository.dict_of_ZwiftrRacingAppProfileItem[key]
 
         if key in repository.dict_of_ZwiftrRacingAppProfileItem:
@@ -120,7 +120,7 @@ def main():
         one_hour_watts =  p60[0]
 
 
-        zwift = ZsunRiderItem(
+        zwift = ZsunItem(
             zwift_id                          = zwift.zwift_id,
             name                              = cleanup_name_string(name),
             weight_kg                         = round((safe_divide(zwift.weight_grams, 1_000.0)), 1),

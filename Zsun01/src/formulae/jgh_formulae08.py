@@ -9,7 +9,7 @@ from jgh_string import first_n_chars
 from jgh_formatting import (truncate, format_number_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem, WorthyCandidateSolutionItem)
 from computation_classes_display_objects import PacelineSolutionsComputationReportDisplayObject
 from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_sequences_of_pull_periods_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effort)
@@ -30,7 +30,7 @@ logging.getLogger("numba").setLevel(logging.ERROR)
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
 # THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE.
 
-def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunRiderItem], logger: logging.Logger):
+def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunItem], logger: logging.Logger):
 
     upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_paceline_speed(riders)
     upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
@@ -77,11 +77,11 @@ def log_workload_suffix_message(report : PacelineSolutionsComputationReportDispl
 
 
 def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
-    riders:                        List[ZsunRiderItem],
+    riders:                        List[ZsunItem],
     standard_pull_periods_seconds: List[float],
     pull_speeds_kph:               List[float],
     max_exertion_intensity_factor: float
-) -> Tuple[float, DefaultDict[ZsunRiderItem, RiderContributionItem]]:
+) -> Tuple[float, DefaultDict[ZsunItem, RiderContributionItem]]:
     """
     Computes the contributions of each rider in a single paceline solution.
 
@@ -90,7 +90,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     It returns the overall average speed of the paceline and a mapping of each rider to their computed contribution.
 
     Args:
-        riders: List of ZsunRiderItem objects representing the riders in the paceline.
+        riders: List of ZsunItem objects representing the riders in the paceline.
         standard_pull_periods_seconds: List of pull durations (in seconds) for each rider.
         pull_speeds_kph: List of target pull speeds (in kph) for each rider.
         max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
@@ -98,7 +98,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     Returns:
         Tuple containing:
             - overall_av_speed_of_paceline (float): The computed average speed of the paceline (kph).
-            - dict_of_rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]):
+            - dict_of_rider_contributions (DefaultDict[ZsunItem, RiderContributionItem]):
                 Mapping of each rider to their computed RiderContributionItem, including effort metrics and constraint violations.
     """
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
@@ -127,7 +127,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     Args:
         paceline_ingredients: PacelineIngredientsItem
             An object containing all necessary parameters for the paceline computation, including:
-                - riders_list: List of ZsunRiderItem objects representing the riders.
+                - riders_list: List of ZsunItem objects representing the riders.
                 - sequence_of_pull_periods_sec: List of pull durations (in seconds) for each rider.
                 - pull_speeds_kph: List of initial pull speeds (in kph).
                 - max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
@@ -137,7 +137,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
             - algorithm_ran_to_completion (bool): Whether the binary search completed within the permitted iterations.
             - compute_iterations_performed_count (int): Number of iterations performed during the search.
             - calculated_average_speed_of_paceline_kph (float): The computed average speed of the paceline (kph).
-            - rider_contributions (DefaultDict[ZsunRiderItem, RiderContributionItem]): Mapping of each rider to their computed contribution,
+            - rider_contributions (DefaultDict[ZsunItem, RiderContributionItem]): Mapping of each rider to their computed contribution,
               including effort metrics and any constraint violations.
 
     Notes:
@@ -153,7 +153,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     num_riders = len(riders)
 
     compute_iterations_performed: int = 0 # Number of iterations performed in the binary search, part of the answer
-    dict_of_rider_contributions: DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- part of the answer
+    dict_of_rider_contributions: DefaultDict[ZsunItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # <-- part of the answer
 
     # Initial parameters used to determine a safe upper_bound for the binary search
     lower_bound_for_next_search_iteration_kph = lowest_conceivable_kph
@@ -881,7 +881,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
 
 def main01():
-    from handy_utilities import read_dict_of_zsunriderDTO
+    from handy_utilities import read_json_dict_of_ZsunDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     import pandas as pd
@@ -889,11 +889,11 @@ def main01():
     import matplotlib.pyplot as plt
 
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
@@ -958,15 +958,15 @@ def main01():
 
 
 def main02():
-    from handy_utilities import read_dict_of_zsunriderDTO
+    from handy_utilities import read_json_dict_of_ZsunDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     params = PacelineIngredientsItem(
         riders_list                  = riders,

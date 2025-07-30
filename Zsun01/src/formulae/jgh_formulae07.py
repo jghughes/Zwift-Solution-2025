@@ -5,7 +5,7 @@ from jgh_formatting import format_number_1dp, format_number_comma_separators
 from paceline_plan_display_ingredients import DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS
 from html_css import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
 import logging
 
@@ -235,26 +235,26 @@ def main() -> None:
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
-    from zsun_rider_dto import ZsunRiderDTO
+    from zsun_rider_dto import ZsunDTO
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
-        # ZsunRiderItem.Config.json_schema_extra["meridithl"],
-        ZsunRiderItem.Config.json_schema_extra["melissaw"],
-        ZsunRiderItem.Config.json_schema_extra["richardm"],
-        # ZsunRiderItem.Config.json_schema_extra["davek"],
-        # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-        # ZsunRiderItem.Config.json_schema_extra["scottm"],
-        ZsunRiderItem.Config.json_schema_extra["johnh"],
-        # ZsunRiderItem.Config.json_schema_extra["joshn"],
-        # ZsunRiderItem.Config.json_schema_extra["brent"],
-        # ZsunRiderItem.Config.json_schema_extra["coryc"],
-        # ZsunRiderItem.Config.json_schema_extra["davide"],
+        # ZsunItem.Config.json_schema_extra["meridithl"],
+        ZsunItem.Config.json_schema_extra["melissaw"],
+        ZsunItem.Config.json_schema_extra["richardm"],
+        # ZsunItem.Config.json_schema_extra["davek"],
+        # ZsunItem.Config.json_schema_extra["huskyc"],
+        # ZsunItem.Config.json_schema_extra["scottm"],
+        ZsunItem.Config.json_schema_extra["johnh"],
+        # ZsunItem.Config.json_schema_extra["joshn"],
+        # ZsunItem.Config.json_schema_extra["brent"],
+        # ZsunItem.Config.json_schema_extra["coryc"],
+        # ZsunItem.Config.json_schema_extra["davide"],
     ]
 
-    # Convert example data to ZsunRiderItem instances
+    # Convert example data to ZsunItem instances
     riders = [
-        ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
+        ZsunItem.from_dataTransferObject(ZsunDTO.model_validate(data))
         for data in example_riders_data
     ]
 

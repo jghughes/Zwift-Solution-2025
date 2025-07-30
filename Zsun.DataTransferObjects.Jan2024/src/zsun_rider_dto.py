@@ -13,7 +13,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-class ZsunRiderDTO(BaseModel):
+class ZsunDTO(BaseModel):
     model_config                     = preferred_config_dict
     zwift_id                         : Optional[str]   = ""    # Zwift ID of the rider
     name                             : Optional[str]   = ""    # Name of the rider
@@ -59,7 +59,7 @@ def main02():
     data = json.loads(input_json)
 
     # Validate and serialize
-    rider = ZsunRiderDTO(**data)
+    rider = ZsunDTO(**data)
     print(rider)  # Check the validated model
     print(rider.model_dump())  # Check the serialized output
 

@@ -4,7 +4,7 @@ from typing import Optional, List, Union
 from dataclasses import dataclass, field
 from typing import DefaultDict, Optional
 from collections import defaultdict
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 
 @dataclass
 class CurveFittingResultItem:
@@ -56,7 +56,7 @@ class RiderContributionItem():
 
 @dataclass
 class PacelineIngredientsItem:
-    riders_list                  : List[ZsunRiderItem] = field(default_factory=list)
+    riders_list                  : List[ZsunItem] = field(default_factory=list)
     sequence_of_pull_periods_sec : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)
     max_exertion_intensity_factor: float               = 0.95 # Default to 95% of one hour power, can be overridden by caller
@@ -70,7 +70,7 @@ class PacelineComputationReportItem:
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    rider_contributions                         : DefaultDict[ZsunRiderItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
+    rider_contributions                         : DefaultDict[ZsunItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 
 @dataclass

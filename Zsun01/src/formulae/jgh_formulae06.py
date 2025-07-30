@@ -1,8 +1,8 @@
 from typing import List, Tuple, DefaultDict
 from collections import defaultdict
 from jgh_number import safe_divide
-from zsun_rider_dto import ZsunRiderDTO
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_dto import ZsunDTO
+from zsun_rider_item import ZsunItem
 from computation_classes import RiderExertionItem, RiderContributionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
 
@@ -10,7 +10,7 @@ import logging
 
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> DefaultDict[ZsunRiderItem, RiderContributionItem]:
+def populate_rider_contributions(riders: DefaultDict[ZsunItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> DefaultDict[ZsunItem, RiderContributionItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
@@ -48,7 +48,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
 
         return p1_speed_kph, p1_duration
  
-    answer : DefaultDict[ZsunRiderItem, RiderContributionItem] = defaultdict(RiderContributionItem)
+    answer : DefaultDict[ZsunItem, RiderContributionItem] = defaultdict(RiderContributionItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
@@ -84,7 +84,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunRiderItem, List[RiderEx
     return answer
 
 
-def log_rider_contributions(test_description: str, result: DefaultDict[ZsunRiderItem, RiderContributionItem], logger: logging.Logger) -> None:
+def log_rider_contributions(test_description: str, result: DefaultDict[ZsunItem, RiderContributionItem], logger: logging.Logger) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -129,22 +129,22 @@ def main() -> None:
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
-        # ZsunRiderItem.Config.json_schema_extra["meridithl"],
-        ZsunRiderItem.Config.json_schema_extra["melissaw"],
-        ZsunRiderItem.Config.json_schema_extra["richardm"],
-        # ZsunRiderItem.Config.json_schema_extra["davek"],
-        # ZsunRiderItem.Config.json_schema_extra["huskyc"],
-        # ZsunRiderItem.Config.json_schema_extra["scottm"],
-        ZsunRiderItem.Config.json_schema_extra["johnh"],
-        # ZsunRiderItem.Config.json_schema_extra["joshn"],
-        # ZsunRiderItem.Config.json_schema_extra["brent"],
-        # ZsunRiderItem.Config.json_schema_extra["coryc"],
-        # ZsunRiderItem.Config.json_schema_extra["davide"],
+        # ZsunItem.Config.json_schema_extra["meridithl"],
+        ZsunItem.Config.json_schema_extra["melissaw"],
+        ZsunItem.Config.json_schema_extra["richardm"],
+        # ZsunItem.Config.json_schema_extra["davek"],
+        # ZsunItem.Config.json_schema_extra["huskyc"],
+        # ZsunItem.Config.json_schema_extra["scottm"],
+        ZsunItem.Config.json_schema_extra["johnh"],
+        # ZsunItem.Config.json_schema_extra["joshn"],
+        # ZsunItem.Config.json_schema_extra["brent"],
+        # ZsunItem.Config.json_schema_extra["coryc"],
+        # ZsunItem.Config.json_schema_extra["davide"],
     ]
 
-    # Convert example data to ZsunRiderItem instances
+    # Convert example data to ZsunItem instances
     riders = [
-        ZsunRiderItem.from_dataTransferObject(ZsunRiderDTO.model_validate(data))
+        ZsunItem.from_dataTransferObject(ZsunDTO.model_validate(data))
         for data in example_riders_data
     ]
 

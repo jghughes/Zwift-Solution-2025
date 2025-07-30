@@ -1,8 +1,8 @@
 import concurrent.futures
 import os
-from zsun_rider_item import ZsunRiderItem
+from zsun_rider_item import ZsunItem
 from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
-from handy_utilities import read_dict_of_zsunriderDTO
+from handy_utilities import read_json_dict_of_ZsunDTO
 from teams import get_team_riderIDs
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
@@ -39,13 +39,13 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
-    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     riderIDs = get_team_riderIDs("betel")
 
-    riders: list[ZsunRiderItem] = []
+    riders: list[ZsunItem] = []
     for riderID in riderIDs:
-        riders.append(dict_of_zsunrideritems[riderID])
+        riders.append(dict_of_ZsunItems[riderID])
 
     rider_permutations = generate_rider_permutations(riders)
     logger.info(f"Ranking the speed of {len(rider_permutations)} variations in the circulation order of {len(riders)} riders...\n")

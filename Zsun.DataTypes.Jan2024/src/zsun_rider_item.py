@@ -2,11 +2,11 @@ from dataclasses import dataclass,  asdict
 from typing import Optional
 import numpy as np
 from jgh_number import safe_divide
-from zsun_rider_dto import ZsunRiderDTO 
+from zsun_rider_dto import ZsunDTO 
 from jgh_power_curve_fit_models import decay_model_numpy
 
 @dataclass(frozen=True, eq=True)  # immutable and hashable, we use this as a dictionary key everywhere
-class ZsunRiderItem:
+class ZsunItem:
     """
     A frozen data class representing a Zwift rider.
     Can be used as a cache key or dictionary key, or in a set.
@@ -383,9 +383,9 @@ class ZsunRiderItem:
     @staticmethod
     def create(zwiftid: str, name: str, weight_kg: float, height_cm: float, gender: str, 
         zwiftpower_zFTP: float, zwift_zrs: int, zwiftracingapp_cat_num: int
-    ) -> 'ZsunRiderItem':
+    ) -> 'ZsunItem':
         """
-        Create a ZsunRiderItem instance with the given parameters
+        Create a ZsunItem instance with the given parameters
 
         Args:
            zwift_id            (int)  : The Zwift ID of the rider.
@@ -398,10 +398,10 @@ class ZsunRiderItem:
             zwiftracingapp_cat_num        (int)  : Velo rating.
     
         Returns:
-            ZsunRiderItem: A ZsunRiderItem instance with the given parameters.
+            ZsunItem: A ZsunItem instance with the given parameters.
         """
 
-        instance = ZsunRiderItem(
+        instance = ZsunItem(
             zwift_id=zwiftid,
             name=name,
             weight_kg=weight_kg,
@@ -534,10 +534,10 @@ class ZsunRiderItem:
         return self.zsun_when_curves_fitted
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["ZsunRiderItem"]) -> ZsunRiderDTO:
+    def to_dataTransferObject(item: Optional["ZsunItem"]) -> ZsunDTO:
         if item is None:
-            return ZsunRiderDTO()
-        return ZsunRiderDTO(
+            return ZsunDTO()
+        return ZsunDTO(
             zwift_id                          = item.zwift_id,
             name                              = item.name,
             weight_kg                         = item.weight_kg,
@@ -567,10 +567,10 @@ class ZsunRiderItem:
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZsunRiderDTO]) -> "ZsunRiderItem":
+    def from_dataTransferObject(dto: Optional[ZsunDTO]) -> "ZsunItem":
         if dto is None:
-            return ZsunRiderItem()
-        return ZsunRiderItem(
+            return ZsunItem()
+        return ZsunItem(
             zwift_id                          = dto.zwift_id or "",
             name                              = dto.name or "",
             weight_kg                         = dto.weight_kg or 0.0,
@@ -610,11 +610,11 @@ def main():
     from tabulate import tabulate
     from typing import List, Union
 
-    # # example: Instantiate ZsunRiderItem using the example from Config 
+    # # example: Instantiate ZsunItem using the example from Config 
     # # i.e.how we could do it from a JSON file
-    example_data = ZsunRiderItem.Config.json_schema_extra["johnh"]
-    example_rider = ZsunRiderDTO.model_validate(example_data)
-    rider1 = ZsunRiderItem.from_dataTransferObject(example_rider)
+    example_data = ZsunItem.Config.json_schema_extra["johnh"]
+    example_rider = ZsunDTO.model_validate(example_data)
+    rider1 = ZsunItem.from_dataTransferObject(example_rider)
 
     # Log the instantiated object using a table
     rider_attrs = asdict(rider1)    
