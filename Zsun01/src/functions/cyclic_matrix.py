@@ -43,12 +43,12 @@ def main():
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    from handy_utilities import read_dict_of_zsunriderItems
+    from handy_utilities import read_dict_of_zsunriderDTO
 
-    RIDERDATA_FILE_NAME = "betel_ZsunRiderItems.json"
+    RIDERDATA_FILE_NAME = "test_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
-    dict_of_zwiftrideritem = read_dict_of_zsunriderItems(RIDERDATA_FILE_NAME, DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_dict_of_zsunriderDTO(RIDERDATA_FILE_NAME, DATA_DIRPATH)
 
     barryb : ZsunRiderItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZsunRiderItem = dict_of_zwiftrideritem['1884456'] # johnh

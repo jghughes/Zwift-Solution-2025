@@ -619,7 +619,7 @@ def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
     return all_combinations
 
 def main():
-    from handy_utilities import read_dict_of_zsunriderItems
+    from handy_utilities import read_dict_of_zsunriderDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     from computation_classes import PacelineIngredientsItem
@@ -628,7 +628,7 @@ def main():
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
     riders = [dict_of_zsunrideritems[rid] for rid in riderIDs]
 

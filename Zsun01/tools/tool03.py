@@ -10,12 +10,12 @@ translates them into the equivalent output ZsunBestPowerItems, and then writes
 the cleaned data to a new JSON dictionary file keyed by ZwiftID.
 ZsunBestPowerItems contain the best power data for each rider, which is used in
 the Zsun application. Each power-graph is a dict of 99 data-points from 1
-second to 7200 seconds. Each ZsunBestPowerItem does not feature a list in the
+second to 7200 seconds. Each ZsunWattsPropertiesItem does not feature a list in the
 same way. It features 99 matching named properties. The meat of the tool is in
 the way we convert the input_data for each rider (Dict[int, float]): A
 dictionary where keys are durations (in seconds) and values are the
 corresponding critical power values to the output data (Dict[zwift_id,
-ZsunBestPowerItem]) where the power item has a whole bunch of individual
+ZsunWattsPropertiesItem]) where the power item has a whole bunch of individual
 properties where the name of the property is a str and the value of the
 property is corresponding critical power value. By giving the properties names
 that match the int keys in the input_data, we have effectively flattened the
@@ -27,10 +27,10 @@ The tool performs the following steps:
   folder into a dictionary.
 - Retrieves a list of a small subset of rider IDs to process. Currently these
   are the BetelIDs, but they could be any subset.
-- Using the pydantic ZwiftPowerBestPowerDTO, it validates each individual
+- Using the pydantic ZwiftPowerWattsOrdinatesDTO, it validates each individual
   best-power-graph data file for these riders from the folder received from
-  DaveK and maps them into a ZwiftPowerBestPowerDTO and thence into a
-  ZsunBestPowerItem. The datafiles are all named by ZwiftID. The items are all
+  DaveK and maps them into a ZwiftPowerWattsOrdinatesDTO and thence into a
+  ZsunWattsPropertiesItem. The datafiles are all named by ZwiftID. The items are all
   stored in a dictionary with the rider's Zwift ID as the key.
 - For each item in the dictionary, inserts the filename into the zwift_ID
   property, and generates a pretty display name - for logging only.
@@ -46,7 +46,7 @@ from dirpaths import DATA_DIRPATH
 
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_dict_of_zsunriderItems, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_zsunbestpowerItems, get_betel_IDs
+from handy_utilities import read_dict_of_zsunriderDTO, read_many_zwiftpower_bestpower_files_in_folder, write_dict_of_zsunwattspropertiesItem, get_test_IDs
 from jgh_sanitise_string import make_short_displayname
 
 def main():
@@ -56,11 +56,11 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    all_rider_profiles_as_dict = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    all_rider_profiles_as_dict = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     # do work
 
-    betel_IDs = get_betel_IDs()
+    betel_IDs = get_test_IDs()
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
@@ -80,7 +80,7 @@ def main():
     OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
-    write_dict_of_zsunbestpowerItems(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_dict_of_zsunwattspropertiesItem(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
     main()

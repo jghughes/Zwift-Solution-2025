@@ -21,7 +21,7 @@ This tool demonstrates advanced team time trial (TTT) strategy modeling, combina
 
 from zsun_rider_item import ZsunRiderItem
 from jgh_number import safe_divide
-from handy_utilities import read_dict_of_zsunriderItems
+from handy_utilities import read_dict_of_zsunriderDTO
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae02 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_rider_contributions
@@ -41,7 +41,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
-    dict_of_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_team_riderIDs("betel")
     riders: list[ZsunRiderItem] = [dict_of_zsunrideritems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)

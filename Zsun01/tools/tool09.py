@@ -86,7 +86,7 @@ def main():
 
     logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerRiderParticularsItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     zwift_profiles = [
@@ -105,7 +105,7 @@ def main():
 
     for key in repository.dict_of_ZwiftProfileItem:
         zwift = repository.dict_of_ZwiftProfileItem[key]
-        zwiftpower = repository.dict_of_ZwiftPowerProfileItem[key]
+        zwiftpower = repository.dict_of_ZwiftPowerRiderParticularsItem[key]
         zwiftracingapp = repository.dict_of_ZwiftrRacingAppProfileItem[key]
 
         if key in repository.dict_of_ZwiftrRacingAppProfileItem:

@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass, field
 from typing import Optional
-from zwiftracingapp_profile_dto import *
+from zwiftracingapp_rider_particulars_dto import *
 
 @dataclass
 class MixedItem:
@@ -170,7 +170,7 @@ class PowerItem:
 
 
 @dataclass
-class ZwiftRacingAppProfileItem:
+class ZwiftRacingAppRiderParticularsItem:
     zwift_id          : str  = ""
     fullname          : str  = ""
     gender            : str  = ""
@@ -184,10 +184,10 @@ class ZwiftRacingAppProfileItem:
     raceitem          : RaceItem = field(default_factory=RaceItem)    
     
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZwiftRacingAppProfileDTO]) -> "ZwiftRacingAppProfileItem":
+    def from_dataTransferObject(dto: Optional[ZwiftRacingAppRiderParticularsDTO]) -> "ZwiftRacingAppRiderParticularsItem":
         if dto is None:
-            return ZwiftRacingAppProfileItem()
-        return ZwiftRacingAppProfileItem(
+            return ZwiftRacingAppRiderParticularsItem()
+        return ZwiftRacingAppRiderParticularsItem(
             zwift_id         = dto.zwift_id or "",
             fullname         = dto.fullname or "",
             gender           = dto.gender or "",
@@ -202,10 +202,10 @@ class ZwiftRacingAppProfileItem:
         )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["ZwiftRacingAppProfileItem"]) -> ZwiftRacingAppProfileDTO:
+    def to_dataTransferObject(item: Optional["ZwiftRacingAppRiderParticularsItem"]) -> ZwiftRacingAppRiderParticularsDTO:
         if item is None:
-            return ZwiftRacingAppProfileDTO()
-        return ZwiftRacingAppProfileDTO(
+            return ZwiftRacingAppRiderParticularsDTO()
+        return ZwiftRacingAppRiderParticularsDTO(
             zwift_id         = item.zwift_id,
             fullname         = item.fullname,
             gender           = item.gender,

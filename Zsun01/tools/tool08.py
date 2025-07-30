@@ -81,7 +81,6 @@ def main():
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     # get all the data
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
@@ -89,8 +88,12 @@ def main():
 
     minimum_required_r_squared_fit_for_one_hour_power_curve = .90
 
+    OUTPUT_FILENAME_EXCEL = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.xlsx"
+    OUTPUT_FILENAME_JSON = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.json"
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+
     sample_IDs = None
-    # sample_IDs = get_betel_IDs()
+    # sample_IDs = get_test_IDs()
 
     dict_of_zwift_profiles_for_everybody = read_many_zwift_profile_files_in_folder(sample_IDs, ZWIFT_PROFILES_DIRPATH)
 
@@ -206,7 +209,7 @@ def main():
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwift_id in zwiftIds_with_high_fidelity:
         logger.info(f"ZwiftID {zwift_id} {dict_of_zwift_profiles_for_everybody[zwift_id].first_name} {dict_of_zwift_profiles_for_everybody[zwift_id].last_name}")
-        # betel = get_betel_zsunriderItem(zwift_id)
+        # betel = read_dict_of_test_zsunriderDTO(zwift_id)
         # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
     logger.info(f"\nTotal in sample : {total_count} Total valid: {valid_count} Total excellent one hr r2: {count_of_riders_with_high_fidelity_models} % excellent/valid: {round(count_of_riders_with_high_fidelity_models *100/valid_count)}%\n")
@@ -235,7 +238,7 @@ def main():
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
     repository.populate_repository(None, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     dict_of_zsunriderItems : defaultdict[str, ZsunRiderItem] = repository.get_dict_of_ZsunRiderItem(zwiftIds_with_high_fidelity)
-    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunBestPowerItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
+    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunWattsPropertiesItem] = repository.get_dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem(zwiftIds_with_high_fidelity)
     
     
     dict_of_riders_with_high_fidelity : defaultdict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)
@@ -280,13 +283,12 @@ def main():
     riders = dict_of_riders_with_high_fidelity.values()
     df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
-    file_name = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.xlsx"
-    write_pandas_dataframe_as_xlsx(df3, file_name, OUTPUT_DIRPATH)
-    logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{file_name}\n")
 
-    file_name = "bestpower_dataset_for_linear_regression_investigations_using_sklearn.json"
+    write_pandas_dataframe_as_xlsx(df3, OUTPUT_FILENAME_EXCEL, OUTPUT_DIRPATH)
+    logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{OUTPUT_FILENAME_EXCEL}\n")
 
-    write_dict_of_bestpowermodeltrainingItems(dict_of_riders_with_high_fidelity, file_name, OUTPUT_DIRPATH)
+
+    write_dict_of_regressionmodellingItem(dict_of_riders_with_high_fidelity, OUTPUT_FILENAME_JSON, OUTPUT_DIRPATH)
 
 if __name__ == "__main__":
     main()

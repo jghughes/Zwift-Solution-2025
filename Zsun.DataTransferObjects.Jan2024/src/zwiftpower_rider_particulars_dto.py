@@ -16,7 +16,7 @@ configdictV1 = ConfigDict(
 
 preferred_config_dict = configdictV1
 
-class ZwiftPowerProfileDTO(BaseModel):
+class ZwiftPowerRiderParticularsDTO(BaseModel):
     model_config             = preferred_config_dict
     zwift_id                 : Optional[str] = "" 
     profile_url              : Optional[str] = ""
@@ -79,8 +79,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftPowerProfileDTO)
-            dto = cast(ZwiftPowerProfileDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftPowerRiderParticularsDTO)
+            dto = cast(ZwiftPowerRiderParticularsDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

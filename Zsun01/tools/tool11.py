@@ -10,7 +10,7 @@ doesn't really mean anything, it's just interesting to compare Zwift's
 inscrutable zFTP with one-hour power. The percentage difference
 provides a relative measure of how much the two estimates diverge,
 which can be useful for identifying outliers or unusual cases. The time
-at which the model curve is identical to the zFTP value might or might
+at which the model curve intersects the zFTP value might or might
 not provide insights. In Brute, we make no use of zFTP whatsoever, but
 other TTT tools do when calculating things like Intensity Factor (IF).
 Brute uses the zsun_one_hour_power as a proxy for FTP in the Intensity
@@ -78,16 +78,17 @@ class DummyItem:
 
 def main():
     
+    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
+
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
     ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
-    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
 
     betel_IDs = None
-    # betel_IDs = get_betel_IDs()
+    # betel_IDs = get_test_IDs()
 
     repository : ScrapedZwiftDataRepository = ScrapedZwiftDataRepository()
     repository.populate_repository(betel_IDs, ZWIFT_PROFILES_DIRPATH, ZWIFTRACINGAPP_PROFILES_DIRPATH, ZWIFTPOWER_PROFILES_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 

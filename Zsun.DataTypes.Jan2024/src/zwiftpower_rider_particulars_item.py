@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from zwiftpower_profile_dto import ZwiftPowerProfileDTO
+from zwiftpower_rider_particulars_dto import ZwiftPowerRiderParticularsDTO
 
 @dataclass
-class ZwiftPowerProfileItem:
+class ZwiftPowerRiderParticularsItem:
     zwift_id               : str  = ""
     profile_url            : str  = ""
     zwift_name             : str  = ""
@@ -20,8 +20,8 @@ class ZwiftPowerProfileItem:
     level                  : int  = 0
 
     @staticmethod
-    def from_dataTransferObject(dto: ZwiftPowerProfileDTO) -> "ZwiftPowerProfileItem":
-        return ZwiftPowerProfileItem(
+    def from_dataTransferObject(dto: ZwiftPowerRiderParticularsDTO) -> "ZwiftPowerRiderParticularsItem":
+        return ZwiftPowerRiderParticularsItem(
             zwift_id               = dto.zwift_id or "",
             profile_url            = dto.profile_url or "",
             zwift_name             = dto.zwift_name or "",
@@ -40,8 +40,8 @@ class ZwiftPowerProfileItem:
         )
 
     @staticmethod
-    def to_dataTransferObject(item: "ZwiftPowerProfileItem") -> ZwiftPowerProfileDTO:
-        return ZwiftPowerProfileDTO(
+    def to_dataTransferObject(item: "ZwiftPowerRiderParticularsItem") -> ZwiftPowerRiderParticularsDTO:
+        return ZwiftPowerRiderParticularsDTO(
             zwift_id               = item.zwift_id,
             profile_url            = item.profile_url,
             zwift_name             = item.zwift_name,

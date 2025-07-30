@@ -1,9 +1,9 @@
 from typing import Dict, Optional
 from dataclasses import dataclass
 
-from zsun_bestpower_dto import ZsunBestPowerDTO
-from zwiftpower_bestpower_dto import ZwiftPowerBestPowerDTO, EffortDTO
-from zwiftracingapp_profile_dto import ZwiftRacingAppProfileDTO
+from zsun_watts_properties_dto import ZsunWattsPropertiesDTO
+from zwiftpower_watts_ordinates_dto import ZwiftPowerWattsOrdinatesDTO, EffortDTO
+from zwiftracingapp_rider_particulars_dto import ZwiftRacingAppRiderParticularsDTO
 
 
 @dataclass
@@ -36,9 +36,9 @@ class EffortItem:
     )
 
 @dataclass
-class ZsunBestPowerItem:
+class ZsunWattsPropertiesItem:
     """
-    A data class representing a Zwift rider's critical power data.
+    A data class representing a Zwift rider's 90-day best power data obtained from ZwiftfPower.
     The object can be converted to and from a data transfer object (DTO).
 
     Attributes:
@@ -790,8 +790,8 @@ class ZsunBestPowerItem:
 
 
     @staticmethod
-    def to_dataTransferObject(item: "ZsunBestPowerItem") -> ZsunBestPowerDTO:
-        return ZsunBestPowerDTO(
+    def to_dataTransferObject(item: "ZsunWattsPropertiesItem") -> ZsunWattsPropertiesDTO:
+        return ZsunWattsPropertiesDTO(
             zwift_id        = item.zwift_id,
             bp_1           = item.bp_1,
             bp_2           = item.bp_2,
@@ -896,10 +896,10 @@ class ZsunBestPowerItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZsunBestPowerDTO]) -> "ZsunBestPowerItem":
+    def from_dataTransferObject(dto: Optional[ZsunWattsPropertiesDTO]) -> "ZsunWattsPropertiesItem":
         if dto is None:
-            return ZsunBestPowerItem()
-        return ZsunBestPowerItem(
+            return ZsunWattsPropertiesItem()
+        return ZsunWattsPropertiesItem(
             zwift_id        = dto.zwift_id or "",
             bp_1           = dto.bp_1 or 0.0,
             bp_2           = dto.bp_2 or 0.0,
@@ -1003,10 +1003,10 @@ class ZsunBestPowerItem:
     )
 
     @staticmethod
-    def from_ZwiftRacingAppProfileDTO(dto: Optional[ZwiftRacingAppProfileDTO]) -> "ZsunBestPowerItem":
+    def from_ZwiftRacingAppProfileDTO(dto: Optional[ZwiftRacingAppRiderParticularsDTO]) -> "ZsunWattsPropertiesItem":
         if dto is None:
-            return ZsunBestPowerItem()
-        return ZsunBestPowerItem(
+            return ZsunWattsPropertiesItem()
+        return ZsunWattsPropertiesItem(
             zwift_id = dto.zwift_id if dto.zwift_id else "",
             bp_5     = dto.power.w5 if dto.power and dto.power.w5 else 0.0,
             bp_15    = dto.power.w15 if dto.power and dto.power.w15 else 0.0,
@@ -1018,9 +1018,9 @@ class ZsunBestPowerItem:
     )
 
     @staticmethod
-    def from_ZwiftPowerBestPowerDTO(dto: Optional[ZwiftPowerBestPowerDTO]) -> "ZsunBestPowerItem":
+    def from_ZwiftPowerBestPowerDTO(dto: Optional[ZwiftPowerWattsOrdinatesDTO]) -> "ZsunWattsPropertiesItem":
         if dto is None:
-            return ZsunBestPowerItem()
+            return ZsunWattsPropertiesItem()
 
         xx = dto.efforts.get("90days", []) if dto.efforts else []
 
@@ -1028,7 +1028,7 @@ class ZsunBestPowerItem:
 
         cp_data = {effort.x: float(effort.y) for effort in effortItems if effort.x and effort.y}
 
-        flattened = ZsunBestPowerItem()
+        flattened = ZsunWattsPropertiesItem()
 
         # flattened.zwift_id = dto.zwift_id if dto.zwift_id else "" #N.B. no such data exists in the DTO. we get it later from the file name
 

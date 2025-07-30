@@ -76,7 +76,7 @@ class PowerDTO(BaseModel):
             # Return None for non-float values
             return None
 
-class ZwiftRacingAppProfileDTO(BaseModel):
+class ZwiftRacingAppRiderParticularsDTO(BaseModel):
     model_config  = preferred_config_dict
     zwift_id            : Optional[str]        = ""   # Rider ID
     fullname            : Optional[str]        = ""   # Name of the rider
@@ -126,8 +126,8 @@ def main():
         logger.info(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftRacingAppProfileDTO)
-            dto = cast(ZwiftRacingAppProfileDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppRiderParticularsDTO)
+            dto = cast(ZwiftRacingAppRiderParticularsDTO, dto)
             success_count += 1
         except Exception as e:
             failure_count += 1

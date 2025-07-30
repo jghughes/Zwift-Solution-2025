@@ -25,7 +25,7 @@ class CompetitionMetricsDTO(BaseModel):
     categoryWomen : Optional[str]  = ""
 
 
-class ZwiftProfileDTO(BaseModel):
+class ZwiftRiderParticularsDTO(BaseModel):
     model_config = preferred_config_dict
     zwift_id            : Optional[str]                      = "" # Unique identifier for the profile
     public_id           : Optional[str]                      = ""   # Public ID of the profile
@@ -77,8 +77,8 @@ def main():
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
-            dto = JghSerialization.validate(inputjson, ZwiftProfileDTO)
-            dto = cast(ZwiftProfileDTO, dto)
+            dto = JghSerialization.validate(inputjson, ZwiftRiderParticularsDTO)
+            dto = cast(ZwiftRiderParticularsDTO, dto)
         except Exception as e:
             error_count += 1
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")

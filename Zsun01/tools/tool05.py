@@ -1,7 +1,7 @@
 """
 This tool is for iterative development. It follows on from 
 Tool03, assuming that the methods and functions tested
-there all work correctly to generate a clean ZsunBestPowerItem from
+there all work correctly to generate a clean ZsunWattsPropertiesItem from
 ZwiftPower 90-day data from DaveK. The tool commences by repeating the steps
 of Tool03, which involves reading the raw ZwiftPower 90-day best power data.
 
@@ -18,14 +18,14 @@ ideal windows for datapoints for the three very-different
 inverse-exponential power curves is a bit of a black art. I did it
 by hand, using the chart produced by this tool hundreds of times! You can 
 see the windows I finally settled on in the static methods of the 
-ZsunBestPowerItem where x-y data is exported for each of the three 
+ZsunWattsPropertiesItem where x-y data is exported for each of the three 
 windows. The quality of the fit is measured by the 
 r-squared value, which is logged to the console. The tool logs a 
 summary of the fitted parameters and displays the power-graph for a 
 specified rider for visual inspection.
 
 The script performs the following steps:
-- Repeats everything that Tool03 does - thus to obtain ZsunBestPowerItem
+- Repeats everything that Tool03 does - thus to obtain ZsunWattsPropertiesItem
   for a small predefined subset of riders.
 - Selects a specific rider by Zwift ID for analysis.
 - Extracts power-duration data for three modeling zones: critical power
@@ -47,7 +47,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunRiderItem
-from handy_utilities import read_dict_of_zsunriderItems, get_betel_IDs, read_many_zwiftpower_bestpower_files_in_folder
+from handy_utilities import read_dict_of_zsunriderDTO, get_test_IDs, read_many_zwiftpower_bestpower_files_in_folder
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
@@ -98,9 +98,9 @@ def main():
     # ZWIFTPOWER_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
 
-    dict_of_zsun01_betel_zsunrideritems = read_dict_of_zsunriderItems(RIDERS_FILE_NAME, DATA_DIRPATH)
+    dict_of_zsun01_betel_zsunrideritems = read_dict_of_zsunriderDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    betel_IDs = get_betel_IDs()
+    betel_IDs = get_test_IDs()
 
     dict_of_jghbestpoweritems_for_betel = read_many_zwiftpower_bestpower_files_in_folder(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 

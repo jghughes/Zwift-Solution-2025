@@ -3,12 +3,15 @@ N.B. THIS CONCISE TOOL IS USED DIRECTLY IN THE BRUTE PRODUCTION
 PIPELINE. It builds on all the previous tools.
 
 Each time a batch of raw data is received from DaveK, run this tool10
-to generate a JSON dictionary file of all actively racing club
+to generate a master JSON dictionary file of all actively racing club
 members, with all relevant data aggregated in a ZsunRiderItem for each
-rider. Copy the JSON file manually into the data folder in Zsun01,
+rider. A batch of raw data consists of several thousand files. 
+The master JSON dictionary file for July 2025 data contains 431 riders.
+
+Copy the JSON file manually into the data folder in Zsun01,
 carefully following the naming convention there and updating
 filenames.py accordingly. Older JSON files remain in the data folder
-for posterity.
+for posterity. 
 
 This tool aggregates, models, and exports comprehensive rider data for
 all eligible club members using multiple data sources and power curve
@@ -52,7 +55,8 @@ jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 def main():
-    
+    output_filename_without_ext = "everyone_ZsunRiderItems_for_copying_manually_into_ZSUN01"
+
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     ZWIFT_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
     ZWIFTRACINGAPP_PROFILES_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
@@ -66,21 +70,12 @@ def main():
 
     logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_PROFILES_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
+    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerRiderParticularsItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_PROFILES_DIRPATH}\n")
     logger.info(f"Imported {len(repository.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     # do everybody
     rider_ids_found = eligible_IDs
     logger.info(f"Using all {len(eligible_IDs)} eligible IDs from repository. Subset of rider IDs not requested. No filtering required.")
-    filename_without_ext = "everyone_ZsunRiderItems_for_copying_manually_into_ZSUN01"
-
-    # # just do betel
-    # rider_IDs = get_betel_IDs()
-    # filename_without_ext = "betel_ZsunRiderItems_for_copying_manually_into_ZSUN01"
-    # rider_ids_not_found = [rider_id for rider_id in rider_IDs if rider_id not in eligible_IDs]
-    # rider_ids_found = list(set(rider_IDs) - set(rider_ids_not_found))
-    # logger.info(f"Betel/rider IDs not found in repository: {len(rider_ids_not_found)}\n{rider_ids_not_found}\n")
-    # logger.info(f"Betel/rider IDs found in repository:{len(rider_ids_found)}\n {rider_ids_found}\n")
 
     answer_dict : dict[str, ZsunRiderItem] = dict[str, ZsunRiderItem]()
 
@@ -88,7 +83,7 @@ def main():
     
     for key in repository.get_dict_of_ZwiftProfileItem(rider_ids_found):
         zwift = repository.dict_of_ZwiftProfileItem[key]
-        zwiftpower = repository.dict_of_ZwiftPowerProfileItem[key]
+        zwiftpower = repository.dict_of_ZwiftPowerRiderParticularsItem[key]
         zwiftracingapp = repository.dict_of_ZwiftrRacingAppProfileItem[key]
 
         if key in repository.dict_of_ZwiftrRacingAppProfileItem:
@@ -135,12 +130,12 @@ def main():
     # filter out all items in dict where item.zsun_when_curves_fitted is blank
     answer_dict = {k: v for k, v in answer_dict.items() if v.zsun_when_curves_fitted != ""}
 
-    write_json_file(JghSerialization.serialise(answer_dict), f"{filename_without_ext}.json", OUTPUT_DIRPATH)
-    logger.info(f"Saved {len(answer_dict)} line-items in: {filename_without_ext}.json  DirPath: {OUTPUT_DIRPATH}")
+    write_json_file(JghSerialization.serialise(answer_dict), f"{output_filename_without_ext}.json", OUTPUT_DIRPATH)
+    logger.info(f"Saved {len(answer_dict)} line-items in: {output_filename_without_ext}.json  DirPath: {OUTPUT_DIRPATH}")
 
     df = pd.DataFrame([asdict(rider) for rider in answer_dict.values()])
-    write_pandas_dataframe_as_xlsx(df,  f"{filename_without_ext}.xlsx", OUTPUT_DIRPATH)
-    logger.info(f"Saved {len(answer_dict)} line-items in: {filename_without_ext}.xlsx  DirPath: {OUTPUT_DIRPATH}")
+    write_pandas_dataframe_as_xlsx(df,  f"{output_filename_without_ext}.xlsx", OUTPUT_DIRPATH)
+    logger.info(f"Saved {len(answer_dict)} line-items in: {output_filename_without_ext}.xlsx  DirPath: {OUTPUT_DIRPATH}")
 
 
 if __name__ == "__main__":

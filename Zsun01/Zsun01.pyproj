@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />
-    <Content Include="data\betel_IDs.json" />
     <Content Include="data\everyone_in_club_ZsunRiderItems_2025_04_00.json" />
     <Content Include="data\everyone_in_club_ZsunRiderItems_2025_07_08.json" />
     <Content Include="logger.log" />
@@ -57,7 +56,7 @@
     </Content>
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
-    <Content Include="data\betel_ZsunRiderItems.json" />
+    <Content Include="data\test_ZsunRiderItems.json" />
     <Content Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
@@ -90,7 +89,7 @@
     <Compile Include="src\utilities\matplot_utilities.py" />
     <Compile Include="tests\test_current_highest_speed_drop_paceline_solution.py" />
     <Compile Include="tests\test_progressively_reducing_the_num_of_pullers.py" />
-    <Compile Include="tools\tool15.py" />
+    <Compile Include="tools\tool15_brute.py" />
     <Compile Include="tools\tool02.py" />
     <Compile Include="tools\tool01.py" />
     <Compile Include="setup.py" />
@@ -113,7 +112,7 @@
     <Compile Include="tools\tool07.py" />
     <Compile Include="tools\tool08.py" />
     <Compile Include="tools\tool11.py" />
-    <Compile Include="tools\tool10.py" />
+    <Compile Include="tools\tool10_brute.py" />
     <Compile Include="tools\tool09.py" />
     <Compile Include="tests\test_how_much_difference_rotation_order_makes.py" />
     <Compile Include="tools\tool13.py" />

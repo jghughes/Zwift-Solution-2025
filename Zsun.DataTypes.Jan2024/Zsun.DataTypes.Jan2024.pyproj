@@ -36,10 +36,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\zsun_rider_item.py" />
-    <Compile Include="src\zsun_bestpower_item.py" />
-    <Compile Include="src\zwiftpower_profile_item.py" />
-    <Compile Include="src\zwiftracingapp_profile_item.py" />
-    <Compile Include="src\zwift_profile_item.py" />
+    <Compile Include="src\zsun_watts_properties_item.py" />
+    <Compile Include="src\zwiftpower_rider_particulars_item.py" />
+    <Compile Include="src\zwiftracingapp_rider_particulars_item.py" />
+    <Compile Include="src\zwift_rider_particulars_item.py" />
     <Compile Include="tests\test_participant_item.py" />
   </ItemGroup>
   <ItemGroup>

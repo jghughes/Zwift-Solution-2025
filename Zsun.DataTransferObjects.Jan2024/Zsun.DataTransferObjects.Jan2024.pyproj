@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\zwiftracingapp_profile_dto.py</StartupFile>
+    <StartupFile>src\zwiftracingapp_rider_particulars_dto.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -31,20 +31,20 @@
     <Compile Include="src\app_settings_dto.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\bestpower_for_model_training_dto.py" />
+    <Compile Include="src\regression_modelling_dto.py" />
     <Compile Include="src\omnibus_profile_dto.py" />
     <Compile Include="src\person_dto_starter_kit.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
-    <Compile Include="src\zsun_bestpower_dto.py" />
-    <Compile Include="src\zwiftpower_bestpower_dto.py" />
-    <Compile Include="src\zwiftpower_profile_dto.py" />
-    <Compile Include="src\zwiftracingapp_profile_dto.py" />
+    <Compile Include="src\zsun_watts_properties_dto.py" />
+    <Compile Include="src\zwiftpower_watts_ordinates_dto.py" />
+    <Compile Include="src\zwiftpower_rider_particulars_dto.py" />
+    <Compile Include="src\zwiftracingapp_rider_particulars_dto.py" />
     <Compile Include="src\zsun_rider_dto.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\zwift_profile_dto.py" />
+    <Compile Include="src\zwift_rider_particulars_dto.py" />
     <Compile Include="tests\test_app_settings_dto.py" />
     <Compile Include="tests\test_participant_dto.py" />
   </ItemGroup>

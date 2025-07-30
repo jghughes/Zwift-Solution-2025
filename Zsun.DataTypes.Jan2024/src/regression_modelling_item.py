@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from bestpower_for_model_training_dto import BestPowerModelTrainingDTO
+from regression_modelling_dto import RegressionModellingDTO
 
 @dataclass
 class RegressionModellingItem:
@@ -35,7 +35,7 @@ class RegressionModellingItem:
     zsun_one_hour_curve_exponent    : float = 0.0
 
     @staticmethod
-    def from_dataTransferObject(dto: BestPowerModelTrainingDTO) -> "RegressionModellingItem":
+    def from_dataTransferObject(dto: RegressionModellingDTO) -> "RegressionModellingItem":
         return RegressionModellingItem(
             zwift_id                   = dto.zwift_id or "",
             name                       = dto.name or "",
@@ -69,8 +69,8 @@ class RegressionModellingItem:
         )
 
     @staticmethod
-    def to_dataTransferObject(item: "RegressionModellingItem") -> BestPowerModelTrainingDTO:
-        return BestPowerModelTrainingDTO(
+    def to_dataTransferObject(item: "RegressionModellingItem") -> RegressionModellingDTO:
+        return RegressionModellingDTO(
             zwift_id                   = item.zwift_id,
             name                       = item.name,
             gender                     = item.gender,
