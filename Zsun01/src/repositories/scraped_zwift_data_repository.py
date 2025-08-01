@@ -21,20 +21,20 @@ T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
 @dataclass
 class RepositoryForScrapedDataFromDaveK:
 
+    dict_of_ZwiftItem:          DefaultDict[str, ZwiftItem]          = field(default_factory=lambda: defaultdict(ZwiftItem))
+    dict_of_ZwiftPowerItem:     DefaultDict[str, ZwiftPowerItem]     = field(default_factory=lambda: defaultdict(ZwiftPowerItem))
+    dict_of_ZwiftRacingAppItem: DefaultDict[str, ZwiftRacingAppItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppItem))
+    dict_of_ZsunWattsItem:      DefaultDict[str, ZsunWattsItem]      = field(default_factory=lambda: defaultdict(ZsunWattsItem))
+
     # Repository constants for DataFrame column names
-    COL_ZWIFT_ID = "zwiftID"
-    COL_IN_SAMPLE1 = "in_sample1"
-    COL_IN_SAMPLE2 = "in_sample2"
-    COL_IN_ZWIFT = "zwift"
-    COL_IN_ZWIFTPOWER = "zwiftpower"
-    COL_IN_ZWIFTPOWER_WATTS_GRAPHS = "zwiftpower_watts"
-    COL_IN_ZWIFTRACINGAPP = "zwiftracingapp"
- 
-    def __init__(self):
-        self.dict_of_ZwiftItem: DefaultDict[str, ZwiftItem] = field(default_factory=lambda: defaultdict(ZwiftItem))
-        self.dict_of_ZwiftPowerItem: DefaultDict[str, ZwiftPowerItem] = field(default_factory=lambda: defaultdict(ZwiftPowerItem))
-        self.dict_of_ZwiftRacingAppItem: DefaultDict[str, ZwiftRacingAppItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppItem))
-        self.dict_of_ZsunWattsItem: DefaultDict[str, ZsunWattsItem] = field(default_factory=lambda: defaultdict(ZsunWattsItem))
+    COL_ZWIFT_ID                  = "zwiftID"
+    COL_IN_SAMPLE1                = "in_sample1"
+    COL_IN_SAMPLE2                = "in_sample2"
+    COL_IN_ZWIFT                  = "zwift"
+    COL_IN_ZWIFTPOWER             = "zwiftpower"
+    COL_IN_ZWIFTPOWER_WATTS_GRAPHS= "zwiftpower_watts"
+    COL_IN_ZWIFTRACINGAPP         = "zwiftracingapp"
+
 
     def populate_repository(
         self,
@@ -42,12 +42,14 @@ class RepositoryForScrapedDataFromDaveK:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_dir_path: str,
-        zwiftpower_90day_graph_watts_dir_path: str
+        zwiftpower_90day_graph_watts_dir_path: str,
+        logger: logging.Logger,
+        log_level: int = logging.INFO
     ):
-        self.dict_of_ZwiftItem          = read_zwift_files(file_names, zwift_dir_path)
-        self.dict_of_ZwiftRacingAppItem = read_zwiftracingapp_files(file_names, zwiftracingapp_dir_path)
-        self.dict_of_ZwiftPowerItem     = read_zwiftpower_files(file_names, zwiftpower_dir_path)
-        self.dict_of_ZsunWattsItem      = read_zwiftpower_graph_watts_files(file_names, zwiftpower_90day_graph_watts_dir_path)
+        self.dict_of_ZwiftItem          = read_zwift_files(file_names, zwift_dir_path, logger, log_level)
+        self.dict_of_ZwiftRacingAppItem = read_zwiftracingapp_files(file_names, zwiftracingapp_dir_path, logger, log_level)
+        self.dict_of_ZwiftPowerItem     = read_zwiftpower_files(file_names, zwiftpower_dir_path, logger, log_level)
+        self.dict_of_ZsunWattsItem      = read_zwiftpower_graph_watts_files(file_names, zwiftpower_90day_graph_watts_dir_path, logger, log_level)
 
     def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str], logger: logging.Logger) -> pd.DataFrame:
         """
@@ -415,7 +417,14 @@ class RepositoryForScrapedDataFromDaveK:
 
         return answer
 
-def main(logger: logging.Logger):
+# Testing
+
+ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+
+def main(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -427,8 +436,11 @@ def main(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level
     )
 
+    # ... rest of the function remains unchanged ...
     # Define sample Zwift IDs for testing
     betel = [
   "1024413",
@@ -458,28 +470,28 @@ def main(logger: logging.Logger):
 
     # Example: get the superset - should be more than 1500
     df = rep.get_table_of_superset_of_sets_by_id([], [], logger)
-    logger.info("DataFrame of superset of Zwift IDs in all datasets including samples:")
-    logger.info(df)
+    logger.debug("DataFrame of superset of Zwift IDs in all datasets including samples:")
+    logger.debug(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "beautiful_superset_of_everything.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
     # Example: get the intersection - should be about 80
     df = rep.get_table_of_intersections_of_sets([], [], logger)
-    logger.info("DataFrame of intesection of Zwift IDs in main datasets:")
-    logger.info(df)
+    logger.debug("DataFrame of intesection of Zwift IDs in main datasets:")
+    logger.debug(df)
     OUTPUT_FILENAME2 = "beautiful_intersection_of_main_datasets.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
 
 
     # Example: get an intersection of all main sets and betel - should be tiny - 4
     df = rep.get_table_of_intersections_of_sets(betel, [], logger)
-    logger.info("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
-    logger.info(df)
+    logger.debug("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
+    logger.debug(df)
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
 
-def main2(logger: logging.Logger):
+def main2(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -491,6 +503,8 @@ def main2(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level,
     )
 
     # Define any test parameters for get_table_of_filtered_intersections_of_sets
@@ -508,8 +522,8 @@ def main2(logger: logging.Logger):
     )
 
     # Display the filtered DataFrame
-    logger.info("Filtered DataFrame:")
-    logger.info(filtered_df)
+    logger.debug("Filtered DataFrame:")
+    logger.debug(filtered_df)
 
     # Validate the test results
     # Check if the DataFrame is not empty
@@ -519,10 +533,9 @@ def main2(logger: logging.Logger):
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "beautiful_matching_specified_boolean_filter_criteria.xlsx"
     write_pandas_dataframe_as_xlsx(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
-
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main3(logger: logging.Logger):
+def main3(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -534,14 +547,16 @@ def main3(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
     dict_of_items = rep.get_dict_of_ZwiftItem([])
-    logger.info(f"Zwift profiles:\n{dict_of_items.values()}\n")
+    logger.debug(f"Zwift profiles:\n{dict_of_items.values()}\n")
     logger.info(f"Zwift profiles: {len(dict_of_items.items())}\n")
 
-    logger.info(f"{dict_of_items}")
+    logger.debug(f"{dict_of_items}")
 
     #convert to dict to list of values
     items = list(dict_of_items.values())
@@ -554,13 +569,15 @@ def main3(logger: logging.Logger):
 
     df = pd.DataFrame(data)
 
-    logger.info("DataFrame of all Zwift profiles:")
-    logger.info(df)
+    logger.debug("DataFrame of all Zwift profiles:")
+    logger.debug(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Zwift_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main4(logger: logging.Logger):
+
+def main4(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -572,14 +589,16 @@ def main4(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
     dict_of_items = rep.get_dict_of_ZwiftRacingAppItem([])
-    logger.info(f"ZwiftRacingApp profiles:\n{dict_of_items.values()}\n")
+    logger.debug(f"ZwiftRacingApp profiles:\n{dict_of_items.values()}\n")
     logger.info(f"ZwiftRacingApp profiles: {len(dict_of_items.items())}\n")
 
-    logger.info(f"{dict_of_items}")
+    logger.debug(f"{dict_of_items}")
 
     #convert to dict to list of values
     items = list(dict_of_items.values())
@@ -592,13 +611,14 @@ def main4(logger: logging.Logger):
 
     df = pd.DataFrame(data)
 
-    logger.info("DataFrame of all ZwiftRacingApp profiles:")
-    logger.info(df)
+    logger.debug("DataFrame of all ZwiftRacingApp profiles:")
+    logger.debug(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftRacingApp_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main5(logger: logging.Logger):
+def main5(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -610,14 +630,16 @@ def main5(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
     dict_of_items = rep.get_dict_of_ZwiftPowerItem([])
-    logger.info(f"ZwiftPower profiles:\n{dict_of_items.values()}\n")
-    logger.info(f"ZwiftRower profiles: {len(dict_of_items.items())}\n")
+    logger.debug(f"ZwiftPower profiles:\n{dict_of_items.values()}\n")
+    logger.info(f"ZwiftPower profiles: {len(dict_of_items.items())}\n")
 
-    logger.info(f"{dict_of_items}")
+    logger.debug(f"{dict_of_items}")
 
     #convert to dict to list of values
     items = list(dict_of_items.values())
@@ -630,13 +652,15 @@ def main5(logger: logging.Logger):
 
     df = pd.DataFrame(data)
 
-    logger.info("DataFrame of all ZwiftPower profiles:")
-    logger.info(df)
+    logger.debug("DataFrame of all ZwiftPower profiles:")
+    logger.debug(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main6(logger: logging.Logger):
+
+def main6(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -648,14 +672,16 @@ def main6(logger: logging.Logger):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
+        logger=logger,
+        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
     dict_of_items = rep.get_dict_of_ZsunWattsItem([])
-    logger.info(f"Jgh best power curves:\n{dict_of_items.values()}\n")
+    logger.debug(f"Jgh best power curves:\n{dict_of_items.values()}\n")
     logger.info(f"Jgh best power curves: {len(dict_of_items.items())}\n")
 
-    logger.info(f"{dict_of_items}")
+    logger.debug(f"{dict_of_items}")
 
     #convert to dict to list of values
     items = list(dict_of_items.values())
@@ -668,11 +694,13 @@ def main6(logger: logging.Logger):
 
     df = pd.DataFrame(data)
 
-    logger.info("DataFrame of all Jgh best power curves:")
-    logger.info(df)
+    logger.debug("DataFrame of all Jgh best power curves:")
+    logger.debug(df)
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Jgh_best_power_curves.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
+    logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
+
 
 if __name__ == "__main__":
     # configure logging
@@ -680,16 +708,10 @@ if __name__ == "__main__":
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
-    # Define paths for testing
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
-    # Comment the lines below to run the tests one by one
-    # main(logger)
-    # main2(logger)
-    # main3(logger)
-    # main4(logger)
-    # main5(logger)
-    main6(logger)
+    # Comment/uncomment the lines below to run the tests you want. for more verbose output, set log_level to logging.DEBUG
+    # main(logger, logging.INFO)
+    # main2(logger, logging.INFO)
+    # main3(logger, logging.INFO)
+    # main4(logger, logging.INFO)
+    main5(logger, logging.INFO)
+    # main6(logger, logging.INFO)

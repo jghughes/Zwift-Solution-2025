@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\utilities\handy_utilities.py</StartupFile>
+    <StartupFile>src\formulae\jgh_formulae07.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae;src\html;src\enums;src\paths;src\miscellaneous;data</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -81,7 +81,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="filenames.py" />
-    <Compile Include="data\teams.py" />
+    <Compile Include="data\repository_of_teams.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
     <Compile Include="src\repositories\scraped_zwift_data_repository.py" />

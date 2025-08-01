@@ -20,19 +20,24 @@ from zsun_rider_item import ZsunItem
 import logging
 from jgh_logging import jgh_configure_logging
 
-#functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute
+#functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute. used in class RepositoryForScrapedDataFromDaveK
 
-def read_zwift_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftItem]:
-
+def read_zwift_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftItem]:
+    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftItem] = defaultdict(ZwiftItem)
 
-    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
-    logger.info(f"Found {len(file_paths)} files in {dir_path}")
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing...")
     file_count = 0
     error_count = 0
     for file_path in file_paths:
         file_name = os.path.basename(file_path)
-        logger.info(f"Processing file: {file_name}")
+        logger.debug(f"Processing file: {file_name}")
 
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
@@ -44,24 +49,30 @@ def read_zwift_files(file_names: Optional[list[str]], dir_path: str) -> DefaultD
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)
         item = ZwiftItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_zwiftracingapp_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftRacingAppItem]:
-    
+
+def read_zwiftracingapp_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftRacingAppItem]:
+    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftRacingAppItem] = defaultdict(ZwiftRacingAppItem)
 
-    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
-    logger.info(f"Found {len(file_paths)} files in {dir_path}")
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
         file_name = os.path.basename(file_path)
-        logger.info(f"Processing file: {file_name}")
+        logger.debug(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
@@ -72,24 +83,31 @@ def read_zwiftracingapp_files(file_names: Optional[list[str]], dir_path: str) ->
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)
         item = ZwiftRacingAppItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_zwiftpower_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZwiftPowerItem]:
+
+def read_zwiftpower_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftPowerItem]:
+    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftPowerItem] = defaultdict(ZwiftPowerItem)
 
-    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
-    logger.info(f"Found {len(file_paths)} files in {dir_path}")
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
 
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
         file_name = os.path.basename(file_path)
-        logger.info(f"Processing file: {file_name}")
+        logger.debug(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
@@ -100,24 +118,30 @@ def read_zwiftpower_files(file_names: Optional[list[str]], dir_path: str) -> Def
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
+        zwift_id, _ = os.path.splitext(file_name)
         item = ZwiftPowerItem.from_dataTransferObject(dto)
         answer[zwift_id] = item
 
     return answer
 
-def read_zwiftpower_graph_watts_files(file_names: Optional[list[str]], dir_path: str) -> DefaultDict[str, ZsunWattsItem]:
 
+def read_zwiftpower_graph_watts_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZsunWattsItem]:
+    logger.setLevel(log_level)
     answer: defaultdict[str, ZsunWattsItem] = defaultdict(ZsunWattsItem)
 
-    file_paths = help_select_filepaths_in_folder(file_names,".json", dir_path)
-    logger.info(f"Found {len(file_paths)} files in {dir_path}")
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
     file_count = 0
     error_count = 0
 
     for file_path in file_paths:
         file_name = os.path.basename(file_path)
-        logger.info(f"Processing file: {file_name}")
+        logger.debug(f"Processing file: {file_name}")
         inputjson = read_filepath_as_text(file_path)
         file_count += 1
         try:
@@ -128,11 +152,10 @@ def read_zwiftpower_graph_watts_files(file_names: Optional[list[str]], dir_path:
             logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
             logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
             continue
-        zwift_id, _ = os.path.splitext(file_name)  # Safely remove the extension
-        temp = ZsunWattsItem.from_ZwiftPowerBestPowerDTO(dto) # the meat
-        temp.zwift_id = zwift_id  # zwift_id is obtained from the file name, this is the only place it is set
+        zwift_id, _ = os.path.splitext(file_name)
+        temp = ZsunWattsItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp.zwift_id = zwift_id
         answer[zwift_id] = temp
-
 
     return answer
 
@@ -179,7 +202,7 @@ def get_test_ZsunDTO(id : str) -> ZsunItem:
     answer = riders[id]
     return answer
 
-#functions used to read a pre-processed file and return its contents. 
+# functions used to read a pre-processed JSON dictionary file in some or other folder and return its contents. 
 
 def read_json_dict_of_ZsunDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunItem]:
     if not dir_path:
@@ -219,22 +242,6 @@ def read_json_dict_of_ZsunWattsDTO(file_name: str, dir_path: str) -> DefaultDict
         }
     )
 
-def write_json_dict_of_ZsunWattsItem(data: Dict[str, ZsunWattsItem], file_name: str, dir_path: str) -> None:
-    if not dir_path:
-        raise ValueError("dir_path must be a valid string.")
-    if not dir_path.strip():
-        raise ValueError("dir_path must be a valid non-empty string.")
-    if not os.path.exists(dir_path):
-        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
-
-    serialized_data = JghSerialization.serialise(data)
-    os.makedirs(dir_path, exist_ok=True)
-    file_path = os.path.join(dir_path, file_name)
-    with open(file_path, 'w', encoding='utf-8') as json_file:
-        json_file.write(serialized_data)
-
-    logger.debug(f"File saved : {file_name}")
-
 def read_json_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> DefaultDict[str, RegressionModellingItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
@@ -252,6 +259,25 @@ def read_json_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> D
             for key, dto in answer.items()
         }
     )
+
+# functions used to write a dictionary of items to a JSON file in some or other folder.
+
+def write_json_dict_of_ZsunWattsItem(data: Dict[str, ZsunWattsItem], file_name: str, dir_path: str) -> None:
+    if not dir_path:
+        raise ValueError("dir_path must be a valid string.")
+    if not dir_path.strip():
+        raise ValueError("dir_path must be a valid non-empty string.")
+    if not os.path.exists(dir_path):
+        raise FileNotFoundError(f"Unexpected error: The specified directory does not exist: {dir_path}")
+
+    serialized_data = JghSerialization.serialise(data)
+    os.makedirs(dir_path, exist_ok=True)
+    file_path = os.path.join(dir_path, file_name)
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json_file.write(serialized_data)
+
+    logger.debug(f"File saved : {file_name}")
+
 
 def write_json_dict_of_regressionmodellingItem(data: Dict[str, RegressionModellingItem], file_name: str, dir_path: str) -> None:
     if not dir_path:

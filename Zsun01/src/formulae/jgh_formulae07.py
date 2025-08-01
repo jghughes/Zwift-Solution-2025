@@ -226,10 +226,6 @@ def save_summary_of_all_paceline_plans_as_html(
 
 
 def main() -> None:
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     from constants import EXERTION_INTENSITY_FACTOR_LIMIT
     from jgh_formulae04 import populate_rider_work_assignments
@@ -268,13 +264,19 @@ def main() -> None:
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    dict_of_rider_pullplans = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR_LIMIT)
+    dict_of_rider_contributions = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR_LIMIT)
 
-    dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_pullplans)
+    dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_contributions)
 
     log_a_paceline_plan(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
 
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()
 

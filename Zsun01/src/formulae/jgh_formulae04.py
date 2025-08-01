@@ -82,12 +82,6 @@ def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunIt
 def main() -> None:
     from zsun_rider_dto import ZsunDTO
 
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
-
-
     # Example: Instantiate riders using the Config class
     example_riders_data = [
         # ZsunItem.Config.json_schema_extra["meridithl"],
@@ -116,6 +110,12 @@ def main() -> None:
     log_rider_work_assignments("Example riders",dict_of_rider_work_assignments, logger)
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()
 
 

@@ -120,10 +120,6 @@ def log_rider_contributions(test_description: str, result: DefaultDict[ZsunItem,
 
 
 def main() -> None:
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
 
@@ -148,7 +144,6 @@ def main() -> None:
         for data in example_riders_data
     ]
 
-
     pull_durations = [120.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
     pull_speed = 40.0  # Example speed in kph
@@ -162,6 +157,11 @@ def main() -> None:
 
     log_rider_contributions(f"{len(riders)} riders @ {pull_speed}kph\n", rider_contributions, logger)
 
-
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()

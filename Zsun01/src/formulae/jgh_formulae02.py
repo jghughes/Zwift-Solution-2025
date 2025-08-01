@@ -15,9 +15,6 @@ from computation_classes import RiderContributionItem, RiderExertionItem
 
 import logging
 from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-logging.getLogger("numba").setLevel(logging.ERROR)
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -204,7 +201,6 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     average_watts = safe_divide(1_000 * total_kilojoules, total_duration)
     return average_watts
 
-
 def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
     Calculate the normalized power for a list of efforts.
@@ -323,7 +319,6 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: ZsunItem, ri
 
     return  safe_divide(rider_contribution.normalized_watts, rider.get_one_hour_watts())
 
-
 def calculate_upper_bound_paceline_speed(riders: List[ZsunItem]) -> Tuple[ZsunItem, float, float]:
     """
     Determines the maxima of permitted pull speed among all standard pull durations of all riders.
@@ -426,7 +421,6 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[ZsunItem
             fastest_duration = 3600.0
     return fastest_rider, fastest_duration, highest_speed
 
-
 def calculate_dispersion_of_intensity_of_effort(rider_contributions: DefaultDict[ZsunItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
@@ -499,7 +493,6 @@ def arrange_riders_in_optimal_order(riders: List[ZsunItem]) -> List[ZsunItem]:
         back_idx -= 1
 
     return optimal_order
-
 
 def select_n_strongest_riders(riders: List[ZsunItem], n : int) -> List[ZsunItem]:
     if not riders:
@@ -622,30 +615,20 @@ def main():
     from handy_utilities import read_json_dict_of_ZsunDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-    from computation_classes import PacelineIngredientsItem
+    # from computation_classes import PacelineIngredientsItem
 
-
-
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
-    params = PacelineIngredientsItem(
-        riders_list                  = riders,
-        sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        pull_speeds_kph              = [30.0] * len(riders),
-        max_exertion_intensity_factor= 0.95)
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    riderIDs = get_team_riderIDs("test")
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     start_time = time.perf_counter()
 
     universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
     
     elapsed_time = time.perf_counter() - start_time
-
-    # for sequence in universe_of_sequences:
-    #     logger.debug(sequence)
 
     logger.debug(f"Generated universe_of_sequences of {len(universe_of_sequences)} paceline rotation sequences in {elapsed_time} seconds.")
 
@@ -660,7 +643,10 @@ def main():
 
     logger.debug(f"Generated pruned_sequences of {len(pruned_sequences)} paceline rotation sequences in {elapsed_time} seconds..")
 
-
-
 if __name__ == "__main__":
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()

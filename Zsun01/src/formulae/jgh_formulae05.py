@@ -63,12 +63,6 @@ def log_rider_exertions(test_description: str, result: DefaultDict[ZsunItem, Lis
     logger.info("\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
 
 def main() -> None:
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
-
-
 
     # Example: Instantiate riders using the Config class
     example_riders_data = [
@@ -84,7 +78,6 @@ def main() -> None:
         # ZsunItem.Config.json_schema_extra["coryc"],
         # ZsunItem.Config.json_schema_extra["davide"],
     ]
-
 
     # Convert example data to ZsunItem instances
     riders = [
@@ -104,5 +97,11 @@ def main() -> None:
     log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", dict_of_rider_exertions, logger)
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()
 
