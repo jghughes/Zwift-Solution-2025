@@ -25,8 +25,8 @@ from handy_utilities import read_json_dict_of_ZsunDTO
 from jgh_formulae02 import calculate_lower_bound_paceline_speed, calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts
 from jgh_formulae02 import arrange_riders_in_optimal_order
 from jgh_formulae06 import log_rider_contributions
-from jgh_formatting import format_number_comma_separators, format_pretty_duration_hms, truncate 
-from jgh_formulae08 import generate_all_sequences_of_pull_periods_in_the_total_solution_space
+from jgh_formatting import format_number_with_comma_separators, format_pretty_duration_hms, truncate 
+from jgh_formulae08 import generate_all_paceline_rotation_sequences_in_the_total_solution_space
 from jgh_formulae08 import generate_a_single_paceline_solution_complying_with_exertion_constraints, generate_paceline_solutions_using_parallel_workstealing_algorithm
 from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
 from filenames import RIDERS_FILE_NAME
@@ -74,7 +74,7 @@ def main():
     simple_result = generate_a_single_paceline_solution_complying_with_exertion_constraints(simple_params)
     simple_plan_line_items = simple_result.rider_contributions
 
-    all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+    all_conceivable_paceline_rotation_schedules = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
     # Prepare params for optimal search
     standard_params = PacelineIngredientsItem(
@@ -99,7 +99,7 @@ def main():
     log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)
     log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items, logger)
 
-    logger.info(f"\n\n\nReport: did {format_number_comma_separators(total_iterations)} iterations to evaluate {format_number_comma_separators(total_alternatives)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_with_comma_separators(total_iterations)} iterations to evaluate {format_number_with_comma_separators(total_alternatives)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
 
 
 

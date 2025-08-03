@@ -1,34 +1,33 @@
-from typing import  List, DefaultDict, Tuple, Optional, Dict, Any, List
+from typing import  List, DefaultDict, Tuple
 import os
 from collections import defaultdict
 from copy import deepcopy
 import concurrent.futures
 import time
 import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from jgh_string import first_n_chars
-from jgh_formatting import (truncate, format_number_comma_separators, format_number_1dp, format_pretty_duration_hms)
+from jgh_formatting import (truncate, format_number_with_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
 from zsun_rider_item import ZsunItem
 from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem, WorthyCandidateSolutionItem)
 from computation_classes_display_objects import PacelineSolutionsComputationReportDisplayObject
-from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_sequences_of_pull_periods_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effort)
+from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_paceline_rotation_sequences_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effort)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
 
-from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, CHUNK_OF_KPH_PER_ITERATION, REQUIRED_PRECISION_OF_SPEED, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION, SOLUTION_FILTERING_THRESHOLD, STANDARD_PULL_PERIODS_SEC_AS_LIST)
-
+from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, CHUNK_OF_KPH_PER_ITERATION, REQUIRED_PRECISION_OF_SPEED, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
 import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-logging.getLogger("numba").setLevel(logging.ERROR)
 
-# NB. AT NO STAGE USE LOGGING DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED BY THE PARALLEL PROCESSING CODE. 
+# CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
-# THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE.
+# THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE. 
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunItem], logger: logging.Logger):
 
@@ -56,7 +55,7 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
 def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject, logger: logging.Logger) -> None:
 
     message_lines = [
-        f"\nBrute report: did {format_number_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
+        f"\nBrute report: did {format_number_with_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_with_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
         "Intensity Factor is Normalized Power/one-hour power. zFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
         "",
@@ -144,6 +143,8 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
         - If a feasible solution cannot be found within the maximum permitted iterations, the function returns the last computed result
           and sets algorithm_ran_to_completion to False.
         - The function assumes all input parameters are valid and finite.
+
+    WARNING: DO NOT USE LOGGING IN THIS FUNCTION OR ANY FUNCTIONS IT CALLS DIRECTLY OR INDIRECTLY. IT IS CALLED BY THE ProcessPoolExecutor. ANY CALL TO LOGGING OFF THE MAIN THREAD WILL LEAD TO GARBAGE OUTPUT.
     """
     riders = paceline_ingredients.riders_list
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
@@ -227,10 +228,10 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
 
 def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
-    rotation_sequences: List[List[float]]
+    paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReportItem]:
     """
-    Compute paceline solutions for a set of candidate pull period sequences using serial (single-threaded) processing.
+    Compute paceline paceline_computation_reports for a set of candidate pull period sequences using serial (single-threaded) processing.
 
     This function evaluates each candidate paceline rotation schedule one at a time, generating a solution for each by
     invoking the exertion-constrained paceline solver. For each alternative, it constructs a PacelineIngredientsItem
@@ -241,7 +242,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
         paceline_ingredients: PacelineIngredientsItem
             The base input parameters for the computation, including the list of riders, initial pull speeds,
             and exertion constraints. The pull periods are overridden for each alternative.
-        rotation_sequences: List[List[float]]
+        paceline_rotation_sequence_alternatives: List[List[float]]
             A list of candidate pull period schedules to evaluate, where each schedule is a list of pull durations (seconds).
 
     Returns:
@@ -254,34 +255,32 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
         - For large numbers of alternatives, consider using parallel processing for improved performance.
     """
 
-    paceline_description = PacelineIngredientsItem(
+    paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-    solutions: List[PacelineComputationReportItem] = []
+    paceline_computation_reports: List[PacelineComputationReportItem] = []
 
-    for sequence in rotation_sequences:
+    for sequence in paceline_rotation_sequence_alternatives:
         try:
-            paceline_description.sequence_of_pull_periods_sec = list(sequence)
-
-            result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_description)
-
+            paceline_ingredients.sequence_of_pull_periods_sec = list(sequence)
+            result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients)
             answer = PacelineComputationReportItem(
-                algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
-                compute_iterations_performed_count       = result.compute_iterations_performed_count,
-                exertion_intensity_constraint_used       = paceline_ingredients.max_exertion_intensity_factor,
-                calculated_average_speed_of_paceline_kph = result.calculated_average_speed_of_paceline_kph,
+                algorithm_ran_to_completion                 = result.algorithm_ran_to_completion,
+                compute_iterations_performed_count          = result.compute_iterations_performed_count,
+                exertion_intensity_constraint_used          = paceline_ingredients.max_exertion_intensity_factor,
+                calculated_average_speed_of_paceline_kph    = result.calculated_average_speed_of_paceline_kph,
                 calculated_dispersion_of_intensity_of_effort = calculate_dispersion_of_intensity_of_effort(result.rider_contributions),
-                rider_contributions                      = result.rider_contributions,
+                rider_contributions                         = result.rider_contributions,
             )
-            solutions.append(answer)
+            paceline_computation_reports.append(answer)
 
         except Exception as exc:
             # serial processing, so we can log the error, logging OK
-            logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
+            logger.error(f"Exception in function generate_paceline_solutions_using_serial_processing_algorithm(): {exc}")
 
-    return solutions
+    return paceline_computation_reports
 
 
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
@@ -289,12 +288,12 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReportItem]:
     """
-    Computes paceline solutions for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
+    Computes paceline paceline_computation_reports for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
 
     This function distributes the evaluation of each candidate paceline rotation schedule across available CPU cores using a process pool,
     allowing for efficient computation when the number of alternatives is large. For each alternative, it constructs a PacelineIngredientsItem
     with the specified pull periods, computes the optimal paceline speed and rider contributions, and collects the results. Invalid or incomplete
-    results are skipped and logged.
+    results are skipped. DO NOT USE LOGGING IN ANY FUNCTIONS CALLED BY THE ProcessPoolExecutor. IT WILL LEAD TO GARBAGE OUTPUT.
 
     Args:
         paceline_ingredients: PacelineIngredientsItem
@@ -311,9 +310,12 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         - This function is intended for use when the number of alternatives is large enough to benefit from parallel processing.
         - If an exception occurs for a particular alternative, it is logged and that alternative is skipped.
         - Invalid or incomplete results are logged as warnings and not included in the output list.
+
+    WARNING: DO NOT USE LOGGING IN ANY FUNCTIONS IT CALLS DIRECTLY OR INDIRECTLY WITHIN THE ProcessPoolExecutor. ANY CALL TO LOGGING OFF THE MAIN THREAD WILL LEAD TO GARBAGE OUTPUT.
+
     """
 
-    paceline_description = PacelineIngredientsItem(
+    paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
@@ -321,10 +323,10 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     list_of_instructions: List[PacelineIngredientsItem] = []    
     
     for sequence in paceline_rotation_sequence_alternatives:
-        paceline_description.sequence_of_pull_periods_sec = list(sequence)
-        list_of_instructions.append(deepcopy(paceline_description))
+        paceline_ingredients.sequence_of_pull_periods_sec = list(sequence)
+        list_of_instructions.append(deepcopy(paceline_ingredients))
 
-    solutions: List[PacelineComputationReportItem] = []
+    paceline_computation_reports: List[PacelineComputationReportItem] = []
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         future_to_params = {
@@ -335,13 +337,6 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
             try:
                 result = future.result()
 
-                if (result is None or
-                    not hasattr(result, "rider_contributions") or
-                    result.rider_contributions is None or
-                    not isinstance(result.rider_contributions, dict)):
-                    logger.warning(f"Skipping invalid result: {result}")
-                    continue
-
                 answer = PacelineComputationReportItem(
                     algorithm_ran_to_completion              = result.algorithm_ran_to_completion,
                     compute_iterations_performed_count       = result.compute_iterations_performed_count,
@@ -350,12 +345,12 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
                     calculated_dispersion_of_intensity_of_effort = calculate_dispersion_of_intensity_of_effort(result.rider_contributions),
                     rider_contributions                      = result.rider_contributions,
                 )
-                solutions.append(answer)
+                paceline_computation_reports.append(answer)
             except Exception as exc:
-                logger.error(f"Exception in function generate_a_single_paceline_solution_complying_with_exertion_constraints(): {exc}")
+                logger.error(f"Exception in function generate_paceline_solutions_using_parallel_workstealing_algorithm(): {exc}")
 
 
-    return solutions
+    return paceline_computation_reports
 
 
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
@@ -734,7 +729,6 @@ def is_hang_in_solution_candidate(
 
     return answer
 
-
 def update_candidate_solution(
     this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem,
@@ -802,7 +796,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     validate_paceline_ingredients(paceline_ingredients)    
 
-    universe_of_rotation_sequences= generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
+    universe_of_rotation_sequences= generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
 
     pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(
         universe_of_rotation_sequences, paceline_ingredients.riders_list
@@ -813,8 +807,8 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     # logger.debug(f"Number of paceline rotation sequence alternatives generated: {len(pruned_sequences)}")
 
-    if len(pruned_sequences) > SOLUTION_FILTERING_THRESHOLD:
-        logger.warning(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_comma_separators(len(STANDARD_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
+    if len(pruned_sequences) > ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
+        logger.warning(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(STANDARD_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_with_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
 
     start_time = time.perf_counter()
 
@@ -876,57 +870,68 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
     )
 
 
-
-
-
-
 def main01():
-    from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_teams import get_team_riderIDs
-    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-    import pandas as pd
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+    """
+    Benchmarks and compares the compute time of serial-processing versus parallel processing for paceline-sequences according to the size of universe of paceline-sequences. The size is governed by the cross-product of the number of riders and the number of standard pull periods (currently 0, 30, 60, 120, 180, 240, 300). Processing time is exponentialy explosive as the number of sequences grows.
+
+    The idea with this main01() is to manually increase the number of riders (i.e. the number of sequences) and to determine when parallel-processing overtakes serial-processing in terms of compute speed. I use main01() to emprically determine the sweet spot for the constant SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD. This constant is subsequently relied upon by Brute in all scenarios. It is therefore important to get the constant right. At the time of writing (Aug 2025), the numbers look like this:
+        
+        Riders  Sequences   serial-processing (sec) parallel-processing (min/sec)
 
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("betel")
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
+    This function:
+      - Loads rider data and team composition from JSON and utility functions.
+      - Generates all possible paceline rotation sequences for the team and standard pull periods.
+      - Runs the paceline solution algorithm using both serial and parallel approaches, timing each.
+      - Logs and writes a summary report comparing the compute times and time saved by parallelization.
+      - Visualizes the results in a bar chart and saves the chart as a PNG file.
 
-    all_conceivable_paceline_rotation_schedules = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+    The function is intended for performance analysis and does not return a value. All results are logged and written to disk.
 
-    plan_params = PacelineIngredientsItem(
+    Side Effects:
+      - Writes a summary report to a text file.
+      - Saves a bar chart visualization as a PNG file.
+      - Logs progress and results using the configured logger.
+
+    Raises:
+      - Exceptions are logged if encountered during computation.
+
+    Dependencies:
+      - Expects global variables RIDERS_FILE_NAME and DATA_DIRPATH to be set.
+      - Requires pandas, seaborn, matplotlib, and other project-specific modules.
+    """
+
+    paceline_ingredients = PacelineIngredientsItem(
         riders_list                   = riders,
         sequence_of_pull_periods_sec  = STANDARD_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph               = [30.0] * len(riders),
         max_exertion_intensity_factor = 0.95
     )
 
+    save_filename_without_ext = f"compare_serial_processing_versus_parallel_processing_duration_{len(riders)}"
 
-    save_filename_without_ext = f"benchmark_parallel_processing_{len(riders)}_riders"
+    logger.debug(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences (no solution-space pruning. all sequences evaluated.")
+    logger.debug(f"\nCommencing serial processing. This could take a very long time depending on the number of sequences. Please wait....")
 
-    logger.debug(f"Starting: benchmarking serial vs parallel processing with {len(riders)} riders")
-
-
-    # Serial run as the base case
+    # Serial run as the base case (ignore squigglies here, they are inconsequential warnings)
     s1 = time.perf_counter()
-    _ = generate_paceline_solutions_using_serial_processing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
+    _ = generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, all_conceivable_paceline_rotation_sequences)
     s2 = time.perf_counter()
-    logger.debug(f"Base-case: serial run compute time (measured): {round(s2 - s1, 2)} seconds")
-
-    # Parallel run
+    logger.debug(f"\nBase-case: serial run compute time (measured): {round(s2 - s1, 2)} seconds")
+    logger.debug(f"\nCommencing parallel processing. Please wait....")
+    # Parallel run (ignore squigglies here, they are inconsequential warnings)
     p1 = time.perf_counter()
-    _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(plan_params, all_conceivable_paceline_rotation_schedules)
+    _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, all_conceivable_paceline_rotation_sequences)
     p2 = time.perf_counter()
 
-    logger.debug(f"Test-case: parallel run compute time (measured): {round(p2 - p1,2)} seconds")
+    logger.debug(f"\nTest-case: parallel run compute time (measured): {round(p2 - p1,2)} seconds")
 
     # --- Summary Report ---
-    report_lines = []
+    report_lines : List[str] = []
     report_lines.append("Benchmark Summary Report\n")
     report_lines.append(f"Number of riders: {len(riders)}\n\n")
+    report_lines.append(f"Number of standard pull periods: {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}\n\n")
+    report_lines.append(f"Consequential number of paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n\n")
     report_lines.append("Serial run:\n")
     report_lines.append(f"  Compute time (measured): {round(s2 - s1, 2)} seconds\n")
     report_lines.append("Parallel run (work-stealing):\n")
@@ -948,7 +953,7 @@ def main01():
 
     plt.figure(figsize=(8, 5))
     sns.barplot(data=df, x="Method", y="Compute Time (s)", hue="Method", palette="Blues_d", legend=False)    
-    plt.title("Compute Time: Serial vs Parallel (work stealing)")
+    plt.title(f"Comparative Compute Time: Serial-processing vs Parallel-processing (work stealing): Rotation sequences: {pretty_number_of_sequences_before_pruning}")
     plt.ylabel("Compute Time (seconds)")
     plt.xlabel("Method")
     plt.tight_layout()
@@ -956,16 +961,38 @@ def main01():
     plt.show()
     logger.debug(f"Bar chart saved to {save_filename_without_ext}.png")
 
-
 def main02():
+    """
+    Calculates the resultant compute time if we incrementally prune the massive size of the universe of the paceline_rotation_solutions down to a specified goal and only thereafter commence the processing of solutions. Pruning achieves massive savings. The pruning proceeds in incremental steps. It will run until it exhausts itself, or it will stop automatically when it meets it goal and hops under the empirically determined goal specified by the constant ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL. Following pruning, the algorithm does whatever is faster - either serial-processing or parallel-processing. This is empically determined and specified by the constant - SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD. Below the threshold, serial processing is deemed to faster (which it is).
+
+    The idea with this main02() is to manually increase the number of riders and learn if Brute can do its work in an acceptable amount of time as the number of rider increases. At the time of writing (Aug 2025), the numbers look like this:
+
+    This function:
+      - Loads rider data and team composition from JSON and utility functions.
+      - Sets up paceline computation parameters for the team.
+      - Generates and evaluates paceline solutions using the most performant algorithm (serial or parallel, with solution-space pruning).
+      - Extracts and logs key solution metrics for several paceline strategies (simple, balanced, tempo, drop).
+      - Writes a summary report of the computation time and results to a text file.
+
+    The function is intended for performance and solution quality analysis. All results are logged and written to disk.
+
+    Side Effects:
+      - Writes a summary report to a text file.
+      - Logs progress and results using the configured logger.
+
+    Raises:
+      - Exceptions are logged if encountered during computation.
+
+    Dependencies:
+      - Expects global variables RIDERS_FILE_NAME and DATA_DIRPATH to be set.
+      - Requires project-specific modules and data files.
+    """    
     from handy_utilities import read_json_dict_of_ZsunDTO
     from repository_of_teams import get_team_riderIDs
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_team_riderIDs("test")
     riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     params = PacelineIngredientsItem(
@@ -975,9 +1002,9 @@ def main02():
         max_exertion_intensity_factor= 0.95
     )
 
-    save_filename_without_ext = f"run_optimised_filters_and_parallelisation_with_{len(riders)}_riders"
+    save_filename_without_ext = f"do_pruning_before_processing_with_{len(riders)}_riders"
 
-    logger.debug(f"Testing: running sensible empirically-measured thresholds for no-filtering -> filtering and serial -> parallel processing with {len(riders)} riders")
+    logger.debug(f"Testing: running sensible empirically-measured thresholds for no-pruning, pruning + serial_processing, pruning + parallel processing with {len(riders)} riders")
 
     computation_report = generate_ingenious_paceline_solutions(params)
 
@@ -987,28 +1014,28 @@ def main02():
     hang_in_solution = computation_report.hang_in_solution
 
     simple_speed = sixty_sec_solution.calculated_average_speed_of_paceline_kph if sixty_sec_solution else None
-    balanced_speed = balanced_solution.calculated_average_speed_of_paceline_kph if balanced_solution else None
-    tempo_speed = everybody_pull_hard_solution.calculated_average_speed_of_paceline_kph if everybody_pull_hard_solution else None
-    drop_speed = hang_in_solution.calculated_average_speed_of_paceline_kph if hang_in_solution else None
+    # balanced_speed = balanced_solution.calculated_average_speed_of_paceline_kph if balanced_solution else None
+    # tempo_speed = everybody_pull_hard_solution.calculated_average_speed_of_paceline_kph if everybody_pull_hard_solution else None
+    # drop_speed = hang_in_solution.calculated_average_speed_of_paceline_kph if hang_in_solution else None
 
     logger.debug(f"Test-case: time taken using most performant algorithm (measured): {round(computation_report.computational_time,2)} seconds.")
 
     simple_guid    = first_n_chars(sixty_sec_solution.guid, 2) if sixty_sec_solution else "--"
-    balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
-    tempo_guid     = first_n_chars(everybody_pull_hard_solution.guid, 2) if everybody_pull_hard_solution else "--"
-    drop_guid      = first_n_chars(hang_in_solution.guid, 2) if hang_in_solution else "--"
+    # balanced_guid  = first_n_chars(balanced_solution.guid, 2) if balanced_solution else "--"
+    # tempo_guid     = first_n_chars(everybody_pull_hard_solution.guid, 2) if everybody_pull_hard_solution else "--"
+    # drop_guid      = first_n_chars(hang_in_solution.guid, 2) if hang_in_solution else "--"
 
-    logger.debug(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
-    logger.debug(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")
-    logger.debug(f"tempo solution speed (kph)            : {tempo_guid} : {tempo_speed}")
-    logger.debug(f"drop solution speed (kph)             : {drop_guid} : {drop_speed}")
+    # logger.debug(f"simple solution speed (kph)           : {simple_guid} : {simple_speed}")
+    # logger.debug(f"balanced-effort solution speed (kph)  : {balanced_guid} : {balanced_speed}")
+    # logger.debug(f"everybody pull hard solution speed (kph)            : {tempo_guid} : {tempo_speed}")
+    # logger.debug(f"race solution speed (kph)             : {drop_guid} : {drop_speed}")
 
     # --- Summary Report ---
-    # --- Summary Report ---
-    report_lines = []
+    report_lines : List[str] = []
     report_lines.append("Benchmark Summary Report\n")
     report_lines.append(f"Number of riders: {len(riders)}\n\n")
-    report_lines.append("Most performant algorithm:\n")
+    report_lines.append(f"Number of standard pull periods: {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}\n\n")
+    report_lines.append(f"Consequential number of paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n\n")
     report_lines.append(f"  Compute-time (measured): {round(computation_report.computational_time,2)} seconds\n")
     report_lines.append("\n")
 
@@ -1019,5 +1046,29 @@ def main02():
     logger.debug(f"Summary report written to {save_filename_without_ext}.txt")
 
 if __name__ == "__main__":
+    from jgh_formatting import format_number_with_comma_separators
+    from handy_utilities import read_json_dict_of_ZsunDTO
+    from repository_of_teams import get_team_riderIDs
+    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logger = logging.getLogger(__name__)
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba generates a lot of INFO messages that are not useful here
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    riderIDs = get_team_riderIDs("test")
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
+
+    all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+
+    pretty_number_of_sequences_before_pruning = format_number_with_comma_separators(len(all_conceivable_paceline_rotation_sequences))
+
+
+
     main01()    
     # main02()

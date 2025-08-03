@@ -88,7 +88,7 @@ def format_number_4sig(x : Union[int, float]):
     """
     return f"{x:.4g}"
 
-def format_number_comma_separators(x: Union[int, float]) -> str:
+def format_number_with_comma_separators(x: Union[int, float]) -> str:
     """
     Format a number with thousands separators and up to 2 decimal places.
     For floats, trailing zeros and decimal points are removed if unnecessary.

@@ -1,0 +1,8 @@
+Benchmark Summary Report
+Number of riders: 2
+
+Serial run:
+  Compute time (measured): 0.53 seconds
+Parallel run (work-stealing):
+  Compute time (measured): 12.53 seconds
+Time saved by parallelisation: -12.0 seconds

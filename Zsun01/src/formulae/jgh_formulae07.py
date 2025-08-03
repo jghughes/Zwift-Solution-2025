@@ -1,7 +1,7 @@
 from typing import Optional, Union
 import io
 from jgh_string import first_n_chars
-from jgh_formatting import format_number_1dp, format_number_comma_separators
+from jgh_formatting import format_number_1dp, format_number_with_comma_separators
 from paceline_plan_display_ingredients import DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS
 from html_css import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
@@ -22,9 +22,9 @@ def make_pretty_caption_for_a_paceline_plan(
             f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)}kph "
             f"{suffix} "
             f"[sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-            f"t={format_number_comma_separators(overall_report.computational_time)}sec "
-            # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+            f"n={format_number_with_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"t={format_number_with_comma_separators(overall_report.computational_time)}sec "
+            # f"itr={format_number_with_comma_separators(report.compute_iterations_performed_count)}"
             f"ID={first_n_chars(report.guid,3)}]"
         )
     else:
@@ -33,9 +33,9 @@ def make_pretty_caption_for_a_paceline_plan(
             f"{format_number_1dp(report.calculated_average_speed_of_paceline_kph)} kph "
             f"[sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
             f"sigma={format_number_1dp(100*report.calculated_dispersion_of_intensity_of_effort)}% "
-            f"n={format_number_comma_separators(overall_report.total_pull_sequences_examined)} "
-            f"t={format_number_comma_separators(overall_report.computational_time)}sec"
-            # f"itr={format_number_comma_separators(report.compute_iterations_performed_count)}"
+            f"n={format_number_with_comma_separators(overall_report.total_pull_sequences_examined)} "
+            f"t={format_number_with_comma_separators(overall_report.computational_time)}sec"
+            # f"itr={format_number_with_comma_separators(report.compute_iterations_performed_count)}"
             f"ID={first_n_chars(report.guid,3)}]"
         )
 
@@ -268,7 +268,12 @@ def main() -> None:
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_contributions)
 
-    log_a_paceline_plan(f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}", dict_of_rider_pullplan_displayobjects, logger)
+    report = PacelineComputationReportDisplayObject(
+        display_caption=f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}",
+        rider_contributions_display_objects=dict_of_rider_pullplan_displayobjects
+    )
+
+    log_a_paceline_plan(report, logger)
 
 
 if __name__ == "__main__":

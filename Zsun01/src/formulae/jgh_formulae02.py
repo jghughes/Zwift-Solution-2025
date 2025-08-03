@@ -5,7 +5,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 # from numpy import ndarray  # optional, for explicit ndarray type hints
-from constants import SOLUTION_FILTERING_THRESHOLD
+from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_number import safe_divide
 from rolling_average import calculate_rolling_averages
 from jgh_formatting import truncate 
@@ -544,7 +544,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
         - Intended to improve computational performance by discarding unlikely or suboptimal sequences before
           more expensive computations are performed.
     """
-    if len(pull_period_sequences_being_pruned) < SOLUTION_FILTERING_THRESHOLD + 1:
+    if len(pull_period_sequences_being_pruned) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL + 1:
         return pull_period_sequences_being_pruned
 
     arr = pull_period_sequences_being_pruned
@@ -561,7 +561,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
             continue
         mask &= arr[:, idx] >= weakest_values[:, 0]
     arr = arr[mask]
-    if len(arr) < SOLUTION_FILTERING_THRESHOLD:
+    if len(arr) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
         return arr
 
     # Filter 2: For n in 1..12, no rider (except top n-1) can have a pull longer than the nth strongest
@@ -576,12 +576,12 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
                 continue
             mask &= arr[:, idx] <= nth_values[:, 0]
         arr = arr[mask]
-        if len(arr) < SOLUTION_FILTERING_THRESHOLD:
+        if len(arr) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
             return arr
 
     return arr
 
-def generate_all_sequences_of_pull_periods_in_the_total_solution_space(
+def generate_all_paceline_rotation_sequences_in_the_total_solution_space(
     length_of_paceline: int,
     standard_pull_periods_seconds: List[float]
 ) -> NDArray[np.float64]:
@@ -626,7 +626,7 @@ def main():
 
     start_time = time.perf_counter()
 
-    universe_of_sequences = generate_all_sequences_of_pull_periods_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+    universe_of_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
     
     elapsed_time = time.perf_counter() - start_time
 
