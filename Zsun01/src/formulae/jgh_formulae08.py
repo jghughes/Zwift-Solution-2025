@@ -874,9 +874,15 @@ def main01():
     """
     Benchmarks and compares the compute time of serial-processing versus parallel processing for paceline-sequences according to the size of universe of paceline-sequences. The size is governed by the cross-product of the number of riders and the number of standard pull periods (currently 0, 30, 60, 120, 180, 240, 300). Processing time is exponentialy explosive as the number of sequences grows.
 
-    The idea with this main01() is to manually increase the number of riders (i.e. the number of sequences) and to determine when parallel-processing overtakes serial-processing in terms of compute speed. I use main01() to emprically determine the sweet spot for the constant SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD. This constant is subsequently relied upon by Brute in all scenarios. It is therefore important to get the constant right. At the time of writing (Aug 2025), the numbers look like this:
+    The idea with this main01() is to manually increase the number of riders (i.e. the number of sequences) and to determine when parallel-processing overtakes serial-processing in terms of compute speed. I use main01() to emprically determine the sweet spot for the constant SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD. This constant is subsequently relied upon by Brute in all scenarios. It is therefore important to get the constant right. The paramater is tuned for my powerful laptop. it will be different for a puny server with fewer cores. At the time of writing (Aug 2025), the numbers look like this:
         
         Riders  Sequences   serial-processing (sec) parallel-processing (min/sec)
+            1           7                   <1s                        5s 
+            2          49                   <1s                        11s
+            3         343                   5s                         11s
+            4        2,401                  67s                        13s
+            5       16,807                  10m                        78s
+            6      117,649                  4h06m                      13m
 
 
     This function:
@@ -886,7 +892,7 @@ def main01():
       - Logs and writes a summary report comparing the compute times and time saved by parallelization.
       - Visualizes the results in a bar chart and saves the chart as a PNG file.
 
-    The function is intended for performance analysis and does not return a value. All results are logged and written to disk.
+    The function is intended for performance analysis and does not return a value. All results are logged and saved as a .png.
 
     Side Effects:
       - Writes a summary report to a text file.
@@ -947,13 +953,13 @@ def main01():
 
     # --- Visualization: Bar Chart ---
     df = pd.DataFrame([
-        {"Method": "Serial", "Compute Time (s)": s2 - s1},
-        {"Method": "Parallel (work stealing)", "Compute Time (s)": p2 - p1},
+        {"Method": "Serial-processing", "Compute Time (s)": s2 - s1},
+        {"Method": "Parallel-processing (work stealing)", "Compute Time (s)": p2 - p1},
     ])
 
     plt.figure(figsize=(8, 5))
     sns.barplot(data=df, x="Method", y="Compute Time (s)", hue="Method", palette="Blues_d", legend=False)    
-    plt.title(f"Comparative Compute Time: Serial-processing vs Parallel-processing (work stealing): Rotation sequences: {pretty_number_of_sequences_before_pruning}")
+    plt.title(f"Compute Time: Serial-processing vs Parallel-processing (work stealing): Paceline rotation sequences: {pretty_number_of_sequences_before_pruning}")
     plt.ylabel("Compute Time (seconds)")
     plt.xlabel("Method")
     plt.tight_layout()

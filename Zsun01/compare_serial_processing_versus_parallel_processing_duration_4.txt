@@ -1,0 +1,12 @@
+Benchmark Summary Report
+Number of riders: 4
+
+Number of standard pull periods: 7
+
+Consequential number of paceline-rotation sequences: 2,401
+
+Serial run:
+  Compute time (measured): 67.04 seconds
+Parallel run (work-stealing):
+  Compute time (measured): 12.8 seconds
+Time saved by parallelisation: 54.24 seconds
