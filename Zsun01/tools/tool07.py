@@ -26,6 +26,7 @@ The script performs the following steps:
 This tool demonstrates data loading, aggregation, export, and formatted
 logging for cycling performance analysis using Python.
 """
+from scraped_zwift_data_repository import read_zwift_files, read_zwiftpower_graph_watts_files
 
 from handy_utilities import *
 import pandas as pd
@@ -52,9 +53,9 @@ def main():
     betel_IDs = get_test_IDs()
     # betel_IDs = ['4945836'] # david_evanetich
 
-    dict_of_profiles_for_everybody = read_zwift_files(betel_IDs, ZWIFT_DIRPATH) # merely need this to get the first and last names of the riders
+    dict_of_profiles_for_everybody = read_zwift_files(betel_IDs, ZWIFT_DIRPATH, logger, logging.DEBUG) # merely need this to get the first and last names of the riders
 
-    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH) # read all the raw 90-day best power files for the riders in betel_IDs
+    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG)) # read all the raw 90-day best power files for the riders in betel_IDs
 
     OUTPUT_FILE_NAME = "jghbestpoweritems_for_betel.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"

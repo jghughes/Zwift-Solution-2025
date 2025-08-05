@@ -1,12 +1,12 @@
 
-from typing import Optional, Type, TypeVar, DefaultDict
+import os
+from typing import cast, Optional, Type, TypeVar, DefaultDict
 from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 import logging
 from jgh_sanitise_string import cleanup_name_string
-from jgh_read_write import write_pandas_dataframe_as_xlsx
-from handy_utilities import read_zwift_files, read_zwiftracingapp_files, read_zwiftpower_files, read_zwiftpower_graph_watts_files
+from jgh_read_write import write_pandas_dataframe_as_xlsx, read_filepath_as_text, help_select_filepaths_in_folder
 from zwift_rider_particulars_item import ZwiftItem
 from zwiftracingapp_rider_particulars_item import ZwiftRacingAppItem
 from zwiftpower_rider_particulars_item import ZwiftPowerItem
@@ -15,6 +15,160 @@ from zsun_watts_properties_item import ZsunWattsItem
 import pandas as pd
 from computation_classes import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
+
+from jgh_serialization import JghSerialization
+from zwift_rider_particulars_dto import ZwiftDTO
+from zwift_rider_particulars_item import ZwiftItem
+from zwiftpower_watts_ordinates_dto import ZwiftPowerWattsDTO
+from zwiftpower_rider_particulars_dto import ZwiftPowerDTO
+from zwiftpower_rider_particulars_item import ZwiftPowerItem
+from zwiftracingapp_rider_particulars_dto import ZwiftRacingAppDTO
+from zwiftracingapp_rider_particulars_item import ZwiftRacingAppItem
+from zsun_watts_properties_item import ZsunWattsItem
+from zsun_rider_item import ZsunItem
+
+
+#functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute. 
+
+def read_zwift_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftItem]:
+    logger.setLevel(log_level)
+    answer: defaultdict[str, ZwiftItem] = defaultdict(ZwiftItem)
+
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing...")
+    file_count = 0
+    error_count = 0
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.debug(f"Processing file: {file_name}")
+
+        inputjson = read_filepath_as_text(file_path)
+        file_count += 1
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftDTO)
+            dto = cast(ZwiftDTO, dto)
+        except Exception as e:
+            error_count += 1
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
+            continue
+        zwift_id, _ = os.path.splitext(file_name)
+        item = ZwiftItem.from_dataTransferObject(dto)
+        answer[zwift_id] = item
+
+    return answer
+
+
+def read_zwiftracingapp_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftRacingAppItem]:
+    logger.setLevel(log_level)
+    answer: defaultdict[str, ZwiftRacingAppItem] = defaultdict(ZwiftRacingAppItem)
+
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
+    file_count = 0
+    error_count = 0
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.debug(f"Processing file: {file_name}")
+        inputjson = read_filepath_as_text(file_path)
+        file_count += 1
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftRacingAppDTO)
+            dto = cast(ZwiftRacingAppDTO, dto)
+        except Exception as e:
+            error_count += 1
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
+            continue
+        zwift_id, _ = os.path.splitext(file_name)
+        item = ZwiftRacingAppItem.from_dataTransferObject(dto)
+        answer[zwift_id] = item
+
+    return answer
+
+
+def read_zwiftpower_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZwiftPowerItem]:
+    logger.setLevel(log_level)
+    answer: defaultdict[str, ZwiftPowerItem] = defaultdict(ZwiftPowerItem)
+
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
+
+    file_count = 0
+    error_count = 0
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.debug(f"Processing file: {file_name}")
+        inputjson = read_filepath_as_text(file_path)
+        file_count += 1
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftPowerDTO)
+            dto = cast(ZwiftPowerDTO, dto)
+        except Exception as e:
+            error_count += 1
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
+            continue
+        zwift_id, _ = os.path.splitext(file_name)
+        item = ZwiftPowerItem.from_dataTransferObject(dto)
+        answer[zwift_id] = item
+
+    return answer
+
+
+def read_zwiftpower_graph_watts_files(
+    file_names: Optional[list[str]],
+    dir_path: str,
+    logger: logging.Logger,
+    log_level: int = logging.INFO
+) -> DefaultDict[str, ZsunWattsItem]:
+    logger.setLevel(log_level)
+    answer: defaultdict[str, ZsunWattsItem] = defaultdict(ZsunWattsItem)
+
+    file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
+    logger.info(f"Found {len(file_paths)} files in {dir_path}. Please wait. Processing..")
+    file_count = 0
+    error_count = 0
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        logger.debug(f"Processing file: {file_name}")
+        inputjson = read_filepath_as_text(file_path)
+        file_count += 1
+        try:
+            dto = JghSerialization.validate(inputjson, ZwiftPowerWattsDTO)
+            dto = cast(ZwiftPowerWattsDTO, dto)
+        except Exception as e:
+            error_count += 1
+            logger.error(f"{error_count} serialization error in file: {file_name}.\nException: {e}\n")
+            logger.error(f"{error_count} serialisation error. Skipping file: {file_name}")
+            continue
+        zwift_id, _ = os.path.splitext(file_name)
+        temp = ZsunWattsItem.from_ZwiftPowerBestPowerDTO(dto)
+        temp.zwift_id = zwift_id
+        answer[zwift_id] = temp
+
+    return answer
+
+
+# repository for scraped data from DaveK's work on Zsun
 
 T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
 
@@ -419,12 +573,60 @@ class RepositoryForScrapedDataFromDaveK:
 
 # Testing
 
-ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
-def main(logger: logging.Logger, log_level: int = logging.INFO):
+
+def main03(logger: logging.Logger):
+
+
+    my_dict = read_zwift_files(None, ZWIFT_DIRPATH, logger,logging.INFO)
+
+    logger.info (f"Imported {len(my_dict)} zwift profile items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Profile for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.last_name} zFTP = {round(item.ftp)} Watts, Height = {round(item.height_mm/10.0)} cm")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+def main04(logger: logging.Logger):
+
+    my_dict = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH, logger,logging.INFO)
+
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.fullname} country = {item.country}")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+def main05(logger: logging.Logger):
+
+    my_dict = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH, logger,logging.INFO)
+
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} {item.zwift_name}")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+def main06(logger: logging.Logger):
+
+    my_dict = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH, logger,logging.INFO)
+
+    logger.info (f"Imported {len(my_dict)} items")
+    for zwift_id, item in my_dict.items():
+        if not item:
+            logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
+        logger.info(f"{zwift_id} cp60 = {item.bp_60}")
+
+    logger.info(f"Imported {len(my_dict)} items")
+
+
+
+def main11(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -472,7 +674,6 @@ def main(logger: logging.Logger, log_level: int = logging.INFO):
     df = rep.get_table_of_superset_of_sets_by_id([], [], logger)
     logger.debug("DataFrame of superset of Zwift IDs in all datasets including samples:")
     logger.debug(df)
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "beautiful_superset_of_everything.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
@@ -491,7 +692,7 @@ def main(logger: logging.Logger, log_level: int = logging.INFO):
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
 
-def main2(logger: logging.Logger, log_level: int = logging.INFO):
+def main12(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -535,7 +736,7 @@ def main2(logger: logging.Logger, log_level: int = logging.INFO):
     write_pandas_dataframe_as_xlsx(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main3(logger: logging.Logger, log_level: int = logging.INFO):
+def main13(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -571,13 +772,11 @@ def main3(logger: logging.Logger, log_level: int = logging.INFO):
 
     logger.debug("DataFrame of all Zwift profiles:")
     logger.debug(df)
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Zwift_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-
-def main4(logger: logging.Logger, log_level: int = logging.INFO):
+def main14(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -613,12 +812,11 @@ def main4(logger: logging.Logger, log_level: int = logging.INFO):
 
     logger.debug("DataFrame of all ZwiftRacingApp profiles:")
     logger.debug(df)
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftRacingApp_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main5(logger: logging.Logger, log_level: int = logging.INFO):
+def main15(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -654,13 +852,11 @@ def main5(logger: logging.Logger, log_level: int = logging.INFO):
 
     logger.debug("DataFrame of all ZwiftPower profiles:")
     logger.debug(df)
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-
-def main6(logger: logging.Logger, log_level: int = logging.INFO):
+def main16(logger: logging.Logger, log_level: int = logging.INFO):
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -696,7 +892,6 @@ def main6(logger: logging.Logger, log_level: int = logging.INFO):
 
     logger.debug("DataFrame of all Jgh best power curves:")
     logger.debug(df)
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "sexy_spreadsheet_of_all_Jgh_best_power_curves.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
@@ -708,10 +903,23 @@ if __name__ == "__main__":
     jgh_configure_logging("appsettings.json")
     logger = logging.getLogger(__name__)
 
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+
+
     # Comment/uncomment the lines below to run the tests you want. for more verbose output, set log_level to logging.DEBUG
-    # main(logger, logging.INFO)
-    # main2(logger, logging.INFO)
-    # main3(logger, logging.INFO)
-    # main4(logger, logging.INFO)
-    main5(logger, logging.INFO)
-    # main6(logger, logging.INFO)
+
+    # main03(logger, logging.INFO)
+    # main04(logger, logging.INFO)
+    # main05(logger, logging.INFO)
+    # main06(logger, logging.INFO)
+
+    # main11(logger, logging.INFO)
+    # main12(logger, logging.INFO)
+    # main13(logger, logging.INFO)
+    # main14(logger, logging.INFO)
+    main15(logger, logging.INFO)
+    # main16(logger, logging.INFO)

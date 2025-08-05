@@ -46,7 +46,9 @@ from dirpaths import DATA_DIRPATH
 
 import logging
 from jgh_logging import jgh_configure_logging
-from handy_utilities import read_json_dict_of_ZsunDTO, read_zwiftpower_graph_watts_files, write_json_dict_of_ZsunWattsItem, get_test_IDs
+from scraped_zwift_data_repository import read_zwiftpower_graph_watts_files
+
+from handy_utilities import read_json_dict_of_ZsunDTO, write_json_dict_of_ZsunWattsItem, get_test_IDs
 from jgh_sanitise_string import make_short_displayname
 
 def main():
@@ -64,7 +66,7 @@ def main():
 
     INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
-    betel_cp_dict = read_zwiftpower_graph_watts_files(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    betel_cp_dict = read_zwiftpower_graph_watts_files(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH, logger, logging.DEBUG)
 
     logger.debug(f"loaded cp_data for {len(betel_cp_dict)} riders")
 

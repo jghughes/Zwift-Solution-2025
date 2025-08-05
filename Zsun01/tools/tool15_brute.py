@@ -22,7 +22,7 @@ from computation_classes import PacelineIngredientsItem
 from handy_utilities import read_json_dict_of_ZsunDTO
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order
 from jgh_formulae07 import save_summary_of_all_paceline_plans_as_html
-from jgh_formulae08 import generate_ingenious_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions
+from jgh_formulae08 import generate_package_of_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions
 from jgh_formulae09 import generate_fastest_paceline_plan_for_n_strongest, save_multiple_individual_paceline_plans_as_html
 from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
 from html_css import FOOTNOTES
@@ -55,7 +55,7 @@ def main() -> None:
         sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
         max_exertion_intensity_factor= EXERTION_INTENSITY_FACTOR_LIMIT,
     )
-    report: Any = generate_ingenious_paceline_solutions(ingredients)
+    report: Any = generate_package_of_paceline_solutions(ingredients)
     report_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report)
 
     # COMPUTE 6th and 7th PLANS - DIMINISHING TEAM

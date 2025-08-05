@@ -9,7 +9,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from jgh_string import first_n_chars
 from jgh_formatting import (truncate, format_number_with_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
@@ -530,55 +529,6 @@ def is_sixty_second_pulls_solution_candidate(
 
     return answer
 
-def is_sixty_second_pulls_solution_candidate_to_be_deleted(
-    this_solution: PacelineComputationReportItem,
-    candidate: WorthyCandidateSolutionItem
-) -> bool:
-    """
-    Determines if the given solution qualifies as a 'simple solution' candidate.
-
-    Definition:
-        A 'simple solution' is a paceline configuration where all riders pull for equal, nonzero durations.
-        Every rider contributes the same amount of time at the front, and no one is left out or does extra.
-
-    Impact on Race Strategy:
-        - Fairness & Cohesion: Maximizes equality and inclusivity, ensuring all riders share the workload identically.
-        - Predictability: Simplifies rotation and communication, making it easy to execute, especially for less experienced teams.
-        - Performance: May not maximize overall speed if rider strengths vary, as stronger riders are underutilized and weaker riders may be overextended.
-        - Best for: Club rides, training, or events where team cohesion and fairness are prioritized over absolute speed.
-
-    Technical Description:
-        - Checks that all riders have nonzero pull durations (`all_nonzero`).
-        - Checks that all pull durations are equal (`all_equal`).
-        - Allows zero dispersion only if all durations and watts are identical (using `is_zero_dispersion_permissible_for_simple_solution`).
-        - A solution is considered superior and will replace the current candidate if:
-            * It is faster than the current candidate (regardless of dispersion), OR
-            * It is the same speed as the current candidate and has lower dispersion.
-        - Returns True if all these conditions are met.
-    """
-
-    this_solution_speed_kph = this_solution.calculated_average_speed_of_paceline_kph
-    this_solution_dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-
-    all_nonzero = all(rider.p1_duration != 0.0 for rider in this_solution.rider_contributions.values())
-    all_equal = len({rider.p1_duration for rider in this_solution.rider_contributions.values()}) == 1
-
-    zero_dispersion_ok = (
-        this_solution_dispersion != 0.0 or
-        is_zero_dispersion_permissible_for_simple_solution(this_solution)
-    )
-
-    answer = ((this_solution_speed_kph > candidate.speed_kph
-            or (this_solution_speed_kph == candidate.speed_kph and this_solution_dispersion < candidate.dispersion))
-        and zero_dispersion_ok
-        and all_nonzero
-        and all_equal
-    )
-    # if answer:
-    #     logger.debug(f"{first_n_chars(this_solution.guid,2)} {candidate.tag} {format_number_2dp(this_solution_speed_kph)}kph {format_number_3dp(this_solution_dispersion)}sigma isCandidate")
-
-    return answer
-
 def is_balanced_intensity_solution_candidate(
         this_solution: PacelineComputationReportItem,
         candidate: WorthyCandidateSolutionItem
@@ -678,7 +628,7 @@ def is_everyone_pull_hard_solution_candidate(
 
     return answer
 
-def is_hang_in_solution_candidate(
+def is_race_solution_with_possibility_of_drop_candidate(
     this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
@@ -752,7 +702,8 @@ def update_candidate_solution(
     candidate.dispersion = this_solution_dispersion
     candidate.solution   = this_solution
 
-def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
+
+def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
     ) -> PacelineSolutionsComputationReportItem:
     """
     Generates and returns optimal paceline solutions based on the provided paceline ingredients.
@@ -819,11 +770,12 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
 
     time_taken_to_compute = time.perf_counter() - start_time
 
-    thirty_sec_candidate                = WorthyCandidateSolutionItem(tag="30sec")
-    sixty_sec_candidate                 = WorthyCandidateSolutionItem(tag="60sec")
-    balanced_intensity_candidate        = WorthyCandidateSolutionItem(tag="bal  ")
-    everybody_pulls_hard_candidate      = WorthyCandidateSolutionItem(tag="push ")
-    hang_in_candidate                   = WorthyCandidateSolutionItem(tag="hang ")
+    # the tags are merely for pretty debugging and logging purposes
+    thirty_sec_candidate                = WorthyCandidateSolutionItem(tag="30sec   ")
+    sixty_sec_candidate                 = WorthyCandidateSolutionItem(tag="60sec   ")
+    balanced_intensity_candidate        = WorthyCandidateSolutionItem(tag="bal     ")
+    everybody_pulls_hard_candidate      = WorthyCandidateSolutionItem(tag="allpush ")
+    hang_in_candidate                   = WorthyCandidateSolutionItem(tag="race    ")
 
     total_compute_iterations_performed = 0 
 
@@ -846,7 +798,7 @@ def generate_ingenious_paceline_solutions(paceline_ingredients: PacelineIngredie
         if is_everyone_pull_hard_solution_candidate(this_solution, everybody_pulls_hard_candidate):
             update_candidate_solution(this_solution, everybody_pulls_hard_candidate, logger)
 
-        if is_hang_in_solution_candidate(this_solution, hang_in_candidate):
+        if is_race_solution_with_possibility_of_drop_candidate(this_solution, hang_in_candidate):
             update_candidate_solution(this_solution, hang_in_candidate, logger)
 
     raise_error_if_any_solutions_missing(

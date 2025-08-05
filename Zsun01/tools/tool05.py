@@ -47,7 +47,8 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunItem
-from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs, read_zwiftpower_graph_watts_files
+from scraped_zwift_data_repository import read_zwiftpower_graph_watts_files
+from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
@@ -102,7 +103,7 @@ def main():
 
     betel_IDs = get_test_IDs()
 
-    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG))
 
     # model critical_power and w_prime
 

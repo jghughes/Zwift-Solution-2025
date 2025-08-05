@@ -63,13 +63,19 @@ fitting, aggregation, and export for regression analysis. Note the use
 of Pandas for creating, merging, and writing tabular data as .csv files
 for Excel.
 """
-
+from typing import DefaultDict
+from collections import defaultdict
 import numpy as np
 from datetime import datetime
 import logging
-from handy_utilities import read_zwift_files, read_zwiftpower_graph_watts_files, write_json_dict_of_regressionmodellingItem
+from scraped_zwift_data_repository import read_zwift_files, read_zwiftpower_graph_watts_files
+
+from handy_utilities import write_json_dict_of_regressionmodellingItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from jgh_read_write import write_pandas_dataframe_as_xlsx
+from zsun_watts_properties_item import ZsunWattsItem
+from zsun_rider_item import ZsunItem
+
 from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
 from computation_classes import CurveFittingResultItem
 from regression_modelling_item import RegressionModellingItem
@@ -91,9 +97,9 @@ def main():
     sample_IDs = None
     # sample_IDs = get_test_IDs()
 
-    dict_of_zwift_profiles_for_everybody = read_zwift_files(sample_IDs, ZWIFT_DIRPATH)
+    dict_of_zwift_profiles_for_everybody = read_zwift_files(sample_IDs, ZWIFT_DIRPATH, logger, logging.DEBUG)
 
-    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG)
 
     logger.info(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
@@ -232,12 +238,12 @@ def main():
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-    dict_of_ZsunItems : defaultdict[str, ZsunItem] = repository.get_dict_of_ZsunItem(zwiftIds_with_high_fidelity)
-    dict_of_zp_90day_graph_watts : defaultdict[str,ZsunWattsItem] = repository.get_dict_of_ZsunWattsItem(zwiftIds_with_high_fidelity)
+    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG) 
+    dict_of_ZsunItems : defaultdict[str, ZsunItem] = repository.get_dict_of_ZsunItem(zwiftIds_with_high_fidelity, logger)
+    dict_of_zp_90day_graph_watts : DefaultDict[str,ZsunWattsItem] = repository.get_dict_of_ZsunWattsItem(zwiftIds_with_high_fidelity)
     
     
-    dict_of_riders_with_high_fidelity : defaultdict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)
+    dict_of_riders_with_high_fidelity : DefaultDict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)
 
     for ID in zwiftIds_with_high_fidelity:
         zwift = dict_of_zwift_profiles_for_everybody[ID]
