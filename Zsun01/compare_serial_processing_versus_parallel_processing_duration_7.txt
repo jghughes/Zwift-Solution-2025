@@ -1,0 +1,9 @@
+Benchmark Summary Report
+Number of riders: 7
+Number of standard pull periods: 7
+Universe of all paceline-rotation sequences: 823,543
+Pruning goal: 1024
+Paceline-rotation sequences after pruning: 1,716
+Serial run: Compute time: 128.49 seconds
+Parallel run (work-stealing): Compute time: 21.88 seconds
+Time saved by parallelisation: 106.6 seconds

@@ -3,10 +3,12 @@ Number of riders: 4
 
 Number of standard pull periods: 7
 
-Consequential number of paceline-rotation sequences: 2,401
+Universe of all paceline-rotation sequences: 2,401
+
+Paceline-rotation sequences after pruning: 980
 
 Serial run:
-  Compute time (measured): 67.04 seconds
+  Compute time (measured): 27.07 seconds
 Parallel run (work-stealing):
-  Compute time (measured): 12.8 seconds
-Time saved by parallelisation: 54.24 seconds
+  Compute time (measured): 10.43 seconds
+Time saved by parallelisation: 16.65 seconds
