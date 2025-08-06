@@ -47,23 +47,16 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunItem
-from scraped_zwift_data_repository import read_zwiftpower_graph_watts_files
+from repository_of_scraped_riders import read_zwiftpower_graph_watts_files
 from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
-
-
+import logging
+logger = logging.getLogger(__name__)
 
 
 def main():
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-    from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH
 
 
 
@@ -93,11 +86,6 @@ def main():
 
     zwiftID = davek
 
-    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
 
     dict_of_zsun01_betel_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
@@ -195,5 +183,20 @@ def main():
     plt.show()
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
+
+    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
+    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
+    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
+    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
+
+
     main()
 

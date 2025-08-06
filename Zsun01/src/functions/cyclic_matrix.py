@@ -1,5 +1,7 @@
 from typing import List
 from zsun_rider_item import ZsunItem
+import logging
+logger = logging.getLogger(__name__)
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.
@@ -38,15 +40,8 @@ def generate_cyclic_matrix(riders: List[ZsunItem]) -> List[List[ZsunItem]]:
 
 # Example usage:
 def main():
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
 
     from handy_utilities import read_json_dict_of_ZsunDTO
-
-    RIDERDATA_FILE_NAME = "test_ZsunItems.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     dict_of_zwiftrideritem = read_json_dict_of_ZsunDTO(RIDERDATA_FILE_NAME, DATA_DIRPATH)
 
@@ -62,4 +57,12 @@ def main():
         logger.info([rider.name for rider in row])
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+
+    RIDERDATA_FILE_NAME = "test_ZsunItems.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
+
+
     main()

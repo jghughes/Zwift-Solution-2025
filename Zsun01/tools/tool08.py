@@ -65,41 +65,27 @@ for Excel.
 """
 from typing import DefaultDict
 from collections import defaultdict
-import numpy as np
 from datetime import datetime
-import logging
-from scraped_zwift_data_repository import read_zwift_files, read_zwiftpower_graph_watts_files
-
+import numpy as np
+from repository_of_scraped_riders import read_zwift_files, read_zwiftpower_graph_watts_files
 from handy_utilities import write_json_dict_of_regressionmodellingItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model, decay_model_numpy 
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from zsun_watts_properties_item import ZsunWattsItem
 from zsun_rider_item import ZsunItem
-
-from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
+from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
 from computation_classes import CurveFittingResultItem
 from regression_modelling_item import RegressionModellingItem
+import logging
+logger = logging.getLogger(__name__)
 
 def main():
-    minimum_required_r_squared_fit_for_one_hour_power_curve = .90
-
-    # output destination for results - the input ingested by tool12.py
-    REGRESSION_FILENAME_EXCEL = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
-    REGRESSION_FILENAME_JSON = "dataset_for_linear_regression_investigations_using_sklearn.json"
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-
-    # get all the raw input data from DaveK's scraping of Zwift, ZwiftPower, and ZwiftRacingApp - thousands of files
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
  
-    sample_IDs = None
-    # sample_IDs = get_test_IDs()
+    test_IDs = None # test_IDs = get_test_IDs()
 
-    dict_of_zwift_profiles_for_everybody = read_zwift_files(sample_IDs, ZWIFT_DIRPATH, logger, logging.DEBUG)
+    dict_of_zwift_profiles_for_everybody = read_zwift_files(test_IDs, ZWIFT_DIRPATH)
 
-    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(sample_IDs, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG)
+    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     logger.info(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
@@ -204,8 +190,8 @@ def main():
 
     logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}\n")
 
-    # logger.info(f"Riders with lower fidelity models [r_squared < {minimum_required_r_squared_fit_for_one_hour_power_curve}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
-    logger.info(f"Riders with excellent TTT pull curve fits [r_squared > {minimum_required_r_squared_fit_for_one_hour_power_curve}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
+    # logger.info(f"Riders with lower fidelity models [r_squared < {MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
+    logger.info(f"Riders with excellent TTT pull curve fits [r_squared > {MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
 
     # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, critical_power, and r_squared_cp. sorted by name
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
@@ -238,8 +224,8 @@ def main():
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG) 
-    dict_of_ZsunItems : defaultdict[str, ZsunItem] = repository.get_dict_of_ZsunItem(zwiftIds_with_high_fidelity, logger)
+    repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    dict_of_ZsunItems : defaultdict[str, ZsunItem] = repository.get_dict_of_ZsunItem(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : DefaultDict[str,ZsunWattsItem] = repository.get_dict_of_ZsunWattsItem(zwiftIds_with_high_fidelity)
     
     
@@ -293,11 +279,23 @@ def main():
     write_json_dict_of_regressionmodellingItem(dict_of_riders_with_high_fidelity, REGRESSION_FILENAME_JSON, OUTPUT_DIRPATH)
 
 if __name__ == "__main__":
-    # configure logging
+    # configure root logging since this is the entry point
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+
+    MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE = .90
+
+    # output destination for results - the input ingested by tool12.py
+    REGRESSION_FILENAME_EXCEL = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
+    REGRESSION_FILENAME_JSON = "dataset_for_linear_regression_investigations_using_sklearn.json"
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+
+    # get all the raw input data from DaveK's scraping of Zwift, ZwiftPower, and ZwiftRacingApp - thousands of files
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
 
     main()

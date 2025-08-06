@@ -4,7 +4,7 @@ from jgh_number import safe_divide
 from zsun_rider_item import ZsunItem
 from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
 from handy_utilities import read_json_dict_of_ZsunDTO
-from teams import get_team_riderIDs
+from teams import get_riderIDs_on_team_roster
 from jgh_formulae03 import generate_rider_permutations
 from jgh_formulae08 import generate_paceline_solutions_using_serial_and_parallel_algorithms
 from jgh_formatting import truncate
@@ -87,7 +87,7 @@ def main():
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_riderIDs_on_team_roster("betel")
 
     riders: list[ZsunItem] = [dict_of_ZsunItems[ID] for ID in riderIDs]
 

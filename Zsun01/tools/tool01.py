@@ -1,4 +1,3 @@
-import json
 """
 This tool is used to add new properties to each rider in the zwiftrider_dictionary.json file. This was a one-off task. It does, however,
 demonstrate how easy it is to read and write JSON files in Python, and how to modify existing properties in a JSON object.
@@ -11,6 +10,7 @@ Deserialization (json.load) and serialization (json.dump) are used to read and w
 
 No DTO classes are needed or used in this simple tool.
 """
+import json
 
 # Load the JSON data from the file and deserialise it into a parent dictionary object
 with open('C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/zwiftrider_dictionary.json', 'r') as file:

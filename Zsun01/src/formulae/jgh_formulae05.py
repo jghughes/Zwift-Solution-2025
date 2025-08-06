@@ -7,8 +7,8 @@ from jgh_formulae02 import calculate_wattage_riding_in_the_paceline
 from jgh_formulae04 import log_rider_work_assignments
 from computation_classes import RiderWorkAssignmentItem, RiderExertionItem
 from jgh_formulae04 import populate_rider_work_assignments
-
 import logging
+logger = logging.getLogger(__name__)
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunItem, List[RiderWorkAssignmentItem]]) -> DefaultDict[ZsunItem, List[RiderExertionItem]]:
@@ -37,7 +37,7 @@ def populate_rider_exertions(rider_work_assignments: DefaultDict[ZsunItem, List[
     
     return rider_workloads
 
-def log_rider_exertions(test_description: str, result: DefaultDict[ZsunItem, List[RiderExertionItem]], logger: logging.Logger) -> None:
+def log_rider_exertions(test_description: str, result: DefaultDict[ZsunItem, List[RiderExertionItem]]) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -90,18 +90,15 @@ def main() -> None:
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    log_rider_work_assignments("Calculated rider work assignments during paceline rotation [RiderWorkAssignmentItem]:", dict_of_rider_work_assignments, logger)
+    log_rider_work_assignments("Calculated rider work assignments during paceline rotation [RiderWorkAssignmentItem]:", dict_of_rider_work_assignments)
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", dict_of_rider_exertions, logger)
+    log_rider_exertions("Calculated rider exertion during paceline rotation [RiderExertionItem]:", dict_of_rider_exertions)
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     main()
 

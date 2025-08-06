@@ -1,3 +1,35 @@
+"""
+Module: zsun_rider_dto
+----------------------
+
+Defines the ZsunDTO data transfer object for representing Zwift rider profiles
+and related performance metrics. This module uses Pydantic for data validation
+and serialization, supporting flexible field aliasing and configuration.
+
+Classes:
+    - ZsunDTO: Main DTO for Zwift rider data, including identity, physical
+      attributes, and various cycling performance metrics from Zwift, ZwiftPower,
+      and ZwiftRacingApp sources.
+
+Constants:
+    - validation_alias_choices_map: Mapping for field alias validation.
+    - configdictV1, preferred_config_dict: Pydantic configuration for aliasing.
+
+Functions:
+    - main02(): Example usage for loading, validating, and serializing rider data
+      from JSON.
+
+Usage:
+    Import ZsunDTO to validate and serialize Zwift rider data across the
+    application. Use main02() for demonstration or testing purposes.
+
+Dependencies:
+    - pydantic
+    - jgh_read_write
+    - jgh_serialization
+
+"""
+
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator
 from typing import Optional
 from jgh_read_write import *

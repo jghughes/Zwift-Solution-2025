@@ -1,4 +1,6 @@
 from typing import Dict, List, Tuple
+import logging
+logger = logging.getLogger(__name__)
 
 def generate_cyclic_paceline_algebra(n: int) -> Dict[str, List[Tuple[str, str]]]:
     """
@@ -60,16 +62,13 @@ def generate_cyclic_paceline_algebra(n: int) -> Dict[str, List[Tuple[str, str]]]
 
 # Example usage:
 def main() -> None:
-    # Configure logging
-    import logging
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-
     n = 3
     paceline_algebra = generate_cyclic_paceline_algebra(n)
     for rider, assignments in paceline_algebra.items():
         logger.info(f"{rider} = {assignments}")
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+
     main()

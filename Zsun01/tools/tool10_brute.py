@@ -36,7 +36,6 @@ This tool demonstrates large-scale data integration, model application,
 and dataset preparation for club-level cycling analytics and reporting.
 """
 
-
 import numpy as np
 import pandas as pd
 from dataclasses import asdict
@@ -47,47 +46,40 @@ from jgh_serialization import *
 from jgh_read_write import write_json_file, write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import decay_model_numpy
 from zsun_rider_item import ZsunItem
-from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
-
+from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
 import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
 logger = logging.getLogger(__name__)
 
 def main():
-    output_filename_without_ext = "everyone_ZsunItems_for_copying_manually_into_ZSUN01"
-
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
 
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
     repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-    eligible_IDs = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y") 
 
-    logger.info(f"Imported {len(repository.dict_of_ZwiftProfileItem)} zwift profiles from : - \nDir : {ZWIFT_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftrRacingAppProfileItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_DIRPATH}\n")
-    logger.info(f"Imported {len(repository.dict_of_ZwiftPowerBestPowerDTO_as_ZsunBestPowerItem)} zwiftpower CP graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
+    eligible_IDs = repository.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y")
 
-    # do everybody
-    rider_ids_found = eligible_IDs
-    logger.info(f"Using all {len(eligible_IDs)} eligible IDs from repository. Subset of rider IDs not requested. No filtering required.")
+    logger.info(f"Using all {len(eligible_IDs)} eligible IDs from repository.")
+
+    dict_of_zwiftItem = repository.get_dict_of_ZwiftItem(eligible_IDs)
+    dict_of_ZwiftRacingAppItem = repository.get_dict_of_ZwiftRacingAppItem(eligible_IDs)
+    dict_of_ZwiftPowerItem = repository.get_dict_of_ZwiftPowerItem(eligible_IDs)
+    dict_of_ZsunWattsItem = repository.get_dict_of_ZsunWattsItem(eligible_IDs)
+    dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(eligible_IDs)
+
+    logger.info(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {ZWIFT_DIRPATH}\n")
+    logger.info(f"Imported {len(dict_of_ZwiftRacingAppItem)} zwiftracingapp profiles from : - \nDir :{ZWIFTRACINGAPP_DIRPATH}\n")
+    logger.info(f"Imported {len(dict_of_ZwiftPowerItem)} zwiftpower profiles from : - \nDir : {ZWIFTPOWER_DIRPATH}\n")
+    logger.info(f"Imported {len(dict_of_ZsunWattsItem)} zwiftpower 90-day best graphs from : - \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n")
 
     answer_dict : dict[str, ZsunItem] = dict[str, ZsunItem]()
 
-    dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(rider_ids_found)
-    
-    for key in repository.get_dict_of_ZwiftProfileItem(rider_ids_found):
-        zwift = repository.dict_of_ZwiftProfileItem[key]
-        zwiftpower = repository.dict_of_ZwiftPowerItem[key]
-        zwiftracingapp = repository.dict_of_ZwiftrRacingAppProfileItem[key]
+   
+    for key in dict_of_zwiftItem:
+        zwift = dict_of_zwiftItem[key]
+        zwiftpower = dict_of_ZwiftPowerItem[key]
+        zwiftracingapp = dict_of_ZwiftRacingAppItem[key]
 
-        if key in repository.dict_of_ZwiftrRacingAppProfileItem:
-            name = repository.dict_of_ZwiftrRacingAppProfileItem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
+        if key in dict_of_ZwiftRacingAppItem:
+            name = dict_of_ZwiftRacingAppItem[key].fullname or f"{zwift.first_name} {zwift.last_name}"
         else:
             name = f"{zwift.first_name} {zwift.last_name}"
 
@@ -130,13 +122,24 @@ def main():
     # filter out all items in dict where item.zsun_when_curves_fitted is blank
     answer_dict = {k: v for k, v in answer_dict.items() if v.zsun_when_curves_fitted != ""}
 
-    write_json_file(JghSerialization.serialise(answer_dict), f"{output_filename_without_ext}.json", OUTPUT_DIRPATH)
-    logger.info(f"Saved {len(answer_dict)} line-items in: {output_filename_without_ext}.json  DirPath: {OUTPUT_DIRPATH}")
+    write_json_file(JghSerialization.serialise(answer_dict), f"{OUTPUT_FILENAME_WITHOUT_EXT}.json", OUTPUT_DIRPATH)
+    logger.info(f"Saved {len(answer_dict)} line-items in: {OUTPUT_FILENAME_WITHOUT_EXT}.json  DirPath: {OUTPUT_DIRPATH}")
 
     df = pd.DataFrame([asdict(rider) for rider in answer_dict.values()])
-    write_pandas_dataframe_as_xlsx(df,  f"{output_filename_without_ext}.xlsx", OUTPUT_DIRPATH)
-    logger.info(f"Saved {len(answer_dict)} line-items in: {output_filename_without_ext}.xlsx  DirPath: {OUTPUT_DIRPATH}")
-
+    write_pandas_dataframe_as_xlsx(df,  f"{OUTPUT_FILENAME_WITHOUT_EXT}.xlsx", OUTPUT_DIRPATH)
+    logger.info(f"Saved {len(answer_dict)} line-items in: {OUTPUT_FILENAME_WITHOUT_EXT}.xlsx  DirPath: {OUTPUT_DIRPATH}")
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+
+    OUTPUT_FILENAME_WITHOUT_EXT = "everyone_ZsunItems_for_copying_manually_into_ZSUN01_data_folder" # the meat
+
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+
     main()

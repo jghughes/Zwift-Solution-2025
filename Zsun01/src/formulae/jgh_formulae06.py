@@ -5,9 +5,8 @@ from zsun_rider_dto import ZsunDTO
 from zsun_rider_item import ZsunItem
 from computation_classes import RiderExertionItem, RiderContributionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
-
 import logging
-
+logger = logging.getLogger(__name__)
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_contributions(riders: DefaultDict[ZsunItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> DefaultDict[ZsunItem, RiderContributionItem]:
@@ -84,7 +83,7 @@ def populate_rider_contributions(riders: DefaultDict[ZsunItem, List[RiderExertio
     return answer
 
 
-def log_rider_contributions(test_description: str, result: DefaultDict[ZsunItem, RiderContributionItem], logger: logging.Logger) -> None:
+def log_rider_contributions(test_description: str, result: DefaultDict[ZsunItem, RiderContributionItem]) -> None:
     from tabulate import tabulate
     logger.info(test_description)
     table = []
@@ -155,13 +154,10 @@ def main() -> None:
 
     rider_contributions = populate_rider_contributions(dict_of_rider_exertions, 0.95)
 
-    log_rider_contributions(f"{len(riders)} riders @ {pull_speed}kph\n", rider_contributions, logger)
+    log_rider_contributions(f"{len(riders)} riders @ {pull_speed}kph\n", rider_contributions)
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     main()

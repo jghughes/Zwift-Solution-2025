@@ -14,11 +14,6 @@ The script performs the following steps:
 This tool demonstrates advanced team time trial (TTT) strategy modeling, combinatorial optimization, and performance analytics for cycling using Python.
 """
 
-
-
-
-
-
 from zsun_rider_item import ZsunItem
 from jgh_number import safe_divide
 from handy_utilities import read_json_dict_of_ZsunDTO
@@ -31,18 +26,14 @@ from jgh_formulae08 import generate_a_single_paceline_solution_complying_with_ex
 from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
 from filenames import RIDERS_FILE_NAME
 from dirpaths import DATA_DIRPATH
-from teams import get_team_riderIDs
+from repository_of_team_rosters import get_riderIDs_on_team_roster
 import logging
-from jgh_logging import jgh_configure_logging
-
+logger = logging.getLogger(__name__)
 
 def main():
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_riderIDs_on_team_roster("betel")
     riders: list[ZsunItem] = [dict_of_ZsunItems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)
 
@@ -95,20 +86,17 @@ def main():
     halted_rider = low_dispersion_plan.rider_that_breeched_contraints
     high_speed_plan_line_items = high_speed_plan.rider_contributions
 
-    log_rider_contributions(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items, logger)
-    log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items, logger)
-    log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items, logger)
+    log_rider_contributions(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items)
+    log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items)
+    log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items)
 
     logger.info(f"\n\n\nReport: did {format_number_with_comma_separators(total_iterations)} iterations to evaluate {format_number_with_comma_separators(total_alternatives)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+
     main()
 
 

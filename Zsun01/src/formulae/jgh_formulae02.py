@@ -3,8 +3,6 @@ import time
 from typing import List
 import numpy as np
 from numpy.typing import NDArray
-
-# from numpy import ndarray  # optional, for explicit ndarray type hints
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_number import safe_divide
 from rolling_average import calculate_rolling_averages
@@ -12,9 +10,8 @@ from jgh_formatting import truncate
 from jgh_formulae01 import estimate_speed_from_wattage, estimate_watts_from_speed, estimate_drag_ratio_in_paceline
 from zsun_rider_item import ZsunItem
 from computation_classes import RiderContributionItem, RiderExertionItem
-
 import logging
-from jgh_logging import jgh_configure_logging
+logger = logging.getLogger(__name__)
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -613,15 +610,14 @@ def generate_all_paceline_rotation_sequences_in_the_total_solution_space(
 
 def main():
     from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_teams import get_team_riderIDs
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-    # from computation_classes import PacelineIngredientsItem
 
     RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("test")
+    riderIDs = get_riderIDs_on_team_roster("test")
     riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     start_time = time.perf_counter()
@@ -644,9 +640,8 @@ def main():
     logger.debug(f"Generated pruned_sequences of {len(pruned_sequences)} paceline rotation sequences in {elapsed_time} seconds..")
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
     logging.getLogger("numba").setLevel(logging.ERROR)
 
     main()

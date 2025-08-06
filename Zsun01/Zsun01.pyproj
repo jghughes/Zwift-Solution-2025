@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\repositories\scraped_zwift_data_repository.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\repositories;src\classes;src\formulae;src\html;src\enums;src\paths;src\miscellaneous;data</SearchPath>
+    <StartupFile>src\formulae\jgh_formulae09.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\classes;src\formulae;src\enums;src\miscellaneous;data;data_repositories;data_utilities</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -33,11 +33,12 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="docs\" />
+    <Folder Include="data_repositories\" />
+    <Folder Include="data_utilities\" />
     <Folder Include="src\classes\" />
     <Folder Include="src\formulae\" />
     <Folder Include="src\enums\" />
     <Folder Include="src\miscellaneous\" />
-    <Folder Include="src\repositories\" />
     <Folder Include="tools\" />
     <Folder Include="src\" />
     <Folder Include="src\functions\" />
@@ -81,10 +82,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="filenames.py" />
-    <Compile Include="data\repository_of_teams.py" />
+    <Compile Include="data_repositories\repository_of_team_rosters.py" />
     <Compile Include="docs\zwiftinsider_stuff.py" />
     <Compile Include="src\classes\computation_classes.py" />
-    <Compile Include="src\repositories\scraped_zwift_data_repository.py" />
+    <Compile Include="data_repositories\repository_of_scraped_riders.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
     <Compile Include="tests\test_current_highest_speed_drop_paceline_solution.py" />
     <Compile Include="tests\test_progressively_reducing_the_num_of_pullers.py" />
@@ -94,7 +95,7 @@
     <Compile Include="setup.py" />
     <Compile Include="src\functions\rolling_average.py" />
     <Compile Include="src\formulae\jgh_formulae06.py" />
-    <Compile Include="src\utilities\handy_utilities.py" />
+    <Compile Include="data_utilities\handy_utilities.py" />
     <Compile Include="src\functions\cyclic_matrix.py" />
     <Compile Include="src\functions\cyclic_paceline_algebra.py" />
     <Compile Include="src\formulae\jgh_formulae04.py" />

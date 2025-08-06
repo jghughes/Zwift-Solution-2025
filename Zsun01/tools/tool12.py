@@ -30,11 +30,10 @@ from matplot_utilities import set_x_axis_units_ticks,set_y_axis_units_ticks
 from handy_utilities import read_json_dict_of_regressionmodellingDTO
 from jgh_power_curve_fit_models import decay_model_numpy
 from regression_modelling_item import RegressionModellingItem
-
 import logging
-from jgh_logging import jgh_configure_logging
+logger = logging.getLogger(__name__)
 
-def model_01(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_01(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ############################################################################################
         # # display all the items in the dict_of_regression_modellingItem - the 9 datapoints are a subset of 
         # zwift feed power graph from 1 minute to 40 minutes. not doing linear regression here, just displaying the data
@@ -118,7 +117,7 @@ def model_01(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.legend()
     plt.show()
 
-def model_02(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_02(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ############################################################################################
     # do modelling with linear regression
     ############################################################################################
@@ -189,7 +188,7 @@ def model_02(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients)')
     plt.show()
 
-def model_03(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_03(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ############################################################################################
         # do modelling with linear regression - this time excluding the 20 minute datapoint (bp_1200)
         # because this is the datapoint that is the model above gives a negative weighting to
@@ -261,7 +260,7 @@ def model_03(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients)')
     plt.show()
 
-def model_04(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_04(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
 ############################################################################################
     # # do modelling with linear regression - this time excluding the 20 minute datapoint (bp_1200)
     ## because this is the datapoint that is the model above gives a negative weighting to
@@ -334,7 +333,7 @@ def model_04(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients)')
     plt.show()
 
-def model_05(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_05(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ############################################################################################
         # do modelling with linear regression - this time excluding the 20 minute datapoint (bp_1200)
         # because this is the datapoint that is the model above gives a negative weighting to
@@ -408,7 +407,7 @@ def model_05(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients)')
     plt.show()
 
-def model_06(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_06(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ###########################################################################################
         # do modelling with linear regression - this time we are modelling self-referentially - this should result in perfection
     ###########################################################################################
@@ -478,7 +477,7 @@ def model_06(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients) - self versus self')
     plt.show()
 
-def model_07(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_07(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ###########################################################################################
         # do modelling with our zsun curve fit - but feed it into the ML and see what happens
     ###########################################################################################
@@ -549,7 +548,7 @@ def model_07(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.title('Feature Importance (Regression Coefficients) - ZwiftPower zFTP versus zsun 40 minute watts')
     plt.show()
 
-def model_08(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem], logger) -> None:
+def model_08(dict_of_regression_modellingItem : Dict[str, RegressionModellingItem]) -> None:
     ###########################################################################################
         # now finally the tour de force - use our own zsun model directly to compare
         # our 40 minute power to zwiftpower 90-day-best bp_2400 datapoint i.e. apples and apples
@@ -586,9 +585,6 @@ def model_08(dict_of_regression_modellingItem : Dict[str, RegressionModellingIte
     plt.show()
 
 def main():
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     # load the data generated by tool08.py and clean it up a bit
 
@@ -606,16 +602,21 @@ def main():
 
     # A for Away. do all the various analyses and display the results, comment out the ones you don't want to run
 
-    model_01(dict_of_regression_modellingItem, logger)
-    # model_02(dict_of_regression_modellingItem, logger)
-    # model_03(dict_of_regression_modellingItem, logger)
-    # model_04(dict_of_regression_modellingItem, logger)
-    # model_05(dict_of_regression_modellingItem, logger)
-    # model_06(dict_of_regression_modellingItem, logger)
-    # model_07(dict_of_regression_modellingItem, logger)
-    # model_08(dict_of_regression_modellingItem, logger)
+    model_01(dict_of_regression_modellingItem)
+    # model_02(dict_of_regression_modellingItem)
+    # model_03(dict_of_regression_modellingItem)
+    # model_04(dict_of_regression_modellingItem)
+    # model_05(dict_of_regression_modellingItem)
+    # model_06(dict_of_regression_modellingItem)
+    # model_07(dict_of_regression_modellingItem)
+    # model_08(dict_of_regression_modellingItem)
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+
     main()
 
 

@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
 from jgh_formatting import (truncate, format_number_with_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from handy_utilities import log_multiline
@@ -19,16 +18,16 @@ from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_uppe
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
-
 from constants import (SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, CHUNK_OF_KPH_PER_ITERATION, REQUIRED_PRECISION_OF_SPEED, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, STANDARD_PULL_PERIODS_SEC_AS_LIST)
 
 import logging
+logger = logging.getLogger(__name__)
 
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
 # THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE. 
 
-def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunItem], logger: logging.Logger):
+def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunItem]):
 
     upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_paceline_speed(riders)
     upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
@@ -51,7 +50,7 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
     log_multiline(logger, message_lines)
 
 
-def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject, logger: logging.Logger) -> None:
+def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject) -> None:
 
     message_lines = [
         f"\nBrute report: did {format_number_with_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_with_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
@@ -110,8 +109,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     return overall_av_speed_of_paceline, dict_of_rider_contributions
 
 
-def generate_a_single_paceline_solution_complying_with_exertion_constraints(
-    paceline_ingredients: PacelineIngredientsItem,
+def generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients: PacelineIngredientsItem,
 ) -> PacelineComputationReportItem:
     """
     Computes a single paceline solution that adheres to rider exertion constraints using a binary search approach.
@@ -225,8 +223,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(
     return answer
 
 
-def generate_paceline_solutions_using_serial_processing_algorithm(
-    paceline_ingredients: PacelineIngredientsItem,
+def generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReportItem]:
     """
@@ -282,8 +279,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
     return paceline_computation_reports
 
 
-def generate_paceline_solutions_using_parallel_workstealing_algorithm(
-    paceline_ingredients: PacelineIngredientsItem,
+def generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: List[List[float]]
 ) -> List[PacelineComputationReportItem]:
     """
@@ -352,8 +348,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     return paceline_computation_reports
 
 
-def generate_paceline_solutions_using_serial_and_parallel_algorithms(
-    paceline_ingredients: PacelineIngredientsItem, rotation_sequences : List[List[float]]
+def generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients: PacelineIngredientsItem, rotation_sequences : List[List[float]]
 ) -> List[PacelineComputationReportItem]:
     """
     Computes paceline solutions for a set of candidate pull period sequences using the most efficient processing strategy.
@@ -405,7 +400,7 @@ def validate_paceline_ingredients(paceline_ingredients: PacelineIngredientsItem)
         raise ValueError("binary_search_seed must be positive and finite.")
 
 
-def is_valid_solution(this_solution: PacelineComputationReportItem, logger: logging.Logger) -> bool:
+def is_valid_solution(this_solution: PacelineComputationReportItem) -> bool:
     """
     Validates the solution's speed and dispersion.
     Returns True if both are finite and dispersion is not the error value (100).
@@ -471,8 +466,7 @@ def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineCo
     watts = {getattr(r, "p1_watts", None) for r in rider_contributions}
     return len(durations) == 1 and len(watts) == 1
 
-def is_thirty_second_pulls_solution_candidate(
-    this_solution: PacelineComputationReportItem,
+def is_thirty_second_pulls_solution_candidate(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
@@ -500,8 +494,7 @@ def is_thirty_second_pulls_solution_candidate(
 
     return answer
 
-def is_sixty_second_pulls_solution_candidate(
-    this_solution: PacelineComputationReportItem,
+def is_sixty_second_pulls_solution_candidate(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
@@ -529,8 +522,7 @@ def is_sixty_second_pulls_solution_candidate(
 
     return answer
 
-def is_balanced_intensity_solution_candidate(
-        this_solution: PacelineComputationReportItem,
+def is_balanced_intensity_solution_candidate(this_solution: PacelineComputationReportItem,
         candidate: WorthyCandidateSolutionItem
     ) -> bool:
     """
@@ -580,8 +572,7 @@ def is_balanced_intensity_solution_candidate(
 
     return answer
 
-def is_everyone_pull_hard_solution_candidate(
-    this_solution: PacelineComputationReportItem,
+def is_everyone_pull_hard_solution_candidate(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
@@ -628,8 +619,7 @@ def is_everyone_pull_hard_solution_candidate(
 
     return answer
 
-def is_race_solution_with_possibility_of_drop_candidate(
-    this_solution: PacelineComputationReportItem,
+def is_race_solution_with_possibility_of_drop_candidate(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem
 ) -> bool:
     """
@@ -679,8 +669,7 @@ def is_race_solution_with_possibility_of_drop_candidate(
 
     return answer
 
-def update_candidate_solution(
-    this_solution: PacelineComputationReportItem,
+def update_candidate_solution(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem,
     logger: logging.Logger
 ) -> None:
@@ -783,23 +772,23 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
 
         total_compute_iterations_performed += this_solution.compute_iterations_performed_count
 
-        if not is_valid_solution(this_solution, logger):
+        if not is_valid_solution(this_solution):
                 continue
 
         if is_thirty_second_pulls_solution_candidate(this_solution, thirty_sec_candidate):
-            update_candidate_solution(this_solution, thirty_sec_candidate, logger)
+            update_candidate_solution(this_solution, thirty_sec_candidate)
 
         if is_sixty_second_pulls_solution_candidate(this_solution, sixty_sec_candidate):
-            update_candidate_solution(this_solution, sixty_sec_candidate, logger)
+            update_candidate_solution(this_solution, sixty_sec_candidate)
 
         if is_balanced_intensity_solution_candidate(this_solution, balanced_intensity_candidate):
-            update_candidate_solution(this_solution, balanced_intensity_candidate, logger)
+            update_candidate_solution(this_solution, balanced_intensity_candidate)
 
         if is_everyone_pull_hard_solution_candidate(this_solution, everybody_pulls_hard_candidate):
-            update_candidate_solution(this_solution, everybody_pulls_hard_candidate, logger)
+            update_candidate_solution(this_solution, everybody_pulls_hard_candidate)
 
         if is_race_solution_with_possibility_of_drop_candidate(this_solution, hang_in_candidate):
-            update_candidate_solution(this_solution, hang_in_candidate, logger)
+            update_candidate_solution(this_solution, hang_in_candidate)
 
     raise_error_if_any_solutions_missing(
         thirty_sec_candidate,
@@ -1050,14 +1039,12 @@ def main02():
 
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
     from jgh_formatting import format_number_with_comma_separators
     from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_teams import get_team_riderIDs
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-
-    from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
     logging.getLogger("numba").setLevel(logging.ERROR) # numba generates a lot of INFO messages that are not useful here
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
@@ -1065,7 +1052,7 @@ if __name__ == "__main__":
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_team_riderIDs("test")
+    riderIDs = get_riderIDs_on_team_roster("test")
     riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)

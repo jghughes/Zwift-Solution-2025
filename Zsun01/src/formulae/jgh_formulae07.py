@@ -8,7 +8,7 @@ from jgh_read_write import write_html_file
 from zsun_rider_item import ZsunItem
 from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
 import logging
-
+logger = logging.getLogger(__name__)
 
 def make_pretty_caption_for_a_paceline_plan(
     title: str,
@@ -42,7 +42,6 @@ def make_pretty_caption_for_a_paceline_plan(
 
 def log_a_paceline_plan(
     report: PacelineComputationReportDisplayObject,
-    logger: logging.Logger
 ) -> None:
     import pandas as pd
 
@@ -273,15 +272,12 @@ def main() -> None:
         rider_contributions_display_objects=dict_of_rider_pullplan_displayobjects
     )
 
-    log_a_paceline_plan(report, logger)
+    log_a_paceline_plan(report)
 
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     main()
 

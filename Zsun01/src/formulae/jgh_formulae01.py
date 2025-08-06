@@ -1,5 +1,7 @@
 import time
 from constants import POWER_CURVE_IN_PACELINE
+import logging
+logger = logging.getLogger(__name__)
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -146,4 +148,7 @@ def main01():
         print(f"{name}: {elapsed:.6f} seconds for {iterations} iterations")
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+
     main01()

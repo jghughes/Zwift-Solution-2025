@@ -1,9 +1,10 @@
 """
-This tool is for debugging and testing purposes during development. It is designed 
-to extract and process best power data from ZwiftPower 90-day power graphs, transforming 
-them into a format suitable for Brute. We inspect the output of this tool by
-eyeballing the resultant JSON file and manually satisfying ourselves that
-everything works as intended and as the Brute production pipeline expects.
+This tool is merely for debugging and testing purposes during development using 
+a tiny dataset. It is designed to extract and process best power data 
+from ZwiftPower 90-day power graphs, transforming them into a format 
+suitable for Brute. We inspect the output of this tool by eyeballing 
+the resultant JSON file and manually satisfying ourselves that everything 
+works as intended and as the Brute production pipeline expects.
 
 This tool extracts and processes input_data ZwiftPower 90-day power-graphs,
 translates them into the equivalent output ZsunBestPowerItems, and then writes
@@ -41,49 +42,43 @@ This script demonstrates reading and writing JSON data using pydantic DTOs, mapp
 to dataclasses and back again, and using sundry file utility functions. 
 """
 
-from filenames import RIDERS_FILE_NAME
-from dirpaths import DATA_DIRPATH
 
-import logging
-from jgh_logging import jgh_configure_logging
-from scraped_zwift_data_repository import read_zwiftpower_graph_watts_files
-
+from repository_of_scraped_riders import read_zwiftpower_graph_watts_files
 from handy_utilities import read_json_dict_of_ZsunDTO, write_json_dict_of_ZsunWattsItem, get_test_IDs
 from jgh_sanitise_string import make_short_displayname
+import logging
+logger = logging.getLogger(__name__)
+
 
 def main():
-    # configure logging
-
-    jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
-
     all_rider_profiles_as_dict = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    # do work
+    test_IDs = get_test_IDs()
 
-    betel_IDs = get_test_IDs()
-
-    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
-    betel_cp_dict = read_zwiftpower_graph_watts_files(betel_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH, logger, logging.DEBUG)
+    betel_cp_dict = read_zwiftpower_graph_watts_files(test_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
 
     logger.debug(f"loaded cp_data for {len(betel_cp_dict)} riders")
 
     # function to make nick-names 
-
     for rider_id, rider_cp_data in betel_cp_dict.items():
         rider_cp_data.zwift_id = rider_id # write filename into zwiftId field
         display_name = make_short_displayname(all_rider_profiles_as_dict[rider_id].name) # add short name
         logger.debug(f"{rider_id} {display_name}")
 
-    # Write the cleaned-up data to a file
-
-    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
-    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-
     write_json_dict_of_ZsunWattsItem(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
+
+    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
+    OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+
+
+
     main()
 

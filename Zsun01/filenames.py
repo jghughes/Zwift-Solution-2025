@@ -1,9 +1,9 @@
 from typing import Dict
-from datetime import datetime
 from jgh_enums import PacelinePlanTypeEnum
 
 RIDERS_FILE_NAME = "everyone_in_club_ZsunItems_2025_07_08.json"
 # RIDERS_FILE_NAME = "everyone_in_club_ZsunItems_2025_04_00.json"
+
 
 DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
     PacelinePlanTypeEnum.THIRTY_SEC_PULL:    "01_no_drop_thirty_second_pulls.html",

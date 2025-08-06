@@ -4,7 +4,6 @@ from typing import cast, Optional, Type, TypeVar, DefaultDict
 from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
-import logging
 from jgh_sanitise_string import cleanup_name_string
 from jgh_read_write import write_pandas_dataframe_as_xlsx, read_filepath_as_text, help_select_filepaths_in_folder
 from zwift_rider_particulars_item import ZwiftItem
@@ -27,16 +26,16 @@ from zwiftracingapp_rider_particulars_item import ZwiftRacingAppItem
 from zsun_watts_properties_item import ZsunWattsItem
 from zsun_rider_item import ZsunItem
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 #functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute. 
 
 def read_zwift_files(
     file_names: Optional[list[str]],
     dir_path: str,
-    logger: logging.Logger,
-    log_level: int = logging.INFO
 ) -> DefaultDict[str, ZwiftItem]:
-    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftItem] = defaultdict(ZwiftItem)
 
     file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
@@ -63,14 +62,10 @@ def read_zwift_files(
 
     return answer
 
-
 def read_zwiftracingapp_files(
     file_names: Optional[list[str]],
     dir_path: str,
-    logger: logging.Logger,
-    log_level: int = logging.INFO
 ) -> DefaultDict[str, ZwiftRacingAppItem]:
-    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftRacingAppItem] = defaultdict(ZwiftRacingAppItem)
 
     file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
@@ -97,14 +92,10 @@ def read_zwiftracingapp_files(
 
     return answer
 
-
 def read_zwiftpower_files(
     file_names: Optional[list[str]],
     dir_path: str,
-    logger: logging.Logger,
-    log_level: int = logging.INFO
 ) -> DefaultDict[str, ZwiftPowerItem]:
-    logger.setLevel(log_level)
     answer: defaultdict[str, ZwiftPowerItem] = defaultdict(ZwiftPowerItem)
 
     file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
@@ -132,14 +123,10 @@ def read_zwiftpower_files(
 
     return answer
 
-
 def read_zwiftpower_graph_watts_files(
     file_names: Optional[list[str]],
     dir_path: str,
-    logger: logging.Logger,
-    log_level: int = logging.INFO
 ) -> DefaultDict[str, ZsunWattsItem]:
-    logger.setLevel(log_level)
     answer: defaultdict[str, ZsunWattsItem] = defaultdict(ZsunWattsItem)
 
     file_paths = help_select_filepaths_in_folder(file_names, ".json", dir_path)
@@ -168,17 +155,66 @@ def read_zwiftpower_graph_watts_files(
     return answer
 
 
-# repository for scraped data from DaveK's work on Zsun
+# repository for scraped data from DaveK's work for Zsun
 
 T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
 
 @dataclass
 class RepositoryForScrapedDataFromDaveK:
+    """
+    Repository for managing and querying scraped Zwift rider data from multiple sources.
 
-    dict_of_ZwiftItem:          DefaultDict[str, ZwiftItem]          = field(default_factory=lambda: defaultdict(ZwiftItem))
-    dict_of_ZwiftPowerItem:     DefaultDict[str, ZwiftPowerItem]     = field(default_factory=lambda: defaultdict(ZwiftPowerItem))
-    dict_of_ZwiftRacingAppItem: DefaultDict[str, ZwiftRacingAppItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppItem))
-    dict_of_ZsunWattsItem:      DefaultDict[str, ZsunWattsItem]      = field(default_factory=lambda: defaultdict(ZsunWattsItem))
+    This class aggregates rider data from Zwift, ZwiftPower, ZwiftRacingApp, and
+    ZwiftPower best power graphs, providing unified access and filtering utilities.
+    It supports loading data from JSON files, intersection and superset analysis,
+    and conversion to pandas DataFrames for further analysis.
+
+    Attributes:
+        _dict_of_ZwiftItem (DefaultDict[str, ZwiftItem]):
+            Zwift profile data indexed by Zwift ID.
+        _dict_of_ZwiftPowerItem (DefaultDict[str, ZwiftPowerItem]):
+            ZwiftPower profile data indexed by Zwift ID.
+        _dict_of_ZwiftRacingAppItem (DefaultDict[str, ZwiftRacingAppItem]):
+            ZwiftRacingApp profile data indexed by Zwift ID.
+        _dict_of_ZsunWattsItem (DefaultDict[str, ZsunWattsItem]):
+            ZwiftPower best power graph data indexed by Zwift ID.
+
+    Methods:
+        populate_repository(...):
+            Loads rider data from specified directories into the repository.
+        get_table_of_superset_of_sets_by_id(sample1, sample2):
+            Returns a DataFrame showing the presence of Zwift IDs across all sources.
+        get_table_of_intersections_of_sets(sample1, sample2):
+            Returns a DataFrame of Zwift IDs common to all datasets and samples.
+        get_table_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp):
+            Returns a DataFrame filtered by specified source presence criteria.
+        get_list_of_intersections_of_sets(sample1, sample2):
+            Returns a list of Zwift IDs present in all datasets and samples.
+        get_list_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp):
+            Returns a filtered list of Zwift IDs based on source presence criteria.
+        get_dict_of_ZwiftItem(zwift_ids):
+            Returns a filtered dictionary of ZwiftItem objects.
+        get_dict_of_ZwiftPowerItem(zwift_ids):
+            Returns a filtered dictionary of ZwiftPowerItem objects.
+        get_dict_of_ZwiftRacingAppItem(zwift_ids):
+            Returns a filtered dictionary of ZwiftRacingAppItem objects.
+        get_dict_of_ZsunWattsItem(zwift_ids):
+            Returns a filtered dictionary of ZsunWattsItem objects.
+        get_dict_of_CurveFittingResultItem(zwift_ids):
+            Returns curve fitting results for eligible Zwift IDs.
+        get_dict_of_ZsunItem(zwift_ids):
+            Returns a dictionary of ZsunItem objects, combining all sources and curve fits.
+
+    Notes:
+        - All data is indexed by Zwift ID.
+        - Filtering and intersection methods support flexible analysis across sources.
+        - Designed for use in data analysis, reporting, and team management workflows.
+    """
+
+    _dict_of_ZwiftItem:          DefaultDict[str, ZwiftItem]          = field(default_factory=lambda: defaultdict(ZwiftItem))
+    _dict_of_ZwiftPowerItem:     DefaultDict[str, ZwiftPowerItem]     = field(default_factory=lambda: defaultdict(ZwiftPowerItem))
+    _dict_of_ZwiftRacingAppItem: DefaultDict[str, ZwiftRacingAppItem] = field(default_factory=lambda: defaultdict(ZwiftRacingAppItem))
+    _dict_of_ZsunWattsItem:      DefaultDict[str, ZsunWattsItem]      = field(default_factory=lambda: defaultdict(ZsunWattsItem))
 
     # Repository constants for DataFrame column names
     COL_ZWIFT_ID                  = "zwiftID"
@@ -197,15 +233,13 @@ class RepositoryForScrapedDataFromDaveK:
         zwiftracingapp_dir_path: str,
         zwiftpower_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        logger: logging.Logger,
-        log_level: int = logging.INFO
     ):
-        self.dict_of_ZwiftItem          = read_zwift_files(file_names, zwift_dir_path, logger, log_level)
-        self.dict_of_ZwiftRacingAppItem = read_zwiftracingapp_files(file_names, zwiftracingapp_dir_path, logger, log_level)
-        self.dict_of_ZwiftPowerItem     = read_zwiftpower_files(file_names, zwiftpower_dir_path, logger, log_level)
-        self.dict_of_ZsunWattsItem      = read_zwiftpower_graph_watts_files(file_names, zwiftpower_90day_graph_watts_dir_path, logger, log_level)
+        self._dict_of_ZwiftItem          = read_zwift_files(file_names, zwift_dir_path)
+        self._dict_of_ZwiftRacingAppItem = read_zwiftracingapp_files(file_names, zwiftracingapp_dir_path)
+        self._dict_of_ZwiftPowerItem     = read_zwiftpower_files(file_names, zwiftpower_dir_path)
+        self._dict_of_ZsunWattsItem      = read_zwiftpower_graph_watts_files(file_names, zwiftpower_90day_graph_watts_dir_path)
 
-    def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str], logger: logging.Logger) -> pd.DataFrame:
+    def get_table_of_superset_of_sets_by_id(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """
         Creates a table showing the commonality of Zwift IDs across various sources.
 
@@ -221,10 +255,10 @@ class RepositoryForScrapedDataFromDaveK:
 
         # Step 2: Create a superset of all Zwift IDs - the zwift dataset is over a thousand, the others are half that. zwiftracing contains only 200 odd
         superset_of_zwiftID = set(sample1) | set(sample2) | \
-                              set(self.dict_of_ZwiftItem.keys()) | \
-                              set(self.dict_of_ZwiftRacingAppItem.keys()) | \
-                              set(self.dict_of_ZwiftPowerItem.keys()) | \
-                              set(self.dict_of_ZsunWattsItem.keys())
+                              set(self._dict_of_ZwiftItem.keys()) | \
+                              set(self._dict_of_ZwiftRacingAppItem.keys()) | \
+                              set(self._dict_of_ZwiftPowerItem.keys()) | \
+                              set(self._dict_of_ZsunWattsItem.keys())
 
         # Optional: Log the size of the superset for debugging
         logger.info(f"Total unique Zwift IDs in superset: {len(superset_of_zwiftID)}")
@@ -235,10 +269,10 @@ class RepositoryForScrapedDataFromDaveK:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_ZwiftItem.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_ZwiftRacingAppItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_ZwiftPowerItem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_ZsunWattsItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self._dict_of_ZwiftItem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self._dict_of_ZwiftRacingAppItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self._dict_of_ZwiftPowerItem.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self._dict_of_ZsunWattsItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -256,7 +290,7 @@ class RepositoryForScrapedDataFromDaveK:
 
         return df
 
-    def get_table_of_intersections_of_sets(self, sample1: list[str], sample2: list[str], logger: logging.Logger) -> pd.DataFrame:
+    def get_table_of_intersections_of_sets(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         """
         Creates a table showing Zwift IDs that are common to all datasets.
         If sample1 and sample2 are empty, they are excluded from the criterion.
@@ -270,10 +304,10 @@ class RepositoryForScrapedDataFromDaveK:
         """
         # Step 1: Create sets for all datasets
         #create four separate list [str] of keys of each dataset
-        zwift_profiles = list(self.dict_of_ZwiftItem.keys())
-        zwiftracingapp_profiles = list(self.dict_of_ZwiftRacingAppItem.keys())
-        zwiftpower_profiles = list(self.dict_of_ZwiftPowerItem.keys())
-        zwiftpower_90daybest_graphs = list(self.dict_of_ZsunWattsItem.keys())
+        zwift_profiles = list(self._dict_of_ZwiftItem.keys())
+        zwiftracingapp_profiles = list(self._dict_of_ZwiftRacingAppItem.keys())
+        zwiftpower_profiles = list(self._dict_of_ZwiftPowerItem.keys())
+        zwiftpower_90daybest_graphs = list(self._dict_of_ZsunWattsItem.keys())
         
         intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_profiles) & set(zwiftpower_90daybest_graphs)
 
@@ -295,10 +329,10 @@ class RepositoryForScrapedDataFromDaveK:
                 key,  # col 0: zwiftID
                 "y" if key in sample1 else "n",  # col 1: in_sample1
                 "y" if key in sample2 else "n",  # col 2: in_sample2
-                "y" if key in self.dict_of_ZwiftItem.keys() else "n",  # col 3: in_zwift_profiles
-                "y" if key in self.dict_of_ZwiftRacingAppItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
-                "y" if key in self.dict_of_ZwiftPowerItem.keys() else "n",  # col 5: in_zwiftpower_profiles
-                "y" if key in self.dict_of_ZsunWattsItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
+                "y" if key in self._dict_of_ZwiftItem.keys() else "n",  # col 3: in_zwift_profiles
+                "y" if key in self._dict_of_ZwiftRacingAppItem.keys() else "n",  # col 4: in_zwiftracingapp_profiles
+                "y" if key in self._dict_of_ZwiftPowerItem.keys() else "n",  # col 5: in_zwiftpower_profiles
+                "y" if key in self._dict_of_ZsunWattsItem.keys() else "n",  # col 6: in_zwiftpower_90daybest_graphs
             )
             answer.append(row)
 
@@ -316,7 +350,7 @@ class RepositoryForScrapedDataFromDaveK:
 
         return df
 
-    def get_table_of_filtered_intersections_of_sets(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str, logger: logging.Logger
+    def get_table_of_filtered_intersections_of_sets(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str
     ) -> pd.DataFrame:
         """
         Filters the superset DataFrame based on the provided template.
@@ -347,7 +381,7 @@ class RepositoryForScrapedDataFromDaveK:
             raise ValueError(f"Invalid parameters: {', '.join(invalid_params)}")
 
         # get_table_of_superset_of_sets_by_id
-        df_superset = self.get_table_of_superset_of_sets_by_id([], [], logger)
+        df_superset = self.get_table_of_superset_of_sets_by_id([], [])
 
         # write elper method to Filter the DataFrame
         def matches_template(row: pd.Series, template: dict[str, str]) -> bool:
@@ -386,7 +420,7 @@ class RepositoryForScrapedDataFromDaveK:
         # return the filtered DataFrame
         return filtered_df
 
-    def get_list_of_intersections_of_sets(self, sample1: list[str], sample2: list[str], logger: logging.Logger) -> list[str]:
+    def get_list_of_intersections_of_sets(self, sample1: list[str], sample2: list[str]) -> list[str]:
         """
         Creates a list of Zwift IDs that are common to all datasets.
         If sample1 and sample2 are empty, they are excluded from the criterion.
@@ -396,10 +430,10 @@ class RepositoryForScrapedDataFromDaveK:
         Returns:
             list[str]: A list of Zwift IDs common to all datasets.
         """
-        df = self.get_table_of_intersections_of_sets(sample1, sample2, logger)
+        df = self.get_table_of_intersections_of_sets(sample1, sample2)
         return df[self.COL_ZWIFT_ID].tolist()
 
-    def get_list_of_filtered_intersections_of_sets(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str, logger: logging.Logger
+    def get_list_of_filtered_intersections_of_sets(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str
     ) -> list[str]:
         """
         Filters the superset DataFrame based on the provided template and returns a list of Zwift IDs.
@@ -411,7 +445,7 @@ class RepositoryForScrapedDataFromDaveK:
         Returns:
             list[str]: A filtered list of Zwift IDs based on the provided template.
         """
-        df = self.get_table_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp, logger)
+        df = self.get_table_of_filtered_intersections_of_sets(zwift, racingapp, zwiftpower, zwiftpower_90day_cp)
         return df[self.COL_ZWIFT_ID].tolist()
  
     def _get_dict_of_generic_items(self, source_dict: DefaultDict[str, T], zwift_ids: Optional[list[str]], default_factory: Type[T]) -> DefaultDict[str, T]:
@@ -442,18 +476,18 @@ class RepositoryForScrapedDataFromDaveK:
         return answer
 
     def get_dict_of_ZwiftItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, ZwiftItem]:
-        return self._get_dict_of_generic_items(self.dict_of_ZwiftItem, zwift_ids, ZwiftItem)
+        return self._get_dict_of_generic_items(self._dict_of_ZwiftItem, zwift_ids, ZwiftItem)
 
     def get_dict_of_ZwiftPowerItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, ZwiftPowerItem]:
-        return self._get_dict_of_generic_items(self.dict_of_ZwiftPowerItem, zwift_ids, ZwiftPowerItem)
+        return self._get_dict_of_generic_items(self._dict_of_ZwiftPowerItem, zwift_ids, ZwiftPowerItem)
 
     def get_dict_of_ZwiftRacingAppItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, ZwiftRacingAppItem]:
-        return self._get_dict_of_generic_items(self.dict_of_ZwiftRacingAppItem, zwift_ids, ZwiftRacingAppItem)
+        return self._get_dict_of_generic_items(self._dict_of_ZwiftRacingAppItem, zwift_ids, ZwiftRacingAppItem)
 
     def get_dict_of_ZsunWattsItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, ZsunWattsItem]:
-        return self._get_dict_of_generic_items(self.dict_of_ZsunWattsItem, zwift_ids, ZsunWattsItem)
+        return self._get_dict_of_generic_items(self._dict_of_ZsunWattsItem, zwift_ids, ZsunWattsItem)
 
-    def get_dict_of_CurveFittingResultItem(self, zwift_ids: Optional[list[str]], logger: logging.Logger) -> DefaultDict[str, CurveFittingResultItem]:
+    def get_dict_of_CurveFittingResultItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, CurveFittingResultItem]:
 
         min_coordinates = 5 # minimum I desire for reliable curve fitting
         skipped_count = 0
@@ -513,28 +547,28 @@ class RepositoryForScrapedDataFromDaveK:
 
         return answer
 
-    def get_dict_of_ZsunItem(self, zwift_ids: Optional[list[str]], logger: logging.Logger) -> DefaultDict[str, ZsunItem]:
+    def get_dict_of_ZsunItem(self, zwift_ids: Optional[list[str]]) -> DefaultDict[str, ZsunItem]:
 
         answer : defaultdict[str, ZsunItem] = defaultdict(ZsunItem)
 
         if zwift_ids is None:
             zwift_ids = []
 
-        eligible_IDs = set(self.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y", logger))
+        eligible_IDs = set(self.get_list_of_filtered_intersections_of_sets("y","y_or_n","y_or_n","y"))
 
         eligible_IDs = list(set(eligible_IDs) & set(zwift_ids))
 
-        jgh_curve_dict = self.get_dict_of_CurveFittingResultItem(eligible_IDs, logger)
+        jgh_curve_dict = self.get_dict_of_CurveFittingResultItem(eligible_IDs)
     
         for key in self.get_dict_of_ZwiftItem(eligible_IDs):
 
-            zwiftItem = self.dict_of_ZwiftItem[key]
-            zwiftpowerItem = self.dict_of_ZwiftPowerItem[key]
-            zwiftracingappItem = self.dict_of_ZwiftRacingAppItem[key]
+            zwiftItem = self._dict_of_ZwiftItem[key]
+            zwiftpowerItem = self._dict_of_ZwiftPowerItem[key]
+            zwiftracingappItem = self._dict_of_ZwiftRacingAppItem[key]
             jghcurveItem = jgh_curve_dict[key]
 
-            if key in self.dict_of_ZwiftRacingAppItem:
-                name = self.dict_of_ZwiftRacingAppItem[key].fullname or f"{zwiftItem.first_name} {zwiftItem.last_name}"
+            if key in self._dict_of_ZwiftRacingAppItem:
+                name = self._dict_of_ZwiftRacingAppItem[key].fullname or f"{zwiftItem.first_name} {zwiftItem.last_name}"
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
@@ -571,14 +605,14 @@ class RepositoryForScrapedDataFromDaveK:
 
         return answer
 
+
 # Testing
 
 
+def main03():
 
-def main03(logger: logging.Logger):
 
-
-    my_dict = read_zwift_files(None, ZWIFT_DIRPATH, logger,logging.INFO)
+    my_dict = read_zwift_files(None, ZWIFT_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} zwift profile items")
     for zwift_id, item in my_dict.items():
@@ -588,9 +622,9 @@ def main03(logger: logging.Logger):
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main04(logger: logging.Logger):
+def main04():
 
-    my_dict = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH, logger,logging.INFO)
+    my_dict = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -600,9 +634,9 @@ def main04(logger: logging.Logger):
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main05(logger: logging.Logger):
+def main05():
 
-    my_dict = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH, logger,logging.INFO)
+    my_dict = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -612,9 +646,9 @@ def main05(logger: logging.Logger):
 
     logger.info(f"Imported {len(my_dict)} items")
 
-def main06(logger: logging.Logger):
+def main06():
 
-    my_dict = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH, logger,logging.INFO)
+    my_dict = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
@@ -624,9 +658,7 @@ def main06(logger: logging.Logger):
 
     logger.info(f"Imported {len(my_dict)} items")
 
-
-
-def main11(logger: logging.Logger, log_level: int = logging.INFO):
+def main11():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -638,8 +670,6 @@ def main11(logger: logging.Logger, log_level: int = logging.INFO):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level
     )
 
     # ... rest of the function remains unchanged ...
@@ -671,14 +701,14 @@ def main11(logger: logging.Logger, log_level: int = logging.INFO):
 ] # betel, only two of whom are in all the datasets - dave and scott
 
     # Example: get the superset - should be more than 1500
-    df = rep.get_table_of_superset_of_sets_by_id([], [], logger)
+    df = rep.get_table_of_superset_of_sets_by_id([], [])
     logger.debug("DataFrame of superset of Zwift IDs in all datasets including samples:")
     logger.debug(df)
     OUTPUT_FILENAME = "beautiful_superset_of_everything.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
 
     # Example: get the intersection - should be about 80
-    df = rep.get_table_of_intersections_of_sets([], [], logger)
+    df = rep.get_table_of_intersections_of_sets([], [])
     logger.debug("DataFrame of intesection of Zwift IDs in main datasets:")
     logger.debug(df)
     OUTPUT_FILENAME2 = "beautiful_intersection_of_main_datasets.xlsx"
@@ -686,13 +716,13 @@ def main11(logger: logging.Logger, log_level: int = logging.INFO):
 
 
     # Example: get an intersection of all main sets and betel - should be tiny - 4
-    df = rep.get_table_of_intersections_of_sets(betel, [], logger)
+    df = rep.get_table_of_intersections_of_sets(betel, [])
     logger.debug("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
     logger.debug(df)
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
 
-def main12(logger: logging.Logger, log_level: int = logging.INFO):
+def main12():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -704,8 +734,6 @@ def main12(logger: logging.Logger, log_level: int = logging.INFO):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level,
     )
 
     # Define any test parameters for get_table_of_filtered_intersections_of_sets
@@ -719,7 +747,7 @@ def main12(logger: logging.Logger, log_level: int = logging.INFO):
         zwift=zwift_filter,
         racingapp=racingapp_filter,
         zwiftpower=zwiftpower_filter,
-        zwiftpower_90day_cp=zwiftpower_90day_cp_filter, logger = logger,
+        zwiftpower_90day_cp=zwiftpower_90day_cp_filter
     )
 
     # Display the filtered DataFrame
@@ -731,12 +759,11 @@ def main12(logger: logging.Logger, log_level: int = logging.INFO):
     assert not filtered_df.empty, "Filtered DataFrame is empty, but it probably shouldn't be (although not definitely)."
 
     # Optionally, save the filtered DataFrame to an Excel file for verification
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
     OUTPUT_FILENAME = "beautiful_matching_specified_boolean_filter_criteria.xlsx"
     write_pandas_dataframe_as_xlsx(filtered_df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main13(logger: logging.Logger, log_level: int = logging.INFO):
+def main13():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -776,7 +803,7 @@ def main13(logger: logging.Logger, log_level: int = logging.INFO):
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main14(logger: logging.Logger, log_level: int = logging.INFO):
+def main14():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -816,7 +843,7 @@ def main14(logger: logging.Logger, log_level: int = logging.INFO):
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main15(logger: logging.Logger, log_level: int = logging.INFO):
+def main15():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -828,8 +855,6 @@ def main15(logger: logging.Logger, log_level: int = logging.INFO):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
@@ -856,7 +881,7 @@ def main15(logger: logging.Logger, log_level: int = logging.INFO):
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-def main16(logger: logging.Logger, log_level: int = logging.INFO):
+def main16():
 
     # Initialize the repository
     rep = RepositoryForScrapedDataFromDaveK()
@@ -868,8 +893,6 @@ def main16(logger: logging.Logger, log_level: int = logging.INFO):
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
@@ -898,10 +921,9 @@ def main16(logger: logging.Logger, log_level: int = logging.INFO):
 
 
 if __name__ == "__main__":
-    # configure logging
+    # configure root logging since this is the entry point
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
 
     ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
     ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
@@ -909,17 +931,16 @@ if __name__ == "__main__":
     ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
-
     # Comment/uncomment the lines below to run the tests you want. for more verbose output, set log_level to logging.DEBUG
 
-    # main03(logger, logging.INFO)
-    # main04(logger, logging.INFO)
-    # main05(logger, logging.INFO)
-    # main06(logger, logging.INFO)
+    # main03()
+    # main04()
+    # main05()
+    # main06()
 
-    # main11(logger, logging.INFO)
-    # main12(logger, logging.INFO)
-    # main13(logger, logging.INFO)
-    # main14(logger, logging.INFO)
-    main15(logger, logging.INFO)
-    # main16(logger, logging.INFO)
+    # main11()
+    # main12()
+    # main13()
+    # main14()
+    main15()
+    # main16()

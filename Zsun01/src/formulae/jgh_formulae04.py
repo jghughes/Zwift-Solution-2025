@@ -2,8 +2,8 @@ from typing import List, DefaultDict
 from collections import defaultdict
 from zsun_rider_item import ZsunItem
 from computation_classes import RiderWorkAssignmentItem
-
 import logging
+logger = logging.getLogger(__name__)
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_work_assignments(riders: List[ZsunItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> DefaultDict[ZsunItem, List[RiderWorkAssignmentItem]]:
@@ -58,7 +58,7 @@ def populate_rider_work_assignments(riders: List[ZsunItem], pull_durations: List
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunItem, List[RiderWorkAssignmentItem]], logger: logging.Logger) -> None:
+def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunItem, List[RiderWorkAssignmentItem]]) -> None:
     from tabulate import tabulate
 
     table = []
@@ -107,14 +107,11 @@ def main() -> None:
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
 
-    log_rider_work_assignments("Example riders",dict_of_rider_work_assignments, logger)
+    log_rider_work_assignments("Example riders",dict_of_rider_work_assignments)
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     main()
 

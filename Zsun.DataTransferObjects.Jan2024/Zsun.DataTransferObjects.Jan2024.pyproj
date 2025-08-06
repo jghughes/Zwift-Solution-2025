@@ -37,6 +37,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\participant_dto.py" />
+    <Compile Include="src\team_dto.py" />
     <Compile Include="src\zsun_watts_properties_dto.py" />
     <Compile Include="src\zwiftpower_watts_ordinates_dto.py" />
     <Compile Include="src\zwiftpower_rider_particulars_dto.py" />

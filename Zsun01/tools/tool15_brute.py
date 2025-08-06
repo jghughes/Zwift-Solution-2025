@@ -14,7 +14,6 @@ The script performs the following steps:
 This tool demonstrates advanced team time trial (TTT) strategy modeling, combinatorial optimization, and automated report generation for cycling performance analysis using Python.
 """
 
-import logging
 from typing import Dict, Any, List
 from computation_classes_display_objects import PacelinePlanTypeEnum, PacelineSolutionsComputationReportDisplayObject
 from zsun_rider_item import ZsunItem
@@ -29,26 +28,25 @@ from html_css import FOOTNOTES
 from paceline_plan_display_ingredients import  get_caption_for_summary_of_all_paceline_plans
 from filenames import RIDERS_FILE_NAME, get_save_filename_for_summary_of_all_paceline_plans
 from dirpaths import DATA_DIRPATH
-from teams import get_team_riderIDs
+from repository_of_team_rosters import get_riderIDs_on_team_roster
+import logging
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
-    # SET UP LOGGING
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-    logger: logging.Logger = logging.getLogger(__name__)
-    logging.getLogger("numba").setLevel(logging.ERROR)
 
     SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel_new/"
 
     # GET THE SOURCE DATA READY
     team_name = "betel"
+    riderIDs: List[str] = get_riderIDs_on_team_roster(team_name)
     dict_of_ZsunItems: Dict[str, ZsunItem] = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs: List[str] = get_team_riderIDs(team_name)
+
     riders: List[ZsunItem] = [dict_of_ZsunItems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)
 
     # COMPUTE 1st TO 5th PLANS - FULL TEAM
-    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders, logger)
+    log_speed_bounds_of_exertion_constrained_paceline_solutions(riders)
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
@@ -59,14 +57,18 @@ def main() -> None:
     report_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report)
 
     # COMPUTE 6th and 7th PLANS - DIMINISHING TEAM
-    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FIVE] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 5, logger)
-    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FOUR] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 4, logger)
+    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FIVE] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 5)
+    report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FOUR] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 4)
 
     report_displayobject.caption = get_caption_for_summary_of_all_paceline_plans(team_name)
 
     # SAVE WORK
-    save_multiple_individual_paceline_plans_as_html(report_displayobject, team_name, SAVE_OUTPUT_DIRPATH, logger)
-    save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_name), SAVE_OUTPUT_DIRPATH, FOOTNOTES, logger)
+    save_multiple_individual_paceline_plans_as_html(report_displayobject, team_name, SAVE_OUTPUT_DIRPATH)
+    save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_name), SAVE_OUTPUT_DIRPATH, FOOTNOTES)
 
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR)
+
     main()

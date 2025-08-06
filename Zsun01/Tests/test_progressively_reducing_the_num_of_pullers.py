@@ -3,7 +3,7 @@ import os
 from zsun_rider_item import ZsunItem
 from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
 from handy_utilities import read_json_dict_of_ZsunDTO
-from teams import get_team_riderIDs
+from teams import get_riderIDs_on_team_roster
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
@@ -41,7 +41,7 @@ def main():
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_team_riderIDs("betel")
+    riderIDs = get_riderIDs_on_team_roster("betel")
 
     riders: list[ZsunItem] = []
     for riderID in riderIDs:
@@ -95,9 +95,6 @@ def main():
         speed = round(solution., 1)
         rider_names = [getattr(rider, "name", str(rider)) for rider in plan_line_items.keys()]
         logger.info(f"Permutation {idx+1}: fastest plan Speed: {speed} kph | Riders: {', '.join(rider_names)}")
-        # log_a_paceline_plan(
-        #     f"Permutation {idx+1} - lowest_dispersion_plan: {speed} kph", plan_line_items_displayobjects, logger
-        # )
 
 if __name__ == "__main__":
         main()

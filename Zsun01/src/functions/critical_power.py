@@ -6,7 +6,8 @@ from typing import Tuple, Dict
 from tabulate import tabulate
 from typing import Dict
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
-
+import logging
+logger = logging.getLogger(__name__)
 
 def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
@@ -54,7 +55,6 @@ def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
 
     return cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
 
-
 def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
     """
     Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
@@ -98,7 +98,6 @@ def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
     }
 
     return coefficient_ftp, exponent_ftp, r2, rmse_cp, result
-
 
 # tests
 
@@ -219,11 +218,9 @@ def test_do_modelling_with_cp_w_prime_model():
     logger.info("\n" + tabulate(result_table, headers=headers, tablefmt="simple"))
 
 if __name__ == "__main__":
-    import logging
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logger = logging.getLogger(__name__)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
 
     test_decay_model_numpy()
     test_cp_w_prime_model_numpy()

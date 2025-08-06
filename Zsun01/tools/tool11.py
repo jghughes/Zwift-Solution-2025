@@ -41,22 +41,17 @@ This tool demonstrates data integration, model application, and
 comparative analytics for cycling performance data using Python.
 """
 
+import numpy as np
 import pandas as pd
 from dataclasses import asdict
 from jgh_number import safe_divide
-
-from scraped_zwift_data_repository import RepositoryForScrapedDataFromDaveK
+from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
 from handy_utilities import *
 from jgh_serialization import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
-import numpy as np
 from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
-
 import logging
-from jgh_logging import jgh_configure_logging
-jgh_configure_logging("appsettings.json")
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__) 
 
 @dataclass()
 class DummyItem:
@@ -78,25 +73,14 @@ class DummyItem:
 
 def main():
     
-    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
-
-    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
-
-    betel_IDs = None
-    # betel_IDs = get_test_IDs()
-
+    test_IDs = None # test_IDs = get_test_IDs()
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
-    repository.populate_repository(betel_IDs, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
-    dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(betel_IDs)
+    repository.populate_repository(test_IDs, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
+    dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(test_IDs)
 
     comparative_FTPs : list[DummyItem] = list()
 
-    for ZsunItem in repository.get_dict_of_ZsunItem(betel_IDs).values():
+    for ZsunItem in repository.get_dict_of_ZsunItem(test_IDs).values():
         y_pred = round(ZsunItem.get_n_second_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
         # y_pred = round(ZsunItem.get_one_hour_watts())
         y_actual = ZsunItem.zwiftracingapp_zpFTP
@@ -131,9 +115,16 @@ def main():
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"\n{len(comparative_FTPs)} line items saved to: {OUTPUT_DIRPATH}/{OUTPUT_FILENAME}\n")
 
-
-
-
-
 if __name__ == "__main__":
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
+    logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
+
+    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
+    OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+
     main()
