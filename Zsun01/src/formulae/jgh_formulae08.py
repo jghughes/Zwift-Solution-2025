@@ -10,7 +10,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from jgh_formatting import (truncate, format_number_with_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
-from handy_utilities import log_multiline
 from zsun_rider_item import ZsunItem
 from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem, WorthyCandidateSolutionItem)
 from computation_classes_display_objects import PacelineSolutionsComputationReportDisplayObject
@@ -26,6 +25,9 @@ logger = logging.getLogger(__name__)
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
 # THE SAME TIME. USE LOGGING ONLY IN THE MAIN THREAD. EVEN WHEN DEBUGGING, THE PROBLEM IS INSURMOUNTABLE. 
+
+def log_multiline(lines: list[str]) -> None:
+    logger.info("\n".join(lines))
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[ZsunItem]):
 
@@ -47,7 +49,7 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
         f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_one_hour_watts())}w "
         f"{format_number_1dp(safe_divide(lower_bound_1_hour_rider.get_one_hour_watts(), lower_bound_1_hour_rider.weight_kg))}wkg by {lower_bound_1_hour_rider.name}."
     ]
-    log_multiline(logger, message_lines)
+    log_multiline(message_lines)
 
 
 def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject) -> None:
@@ -70,7 +72,7 @@ def log_workload_suffix_message(report : PacelineSolutionsComputationReportDispl
         "The paceline puts weaker riders in the middle.",
         "Based on data from Zwiftpower as at March/April 2025. Some ZSUN riders have more comprehensive data than others.\n\n",
     ]
-    log_multiline(logger, message_lines)
+    log_multiline(message_lines)
 
 
 def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
@@ -885,6 +887,7 @@ def main01():
     s2 = time.perf_counter()
     logger.debug(f"\nBase-case: serial run compute time: {round(s2 - s1, 2)} seconds")
     logger.debug(f"\nCommencing parallel processing. Please wait....")
+
     # Parallel run (ignore squigglies here, they are inconsequential warnings)
     p1 = time.perf_counter()
     _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, all_conceivable_paceline_rotation_sequences)

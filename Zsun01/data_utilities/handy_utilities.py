@@ -13,8 +13,6 @@ from zsun_rider_item import ZsunItem
 import logging
 logger = logging.getLogger(__name__)
 
-# functions to get arbitrary Zwift IDs and ZsunItems for testing.
-
 def get_test_IDs() -> List[str]:
     return [
   "1024413",
@@ -48,8 +46,6 @@ def get_test_ZsunDTO(id : str) -> ZsunItem:
     riders = read_json_dict_of_ZsunDTO(file_name, dir_path)
     answer = riders[id]
     return answer
-
-# functions used to read a pre-processed JSON dictionary file in some or other folder and return its contents. 
 
 def read_json_dict_of_ZsunDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunItem]:
     if not dir_path:
@@ -107,8 +103,6 @@ def read_json_dict_of_regressionmodellingDTO(file_name: str, dir_path: str) -> D
         }
     )
 
-# functions used to write a dictionary of items to a JSON file in some or other folder.
-
 def write_json_dict_of_ZsunWattsItem(data: Dict[str, ZsunWattsItem], file_name: str, dir_path: str) -> None:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")
@@ -141,56 +135,53 @@ def write_json_dict_of_regressionmodellingItem(data: Dict[str, RegressionModelli
 
     logger.debug(f"File saved : {file_name}")
 
-# local logging utility function to log multiline messages
-
-def log_multiline(lines: list[str]) -> None:
-    logger.info("\n".join(lines))
-
     # tests
 
 def main():
 
-    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
+    all_riders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME,DATA_DIRPATH)
 
-    zsun_raw_cp_dict_for_betel = read_zwiftracingapp_files(get_test_IDs(),INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
+    logger.info(f"Imported {len(all_riders)} zsun riders")
 
-    INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
-    INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+def main01():
+
+    zsun_raw_cp_dict_for_betel = read_zwiftracingapp_files(get_test_IDs(),ZWIFTRACINGAPP_DIRPATH)
 
     jgh_cp_dict = read_json_dict_of_ZsunWattsDTO(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
     combined_raw_cp_dict_for_betel = {**jgh_cp_dict, **zsun_raw_cp_dict_for_betel}
 
-    write_json_dict_of_ZsunWattsItem(combined_raw_cp_dict_for_betel, "extracted_input_cp_data_for_betel.json", INPUT_CP_DATA_DIRPATH)
+    write_json_dict_of_ZsunWattsItem(combined_raw_cp_dict_for_betel, OUTPUT_CPDATA_FILENAME, INPUT_CP_DATA_DIRPATH)
 
-def main02(logger: logging.Logger):
+def main02():
 
     dict_of_zwift_profiles = read_zwift_files(None, ZWIFT_DIRPATH)
-    logger.info(f"Imported {len(dict_of_zwift_profiles)} zwift profile items")
-
     dict_of_zwiftracingapp_profiles = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH)
-    logger.info (f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
-
     dict_of_zwiftpower_profiles = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH)
-    logger.info(f"Imported {len(dict_of_zwiftpower_profiles)} zwiftpower profile items")
-
     dict_of_zwiftpower_90day_bestpower = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
-    logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower bestpower info items")
+
+    logger.info(f"Imported {len(dict_of_zwift_profiles)} zwift profile items")
+    logger.info (f"Imported {len(dict_of_zwiftracingapp_profiles)} zwiftracingapp profile items")
+    logger.info(f"Imported {len(dict_of_zwiftpower_profiles)} zwiftpower profile items")
+    logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower 90-day best graph items")
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-    logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
 
+    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+
+    INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
+    INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
+
+    OUTPUT_CPDATA_FILENAME = "extracted_input_cp_data_for_betel.json"
 
     main()
+    # # main01()
     # main02()
-    # main03()
-    # main04()
-    # main05()
-    # main06()

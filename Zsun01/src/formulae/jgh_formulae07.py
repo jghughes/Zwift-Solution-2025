@@ -225,34 +225,17 @@ def save_summary_of_all_paceline_plans_as_html(
 
 
 def main() -> None:
-
     from constants import EXERTION_INTENSITY_FACTOR_LIMIT
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
-    from zsun_rider_dto import ZsunDTO
+    from handy_utilities import read_json_dict_of_ZsunDTO
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
 
-    # Example: Instantiate riders using the Config class
-    example_riders_data = [
-        # ZsunItem.Config.json_schema_extra["meridithl"],
-        ZsunItem.Config.json_schema_extra["melissaw"],
-        ZsunItem.Config.json_schema_extra["richardm"],
-        # ZsunItem.Config.json_schema_extra["davek"],
-        # ZsunItem.Config.json_schema_extra["huskyc"],
-        # ZsunItem.Config.json_schema_extra["scottm"],
-        ZsunItem.Config.json_schema_extra["johnh"],
-        # ZsunItem.Config.json_schema_extra["joshn"],
-        # ZsunItem.Config.json_schema_extra["brent"],
-        # ZsunItem.Config.json_schema_extra["coryc"],
-        # ZsunItem.Config.json_schema_extra["davide"],
-    ]
-
-    # Convert example data to ZsunItem instances
-    riders = [
-        ZsunItem.from_dataTransferObject(ZsunDTO.model_validate(data))
-        for data in example_riders_data
-    ]
-
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    team_name = "test"
+    riderIDs = get_riderIDs_on_team_roster(team_name)
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     pull_durations = [30.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
@@ -278,6 +261,10 @@ def main() -> None:
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
+
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
+
 
     main()
 

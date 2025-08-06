@@ -19,13 +19,11 @@ class CurveFittingResultItem:
     AWC                          : float = 0.0   # Anaerobic work capacity in kilojoules
     when_curves_fitted           : str   = ""    # Timestamp indicating when the models were fitted
 
-
 @dataclass(frozen=True, eq=True) 
 class RiderWorkAssignmentItem:
     position    : int = 1
     duration    : float = 0.0 
     speed       : float = 0.0 
-
 
 @dataclass(frozen=True, eq=True) 
 class RiderExertionItem:
@@ -34,7 +32,6 @@ class RiderExertionItem:
     duration                     : float = 0.0 
     wattage                      : float = 0.0 
     kilojoules                   : float = 0.0   
-
 
 @dataclass
 class RiderContributionItem():
@@ -53,14 +50,12 @@ class RiderContributionItem():
     intensity_factor      : float = 0.0
     effort_constraint_violation_reason : str = ""
 
-
 @dataclass
 class PacelineIngredientsItem:
     riders_list                  : List[ZsunItem] = field(default_factory=list)
     sequence_of_pull_periods_sec : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)
     max_exertion_intensity_factor: float               = 0.95 # Default to 95% of one hour power, can be overridden by caller
-
 
 @dataclass
 class PacelineComputationReportItem:
@@ -71,7 +66,6 @@ class PacelineComputationReportItem:
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
     rider_contributions                         : DefaultDict[ZsunItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
-
 
 @dataclass
 class PacelineSolutionsComputationReportItem:
@@ -85,7 +79,6 @@ class PacelineSolutionsComputationReportItem:
     everybody_pull_hard_solution          : Union[PacelineComputationReportItem, None] = None
     hang_in_solution                      : Union[PacelineComputationReportItem, None] = None
     all_solutions                         : Union[List[PacelineComputationReportItem], None] = None
-
 
 @dataclass
 class WorthyCandidateSolutionItem:

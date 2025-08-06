@@ -29,7 +29,6 @@ from zsun_rider_item import ZsunItem
 import logging
 logger = logging.getLogger(__name__)
 
-
 #functions used to read many files in a folder and return a dictionary of items. used to read the thousands of raw zwift profiles, zwiftracingapp profiles, zwiftpower profiles, and zwiftpower best power files obtained by DaveK for Brute. 
 
 def read_zwift_files(
@@ -154,11 +153,8 @@ def read_zwiftpower_graph_watts_files(
 
     return answer
 
-
 # repository for scraped data from DaveK's work for Zsun
-
 T = TypeVar("T")  # Generic type variable for the item type in the defaultdict
-
 @dataclass
 class RepositoryForScrapedDataFromDaveK:
     """
@@ -606,57 +602,52 @@ class RepositoryForScrapedDataFromDaveK:
         return answer
 
 
-# Testing
-
+# Tests
 
 def main03():
 
 
     my_dict = read_zwift_files(None, ZWIFT_DIRPATH)
 
-    logger.info (f"Imported {len(my_dict)} zwift profile items")
     for zwift_id, item in my_dict.items():
         if not item:
             logger.warning(f"Profile for zwiftid = {zwift_id} is missing.")
         logger.info(f"{zwift_id} {item.last_name} zFTP = {round(item.ftp)} Watts, Height = {round(item.height_mm/10.0)} cm")
 
-    logger.info(f"Imported {len(my_dict)} items")
+    logger.info (f"Imported {len(my_dict)} zwift_files")
 
 def main04():
 
     my_dict = read_zwiftracingapp_files(None, ZWIFTRACINGAPP_DIRPATH)
 
-    logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
         if not item:
             logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
         logger.info(f"{zwift_id} {item.fullname} country = {item.country}")
 
-    logger.info(f"Imported {len(my_dict)} items")
+    logger.info (f"Imported {len(my_dict)} zwiftracingapp_files")
 
 def main05():
 
     my_dict = read_zwiftpower_files(None, ZWIFTPOWER_DIRPATH)
 
-    logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
         if not item:
             logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
         logger.info(f"{zwift_id} {item.zwift_name}")
 
-    logger.info(f"Imported {len(my_dict)} items")
+    logger.info (f"Imported {len(my_dict)} zwiftpower_files")
 
 def main06():
 
     my_dict = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
 
-    logger.info (f"Imported {len(my_dict)} items")
     for zwift_id, item in my_dict.items():
         if not item:
             logger.warning(f"Item for zwiftid = {zwift_id} is missing.")
         logger.info(f"{zwift_id} cp60 = {item.bp_60}")
 
-    logger.info(f"Imported {len(my_dict)} items")
+    logger.info (f"Imported {len(my_dict)} zwiftpower_graph_watts_files")
 
 def main11():
 
@@ -672,7 +663,6 @@ def main11():
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
     )
 
-    # ... rest of the function remains unchanged ...
     # Define sample Zwift IDs for testing
     betel = [
   "1024413",
@@ -709,7 +699,7 @@ def main11():
 
     # Example: get the intersection - should be about 80
     df = rep.get_table_of_intersections_of_sets([], [])
-    logger.debug("DataFrame of intesection of Zwift IDs in main datasets:")
+    logger.debug("DataFrame of intersection of Zwift IDs in main datasets:")
     logger.debug(df)
     OUTPUT_FILENAME2 = "beautiful_intersection_of_main_datasets.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME2, OUTPUT_DIRPATH)
@@ -717,7 +707,7 @@ def main11():
 
     # Example: get an intersection of all main sets and betel - should be tiny - 4
     df = rep.get_table_of_intersections_of_sets(betel, [])
-    logger.debug("DataFrame of intesection of Zwift IDs in all datasets and Betel:")
+    logger.debug("DataFrame of intersection of Zwift IDs in all datasets and Betel:")
     logger.debug(df)
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME3, OUTPUT_DIRPATH)
@@ -775,8 +765,6 @@ def main13():
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
@@ -815,8 +803,6 @@ def main14():
         zwiftracingapp_dir_path=ZWIFTRACINGAPP_DIRPATH,
         zwiftpower_dir_path=ZWIFTPOWER_DIRPATH,
         zwiftpower_90day_graph_watts_dir_path=ZWIFTPOWER_GRAPHS_DIRPATH,
-        logger=logger,
-        log_level=log_level
     )
 
     # Example: get the superset - should be more than 1500
@@ -919,16 +905,15 @@ def main16():
     write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME, OUTPUT_DIRPATH)
     logger.info(f"Test passed. Filtered DataFrame saved to {OUTPUT_DIRPATH}{OUTPUT_FILENAME}")
 
-
 if __name__ == "__main__":
     # configure root logging since this is the entry point
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
+    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
+    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
+    # ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
     # Comment/uncomment the lines below to run the tests you want. for more verbose output, set log_level to logging.DEBUG
@@ -942,5 +927,5 @@ if __name__ == "__main__":
     # main12()
     # main13()
     # main14()
-    main15()
-    # main16()
+    # main15()
+    main16()

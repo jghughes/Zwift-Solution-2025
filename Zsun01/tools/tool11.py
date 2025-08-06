@@ -50,6 +50,7 @@ from handy_utilities import *
 from jgh_serialization import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
+from dirpaths import ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 import logging
 logger = logging.getLogger(__name__) 
 
@@ -122,9 +123,5 @@ if __name__ == "__main__":
 
     OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
     main()

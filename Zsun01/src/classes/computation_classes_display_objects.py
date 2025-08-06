@@ -9,7 +9,6 @@ from computation_classes import RiderContributionItem, PacelineComputationReport
 from jgh_enums import PacelinePlanTypeEnum
 
 @dataclass
-@dataclass
 class RiderContributionDisplayObject():
     name                                   : str   = ""
     pretty_concatenated_racing_cat_descriptor     : str   = ""
@@ -174,7 +173,6 @@ class RiderContributionDisplayObject():
 
         return answer
 
-
 @dataclass
 class PacelineComputationReportDisplayObject:
     guid                                        : str = ""
@@ -213,7 +211,6 @@ class PacelineComputationReportDisplayObject:
             answer.append(PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report))
 
         return answer
-
 
 @dataclass
 class PacelineSolutionsComputationReportDisplayObject:

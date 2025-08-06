@@ -509,8 +509,7 @@ def select_n_strongest_riders(riders: List[ZsunItem], n : int) -> List[ZsunItem]
 
     return strong_riders
 
-def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
-    pull_period_sequences_being_pruned: NDArray[np.float64],
+def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_sequences_being_pruned: NDArray[np.float64],
     riders: List[ZsunItem]
 ) -> NDArray[np.float64]:
     """
@@ -578,8 +577,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
 
     return arr
 
-def generate_all_paceline_rotation_sequences_in_the_total_solution_space(
-    length_of_paceline: int,
+def generate_all_paceline_rotation_sequences_in_the_total_solution_space(length_of_paceline: int,
     standard_pull_periods_seconds: List[float]
 ) -> NDArray[np.float64]:
     """
@@ -613,35 +611,33 @@ def main():
     from repository_of_team_rosters import get_riderIDs_on_team_roster
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_riderIDs_on_team_roster("test")
+    team_name = "test"
+    riderIDs = get_riderIDs_on_team_roster(team_name)
     riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
     start_time = time.perf_counter()
-
     universe_of_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
-    
-    elapsed_time = time.perf_counter() - start_time
+    elapsed_time1 = time.perf_counter() - start_time
 
-    logger.debug(f"Generated universe_of_sequences of {len(universe_of_sequences)} paceline rotation sequences in {elapsed_time} seconds.")
 
     start_time = time.perf_counter()
-
     pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(universe_of_sequences, riders)
-
-    elapsed_time = time.perf_counter() - start_time
+    elapsed_time2 = time.perf_counter() - start_time
 
     for sequence in pruned_sequences:
         logger.debug(sequence)
 
-    logger.debug(f"Generated pruned_sequences of {len(pruned_sequences)} paceline rotation sequences in {elapsed_time} seconds..")
+    logger.debug(f"Generated {len(universe_of_sequences)} universe_of_sequences for {len(riders)} riders on team={team_name} in {elapsed_time1} seconds.")
+
+    logger.debug(f"Generated {len(pruned_sequences)} pruned_sequences for {len(riders)} riders on team={team_name} in {elapsed_time2} seconds.")
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR)
+
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     main()

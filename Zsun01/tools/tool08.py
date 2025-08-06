@@ -1,7 +1,7 @@
 """
 This monster tool is not used directly in the Brute production
 pipeline. The output file from this tool08 is the input file 
-for tool12.py.
+for tool12.py, which is also not used.
 
 I wrote this tool to investigate and compare and find
 correlations between raw and synthetic power data and Zwift's
@@ -81,13 +81,11 @@ logger = logging.getLogger(__name__)
 
 def main():
  
-    test_IDs = None # test_IDs = get_test_IDs()
+    dict_of_zwift_profiles_for_everybody = read_zwift_files(None, ZWIFT_DIRPATH)
 
-    dict_of_zwift_profiles_for_everybody = read_zwift_files(test_IDs, ZWIFT_DIRPATH)
+    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(None, ZWIFTPOWER_GRAPHS_DIRPATH)
 
-    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
-
-    logger.info(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} bestpower graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
+    logger.info(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} 90-day best graphs from ZwiftPower files in:- \nDir : {ZWIFTPOWER_GRAPHS_DIRPATH}\n\n")
 
     # create a list of zwiftrider objects from the raw data
 
@@ -176,8 +174,7 @@ def main():
         logger.info(f"{summary_one_hour}")
 
 
-        if r_squared_one_hour >= minimum_required_r_squared_fit_for_one_hour_power_curve:
-        # if r_squared_pull >= minimum_required_r_squared_fit_for_one_hour_power_curve and r_squared_one_hour >= minimum_required_r_squared_fit_for_one_hour_power_curve:
+        if r_squared_one_hour >= MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE:
             zwiftIds_with_high_fidelity.append(my_zsunwattsgraphitem.zwift_id)
             count_of_riders_with_high_fidelity_models += 1
         else:
@@ -190,7 +187,6 @@ def main():
 
     logger.info(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}\n")
 
-    # logger.info(f"Riders with lower fidelity models [r_squared < {MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE}]: {count_of_riders_with_low_fidelity_models} ({round(100.0 * count_of_riders_with_low_fidelity_models/modelled_count)}%)")
     logger.info(f"Riders with excellent TTT pull curve fits [r_squared > {MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
 
     # for  zwiftIds_with_high_fidelity, write out the zwiftID, name, critical_power, and r_squared_cp. sorted by name
@@ -215,9 +211,8 @@ def main():
     merged_df = pd.merge(df1, df2, left_on="zwift_id", right_on="zwift_id", suffixes=('_profile', '_power'))
 
     # write to excel
-    OUTPUT_FILE_NAME = "power_curve_fitting_results_for_club_by_jgh.xlsx"
-    write_pandas_dataframe_as_xlsx(merged_df, OUTPUT_FILE_NAME, OUTPUT_DIRPATH)
-    logger.info(f"\nSaved {len(merged_df)} power curve fitting results to: {OUTPUT_DIRPATH + OUTPUT_FILE_NAME}\n")
+    write_pandas_dataframe_as_xlsx(merged_df, CURVE_FITTING_FILENAME_FOR_EXCEL, OUTPUT_DIRPATH)
+    logger.info(f"\nSaved {len(merged_df)} power curve fitting results to: {OUTPUT_DIRPATH + CURVE_FITTING_FILENAME_FOR_EXCEL}\n")
 
     # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
 
@@ -271,10 +266,8 @@ def main():
     riders = dict_of_riders_with_high_fidelity.values()
     df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
-
     write_pandas_dataframe_as_xlsx(df3, REGRESSION_FILENAME_EXCEL, OUTPUT_DIRPATH)
     logger.info(f"\nSaved {len(df3)} correlation data-set items to: {OUTPUT_DIRPATH}{REGRESSION_FILENAME_EXCEL}\n")
-
 
     write_json_dict_of_regressionmodellingItem(dict_of_riders_with_high_fidelity, REGRESSION_FILENAME_JSON, OUTPUT_DIRPATH)
 
@@ -286,17 +279,13 @@ if __name__ == "__main__":
 
     MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE = .90
 
-    # output destination for results - the input ingested by tool12.py
+    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
+
+    # output destination for results - the input ingested by tool12.py - make sure the filenames match each other
     REGRESSION_FILENAME_EXCEL = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
     REGRESSION_FILENAME_JSON = "dataset_for_linear_regression_investigations_using_sklearn.json"
+    CURVE_FITTING_FILENAME_FOR_EXCEL = "power_curve_fitting_results_for_club_by_jgh.xlsx"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-
-    # get all the raw input data from DaveK's scraping of Zwift, ZwiftPower, and ZwiftRacingApp - thousands of files
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-
 
     main()
 

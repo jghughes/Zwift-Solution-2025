@@ -60,9 +60,7 @@ if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
-    RIDERDATA_FILE_NAME = "test_ZsunItems.json"
+    RIDERDATA_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
     DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
-
 
     main()

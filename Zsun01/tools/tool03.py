@@ -46,39 +46,36 @@ to dataclasses and back again, and using sundry file utility functions.
 from repository_of_scraped_riders import read_zwiftpower_graph_watts_files
 from handy_utilities import read_json_dict_of_ZsunDTO, write_json_dict_of_ZsunWattsItem, get_test_IDs
 from jgh_sanitise_string import make_short_displayname
+
 import logging
 logger = logging.getLogger(__name__)
 
 
 def main():
     all_rider_profiles_as_dict = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-
+    logger.debug(f"loaded ZsunItems for {len(all_rider_profiles_as_dict)} riders")
     test_IDs = get_test_IDs()
+    logger.debug(f"loaded {len(test_IDs)} IDs for our little test")
+    dict_of_ZsunWatts_graphs = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
+    logger.debug(f"loaded zwiftpower_graph_watts files for {len(dict_of_ZsunWatts_graphs)} testIDs")
 
-    betel_cp_dict = read_zwiftpower_graph_watts_files(test_IDs, INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH)
-
-    logger.debug(f"loaded cp_data for {len(betel_cp_dict)} riders")
-
-    # function to make nick-names 
-    for rider_id, rider_cp_data in betel_cp_dict.items():
-        rider_cp_data.zwift_id = rider_id # write filename into zwiftId field
+    # function to make nick-names for display purposes for each rider
+    for rider_id, rider_watts_graph in dict_of_ZsunWatts_graphs.items():
+        rider_watts_graph.zwift_id = rider_id # write filename into zwiftId field
         display_name = make_short_displayname(all_rider_profiles_as_dict[rider_id].name) # add short name
         logger.debug(f"{rider_id} {display_name}")
 
-    write_json_dict_of_ZsunWattsItem(betel_cp_dict, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
+    write_json_dict_of_ZsunWattsItem(dict_of_ZsunWatts_graphs, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
     from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH
+    from dirpaths import DATA_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 
-    INPUT_ZSUNDATA_FROM_DAVEK_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
-    OUTPUT_FILE_NAME = "extracted_input_cp_data_for_betelV4.json"
+    OUTPUT_FILE_NAME = "extracted_input_power_graphs_for_testIDs.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-
-
 
     main()
 

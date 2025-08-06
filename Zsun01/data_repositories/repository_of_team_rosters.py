@@ -18,7 +18,7 @@ team_rosters = defaultdict(dict, {
         # "5134": "husky_crone",
         "1884456": "john_hughes",
         "2508033": "josh_neil",
-        # "383480": "lynsey_segal",
+        "383480": "lynsey_segal",
         # "5530045": "mark_brzezinski",
         # "1024413": "matt_steeve",
         # "1657744": "melissa_warwick",

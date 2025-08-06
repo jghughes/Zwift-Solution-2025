@@ -80,29 +80,15 @@ def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunIt
     logger.info(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
 
 def main() -> None:
-    from zsun_rider_dto import ZsunDTO
+    from handy_utilities import read_json_dict_of_ZsunDTO
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
 
-    # Example: Instantiate riders using the Config class
-    example_riders_data = [
-        # ZsunItem.Config.json_schema_extra["meridithl"],
-        ZsunItem.Config.json_schema_extra["melissaw"],
-        ZsunItem.Config.json_schema_extra["richardm"],
-        ZsunItem.Config.json_schema_extra["davek"],
-        # ZsunItem.Config.json_schema_extra["huskyc"],
-        ZsunItem.Config.json_schema_extra["scottm"],
-        # ZsunItem.Config.json_schema_extra["johnh"],
-        # ZsunItem.Config.json_schema_extra["joshn"],
-        # ZsunItem.Config.json_schema_extra["brent"],
-        # ZsunItem.Config.json_schema_extra["coryc"],
-        # ZsunItem.Config.json_schema_extra["davide"],
-    ]
+    dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    team_name = "test"
+    riderIDs = get_riderIDs_on_team_roster(team_name)
+    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
 
-    # Convert example data to ZsunItem instances
-    riders = [
-        ZsunItem.from_dataTransferObject(ZsunDTO.model_validate(data))
-        for data in example_riders_data
-    ]
-    pull_durations = [120.0, 0.0, 120.0, 120.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
+    pull_durations = [120.0, 0.0, 120.0, 120.0] # in this demo, duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
 
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, pull_durations, pull_speeds_kph)
@@ -112,6 +98,9 @@ def main() -> None:
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
+
+    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
+    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     main()
 

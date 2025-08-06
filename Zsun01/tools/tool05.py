@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 
 def main():
 
-
+    ## Define the riders and their Zwift IDs - even if we only use one at a time
 
     barryb ='5490373' #ftp 273
     johnh ='1884456' #ftp 240 zmap 292
@@ -86,28 +86,27 @@ def main():
 
     zwiftID = davek
 
+    dict_of_all_zsunriders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    dict_of_zsun01_betel_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    test_IDs = get_test_IDs()
 
-    betel_IDs = get_test_IDs()
-
-    dict_of_jghbestpoweritems_for_betel = read_zwiftpower_graph_watts_files(betel_IDs, ZWIFTPOWER_GRAPHS_DIRPATH, logger, logging.DEBUG))
+    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
     # model critical_power and w_prime
 
-    x_y_ordinates_for_cp_w_prime = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_cp_w_prime_modelling()
+    x_y_ordinates_for_cp_w_prime = dict_of_zsunwatts_graphs_for_testIDs[zwiftID].export_x_y_ordinates_for_cp_w_prime_modelling()
 
     critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  = cp.do_curve_fit_with_cp_w_prime_model(x_y_ordinates_for_cp_w_prime)
 
     # model pull power curve
 
-    x_y_ordinates_for_pulling = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_pull_zone_modelling()
+    x_y_ordinates_for_pulling = dict_of_zsunwatts_graphs_for_testIDs[zwiftID].export_x_y_ordinates_for_pull_zone_modelling()
 
     coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_pulling)
 
     # model ftp curve (one hour power)
 
-    x_y_ordinates_for_FTP_60min = dict_of_jghbestpoweritems_for_betel[zwiftID].export_x_y_ordinates_for_one_hour_zone_modelling()
+    x_y_ordinates_for_FTP_60min = dict_of_zsunwatts_graphs_for_testIDs[zwiftID].export_x_y_ordinates_for_one_hour_zone_modelling()
 
     coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = cp.do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
 
@@ -117,7 +116,7 @@ def main():
 
     pi = ZsunItem(
         zwift_id=zwiftID,
-        name=dict_of_zsun01_betel_ZsunItems[zwiftID].name,
+        name=dict_of_all_zsunriders[zwiftID].name,
         zsun_CP=critical_power,
         zsun_AWC=anaerobic_work_capacity,
         zsun_one_hour_curve_coefficient=coefficient_60min,
@@ -171,7 +170,7 @@ def main():
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
     plt.xlabel('Duration (minutes)')
     plt.ylabel('ZwiftPower 90-day best graph (Watts)')
-    plt.title(f'{dict_of_zsun01_betel_ZsunItems[zwiftID].name}')
+    plt.title(f'{dict_of_all_zsunriders[zwiftID].name}')
     # Set the x-axis and y-axis limits
     plt.xlim(0, lim_x)
     plt.ylim(0, lim_y)
@@ -189,13 +188,7 @@ if __name__ == "__main__":
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH
-
-    # OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/"
-    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwift/"
-    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftracing-app-post/"
-    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-04-00/zwiftpower/power-graph-watts/"
+    from dirpaths import DATA_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 
 
     main()
