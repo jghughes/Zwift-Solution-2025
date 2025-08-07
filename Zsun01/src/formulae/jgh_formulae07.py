@@ -170,8 +170,6 @@ def save_summary_of_all_paceline_plans_as_html(
     filename: str,
     dir_path: str,
     html_footnotes: str,
-    logger: logging.Logger,
-
 ) -> None:
 
     if computation_report_display_object is None:

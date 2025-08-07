@@ -83,7 +83,6 @@ def main():
 
     for ZsunItem in repository.get_dict_of_ZsunItem(test_IDs).values():
         y_pred = round(ZsunItem.get_n_second_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
-        # y_pred = round(ZsunItem.get_one_hour_watts())
         y_actual = ZsunItem.zwiftracingapp_zpFTP
         if y_pred == 0.0 or y_actual == 0 or ZsunItem.zwift_zrs == 0 or ZsunItem.zwiftracingapp_score == 0:
             continue
@@ -91,7 +90,7 @@ def main():
         percent = abs(round( safe_divide(((y_pred - y_actual) * 100), y_actual)))  # percent difference between zsun one hour power and zwiftracingapp zpFTP
         curve = dict_of_curve_fits[ZsunItem.zwift_id]
         curve_x_ordinate = solve_decay_model_for_x_numpy(curve.one_hour_curve_coefficient, curve.one_hour_curve_exponent, np.array([y_actual]))
-        logger.info(f"zpFTP/Zsun one-hour_power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {ZsunItem.name}")
+        logger.info(f"zpFTP versus Zsun 40-minute-power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {ZsunItem.name}")
 
         item = DummyItem(
             zwift_id                                = ZsunItem.zwift_id,
@@ -121,7 +120,7 @@ if __name__ == "__main__":
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
 
-    OUTPUT_FILENAME = "comparative_zFTP_vs_one_hour_power_analysis.xlsx"
+    OUTPUT_FILENAME = "comparative_zFTP_vs_zsun_40_min_power_analysis.xlsx"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
     main()

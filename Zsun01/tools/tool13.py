@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 def main():
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_riderIDs_on_team_roster("betel")
+    riderIDs = get_riderIDs_on_team_roster("test")
     riders: list[ZsunItem] = [dict_of_ZsunItems[riderID] for riderID in riderIDs]
     riders = arrange_riders_in_optimal_order(riders)
 
@@ -75,22 +75,22 @@ def main():
         max_exertion_intensity_factor   =EXERTION_INTENSITY_FACTOR_LIMIT
     )
 
-    optimal_result = generate_paceline_solutions_using_parallel_workstealing_algorithm(standard_params, all_conceivable_paceline_rotation_schedules)
-    pull_plans = optimal_result.solutions
-    total_alternatives = optimal_result.total_pull_sequences_examined
-    total_iterations = optimal_result.total_compute_iterations_performed
-    compute_time = optimal_result.computational_time
+    list_of_paceline_computation_reportitem = generate_paceline_solutions_using_parallel_workstealing_algorithm(
+        standard_params, all_conceivable_paceline_rotation_schedules)
 
-    low_dispersion_plan, high_speed_plan = pull_plans
-    low_dispersion_plan_line_items = low_dispersion_plan.rider_contributions
-    halted_rider = low_dispersion_plan.rider_that_breeched_contraints
-    high_speed_plan_line_items = high_speed_plan.rider_contributions
+    for item in list_of_paceline_computation_reportitem:
+        if not item.algorithm_ran_to_completion:
+            logger.warning(f"Solution not found for parameters: {asdict(item)}")
+        else:
+            plan_guid = item.guid
+            speed = round(item.calculated_average_speed_of_paceline_kph,2)
+            iterations = item.compute_iterations_performed_count
+            intensity_constraint = round(item.exertion_intensity_constraint_used, 2)
+            std_dev_intensity = item.calculated_dispersion_of_intensity_of_effort
 
-    log_rider_contributions(f"\n\nSIMPLEST PLAN: {round(simple_plan_line_items[halted_rider].speed_kph)} kph", simple_plan_line_items)
-    log_rider_contributions(f"\nBALANCED PLAN: {round(low_dispersion_plan_line_items[halted_rider].speed_kph)} kph", low_dispersion_plan_line_items)
-    log_rider_contributions(f"\n\nTEMPO PLAN: {round(high_speed_plan_line_items[halted_rider].speed_kph)} kph", high_speed_plan_line_items)
+            logger.info(f"\nPlan GUID: {plan_guid} - Speed: {speed} kph, Iterations: {format_number_with_comma_separators(iterations)}, Intensity Constraint: {intensity_constraint}, Std Dev Intensity: {std_dev_intensity}")
 
-    logger.info(f"\n\n\nReport: did {format_number_with_comma_separators(total_iterations)} iterations to evaluate {format_number_with_comma_separators(total_alternatives)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
+    logger.info(f"\n\n\nReport: did {format_number_with_comma_separators(total_iterations)} iterations to evaluate {format_number_with_comma_separators(all_conceivable_paceline_rotation_schedules)} alternatives in {format_pretty_duration_hms(compute_time)} \n\n")
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging

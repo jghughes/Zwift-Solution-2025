@@ -134,12 +134,10 @@ if __name__ == "__main__":
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
 
+    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
+
     OUTPUT_FILENAME_WITHOUT_EXT = "everyone_ZsunItems_for_copying_manually_into_ZSUN01_data_folder" # the meat
 
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
 
     main()

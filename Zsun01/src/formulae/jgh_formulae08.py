@@ -673,7 +673,6 @@ def is_race_solution_with_possibility_of_drop_candidate(this_solution: PacelineC
 
 def update_candidate_solution(this_solution: PacelineComputationReportItem,
     candidate: WorthyCandidateSolutionItem,
-    logger: logging.Logger
 ) -> None:
     """
     Updates the candidate WorthyCandidateSolutionItem in-place if the current solution is better.

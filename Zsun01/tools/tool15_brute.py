@@ -34,9 +34,6 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-
-    SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel_new/"
-
     # GET THE SOURCE DATA READY
     team_name = "betel"
     riderIDs: List[str] = get_riderIDs_on_team_roster(team_name)
@@ -70,5 +67,7 @@ if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR)
+
+    SAVE_OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel_new/"
 
     main()
