@@ -114,7 +114,6 @@
     <Compile Include="tools\tool10_brute.py" />
     <Compile Include="tools\tool09.py" />
     <Compile Include="tests\test_how_much_difference_rotation_order_makes.py" />
-    <Compile Include="tools\tool13.py" />
     <Compile Include="tools\tool12.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

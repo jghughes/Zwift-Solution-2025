@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 from zsun_rider_item import ZsunItem
-from computation_classes import PacelineIngredientsItem, PacelineSolutionsComputationReportItem
+from computation_classes import PacelineIngredientsItem, PackageOfPacelineComputationReportItem
 from handy_utilities import read_json_dict_of_ZsunDTO
 from teams import get_riderIDs_on_team_roster
 from jgh_formulae08 import (
@@ -15,7 +15,7 @@ from filenames import RIDERS_FILE_NAME
 from dirpaths import DATA_DIRPATH
 
 
-def evaluate_permutation(params: PacelineIngredientsItem) -> PacelineSolutionsComputationReportItem:
+def evaluate_permutation(params: PacelineIngredientsItem) -> PackageOfPacelineComputationReportItem:
     # GET READY  FIGURE OUT params.pull_speeds_kph
 
     perm_riders = params.riders_list
@@ -70,7 +70,7 @@ def main():
         all_permutation_results = list(results)
 
     # 4. Sort by speed of halted_rider in lowest_dispersion_plan
-    def get_halted_rider_speed(optimal_result: PacelineSolutionsComputationReportItem):
+    def get_halted_rider_speed(optimal_result: PackageOfPacelineComputationReportItem):
         if not optimal_result.solutions:
             return 0
         # # Assume the first solution is the "lowest_dispersion_plan"

@@ -607,14 +607,10 @@ def generate_all_paceline_rotation_sequences_in_the_total_solution_space(length_
     return all_combinations
 
 def main():
-    from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
-    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
-
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     team_name = "test"
     riderIDs = get_riderIDs_on_team_roster(team_name)
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
+    riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     start_time = time.perf_counter()
     universe_of_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
@@ -633,11 +629,13 @@ def main():
     logger.debug(f"Generated {len(pruned_sequences)} pruned_sequences for {len(riders)} riders on team={team_name} in {elapsed_time2} seconds.")
 
 if __name__ == "__main__":
+    from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR)
-
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     main()

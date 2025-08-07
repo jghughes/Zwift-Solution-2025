@@ -42,7 +42,7 @@ This tool demonstrates data loading, machine learning for curve fitting,
 and visualization for cycling performance analysis using matplotlib.
 """
 
-import numpy as np
+# import numpy as np
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
@@ -52,39 +52,14 @@ from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
+from filenames import RIDERS_FILE_NAME
+from dirpaths import DATA_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 import logging
 logger = logging.getLogger(__name__)
 
 
 def main():
-
-    ## Define the riders and their Zwift IDs - even if we only use one at a time
-
-    barryb ='5490373' #ftp 273
-    johnh ='1884456' #ftp 240 zmap 292
-    lynseys ='383480' #ftp 201
-    joshn ='2508033' #ftp 260
-    richardm ='1193' # ftp 200
-    markb ='5530045' #ftp 280
-    davek="3147366" #ftp 276 critical_power 278
-    husky="5134" #ftp 268
-    scottm="11526" #ftp 247
-    timr= "5421258" #ftp 380
-    tom_bick= "11741" #ftp 303 critical_power 298
-    bryan_bumpas = "9011" #ftp 214
-    matt_steeve = "1024413"
-    giao_nguyen = "183277" #ftp 189
-    meridith_leubner ="1707548" #ftp 220
-    melissa_warwick = "1657744" #ftp 213
-    brandi_steeve = "991817" #ftp 196
-    selena = "2682791" #ftp 214
-    steve_seiler = "6142432" #ftp 270
-    david_evanetich= '4945836'
-    coryc = "5569057"
-
-    # choose a rider to model
-
-    zwiftID = davek
+    zwiftID = davek # choose a rider to model
 
     dict_of_all_zsunriders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
@@ -187,8 +162,31 @@ if __name__ == "__main__":
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
+    # Define the riders and their Zwift IDs - we only use one at a time in main()
+
+    barryb ='5490373' #ftp 273
+    johnh ='1884456' #ftp 240 zmap 292
+    lynseys ='383480' #ftp 201
+    joshn ='2508033' #ftp 260
+    richardm ='1193' # ftp 200
+    markb ='5530045' #ftp 280
+    davek="3147366" #ftp 276 critical_power 278
+    husky="5134" #ftp 268
+    scottm="11526" #ftp 247
+    timr= "5421258" #ftp 380
+    tom_bick= "11741" #ftp 303 critical_power 298
+    bryan_bumpas = "9011" #ftp 214
+    matt_steeve = "1024413"
+    giao_nguyen = "183277" #ftp 189
+    meridith_leubner ="1707548" #ftp 220
+    melissa_warwick = "1657744" #ftp 213
+    brandi_steeve = "991817" #ftp 196
+    selena = "2682791" #ftp 214
+    steve_seiler = "6142432" #ftp 270
+    david_evanetich= '4945836'
+    coryc = "5569057"
+
+
 
 
     main()

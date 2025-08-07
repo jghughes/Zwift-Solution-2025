@@ -58,17 +58,16 @@ import pandas as pd
 import numpy as np
 from jgh_number import safe_divide
 from jgh_sanitise_string import cleanup_name_string
-from handy_utilities import *
 from jgh_read_write import write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import decay_model_numpy
 from zsun_rider_item import ZsunItem
 from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
+from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
 import logging
 logger = logging.getLogger(__name__)
 
 
 def main():
-  
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
     repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
 
@@ -94,8 +93,7 @@ def main():
     ]
     items_as_attr_dicts : list[dict[str, Any]]= [asdict(profile) for profile in zwift_profiles]
     df = pd.DataFrame(items_as_attr_dicts)
-    output_file_name = "candidate_zwift_profiles.xlsx"
-    output_file_path = OUTPUT_DIRPATH + output_file_name
+    output_file_path = OUTPUT_DIRPATH + OUTPUT_FILENAME01
     df.to_excel(output_file_path, index=False, engine="openpyxl")
     logger.info(f"Saved {len(zwift_profiles)} zwift profiles to: {output_file_path}")
 
@@ -154,9 +152,8 @@ def main():
     logger.info(f"Created a eligible subset of zsun riders:  {len(answer_dict)}")
 
     df = pd.DataFrame([asdict(rider) for rider in riders])
-    file_name = "eligible_zsun_riders.xlsx"
-    write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
-    logger.info(f"Eligible subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME02, OUTPUT_DIRPATH)
+    logger.info(f"Eligible subset of zsun riders: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + OUTPUT_FILENAME02}")
 
     # Remove items where zwift_zrs is 0 or velo_cat_name is an empty string i.e. only keep those with a valid racing score and velo registration and category
     answer_dict = {
@@ -167,19 +164,18 @@ def main():
 
     riders = answer_dict.values()
     df = pd.DataFrame([asdict(rider) for rider in riders])
-    file_name = "zsun_riders_recently_active.xlsx"
-    write_pandas_dataframe_as_xlsx(df, file_name, OUTPUT_DIRPATH)
-    logger.info(f"Active subset of zsun racers: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + file_name}")
+    write_pandas_dataframe_as_xlsx(df, OUTPUT_FILENAME03, OUTPUT_DIRPATH)
+    logger.info(f"Active subset of zsun racers: {len(answer_dict)}\nSaved to:  {OUTPUT_DIRPATH + OUTPUT_FILENAME03}")
 
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
-        
-    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
 
-
+    OUTPUT_FILENAME01 = "candidate_zwift_profiles.xlsx"
+    OUTPUT_FILENAME02 = "eligible_zsun_riders.xlsx"
+    OUTPUT_FILENAME03 = "zsun_riders_recently_active.xlsx"
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
 

@@ -5,7 +5,7 @@ from collections import defaultdict
 from jgh_formatting import round_to_nearest_10, format_number_2dp
 from  jgh_number import safe_divide
 from zsun_rider_item import ZsunItem
-from computation_classes import RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem
+from computation_classes import RiderContributionItem, PacelineComputationReportItem, PackageOfPacelineComputationReportItem
 from jgh_enums import PacelinePlanTypeEnum
 
 @dataclass
@@ -213,7 +213,7 @@ class PacelineComputationReportDisplayObject:
         return answer
 
 @dataclass
-class PacelineSolutionsComputationReportDisplayObject:
+class PackageOfPacelineComputationReportDisplayObject:
     caption                            : str = ""
     total_pull_sequences_examined      : int = 0
     total_compute_iterations_performed : int = 0
@@ -221,15 +221,15 @@ class PacelineSolutionsComputationReportDisplayObject:
     solutions                          : DefaultDict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
 
     @staticmethod
-    def from_PacelineSolutionsComputationReportItem(
-        report: Union['PacelineSolutionsComputationReportItem', None]
-    ) -> "PacelineSolutionsComputationReportDisplayObject":
+    def from_PackageOfPacelineComputationReportItem(
+        report: Union['PackageOfPacelineComputationReportItem', None]
+    ) -> "PackageOfPacelineComputationReportDisplayObject":
         """
         Factory method to create a display object for all paceline solutions from a computation report item.
         Missing solutions will be present as empty PacelineComputationReportDisplayObject instances.
         """
         if report is None:
-            return PacelineSolutionsComputationReportDisplayObject()
+            return PackageOfPacelineComputationReportDisplayObject()
 
         solutions : DefaultDict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
 
@@ -240,7 +240,7 @@ class PacelineSolutionsComputationReportDisplayObject:
         solutions[PacelinePlanTypeEnum.FASTEST]             = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report.hang_in_solution)
         # LAST_FIVE and LAST_FOUR must be set externally - not here, as they are not computed in the report
 
-        return PacelineSolutionsComputationReportDisplayObject(
+        return PackageOfPacelineComputationReportDisplayObject(
             total_pull_sequences_examined      = report.total_pull_sequences_examined,
             total_compute_iterations_performed = report.total_compute_iterations_performed,
             computational_time                 = report.computational_time,

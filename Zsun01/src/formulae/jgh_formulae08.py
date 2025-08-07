@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from jgh_formatting import (truncate, format_number_with_comma_separators, format_number_1dp, format_pretty_duration_hms)
 from jgh_number import safe_divide
 from zsun_rider_item import ZsunItem
-from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PacelineSolutionsComputationReportItem, WorthyCandidateSolutionItem)
-from computation_classes_display_objects import PacelineSolutionsComputationReportDisplayObject
+from computation_classes import (PacelineIngredientsItem, RiderContributionItem, PacelineComputationReportItem, PackageOfPacelineComputationReportItem, WorthyCandidateSolutionItem)
+from computation_classes_display_objects import PackageOfPacelineComputationReportDisplayObject
 from jgh_formulae02 import (calculate_upper_bound_paceline_speed, calculate_upper_bound_paceline_speed_at_one_hour_watts, calculate_lower_bound_paceline_speed,calculate_lower_bound_paceline_speed_at_one_hour_watts, calculate_overall_average_speed_of_paceline_kph, generate_all_paceline_rotation_sequences_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space, calculate_dispersion_of_intensity_of_effort)
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
@@ -52,7 +52,7 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Zsu
     log_multiline(message_lines)
 
 
-def log_workload_suffix_message(report : PacelineSolutionsComputationReportDisplayObject) -> None:
+def log_workload_suffix_message(report : PackageOfPacelineComputationReportDisplayObject) -> None:
 
     message_lines = [
         f"\nBrute report: did {format_number_with_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_with_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
@@ -694,7 +694,7 @@ def update_candidate_solution(this_solution: PacelineComputationReportItem,
 
 
 def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
-    ) -> PacelineSolutionsComputationReportItem:
+    ) -> PackageOfPacelineComputationReportItem:
     """
     Generates and returns optimal paceline solutions based on the provided paceline ingredients.
 
@@ -714,7 +714,7 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
             and maximum exertion intensity factor.
 
     Returns:
-        PacelineSolutionsComputationReportItem: 
+        PackageOfPacelineComputationReportItem: 
             An object containing:
                 - total_pull_sequences_examined (int): Number of candidate paceline rotation schedules evaluated.
                 - total_compute_iterations_performed (int): Total number of compute iterations performed across all solutions.
@@ -799,7 +799,7 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
         hang_in_candidate
     )
 
-    return PacelineSolutionsComputationReportItem(
+    return PackageOfPacelineComputationReportItem(
         total_pull_sequences_examined           = len(pruned_sequences),
         total_compute_iterations_performed      = total_compute_iterations_performed,
         computational_time                      = time_taken_to_compute,
@@ -1041,28 +1041,24 @@ def main02():
 
 
 if __name__ == "__main__":
-    from jgh_logging import jgh_configure_logging
-    from jgh_formatting import format_number_with_comma_separators
-    from handy_utilities import read_json_dict_of_ZsunDTO
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_exertions
+    from jgh_formulae06 import populate_rider_contributions
+    from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
     from repository_of_team_rosters import get_riderIDs_on_team_roster
-    from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
+    from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR) # numba generates a lot of INFO messages that are not useful here
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riderIDs = get_riderIDs_on_team_roster("test")
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
-
+    riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
     all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
-
     pretty_number_of_sequences_before_pruning = format_number_with_comma_separators(len(all_conceivable_paceline_rotation_sequences))
-
     reduced_paceline_rotation_sequences_after_pruning = prune_all_sequences_of_pull_periods_in_the_total_solution_space(all_conceivable_paceline_rotation_sequences, riders)
-
     pretty_number_of_sequences_after_pruning = format_number_with_comma_separators(len(reduced_paceline_rotation_sequences_after_pruning))
 
 

@@ -68,7 +68,7 @@ class PacelineComputationReportItem:
     rider_contributions                         : DefaultDict[ZsunItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 @dataclass
-class PacelineSolutionsComputationReportItem:
+class PackageOfPacelineComputationReportItem:
     guid                                  : str = field(default_factory=lambda: str(uuid.uuid4()))
     total_pull_sequences_examined         : int   = 0
     total_compute_iterations_performed    : int   = 0

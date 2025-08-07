@@ -1,19 +1,20 @@
 from typing import Optional, Union
 import io
+from typing import List
 from jgh_string import first_n_chars
 from jgh_formatting import format_number_1dp, format_number_with_comma_separators
 from paceline_plan_display_ingredients import DISPLAY_ORDER_OF_SUMMARY_OF_PACELINE_PLANS
 from html_css import  PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from jgh_read_write import write_html_file
 from zsun_rider_item import ZsunItem
-from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PacelineSolutionsComputationReportDisplayObject
+from computation_classes_display_objects import RiderContributionDisplayObject, PacelineComputationReportDisplayObject, PackageOfPacelineComputationReportDisplayObject
 import logging
 logger = logging.getLogger(__name__)
 
 def make_pretty_caption_for_a_paceline_plan(
     title: str,
     report: PacelineComputationReportDisplayObject,
-    overall_report: PacelineSolutionsComputationReportDisplayObject,
+    overall_report: PackageOfPacelineComputationReportDisplayObject,
     suffix: Optional[str],
 ) -> str:
     if suffix:
@@ -166,7 +167,7 @@ def save_a_paceline_plan_as_html(
 
 
 def save_summary_of_all_paceline_plans_as_html(
-    computation_report_display_object: Optional[PacelineSolutionsComputationReportDisplayObject],
+    computation_report_display_object: Optional[PackageOfPacelineComputationReportDisplayObject],
     filename: str,
     dir_path: str,
     html_footnotes: str,
@@ -223,17 +224,11 @@ def save_summary_of_all_paceline_plans_as_html(
 
 
 def main() -> None:
-    from constants import EXERTION_INTENSITY_FACTOR_LIMIT
-    from jgh_formulae04 import populate_rider_work_assignments
-    from jgh_formulae05 import populate_rider_exertions
-    from jgh_formulae06 import populate_rider_contributions
-    from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     team_name = "test"
     riderIDs = get_riderIDs_on_team_roster(team_name)
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
+    riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     pull_durations = [30.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
@@ -257,12 +252,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    from constants import EXERTION_INTENSITY_FACTOR_LIMIT
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_exertions
+    from jgh_formulae06 import populate_rider_contributions
+    from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
 
     main()
 

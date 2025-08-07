@@ -15,10 +15,10 @@ This tool demonstrates advanced team time trial (TTT) strategy modeling, combina
 """
 
 from typing import Dict, Any, List
-from computation_classes_display_objects import PacelinePlanTypeEnum, PacelineSolutionsComputationReportDisplayObject
+from computation_classes_display_objects import PacelinePlanTypeEnum, PackageOfPacelineComputationReportDisplayObject
 from zsun_rider_item import ZsunItem
 from computation_classes import PacelineIngredientsItem
-from handy_utilities import read_json_dict_of_ZsunDTO
+from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order
 from jgh_formulae07 import save_summary_of_all_paceline_plans_as_html
 from jgh_formulae08 import generate_package_of_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions
@@ -38,8 +38,7 @@ def main() -> None:
     team_name = "betel"
     riderIDs: List[str] = get_riderIDs_on_team_roster(team_name)
     dict_of_ZsunItems: Dict[str, ZsunItem] = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-
-    riders: List[ZsunItem] = [dict_of_ZsunItems[riderID] for riderID in riderIDs]
+    riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
     riders = arrange_riders_in_optimal_order(riders)
 
     # COMPUTE 1st TO 5th PLANS - FULL TEAM
@@ -51,7 +50,7 @@ def main() -> None:
         max_exertion_intensity_factor= EXERTION_INTENSITY_FACTOR_LIMIT,
     )
     report: Any = generate_package_of_paceline_solutions(ingredients)
-    report_displayobject: PacelineSolutionsComputationReportDisplayObject = PacelineSolutionsComputationReportDisplayObject.from_PacelineSolutionsComputationReportItem(report)
+    report_displayobject: PackageOfPacelineComputationReportDisplayObject = PackageOfPacelineComputationReportDisplayObject.from_PackageOfPacelineComputationReportItem(report)
 
     # COMPUTE 6th and 7th PLANS - DIMINISHING TEAM
     report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FIVE] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 5)

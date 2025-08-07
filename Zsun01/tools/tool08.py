@@ -76,6 +76,7 @@ from zsun_rider_item import ZsunItem
 from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
 from computation_classes import CurveFittingResultItem
 from regression_modelling_item import RegressionModellingItem
+from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
 import logging
 logger = logging.getLogger(__name__)
 
@@ -278,8 +279,6 @@ if __name__ == "__main__":
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
 
     MINIMUM_REQUIRED_R_SQUARED_FIT_FOR_ONE_HOUR_POWER_CURVE = .90
-
-    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
 
     # output destination for results - the input ingested by tool12.py - make sure the filenames match each other
     REGRESSION_FILENAME_EXCEL = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"

@@ -2,7 +2,6 @@ from typing import  List
 from collections import defaultdict
 from typing import List, Dict, DefaultDict
 from dataclasses import dataclass, field
-from typing import List, Dict, DefaultDict
 import logging
 logger = logging.getLogger(__name__)
 
@@ -21,6 +20,7 @@ team_rosters = defaultdict(dict, {
         # # "383480": "lynsey_segal",
         # "5530045": "mark_brzezinski",
         # "1024413": "matt_steeve",
+        # "2902662": "matthew_wongkee",
         # "1657744": "melissa_warwick",
         "1707548": "meridith_leubner",
         "1193": "richard_mann",
@@ -43,9 +43,10 @@ team_rosters = defaultdict(dict, {
         # "2508033": "josh_neil",
         "383480": "lynsey_segal",
         # "1024413": "matt_steeve",
+        "2902662": "matthew_wongkee",
         # "1657744": "melissa_warwick",
         # "1707548": "meridith_leubner",
-        # "1193": "richard_mann",
+        "1193": "richard_mann",
         # "3142395": "rachel_laponsey",
         "384442": "roland_segal",
     },
@@ -238,3 +239,4 @@ def get_rider_shortname_by_zwiftID(zwiftID: str) -> str:
     repo = RepositoryOfTeams()
     repo.populate_repository()
     return repo.get_rider_nickname_by_zwiftID(zwiftID)
+

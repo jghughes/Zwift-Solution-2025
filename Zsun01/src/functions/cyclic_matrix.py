@@ -43,7 +43,7 @@ def main():
 
     from handy_utilities import read_json_dict_of_ZsunDTO
 
-    dict_of_zwiftrideritem = read_json_dict_of_ZsunDTO(RIDERDATA_FILE_NAME, DATA_DIRPATH)
+    dict_of_zwiftrideritem = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
     barryb : ZsunItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : ZsunItem = dict_of_zwiftrideritem['1884456'] # johnh
@@ -57,10 +57,9 @@ def main():
         logger.info([rider.name for rider in row])
 
 if __name__ == "__main__":
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-
-    RIDERDATA_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
 
     main()

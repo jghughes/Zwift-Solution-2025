@@ -47,11 +47,11 @@ from jgh_read_write import write_json_file, write_pandas_dataframe_as_xlsx
 from jgh_power_curve_fit_models import decay_model_numpy
 from zsun_rider_item import ZsunItem
 from repository_of_scraped_riders import RepositoryForScrapedDataFromDaveK
+from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
 import logging
 logger = logging.getLogger(__name__)
 
 def main():
-
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
     repository.populate_repository(None, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
 
@@ -134,10 +134,7 @@ if __name__ == "__main__":
     jgh_configure_logging("appsettings.json")
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
 
-    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH
-
     OUTPUT_FILENAME_WITHOUT_EXT = "everyone_ZsunItems_for_copying_manually_into_ZSUN01_data_folder" # the meat
-
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
     main()

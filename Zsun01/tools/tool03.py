@@ -68,11 +68,10 @@ def main():
     write_json_dict_of_ZsunWattsItem(dict_of_ZsunWatts_graphs, OUTPUT_FILE_NAME, OUTPUT_DIR_PATH)
 
 if __name__ == "__main__":
-    from jgh_logging import jgh_configure_logging
-    jgh_configure_logging("appsettings.json")
-
     from filenames import RIDERS_FILE_NAME
     from dirpaths import DATA_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
+    from jgh_logging import jgh_configure_logging
+    jgh_configure_logging("appsettings.json")
 
     OUTPUT_FILE_NAME = "extracted_input_power_graphs_for_testIDs.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"

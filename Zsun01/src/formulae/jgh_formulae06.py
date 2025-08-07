@@ -118,15 +118,10 @@ def log_rider_contributions(test_description: str, result: DefaultDict[ZsunItem,
 
 
 def main() -> None:
-    from jgh_formulae04 import populate_rider_work_assignments
-    from jgh_formulae05 import populate_rider_exertions
-    from handy_utilities import read_json_dict_of_ZsunDTO
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
-
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     team_name = "test"
     riderIDs = get_riderIDs_on_team_roster(team_name)
-    riders = [dict_of_ZsunItems[rid] for rid in riderIDs]
+    riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     pull_durations = [120.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
@@ -142,11 +137,13 @@ def main() -> None:
     log_rider_contributions(f"{len(riders)} riders @ {pull_speed}kph\n", rider_contributions)
 
 if __name__ == "__main__":
+    from jgh_formulae04 import populate_rider_work_assignments
+    from jgh_formulae05 import populate_rider_exertions
+    from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
+    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-
-    RIDERS_FILE_NAME = "everyone_in_club_ZsunRiderItems_2025_07_08.json"
-    DATA_DIRPATH = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-
 
     main()

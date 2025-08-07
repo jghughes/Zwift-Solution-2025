@@ -4,6 +4,7 @@ from typing import cast, Optional, Type, TypeVar, DefaultDict
 from datetime import datetime
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
+
 from jgh_sanitise_string import cleanup_name_string
 from jgh_read_write import write_pandas_dataframe_as_xlsx, read_filepath_as_text, help_select_filepaths_in_folder
 from zwift_rider_particulars_item import ZwiftItem
@@ -606,7 +607,6 @@ class RepositoryForScrapedDataFromDaveK:
 
 def main03():
 
-
     my_dict = read_zwift_files(None, ZWIFT_DIRPATH)
 
     for zwift_id, item in my_dict.items():
@@ -910,10 +910,8 @@ if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
-    # ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    # ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    # ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    # ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+    from dirpaths import ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
+
     OUTPUT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
 
     # Comment/uncomment the lines below to run the tests you want. for more verbose output, set log_level to logging.DEBUG

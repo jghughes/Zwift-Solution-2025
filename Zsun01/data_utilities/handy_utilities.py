@@ -47,6 +47,20 @@ def get_test_ZsunDTO(id : str) -> ZsunItem:
     answer = riders[id]
     return answer
 
+def get_recognised_ZsunItems_only(riderIDs: List[str], dict_of_ZsunItems: Dict[str, ZsunItem]) -> List[ZsunItem]:
+    """
+    Returns a list of ZsunItem objects for riderIDs found in dict_of_ZsunItems.
+    Logs a warning for each riderID not found.
+    """
+    riders: List[ZsunItem] = []
+    for riderID in riderIDs:
+        if riderID in dict_of_ZsunItems:
+            riders.append(dict_of_ZsunItems[riderID])
+        else:
+            logger.warning(f"Rider ID '{riderID}' not found in dict_of_ZsunItems. Skipping.")
+    return riders
+
+
 def read_json_dict_of_ZsunDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunItem]:
     if not dir_path:
         raise ValueError("dir_path must be a valid string.")

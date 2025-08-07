@@ -27,17 +27,15 @@ This tool demonstrates data loading, aggregation, export, and formatted
 logging for cycling performance analysis using Python.
 """
 
-
 from repository_of_scraped_riders import read_zwift_files, read_zwiftpower_graph_watts_files
-from handy_utilities import *
-import pandas as pd
+from handy_utilities import get_test_IDs, write_json_dict_of_ZsunWattsItem
+from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 from tabulate import tabulate
 
 import logging
 logger = logging.getLogger(__name__)
 
 def main():
-
     test_IDs = get_test_IDs()
 
     dict_of_zwift_profiles_for_test_IDs = read_zwift_files(test_IDs, ZWIFT_DIRPATH) # merely need this to get the first and last names of the riders
@@ -60,8 +58,6 @@ def main():
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
-
-    from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 
     OUTPUT_FILE_NAME = "zsunwatts_graphs_for_testIDs.json"
     OUTPUT_DIR_PATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/zsun_everything_2025-07-08/"
