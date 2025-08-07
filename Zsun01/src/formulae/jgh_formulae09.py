@@ -4,7 +4,7 @@ from computation_classes_display_objects import PacelinePlanTypeEnum, PackageOfP
 from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph, arrange_riders_in_optimal_order, select_n_strongest_riders
 from jgh_formulae07 import make_pretty_caption_for_a_paceline_plan, log_a_paceline_plan, save_a_paceline_plan_as_html
 from jgh_formulae08 import generate_package_of_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions
-from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
+from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
 from html_css import FOOTNOTES
 from paceline_plan_display_ingredients import  LIST_OF_CAPTIONS_FOR_PACELINE_PLANS
 from filenames import get_save_filename_for_single_paceline_plan
@@ -25,7 +25,7 @@ def generate_fastest_paceline_plan_for_n_strongest(ingredients: PacelineIngredie
         riders_list=riders_n,
         pull_speeds_kph=[calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders_n)] * len(riders_n),
         sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR_LIMIT,
+        max_exertion_intensity_factor=DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT,
     )
     report_n = generate_package_of_paceline_solutions(ingredients_n)
     report_n_displayobject = PackageOfPacelineComputationReportDisplayObject.from_PackageOfPacelineComputationReportItem(report_n)

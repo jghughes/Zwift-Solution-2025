@@ -3,14 +3,14 @@ import os
 from zsun_rider_item import ZsunItem
 from computation_classes import PacelineIngredientsItem, PackageOfPacelineComputationReportItem
 from handy_utilities import read_json_dict_of_ZsunDTO
-from teams import get_riderIDs_on_team_roster
+from teams import RepositoryOfTeams.get_IDs_of_riders_on_a_team
 from jgh_formulae08 import (
         calculate_upper_bound_paceline_speed,
         calculate_upper_bound_paceline_speed_at_one_hour_watts,
         generate_paceline_solutions_using_serial_and_parallel_algorithms,
         )
 from jgh_formatting import truncate
-from constants import EXERTION_INTENSITY_FACTOR_LIMIT
+from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
 from filenames import RIDERS_FILE_NAME
 from dirpaths import DATA_DIRPATH
 
@@ -41,7 +41,7 @@ def main():
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
 
-    riderIDs = get_riderIDs_on_team_roster("betel")
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team("betel")
 
     riders: list[ZsunItem] = []
     for riderID in riderIDs:
@@ -60,7 +60,7 @@ def main():
             riders_list=perm_riders,
             sequence_of_pull_periods_sec=STANDARD_PULL_PERIODS_SEC_AS_LIST,
             pull_speeds_kph=[],  # Will be set in evaluate_permutation
-            max_exertion_intensity_factor=EXERTION_INTENSITY_FACTOR_LIMIT
+            max_exertion_intensity_factor=DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
         )
         for _, perm_riders in rider_permutations.items()
     ]

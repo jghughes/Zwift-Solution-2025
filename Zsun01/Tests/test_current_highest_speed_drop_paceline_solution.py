@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 
 
 def test_current_highest_speed_drop_paceline_solution():

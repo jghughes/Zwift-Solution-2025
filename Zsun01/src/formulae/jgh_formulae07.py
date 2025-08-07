@@ -226,8 +226,8 @@ def save_summary_of_all_paceline_plans_as_html(
 def main() -> None:
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    team_name = "test"
-    riderIDs = get_riderIDs_on_team_roster(team_name)
+    team_name = "test_sample"
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
     riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     pull_durations = [30.0, 0.0, 30.0] # duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
@@ -239,12 +239,12 @@ def main() -> None:
 
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
-    dict_of_rider_contributions = populate_rider_contributions(dict_of_rider_exertions, EXERTION_INTENSITY_FACTOR_LIMIT)
+    dict_of_rider_contributions = populate_rider_contributions(dict_of_rider_exertions, DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT)
 
     dict_of_rider_pullplan_displayobjects = RiderContributionDisplayObject.from_RiderContributionItems(dict_of_rider_contributions)
 
     report = PacelineComputationReportDisplayObject(
-        display_caption=f"Rider contributions: IF capped at {EXERTION_INTENSITY_FACTOR_LIMIT}",
+        display_caption=f"Rider contributions: IF capped at {DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT}",
         rider_contributions_display_objects=dict_of_rider_pullplan_displayobjects
     )
 
@@ -252,12 +252,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    from constants import EXERTION_INTENSITY_FACTOR_LIMIT
+    from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
     from jgh_formulae04 import populate_rider_work_assignments
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
     from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from team_rosters import RepositoryOfTeams
     from filenames import RIDERS_FILE_NAME
     from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging

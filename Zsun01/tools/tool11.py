@@ -74,8 +74,9 @@ class DummyItem:
 
 def main():
     
-    test_IDs = None # test_IDs = get_test_IDs()
+    
     repository : RepositoryForScrapedDataFromDaveK = RepositoryForScrapedDataFromDaveK()
+    test_IDs = None # i.e. will have the effect of populating the repository with all available riders, modify as you please
     repository.populate_repository(test_IDs, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH) 
     dict_of_curve_fits = repository.get_dict_of_CurveFittingResultItem(test_IDs)
 

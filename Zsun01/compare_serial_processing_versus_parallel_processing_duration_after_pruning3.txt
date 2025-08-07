@@ -4,6 +4,6 @@ Number of standard pull periods: 7
 Universe of all paceline-rotation sequences: 343
 Pruning goal: 1000
 Paceline-rotation sequences after pruning: 343
-Serial run: Compute time: 9.51 seconds
-Parallel run (work-stealing): Compute time: 11.79 seconds
-Time saved by parallelisation: -2.28 seconds
+Serial run: Compute time: 7.73 seconds
+Parallel run (work-stealing): Compute time: 11.31 seconds
+Time saved by parallelisation: -3.58 seconds

@@ -23,20 +23,19 @@ from jgh_formulae02 import calculate_safe_lower_bound_speed_to_kick_off_binary_s
 from jgh_formulae07 import save_summary_of_all_paceline_plans_as_html
 from jgh_formulae08 import generate_package_of_paceline_solutions,log_speed_bounds_of_exertion_constrained_paceline_solutions
 from jgh_formulae09 import generate_fastest_paceline_plan_for_n_strongest, save_multiple_individual_paceline_plans_as_html
-from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST, EXERTION_INTENSITY_FACTOR_LIMIT
+from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
 from html_css import FOOTNOTES
 from paceline_plan_display_ingredients import  get_caption_for_summary_of_all_paceline_plans
 from filenames import RIDERS_FILE_NAME, get_save_filename_for_summary_of_all_paceline_plans
 from dirpaths import DATA_DIRPATH
-from repository_of_team_rosters import get_riderIDs_on_team_roster
+from team_rosters import RepositoryOfTeams
 import logging
 logger = logging.getLogger(__name__)
 
-
 def main() -> None:
     # GET THE SOURCE DATA READY
-    team_name = "betel"
-    riderIDs: List[str] = get_riderIDs_on_team_roster(team_name)
+    team_nickname = "betel" # see inside team_rosters.py for other teams
+    riderIDs: List[str] = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_nickname)
     dict_of_ZsunItems: Dict[str, ZsunItem] = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
     riders = arrange_riders_in_optimal_order(riders)
@@ -47,7 +46,7 @@ def main() -> None:
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = STANDARD_PULL_PERIODS_SEC_AS_LIST,
-        max_exertion_intensity_factor= EXERTION_INTENSITY_FACTOR_LIMIT,
+        max_exertion_intensity_factor= RepositoryOfTeams.get_exertion_intensity_factor_for_team(team_nickname),
     )
     report: Any = generate_package_of_paceline_solutions(ingredients)
     report_displayobject: PackageOfPacelineComputationReportDisplayObject = PackageOfPacelineComputationReportDisplayObject.from_PackageOfPacelineComputationReportItem(report)
@@ -56,11 +55,11 @@ def main() -> None:
     report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FIVE] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 5)
     report_displayobject.solutions[PacelinePlanTypeEnum.LAST_FOUR] = generate_fastest_paceline_plan_for_n_strongest(ingredients, 4)
 
-    report_displayobject.caption = get_caption_for_summary_of_all_paceline_plans(team_name)
+    report_displayobject.caption = get_caption_for_summary_of_all_paceline_plans(team_nickname)
 
     # SAVE WORK
-    save_multiple_individual_paceline_plans_as_html(report_displayobject, team_name, SAVE_OUTPUT_DIRPATH)
-    save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_name), SAVE_OUTPUT_DIRPATH, FOOTNOTES)
+    save_multiple_individual_paceline_plans_as_html(report_displayobject, team_nickname, SAVE_OUTPUT_DIRPATH)
+    save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_nickname), SAVE_OUTPUT_DIRPATH, FOOTNOTES)
 
 if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging

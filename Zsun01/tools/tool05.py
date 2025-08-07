@@ -47,8 +47,9 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 from datetime import datetime
 from zsun_rider_item import ZsunItem
+from team_rosters import RepositoryOfTeams
 from repository_of_scraped_riders import read_zwiftpower_graph_watts_files
-from handy_utilities import read_json_dict_of_ZsunDTO, get_test_IDs
+from handy_utilities import read_json_dict_of_ZsunDTO
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks,set_y_axis_units_ticks
@@ -59,11 +60,12 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    zwiftID = davek # choose a rider to model
+    zwiftID = davek # choose a rider to model - ensure they are in the test_sample team
 
-    dict_of_all_zsunriders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
+    
 
-    test_IDs = get_test_IDs()
+    team_name = "test_sample"
+    test_IDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
 
     dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
 
@@ -88,6 +90,8 @@ def main():
     logger.info("\nModelling completed. Thank you.\n")
 
     # instantiate a power item to hold the results
+
+    dict_of_all_zsunriders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH) # we need this to get the rider's name
 
     pi = ZsunItem(
         zwift_id=zwiftID,
@@ -145,7 +149,9 @@ def main():
     plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
     plt.xlabel('Duration (minutes)')
     plt.ylabel('ZwiftPower 90-day best graph (Watts)')
+
     plt.title(f'{dict_of_all_zsunriders[zwiftID].name}')
+
     # Set the x-axis and y-axis limits
     plt.xlim(0, lim_x)
     plt.ylim(0, lim_y)
@@ -162,7 +168,7 @@ if __name__ == "__main__":
     logging.getLogger("numba").setLevel(logging.ERROR) # numba is noisy at INFO level
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
-    # Define the riders and their Zwift IDs - we only use one at a time in main()
+    # Define the riders and their Zwift IDs - we only use one at a time in main(). ensure the one you use is in the test_sample team in RepositoryOfTeams
 
     barryb ='5490373' #ftp 273
     johnh ='1884456' #ftp 240 zmap 292

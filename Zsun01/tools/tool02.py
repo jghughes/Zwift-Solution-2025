@@ -1,6 +1,6 @@
 """
 
-This tool is no longer used, but is retained for reference.
+This tool is no longer used, but is retained for reference. Currently non-functional. Files are no longer present.
 
 This tool is used to delete specific properties from each rider_as_dict in the zwiftrider_dictionary_v2.json file. It demonstrates how to read and write JSON files in Python, and how to remove selected properties from each rider_as_dict dictionary.
 

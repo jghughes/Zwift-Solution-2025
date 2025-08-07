@@ -1045,7 +1045,7 @@ if __name__ == "__main__":
     from jgh_formulae05 import populate_rider_exertions
     from jgh_formulae06 import populate_rider_contributions
     from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from team_rosters import RepositoryOfTeams
     from filenames import RIDERS_FILE_NAME
     from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging
@@ -1054,7 +1054,7 @@ if __name__ == "__main__":
     logging.getLogger('matplotlib').setLevel(logging.WARNING) #interesting messages, but not a deluge of INFO
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    riderIDs = get_riderIDs_on_team_roster("test")
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team("test_sample")
     riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
     all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
     pretty_number_of_sequences_before_pruning = format_number_with_comma_separators(len(all_conceivable_paceline_rotation_sequences))

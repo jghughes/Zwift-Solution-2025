@@ -608,8 +608,8 @@ def generate_all_paceline_rotation_sequences_in_the_total_solution_space(length_
 
 def main():
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    team_name = "test"
-    riderIDs = get_riderIDs_on_team_roster(team_name)
+    team_name = "test_sample"
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
     riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     start_time = time.perf_counter()
@@ -630,7 +630,7 @@ def main():
 
 if __name__ == "__main__":
     from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from team_rosters import RepositoryOfTeams
     from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
     from filenames import RIDERS_FILE_NAME
     from dirpaths import DATA_DIRPATH

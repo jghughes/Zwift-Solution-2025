@@ -82,8 +82,8 @@ def log_rider_work_assignments(test_description: str, result: DefaultDict[ZsunIt
 def main() -> None:
 
     dict_of_ZsunItems = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
-    team_name = "test"
-    riderIDs = get_riderIDs_on_team_roster(team_name)
+    team_name = "test_sample"
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
     riders: List[ZsunItem] = get_recognised_ZsunItems_only(riderIDs, dict_of_ZsunItems)
 
     pull_durations = [120.0, 0.0, 120.0, 120.0] # in this demo, duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
@@ -95,7 +95,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     from handy_utilities import read_json_dict_of_ZsunDTO, get_recognised_ZsunItems_only
-    from repository_of_team_rosters import get_riderIDs_on_team_roster
+    from team_rosters import RepositoryOfTeams
     from filenames import RIDERS_FILE_NAME
     from dirpaths import DATA_DIRPATH
     from jgh_logging import jgh_configure_logging

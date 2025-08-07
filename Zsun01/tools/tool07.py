@@ -28,7 +28,9 @@ logging for cycling performance analysis using Python.
 """
 
 from repository_of_scraped_riders import read_zwift_files, read_zwiftpower_graph_watts_files
-from handy_utilities import get_test_IDs, write_json_dict_of_ZsunWattsItem
+from handy_utilities import write_json_dict_of_ZsunWattsItem
+from team_rosters import RepositoryOfTeams
+
 from dirpaths import ZWIFT_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 from tabulate import tabulate
 
@@ -36,7 +38,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def main():
-    test_IDs = get_test_IDs()
+    team_name = "test_sample"
+    test_IDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
 
     dict_of_zwift_profiles_for_test_IDs = read_zwift_files(test_IDs, ZWIFT_DIRPATH) # merely need this to get the first and last names of the riders
 

@@ -44,8 +44,10 @@ to dataclasses and back again, and using sundry file utility functions.
 
 
 from repository_of_scraped_riders import read_zwiftpower_graph_watts_files
-from handy_utilities import read_json_dict_of_ZsunDTO, write_json_dict_of_ZsunWattsItem, get_test_IDs
+from handy_utilities import read_json_dict_of_ZsunDTO, write_json_dict_of_ZsunWattsItem
 from jgh_sanitise_string import make_short_displayname
+from team_rosters import RepositoryOfTeams
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -54,7 +56,8 @@ logger = logging.getLogger(__name__)
 def main():
     all_rider_profiles_as_dict = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME, DATA_DIRPATH)
     logger.debug(f"loaded ZsunItems for {len(all_rider_profiles_as_dict)} riders")
-    test_IDs = get_test_IDs()
+    team_name = "test_sample"
+    test_IDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team(team_name)
     logger.debug(f"loaded {len(test_IDs)} IDs for our little test")
     dict_of_ZsunWatts_graphs = read_zwiftpower_graph_watts_files(test_IDs, ZWIFTPOWER_GRAPHS_DIRPATH)
     logger.debug(f"loaded zwiftpower_graph_watts files for {len(dict_of_ZsunWatts_graphs)} testIDs")

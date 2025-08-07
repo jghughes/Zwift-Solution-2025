@@ -13,52 +13,6 @@ from zsun_rider_item import ZsunItem
 import logging
 logger = logging.getLogger(__name__)
 
-def get_test_IDs() -> List[str]:
-    return [
-  "1024413",
-  "11526",
-  "11741",
-  "1193",
-  "1657744",
-  "1707548",
-  "183277",
-  "1884456",
-  "2398312",
-  "2508033",
-  "2682791",
-  "3147366",
-  "383480",
-  "384442",
-  "480698",
-  "5134",
-  "5421258",
-  "5490373",
-  "5530045",
-  "5569057",
-  "9011",
-  "991817",
-  "4945836",
-]
-
-def get_test_ZsunDTO(id : str) -> ZsunItem:
-    file_name = "test_ZsunItems.json"
-    dir_path = "C:/Users/johng/source/repos/Zwift-Solution-2025/Zsun01/data/"
-    riders = read_json_dict_of_ZsunDTO(file_name, dir_path)
-    answer = riders[id]
-    return answer
-
-def get_recognised_ZsunItems_only(riderIDs: List[str], dict_of_ZsunItems: Dict[str, ZsunItem]) -> List[ZsunItem]:
-    """
-    Returns a list of ZsunItem objects for riderIDs found in dict_of_ZsunItems.
-    Logs a warning for each riderID not found.
-    """
-    riders: List[ZsunItem] = []
-    for riderID in riderIDs:
-        if riderID in dict_of_ZsunItems:
-            riders.append(dict_of_ZsunItems[riderID])
-        else:
-            logger.warning(f"Rider ID '{riderID}' not found in dict_of_ZsunItems. Skipping.")
-    return riders
 
 
 def read_json_dict_of_ZsunDTO(file_name: str, dir_path: str) -> DefaultDict[str, ZsunItem]:
@@ -151,6 +105,20 @@ def write_json_dict_of_regressionmodellingItem(data: Dict[str, RegressionModelli
 
     # tests
 
+def get_recognised_ZsunItems_only(riderIDs: List[str], dict_of_ZsunItems: Dict[str, ZsunItem]) -> List[ZsunItem]:
+    """
+    Returns a list of ZsunItem objects for riderIDs found in dict_of_ZsunItems.
+    Logs a warning for each riderID not found.
+    """
+    riders: List[ZsunItem] = []
+    for riderID in riderIDs:
+        if riderID in dict_of_ZsunItems:
+            riders.append(dict_of_ZsunItems[riderID])
+        else:
+            logger.warning(f"Rider ID '{riderID}' not found in dict_of_ZsunItems. Skipping.")
+    return riders
+
+
 def main():
 
     all_riders = read_json_dict_of_ZsunDTO(RIDERS_FILE_NAME,DATA_DIRPATH)
@@ -159,7 +127,9 @@ def main():
 
 def main01():
 
-    zsun_raw_cp_dict_for_betel = read_zwiftracingapp_files(get_test_IDs(),ZWIFTRACINGAPP_DIRPATH)
+    riderIDs = RepositoryOfTeams.get_IDs_of_riders_on_a_team("test_sample")
+
+    zsun_raw_cp_dict_for_betel = read_zwiftracingapp_files(riderIDs,ZWIFTRACINGAPP_DIRPATH)
 
     jgh_cp_dict = read_json_dict_of_ZsunWattsDTO(INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES, INPUT_CP_DATA_DIRPATH)
 
@@ -183,13 +153,10 @@ if __name__ == "__main__":
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
-    from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH
+    from team_rosters import RepositoryOfTeams
 
-    ZWIFT_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwift/"
-    ZWIFTRACINGAPP_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftracing-app-post/"
-    ZWIFTPOWER_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/profile-page/"
-    ZWIFTPOWER_GRAPHS_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/zsun_everything_2025-07-08/zwiftpower/power-graph-watts/"
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
 
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"

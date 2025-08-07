@@ -194,8 +194,6 @@ def main():
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
     for zwift_id in zwiftIds_with_high_fidelity:
         logger.info(f"ZwiftID {zwift_id} {dict_of_zwift_profiles_for_everybody[zwift_id].first_name} {dict_of_zwift_profiles_for_everybody[zwift_id].last_name}")
-        # betel = get_test_ZsunDTO(zwift_id)
-        # logger.info(f"ZwiftID {zwift_id} : {betel.name}")
 
     logger.info(f"\nTotal in sample : {total_count} Total valid: {valid_count} Total excellent one hr r2: {count_of_riders_with_high_fidelity_models} % excellent/valid: {round(count_of_riders_with_high_fidelity_models *100/valid_count)}%\n")
 
