@@ -150,17 +150,14 @@ def main02():
     logger.info(f"Imported {len(dict_of_zwiftpower_90day_bestpower)} zwiftpower 90-day best graph items")
 
 if __name__ == "__main__":
+    from team_rosters import RepositoryOfTeams
+    from filenames import RIDERS_FILE_NAME
+    from dirpaths import DATA_DIRPATH, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
     from jgh_logging import jgh_configure_logging
     jgh_configure_logging("appsettings.json")
 
-    from team_rosters import RepositoryOfTeams
-
-    from filenames import RIDERS_FILE_NAME
-    from dirpaths import DATA_DIRPATH, ZWIFT_DIRPATH, ZWIFTRACINGAPP_DIRPATH, ZWIFTPOWER_DIRPATH, ZWIFTPOWER_GRAPHS_DIRPATH
-
     INPUT_CPDATA_FILENAME_ORIGINALLY_FROM_ZWIFT_FEED_PROFILES = "input_cp_data_for_jgh_josh.json"
     INPUT_CP_DATA_DIRPATH = "C:/Users/johng/holding_pen/StuffForZsun/Betel/"
-
     OUTPUT_CPDATA_FILENAME = "extracted_input_cp_data_for_betel.json"
 
     main()

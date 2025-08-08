@@ -692,7 +692,7 @@ def update_candidate_solution(this_solution: PacelineComputationReportItem,
     candidate.dispersion = this_solution_dispersion
     candidate.solution   = this_solution
 
-
+# heap powerful
 def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredientsItem
     ) -> PackageOfPacelineComputationReportItem:
     """
@@ -927,7 +927,6 @@ def main01():
     plt.show()
     logger.debug(f"Bar chart saved to {save_filename_without_ext}.png")
 
-
 def main02():
     """
     Identical to main01() except that it uses the pruned list of paceline-rotation
@@ -1038,7 +1037,6 @@ def main02():
     plt.savefig(f"{save_filename_without_ext}.png")
     plt.show()
     logger.debug(f"Bar chart saved to {save_filename_without_ext}.png")
-
 
 if __name__ == "__main__":
     from jgh_formulae04 import populate_rider_work_assignments

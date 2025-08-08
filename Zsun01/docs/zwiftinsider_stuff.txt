@@ -1,0 +1,30 @@
+Summary of paceline drafting findings by ZwiftInsider : 
+
+1. TTT bikes https://zwiftinsider.com/speed-tests-tt-drafting-2/ done in Oct 2022
+ZwiftInsiderWattageMatrix = np.array([
+    [300, 350, 400],
+    [250, 293, 327],
+    [225, 271, 293],
+    [214, 246, 281]
+])
+
+2. Road bikes https://zwiftinsider.com/speed-tests-tt-drafting-2/ done in Aug 2023
+ZwiftInsiderWattageMatrix = np.array([
+    [300, 400],
+    [226, 308],
+    [202, 268],
+    [200, 258]
+])
+
+3. JGH averages the data for road bikes to get POWER_CURVE_IN_PACELINE = np.array([
+    [350],
+    [267],
+    [235],
+    [229],
+])
+
+
+
+# Define the ZwiftInsiderVelocityMatrix_kph (km/h)
+ZwiftInsiderVelocityMatrix_kph = np.array([39.9, 42.2, 44.4])
+

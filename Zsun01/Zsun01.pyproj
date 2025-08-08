@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>tools\tool05.py</StartupFile>
+    <StartupFile>tools\tool15_brute.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\functions;src\utilities;src\classes;src\formulae;src\enums;src\miscellaneous;data;src\data_utilities;src\data_repositories</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -82,7 +82,7 @@
     </Compile>
     <Compile Include="filenames.py" />
     <Compile Include="data\team_rosters.py" />
-    <Compile Include="docs\zwiftinsider_stuff.py" />
+    <Compile Include="docs\zwiftinsider_stuff.txt" />
     <Compile Include="src\classes\computation_classes.py" />
     <Compile Include="src\data_repositories\repository_of_scraped_riders.py" />
     <Compile Include="src\utilities\matplot_utilities.py" />
