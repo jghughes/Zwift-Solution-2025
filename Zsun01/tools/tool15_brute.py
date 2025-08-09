@@ -57,7 +57,6 @@ def main() -> None:
 
     report_displayobject.caption = get_caption_for_summary_of_all_paceline_plans(team_nickname)
 
-    # SAVE WORK
     save_multiple_individual_paceline_plans_as_html(report_displayobject, team_nickname, SAVE_OUTPUT_DIRPATH)
     save_summary_of_all_paceline_plans_as_html(report_displayobject, get_save_filename_for_summary_of_all_paceline_plans(team_nickname), SAVE_OUTPUT_DIRPATH, FOOTNOTES)
 

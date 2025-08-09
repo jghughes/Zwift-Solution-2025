@@ -49,6 +49,7 @@
     <Content Include="appsettings.json" />
     <Content Include="data\everyone_in_club_ZsunItems_2025_04_00.json" />
     <Content Include="data\everyone_in_club_ZsunItems_2025_07_08.json" />
+    <Content Include="docs\power versus speed.txt" />
     <Content Include="logger.log" />
     <Content Include="docs\critical_power.txt" />
     <Content Include="docs\information.txt">
@@ -60,6 +61,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="constants.py" />
+    <Compile Include="src\functions\estimate _speed_from_power.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\formulae\jgh_formulae09.py">
       <SubType>Code</SubType>
     </Compile>
