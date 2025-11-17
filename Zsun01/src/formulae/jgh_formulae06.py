@@ -1,0 +1,157 @@
+"""
+Paceline Rider Contribution Formulae
+====================================
+
+This module provides functions for calculating and managing rider
+contributions in cycling paceline simulations. It aggregates rider
+exertion data into summary metrics, including average and normalized
+power, intensity factor, and constraint violation status for each
+rider's effort in a paceline rotation.
+
+Key Features:
+-------------
+- Aggregates exertion data into contribution records for each rider,
+  including speed, duration, power at each paceline position, and
+  summary metrics.
+- Calculates average and normalized watts, intensity factor, and
+  flags constraint violations based on exertion limits.
+- Supports tabular logging of rider contributions for analysis and
+  debugging.
+
+Functions:
+----------
+- populate_rider_contributions(riders, max_exertion_intensity_factor):
+  Generate contribution records for each rider from exertion data.
+- log_rider_contributions(test_description, result): Log rider
+  contribution data in a tabular format.
+
+Notes:
+------
+- Logging is forbidden in functions called during parallel processing.
+- All content is UTF-8 compliant. Line widths are limited to 79
+  characters for Python style compliance.
+
+Example Usage:
+--------------
+    contributions = populate_rider_contributions(exertions, 0.95)
+    log_rider_contributions("Contribution report", contributions)
+"""
+
+from collections import defaultdict
+from tabulate import tabulate
+from typing import Dict, List, Tuple
+
+from working_types import RiderContributionItem, RiderExertionItem
+from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
+from jgh_number import safe_divide
+from rider_brute_item import RiderBruteItem
+
+# This function called during parallel processing. Logging forbidden
+def populate_rider_contributions(riders: Dict[RiderBruteItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> Dict[RiderBruteItem, RiderContributionItem]:
+
+    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
+        if not exertions:
+            return 0, 0, 0, 0, 0,0,0,0
+
+        dict_wattages = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
+
+        p1 = dict_wattages.get(1, 0)
+        p2 = dict_wattages.get(2, 0)
+        p3 = dict_wattages.get(3, 0)
+        p4 = dict_wattages.get(4, 0)
+        p5 = dict_wattages.get(5, 0)
+        p6 = dict_wattages.get(6, 0)
+        p7 = dict_wattages.get(7, 0)
+        p8 = dict_wattages.get(8, 0)
+
+        return p1, p2, p3, p4, p5, p6, p7, p8
+
+    def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float]:
+        if not exertions:
+            return 0, 0
+
+        p1_speed_kph = 0
+        p1_duration : float = 0
+
+        dict_positions = {exertion.current_location_in_paceline: exertion for exertion in exertions}
+
+        pull_exertion = dict_positions.get(1, None)
+
+        if pull_exertion is None:
+            return 0, 0
+
+        p1_speed_kph = pull_exertion.speed_kph
+        p1_duration = pull_exertion.duration
+
+        return p1_speed_kph, p1_duration
+ 
+    answer : Dict[RiderBruteItem, RiderContributionItem] = defaultdict(RiderContributionItem)
+
+    for rider, exertions in riders.items():
+        p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
+        p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
+        rider_contribution = RiderContributionItem(
+            speed_kph           = p1_speed_kph,
+            p1_duration         = p1_duration,
+            p1_w                = p1w,
+            p2_w                = p2w,
+            p3_w                = p3w,
+            p4_w                = p4w,
+            p5_w                = p5w,
+            p6_w                = p6w,
+            p7_w                = p7w,
+            p8_w                = p8w,
+            average_watts       = calculate_overall_average_watts(exertions),
+            normalized_watts    = calculate_overall_normalized_watts(exertions),
+        )
+        rider_contribution.intensity_factor = safe_divide(rider_contribution.normalized_watts,rider.get_one_hour_watts())
+
+        if rider_contribution.p1_duration != 0.0:
+            msg = ""
+            if rider_contribution.intensity_factor >= max_exertion_intensity_factor:
+                msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
+
+            if rider_contribution.p1_w >= rider.get_standard_pull_watts(rider_contribution.p1_duration):
+                msg += " pull>max W"
+
+            rider_contribution.effort_constraint_violation_reason = msg
+
+        answer[rider] = rider_contribution
+
+    return answer
+
+
+def log_rider_contributions(test_description: str, result: Dict[RiderBruteItem, RiderContributionItem]) -> None:
+    print(test_description)
+    table = []
+    for rider, z in result.items():
+        table.append([
+            rider.name, 
+            z.p1_duration,
+            round(z.p1_w), 
+            round(z.p2_w), 
+            round(z.p3_w), 
+            round(z.p4_w), 
+            round(z.p5_w), 
+            # round(z.p6_w), 
+            # round(z.p7_w), 
+            # round(z.p8_w), 
+            round(z.average_watts), 
+            round(z.normalized_watts), 
+            z.effort_constraint_violation_reason
+        ])
+    headers = [
+        "name", 
+        "p1_sec", 
+        "p1_w", 
+        "p2", 
+        "p3", 
+        "p4", 
+        "p5", 
+        "ave_w", 
+        "NP_w", 
+        "limit"
+    ]
+    print(tabulate(table, headers=headers, tablefmt="simple", disable_numparse=True))
+
+

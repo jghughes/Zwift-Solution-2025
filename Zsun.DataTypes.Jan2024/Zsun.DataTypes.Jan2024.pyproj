@@ -1,0 +1,47 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>77128b3c-3239-45d1-af61-4717332efd26</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\my Items;src\third party items</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>Zsun.DataTypes.Jan2024</Name>
+    <RootNamespace>Zsun.DataTypes.Jan2024</RootNamespace>
+    <TestFramework>unittest</TestFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\my Items\" />
+    <Folder Include="src\third party items\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\my Items\regression_modelling_item.py" />
+    <Compile Include="src\my Items\rider_brute_item.py" />
+    <Compile Include="src\my Items\rider_stats_item.py" />
+    <Compile Include="src\my Items\zwiftpower_flattened_90_day_watts_item.py" />
+    <Compile Include="src\third party items\zwiftpower_profile_item.py" />
+    <Compile Include="src\third party items\zwiftracingapp_item.py" />
+    <Compile Include="src\third party items\zwift_item.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

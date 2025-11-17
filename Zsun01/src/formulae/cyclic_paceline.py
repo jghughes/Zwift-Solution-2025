@@ -1,0 +1,63 @@
+from typing import Dict, List, Tuple
+
+
+def generate_cyclic_paceline_algebra(n: int) -> Dict[str, List[Tuple[str, str]]]:
+    """
+    This function is used nowwhere in the codebase. I only use it in main() below
+    for verifying the logic.
+    Generates a paceline_algebra for a team of riders of size n. 
+    For example, with n = 3, the paceline_algebra will look like:-
+
+    	        Unit duration		
+    Position	t1	    t2	    t3
+    p1	        rider1	rider2	rider3
+    p2	        rider2	rider3	rider1
+    p3	        rider3	rider1	rider2
+
+    and thence this: ->
+
+    rider1=	(p1,t1)	(p3,t2)	(p2,t3)
+    rider2=	(p2,t1)	(p1,t2)	(p3,t3)
+    rider3=	(p3,t1)	(p2,t2)	(p1,t3)
+
+    The paceline_algebra is  by iterating through each rider and task, and 
+    calculating the corresponding row and column indices.
+
+    Each row corresponds to a position in the paceline from head to tail (given an algebraic name 'px')
+    and each column corresponds to the prevailing pull-time (with algebraic name 'tx').
+
+    The row calculation is done as follows:
+    - k: The current rider index, starting from 1 up to n.
+    - n: The total number of riders.
+    - j: The current row index, starting from 0 up to n-1.
+    - k + n - j - 1: This expression adjusts the row index based on the current rider and task.
+      By subtracting j and adding n - 1, we effectively rotate the rows in the desired pattern.
+    - % n: This modulo operation ensures that the row index wraps around when it exceeds n.
+      For example, if n is 3, the row index will cycle through 1, 2, and 3.
+    - + 1: This adjusts the 0-based index (resulting from the modulo operation) to a 1-based index,
+      which matches the desired output format.
+
+    The columns represent the task indices, which are straightforwardly incremented 
+    from 1 to n for each  rider.
+
+    For example, with n = 3:
+    - For rider1, the rows are 1, 3, 2 and the columns are 1, 2, 3.
+    - For rider2, the rows are 2, 1, 3 and the columns are 1, 2, 3.
+    - For rider3, the rows are 3, 2, 1 and the columns are 1, 2, 3.
+
+    Args:
+        n (int): The number of riders/assignments.
+
+    Returns:
+        dict: A dictionary of riders and their respective  assignments.
+    """
+    paceline_algebra: Dict[str, List[Tuple[str, str]]] = {}
+    for k in range(1, n + 1):
+        rider_workunits: List[Tuple[str, str]] = []
+        for j in range(n):
+            row = (k + n - j - 1) % n + 1
+            col = j + 1
+            rider_workunits.append((f"p{row}", f"t{col}"))
+        paceline_algebra[f"r{k}"] = rider_workunits
+    return paceline_algebra
+

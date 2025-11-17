@@ -1,0 +1,150 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>scripts - other little utilities\01_RichardM.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTypes.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working types;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;..\Zsun.DataTypes.Jan2024\src\my Items;..\Zsun.DataTypes.Jan2024\src\third party items;scripts - brute diagnostics</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>Zsun01</Name>
+    <RootNamespace>Zsun01</RootNamespace>
+    <InterpreterId>Global|PythonCore|3.12</InterpreterId>
+    <TestFramework>unittest</TestFramework>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
+    <Environment>
+    </Environment>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.12" />
+    <InterpreterReference Include="Global|VisualStudio|anaconda3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="docs\" />
+    <Folder Include="scripts - brute diagnostics\" />
+    <Folder Include="scripts - other little utilities\" />
+    <Folder Include="tests\" />
+    <Folder Include="src\zwiftid file import\" />
+    <Folder Include="tests\azure\" />
+    <Folder Include="tests\formulae\" />
+    <Folder Include="tests\zwiftid file import\" />
+    <Folder Include="tests\working file read write\" />
+    <Folder Include="tests\repository\" />
+    <Folder Include="vs2022_project_refactoring\" />
+    <Folder Include="src\working file read write\" />
+    <Folder Include="src\working types\" />
+    <Folder Include="src\formulae\" />
+    <Folder Include="src\enums\" />
+    <Folder Include="src\azure\" />
+    <Folder Include="src\repositories\" />
+    <Folder Include="scripts - brute production pipeline\" />
+    <Folder Include="src\" />
+    <Folder Include="src\html\" />
+    <Folder Include="src\css\" />
+    <Folder Include="src\matplot\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="docs\power versus speed.txt" />
+    <Content Include="docs\critical_power.txt" />
+    <Content Include="docs\information.txt">
+      <SubType>Code</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="scripts - brute production pipeline\brute10_fetch_files_from_dk.py" />
+    <Compile Include="scripts - other little utilities\01_RichardM.py" />
+    <Compile Include="src\zwiftid file import\zwiftid_file_fetcher_async.py" />
+    <Compile Include="tests\azure\test_jgh_azure_storage_accessor.py" />
+    <Compile Include="tests\azure\test_jgh_azure_storage_service_client.py" />
+    <Compile Include="tests\azure\test_jgh_connectionstring_repository.py" />
+    <Compile Include="tests\formulae\test_critical_power.py" />
+    <Compile Include="tests\formulae\test_cyclic_matrix.py" />
+    <Compile Include="tests\formulae\test_cyclic_paceline.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae00.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae01.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae02.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae04.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae05.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae06.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae08.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae09.py" />
+    <Compile Include="tests\repository\test_repository_of_riders.py" />
+    <Compile Include="tests\working file read write\test_working_file_read_write.py" />
+    <Compile Include="tests\zwiftid file import\test_zwiftid_file_fetcher_async.py" />
+    <Compile Include="tests\zwiftid file import\test_zwiftid_file_reader_sync.py" />
+    <Compile Include="constants.py" />
+    <Compile Include="vs2022_project_refactoring\delete_old_bak_files.py" />
+    <Compile Include="vs2022_project_refactoring\find_jgh_logging_imports.py" />
+    <Compile Include="vs2022_project_refactoring\revert_py_from_bak.py" />
+    <Compile Include="src\azure\jgh_azure_storage_accessor.py" />
+    <Compile Include="src\azure\jgh_azure_storage_service_client.py" />
+    <Compile Include="src\repositories\repository_of_connectionstrings.py" />
+    <Compile Include="src\css\css.py" />
+    <Compile Include="src\zwiftid file import\zwiftid_file_reader_sync.py" />
+    <Compile Include="src\formulae\jgh_formulae01.py" />
+    <Compile Include="src\formulae\jgh_formulae00.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\html\html_text.py" />
+    <Compile Include="src\html\paceline_plan_captions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\working types\working_types_display_objects.py" />
+    <Compile Include="src\enums\jgh_enums.py" />
+    <Compile Include="src\formulae\jgh_formulae02.py" />
+    <Compile Include="src\formulae\jgh_formulae09.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\formulae\jgh_formulae08.py" />
+    <Compile Include="storage_config.py" />
+    <Compile Include="src\repositories\repository_of_team_rosters.py" />
+    <Compile Include="docs\zwiftinsider_stuff.txt" />
+    <Compile Include="src\working types\working_types.py" />
+    <Compile Include="src\repositories\repository_of_riders.py" />
+    <Compile Include="src\matplot\matplot_utilities.py" />
+    <Compile Include="scripts - brute production pipeline\brute16_generate_ttt_scenarios.py" />
+    <Compile Include="src\formulae\calc_rolling_average.py" />
+    <Compile Include="src\formulae\jgh_formulae06.py" />
+    <Compile Include="src\working file read write\working_file_read_write.py" />
+    <Compile Include="src\formulae\cyclic_matrix.py" />
+    <Compile Include="src\formulae\cyclic_paceline.py" />
+    <Compile Include="src\formulae\jgh_formulae04.py" />
+    <Compile Include="src\formulae\jgh_formulae05.py" />
+    <Compile Include="src\formulae\critical_power.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scripts - brute diagnostics\brute03_experiment_with_90_day_watts_mappings.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scripts - brute diagnostics\brute05_plot_curve_fit_for_an_individual.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scripts - brute diagnostics\brute07_run_curve_fitting_comparisons.py" />
+    <Compile Include="scripts - brute diagnostics\brute08_run_curve_fitting_experiments.py" />
+    <Compile Include="scripts - brute diagnostics\brute13_compare_methods_of_ftp_estimation.py" />
+    <Compile Include="scripts - brute production pipeline\brute11_generate_and_distribute_everything.py" />
+    <Compile Include="scripts - brute diagnostics\brute09_experiment_with_rider_eligibility.py" />
+    <Compile Include="scripts - brute diagnostics\brute14_experiment_with_regression_models.py" />
+    <Compile Include="vs2022_project_refactoring\strip_non_ascii_characters.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

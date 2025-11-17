@@ -1,0 +1,69 @@
+from typing import Dict
+
+from jgh_enums import PacelinePlanTypeEnum
+from jgh_formatting import format_timestamp_as_yyyy_mm_dd
+
+
+_liveDirpathRoot =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/live_data/"
+_stuffByJghDirPathStem =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
+
+DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
+
+CONNECTION_STRING_FILENAME : str = "connection_strings.txt"
+CONNECTION_STRING_DIRPATH : str = f"{_stuffByJghDirPathStem}/connectionstrings/"
+
+
+DIRPATH_ZWIFT = f"{_liveDirpathRoot}/zwift/"
+DIRPATH_ZWIFTRACINGAPP = f"{_liveDirpathRoot}/zwiftracing-app-post/"
+DIRPATH_ZWIFTPOWER = f"{_liveDirpathRoot}/zwiftpower/"
+DIRPATH_ZWIFTPOWER_PROFILE_PAGE = f"{DIRPATH_ZWIFTPOWER}/profile-page/"
+DIRPATH_ZWIFTPOWER_90_DAY_BEST = f"{DIRPATH_ZWIFTPOWER}/power-graph-watts/"
+
+DIRPATH_RIDER_BRUTE_DTO =f"{_stuffByJghDirPathStem}/riderBruteDTO_by_jgh/"
+DIRPATH_RIDER_STATS_DTO =f"{_stuffByJghDirPathStem}/riderStatsDTO_by_jgh/"
+DIRPATH_BRUTE_TTT_DOCS =f"{_stuffByJghDirPathStem}/brutePublicDocuments_by_jgh/"
+
+DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT = DIRPATH_RIDER_BRUTE_DTO
+DIRPATH_RUBBISH_SCRATCHPAD = "C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/rubbish/" # scratchpad for temporary files during development and everything else temporary
+
+_riderDtoFileNamePrefix = "rider_brute_dto"
+FILENAME_RIDER_BRUTE_DTO_JSON_DICT = f"{_riderDtoFileNamePrefix}_as_dict.json"
+FILENAME_RIDER_BRUTE_DTO_JSON_LIST = f"{_riderDtoFileNamePrefix}_as_list.json"
+FILENAME_RIDER_BRUTE_DTO_XLSX_LIST = f"{_riderDtoFileNamePrefix}_as_list.xlsx"
+
+_riderStatsDtoFileNamePrefix = "rider_stats_dto"
+FILENAME_RIDER_STATS_DTO_JSON_DICT = f"{_riderStatsDtoFileNamePrefix}_as_dict.json"
+FILENAME_RIDER_STATS_DTO_JSON_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.json"
+FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xlsx"
+
+AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
+AZURE_CONTAINERNAME_BRUTE = "brute"
+AZURE_CONTAINERNAME_PREPROCESSED = "preprocessed"
+AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT = FILENAME_RIDER_BRUTE_DTO_JSON_DICT
+AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST = FILENAME_RIDER_BRUTE_DTO_JSON_LIST
+AZURE_BLOBNAME_RIDER_STATS_DTO_DICT = FILENAME_RIDER_STATS_DTO_JSON_DICT
+AZURE_BLOBNAME_RIDER_STATS_DTO_LIST = FILENAME_RIDER_STATS_DTO_JSON_LIST
+
+DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
+    PacelinePlanTypeEnum.THIRTY_SEC_PULL:    "01_no_drop_thirty_second_pulls.html",
+    PacelinePlanTypeEnum.SIXTY_SEC_PULL:     "02_no_drop_one_minute_pulls.html",
+    PacelinePlanTypeEnum.BALANCED_INTENSITY: "03_no_drop_most_balanced_intensity.html",
+    PacelinePlanTypeEnum.EVERYBODY_PULL_HARD:"04_no_drop_hardest_intensity.html",
+    PacelinePlanTypeEnum.FASTEST:            "05_fastest_full_team.html",
+    PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE:     "06_fastest_strongest_five_riders.html",
+    PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR:     "07_fastest_strongest_four_riders.html",
+}
+
+def format_save_filename_for_document_of_single_paceline_plan(team_name: str, plan_type: PacelinePlanTypeEnum) -> str:
+    created : str = format_timestamp_as_yyyy_mm_dd()  
+    suffix = DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS.get(plan_type, "unknown_paceline_plan_type.html")
+    answer = f"{created}_{team_name}_{suffix}"
+    return answer
+
+
+
+def make_filename_for_one_page_summary_html_doc(team_name: str) -> str:
+    created : str = format_timestamp_as_yyyy_mm_dd()  
+    return f"{created}_{team_name}.html"
+
+
