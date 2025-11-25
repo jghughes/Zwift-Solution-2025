@@ -1,6 +1,5 @@
 from typing import Union, Optional
-from datetime import datetime
-
+from datetime import datetime, timezone
 
 def truncate(f : float, n : int):
     factor = 10 ** n
@@ -135,3 +134,12 @@ def format_timestamp_as_yyyy_mm_dd(ts: Optional[float] = None) -> str:
     dt = datetime.fromtimestamp(ts) if ts is not None else datetime.now()
     return dt.strftime("%Y-%m-%d")
 
+def get_current_utc_iso8601_timestamp() -> str:
+    """
+    Format the current UTC time as ISO 8601 string with 'Z' suffix.
+    Returns:
+        str: The formatted ISO 8601 string, e.g., '2025-08-15T12:34:56.789Z'.
+    """
+    dt = datetime.now(timezone.utc)
+    ms = int(dt.microsecond / 1000)
+    return dt.strftime(f"%Y-%m-%dT%H:%M:%S.{ms:03d}Z")

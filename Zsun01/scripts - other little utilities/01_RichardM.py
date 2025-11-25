@@ -27,7 +27,7 @@ from working_types_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
 from jgh_enums import PacelinePlanTypeEnum
 from html_text import FOOTNOTES
 from jgh_azure_storage_service_client import AzureStorageServiceClient

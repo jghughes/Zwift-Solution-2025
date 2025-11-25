@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 from typing import Optional
 import numpy as np
-from sklearn.linear_model import PassiveAggressiveClassifier
+from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_number import safe_divide
 from rider_brute_dto import RiderBruteDTO
 from rider_stats_item import RiderStatsItem
@@ -39,7 +38,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
     jgh_TTT_pull_curve_coefficient	: float		= 0.0		# Coefficient for pull modeling
     jgh_TTT_pull_curve_exponent		: float		= 0.0		# Exponent for pull modeling
     jgh_TTT_pull_curve_fit_r_squared: float		= 0.0		# R-squared value for the curve fit of the FTP data
-    jgh_when_curves_fitted			: str		= ""		# Timestamp indicating when the models were fitted
+    jgh_when_curves_fitted			: str		= ""		# Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
     @staticmethod
     def to_dataTransferObject(item: Optional["RiderBruteItem"]) -> RiderBruteDTO:
@@ -145,7 +144,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
             w_02min							= 0.0,
             w_05min							= 0.0,
             w_20min							= 0.0,
-            timestamp						= datetime.now().isoformat()
+            timestamp						= get_current_utc_iso8601_timestamp()
         )
 
         if answer.cat_open == "":
@@ -280,7 +279,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
             return 0.0
         return safe_divide(wattage,self.weight_kg)
 
-    def get_n_second_watts(self, seconds: float) -> float:
+    def get_n_second_curve_fit_y_ordinate_watts(self, seconds: float) -> float:
 
         one_hour_curve = decay_model_numpy(np.array([seconds]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
 

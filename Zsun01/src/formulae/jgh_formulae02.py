@@ -213,7 +213,7 @@ def calculate_speed_at_n_second_watts(rider : RiderBruteItem, seconds: float) ->
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_n_second_watts(seconds), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_n_second_curve_fit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 

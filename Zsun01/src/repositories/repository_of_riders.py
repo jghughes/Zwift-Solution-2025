@@ -13,6 +13,7 @@ from zwiftid_file_reader_sync import (
     read_zwiftpowerprofiledto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
+from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_string import cleanup_name_string
 from zwift_item import ZwiftItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
@@ -20,14 +21,6 @@ from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_brute_item import RiderBruteItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-
-import time
-import logging
-from jgh_exceptions import AlertMessageError
-from jgh_logging import setup_json_logging, log_event
-from storage_config import DIRPATH_LOGGING
-logger = logging.getLogger()
-
 
 
 T = TypeVar("T")  # Generic type variable for the item type in the dict
@@ -277,7 +270,7 @@ class RepositoryOfRiders:
                 TTT_pull_curve_r_squared= r_squared_pull,
                 CP=round(critical_power),
                 AWC=round((anaerobic_work_capacity/1_000.0),1),
-                when_curves_fitted = datetime.now().isoformat(),
+                when_curves_fitted = get_current_utc_iso8601_timestamp(),
             )
 
             answer[zwift_id] = curvefit

@@ -60,6 +60,7 @@ from rider_brute_item import RiderBruteItem
 import time
 import logging
 from jgh_exceptions import AlertMessageError
+from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
@@ -111,7 +112,7 @@ def plot_curve_fit_for_an_individual():
         jgh_60_min_curve_exponent=exponent_60min,
         jgh_TTT_pull_curve_coefficient=coefficient_pull,
         jgh_TTT_pull_curve_exponent=exponent_pull,
-        jgh_when_curves_fitted=datetime.now().isoformat(),
+        jgh_when_curves_fitted=get_current_utc_iso8601_timestamp(),
     )
 
     # log pretty summaries

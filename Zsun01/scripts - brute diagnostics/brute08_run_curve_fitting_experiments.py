@@ -73,6 +73,7 @@ import numpy as np
 
 from working_types import CurveFittingResultItem
 from critical_power import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
+from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 
 from jgh_read_write import write_excel_file
@@ -183,7 +184,7 @@ def run_curve_fitting_experiments():
             TTT_pull_curve_r_squared=round(r_squared_pull, 2),
             CP=round(critical_power),
             AWC=round((anaerobic_work_capacity / 1_000.0), 1),
-            when_curves_fitted=datetime.now().isoformat()  # Add timestamp
+            when_curves_fitted=get_current_utc_iso8601_timestamp()
         )
         power_curves_for_everybody[str(my_zsunwattsgraphitem.zwift_id)] = curve
 
@@ -264,7 +265,7 @@ def run_curve_fitting_experiments():
             zwift_cat_open				= riderItem.zwift_cat_open,
             zwift_ftp_watts				= zwiftItem.ftp_on_zwift,
             jgh_60_min_watts			= round(riderItem.get_one_hour_watts()),
-            jgh_40_minute_watts			= round(riderItem.get_n_second_watts(2400)),
+            jgh_40_minute_watts			= round(riderItem.get_n_second_curve_fit_y_ordinate_watts(2400)),
             velo_zpftp_watts		= riderItem.velo_zwiftpower_zFTP_watts,
             velo_rating_30_days	= riderItem.velo_rating_30_days,
             velo_cat_num_30_days	= riderItem.velo_cat_num_30_days,

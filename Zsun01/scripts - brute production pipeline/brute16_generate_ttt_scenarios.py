@@ -27,7 +27,7 @@ from working_types_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-from constants import STANDARD_PULL_PERIODS_SEC_AS_LIST
+from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
 from jgh_enums import PacelinePlanTypeEnum
 from html_text import FOOTNOTES
 from jgh_azure_storage_service_client import AzureStorageServiceClient
@@ -192,7 +192,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     riders = arrange_riders_interleaved_by_1_minute_strength(full_team_of_riders)
-    pull_periods_sec_as_list = STANDARD_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
@@ -224,7 +224,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
     riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
-    pull_periods_sec_as_list = STANDARD_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
@@ -246,7 +246,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
     riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
-    pull_periods_sec_as_list = STANDARD_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),

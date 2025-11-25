@@ -2,6 +2,7 @@ import logging
 import os
 import json
 from typing import Optional, Dict, Any
+from jgh_formatting import get_current_utc_iso8601_timestamp
 
 class JsonFileHandler(logging.FileHandler):
     """
@@ -40,7 +41,8 @@ class JsonFileHandler(logging.FileHandler):
 
     def formatTime(self, record: logging.LogRecord) -> str:
         from datetime import datetime, timezone
-        return datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+        isoUtc = get_current_utc_iso8601_timestamp()
+        return isoUtc
 
     def formatException(self, exc_info) -> str:
         import traceback

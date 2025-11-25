@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, STANDARD_PULL_PERIODS_SEC_AS_LIST
+from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
 from jgh_formatting import format_number_with_comma_separators
 from jgh_formulae02 import generate_all_paceline_rotation_sequences_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space
 from jgh_formulae08 import generate_paceline_solutions_using_parallel_workstealing_algorithm, generate_paceline_solutions_using_serial_processing_algorithm
@@ -87,14 +87,14 @@ def test01():
 
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                   = riders,
-        sequence_of_pull_periods_sec  = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        sequence_of_pull_periods_sec  = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph               = [30.0] * len(riders),
         max_exertion_intensity_factor = 0.95
     )
 
     save_filename_without_ext01 = f"{_output_filename_01_stub}{len(riders)}"
 
-    print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences (no solution-space pruning. all sequences evaluated).")
+    print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences (no solution-space pruning. all sequences evaluated).")
     print(f"\nCommencing serial processing. This could take a very long time depending on the number of sequences. Please wait....")
 
     # Serial run as the base case (ignore squigglies here, they are inconsequential warnings)
@@ -115,7 +115,7 @@ def test01():
     report_lines : List[str] = []
     report_lines.append("Benchmark Summary Report\n")
     report_lines.append(f"Number of riders: {len(riders)}\n\n")
-    report_lines.append(f"Number of standard pull periods: {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}\n\n")
+    report_lines.append(f"Number of standard pull periods: {len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)}\n\n")
     report_lines.append(f"Consequential number of paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n\n")
     report_lines.append(f"Serial run: Compute time: {round(s2 - s1, 2)} seconds\n")
     report_lines.append(f"Parallel run (work-stealing): Compute time: {round(p2 - p1,2)} seconds\n")
@@ -199,14 +199,14 @@ def test02():
 
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                   = riders,
-        sequence_of_pull_periods_sec  = STANDARD_PULL_PERIODS_SEC_AS_LIST,
+        sequence_of_pull_periods_sec  = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST,
         pull_speeds_kph               = [30.0] * len(riders),
         max_exertion_intensity_factor = 0.95
     )
 
     save_filename_without_ext02 = f"{_output_filename_02_stub}{len(riders)}"
 
-    print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences before pruning and {pretty_number_of_sequences_after_pruning} sequences after pruning.")
+    print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences before pruning and {pretty_number_of_sequences_after_pruning} sequences after pruning.")
     print(f"\nCommencing serial processing. This could take a very long time depending on the number of sequences. Please wait....")
 
     # Serial run as the base case (ignore squigglies here, they are inconsequential warnings)
@@ -226,7 +226,7 @@ def test02():
     report_lines : List[str] = []
     report_lines.append("Benchmark Summary Report\n")
     report_lines.append(f"Number of riders: {len(riders)}\n")
-    report_lines.append(f"Number of standard pull periods: {len(STANDARD_PULL_PERIODS_SEC_AS_LIST)}\n")
+    report_lines.append(f"Number of standard pull periods: {len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)}\n")
     report_lines.append(f"Universe of all paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n")
     report_lines.append(f"Pruning goal: {ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL}\n")
     report_lines.append(f"Paceline-rotation sequences after pruning: {pretty_number_of_sequences_after_pruning}\n")
@@ -274,7 +274,7 @@ if __name__ == "__main__":
         dict_of_all_riders = read_file_as_json_dict_of_RiderDTO(Path( DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
         riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team("scratchpad")
         riders: List[RiderBruteItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderBruteItem)
-        all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), STANDARD_PULL_PERIODS_SEC_AS_LIST)
+        all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)
         pretty_number_of_sequences_before_pruning = format_number_with_comma_separators(len(all_conceivable_paceline_rotation_sequences))
         reduced_paceline_rotation_sequences_after_pruning = prune_all_sequences_of_pull_periods_in_the_total_solution_space(all_conceivable_paceline_rotation_sequences, riders)
         pretty_number_of_sequences_after_pruning = format_number_with_comma_separators(len(reduced_paceline_rotation_sequences_after_pruning))

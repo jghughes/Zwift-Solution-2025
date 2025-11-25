@@ -51,7 +51,7 @@ class RiderStatsItem(ZwiftIdBase):
 	w_30min						:	float	=	0.0
 	w_40min						:	float	=	0.0
 	w_60min_curvefit		:	float	=	0.0
-	timestamp					:	str		=	""
+	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
 	def to_dataTransferObject(item: Optional["RiderStatsItem"]) -> RiderStatsDTO:

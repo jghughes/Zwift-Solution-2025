@@ -105,7 +105,7 @@ def run_comparisons_of_ftp_estimates():
     comparative_FTPs : list[DummyItem] = list()
 
     for RiderBruteItem in repository.get_dict_of_RiderBruteItem_by_ids(test_IDs).values():
-        y_pred = round(RiderBruteItem.get_n_second_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
+        y_pred = round(RiderBruteItem.get_n_second_curve_fit_y_ordinate_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
         y_actual = RiderBruteItem.velo_zwiftpower_zFTP_watts
         if y_pred == 0.0 or y_actual == 0 or RiderBruteItem.zwift_racing_score == 0 or RiderBruteItem.velo_rating_30_days == 0:
             continue
