@@ -104,7 +104,7 @@ def populate_rider_contributions(riders: Dict[RiderBruteItem, List[RiderExertion
             average_watts       = calculate_overall_average_watts(exertions),
             normalized_watts    = calculate_overall_normalized_watts(exertions),
         )
-        rider_contribution.intensity_factor = safe_divide(rider_contribution.normalized_watts,rider.get_one_hour_watts())
+        rider_contribution.intensity_factor = safe_divide(rider_contribution.normalized_watts,rider.get_1_hour_curvefit_watts())
 
         if rider_contribution.p1_duration != 0.0:
             msg = ""

@@ -116,9 +116,9 @@ def plot_curve_fit_for_an_individual():
     )
 
     # log pretty summaries
-    summary_pull = f"TTT pull power (W) (30-60-120-240 seconds) = {round(pi.get_standard_30sec_pull_watts())} - {round(pi.get_standard_1_minute_pull_watts())} - {round(pi.get_standard_2_minute_pull_watts())} - {round(pi.get_standard_4_minute_pull_watts())}"
+    summary_pull = f"TTT pull power (W) (30-60-120-240 seconds) = {round(pi.get_proxy_30sec_pull_watts())} - {round(pi.get_proxy_1_minute_pull_watts())} - {round(pi.get_proxy_2_minute_pull_watts())} - {round(pi.get_proxy_4_minute_pull_watts())}"
     print(f"\n{summary_pull}")
-    summary_ftp = f"One hour power zone (W) = {round(pi.get_one_hour_watts())}"
+    summary_ftp = f"One hour power zone (W) = {round(pi.get_1_hour_curvefit_watts())}"
     print(f"\n{summary_ftp}")
 
     # Plot answers

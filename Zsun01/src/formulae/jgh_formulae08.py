@@ -110,16 +110,16 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Rid
 
     message_lines = [
         "\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans:\n",
-        f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_standard_30sec_pull_watts())}w "
-        f"{format_number_1dp(safe_divide(upper_bound_pull_rider.get_standard_30sec_pull_watts(), upper_bound_pull_rider.weight_kg))}wkg by {upper_bound_pull_rider.name} "
+        f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_proxy_30sec_pull_watts())}w "
+        f"{format_number_1dp(safe_divide(upper_bound_pull_rider.get_proxy_30sec_pull_watts(), upper_bound_pull_rider.weight_kg))}wkg by {upper_bound_pull_rider.name} "
         f"for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
-        f"Upper bound 1-hour pull :  {round(upper_bound_1_hour_rider_speed)}kph @ {round(upper_bound_1_hour_rider.get_one_hour_watts())}w "
-        f"{format_number_1dp(safe_divide(upper_bound_1_hour_rider.get_one_hour_watts(), upper_bound_1_hour_rider.weight_kg))}wkg by {upper_bound_1_hour_rider.name}.",
-        f"Lower bound pull        :  {round(lower_bound_pull_rider_speed)}kph @ {round(lower_bound_pull_rider.get_standard_4_minute_pull_watts())}w "
-        f"{format_number_1dp(safe_divide(lower_bound_pull_rider.get_standard_4_minute_pull_watts(), lower_bound_pull_rider.weight_kg))}wkg by {lower_bound_pull_rider.name} "
+        f"Upper bound 1-hour pull :  {round(upper_bound_1_hour_rider_speed)}kph @ {round(upper_bound_1_hour_rider.get_1_hour_curvefit_watts())}w "
+        f"{format_number_1dp(safe_divide(upper_bound_1_hour_rider.get_1_hour_curvefit_watts(), upper_bound_1_hour_rider.weight_kg))}wkg by {upper_bound_1_hour_rider.name}.",
+        f"Lower bound pull        :  {round(lower_bound_pull_rider_speed)}kph @ {round(lower_bound_pull_rider.get_proxy_4_minute_pull_watts())}w "
+        f"{format_number_1dp(safe_divide(lower_bound_pull_rider.get_proxy_4_minute_pull_watts(), lower_bound_pull_rider.weight_kg))}wkg by {lower_bound_pull_rider.name} "
         f"for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
-        f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_one_hour_watts())}w "
-        f"{format_number_1dp(safe_divide(lower_bound_1_hour_rider.get_one_hour_watts(), lower_bound_1_hour_rider.weight_kg))}wkg by {lower_bound_1_hour_rider.name}."
+        f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_1_hour_curvefit_watts())}w "
+        f"{format_number_1dp(safe_divide(lower_bound_1_hour_rider.get_1_hour_curvefit_watts(), lower_bound_1_hour_rider.weight_kg))}wkg by {lower_bound_1_hour_rider.name}."
     ]
     log_multiline(message_lines)
 

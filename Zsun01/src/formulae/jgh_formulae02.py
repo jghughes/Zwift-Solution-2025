@@ -155,7 +155,7 @@ def calculate_speed_at_standard_30sec_pull_watts(rider : RiderBruteItem) -> floa
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_standard_30sec_pull_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_proxy_30sec_pull_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -166,7 +166,7 @@ def calculate_speed_at_standard_1_minute_pull_watts(rider : RiderBruteItem) -> f
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_standard_1_minute_pull_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_proxy_1_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -177,7 +177,7 @@ def calculate_speed_at_standard_2_minute_pull_watts(rider : RiderBruteItem) -> f
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_standard_2_minute_pull_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_proxy_2_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -188,7 +188,7 @@ def calculate_speed_at_standard_3_minute_pull_watts(rider : RiderBruteItem) -> f
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_standard_3_minute_pull_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_proxy_3_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -199,7 +199,7 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : RiderBruteItem) -> f
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_standard_4_minute_pull_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_proxy_4_minute_pull_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -213,7 +213,7 @@ def calculate_speed_at_n_second_watts(rider : RiderBruteItem, seconds: float) ->
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_n_second_curve_fit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_n_second_curvefit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -224,7 +224,7 @@ def calculate_speed_at_one_hour_watts(rider : RiderBruteItem) -> float:
     float: The estimated speed in km/h.
     """
     # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(rider.get_one_hour_watts(), rider.weight_kg, rider.height_cm)
+    speed_kph = estimate_speed_from_wattage(rider.get_1_hour_curvefit_watts(), rider.weight_kg, rider.height_cm)
         
     return speed_kph
 
@@ -364,7 +364,7 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderBruteIt
 
     """
 
-    return  safe_divide(rider_contribution.normalized_watts, rider.get_one_hour_watts())
+    return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
 def calculate_upper_bound_paceline_speed(riders: List[RiderBruteItem]) -> Tuple[RiderBruteItem, float, float]:
     """
@@ -499,19 +499,19 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderB
     return std_deviation_of_intensity_factors
 
 def arrange_riders_by_30_sec_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_30sec_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_wkg(), reverse=True)
     return sorted_riders
 
 def arrange_riders_by_1_minute_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_1_minute_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     return sorted_riders
 
 def arrange_riders_by_40_minute_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_40_minute_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_wkg(), reverse=True)
     return sorted_riders
 
 def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
     return sorted_riders
 
 def arrange_riders_by_velo_rating(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
@@ -527,7 +527,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderBruteItem]
     Riders are ranked according to their strength, from strongest to weakest. 
     The strongest rider is ranked 1, and the weakest rider is ranked n. 
     The strength of a rider is determined by the value returned from the 
-    `RiderBruteItem.get_1_minute_strength_wkg()` method.
+    `RiderBruteItem.get_proxy_1_minute_wkg()` method.
 
     To arrange the riders in optimal order, the riders are interleaved as follows:
     - The strongest rider is placed at the front (position 1).
@@ -543,7 +543,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderBruteItem]
         List[RiderBruteItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_1_minute_strength_wkg(), reverse=True)
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
@@ -581,7 +581,7 @@ def select_n_riders_at_the_top_of_the_list(riders: List[RiderBruteItem], n : int
     if not riders:
         return []
 
-    # riders.sort(key=lambda r: r.get_1_minute_strength_wkg(), reverse=True)
+    # riders.sort(key=lambda r: r.get_proxy_1_minute_wkg(), reverse=True)
 
     topmost_riders: List[RiderBruteItem] = []
 
@@ -628,7 +628,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
         return pull_period_sequences_being_pruned
 
     arr = pull_period_sequences_being_pruned
-    strengths = np.array([r.get_1_minute_strength_wkg() for r in riders])
+    strengths = np.array([r.get_proxy_1_minute_wkg() for r in riders])
     sorted_indices = np.argsort(strengths)
     weakest_idx = sorted_indices[0]
     second_weakest_idx = sorted_indices[1] if len(sorted_indices) > 1 else None

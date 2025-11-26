@@ -56,7 +56,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
             zwift_FTP_watts						= item.zwift_FTP_watts,
             zwiftpower_zftp_watts				= item.zwiftpower_zFTP_watts,
             velo_zwiftpower_zFTP_watts			= item.velo_zwiftpower_zFTP_watts,
-            jgh_60_min_watts					= item.get_one_hour_watts(),
+            jgh_60_min_watts					= item.get_1_hour_curvefit_watts(),
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,
@@ -128,8 +128,8 @@ class RiderBruteItem(FrozenZwiftIdBase):
             velo_cat_name_30_days			= item.velo_cat_name_30_days,
             velo_rating_30_days				= item.velo_rating_30_days,
             velo_cat_label					= "",
-            wkg_60min_curvefit			    = item.get_1_hour_strength_wkg(),
-            w_60min_curvefit			    = item.get_one_hour_watts(),
+            wkg_60min_curvefit			    = item.get_1_hour_curve_fit_wkg(),
+            w_60min_curvefit			    = item.get_1_hour_curvefit_watts(),
             wkg_05sec						= 0.0,
             wkg_15sec						= 0.0,
             wkg_30sec						= 0.0,
@@ -171,115 +171,111 @@ class RiderBruteItem(FrozenZwiftIdBase):
         return answer
 
 
-    def get_30sec_strength_wkg(self) -> float:
+    def get_proxy_30sec_wkg(self) -> float:
         if self.weight_kg == 0:
-            return safe_divide(self.get_standard_30sec_pull_watts(),80.0) # arbitrary default 80kg
-        return safe_divide(self.get_standard_30sec_pull_watts(),self.weight_kg)
+            return safe_divide(self.get_proxy_30sec_pull_watts(),80.0) # arbitrary default 80kg
+        return safe_divide(self.get_proxy_30sec_pull_watts(),self.weight_kg)
 
-    def get_1_minute_strength_wkg(self) -> float:
+    def get_proxy_1_minute_wkg(self) -> float:
         if self.weight_kg == 0:
-            return safe_divide(self.get_standard_1_minute_pull_watts(),80.0) # arbitrary default 80kg
-        return safe_divide(self.get_standard_1_minute_pull_watts(),self.weight_kg)
+            return safe_divide(self.get_proxy_1_minute_pull_watts(),80.0) # arbitrary default 80kg
+        return safe_divide(self.get_proxy_1_minute_pull_watts(),self.weight_kg)
 
-    def get_40_minute_strength_wkg(self) -> float:
+    def get_proxy_40_minute_wkg(self) -> float:
         if self.weight_kg == 0:
-            return safe_divide(self.get_standard_40_minute_pull_watts(),80.0) # arbitrary default 80kg
-        return safe_divide(self.get_standard_40_minute_pull_watts(),self.weight_kg)
+            return safe_divide(self.get_40_minute_curvefit_watts(),80.0) # arbitrary default 80kg
+        return safe_divide(self.get_40_minute_curvefit_watts(),self.weight_kg)
 
-    def get_1_hour_strength_wkg(self) -> float:
+    def get_1_hour_curve_fit_wkg(self) -> float:
         if self.weight_kg == 0:
-            return safe_divide(self.get_one_hour_watts(),80.0) # arbitrary default 80kg
-        return safe_divide(self.get_one_hour_watts(),self.weight_kg)
+            return safe_divide(self.get_1_hour_curvefit_watts(),80.0) # arbitrary default 80kg
+        return safe_divide(self.get_1_hour_curvefit_watts(),self.weight_kg)
 
-    def get_zwiftracingapp_zpFTP_strength_wkg(self) -> float:
+    def get_zwiftracingapp_zpFTP_wkg(self) -> float:
         if self.weight_kg == 0:
             return safe_divide(self.velo_zwiftpower_zFTP_watts,80.0) # arbitrary default 80kg
         return safe_divide(self.velo_zwiftpower_zFTP_watts,self.weight_kg)
 
     def get_standard_pull_watts(self, seconds : float)-> float:
 
-        permissable_watts = self.get_one_hour_watts() # default
+        permissable_watts = self.get_1_hour_curvefit_watts() # default
 
         if seconds == 0:
-            permissable_watts = self.get_standard_30sec_pull_watts()
+            permissable_watts = self.get_proxy_30sec_pull_watts()
         if seconds == 30:
-            permissable_watts = self.get_standard_30sec_pull_watts()
+            permissable_watts = self.get_proxy_30sec_pull_watts()
         if seconds == 60:
-            permissable_watts = self.get_standard_1_minute_pull_watts()
+            permissable_watts = self.get_proxy_1_minute_pull_watts()
         if seconds == 120:
-            permissable_watts = self.get_standard_2_minute_pull_watts()
+            permissable_watts = self.get_proxy_2_minute_pull_watts()
         if seconds == 180:
-            permissable_watts = self.get_standard_3_minute_pull_watts()
+            permissable_watts = self.get_proxy_3_minute_pull_watts()
         if seconds == 240:
-            permissable_watts = self.get_standard_4_minute_pull_watts()
+            permissable_watts = self.get_proxy_4_minute_pull_watts()
          
         return permissable_watts
 
-    def get_standard_30sec_pull_watts(self) -> float:
+    def get_proxy_30sec_pull_watts(self) -> float:
         # apply 3.5 minute watts
         pull_short = decay_model_numpy(np.array([210]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([210]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_short[0], one_hour[0])
         return answer
 
-    def get_standard_1_minute_pull_watts(self) -> float:
+    def get_proxy_1_minute_pull_watts(self) -> float:
         # apply 5 minute watts
         pull_medium = decay_model_numpy(np.array([300]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([300]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_medium[0], one_hour[0])
         return answer
 
-    def get_standard_2_minute_pull_watts(self) -> float:
+    def get_proxy_2_minute_pull_watts(self) -> float:
         # # apply 12 minute watts
         pull_long = decay_model_numpy(np.array([720]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([720]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
         return answer
 
-    def get_standard_3_minute_pull_watts(self) -> float:
+    def get_proxy_3_minute_pull_watts(self) -> float:
         # apply 15 minute watts
         pull_long = decay_model_numpy(np.array([900]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([900]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
         return answer
 
-    def get_standard_4_minute_pull_watts(self) -> float:
+    def get_proxy_4_minute_pull_watts(self) -> float:
         # apply 18 minute watts
         one_hour = decay_model_numpy(np.array([1080]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
         return answer
 
-    def get_standard_5_minute_pull_watts(self) -> float:
+    def get_proxy_5_minute_pull_watts(self) -> float:
         # apply 20 minute watts
         one_hour = decay_model_numpy(np.array([1200]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
         return answer
 
-    def get_standard_40_minute_pull_watts(self) -> float:
-        # apply 40 minute watts
+    def get_40_minute_curvefit_watts(self) -> float:
         one_hour = decay_model_numpy(np.array([2400]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
         return answer
 
-    def get_one_hour_watts(self) -> float:
-
+    def get_1_hour_curvefit_watts(self) -> float:
         ftp = decay_model_numpy(np.array([3_600]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
-
         answer =  ftp[0]
-
         return answer
 
-    def get_one_hour_wkg(self) -> float:
+    def get_1_hour_curvefit_wkg(self) -> float:
         if self.weight_kg == 0:
             return 0.0
-        return safe_divide( self.get_one_hour_watts(), self.weight_kg)
+        return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
 
     def get_watts_per_kg(self, wattage : float) -> float:
         if self.weight_kg == 0:
             return 0.0
         return safe_divide(wattage,self.weight_kg)
 
-    def get_n_second_curve_fit_y_ordinate_watts(self, seconds: float) -> float:
+    def get_n_second_curvefit_y_ordinate_watts(self, seconds: float) -> float:
 
         one_hour_curve = decay_model_numpy(np.array([seconds]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
 
@@ -299,12 +295,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
 
         return answer
 
-    def get_zwiftracingapp_zpFTP_wkg(self) -> float:
-        if self.weight_kg == 0:
-            return 0.0
-        return safe_divide(self.velo_zwiftpower_zFTP_watts, self.weight_kg)
-
-    def get_when_models_fitted(self) -> str:
+    def get_when_curvefit_done(self) -> str:
         return self.jgh_when_curves_fitted
 
 
