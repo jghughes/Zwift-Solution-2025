@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="scripts - brute production pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="scripts - other little utilities\01_RichardM.py" />
+    <Compile Include="scripts - other little utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\zwiftid file import\zwiftid_file_fetcher_async.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_accessor.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_service_client.py" />

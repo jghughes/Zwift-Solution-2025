@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, TypeVar
 
@@ -14,6 +13,7 @@ from zwiftid_file_reader_sync import (
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
 from jgh_formatting import get_current_utc_iso8601_timestamp
+from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
 from zwift_item import ZwiftItem
 from zwiftpower_profile_item import ZwiftPowerProfileItem
@@ -33,6 +33,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
+    _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
     _computed_dict_of_riderBruteItem    :  Dict[str, RiderBruteItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
@@ -64,8 +65,10 @@ class RepositoryOfRiders:
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
         print(f"5. Doing curve fits for 90-day power watts files.")
         eligible_IDs = self._compute_intersection_of_mandatory_sets_as_list() 
-        self._computed_dict_of_riderBruteItem = self._compute_dict_of_RiderBruteItem(eligible_IDs)
-        self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItem(eligible_IDs)
+        self._computed_dict_of_curveFitItem = self._compute_dict_of_selected_CurveFittingResultItem(eligible_IDs) #do first
+        self._computed_dict_of_riderBruteItem = self._compute_dict_of_RiderBruteItem(eligible_IDs) # then this
+        self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItemV2(eligible_IDs)# finally this
+        # self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItem(eligible_IDs)
         print(f"Repository successfully populated.")
    
         return True
@@ -136,11 +139,13 @@ class RepositoryOfRiders:
         Returns a list of Zwift IDs present in all three main dictionaries:
         _dict_of_ZwiftItem, _dict_of_ZwiftRacingAppItem, and _dict_of_ZwiftPower90dayWattsItem.
         """
-        return list(
+        intersection = list(
             set(self._dict_of_ZwiftItem.keys())
             & set(self._dict_of_ZwiftRacingAppItem.keys())
             & set(self._dict_of_ZwiftPower90dayWattsItem.keys())
         )
+        print(f"Number of Zwift IDs in intersection of mandatory sets: {len(intersection)}")
+        return intersection
 
         #HEAP IMPORTANT. THE MEAT AND POTATOES FUNCTION THAT PRODUCES THE FINAL OUTPUT DICTIONARY
 
@@ -151,9 +156,16 @@ class RepositoryOfRiders:
         if zwift_ids is None:
             zwift_ids = []
 
+        print(f"Repository message: computing curve fits for {len(zwift_ids)} riders.")
+
+        # NB: by computing jgh_curve_dict first, we ensure that only riders with curve fits are included, this strips out many riders without sufficient data (approx 150 of them)
         jgh_curve_dict = self._compute_dict_of_selected_CurveFittingResultItem(zwift_ids)
+
+        print(f"Repository message: completed curve fits for {len(jgh_curve_dict)} riders.")
+
+        print(f"Repository message: computing brute item for {len(jgh_curve_dict)} riders.")
   
-        for key in jgh_curve_dict.keys():
+        for key in jgh_curve_dict:
 
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
@@ -167,7 +179,7 @@ class RepositoryOfRiders:
             if zwiftracingappItem is None:
                 zwiftracingappItem = ZwiftRacingAppItem()
 
-            jghcurveItem = jgh_curve_dict.get(key)
+            jghcurveItem = self._computed_dict_of_curveFitItem.get(key)
             if jghcurveItem is None:
                 jghcurveItem = CurveFittingResultItem()
 
@@ -205,21 +217,148 @@ class RepositoryOfRiders:
 
             answer[key] = zwiftItem
 
+        print (f"Repository message: Completed computing riderbruteitem for {len(answer)} riders.")
+
         return answer
 
-    def _compute_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
-        answer : Dict[str, RiderStatsItem] = {}
-        for zwift_id, rider_brute_item in self._computed_dict_of_riderBruteItem.items():
-            rider_stats_item = RiderBruteItem.to_riderStatsItem(rider_brute_item)
+    def _compute_dict_of_RiderStatsItemV2(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+
+        answer: Dict[str, RiderStatsItem] = {}
+        answer2: Dict[str, RiderStatsItem] = {}
+
+
+        if zwift_ids is None:
+            zwift_ids = []
+
+        print(f"REPOSITORY MESSAGE: COMPUTING RIDER STATS ITEM FOR {len(zwift_ids)} riders.")
+  
+        for key in zwift_ids:
+
+            zwiftItem = self._dict_of_ZwiftItem.get(key)
+            if zwiftItem is None:
+                zwiftItem = ZwiftItem()
+
+            zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
+            if zwiftpowerItem is None:
+                zwiftpowerItem = ZwiftPowerProfileItem()
+
+            zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
+            if zwiftracingappItem is None:
+                zwiftracingappItem = ZwiftRacingAppItem()
+
+            jghcurveItem = self._computed_dict_of_curveFitItem.get(key)
+            if jghcurveItem is None:
+                jghcurveItem = CurveFittingResultItem()
+
+            if key in self._dict_of_ZwiftRacingAppItem:
+                name = self._dict_of_ZwiftRacingAppItem[key].full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
+            else:
+                name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
+
+            riderStatsItem = RiderStatsItem(
+                zwift_id=zwiftItem.zwift_id,
+                name=cleanup_name_string(name),
+                zwift_country_code3=zwiftItem.country_code3,
+                age=zwiftItem.age_years,
+                height_cm=round((zwiftItem.height_mm or 0.0) / 10.0),
+                weight_kg=round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
+                gender_code="m" if zwiftItem.is_male else "f",
+                cat_open=zwiftItem.competition_metrics.zwift_category_open,
+                cat_women=zwiftItem.competition_metrics.zwift_category_women,
+                zwift_racing_score=round(zwiftItem.competition_metrics.zwift_racing_score),
+                zwift_ftp_w=round(zwiftItem.ftp_on_zwift),
+                zwift_zftp_w=round(zwiftracingappItem.zp_FTP),
+                zwift_zftp_wkg=0.0,  # No direct mapping, set to 0.0 or compute if possible
+                zwift_cat_label="",  # se below
+                velo_age_group=zwiftracingappItem.age_group,
+                velo_cat_num_30_days=zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+                velo_cat_name_30_days=zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+                velo_rating_30_days=round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
+                velo_cat_label="",  # see below
+                wkg_05sec=0.0, # all the power data points below are set from _dict_of_ZwiftPower90dayWattsItem
+                wkg_15sec=0.0,
+                wkg_30sec=0.0,
+                wkg_01min=0.0,
+                wkg_02min=0.0,
+                wkg_03min=0.0,
+                wkg_05min=0.0,
+                wkg_10min=0.0,
+                wkg_12min=0.0,
+                wkg_15min=0.0,
+                wkg_20min=0.0,
+                wkg_30min=0.0,
+                wkg_40min=0.0,
+                wkg_60min_curvefit=round(jghcurveItem.sixty_min_curve_coefficient, 2),
+                w_05sec=0.0,
+                w_15sec=0.0,
+                w_30sec=0.0,
+                w_01min=0.0,
+                w_02min=0.0,
+                w_03min=0.0,
+                w_05min=0.0,
+                w_10min=0.0,
+                w_12min=0.0,
+                w_15min=0.0,
+                w_20min=0.0,
+                w_30min=0.0,
+                w_40min=0.0,
+                w_60min_curvefit=round(jghcurveItem.sixty_min_curve_coefficient, 2),
+                timestamp=get_current_utc_iso8601_timestamp(),
+            )
+
+            riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
+
+            if riderStatsItem.cat_open == "":
+                riderStatsItem.cat_open = "?"  
+            if riderStatsItem.cat_women == "":
+                if riderStatsItem.gender_code == "m":
+                    riderStatsItem.cat_women = ""
+                else:
+                    riderStatsItem.cat_women = "?"
+            if riderStatsItem.gender_code == "m":
+                cat_combo = riderStatsItem.cat_open
+            else:
+                cat_combo = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
+
+            if riderStatsItem.zwift_racing_score== 0:
+                riderStatsItem.zwift_cat_label = f"{round(riderStatsItem.zwift_zftp_wkg,1)}wkg"
+            else:
+                riderStatsItem.zwift_cat_label = f"{round(riderStatsItem.zwift_zftp_wkg,1)}wkg  {riderStatsItem.zwift_racing_score}  {cat_combo}"
+
+            if riderStatsItem.velo_rating_30_days ==0:
+                riderStatsItem.velo_cat_label= ""
+            else:
+                riderStatsItem.velo_cat_label = f"{riderStatsItem.velo_rating_30_days}  {riderStatsItem.velo_cat_num_30_days}  {riderStatsItem.velo_cat_name_30_days}"
+
+            answer[key] = riderStatsItem
+
+        for zwift_id, rider_stats_item in answer.items():
             watts_90_day_item = self._dict_of_ZwiftPower90dayWattsItem.get(zwift_id)
-            weight_kg = rider_brute_item.weight_kg
+            weight_kg = rider_stats_item.weight_kg
             if watts_90_day_item is not None:
                 rider_stats_item = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
                     rider_stats_item, watts_90_day_item, weight_kg
                 )
-            answer[zwift_id] = rider_stats_item
+            answer2[zwift_id] = rider_stats_item
 
-        return answer
+        print (f"Repository message: Completed computing RiderStatsItemV2 for {len(answer2)} riders.")
+
+        return answer2
+
+    # def _compute_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+    #     # Note: here's the discrepency - we are using all zwift_ids in the computed_dict_of_riderBruteItem, we must use _compute_intersection_of_mandatory_sets_as_list
+    #     answer : Dict[str, RiderStatsItem] = {}
+    #     for zwift_id, rider_brute_item in self._computed_dict_of_riderBruteItem.items():
+    #         rider_stats_item = RiderBruteItem.to_riderStatsItem(rider_brute_item)
+    #         watts_90_day_item = self._dict_of_ZwiftPower90dayWattsItem.get(zwift_id)
+    #         weight_kg = rider_brute_item.weight_kg
+    #         if watts_90_day_item is not None:
+    #             rider_stats_item = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
+    #                 rider_stats_item, watts_90_day_item, weight_kg
+    #             )
+    #         answer[zwift_id] = rider_stats_item
+
+    #     return answer
 
     def _compute_dict_of_selected_CurveFittingResultItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 
@@ -239,6 +378,7 @@ class RepositoryOfRiders:
             ordinates = item.export_all_x_y_ordinates()
 
             if not ordinates:
+                print(f"Repository message: ZwiftID={item.zwift_id} has no x_y ordinates from zwiftpower data. Skipped.")
                 skipped_count += 1
                 continue
 
@@ -274,6 +414,7 @@ class RepositoryOfRiders:
             )
 
             answer[zwift_id] = curvefit
+        print(f"Repository message: Curve fitting completed. Total riders processed: {len(dict_of_JghBestPowerItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
         return answer
 
     def _create_union_of_sets_as_dataframe(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:

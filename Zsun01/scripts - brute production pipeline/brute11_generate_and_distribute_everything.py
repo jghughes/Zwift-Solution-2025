@@ -39,7 +39,6 @@ import asyncio
 from pathlib import Path
 from typing import Callable, Type, Dict, List, Any
 
-
 import pandas as pd
 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure

@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 from zwift_id_base import ZwiftIdBase
 from typing import Optional

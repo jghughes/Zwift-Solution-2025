@@ -15,7 +15,7 @@ logger = logging.getLogger()
 
 
 
-async def _download_file(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
+async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
     # Validate inputs
     valid_url, url_msg = is_valid_url(url)
     if not valid_url:
@@ -162,11 +162,11 @@ async def _download_file(http_client: httpx.AsyncClient, url: str, dest_dir_path
             )
             return
 
-async def download_many_files(urls: List[str], dest_dir_path: str, dest_folder: Optional[str], max_concurrent: int = 5) -> None:
+async def download_and_save_many_files_to_hard_drive(urls: List[str], dest_dir_path: str, dest_folder: Optional[str], max_concurrent: int = 5) -> None:
     semaphore = asyncio.Semaphore(max_concurrent)
     async with httpx.AsyncClient() as http_client:
         tasks = [
-            _download_file(http_client, url, dest_dir_path, dest_folder, semaphore)
+            _download_file_and_save_to_hard_drive(http_client, url, dest_dir_path, dest_folder, semaphore)
             for url in urls
         ]
         await asyncio.gather(*tasks)

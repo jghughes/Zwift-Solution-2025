@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
-from zwiftid_file_fetcher_async import download_many_files
+from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
 
 import time
 import logging
@@ -24,7 +24,7 @@ async def test01():
     dest_folder = "fetch_files_async_tests" 
     max_concurrent = 100
 
-    await download_many_files(urls, dest_dir_path, dest_folder, max_concurrent)
+    await download_and_save_many_files_to_hard_drive(urls, dest_dir_path, dest_folder, max_concurrent)
 
 #test runner
 if __name__ == "__main__":

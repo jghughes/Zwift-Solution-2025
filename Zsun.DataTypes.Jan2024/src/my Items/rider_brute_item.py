@@ -2,10 +2,8 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
-from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_number import safe_divide
 from rider_brute_dto import RiderBruteDTO
-from rider_stats_item import RiderStatsItem
 from zwift_id_base import FrozenZwiftIdBase
 
 from jgh_power_curve_fit_models import decay_model_numpy
@@ -102,75 +100,6 @@ class RiderBruteItem(FrozenZwiftIdBase):
             jgh_when_curves_fitted				= dto.jgh_when_curves_fitted or "",
         )
 
-
-    @staticmethod
-    def to_riderStatsItem(item: Optional["RiderBruteItem"]) -> RiderStatsItem:
-        if item is None:
-            return RiderStatsItem()
-
-        answer = RiderStatsItem(
-            zwift_id						= item.zwift_id,
-            name							= item.name,
-            zwift_country_code3				= item.zwift_country_code3,
-            age								= round(item.age_years,0),
-            height_cm						= item.height_cm,
-            weight_kg						= item.weight_kg,
-            gender_code						= item.gender,
-            cat_open						= item.zwift_cat_open,
-            cat_women						= item.zwift_cat_women,
-            zwift_racing_score				= item.zwift_racing_score,
-            zwift_ftp_w					    = item.zwift_FTP_watts,
-            zwift_zftp_w				    = item.velo_zwiftpower_zFTP_watts,
-            zwift_zftp_wkg                  = safe_divide(item.velo_zwiftpower_zFTP_watts, item.weight_kg),
-            zwift_cat_label			        = "",
-            velo_age_group					= item.age_group,
-            velo_cat_num_30_days			= item.velo_cat_num_30_days,
-            velo_cat_name_30_days			= item.velo_cat_name_30_days,
-            velo_rating_30_days				= item.velo_rating_30_days,
-            velo_cat_label					= "",
-            wkg_60min_curvefit			    = item.get_1_hour_curve_fit_wkg(),
-            w_60min_curvefit			    = item.get_1_hour_curvefit_watts(),
-            wkg_05sec						= 0.0,
-            wkg_15sec						= 0.0,
-            wkg_30sec						= 0.0,
-            wkg_01min						= 0.0,
-            wkg_02min						= 0.0,
-            wkg_05min						= 0.0,
-            wkg_20min						= 0.0,
-            w_05sec							= 0.0,
-            w_15sec							= 0.0,
-            w_30sec							= 0.0,
-            w_01min							= 0.0,
-            w_02min							= 0.0,
-            w_05min							= 0.0,
-            w_20min							= 0.0,
-            timestamp						= get_current_utc_iso8601_timestamp()
-        )
-
-        if answer.cat_open == "":
-            answer.cat_open = "?"  
-        if answer.cat_women == "":
-            if answer.gender_code == "m":
-                answer.cat_women = ""
-            else:
-                answer.cat_women = "?"
-        if answer.gender_code == "m":
-            cat_combo = answer.cat_open
-        else:
-            cat_combo = answer.cat_open + "/" + answer.cat_women
-
-        if answer.zwift_racing_score== 0:
-            answer.zwift_cat_label = f"{round(answer.zwift_zftp_wkg,1)}wkg"
-        else:
-            answer.zwift_cat_label = f"{round(answer.zwift_zftp_wkg,1)}wkg  {answer.zwift_racing_score}  {cat_combo}"
-
-        if answer.velo_rating_30_days ==0:
-            answer.velo_cat_label= ""
-        else:
-            answer.velo_cat_label = f"{answer.velo_rating_30_days}  {answer.velo_cat_num_30_days}  {answer.velo_cat_name_30_days}"
-        return answer
-
-
     def get_proxy_30sec_wkg(self) -> float:
         if self.weight_kg == 0:
             return safe_divide(self.get_proxy_30sec_pull_watts(),80.0) # arbitrary default 80kg
@@ -196,7 +125,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
             return safe_divide(self.velo_zwiftpower_zFTP_watts,80.0) # arbitrary default 80kg
         return safe_divide(self.velo_zwiftpower_zFTP_watts,self.weight_kg)
 
-    def get_standard_pull_watts(self, seconds : float)-> float:
+    def get_proxy_pull_watts(self, seconds : float)-> float:
 
         permissable_watts = self.get_1_hour_curvefit_watts() # default
 
