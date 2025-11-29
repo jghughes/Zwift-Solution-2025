@@ -6,23 +6,24 @@ from typing import List
 from jgh_read_write import read_text, list_files_in_directory
 from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
 from jgh_string import  make_pretty_time_from_seconds
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import FOLDER_DIRPATH_ZWIFT, FOLDER_DIRPATH_ZWIFTRACINGAPP, FOLDER_DIRPATH_ZWIFTPOWER, FOLDER_DIRPATH_ZWIFTPOWER_90_DAY_BEST
 
 # HEAP POWERFUL TOOL
 async def go_fetch_thousands_of_files_from_dk_V2() -> None:
+
+    print("\nfetch single file from daveK of candidate membership-list (which may be outdated)")
     url_of_file_of_cobbled_togther_membership_list = f"https://data.zsunr.com/riders/json/zwiftpower/{_filename_of_club_membership_list_cobbled_together_by_daveK}"
-    print("\nfetch cobbled-together membership-list file from daveK (which may be massively incomplete or overstated)")
-    print(f"url: {url_of_file_of_cobbled_togther_membership_list}")
-    start_time = time.time()
-    await download_and_save_many_files_to_hard_drive([url_of_file_of_cobbled_togther_membership_list], DIRPATH_ZWIFTPOWER, None) #in this case only one file!
-    elapsed = time.time() - start_time
+    urls_for_dummy_array_of_one_file = [url_of_file_of_cobbled_togther_membership_list]
+    _ = await fetch_and_save_files(
+        urls_for_dummy_array_of_one_file,
+        DIRPATH_ZWIFTPOWER,
+        "",
+        concurrency=1
+    )
     json_array_of_zwiftId = read_text( Path(DIRPATH_ZWIFTPOWER), _filename_of_club_membership_list_cobbled_together_by_daveK)
     array_of_cobbled_together_zwiftId: List[str] = json.loads(json_array_of_zwiftId)
-    print(f"fetch complete: {make_pretty_time_from_seconds(elapsed)}")
-    print(f"cobbled_together club members: {len(array_of_cobbled_together_zwiftId)}")
-    print(f"cobbled_together filename: {_filename_of_club_membership_list_cobbled_together_by_daveK}")
-    print(f"cobbled_together file saved to: {DIRPATH_ZWIFTPOWER}")
-
+    print(f"\nzwiftIds in file: {len(array_of_cobbled_together_zwiftId)} (we use these zwiftIDs to look for zwift, zwiftpower90Day, and Racing App files on daveK server)")
 
     print("\nsearch for as many as possible corresponding Zwift files available on daveK server")
     url_root_for_zwift = "https://data.zsunr.com/riders/json/zwift/"
@@ -30,27 +31,25 @@ async def go_fetch_thousands_of_files_from_dk_V2() -> None:
     _ = await fetch_and_save_files(
         urls_for_zwift_files,
         DIRPATH_ZWIFT,
-        "zwift",
+        FOLDER_DIRPATH_ZWIFT,
         concurrency=5
     )
-    # #NB: important shift. everywhere subsequently we filter to only those with racing app posts, this might be a mistake because many TT riders won't have racing app posts
-    # zwiftIDs = [file.stem for file in discovered_racing_app_files]
-    print("\nsearch for as many as possible corresponding ZwiftPower files available on daveK server")
-    url_root_for_zwiftpower = "https://data.zsunr.com/riders/json/zwiftpower/profile-page/"
-    urls_for_zwiftpower_files: List[str] = [f"{url_root_for_zwiftpower}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    _ = await fetch_and_save_files(
-        urls_for_zwiftpower_files,
-        DIRPATH_ZWIFTPOWER,
-        "zwiftpower",
-        concurrency=5
-    )
+    # print("\nsearch for as many as possible corresponding ZwiftPower files available on daveK server")
+    # url_root_for_zwiftpower = "https://data.zsunr.com/riders/json/zwiftpower/profile-page/"
+    # urls_for_zwiftpower_files: List[str] = [f"{url_root_for_zwiftpower}{id}.json" for id in array_of_cobbled_together_zwiftId]
+    # _ = await fetch_and_save_files(
+    #     urls_for_zwiftpower_files,
+    #     DIRPATH_ZWIFTPOWER,
+    #     FOLDER_DIRPATH_ZWIFTPOWER,
+    #     concurrency=5
+    # )
     print("\nsearch for as many as possible corresponding 90-day best files available on daveK server")
     url_root_for_zwiftpower_90_day_best = "https://data.zsunr.com/riders/json/zwiftpower/power-graph-watts/"
     urls_for_zwiftpower_90_day_best_files: List[str] = [f"{url_root_for_zwiftpower_90_day_best}{id}.json" for id in array_of_cobbled_together_zwiftId]
     _ = await fetch_and_save_files(
         urls_for_zwiftpower_90_day_best_files,
         DIRPATH_ZWIFTPOWER_90_DAY_BEST,
-        "power-graph-watts",
+        FOLDER_DIRPATH_ZWIFTPOWER_90_DAY_BEST,
         concurrency=5
     )
     print("\nsearch for as many as possible corresponding ZwiftRacing app files available on daveK server")
@@ -59,7 +58,7 @@ async def go_fetch_thousands_of_files_from_dk_V2() -> None:
     _ = await fetch_and_save_files(
         urls_for_racing_app_files,
         DIRPATH_ZWIFTRACINGAPP,
-        "zwiftracing-app-post",
+        FOLDER_DIRPATH_ZWIFTRACINGAPP,
         concurrency=5
     )
 
@@ -87,9 +86,9 @@ async def fetch_and_save_files(
     elapsed = time.time() - start_time
 
     discovered_files = list_files_in_directory(Path(save_dirpath), "*.json")
-    print(f"search complete:: {make_pretty_time_from_seconds(elapsed)}")
+    print(f"I/O duration: {make_pretty_time_from_seconds(elapsed)}")
     print(f"files discovered: {len(discovered_files)}")
-    print(f"save_folder_name: {save_folder_name}")
+    print(f"save folder_name: {save_folder_name}")
     print(f"save dirpath: {save_dirpath}")
 
     return discovered_files

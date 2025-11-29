@@ -1,47 +1,27 @@
 import asyncio
-from os import name
 from pathlib import Path
-from typing import Callable, Type, Dict, List, Any
+from typing import Dict, List, Any
 import pandas as pd
 
-from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import write_excel_file, write_json_file
-from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
+from jgh_string import make_pretty_time_from_seconds
 from storage_config import (
-    DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, 
+    DIRPATH_ZWIFT,  
     DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
-    DIRPATH_RIDER_BRUTE_DTO,
-    DIRPATH_RIDER_STATS_DTO,
     )
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
     FILENAME_RIDER_BRUTE_DTO_XLSX_LIST, 
-    FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
-    FILENAME_RIDER_STATS_DTO_JSON_DICT, 
-    FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
-    FILENAME_RIDER_STATS_DTO_JSON_LIST,
-    AZURE_ACCOUNTNAME_ZSUN, 
-    AZURE_CONTAINERNAME_PREPROCESSED, 
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
     )
 from repository_of_riders import RepositoryOfRiders
-from rider_brute_item import RiderBruteItem
-from rider_brute_dto import RiderBruteDtoDictModel, RiderBruteDtoListModel
-from rider_stats_item import RiderStatsItem
-from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
 import json
 import time
 from pathlib import Path
 from typing import List
-from jgh_read_write import read_text, list_files_in_directory
-from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
+from jgh_read_write import read_text
 from jgh_string import  make_pretty_time_from_seconds
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST
 import time
 import logging
 from jgh_exceptions import AlertMessageError
@@ -54,7 +34,6 @@ async def reconcile_lists_and_save():
         throw_if_any_dirpath_invalid_or_not_exists([
             Path(DIRPATH_ZWIFT),
             Path(DIRPATH_ZWIFTRACINGAPP),
-            Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
             Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),
             Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)]
         )
@@ -82,7 +61,7 @@ async def reconcile_lists_and_save():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
@@ -122,40 +101,6 @@ async def reconcile_lists_and_save():
     for zwift_id, racingapp_item in missing_with_powergraph.items():
         print(f" - ZwiftID: {zwift_id}, Name: {racingapp_item.full_name}")
     print(f"total missing RiderStatsItem records who do have ZwiftPower90dayWattsItem: {len(missing_with_powergraph)}")
-
-
-
-    # await process_and_distribute_items(
-    #     item_dict=rider_repository.get_dict_of_RiderBruteItem(),
-    #     to_dto_func=RiderBruteItem.to_dataTransferObject,
-    #     dict_model_cls=RiderBruteDtoDictModel,
-    #     list_model_cls=RiderBruteDtoListModel,
-    #     name_field="name_racingapp",
-    #     output_dir=DIRPATH_RIDER_BRUTE_DTO,
-    #     json_dict_filename=FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
-    #     json_list_filename=FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
-    #     excel_filename=FILENAME_RIDER_BRUTE_DTO_XLSX_LIST,
-    #     azure_blob_dict=AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-    #     azure_blob_list=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
-    #     logger=logger,
-    # )
-
-    # print("\nTask #2: distributing all the RiderStatsItem records")
-    # await process_and_distribute_items(
-    #     item_dict=rider_repository.get_dict_of_RiderStatsItem(),
-    #     to_dto_func=RiderStatsItem.to_dataTransferObject,
-    #     dict_model_cls=RiderStatsDtoDictModel,
-    #     list_model_cls=RiderStatsDtoListModel,
-    #     name_field="full_name",
-    #     output_dir=DIRPATH_RIDER_STATS_DTO,
-    #     json_dict_filename=FILENAME_RIDER_STATS_DTO_JSON_DICT,
-    #     json_list_filename=FILENAME_RIDER_STATS_DTO_JSON_LIST,
-    #     excel_filename=FILENAME_RIDER_STATS_DTO_XLSX_LIST,
-    #     azure_blob_dict=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-    #     azure_blob_list=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
-    #     logger=logger,
-    # )
-
     print("\nwork complete. consult the log files for details.\n")
     print("\nyou may close the app. thank you.\n")
 

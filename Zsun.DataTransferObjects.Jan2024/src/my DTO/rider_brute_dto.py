@@ -14,7 +14,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"zwift_cat_women"						:	AliasChoices("zwift_cat_women", "zwiftCatWomen"),
 	"zwift_racing_score"					:	AliasChoices("zwift_racing_score", "zwiftRacingScore"),
 	"zwift_FTP_watts"						:	AliasChoices("zwift_FTP_watts", "zwiftFTPWatts"),
-	"zwiftpower_zftp_watts"					:	AliasChoices("zwiftpower_zftp_watts", "zwiftpowerZFTPWatts	"),
+	# "zwiftpower_zftp_watts"					:	AliasChoices("zwiftpower_zftp_watts", "zwiftpowerZFTPWatts	"),
 	"velo_zwiftpower_zFTP_watts"			:	AliasChoices("velo_zwiftpower_zFTP_watts", "veloZwiftpowerZFTPWatts"),
 	"velo_cat_num_30_days"					:	AliasChoices("velo_cat_num_30_days", "veloCatNum30Days"),
 	"velo_rating_30_days"					:	AliasChoices("velo_rating_30_days", "veloRating30Days"),
@@ -49,7 +49,7 @@ class RiderBruteDTO(BaseModel):
 	zwift_cat_women							:	str						=	""
 	zwift_racing_score						:	float					=	0.0
 	zwift_FTP_watts							:	float					=	0.0
-	zwiftpower_zftp_watts					:	float					=	0.0
+	# zwiftpower_zftp_watts					:	float					=	0.0
 	velo_zwiftpower_zFTP_watts						:	float					=	0.0
 	velo_cat_num_30_days					:	int						=	0
 	velo_rating_30_days						:	float					=	0.0

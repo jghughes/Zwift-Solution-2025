@@ -9,14 +9,14 @@ from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
     read_zwftracingappdto_files_to_item_dict_sync,
-    read_zwiftpowerprofiledto_files_to_item_dict_sync,
+    # read_zwiftpowerprofiledto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
 from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
 from zwift_item import ZwiftItem
-from zwiftpower_profile_item import ZwiftPowerProfileItem
+# from zwiftpower_profile_item import ZwiftPowerProfileItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_brute_item import RiderBruteItem
 from rider_stats_item import RiderStatsItem
@@ -28,7 +28,7 @@ T = TypeVar("T")  # Generic type variable for the item type in the dict
 class RepositoryOfRiders:
 
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
-    _dict_of_ZwiftPowerProfileItem      :   Dict[str, ZwiftPowerProfileItem] = field(default_factory=dict)
+    # _dict_of_ZwiftPowerProfileItem      :   Dict[str, ZwiftPowerProfileItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
 
@@ -51,7 +51,6 @@ class RepositoryOfRiders:
         file_names: Optional[list[str]],
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
-        zwiftpower_profile_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
     )->bool:
         print(f"Repository to read raw data (sync) is populating itself. This will take more than a minute.")
@@ -59,8 +58,8 @@ class RepositoryOfRiders:
         self._dict_of_ZwiftItem = read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
         print(f"2. Reading hundreds of ZwiftRacingApp files.")
         self._dict_of_ZwiftRacingAppItem = read_zwftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
-        print(f"3. Reading hundreds of ZwiftPower files.")
-        self._dict_of_ZwiftPowerProfileItem = read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(zwiftpower_profile_dir_path),file_names)
+        # print(f"3. Reading hundreds of ZwiftPower files.")
+        # self._dict_of_ZwiftPowerProfileItem = read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(zwiftpower_profile_dir_path),file_names)
         print(f"4. Reading hundreds of ZwiftPower 90-day power watts files.")
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
         print(f"5. Doing curve fits for 90-day power watts files.")
@@ -99,8 +98,8 @@ class RepositoryOfRiders:
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
         return self._get_dict_by_ids(self._dict_of_ZwiftItem, zwift_ids)
 
-    def get_dict_of_ZwiftPowerProfileItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerProfileItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftPowerProfileItem, zwift_ids)
+    # def get_dict_of_ZwiftPowerProfileItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerProfileItem]:
+    #     return self._get_dict_by_ids(self._dict_of_ZwiftPowerProfileItem, zwift_ids)
 
     def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
         return self._get_dict_by_ids(self._dict_of_ZwiftRacingAppItem, zwift_ids)
@@ -171,9 +170,9 @@ class RepositoryOfRiders:
             if zwiftItem is None:
                 zwiftItem = ZwiftItem()
 
-            zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
-            if zwiftpowerItem is None:
-                zwiftpowerItem = ZwiftPowerProfileItem()
+            # zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
+            # if zwiftpowerItem is None:
+            #     zwiftpowerItem = ZwiftPowerProfileItem()
 
             zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
             if zwiftracingappItem is None:
@@ -198,7 +197,7 @@ class RepositoryOfRiders:
                 age_years                         = zwiftItem.age_years,
                 age_group                         = zwiftracingappItem.age_group,
                 zwift_FTP_watts                   = round(zwiftItem.ftp_on_zwift),
-                zwiftpower_zFTP_watts             = round(zwiftpowerItem.zftp_from_somewhere),
+                # zwiftpower_zFTP_watts             = round(zwiftpowerItem.zftp_from_somewhere),
                 velo_zwiftpower_zFTP_watts          = round(zwiftracingappItem.zp_FTP),
                 jgh_60_min_watts                  = round(jghcurveItem.sixty_min_curve_coefficient),
                 zwift_racing_score                 = round(zwiftItem.competition_metrics.zwift_racing_score),
@@ -238,9 +237,9 @@ class RepositoryOfRiders:
             if zwiftItem is None:
                 zwiftItem = ZwiftItem()
 
-            zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
-            if zwiftpowerItem is None:
-                zwiftpowerItem = ZwiftPowerProfileItem()
+            # zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
+            # if zwiftpowerItem is None:
+            #     zwiftpowerItem = ZwiftPowerProfileItem()
 
             zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
             if zwiftracingappItem is None:
@@ -345,20 +344,6 @@ class RepositoryOfRiders:
 
         return answer2
 
-    # def _compute_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
-    #     # Note: here's the discrepency - we are using all zwift_ids in the computed_dict_of_riderBruteItem, we must use _compute_intersection_of_mandatory_sets_as_list
-    #     answer : Dict[str, RiderStatsItem] = {}
-    #     for zwift_id, rider_brute_item in self._computed_dict_of_riderBruteItem.items():
-    #         rider_stats_item = RiderBruteItem.to_riderStatsItem(rider_brute_item)
-    #         watts_90_day_item = self._dict_of_ZwiftPower90dayWattsItem.get(zwift_id)
-    #         weight_kg = rider_brute_item.weight_kg
-    #         if watts_90_day_item is not None:
-    #             rider_stats_item = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
-    #                 rider_stats_item, watts_90_day_item, weight_kg
-    #             )
-    #         answer[zwift_id] = rider_stats_item
-
-    #     return answer
 
     def _compute_dict_of_selected_CurveFittingResultItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 
@@ -445,12 +430,11 @@ class RepositoryOfRiders:
             - The union includes all unique Zwift IDs found in any dataset or sample list.
             - Membership is indicated by "y" (present) or "n" (absent) for each column.
         """
-        answer: list[tuple[str, str, str, str, str, str, str]] = []
+        answer: list[tuple[str, str, str, str, str, str]] = []
 
         superset_of_zwiftID = set(sample1) | set(sample2) | \
                               set(self._dict_of_ZwiftItem.keys()) | \
                               set(self._dict_of_ZwiftRacingAppItem.keys()) | \
-                              set(self._dict_of_ZwiftPowerProfileItem.keys()) | \
                               set(self._dict_of_ZwiftPower90dayWattsItem.keys())
 
         print(f"Total unique Zwift IDs in union: {len(superset_of_zwiftID)}")
@@ -462,7 +446,6 @@ class RepositoryOfRiders:
                 "y" if key in sample2 else "n",
                 "y" if key in self._dict_of_ZwiftItem.keys() else "n",
                 "y" if key in self._dict_of_ZwiftRacingAppItem.keys() else "n",
-                "y" if key in self._dict_of_ZwiftPowerProfileItem.keys() else "n",
                 "y" if key in self._dict_of_ZwiftPower90dayWattsItem.keys() else "n",
             )
             answer.append(row)
@@ -484,10 +467,9 @@ class RepositoryOfRiders:
     def _create_intersection_of_sets_as_dataframe(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:
         zwift_profiles = list(self._dict_of_ZwiftItem.keys())
         zwiftracingapp_profiles = list(self._dict_of_ZwiftRacingAppItem.keys())
-        zwiftpower_profiles = list(self._dict_of_ZwiftPowerProfileItem.keys())
         zwiftpower_90daybest_graphs = list(self._dict_of_ZwiftPower90dayWattsItem.keys())
         
-        intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_profiles) & set(zwiftpower_90daybest_graphs)
+        intersection = set(zwift_profiles) & set(zwiftracingapp_profiles) & set(zwiftpower_90daybest_graphs)
 
         if sample1:
             intersection = intersection & set(sample1)
@@ -495,7 +477,7 @@ class RepositoryOfRiders:
         if sample2:
             intersection = intersection & set(sample2)
 
-        answer: list[tuple[str, str, str, str, str, str, str]] = []
+        answer: list[tuple[str, str, str, str, str, str]] = []
         for key in intersection:
             row = (
                 key,
@@ -503,7 +485,6 @@ class RepositoryOfRiders:
                 "y" if key in sample2 else "n",
                 "y" if key in self._dict_of_ZwiftItem.keys() else "n",
                 "y" if key in self._dict_of_ZwiftRacingAppItem.keys() else "n",
-                "y" if key in self._dict_of_ZwiftPowerProfileItem.keys() else "n",
                 "y" if key in self._dict_of_ZwiftPower90dayWattsItem.keys() else "n",
             )
             answer.append(row)
@@ -522,7 +503,7 @@ class RepositoryOfRiders:
 
         return df
 
-    def _create_union_of_sets_filtered_by_membership_as_dataframe(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str
+    def _create_union_of_sets_filtered_by_membership_as_dataframe(self, zwift: str, racingapp: str, zwiftpower_90day_cp: str
     ) -> pd.DataFrame:
         valid_values : set[str] = {"y_or_n", "y", "n"}
         invalid_params : list[str] = []
@@ -530,7 +511,6 @@ class RepositoryOfRiders:
         for param_name, param_value in {
             "zwift": zwift,
             "racingapp": racingapp,
-            "zwiftpower": zwiftpower,
             "zwiftpower_90day_cp": zwiftpower_90day_cp,
         }.items():
             if param_value not in valid_values:
@@ -552,7 +532,6 @@ class RepositoryOfRiders:
         template = {
             self.COL_IN_ZWIFT: zwift,
             self.COL_IN_ZWIFTRACINGAPP: racingapp,
-            self.COL_IN_ZWIFTPOWER: zwiftpower,
             self.COL_IN_ZWIFTPOWER_WATTS_GRAPHS: zwiftpower_90day_cp,
         }
 
@@ -566,8 +545,8 @@ class RepositoryOfRiders:
         df = self._create_intersection_of_sets_as_dataframe(sample1, sample2)
         return df[self.COL_ZWIFT_ID].tolist()
 
-    def _create_union_of_sets_filtered_by_membership_as_list(self, zwift: str, racingapp: str, zwiftpower: str, zwiftpower_90day_cp: str
+    def _create_union_of_sets_filtered_by_membership_as_list(self, zwift: str, racingapp: str, zwiftpower_90day_cp: str
     ) -> list[str]:
-        df = self._create_union_of_sets_filtered_by_membership_as_dataframe(zwift, racingapp, zwiftpower, zwiftpower_90day_cp)
+        df = self._create_union_of_sets_filtered_by_membership_as_dataframe(zwift, racingapp, zwiftpower_90day_cp)
         return df[self.COL_ZWIFT_ID].tolist()
 

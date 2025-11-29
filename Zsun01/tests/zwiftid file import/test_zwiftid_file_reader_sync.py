@@ -1,9 +1,10 @@
 from pathlib import Path
 
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync, read_zwftracingappdto_files_to_item_dict_sync,
-    read_zwiftpowerprofiledto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
+    # read_zwiftpowerprofiledto_files_to_item_dict_sync, 
+    read_zwiftpower90daywattsdto_files_to_item_dict_sync
 )
 import time
 import logging
@@ -53,25 +54,25 @@ def test04():
     )
     print(f"\nHard drive has {len(my_dict)} zwiftracingapp_files")
 
-def test05():
-    my_dict = read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE), None)
-    for zwift_id, item in my_dict.items():
-        if not item:
-            log_event(
-                logger,
-                message=f"Item for zwiftid = {zwift_id} is missing.",
-                level=logging.INFO,
-                exception=AlertMessageError(message=f"Item for zwiftid = {zwift_id} is missing.")
-            )
-            print(f"Item for zwiftid = {zwift_id} is missing.")
-        else:
-            print(f"{zwift_id} {item.nickname}")
-    log_event(
-        logger,
-        message=f"Imported {len(my_dict)} zwiftpower_files",
-        level=logging.INFO
-    )
-    print(f"\nHard drive has {len(my_dict)} zwiftpower_files")
+# def test05():
+#     my_dict = read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE), None)
+#     for zwift_id, item in my_dict.items():
+#         if not item:
+#             log_event(
+#                 logger,
+#                 message=f"Item for zwiftid = {zwift_id} is missing.",
+#                 level=logging.INFO,
+#                 exception=AlertMessageError(message=f"Item for zwiftid = {zwift_id} is missing.")
+#             )
+#             print(f"Item for zwiftid = {zwift_id} is missing.")
+#         else:
+#             print(f"{zwift_id} {item.nickname}")
+#     log_event(
+#         logger,
+#         message=f"Imported {len(my_dict)} zwiftpower_files",
+#         level=logging.INFO
+#     )
+#     print(f"\nHard drive has {len(my_dict)} zwiftpower_files")
 
 def test06():
     my_dict = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), None)
@@ -104,7 +105,6 @@ if __name__ == "__main__":
         print("Starting tests...\n")
         test03()
         test04()
-        test05()
         test06()
 
         end_time = time.time()

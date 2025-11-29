@@ -99,7 +99,7 @@ def run_comparisons_of_ftp_estimates():
    
     repository : RepositoryOfRiders = RepositoryOfRiders()
     test_IDs = None # i.e. will have the effect of populating the repository with all available riders, modify as you please
-    repository.populate_repository(test_IDs, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    repository.populate_repository(test_IDs, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
     dict_of_curve_fits = repository._compute_dict_of_selected_CurveFittingResultItem(test_IDs)
 
     comparative_FTPs : list[DummyItem] = list()

@@ -77,7 +77,7 @@ from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 
 from jgh_read_write import write_excel_file
-from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
+from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import write_with_json_file_ext_dict_of_RegressionModellingDto
 from regression_modelling_item import RegressionModellingItem
@@ -243,7 +243,7 @@ def run_curve_fitting_experiments():
     repository : RepositoryOfRiders = RepositoryOfRiders()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST)
+    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST)
     
     dict_of_RiderItem : Dict[str, RiderBruteItem] = repository.get_dict_of_RiderBruteItem_by_ids(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : Dict[str,ZwiftPowerFlattened90dayWattsItem] = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwiftIds_with_high_fidelity)

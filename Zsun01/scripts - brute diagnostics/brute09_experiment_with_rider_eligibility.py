@@ -55,7 +55,7 @@ well as NumPy for numerical operations related to power curve modeling.
 import os
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+# from typing import Any
 
 import numpy as np, pandas as pd
 
@@ -64,23 +64,23 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_power_curve_fit_models import decay_model_numpy
 from jgh_read_write import write_excel_file
 from jgh_string import cleanup_name_string
-from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD 
+from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD 
 from repository_of_riders import RepositoryOfRiders
 from rider_brute_item import RiderBruteItem
-from zwiftpower_profile_item import ZwiftPowerProfileItem
+# from zwiftpower_profile_item import ZwiftPowerProfileItem
 
 import time
 import logging
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
-from working_types import CurveFittingResultItem
+# from working_types import CurveFittingResultItem
 
 
 def run_experiments_on_determinants_of_rider_eligibility():
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFT), Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_ZWIFTRACINGAPP),   Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_ZWIFTRACINGAPP),   Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -92,21 +92,21 @@ def run_experiments_on_determinants_of_rider_eligibility():
 
 
     repository : RepositoryOfRiders = RepositoryOfRiders()
-    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
 
-    eligible_IDs = repository._create_union_of_sets_filtered_by_membership_as_list("y","y_or_n","y_or_n","y")
+    eligible_IDs = repository._create_union_of_sets_filtered_by_membership_as_list("y","y_or_n","y")
 
     print(f"Using all {len(eligible_IDs)} eligible IDs from repository.")
 
     dict_of_zwiftItem = repository.get_dict_of_ZwiftItem_by_ids(eligible_IDs)
     dict_of_ZwiftRacingAppItem = repository.get_dict_of_ZwiftRacingAppItem_by_ids(eligible_IDs)
-    dict_of_ZwiftPowerProfileItem = repository.get_dict_of_ZwiftPowerProfileItem_by_ids(eligible_IDs)
+    # dict_of_ZwiftPowerProfileItem = repository.get_dict_of_ZwiftPowerProfileItem_by_ids(eligible_IDs)
     dict_of_flattenedZwiftPower90dayWatts = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(eligible_IDs)
     dict_of_curve_fits = repository._compute_dict_of_selected_CurveFittingResultItem(eligible_IDs)
 
     print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT}\n")
     print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP}\n")
-    print(f"Imported {len(dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {DIRPATH_ZWIFTPOWER_PROFILE_PAGE}\n")
+    # print(f"Imported {len(dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {DIRPATH_ZWIFTPOWER_PROFILE_PAGE}\n")
     print(f"Imported {len(dict_of_flattenedZwiftPower90dayWatts)} zwiftpower 90-day best graphs from : - \nDir : {DIRPATH_ZWIFTPOWER_90_DAY_BEST}\n")
 
     #step 1: print a spreadsheet of all riders in dict_of_zwiftItem
@@ -169,10 +169,10 @@ def run_experiments_on_determinants_of_rider_eligibility():
         # we have only about 80 zwiftpowwerprofile files, DaveK doesn't fetch them all.
         # in any case, we don't need them for this experiment. we only use it for populating
         # zwiftpowerprofileItem.zftp_from_somewhere
-        if key not in dict_of_ZwiftPowerProfileItem:
-            zwiftpowerprofileItem = ZwiftPowerProfileItem()
-        else:
-            zwiftpowerprofileItem = dict_of_ZwiftPowerProfileItem[key]
+        # if key not in dict_of_ZwiftPowerProfileItem:
+        #     zwiftpowerprofileItem = ZwiftPowerProfileItem()
+        # else:
+        #     zwiftpowerprofileItem = dict_of_ZwiftPowerProfileItem[key]
 
         name = dict_of_ZwiftRacingAppItem[key].full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
@@ -190,7 +190,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
         	age_years                        = zwiftItem.age_years,
         	age_group                        = racingapp.age_group,
         	zwift_FTP_watts                  = round(zwiftItem.ftp_on_zwift),
-        	zwiftpower_zFTP_watts            = round(zwiftpowerprofileItem.zftp_from_somewhere),
+        	# zwiftpower_zFTP_watts            = round(zwiftpowerprofileItem.zftp_from_somewhere),
         	velo_zwiftpower_zFTP_watts      = round(racingapp.zp_FTP),
         	jgh_60_min_watts                 = round(one_hour_watts),
         	zwift_racing_score               = round(zwiftItem.competition_metrics.zwift_racing_score),

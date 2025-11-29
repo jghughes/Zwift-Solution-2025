@@ -198,36 +198,36 @@ def test14():
     write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
-def test15():
-    """
-    Test function that loads all ZwiftPower profile data, converts it to a
-    pandas DataFrame, and saves the result to an Excel file.
+# def test15():
+#     """
+#     Test function that loads all ZwiftPower profile data, converts it to a
+#     pandas DataFrame, and saves the result to an Excel file.
 
-    Unlike other test functions, this one focuses only on ZwiftPower data,
-    not Zwift, ZwiftRacingApp, or power curve data.
+#     Unlike other test functions, this one focuses only on ZwiftPower data,
+#     not Zwift, ZwiftRacingApp, or power curve data.
 
-    No arguments. No return value. Results are written to an Excel file.
-    """
+#     No arguments. No return value. Results are written to an Excel file.
+#     """
 
-    # repository = RepositoryOfRiders()
-    # repository.populate_repository(
-    #     None,
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
-    #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
-    # )
+#     # repository = RepositoryOfRiders()
+#     # repository.populate_repository(
+#     #     None,
+#     #     zwift_dir_path=DIRPATH_ZWIFT,
+#     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+#     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
+#     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+#     # )
 
-    dict_of_items = repository.get_dict_of_ZwiftPowerProfileItem_by_ids([])
-    print(f"ZwiftPower 90-day power: {len(dict_of_items.items())}\n")
-    items = list(dict_of_items.values())
-    data = []
-    for item in items:
-        data.append(asdict(item))
-    df = pd.DataFrame(data)
-    output_filename = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
-    print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
+#     dict_of_items = repository.get_dict_of_ZwiftPowerProfileItem_by_ids([])
+#     print(f"ZwiftPower 90-day power: {len(dict_of_items.items())}\n")
+#     items = list(dict_of_items.values())
+#     data = []
+#     for item in items:
+#         data.append(asdict(item))
+#     df = pd.DataFrame(data)
+#     output_filename = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
+#     write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+#     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 def test16():
     """
@@ -282,7 +282,6 @@ if __name__ == "__main__":
             [],
             zwift_dir_path=DIRPATH_ZWIFT,
             zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
-            zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
             zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
         )
         print("Starting tests...\n")
@@ -292,7 +291,6 @@ if __name__ == "__main__":
         # test12()
         # test13()
         # test14() 
-        # test15() 
         test16()
         print("\nTests complete.")
 

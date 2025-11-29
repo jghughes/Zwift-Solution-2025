@@ -8,8 +8,8 @@ from jgh_path_helpers import find_all_file_paths_in_folder, throw_if_dirpath_inv
 from jgh_read_write import read_text_from_path
 from zwift_id_base import HasZwiftID
 from zwift_item import ZwiftItem
-from zwiftpower_profile_item import ZwiftPowerProfileItem
-from zwiftpower_profile_dto import ZwiftPowerProfileDTO
+# from zwiftpower_profile_item import ZwiftPowerProfileItem
+# from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwiftpower_graph_watts_dto import ZwiftPowerGraphWattsDTO
 from zwift_dto import ZwiftDTO
 from zwiftracingapp_item import ZwiftRacingAppItem
@@ -155,12 +155,12 @@ def read_zwftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwift
                                                          ZwiftRacingAppItem, 
                                                          ZwiftRacingAppItem.from_dataTransferObject)
 
-def read_zwiftpowerprofiledto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftPowerProfileItem]:
-    return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
-                                                         specified_zwiftIDs, 
-                                                         ZwiftPowerProfileDTO, 
-                                                         ZwiftPowerProfileItem, 
-                                                         ZwiftPowerProfileItem.from_dataTransferObject)
+# def read_zwiftpowerprofiledto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftPowerProfileItem]:
+#     return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
+#                                                          specified_zwiftIDs, 
+#                                                          ZwiftPowerProfileDTO, 
+#                                                          ZwiftPowerProfileItem, 
+#                                                          ZwiftPowerProfileItem.from_dataTransferObject)
 
 def read_zwiftpower90daywattsdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
     return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 

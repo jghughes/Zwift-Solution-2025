@@ -46,7 +46,7 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_read_write import write_excel_file, write_json_file
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
 from storage_config import (
-    DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, 
+    DIRPATH_ZWIFT, 
     DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_RIDER_BRUTE_DTO,
@@ -85,7 +85,7 @@ async def generate_everything_and_save_and_upload():
         throw_if_any_dirpath_invalid_or_not_exists([
             Path(DIRPATH_ZWIFT),
             Path(DIRPATH_ZWIFTRACINGAPP),
-            Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
+            # Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
             Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),
             Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)]
         )
@@ -106,7 +106,7 @@ async def generate_everything_and_save_and_upload():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_PROFILE_PAGE, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
