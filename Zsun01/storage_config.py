@@ -4,7 +4,33 @@ from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd
 
 
-_liveDirpathRoot =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/live_data/"
+FILENAME_OF_CLUB_MEMBERSHIP_LIST = "active_members.json"
+URL_ROOT_OF_CLUB_MEMBERSHIP_LIST = "https://data.zsunr.com/riders/json/"
+
+# FILENAME_OF_CLUB_MEMBERSHIP_LIST = "zp-club-members.json"
+# URL_ROOT_OF_CLUB_MEMBERSHIP_LIST = "https://data.zsunr.com/riders/json/zwiftpower/"
+
+
+
+
+URL_ROOT_FOR_ZWIFT = "https://data.zsunr.com/riders/json/zwift/"
+URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST = "https://data.zsunr.com/riders/json/zwiftpower/power-graph-watts/"
+URL_ROOT_FOR_ZWIFTRACINGAPP = "https://data.zsunr.com/riders/json/zwiftracing-app-post/"
+
+URL_FRAGMENT_AND_FOLDER_NAME_ZWIFT = "zwift"
+URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTRACINGAPP = "zwiftracing-app-post"
+URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER = "zwiftpower"
+URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST = "power-graph-watts"
+
+
+
+FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST = "/membership_list/"
+
+
+
+
+
+DIRPATH_FROM_DAVEK_ROOT =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/live_data/"
 _stuffByJghDirPathStem =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
 
 DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
@@ -12,17 +38,13 @@ DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
 CONNECTION_STRING_FILENAME : str = "connection_strings.txt"
 CONNECTION_STRING_DIRPATH : str = f"{_stuffByJghDirPathStem}/connectionstrings/"
 
-FOLDER_DIRPATH_ZWIFT = "zwift"
-FOLDER_DIRPATH_ZWIFTRACINGAPP = "zwiftracing-app-post"
-FOLDER_DIRPATH_ZWIFTPOWER = "zwiftpower"
-# FOLDER_DIRPATH_ZWIFTPOWER_PROFILE_PAGE = "profile-page"
-FOLDER_DIRPATH_ZWIFTPOWER_90_DAY_BEST = "power-graph-watts"
+DIRPATH_CLUB_MEMBERSHIP_LIST = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST}/"
 
-DIRPATH_ZWIFT = f"{_liveDirpathRoot}/{FOLDER_DIRPATH_ZWIFT}/"
-DIRPATH_ZWIFTRACINGAPP = f"{_liveDirpathRoot}/{FOLDER_DIRPATH_ZWIFTRACINGAPP}/"
-DIRPATH_ZWIFTPOWER = f"{_liveDirpathRoot}/{FOLDER_DIRPATH_ZWIFTPOWER}/"
+DIRPATH_ZWIFT = f"{DIRPATH_FROM_DAVEK_ROOT}/{URL_FRAGMENT_AND_FOLDER_NAME_ZWIFT}/"
+DIRPATH_ZWIFTRACINGAPP = f"{DIRPATH_FROM_DAVEK_ROOT}/{URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTRACINGAPP}/"
+DIRPATH_ZWIFTPOWER = f"{DIRPATH_FROM_DAVEK_ROOT}/{URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER}/"
 # DIRPATH_ZWIFTPOWER_PROFILE_PAGE = f"{DIRPATH_ZWIFTPOWER}/{FOLDER_DIRPATH_ZWIFTPOWER_PROFILE_PAGE}/"
-DIRPATH_ZWIFTPOWER_90_DAY_BEST = f"{DIRPATH_ZWIFTPOWER}/{FOLDER_DIRPATH_ZWIFTPOWER_90_DAY_BEST}/"
+DIRPATH_ZWIFTPOWER_90_DAY_BEST = f"{DIRPATH_ZWIFTPOWER}/{URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST}/"
 
 DIRPATH_RIDER_BRUTE_DTO =f"{_stuffByJghDirPathStem}/riderBruteDTO_by_jgh/"
 DIRPATH_RIDER_STATS_DTO =f"{_stuffByJghDirPathStem}/riderStatsDTO_by_jgh/"

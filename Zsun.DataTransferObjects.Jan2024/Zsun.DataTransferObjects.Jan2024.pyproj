@@ -30,7 +30,6 @@
     <Compile Include="src\my DTO\rider_stats_dto.py" />
     <Compile Include="src\my DTO\zwiftpower_flattened_90_day_watts_dto.py" />
     <Compile Include="src\third party DTO\zwiftpower_graph_watts_dto.py" />
-    <Compile Include="src\third party DTO\zwiftpower_profile_dto.py" />
     <Compile Include="src\third party DTO\zwiftracingapp_dto.py" />
     <Compile Include="src\my DTO\rider_brute_dto.py">
       <SubType>Code</SubType>

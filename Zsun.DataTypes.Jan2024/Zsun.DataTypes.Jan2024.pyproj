@@ -31,7 +31,6 @@
     <Compile Include="src\my Items\rider_brute_item.py" />
     <Compile Include="src\my Items\rider_stats_item.py" />
     <Compile Include="src\my Items\zwiftpower_flattened_90_day_watts_item.py" />
-    <Compile Include="src\third party items\zwiftpower_profile_item.py" />
     <Compile Include="src\third party items\zwiftracingapp_item.py" />
     <Compile Include="src\third party items\zwift_item.py" />
   </ItemGroup>
