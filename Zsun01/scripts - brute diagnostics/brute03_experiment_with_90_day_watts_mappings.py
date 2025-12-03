@@ -28,7 +28,7 @@ from pathlib import Path
 from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_short_displayname
-from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 from storage_config import FILENAME_RIDER_BRUTE_DTO_JSON_DICT
 
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
@@ -48,7 +48,7 @@ from storage_config import DIRPATH_LOGGING
 def experiment_with_90_day_watts_mappings():
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -63,7 +63,7 @@ def experiment_with_90_day_watts_mappings():
     print(f"loaded RiderItems for {len(all_rider_items_as_dict)} riders")
     test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     print(f"loaded {len(test_IDs)} IDs for our little test")
-    dict_of_zwiftpower_90day_watts_items = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),test_IDs)
+    dict_of_zwiftpower_90day_watts_items = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),test_IDs)
     print(f"loaded zwiftpower_graph_watts files for {len(dict_of_zwiftpower_90day_watts_items)} testIDs")
 
     # function to make nick-names for display purposes for each rider

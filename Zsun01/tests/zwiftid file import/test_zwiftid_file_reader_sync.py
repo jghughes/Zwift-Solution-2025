@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync, read_zwftracingappdto_files_to_item_dict_sync,
     # read_zwiftpowerprofiledto_files_to_item_dict_sync, 
@@ -16,7 +16,7 @@ from storage_config import DIRPATH_LOGGING
 # Tests
 
 def test03():
-    my_dict = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT), None)
+    my_dict = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES), None)
     for zwift_id, item in my_dict.items():
         if not item:
             log_event(
@@ -35,7 +35,7 @@ def test03():
     print(f"\nHard drive has {len(my_dict)} zwift_files")
 
 def test04():
-    my_dict = read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP), None)
+    my_dict = read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None)
     for zwift_id, item in my_dict.items():
         if not item:
             log_event(
@@ -75,7 +75,7 @@ def test04():
 #     print(f"\nHard drive has {len(my_dict)} zwiftpower_files")
 
 def test06():
-    my_dict = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), None)
+    my_dict = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), None)
     for zwift_id, item in my_dict.items():
         if not item:
             log_event(

@@ -4,7 +4,7 @@ from typing import Dict, Optional, TypeVar
 
 import pandas as pd
 
-from working_types import CurveFittingResultItem
+from paceline_computation_types import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -56,18 +56,17 @@ class RepositoryOfRiders:
         print(f"Repository to read raw data (sync) is populating itself. This will take more than a minute.")
         print(f"1. Reading hundreds of Zwift files.")
         self._dict_of_ZwiftItem = read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
-        print(f"2. Reading hundreds of ZwiftRacingApp files.")
-        self._dict_of_ZwiftRacingAppItem = read_zwftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
-        # print(f"3. Reading hundreds of ZwiftPower files.")
-        # self._dict_of_ZwiftPowerProfileItem = read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(zwiftpower_profile_dir_path),file_names)
-        print(f"4. Reading hundreds of ZwiftPower 90-day power watts files.")
+        print(f"2. Reading hundreds of ZwiftPower 90-day power watts files.")
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
-        print(f"5. Doing curve fits for 90-day power watts files.")
+        print(f"3. Reading hundreds of ZwiftRacingApp files.")
+        self._dict_of_ZwiftRacingAppItem = read_zwftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
+        print(f"4. Doing curve fits for 90-day power watts files.")
         eligible_IDs = self._compute_intersection_of_mandatory_sets_as_list() 
         self._computed_dict_of_curveFitItem = self._compute_dict_of_selected_CurveFittingResultItem(eligible_IDs) #do first
-        self._computed_dict_of_riderBruteItem = self._compute_dict_of_RiderBruteItem(eligible_IDs) # then this
-        self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItemV2(eligible_IDs)# finally this
-        # self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItem(eligible_IDs)
+        print(f"5. Doing rider brute items.")
+        self._computed_dict_of_riderBruteItem = self._compute_dict_of_RiderBruteItem(eligible_IDs) # do second
+        print(f"6. Doing rider stats items.")
+        self._computed_dict_of_riderStatsItem = self._compute_dict_of_RiderStatsItem(eligible_IDs)# do third
         print(f"Repository successfully populated.")
    
         return True
@@ -155,24 +154,16 @@ class RepositoryOfRiders:
         if zwift_ids is None:
             zwift_ids = []
 
-        print(f"Repository message: computing curve fits for {len(zwift_ids)} riders.")
+        # NB: by computing jgh_curve_dict first, we ensure that only riders with curve fits are included, this strips out many riders without sufficient/any data on zwiftpower (approx 150 of them)
+        # jgh_curve_dict = self._computed_dict_of_curveFitItem
 
-        # NB: by computing jgh_curve_dict first, we ensure that only riders with curve fits are included, this strips out many riders without sufficient data (approx 150 of them)
-        jgh_curve_dict = self._compute_dict_of_selected_CurveFittingResultItem(zwift_ids)
-
-        print(f"Repository message: completed curve fits for {len(jgh_curve_dict)} riders.")
-
-        print(f"Repository message: computing brute item for {len(jgh_curve_dict)} riders.")
-  
-        for key in jgh_curve_dict:
+        print(f"Repository message: computing rider brute items for {len(zwift_ids)} candidates.")
+ 
+        for key in self._computed_dict_of_curveFitItem:
 
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
                 zwiftItem = ZwiftItem()
-
-            # zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
-            # if zwiftpowerItem is None:
-            #     zwiftpowerItem = ZwiftPowerProfileItem()
 
             zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
             if zwiftracingappItem is None:
@@ -197,7 +188,6 @@ class RepositoryOfRiders:
                 age_years                         = zwiftItem.age_years,
                 age_group                         = zwiftracingappItem.age_group,
                 zwift_FTP_watts                   = round(zwiftItem.ftp_on_zwift),
-                # zwiftpower_zFTP_watts             = round(zwiftpowerItem.zftp_from_somewhere),
                 velo_zwiftpower_zFTP_watts          = round(zwiftracingappItem.zp_FTP),
                 jgh_60_min_watts                  = round(jghcurveItem.sixty_min_curve_coefficient),
                 zwift_racing_score                 = round(zwiftItem.competition_metrics.zwift_racing_score),
@@ -216,30 +206,28 @@ class RepositoryOfRiders:
 
             answer[key] = zwiftItem
 
-        print (f"Repository message: Completed computing riderbruteitem for {len(answer)} riders.")
+        print (f"Repository message: completed computing brute items for {len(answer)} riders.")
 
         return answer
 
-    def _compute_dict_of_RiderStatsItemV2(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+    def _compute_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
 
         answer: Dict[str, RiderStatsItem] = {}
         answer2: Dict[str, RiderStatsItem] = {}
 
 
+
         if zwift_ids is None:
             zwift_ids = []
 
-        print(f"REPOSITORY MESSAGE: COMPUTING RIDER STATS ITEM FOR {len(zwift_ids)} riders.")
-  
+        print(f"Repository message: computing rider stats items for {len(zwift_ids)} riders.")
+
+ 
         for key in zwift_ids:
 
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
                 zwiftItem = ZwiftItem()
-
-            # zwiftpowerItem = self._dict_of_ZwiftPowerProfileItem.get(key)
-            # if zwiftpowerItem is None:
-            #     zwiftpowerItem = ZwiftPowerProfileItem()
 
             zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
             if zwiftracingappItem is None:
@@ -340,10 +328,9 @@ class RepositoryOfRiders:
                 )
             answer2[zwift_id] = rider_stats_item
 
-        print (f"Repository message: Completed computing RiderStatsItemV2 for {len(answer2)} riders.")
+        print (f"Repository message: completed computing rider stats items for {len(answer2)} riders.")
 
         return answer2
-
 
     def _compute_dict_of_selected_CurveFittingResultItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 
@@ -353,6 +340,8 @@ class RepositoryOfRiders:
 
         if zwift_ids is None:
             zwift_ids = []
+
+        print(f"Repository message: attempting curvefits for {len(zwift_ids)} candidates.")
 
         dict_of_JghBestPowerItem = self.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwift_ids)
 
@@ -399,7 +388,7 @@ class RepositoryOfRiders:
             )
 
             answer[zwift_id] = curvefit
-        print(f"Repository message: Curve fitting completed. Total riders processed: {len(dict_of_JghBestPowerItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
+        print(f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_JghBestPowerItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
         return answer
 
     def _create_union_of_sets_as_dataframe(self, sample1: list[str], sample2: list[str]) -> pd.DataFrame:

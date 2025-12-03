@@ -41,7 +41,7 @@ from collections import defaultdict
 from tabulate import tabulate
 from typing import Dict, List, Tuple
 
-from working_types import RiderContributionItem, RiderExertionItem
+from paceline_computation_types import RiderContributionItem, RiderExertionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
 from jgh_number import safe_divide
 from rider_brute_item import RiderBruteItem

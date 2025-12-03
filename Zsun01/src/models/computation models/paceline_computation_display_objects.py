@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 
 # (No third-party imports)
 from jgh_number import safe_divide
-from working_types import (
+from paceline_computation_types import (
     PackageOfPacelineComputationReportItem,
     PacelineComputationReportItem,
     RiderContributionItem,

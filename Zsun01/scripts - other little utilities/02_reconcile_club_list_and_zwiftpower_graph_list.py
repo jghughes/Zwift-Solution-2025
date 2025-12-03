@@ -6,8 +6,8 @@ import pandas as pd
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_time_from_seconds
 from storage_config import (
-    DIRPATH_ZWIFT,  
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, 
+    DIRPATH_ZWIFT_FILES,  
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     )
 from storage_config import (
@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import List
 from jgh_read_write import read_text
 from jgh_string import  make_pretty_time_from_seconds
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST
+from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 import time
 import logging
 from jgh_exceptions import AlertMessageError
@@ -32,9 +32,9 @@ async def reconcile_lists_and_save():
 
     try:
         throw_if_any_dirpath_invalid_or_not_exists([
-            Path(DIRPATH_ZWIFT),
-            Path(DIRPATH_ZWIFTRACINGAPP),
-            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),
+            Path(DIRPATH_ZWIFT_FILES),
+            Path(DIRPATH_ZWIFTRACINGAPP_FILES),
+            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
             Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)]
         )
     except Exception as err:
@@ -61,7 +61,7 @@ async def reconcile_lists_and_save():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")

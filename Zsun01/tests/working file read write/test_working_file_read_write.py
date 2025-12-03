@@ -2,10 +2,10 @@ from pathlib import Path
 
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
-    DIRPATH_ZWIFT,
+    DIRPATH_ZWIFT_FILES,
     # DIRPATH_ZWIFTPOWER_PROFILE_PAGE,
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST,
-    DIRPATH_ZWIFTRACINGAPP,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    DIRPATH_ZWIFTRACINGAPP_FILES,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
 from working_file_read_write import read_file_as_json_dict_of_RiderDTO
@@ -38,10 +38,10 @@ def test01():
 
 def test03():
 
-    dict_of_zwiftItem = dict(read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT),None))
-    dict_of_zwiftracingappItem = dict(read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP), None))
+    dict_of_zwiftItem = dict(read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES),None))
+    dict_of_zwiftracingappItem = dict(read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None))
     # dict_of_zwiftpowerItem = dict(read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE), None))
-    dict_of_zsunWattsItem = dict(read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), None))
+    dict_of_zsunWattsItem = dict(read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), None))
 
     print(f"Imported {len(dict_of_zwiftItem)} zwift profile items")
     print (f"Imported {len(dict_of_zwiftracingappItem)} zwiftracingapp profile items")

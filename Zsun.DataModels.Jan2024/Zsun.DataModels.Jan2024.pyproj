@@ -3,13 +3,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>77128b3c-3239-45d1-af61-4717332efd26</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
+    <ProjectHome>
+    </ProjectHome>
     <StartupFile>
     </StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\my Items;src\third party items</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>Zsun.DataTypes.Jan2024</Name>
+    <Name>Zsun.DataModels.Jan2024</Name>
     <RootNamespace>Zsun.DataTypes.Jan2024</RootNamespace>
     <TestFramework>unittest</TestFramework>
   </PropertyGroup>
@@ -23,16 +24,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\" />
-    <Folder Include="src\my Items\" />
-    <Folder Include="src\third party items\" />
+    <Folder Include="src\my models\" />
+    <Folder Include="src\third party models\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\my Items\regression_modelling_item.py" />
-    <Compile Include="src\my Items\rider_brute_item.py" />
-    <Compile Include="src\my Items\rider_stats_item.py" />
-    <Compile Include="src\my Items\zwiftpower_flattened_90_day_watts_item.py" />
-    <Compile Include="src\third party items\zwiftracingapp_item.py" />
-    <Compile Include="src\third party items\zwift_item.py" />
+    <Compile Include="src\my models\regression_modelling_item.py" />
+    <Compile Include="src\my models\rider_brute_item.py" />
+    <Compile Include="src\my models\rider_stats_item.py" />
+    <Compile Include="src\my models\zwiftpower_flattened_90_day_watts_item.py" />
+    <Compile Include="src\third party models\zwiftracingapp_item.py" />
+    <Compile Include="src\third party models\zwift_item.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

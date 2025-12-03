@@ -21,8 +21,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from working_types import PacelineIngredientsItem, PacelineComputationReportItem
-from working_types_display_objects import (
+from paceline_computation_types import PacelineIngredientsItem, PacelineComputationReportItem
+from paceline_computation_display_objects import (
     PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,

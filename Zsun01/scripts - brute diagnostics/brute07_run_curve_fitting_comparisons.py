@@ -33,8 +33,8 @@ from tabulate import tabulate
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
-    DIRPATH_ZWIFT,
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    DIRPATH_ZWIFT_FILES,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     DIRPATH_RUBBISH_SCRATCHPAD,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
@@ -52,7 +52,7 @@ def run_curve_fitting_comparisons():
 
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -66,9 +66,9 @@ def run_curve_fitting_comparisons():
 
     test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
 
-    dict_of_zwift_profiles_for_test_IDs = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT), test_IDs) # merely need this to get the first_name and last_name names of the riders
+    dict_of_zwift_profiles_for_test_IDs = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES), test_IDs) # merely need this to get the first_name and last_name names of the riders
 
-    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), test_IDs) 
+    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), test_IDs) 
 
     write_with_json_file_ext_dict_of_ZwiftPower90dayWattsDTO(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_file_name, dict_of_zsunwatts_graphs_for_testIDs)
 

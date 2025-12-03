@@ -64,7 +64,7 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_power_curve_fit_models import decay_model_numpy
 from jgh_read_write import write_excel_file
 from jgh_string import cleanup_name_string
-from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD 
+from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD 
 from repository_of_riders import RepositoryOfRiders
 from rider_brute_item import RiderBruteItem
 # from zwiftpower_profile_item import ZwiftPowerProfileItem
@@ -74,13 +74,13 @@ import logging
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
-# from working_types import CurveFittingResultItem
+# from paceline_computation_types import CurveFittingResultItem
 
 
 def run_experiments_on_determinants_of_rider_eligibility():
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_ZWIFTRACINGAPP),   Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFT_FILES), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_ZWIFTRACINGAPP_FILES),   Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -92,7 +92,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
 
 
     repository : RepositoryOfRiders = RepositoryOfRiders()
-    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
 
     eligible_IDs = repository._create_union_of_sets_filtered_by_membership_as_list("y","y_or_n","y")
 
@@ -104,10 +104,10 @@ def run_experiments_on_determinants_of_rider_eligibility():
     dict_of_flattenedZwiftPower90dayWatts = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(eligible_IDs)
     dict_of_curve_fits = repository._compute_dict_of_selected_CurveFittingResultItem(eligible_IDs)
 
-    print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT}\n")
-    print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP}\n")
+    print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT_FILES}\n")
+    print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP_FILES}\n")
     # print(f"Imported {len(dict_of_ZwiftPowerProfileItem)} zwiftpower profiles from : - \nDir : {DIRPATH_ZWIFTPOWER_PROFILE_PAGE}\n")
-    print(f"Imported {len(dict_of_flattenedZwiftPower90dayWatts)} zwiftpower 90-day best graphs from : - \nDir : {DIRPATH_ZWIFTPOWER_90_DAY_BEST}\n")
+    print(f"Imported {len(dict_of_flattenedZwiftPower90dayWatts)} zwiftpower 90-day best graphs from : - \nDir : {DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES}\n")
 
     #step 1: print a spreadsheet of all riders in dict_of_zwiftItem
     zwift_items_list = [asdict(item) for item in dict_of_zwiftItem.values()]

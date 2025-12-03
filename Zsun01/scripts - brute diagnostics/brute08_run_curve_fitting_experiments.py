@@ -71,13 +71,13 @@ from typing import Dict
 import numpy as np
 # import pandas as pd
 
-from working_types import CurveFittingResultItem
+from paceline_computation_types import CurveFittingResultItem
 from critical_power import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 
 from jgh_read_write import write_excel_file
-from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
+from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import write_with_json_file_ext_dict_of_RegressionModellingDto
 from regression_modelling_item import RegressionModellingItem
@@ -95,7 +95,7 @@ from storage_config import DIRPATH_LOGGING
 def run_curve_fitting_experiments():
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_ZWIFT), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_ZWIFT_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -106,11 +106,11 @@ def run_curve_fitting_experiments():
         print(err)
         return
 
-    dict_of_zwift_profiles_for_everybody = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT), None) 
+    dict_of_zwift_profiles_for_everybody = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES), None) 
  
-    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),None)
+    dict_of_zsun_watts_graphs_for_everybody = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),None)
 
-    print(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} 90-day best graphs from ZwiftPower files in:- \nDir : {DIRPATH_ZWIFTPOWER_90_DAY_BEST}\n\n")
+    print(f"Successfully read, validated, and loaded {len(dict_of_zsun_watts_graphs_for_everybody)} 90-day best graphs from ZwiftPower files in:- \nDir : {DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES}\n\n")
 
     # create a list of zwiftrider objects from the raw data
 
@@ -243,7 +243,7 @@ def run_curve_fitting_experiments():
     repository : RepositoryOfRiders = RepositoryOfRiders()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST)
+    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES)
     
     dict_of_RiderItem : Dict[str, RiderBruteItem] = repository.get_dict_of_RiderBruteItem_by_ids(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : Dict[str,ZwiftPowerFlattened90dayWattsItem] = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwiftIds_with_high_fidelity)

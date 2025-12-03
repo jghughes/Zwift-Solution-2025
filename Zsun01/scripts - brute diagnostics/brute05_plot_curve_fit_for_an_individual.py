@@ -51,7 +51,7 @@ from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from storage_config import FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
+from storage_config import FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
 from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import read_file_as_json_dict_of_RiderDTO
 from repository_of_team_rosters import RepositoryOfTeamRosters
@@ -67,7 +67,7 @@ from storage_config import DIRPATH_LOGGING
 def plot_curve_fit_for_an_individual():
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -85,7 +85,7 @@ def plot_curve_fit_for_an_individual():
         print(f"You made a boo-boo. You say you want to work on ZwiftID={chosen_zwiftID}, but he is not on the team you specified. '{team_name}'. We can't go any further until you fix this. ")
         return
 
-    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),test_IDs) 
+    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),test_IDs) 
 
     print(f"\nRead {len(dict_of_zsunwatts_graphs_for_testIDs)} ZwiftPower 90-day best power graph files for team {team_name}.\n")
     # model critical_power and w_prime

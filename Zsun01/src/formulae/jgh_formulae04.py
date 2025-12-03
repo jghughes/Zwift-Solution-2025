@@ -38,7 +38,7 @@ Example Usage:
 from collections import defaultdict
 from typing import Dict, List
 
-from working_types import RiderWorkAssignmentItem
+from paceline_computation_types import RiderWorkAssignmentItem
 from rider_brute_item import RiderBruteItem
 
 # This function called during parallel processing. Logging forbidden

@@ -52,14 +52,14 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from working_types import (
+from paceline_computation_types import (
     PacelineComputationReportItem,
     PacelineIngredientsItem,
     PackageOfPacelineComputationReportItem,
     RiderContributionItem,
     WorthyCandidateSolutionItem,
 )
-from working_types_display_objects import (
+from paceline_computation_display_objects import (
     PacelinePlanTypeEnum,
     PackageOfPacelineComputationReportDisplayObject,
 )

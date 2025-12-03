@@ -12,7 +12,7 @@ from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_
 from rider_brute_item import RiderBruteItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_file_as_json_dict_of_RiderDTO
-from working_types import PacelineIngredientsItem
+from paceline_computation_types import PacelineIngredientsItem
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 

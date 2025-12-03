@@ -7,10 +7,10 @@ from jgh_read_write import write_excel_file
 from repository_of_riders import RepositoryOfRiders
 
 from storage_config import (
-    DIRPATH_ZWIFT,
-    DIRPATH_ZWIFTRACINGAPP,
+    DIRPATH_ZWIFT_FILES,
+    DIRPATH_ZWIFTRACINGAPP_FILES,
     DIRPATH_ZWIFTPOWER,
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     DIRPATH_RUBBISH_SCRATCHPAD
 )
 
@@ -28,10 +28,10 @@ def test09():
     # repository = RepositoryOfRiders()
     # repository.populate_repository(
     #     [],
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
     print(f"Test09: There are {len(repository.get_dict_of_RiderBruteItem())} active racers.")
 
@@ -39,10 +39,10 @@ def test11():
     # repository = RepositoryOfRiders()
     # repository.populate_repository(
     #     file_names=None,
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
 
     # Define sample Zwift IDs for testing
@@ -100,10 +100,10 @@ def test12():
     # # Populate the repository with data
     # repository.populate_repository(
     #     file_names=None,
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
 
     # Define any test parameters for _create_union_of_sets_filtered_by_membership_as_dataframe
@@ -150,10 +150,10 @@ def test13():
     # # Populate the repository with data
     # repository.populate_repository(
     #     [],
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftItem_by_ids([])
@@ -181,10 +181,10 @@ def test14():
     # repository = RepositoryOfRiders()
     # repository.populate_repository(
     #     None,
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftRacingAppItem_by_ids([])
@@ -212,10 +212,10 @@ def test14():
 #     # repository = RepositoryOfRiders()
 #     # repository.populate_repository(
 #     #     None,
-#     #     zwift_dir_path=DIRPATH_ZWIFT,
-#     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+#     #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+#     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
 #     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-#     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+#     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
 #     # )
 
 #     dict_of_items = repository.get_dict_of_ZwiftPowerProfileItem_by_ids([])
@@ -242,10 +242,10 @@ def test16():
     # repository = RepositoryOfRiders()
     # repository.populate_repository(
     #     None,
-    #     zwift_dir_path=DIRPATH_ZWIFT,
-    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
+    #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
+    #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+    #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids([])
@@ -280,9 +280,9 @@ if __name__ == "__main__":
         repository = RepositoryOfRiders()
         repository.populate_repository(
             [],
-            zwift_dir_path=DIRPATH_ZWIFT,
-            zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP,
-            zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST,
+            zwift_dir_path=DIRPATH_ZWIFT_FILES,
+            zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
+            zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
         )
         print("Starting tests...\n")
         # Comment/uncomment the lines below to run the tests you want. 

@@ -36,6 +36,7 @@ This tool demonstrates large-scale data integration, model application,
 and dataset preparation for club-level cycling analytics and reporting.
 """
 import asyncio
+from email import message
 from pathlib import Path
 from typing import Callable, Type, Dict, List, Any
 
@@ -46,8 +47,8 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_read_write import write_excel_file, write_json_file
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
 from storage_config import (
-    DIRPATH_ZWIFT, 
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP, 
+    DIRPATH_ZWIFT_FILES, 
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_RIDER_BRUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
@@ -83,10 +84,10 @@ async def generate_everything_and_save_and_upload():
 
     try:
         throw_if_any_dirpath_invalid_or_not_exists([
-            Path(DIRPATH_ZWIFT),
-            Path(DIRPATH_ZWIFTRACINGAPP),
+            Path(DIRPATH_ZWIFT_FILES),
+            Path(DIRPATH_ZWIFTRACINGAPP_FILES),
             # Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
-            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST),
+            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
             Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)]
         )
     except Exception as err:
@@ -106,11 +107,11 @@ async def generate_everything_and_save_and_upload():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
-    print(f"ended up with {len(rider_repository.get_dict_of_RiderBruteItem())} bona fide racers.")
+    print(f"ended up with {len(rider_repository.get_dict_of_RiderBruteItem())} curve fitted brute riders.")
 
     print("\nTask #1: distributing all the RiderBruteItem records")
     await process_and_distribute_items(
@@ -144,8 +145,7 @@ async def generate_everything_and_save_and_upload():
         logger=logger,
     )
 
-    print("\nwork complete. consult the log files for details.\n")
-    print("\nyou may close the app. thank you.\n")
+    print("\nwork complete. consult the log files for details.\nyou may close the app. thank you.")
 
 
 async def process_and_distribute_items(
@@ -181,7 +181,10 @@ async def process_and_distribute_items(
         # Write JSON files
         write_json_file(Path(output_dir), json_dict_filename, dto_as_dict_as_json)
         write_json_file(Path(output_dir), json_list_filename, dto_as_list_as_json)
+        print(f"Saved JSON file: {json_dict_filename}")
+        print(f"Saved JSON file: {json_list_filename}")
         logger.info("JSON files written successfully.")
+
     except Exception as e:
         logger.error(f"Error writing JSON files: {e}", exc_info=True)
         raise
@@ -192,6 +195,7 @@ async def process_and_distribute_items(
         dto_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_as_list]
         dto_as_dataframe = pd.DataFrame(dto_dataframe_rows, columns=dto_dataframe_column_order)
         write_excel_file(Path(output_dir), excel_filename, dto_as_dataframe)
+        print(f"Saved Excel file: {excel_filename}")
         logger.info("Excel file written successfully.")
     except Exception as e:
         logger.error(f"Error writing Excel file: {e}", exc_info=True)
@@ -202,18 +206,18 @@ async def process_and_distribute_items(
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
             AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, azure_blob_dict, dto_as_dict_as_json)
         file_size = make_pretty_count_of_bytes(len(dto_as_dict_as_json.encode('utf-8')))
-        logger.info(f"Uploaded {azure_blob_dict} ({file_size}) to: {url_of_uploaded_blob}")
-
+        message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
+        print(message)
+        logger.info(message)
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
             AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, azure_blob_list, dto_as_list_as_json)
         file_size = make_pretty_count_of_bytes(len(dto_as_list_as_json.encode('utf-8')))
-        logger.info(f"Uploaded {azure_blob_list} ({file_size}) to: {url_of_uploaded_blob}")
+        message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
+        print(message2)
+        logger.info(message2)
     except Exception as e:
         logger.error(f"Error uploading to Azure: {e}", exc_info=True)
         raise
-
-
-
 
 #runner
 if __name__ == "__main__":
@@ -230,12 +234,14 @@ if __name__ == "__main__":
         end_time = time.time()
         duration = end_time - start_time
 
+        message = f"Main execution completed successfully in {duration:.2f} seconds."
+
         log_event(
             logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
+            message=message,
             level=logging.INFO
         )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
+        print(f"\n{message}\n")
 
     except AlertMessageError as alert_err:
         log_event(

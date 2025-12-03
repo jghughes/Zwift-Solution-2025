@@ -53,7 +53,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from working_types_display_objects import (
+from paceline_computation_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )

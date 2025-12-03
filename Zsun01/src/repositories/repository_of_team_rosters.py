@@ -196,10 +196,10 @@ class RepositoryOfTeamRosters:
                 # "4193240": "john_artless",
                 "1884456": "john_hughes",
                 "618585": "kent_johnson",
-                "1111583": "ken_chappell",
+                # "1111583": "ken_chappell",
                 # "846200": "lisa_bick",
                 # "1024413": "matt_steeve",
-                # "7460730": "tony_chang",
+                "7460730": "tony_chang",
             }),
             # "giants": defaultdict(str, {
             #     "4204538": "ceri_pritchard",

@@ -36,7 +36,7 @@ Example Usage:
 
 from collections import defaultdict
 from typing import Dict, List
-from working_types import RiderExertionItem, RiderWorkAssignmentItem
+from paceline_computation_types import RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
 from jgh_formulae02 import calculate_wattage_riding_in_the_paceline
 from rider_brute_item import RiderBruteItem

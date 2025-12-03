@@ -51,8 +51,8 @@ from jgh_number import safe_divide
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
 from jgh_read_write import write_excel_file
-from storage_config import DIRPATH_ZWIFT, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST, DIRPATH_ZWIFTRACINGAPP
-from storage_config import DIRPATH_ZWIFTPOWER_90_DAY_BEST, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_RUBBISH_SCRATCHPAD
+from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES
+from storage_config import DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_RUBBISH_SCRATCHPAD
 from working_file_read_write import *
 from repository_of_riders import RepositoryOfRiders
 
@@ -85,7 +85,7 @@ def run_comparisons_of_ftp_estimates():
 
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_ZWIFT),Path(DIRPATH_ZWIFTRACINGAPP), Path(DIRPATH_ZWIFTPOWER), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_ZWIFT_FILES),Path(DIRPATH_ZWIFTRACINGAPP_FILES), Path(DIRPATH_ZWIFTPOWER), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -99,7 +99,7 @@ def run_comparisons_of_ftp_estimates():
    
     repository : RepositoryOfRiders = RepositoryOfRiders()
     test_IDs = None # i.e. will have the effect of populating the repository with all available riders, modify as you please
-    repository.populate_repository(test_IDs, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST) 
+    repository.populate_repository(test_IDs, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
     dict_of_curve_fits = repository._compute_dict_of_selected_CurveFittingResultItem(test_IDs)
 
     comparative_FTPs : list[DummyItem] = list()

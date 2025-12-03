@@ -6,54 +6,50 @@ from typing import List
 from jgh_read_write import read_text, list_files_in_directory
 from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
 from jgh_string import  make_pretty_time_from_seconds
-from storage_config import DIRPATH_FROM_DAVEK_ROOT, DIRPATH_ZWIFT, DIRPATH_ZWIFTRACINGAPP, DIRPATH_ZWIFTPOWER_90_DAY_BEST
-from storage_config import FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST, URL_FRAGMENT_AND_FOLDER_NAME_ZWIFT, URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTRACINGAPP, URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST
-from storage_config import FILENAME_OF_CLUB_MEMBERSHIP_LIST, URL_ROOT_OF_CLUB_MEMBERSHIP_LIST, URL_ROOT_FOR_ZWIFT, URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST, URL_ROOT_FOR_ZWIFTRACINGAPP
+from storage_config import URL_OF_CLUB_MEMBERSHIP_LIST, URL_ROOT_FOR_ZWIFT_FILES, URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES, URL_ROOT_FOR_ZWIFTRACINGAPP_FILES
+
+from storage_config import FILENAME_OF_CLUB_MEMBERSHIP_LIST
+from storage_config import DIRPATH_CLUB_MEMBERSHIP_LIST, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
+from storage_config import FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST, FOLDER_NAME_ZWIFT_FILES, FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST_FILES, FOLDER_NAME_ZWIFTRACINGAPP_FILES
 
 # HEAP POWERFUL TOOL
 async def go_fetch_thousands_of_files_from_dk_V2() -> None:
     print("\nfetch single file from daveK of active members on discord (he uses this list to scrape files from Zwift, ZwiftPower, and ZwiftRacingApp websites")
-    url_of_file_of_cobbled_togther_membership_list = f"{URL_ROOT_OF_CLUB_MEMBERSHIP_LIST}{FILENAME_OF_CLUB_MEMBERSHIP_LIST}"
-    urls_for_dummy_array_of_one_file = [url_of_file_of_cobbled_togther_membership_list]
+    urls_for_dummy_array_of_one_file = [URL_OF_CLUB_MEMBERSHIP_LIST]
     _ = await fetch_and_save_files(
         urls_for_dummy_array_of_one_file,
-        DIRPATH_FROM_DAVEK_ROOT,
-        FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST,
+        DIRPATH_CLUB_MEMBERSHIP_LIST,
         concurrency=1
     )
-    json_array_of_zwiftId = read_text( Path(DIRPATH_FROM_DAVEK_ROOT), FILENAME_OF_CLUB_MEMBERSHIP_LIST)
+    json_array_of_zwiftId = read_text( Path(DIRPATH_CLUB_MEMBERSHIP_LIST), FILENAME_OF_CLUB_MEMBERSHIP_LIST)
     array_of_cobbled_together_zwiftId: List[str] = json.loads(json_array_of_zwiftId)
     print(f"\nzwiftIds of active members: {len(array_of_cobbled_together_zwiftId)} (we use these zwiftIDs to look for Zwift, ZwiftPower90Day, and ZwiftRacingApp files on daveK server)")
 
     print("\nsearch for as many as possible corresponding Zwift files available on daveK server")
-    urls_for_zwift_files: List[str] = [f"{URL_ROOT_FOR_ZWIFT}{id}.json" for id in array_of_cobbled_together_zwiftId]
+    urls_for_zwift_files: List[str] = [f"{URL_ROOT_FOR_ZWIFT_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
     _ = await fetch_and_save_files(
         urls_for_zwift_files,
-        DIRPATH_ZWIFT,
-        URL_FRAGMENT_AND_FOLDER_NAME_ZWIFT,
+        DIRPATH_ZWIFT_FILES,
         concurrency=5
     )
     print("\nsearch for as many as possible corresponding 90-day best files available on daveK server")
-    urls_for_zwiftpower_90_day_best_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST}{id}.json" for id in array_of_cobbled_together_zwiftId]
+    urls_for_zwiftpower_90_day_best_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
     _ = await fetch_and_save_files(
         urls_for_zwiftpower_90_day_best_files,
-        DIRPATH_ZWIFTPOWER_90_DAY_BEST,
-        URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST,
+        DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
         concurrency=5
     )
     print("\nsearch for as many as possible corresponding ZwiftRacingApp files available on daveK server")
-    urls_for_racing_app_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTRACINGAPP}{id}.json" for id in array_of_cobbled_together_zwiftId]
+    urls_for_racing_app_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
     _ = await fetch_and_save_files(
         urls_for_racing_app_files,
-        DIRPATH_ZWIFTRACINGAPP,
-        URL_FRAGMENT_AND_FOLDER_NAME_ZWIFTRACINGAPP,
+        DIRPATH_ZWIFTRACINGAPP_FILES,
         concurrency=5
     )
 
 async def fetch_and_save_files(
     list_of_fetch_urls: List[str],
     save_dirpath: str,
-    save_folder_name: str,
     concurrency: int = 5
 ) -> List[Path]:
     """
@@ -76,7 +72,6 @@ async def fetch_and_save_files(
     files_in_save_destination = list_files_in_directory(Path(save_dirpath), "*.json")
     print(f"I/O duration        : {make_pretty_time_from_seconds(elapsed)}")
     print(f"files in save folder: {len(files_in_save_destination)}")
-    print(f"save folder         : {save_folder_name}")
     print(f"save dirpath        : {save_dirpath}")
 
     return files_in_save_destination
