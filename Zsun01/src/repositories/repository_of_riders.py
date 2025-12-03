@@ -54,11 +54,11 @@ class RepositoryOfRiders:
         zwiftpower_90day_graph_watts_dir_path: str,
     )->bool:
         print(f"Repository to read raw data (sync) is populating itself. This will take more than a minute.")
-        print(f"1. Reading hundreds of Zwift files.")
+        print(f"1. Reading hundreds of Zwift files on hard-drive.")
         self._dict_of_ZwiftItem = read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
-        print(f"2. Reading hundreds of ZwiftPower 90-day power watts files.")
+        print(f"2. Reading hundreds of ZwiftPower 90-day power watts files on hard-drive.")
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
-        print(f"3. Reading hundreds of ZwiftRacingApp files.")
+        print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
         self._dict_of_ZwiftRacingAppItem = read_zwftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
         print(f"4. Doing curve fits for 90-day power watts files.")
         eligible_IDs = self._compute_intersection_of_mandatory_sets_as_list() 
@@ -212,10 +212,8 @@ class RepositoryOfRiders:
 
     def _compute_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
 
+        preliminary_answer: Dict[str, RiderStatsItem] = {}
         answer: Dict[str, RiderStatsItem] = {}
-        answer2: Dict[str, RiderStatsItem] = {}
-
-
 
         if zwift_ids is None:
             zwift_ids = []
@@ -317,20 +315,20 @@ class RepositoryOfRiders:
             else:
                 riderStatsItem.velo_cat_label = f"{riderStatsItem.velo_rating_30_days}  {riderStatsItem.velo_cat_num_30_days}  {riderStatsItem.velo_cat_name_30_days}"
 
-            answer[key] = riderStatsItem
+            preliminary_answer[key] = riderStatsItem
 
-        for zwift_id, rider_stats_item in answer.items():
+        for zwift_id, rider_stats_item in preliminary_answer.items():
             watts_90_day_item = self._dict_of_ZwiftPower90dayWattsItem.get(zwift_id)
             weight_kg = rider_stats_item.weight_kg
             if watts_90_day_item is not None:
                 rider_stats_item = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
                     rider_stats_item, watts_90_day_item, weight_kg
                 )
-            answer2[zwift_id] = rider_stats_item
+            answer[zwift_id] = rider_stats_item
 
-        print (f"Repository message: completed computing rider stats items for {len(answer2)} riders.")
+        print (f"Repository message: completed computing rider stats items for {len(answer)} riders.")
 
-        return answer2
+        return answer
 
     def _compute_dict_of_selected_CurveFittingResultItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 

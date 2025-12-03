@@ -10,10 +10,10 @@ URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES = "https://data.zsunr.com/riders/json/
 URL_ROOT_FOR_ZWIFTRACINGAPP_FILES = "https://data.zsunr.com/riders/json/zwiftracing-app-post/"
 
 FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST = "membership-list"
-FOLDER_NAME_ZWIFT_FILES = "zwift"
+FOLDER_NAME_ZWIFT_FILES = "zwift-files"
 # FOLDER_NAME_ZWIFTPOWER = "zwiftpower"
-FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST_FILES = "90-day-power-graph-watts"
-FOLDER_NAME_ZWIFTRACINGAPP_FILES = "zwiftracing-app"
+FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST_FILES = "90-day-power-graph-watts-files"
+FOLDER_NAME_ZWIFTRACINGAPP_FILES = "zwiftracing-app-files"
 
 FILENAME_OF_CLUB_MEMBERSHIP_LIST = "active_members.json" # always ensure that this is identical to the filename portion of URL_OF_CLUB_MEMBERSHIP_LIST
 
