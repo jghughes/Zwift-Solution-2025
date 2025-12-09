@@ -102,7 +102,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
     dict_of_ZwiftRacingAppItem = repository.get_dict_of_ZwiftRacingAppItem_by_ids(eligible_IDs)
     # dict_of_ZwiftPowerProfileItem = repository.get_dict_of_ZwiftPowerProfileItem_by_ids(eligible_IDs)
     dict_of_flattenedZwiftPower90dayWatts = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(eligible_IDs)
-    dict_of_curve_fits = repository._compute_dict_of_selected_CurveFittingResultItem(eligible_IDs)
+    dict_of_curve_fits = repository._do_Curve_Fitting(eligible_IDs)
 
     print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT_FILES}\n")
     print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP_FILES}\n")
@@ -192,7 +192,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
         	zwift_FTP_watts                  = round(zwiftItem.ftp_on_zwift),
         	# zwiftpower_zFTP_watts            = round(zwiftpowerprofileItem.zftp_from_somewhere),
         	velo_zwiftpower_zFTP_watts      = round(racingapp.zp_FTP),
-        	jgh_60_min_watts                 = round(one_hour_watts),
+        	# jgh_60_min_watts                 = round(one_hour_watts),
         	zwift_racing_score               = round(zwiftItem.competition_metrics.zwift_racing_score),
         	zwift_cat_open                   = zwiftItem.competition_metrics.zwift_category_open,
             zwift_cat_women                 = zwiftItem.competition_metrics.zwift_category_women,

@@ -22,9 +22,8 @@ class RiderBruteItem(FrozenZwiftIdBase):
     age_years						: float		= 0.0		# Age of the rider in years
     age_group						: str		= ""		# Age group of the rider
     zwift_FTP_watts					: float		= 0.0		# Originates in Zwift profile
-    # zwiftpower_zFTP_watts			: float		= 0.0		# Originates in Zwiftpower profile
     velo_zwiftpower_zFTP_watts		: float		= 0.0		# Originates in Zwiftracingapp profile
-    jgh_60_min_watts				: float		= 0.0		# Calculated by JGH
+    # jgh_60_min_watts				: float		= 0.0		# Calculated by JGH
     zwift_racing_score				: float		= 0.0		# Zwift racing score
     zwift_cat_open					: str		= ""		# A+, A, B, C, D, E
     zwift_cat_women					: str		= ""		# A+, A, B, C, D, E
@@ -52,9 +51,8 @@ class RiderBruteItem(FrozenZwiftIdBase):
             zwift_age_years						= item.age_years,
             velo_age_group						= item.age_group,
             zwift_FTP_watts						= item.zwift_FTP_watts,
-            # zwiftpower_zftp_watts				= item.zwiftpower_zFTP_watts,
             velo_zwiftpower_zFTP_watts			= item.velo_zwiftpower_zFTP_watts,
-            jgh_60_min_watts					= item.get_1_hour_curvefit_watts(),
+            jgh_60_min_watts					= item.get_1_hour_curvefit_watts(), # odd man out, we do this as a lazy convenience for display purposes in the DTO only. hack
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,
@@ -83,9 +81,8 @@ class RiderBruteItem(FrozenZwiftIdBase):
             age_years							= dto.zwift_age_years or 0.0,
             age_group							= dto.velo_age_group or "",
             zwift_FTP_watts						= dto.zwift_FTP_watts or 0.0,
-            # zwiftpower_zFTP_watts				= dto.zwiftpower_zftp_watts or 0.0,
             velo_zwiftpower_zFTP_watts			= dto.velo_zwiftpower_zFTP_watts or 0.0,
-            jgh_60_min_watts					= dto.jgh_60_min_watts or 0.0,
+            # jgh_60_min_watts					= dto.jgh_60_min_watts or 0.0,
             zwift_racing_score					= dto.zwift_racing_score or 0.0,
             zwift_cat_open						= dto.zwift_cat_open or "",
             zwift_cat_women						= dto.zwift_cat_women or "",

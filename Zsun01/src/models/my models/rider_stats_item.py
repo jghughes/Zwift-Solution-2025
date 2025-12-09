@@ -37,7 +37,7 @@ class RiderStatsItem(ZwiftIdBase):
 	wkg_20min					:	float	=	0.0
 	wkg_30min					:	float	=	0.0
 	wkg_40min					:	float	=	0.0
-	wkg_60min_curvefit		:	float	=	0.0
+	wkg_60min_curvefit			:	float	=	0.0
 	w_05sec						:	float	=	0.0
 	w_15sec						:	float	=	0.0
 	w_30sec						:	float	=	0.0
@@ -51,7 +51,7 @@ class RiderStatsItem(ZwiftIdBase):
 	w_20min						:	float	=	0.0
 	w_30min						:	float	=	0.0
 	w_40min						:	float	=	0.0
-	w_60min_curvefit		:	float	=	0.0
+	w_60min_curvefit			:	float	=	0.0
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
