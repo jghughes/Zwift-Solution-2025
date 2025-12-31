@@ -29,7 +29,7 @@ class MixedThingsItem():
 @dataclass
 class RacingScoreItem:
     velo_rating         : float     = 0.0 
-    mixed_things_obj    : MixedThingsItem   = Field(default_factory=MixedThingsItem)
+    mixed_things_obj    : MixedThingsItem   = field(default_factory=MixedThingsItem)
 
     @staticmethod
     def from_dataTransferObject(dto: Optional[RatingScoreDTO]) -> "RacingScoreItem":

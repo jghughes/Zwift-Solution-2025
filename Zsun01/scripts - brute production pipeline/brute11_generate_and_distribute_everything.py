@@ -41,12 +41,13 @@ from pathlib import Path
 from typing import Callable, Type, Dict, List, Any
 
 import pandas as pd
-
+from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_read_write import write_excel_file, write_json_file
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
 from storage_config import (
+    AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE,
     DIRPATH_ZWIFT_FILES, 
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -124,8 +125,8 @@ async def generate_everything_and_save_and_upload():
         json_dict_filename=FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
         json_list_filename=FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
         excel_filename=FILENAME_RIDER_BRUTE_DTO_XLSX_LIST,
-        azure_blob_dict=AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-        azure_blob_list=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
+        json_dict_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
+        json_list_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
         logger=logger,
     )
 
@@ -140,8 +141,8 @@ async def generate_everything_and_save_and_upload():
         json_dict_filename=FILENAME_RIDER_STATS_DTO_JSON_DICT,
         json_list_filename=FILENAME_RIDER_STATS_DTO_JSON_LIST,
         excel_filename=FILENAME_RIDER_STATS_DTO_XLSX_LIST,
-        azure_blob_dict=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-        azure_blob_list=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+        json_dict_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+        json_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
         logger=logger,
     )
 
@@ -158,8 +159,8 @@ async def process_and_distribute_items(
     json_dict_filename: str,
     json_list_filename: str,
     excel_filename: str,
-    azure_blob_dict: str,
-    azure_blob_list: str,
+    json_dict_blobname: str,
+    json_list_blobname: str,
     logger: logging.Logger,
 ):
     try:
@@ -204,13 +205,29 @@ async def process_and_distribute_items(
     try:
         # Upload to Azure
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, azure_blob_dict, dto_as_dict_as_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_dict_blobname, dto_as_dict_as_json)
         file_size = make_pretty_count_of_bytes(len(dto_as_dict_as_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, azure_blob_list, dto_as_list_as_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_list_blobname, dto_as_list_as_json)
+        file_size = make_pretty_count_of_bytes(len(dto_as_list_as_json.encode('utf-8')))
+        message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
+        print(message2)
+        logger.info(message2)
+        # Upload backup to Azure AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE
+        date : str = format_timestamp_as_yyyy_mm_dd()
+        json_dict_blobname = f"{date}_{json_dict_blobname}"
+        json_list_blobname = f"{date}_{json_list_blobname}"
+        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, json_dict_blobname, dto_as_dict_as_json)
+        file_size = make_pretty_count_of_bytes(len(dto_as_dict_as_json.encode('utf-8')))
+        message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
+        print(message)
+        logger.info(message)
+        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, json_list_blobname, dto_as_list_as_json)
         file_size = make_pretty_count_of_bytes(len(dto_as_list_as_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
