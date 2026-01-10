@@ -313,7 +313,7 @@ if __name__ == "__main__":
             message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
             level=logging.INFO
         )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
+        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All work executed without error.\n")
 
     except AlertMessageError as alert_err:
         log_event(

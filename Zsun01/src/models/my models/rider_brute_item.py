@@ -186,6 +186,11 @@ class RiderBruteItem(FrozenZwiftIdBase):
         answer = one_hour[0]
         return answer
 
+    def get_50_minute_curvefit_watts(self) -> float:
+        one_hour = decay_model_numpy(np.array([3000]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
+        answer = one_hour[0]
+        return answer
+
     def get_1_hour_curvefit_watts(self) -> float:
         ftp = decay_model_numpy(np.array([3_600]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer =  ftp[0]

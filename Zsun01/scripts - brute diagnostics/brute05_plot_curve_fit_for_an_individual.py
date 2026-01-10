@@ -170,30 +170,40 @@ if __name__ == "__main__":
     start_time = time.time()
     try:
 
-        team_name = "scratchpad"
         # Define the riders and their Zwift IDs - we only use one at a time. see below
-        barryb ='5490373' #ftp 273
-        johnh ='1884456' #ftp 240 zmap 292
-        lynseys ='383480' #ftp 201
-        joshn ='2508033' #ftp 260
-        richardm ='1193' # ftp 200
-        markb ='5530045' #ftp 280
-        davek="3147366" #ftp 276 critical_power 278
-        husky="5134" #ftp 268
-        scottm="11526" #ftp 247
-        timr= "5421258" #ftp 380
-        tom_bick= "11741" #ftp 303 critical_power 298
+        alex_shiver='2619046' #ftp 200
+        anthony_dangelo='7712769' #ftp 163
+        barry_b ='5490373' #ftp 273
+        bill_henson ='5726145' #ftp 245
+        chris_lockwood = "6944221" #ftp 252
+
+        david_evanetich='4945836' #ftp 238
+        john_h ='1884456' #ftp 211 zmap 292
+        kent_johnson='618585' #ftp 223
+        ken_chappell='1111583' #ftp 240
+
+        lynsey_s ='383480' #ftp 201
+        josh_n ='2508033' #ftp 260
+        richard_m ='1193' # ftp 200
+        mark_b ='5530045' #ftp 280
+        dave_k ='3147366' #ftp 276 critical_power 278
+        husky ='5134' #ftp 268
+        scott_m ='11526' #ftp 247
+        tim_r ='5421258' #ftp 380
+        tom_bick ='11741' #ftp 303 critical_power 298
         bryan_bumpas = "9011" #ftp 214
         matt_steeve = "1024413"
         giao_nguyen = "183277" #ftp 189
         meridith_leubner ="1707548" #ftp 220
         melissa_warwick = "1657744" #ftp 213
         brandi_steeve = "991817" #ftp 196
-        selena = "2682791" #ftp 214
+        selena_shaik = "2682791" #ftp 214
         steve_seiler = "6142432" #ftp 270
-        david_evanetich= '4945836'
         coryc = "5569057"
-        chosen_zwiftID = bryan_bumpas # choose a rider to model
+
+        # Define the riders and their Zwift IDs - we only use one at a time. see below
+        chosen_zwiftID : str = chris_lockwood # choose a rider to model
+        team_name = "betel" # rider must be on this team otherwise throw exception
 
         plot_curve_fit_for_an_individual()
 

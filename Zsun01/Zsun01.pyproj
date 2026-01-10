@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>scripts - brute production pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
+    <StartupFile>scripts - brute diagnostics\brute15_team_race_targets.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;scripts - brute diagnostics;src\models;src\models\my models;src\models\third party models;src\models\computation models</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -65,6 +65,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="scripts - brute diagnostics\brute15_team_race_targets.py" />
     <Compile Include="scripts - brute production pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="scripts - other little utilities\01_RichardM.py" />
     <Compile Include="scripts - other little utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
