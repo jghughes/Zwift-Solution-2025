@@ -52,6 +52,8 @@ from jgh_formulae09 import (
     save_html_document_to_hard_drive,
     upload_text_to_blob_storage_in_azure,
 )
+from jgh_internet_helpers import throw_if_no_internet_connection
+
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_count_of_bytes
 
@@ -303,6 +305,7 @@ if __name__ == "__main__":
 
         _team_name = "betel" 
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
+        throw_if_no_internet_connection()
         asyncio.run(generate_ttt_scenarios_with_brute())
 
         end_time = time.time()

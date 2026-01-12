@@ -3,6 +3,7 @@ import json
 import time
 from pathlib import Path
 from typing import List
+from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_read_write import read_text, list_files_in_directory
 from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
 from jgh_string import  make_pretty_time_from_seconds
@@ -13,7 +14,7 @@ from storage_config import DIRPATH_CLUB_MEMBERSHIP_LIST, DIRPATH_ZWIFT_FILES, DI
 
 # HEAP POWERFUL TOOL
 async def go_fetch_thousands_of_files_from_dk_V2() -> None:
-    print("\nfetch single file from daveK of active members on discord (he uses this list to scrape files from Zwift, ZwiftPower, and ZwiftRacingApp websites")
+    print("\nfetch single file from daveK of active members on discord (he uses this list to scrape files from Zwift, ZwiftPower, and ZwiftRacingApp websites\n")
     urls_for_dummy_array_of_one_file = [URL_OF_CLUB_MEMBERSHIP_LIST]
     _ = await fetch_and_save_files(
         urls_for_dummy_array_of_one_file,
@@ -65,6 +66,9 @@ async def fetch_and_save_files(
         List[Path]: List of Path objects for the discovered files.
     """
     start_time = time.time()
+
+    throw_if_no_internet_connection()
+
     await download_and_save_many_files_to_hard_drive(list_of_fetch_urls, save_dirpath, None, concurrency)
     elapsed = time.time() - start_time
 
@@ -74,8 +78,6 @@ async def fetch_and_save_files(
     print(f"save dirpath        : {save_dirpath}")
 
     return files_in_save_destination
-
-
 
 
 #test runner
@@ -90,6 +92,7 @@ if __name__ == "__main__":
 
     start_time = time.time()
     try:
+        throw_if_no_internet_connection()
 
         asyncio.run(go_fetch_thousands_of_files_from_dk_V2())
 

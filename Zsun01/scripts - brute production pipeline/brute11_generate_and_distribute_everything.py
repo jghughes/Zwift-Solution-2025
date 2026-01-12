@@ -43,6 +43,7 @@ from typing import Callable, Type, Dict, List, Any
 import pandas as pd
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
+from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_read_write import write_excel_file, write_json_file
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
@@ -203,6 +204,8 @@ async def process_and_distribute_items(
         raise
 
     try:
+        throw_if_no_internet_connection()
+
         # Upload to Azure
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
             AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_dict_blobname, dto_as_dict_as_json)

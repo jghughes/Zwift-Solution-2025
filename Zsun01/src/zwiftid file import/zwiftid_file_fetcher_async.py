@@ -16,6 +16,43 @@ logger = logging.getLogger()
 
 
 async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
+    """
+    Download a file from a URL and save it to the local hard drive.
+
+    This function validates inputs, downloads the file asynchronously, and handles various
+    network and HTTP errors. All errors are logged but not propagated; the function returns
+    silently on failure.
+
+    Args:
+        http_client: An async HTTP client for making requests.
+        url: The URL of the file to download.
+        dest_dir_path: The base directory path where the file will be saved.
+        dest_folder: Optional subfolder name within dest_dir_path. If None or empty,
+            files are saved directly to dest_dir_path.
+        semaphore: Asyncio semaphore to limit concurrent downloads.
+
+    Returns:
+        None: This function returns None on both success and failure.
+
+    Raises:
+        Does not raise exceptions. All errors are caught, logged, and the function returns None.
+
+    Error Handling:
+        - Invalid URL: Logs error and returns
+        - Invalid directory path: Logs error and returns
+        - Invalid folder name: Logs error and returns
+        - Timeout (30s): Logs httpx.TimeoutException and returns
+        - HTTP errors (404, etc.): Logs httpx.HTTPStatusError and returns
+        - Network errors (no connection): Logs httpx.RequestError and returns
+        - Other exceptions: Logs and returns
+
+    Notes:
+        - The filename is extracted from the URL using parse_filename()
+        - Creates destination directories if they don't exist
+        - Logs successful downloads with file size information
+        - No indication is given to the caller if the download failed
+    """
+
     # Validate inputs
     valid_url, url_msg = is_valid_url(url)
     if not valid_url:
