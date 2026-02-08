@@ -71,12 +71,19 @@ from storage_config import (
     AZURE_CONTAINERNAME_BRUTE,
     AZURE_CONTAINERNAME_PREPROCESSED,
     AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
-    format_save_filename_for_document_of_single_paceline_plan,
+    # format_save_filename_for_document_of_single_paceline_plan,
     make_filename_for_one_page_summary_html_doc,)
 
 import time
 import logging
 from jgh_exceptions import AlertMessageError
+
+def load_css() -> str:
+    css_path = Path(__file__).parent.parent / "src" / "css" / "paceline_plan_summary.css"
+    with open(css_path, encoding="utf-8") as f:
+        return f.read()
+
+PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css()
 
 
 # HEAP POWERFUL
@@ -284,7 +291,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # export_package_of_paceline_plans_as_multiple_individual_html_documents(BRUTE_DIRPATH_HTML_DOCS_BY_DATE, _team_name, package_report_optimised_plans_displayobject)
 
     html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(_team_name)}"
-    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, FOOTNOTES)
+    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, FOOTNOTES, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
     saved_file_path         = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
 
     print(f"\ncommencing upload of blob {html_file_and_blob_name} to Azure\n")

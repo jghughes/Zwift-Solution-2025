@@ -129,15 +129,16 @@ async def generate_team_targets() -> None:
     log_speed_bounds_of_exertion_constrained_paceline_solutions(full_team_of_riders)
 
     # ===========================
-    print(f"\nTask #1: computing 50 min metrics for full team...\n")
+    print(f"\nTask #1: computing Million Dollar Prize 50 MINUTE 90-day best...\n")
     # ===========================
 
     riders = arrange_riders_by_velo_rating(full_team_of_riders)
 
     for r in riders:
-        watts_50min = r.get_50_minute_curvefit_watts()
-        wkg_50min = watts_50min / r.weight_kg if r.weight_kg > 0 else 0.0
-        print(f" - {r.name:20} {r.velo_cat_name_30_days:10} {wkg_50min:3.1f}w/kg {watts_50min:4.0f}w")
+        watts_50_min  = r.get_n_second_curvefit_y_ordinate_watts(3000) 
+        wkg_50_min = watts_50_min / r.weight_kg if r.weight_kg > 0 else 0.0
+        print(f" - {r.name:20} {r.velo_cat_name_30_days:10} {watts_50_min:3.0f}w {wkg_50_min:4.1f}w/kg")
+        # print(f" - {r.name:20} {r.velo_cat_name_30_days:10} TOTAL AV: {wkg_10_min:3.1f}w/kg {watts_10_min:4.0f}w    CLIMB KOM: {wkg_07min:3.1f}w/kg {watts_07min:4.0f}w")
 
     print("\nwork complete.\n")
     print("\nyou may close the app. thank you.\n")

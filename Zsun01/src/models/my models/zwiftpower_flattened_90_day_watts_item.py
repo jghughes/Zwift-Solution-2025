@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+from constants import ZWIFTPOWER_GRAPH_WINDOW
 from dataclasses import dataclass
 from zwift_id_base import ZwiftIdBase
 from rider_stats_item import RiderStatsItem
@@ -1037,7 +1038,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         if dto is None:
             return ZwiftPowerFlattened90dayWattsItem()
 
-        xx = dto.efforts_obj.get("90days", []) if dto.efforts_obj else []
+        xx = dto.efforts_obj.get(ZWIFTPOWER_GRAPH_WINDOW, []) if dto.efforts_obj else []
 
         effortItems = [EffortItem.from_dataTransferObject(effort) for effort in xx]
 

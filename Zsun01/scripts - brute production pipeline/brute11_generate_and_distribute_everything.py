@@ -79,6 +79,7 @@ import time
 import logging
 from jgh_exceptions import AlertMessageError
 
+
 # HEAP POWERFUL TOOL
 async def generate_everything_and_save_and_upload():
     print("starting script\n")

@@ -57,7 +57,7 @@ from paceline_computation_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-from css import PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
+# from css import PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
 from html_text import FOOTNOTES
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_enums import PacelinePlanTypeEnum
@@ -70,7 +70,6 @@ from paceline_plan_captions import (
     # get_caption_for_consolidated_document,
 )
 from storage_config import format_save_filename_for_document_of_single_paceline_plan
-from html_text import FOOTNOTES
 
 def log_single_paceline_plan_as_pretty_table(
     plan_report_displayobject: PacelineComputationReportDisplayObject,
@@ -172,7 +171,8 @@ def populate_compute_statistics_for_pace_plan(
 def format_single_paceline_plan_as_html_document(
     plan_report: PacelineComputationReportDisplayObject,
     footnotes: str,
-    include_internally_provided_css: bool
+    include_internally_provided_css: bool,
+    css: str = ""
 ) -> str:
 
     # Column headers with footnote markers where appropriate
@@ -215,11 +215,11 @@ def format_single_paceline_plan_as_html_document(
 
     # only apply css if this is a standalone function. If called 
     # from function that already contains the css, this css must be empty
-    css = PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET if include_internally_provided_css else ""
+    css_to_use = css if include_internally_provided_css else ""
 
     # Compose a HTML fragment. but with no <html> or <head> elements because this is a fragment included in a larger HTML document
     html_fragment = f"""
-        {css}
+            <style>\n{css_to_use}\n</style>
         <div>
             <div class="caption-flex">
                 <span class="caption-left">{plan_report.display_caption_left_aligned}</span>
@@ -230,7 +230,7 @@ def format_single_paceline_plan_as_html_document(
         </div>
         """
     # html_fragment = f"""
-    #     {css}
+    #     {css_to_use}
     #     <div>
     #         <div><strong>{plan_report.display_caption_left_aligned}</strong></div>
     #         {html_table}
@@ -257,6 +257,7 @@ def export_package_of_paceline_plans_as_multiple_individual_html_documents(
 def format_paceline_plans_as_one_page_html_doc(
     package_report_displayobject: Optional[PackageOfPacelineComputationReportDisplayObject],
     html_footnotes: str,
+    css: str = ""
 ) -> str:
 
     if package_report_displayobject is None:
@@ -289,7 +290,7 @@ def format_paceline_plans_as_one_page_html_doc(
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
             <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-            {PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET}
+            <style>\n{css}\n</style>
         </head>
         <body>
             <h1>{package_report_displayobject.caption}</h1>

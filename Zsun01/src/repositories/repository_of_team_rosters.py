@@ -40,7 +40,7 @@ class RepositoryOfTeamRosters:
             "betel": 0.9,
             "dome": 1.03,
             "bojo": 1.0,
-            "inhibited": 1.05,
+            "inhibited": 1.0,
         }
     )
  
@@ -156,21 +156,22 @@ class RepositoryOfTeamRosters:
                 "1884456": "john_hughes",
                 "2508033": "josh_neil",
                 # "2803600": "larry_mccamon",
-                "383480": "lynsey_segal",
+                # "383480": "lynsey_segal",
                 # "276319": "mark_goveia",
-                "1024413": "matt_steeve",
+                # "1024413": "matt_steeve",
                 # "2902662": "matthew_wongkee",
                 # "1657744": "melissa_warwick",
                 # "1707548": "meridith_leubner",
-                # "xxxx": "mike_stephen",
+                "1618188": "michael_rebarchik",
                 # "1609384": "mike_echo",
                 # "3142395": "rachel_laponsey",
                 # "1193": "richard_mann",
-                "4284467": "richard_yamin",
+                # "4284467": "richard_yamin",
                 "5524007": "robo_hop",
                 # "384442": "roland_segal",
                 # "6033853": "sarah_madden",
                 # "11526": "scott_mcveigh",
+                # "85925": "steve_lehman",
 
             }),
             # "dome": defaultdict(str, {
@@ -189,7 +190,7 @@ class RepositoryOfTeamRosters:
             # }),
             "inhibited": defaultdict(str, {
                 # "2619046": "alex_shiver",
-                "7712769": "anthony_d'angelo",
+                # "7712769": "anthony_d'angelo",
                 "5726145": "bill_henson",
                 # "480698": "brent_huser",
                 # "640780": "carl_peltzer",
@@ -200,8 +201,8 @@ class RepositoryOfTeamRosters:
                 "1884456": "john_hughes",
                 "618585": "kent_johnson",
                 "1111583": "ken_chappell",
-                # "846200": "lisa_bick",
                 # "1024413": "matt_steeve",
+                "7160372": "sean-o-reilly",
                 # "7460730": "tony_chang",
             }),
             # "giants": defaultdict(str, {
