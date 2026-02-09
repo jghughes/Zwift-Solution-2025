@@ -15,7 +15,7 @@ Features:
 - Export individual and summary paceline plans as HTML fragments or complete
   documents, with optional CSS styling.
 - Support batch export of multiple paceline plan solutions with captions and
-  footnotes.
+  html_footnotes.
 - Upload HTML summaries to Azure Blob Storage.
 
 Functions:
@@ -57,8 +57,7 @@ from paceline_computation_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-# from css import PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET
-from html_text import FOOTNOTES
+# from html_text import BRUTE_FOOTNOTES_HTML
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_1dp, format_number_with_comma_separators
@@ -170,7 +169,7 @@ def populate_compute_statistics_for_pace_plan(
 
 def format_single_paceline_plan_as_html_document(
     plan_report: PacelineComputationReportDisplayObject,
-    footnotes: str,
+    html_footnotes: str,
     include_internally_provided_css: bool,
     css: str = ""
 ) -> str:
@@ -226,23 +225,16 @@ def format_single_paceline_plan_as_html_document(
                 <span class="caption-right">{plan_report.display_caption_right_aligned}</span>
             </div>
             {html_table}
-            <div>{footnotes}</div>
+            {html_footnotes}
         </div>
         """
-    # html_fragment = f"""
-    #     {css_to_use}
-    #     <div>
-    #         <div><strong>{plan_report.display_caption_left_aligned}</strong></div>
-    #         {html_table}
-    #         <div>{footnotes}</div>
-    #     </div>
-    #     """
     return html_fragment
 
 def export_package_of_paceline_plans_as_multiple_individual_html_documents(
     dirpath: Path,
     team_name: str,
     package_report_displayobject: PackageOfPacelineComputationReportDisplayObject,
+    html_footnotes: str,
 ) -> None:
     for key in DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN:
         paceline_report: PacelineComputationReportDisplayObject = package_report_displayobject.solutions[key]
@@ -250,7 +242,7 @@ def export_package_of_paceline_plans_as_multiple_individual_html_documents(
         # caption: str = populate_captions_for_pace_plan_in_collectively_computed_package(caption_opening_element, caption_closing_element, paceline_report, package_report_displayobject, )
         # paceline_report.display_caption_left_aligned = caption
         log_single_paceline_plan_as_pretty_table(paceline_report)
-        html_fragment = format_single_paceline_plan_as_html_document(paceline_report, FOOTNOTES, True)
+        html_fragment = format_single_paceline_plan_as_html_document(paceline_report, html_footnotes, True)
         filename = format_save_filename_for_document_of_single_paceline_plan(team_name, key)
         write_html_file(dirpath, filename, html_fragment)
 

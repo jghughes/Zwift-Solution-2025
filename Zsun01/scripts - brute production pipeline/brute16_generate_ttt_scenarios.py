@@ -29,7 +29,7 @@ from paceline_computation_display_objects import (
 )
 from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
 from jgh_enums import PacelinePlanTypeEnum
-from html_text import FOOTNOTES
+# from html_text import BRUTE_FOOTNOTES_HTML
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae02 import (
     arrange_riders_by_1_minute_strength,
@@ -44,10 +44,10 @@ from jgh_formulae08 import (
     log_speed_bounds_of_exertion_constrained_paceline_solutions,
 )
 from jgh_formulae09 import (
-    log_single_paceline_plan_as_pretty_table,
+    # log_single_paceline_plan_as_pretty_table,
     populate_title_for_pace_plan,
     populate_compute_statistics_for_pace_plan,
-    format_single_paceline_plan_as_html_document,
+    # format_single_paceline_plan_as_html_document,
     format_paceline_plans_as_one_page_html_doc,
     save_html_document_to_hard_drive,
     upload_text_to_blob_storage_in_azure,
@@ -78,12 +78,19 @@ import time
 import logging
 from jgh_exceptions import AlertMessageError
 
-def load_css() -> str:
-    css_path = Path(__file__).parent.parent / "src" / "css" / "paceline_plan_summary.css"
-    with open(css_path, encoding="utf-8") as f:
+def load_css_style_sheet() -> str:
+    path = Path(__file__).parent.parent / "src" / "css" / "paceline_plan_summary.css"
+    with open(path, encoding="utf-8") as f:
         return f.read()
 
-PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css()
+PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css_style_sheet()
+
+def load_footnotes_html() -> str:
+    path = Path(__file__).parent.parent / "src" / "html" / "footnotes.html"
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+BRUTE_FOOTNOTES_HTML = load_footnotes_html()
 
 
 # HEAP POWERFUL
@@ -166,7 +173,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
     # log_single_paceline_plan_as_pretty_table(report_30sec_plan_display_object)
     # filename = format_save_filename_for_document_of_single_paceline_plan(_team_name, PacelinePlanTypeEnum.THIRTY_SEC_PULL)
-    # html_doc = format_single_paceline_plan_as_html_document(report_30sec_plan_display_object, FOOTNOTES, True)
+    # html_doc = format_single_paceline_plan_as_html_document(report_30sec_plan_display_object, BRUTE_FOOTNOTES_HTML, True)
     # saved_file_path = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), filename, html_doc)
     # print(f"\nPaceline plan saved to:\n{saved_file_path}\n")
     # ===========================
@@ -191,7 +198,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
     # log_single_paceline_plan_as_pretty_table(report_60sec_plan_display_object)
     # filename = format_save_filename_for_document_of_single_paceline_plan(_team_name, PacelinePlanTypeEnum.SIXTY_SEC_PULL)
-    # html_doc = format_single_paceline_plan_as_html_document(report_60sec_plan_display_object, FOOTNOTES, True)
+    # html_doc = format_single_paceline_plan_as_html_document(report_60sec_plan_display_object, BRUTE_FOOTNOTES_HTML, True)
     # saved_file_path = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), filename, html_doc)
     # print(f"\nPaceline plan saved to:\n{saved_file_path}\n")
     # ===========================
@@ -291,7 +298,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # export_package_of_paceline_plans_as_multiple_individual_html_documents(BRUTE_DIRPATH_HTML_DOCS_BY_DATE, _team_name, package_report_optimised_plans_displayobject)
 
     html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(_team_name)}"
-    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, FOOTNOTES, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
+    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, BRUTE_FOOTNOTES_HTML, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
     saved_file_path         = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
 
     print(f"\ncommencing upload of blob {html_file_and_blob_name} to Azure\n")

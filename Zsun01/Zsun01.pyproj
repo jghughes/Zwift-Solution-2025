@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>scripts - brute production pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\models;src\models\my models;src\models\third party models;src\models\computation models;scripts - tools</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\models;src\models\my models;src\models\third party models;src\models\computation models;scripts - tools;javascript</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -103,13 +103,11 @@
     <Compile Include="src\azure\jgh_azure_storage_accessor.py" />
     <Compile Include="src\azure\jgh_azure_storage_service_client.py" />
     <Compile Include="src\repositories\repository_of_connectionstrings.py" />
-    <Compile Include="src\css\css.py" />
     <Compile Include="src\zwiftid file import\zwiftid_file_reader_sync.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae00.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\html\html_text.py" />
     <Compile Include="src\html\paceline_plan_captions.py">
       <SubType>Code</SubType>
     </Compile>

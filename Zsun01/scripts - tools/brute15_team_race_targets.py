@@ -19,41 +19,18 @@ using data-driven, reproducible methods in Python.
 import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
-from paceline_computation_types import PacelineIngredientsItem, PacelineComputationReportItem
-from paceline_computation_display_objects import (
-    PacelinePlanTypeEnum,
-    PacelineComputationReportDisplayObject,
-    PackageOfPacelineComputationReportDisplayObject,
-)
-from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
-from jgh_enums import PacelinePlanTypeEnum
-from html_text import FOOTNOTES
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae02 import (
-    arrange_riders_by_1_minute_strength,
-    arrange_riders_by_zwiftracingapp_zpFTP_strength,
     arrange_riders_by_velo_rating,
 )
 from jgh_formulae08 import (
-    generate_a_single_paceline_solution_complying_with_exertion_constraints,
-    generate_package_of_paceline_solutions,
     log_speed_bounds_of_exertion_constrained_paceline_solutions,
-)
-from jgh_formulae09 import (
-    log_single_paceline_plan_as_pretty_table,
-    populate_title_for_pace_plan,
-    populate_compute_statistics_for_pace_plan,
-    format_single_paceline_plan_as_html_document,
-    format_paceline_plans_as_one_page_html_doc,
-    save_html_document_to_hard_drive,
-    upload_text_to_blob_storage_in_azure,
 )
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_count_of_bytes
 
-from jgh_string import capitalize_first_letter
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
@@ -64,11 +41,8 @@ from storage_config import (
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
-    AZURE_CONTAINERNAME_BRUTE,
     AZURE_CONTAINERNAME_PREPROCESSED,
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
-    format_save_filename_for_document_of_single_paceline_plan,
-    make_filename_for_one_page_summary_html_doc,)
+    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,)
 
 import time
 import logging
