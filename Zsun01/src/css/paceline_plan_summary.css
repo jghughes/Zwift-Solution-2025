@@ -39,6 +39,7 @@ body {
     font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
     background: #fff;
     color: #222;
+    min-height: 100vh;
     margin: 0;
     padding: 1rem 2rem;
 }
@@ -49,14 +50,14 @@ h1 {
     font-weight: 700;
     color: #222;
     letter-spacing: 0.01em;
-    margin: 0 0 1em 0;
+    margin: 0 0 1em 1.5em;
 }
 
 /* =========================================================================
-           3. Layout Containers
-           -------------------------------------------------------------------------
-           Styles for main containers and section separators.
-           ========================================================================= */
+    3. Layout Containers
+    -------------------------------------------------------------------------
+    Styles for main containers and section separators.
+    ========================================================================= */
 .table-container {
     width: 100%;
     max-width: 100vw;
@@ -95,10 +96,10 @@ h1 {
 }
 
 /* =========================================================================
-           4. Component Classes - Table Styling
-           -------------------------------------------------------------------------
-           Styles for the main rider table and its elements.
-           ========================================================================= */
+    4. Component Classes - Table Styling
+    -------------------------------------------------------------------------
+    Styles for the main rider table and its elements.
+    ========================================================================= */
 
 .rider-table {
     border-collapse: collapse;
@@ -186,10 +187,10 @@ h1 {
     }
 
 /* =========================================================================
-           5. Utility and Helper Classes
-           -------------------------------------------------------------------------
-           Styles for footnotes, summary footnotes, and superscripts.
-           ========================================================================= */
+    5. Utility and Helper Classes
+    -------------------------------------------------------------------------
+    Styles for footnotes, summary footnotes, and superscripts.
+    ========================================================================= */
 .footnote {
     font-family: 'Roboto', Arial, sans-serif;
     font-size: 0.95em;
@@ -225,12 +226,12 @@ h1 {
 }
 
 /* =========================================================================
-           6. Media Queries
-           -------------------------------------------------------------------------
-           Responsive and print-specific styles for better usability on small screens
-           and for printing. These are more sophisticated and ensure the table is
-           readable on mobile and print-friendly.
-           ========================================================================= */
+    6. Media Queries
+    -------------------------------------------------------------------------
+    Responsive and print-specific styles for better usability on small screens
+    and for printing. These are more sophisticated and ensure the table is
+    readable on mobile and print-friendly.
+    ========================================================================= */
 
 /* --- Extra small devices (max-width: 480px) --- */
 @media (max-width: 480px) {
