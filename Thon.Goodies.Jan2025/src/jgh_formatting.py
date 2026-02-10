@@ -107,6 +107,40 @@ def format_number_with_comma_separators(x: Union[int, float]) -> str:
     else:
         return str(x)
 
+def format_number_0dp_padded2(x: Union[int, float]) -> str:
+    """
+    Round a float to zero decimal places (nearest integer) and return a string
+    padded with leading zeros so the result is at least 2 characters long.
+
+    Examples:
+        5.3   -> "05"
+        1234.7-> "1235"
+        -5.2  -> "-05"
+
+    Note: If the rounded integer requires more than 2 characters (e.g. 123),
+    the full number will be returned (no truncation).
+    """
+    rounded = int(round(x))
+    return f"{rounded:02d}"
+
+def format_number_0dp_padded4(x: Union[int, float]) -> str:
+    """
+    Round a float to zero decimal places (nearest integer) and return a string
+    padded with leading zeros so the result is at least 4 characters long.
+
+    Examples:
+        5.3   -> "0005"
+        1234.7-> "1235"
+        -5.2  -> "-005"
+
+    Note: If the rounded integer requires more than 4 characters (e.g. 12345),
+    the full number will be returned (no truncation).
+    """
+    rounded = int(round(x))
+    return f"{rounded:04d}"
+
+
+
 def format_pretty_duration_hms(seconds: float) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, secs = divmod(remainder, 60)

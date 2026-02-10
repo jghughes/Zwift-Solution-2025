@@ -9,9 +9,12 @@ const FALLBACK_DATA = [
 // AG Grid column definitions with short headers, leftmost column pinned
 const columnDefs = [
     { headerName: "Name", field: "full_name", pinned: 'left', sortable: true, resizable: true },
-    //{ headerName: "zFTP (W/kg)", field: "zwift_zftp_wkg", sortable: true, resizable: true },
+    { headerName: "Cat (Open)", field: "cat_open", sortable: true, resizable: true },
+    { headerName: "zFTP (W/kg)", field: "zwift_zftp_wkg", sortable: true, resizable: true },
     //{ headerName: "W/kg 60min (curve)", field: "wkg_60min_curvefit", sortable: true, resizable: true },
-    { headerName: "Zwift", field: "zwift_cat_label", sortable: true, resizable: true },
+    //{ headerName: "Zwift", field: "zwift_cat_label", sortable: true, resizable: true },
+    //{ headerName: "zFTP (W)", field: "zwift_zftp_w", sortable: true, resizable: true },
+    { headerName: "Racing score", field: "zwift_racing_score", sortable: true, resizable: true },
     { headerName: "ZwiftRacingApp", field: "velo_cat_label", sortable: true, resizable: true },
     { headerName: "ZwiftID", field: "zwift_id", sortable: true, resizable: true },
     //{ headerName: "Country", field: "zwift_country_code3", sortable: true, resizable: true },
