@@ -1,7 +1,7 @@
 'use strict';
 
 // open terminal in project folder then >http-server . to launch dev server
-// then open browser http://127.0.0.1:8082/html/generic_table.html
+// then open browser, the terminal displays the port that the erver is listening on, it looks something like this: http://127.0.0.1:8084/html/grid01.html
 
 
 

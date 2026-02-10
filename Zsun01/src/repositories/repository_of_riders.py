@@ -348,19 +348,23 @@ class RepositoryOfRiders:
                 else:
                     riderStatsItem.cat_women = "?"
             if riderStatsItem.gender_code == "m":
-                cat_combo = riderStatsItem.cat_open
+                cat_combo = riderStatsItem.cat_open + "  -"
             else:
-                cat_combo = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
+                cat_combo = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women + " -"
 
             if riderStatsItem.zwift_racing_score== 0:
                 riderStatsItem.zwift_cat_label = f"{round(riderStatsItem.zwift_zftp_wkg,1)}wkg"
             else:
-                riderStatsItem.zwift_cat_label = f"{round(riderStatsItem.zwift_zftp_wkg,1)}wkg  {riderStatsItem.zwift_racing_score}  {cat_combo}"
+                # riderStatsItem.zwift_cat_label = f"{round(riderStatsItem.zwift_zftp_wkg,1)}wkg  {riderStatsItem.zwift_racing_score}  {cat_combo}"
+                riderStatsItem.zwift_cat_label = f"{cat_combo} {round(riderStatsItem.zwift_zftp_wkg,1)}wkg - {riderStatsItem.zwift_racing_score}"
 
             if riderStatsItem.velo_rating_30_days ==0:
                 riderStatsItem.velo_cat_label= ""
+            elif riderStatsItem.velo_cat_num_30_days == 10:
+                riderStatsItem.velo_cat_label = f"{riderStatsItem.velo_cat_num_30_days} {riderStatsItem.velo_cat_name_30_days} - {riderStatsItem.velo_rating_30_days}"
             else:
-                riderStatsItem.velo_cat_label = f"{riderStatsItem.velo_rating_30_days}  {riderStatsItem.velo_cat_num_30_days}  {riderStatsItem.velo_cat_name_30_days}"
+                riderStatsItem.velo_cat_label = f"0{riderStatsItem.velo_cat_num_30_days} {riderStatsItem.velo_cat_name_30_days} - {riderStatsItem.velo_rating_30_days}"
+                # riderStatsItem.velo_cat_label = f"{riderStatsItem.velo_rating_30_days}  {riderStatsItem.velo_cat_num_30_days}  {riderStatsItem.velo_cat_name_30_days}"
 
             preliminary_answer[key] = riderStatsItem
 
