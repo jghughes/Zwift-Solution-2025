@@ -32,13 +32,23 @@ The script performs the following steps:
 - Exports the full set of rider profiles to both JSON and Excel files
   for use by Brute in production.
 
+Important note about ordering and responsibilities:
+- Sorting of domain items and mapping to DTOs is performed by the caller
+  (`generate_everything_and_save_and_upload`). This function expects an
+  insertion-ordered dict whose values are DTO instances (pydantic models).
+- `process_and_distribute_items` is responsible only for building root models
+  (dict-root and list-root), writing the JSON/XLSX files and uploading the
+  JSON blobs (including dated archive copies) to Azure. It intentionally does
+  not perform sorting or domain->DTO mapping; those responsibilities belong
+  to the caller so ordering semantics are explicit and under caller control.
+
 This tool demonstrates large-scale data integration, model application,
 and dataset preparation for club-level cycling analytics and reporting.
 """
 import asyncio
 from email import message
 from pathlib import Path
-from typing import Callable, Type, Dict, List, Any
+from typing import Type, Dict, List, Any
 
 import pandas as pd
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
@@ -117,12 +127,19 @@ async def generate_everything_and_save_and_upload():
     print(f"ended up with {len(rider_repository.get_dict_of_RiderBruteItem())} curve fitted brute riders.")
 
     print("\nTask #1: distributing all the RiderBruteItem records")
-    await process_and_distribute_items(
-        item_dict=rider_repository.get_dict_of_RiderBruteItem(),
-        to_dto_func=RiderBruteItem.to_dataTransferObject,
+
+    items_rb = rider_repository.get_dict_of_RiderBruteItem()
+    sorted_items_rb = sorted(
+        items_rb.items(),
+        key=lambda kv: kv[1].get_velo_zwiftpower_zFTP_wkg() if hasattr(kv[1], "get_velo_zwiftpower_zFTP_wkg") else 0.0,
+        reverse=True,  # highest w/kg first
+    )
+    dto_dict_rb = {k: RiderBruteItem.to_dataTransferObject(v) for k, v in sorted_items_rb}
+
+    await export_and_upload_dtos(
+        dto_by_key=dto_dict_rb,
         dict_model_cls=RiderBruteDtoDictModel,
         list_model_cls=RiderBruteDtoListModel,
-        name_field="name_racingapp",
         output_dir=DIRPATH_RIDER_BRUTE_DTO,
         json_dict_filename=FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
         json_list_filename=FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
@@ -133,12 +150,28 @@ async def generate_everything_and_save_and_upload():
     )
 
     print("\nTask #2: distributing all the RiderStatsItem records")
-    await process_and_distribute_items(
-        item_dict=rider_repository.get_dict_of_RiderStatsItem(),
-        to_dto_func=RiderStatsItem.to_dataTransferObject,
+
+    def _safe_zwift_zftp_wkg(value_obj: RiderStatsItem) -> float:
+        try:
+            val = getattr(value_obj, "zwift_zftp_wkg", 0.0)
+            if val is None:
+                return 0.0
+            return float(val)
+        except Exception:
+            return 0.0
+
+    items_rs = rider_repository.get_dict_of_RiderStatsItem()
+    sorted_items_rs = sorted(
+        items_rs.items(),
+        key=lambda kv: _safe_zwift_zftp_wkg(kv[1]),
+        reverse=True,  # highest w/kg first
+    )
+    dto_dict_rs = {k: RiderStatsItem.to_dataTransferObject(v) for k, v in sorted_items_rs}
+
+    await export_and_upload_dtos(
+        dto_by_key=dto_dict_rs,
         dict_model_cls=RiderStatsDtoDictModel,
         list_model_cls=RiderStatsDtoListModel,
-        name_field="full_name",
         output_dir=DIRPATH_RIDER_STATS_DTO,
         json_dict_filename=FILENAME_RIDER_STATS_DTO_JSON_DICT,
         json_list_filename=FILENAME_RIDER_STATS_DTO_JSON_LIST,
@@ -150,13 +183,10 @@ async def generate_everything_and_save_and_upload():
 
     print("\nwork complete. consult the log files for details.\nyou may close the app. thank you.")
 
-
-async def process_and_distribute_items(
-    item_dict: Dict[str, Any],
-    to_dto_func: Callable[[Any], Any],
+async def export_and_upload_dtos(
+    dto_by_key: Dict[str, Any],
     dict_model_cls: Type[Any],
     list_model_cls: Type[Any],
-    name_field: str,
     output_dir: str,
     json_dict_filename: str,
     json_list_filename: str,
@@ -165,37 +195,50 @@ async def process_and_distribute_items(
     json_list_blobname: str,
     logger: logging.Logger,
 ):
+    """
+    Expects `dto_by_key` to be an insertion-ordered dict mapping id -> DTO (pydantic model).
+    Serializes DTOs to two JSON formats (dict & list), writes an Excel file, and uploads
+    both JSON blobs (and dated archive copies) to Azure.
+    """
     try:
-        # Serialization
-        dto_as_dict_unsorted: Dict[str, Any] = {k: to_dto_func(v) for k, v in item_dict.items()}
-        dto_as_dict = dict(sorted(dto_as_dict_unsorted.items(), key=lambda item: getattr(item[1], name_field) or ""))
-        asDictModel = dict_model_cls(dto_as_dict)
-        dto_as_dict_as_json = asDictModel.model_dump_json(exclude_none=False)
+        # Basic validation
+        if not isinstance(dto_by_key, dict):
+            raise TypeError("dto_by_key must be a dict[str, DTO]")
 
-        dto_as_list: List[Any] = list(dto_as_dict.values())
-        asListModel = list_model_cls(dto_as_list)
-        dto_as_list_as_json = asListModel.model_dump_json(exclude_none=False)
-        logger.info(f"Serialized {len(dto_as_dict)} DTOs.")
+        # Defensive: ensure DTOs provide the pydantic API used below
+        for key, dto in dto_by_key.items():
+            if not hasattr(dto, "model_dump") or not hasattr(dto, "model_fields"):
+                raise TypeError(f"Value for key '{key}' is not a compatible DTO (missing model_dump/model_fields)")
+
+        # Serialize dict-root model (preserves ordering)
+        dict_model_instance = dict_model_cls(dto_by_key)
+        dto_dict_json = dict_model_instance.model_dump_json(exclude_none=False)
+
+        # Serialize list-root model
+        dto_list = list(dto_by_key.values())
+        list_model_instance = list_model_cls(dto_list)
+        dto_list_json = list_model_instance.model_dump_json(exclude_none=False)
+
+        logger.info(f"Serialized {len(dto_by_key)} DTOs.")
     except Exception as e:
         logger.error(f"Error during serialization: {e}", exc_info=True)
         raise
 
     try:
         # Write JSON files
-        write_json_file(Path(output_dir), json_dict_filename, dto_as_dict_as_json)
-        write_json_file(Path(output_dir), json_list_filename, dto_as_list_as_json)
+        write_json_file(Path(output_dir), json_dict_filename, dto_dict_json)
+        write_json_file(Path(output_dir), json_list_filename, dto_list_json)
         print(f"Saved JSON file: {json_dict_filename}")
         print(f"Saved JSON file: {json_list_filename}")
         logger.info("JSON files written successfully.")
-
     except Exception as e:
         logger.error(f"Error writing JSON files: {e}", exc_info=True)
         raise
 
     try:
         # Write Excel file
-        dto_dataframe_column_order = list(dto_as_list[0].model_fields.keys())
-        dto_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_as_list]
+        dto_dataframe_column_order = list(dto_list[0].model_fields.keys())
+        dto_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
         dto_as_dataframe = pd.DataFrame(dto_dataframe_rows, columns=dto_dataframe_column_order)
         write_excel_file(Path(output_dir), excel_filename, dto_as_dataframe)
         print(f"Saved Excel file: {excel_filename}")
@@ -207,38 +250,43 @@ async def process_and_distribute_items(
     try:
         throw_if_no_internet_connection()
 
-        # Upload to Azure
+        # Upload to Azure (current container)
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_dict_blobname, dto_as_dict_as_json)
-        file_size = make_pretty_count_of_bytes(len(dto_as_dict_as_json.encode('utf-8')))
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_dict_blobname, dto_dict_json)
+        file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
+
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_list_blobname, dto_as_list_as_json)
-        file_size = make_pretty_count_of_bytes(len(dto_as_list_as_json.encode('utf-8')))
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_list_blobname, dto_list_json)
+        file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
         logger.info(message2)
-        # Upload backup to Azure AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE
-        date : str = format_timestamp_as_yyyy_mm_dd()
-        json_dict_blobname = f"{date}_{json_dict_blobname}"
-        json_list_blobname = f"{date}_{json_list_blobname}"
+
+        # Upload dated archive copies
+        date: str = format_timestamp_as_yyyy_mm_dd()
+        archived_dict_blob = f"{date}_{json_dict_blobname}"
+        archived_list_blob = f"{date}_{json_list_blobname}"
+
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, json_dict_blobname, dto_as_dict_as_json)
-        file_size = make_pretty_count_of_bytes(len(dto_as_dict_as_json.encode('utf-8')))
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, archived_dict_blob, dto_dict_json)
+        file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
+
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, json_list_blobname, dto_as_list_as_json)
-        file_size = make_pretty_count_of_bytes(len(dto_as_list_as_json.encode('utf-8')))
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, archived_list_blob, dto_list_json)
+        file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
         logger.info(message2)
     except Exception as e:
         logger.error(f"Error uploading to Azure: {e}", exc_info=True)
         raise
+
 
 #runner
 if __name__ == "__main__":
@@ -281,5 +329,3 @@ if __name__ == "__main__":
             exception=ex  # Pass the original exception object
         )
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-

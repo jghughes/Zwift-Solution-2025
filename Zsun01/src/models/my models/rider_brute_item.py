@@ -97,6 +97,11 @@ class RiderBruteItem(FrozenZwiftIdBase):
             jgh_when_curves_fitted				= dto.jgh_when_curves_fitted or "",
         )
 
+    def get_velo_zwiftpower_zFTP_wkg(self) -> float:
+        if self.weight_kg == 0:
+            return safe_divide(self.velo_zwiftpower_zFTP_watts,80.0) # arbitrary default 80kg
+        return safe_divide(self.velo_zwiftpower_zFTP_watts,self.weight_kg)
+
     def get_proxy_30sec_wkg(self) -> float:
         if self.weight_kg == 0:
             return safe_divide(self.get_proxy_30sec_pull_watts(),80.0) # arbitrary default 80kg
