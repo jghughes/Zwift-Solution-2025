@@ -48,42 +48,19 @@
     transition: background-color 150ms;
 }
 
-/* DENSE / COMPACT MODE
-   Use by toggling the 'dense' class on the grid host element:
-   <div id="myGrid" class="ag-theme-alpine dense"></div>
-   The JS toggle adds/removes this class.
-*/
-.ag-theme-alpine.dense {
-    font-size: 12px;
-    line-height: 1.15;
-}
+/* ============================================================================
+   EXCEL-STYLE LAYOUT - OPTIMIZED FOR MAXIMUM GRID SPACE
+   Uses Calibri 11pt with standard row heights
+   ============================================================================ */
 
-    .ag-theme-alpine.dense .ag-header-cell,
-    .ag-theme-alpine.dense .ag-header-cell-label {
-        padding-top: 4px;
-        padding-bottom: 4px;
-        font-size: 12px;
-    }
-
-    .ag-theme-alpine.dense .ag-cell {
-        padding-top: 4px;
-        padding-bottom: 4px;
-        padding-left: 6px;
-        padding-right: 6px;
-        font-size: 12px;
-        vertical-align: middle;
-        white-space: nowrap;
-    }
-
-/* Keep the rest of the original styles intact (below) */
 :root {
-    --doc-max-width: 1200px;
-    --doc-padding: 32px;
-    --header-footer-space: 140px; /* used to calculate grid height */
+    --doc-max-width: 100%;
+    --doc-padding: 12px;
+    --header-footer-space: 70px;
 }
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
     background: #f8f9fa;
     margin: 0;
     padding: 0;
@@ -91,45 +68,78 @@ body {
 
 .document-container {
     max-width: var(--doc-max-width);
-    margin: 24px auto;
+    margin: 8px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     padding: var(--doc-padding);
     box-sizing: border-box;
 }
 
+/* Compact header row with title and controls on same line */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 16px;
+}
+
 h1 {
-    margin-top: 0;
+    margin: 0;
+    font-size: 22px;
+    white-space: nowrap;
+}
+
+/* Controls container for filter input only */
+.controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 #filterInput {
-    margin-bottom: 16px;
-    padding: 8px 12px;
-    width: 100%;
-    max-width: 360px;
-    font-size: 16px;
+    margin-bottom: 0;
+    padding: 6px 10px;
+    width: 250px;
+    font-size: 14px;
     border: 1px solid #b0b0b0;
     border-radius: 4px;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
 }
 
-/* Make the grid fill the available vertical space on larger screens,
-   but use a smaller height on phones. Allow horizontal scrolling on small screens. */
+/* ============================================================================
+   AG GRID - EXCEL-STYLE DEFAULTS
+   Uses Calibri font with Excel-like sizing
+   ============================================================================ */
+
 .ag-theme-alpine {
     width: 100%;
     height: calc(100vh - var(--header-footer-space));
-    min-height: 360px;
+    min-height: 400px;
     box-sizing: border-box;
-    overflow: auto; /* allow horizontal scroll on small screens */
-    position: relative; /* allow absolutely positioned overlays inside the grid */
+    overflow: auto;
+    position: relative;
+    /* Excel-like font settings */
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 15px; /* Excel 11pt = 15px */
+    line-height: 1.2;
 }
+
+    /* Override AG Grid default fonts to match Excel */
+    .ag-theme-alpine .ag-header-cell,
+    .ag-theme-alpine .ag-header-cell-label,
+    .ag-theme-alpine .ag-cell {
+        font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    }
 
 /* Styles for focusable, copyable cells */
 .copyable-cell {
     display: inline-block;
     width: 100%;
     box-sizing: border-box;
-    cursor: text; /* indicate selectable text */
+    cursor: text;
     outline: none;
     user-select: text;
     -webkit-user-select: text;
@@ -143,19 +153,23 @@ h1 {
     }
 
 #footer {
-    margin-top: 24px;
+    margin-top: 8px;
     text-align: right;
     color: #888;
-    font-size: 13px;
+    font-size: 11px;
 }
+
+/* ============================================================================
+   STATUS BANNERS AND OVERLAYS
+   ============================================================================ */
 
 /* Grid status banner (non-destructive, shown above document container) */
 .grid-status-banner {
     background: #fff4e5;
     color: #333;
-    padding: 10px 12px;
-    margin: 12px 0;
-    border-radius: 6px;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -188,15 +202,15 @@ h1 {
 }
 
 .grid-error-overlay {
-    padding: 16px;
+    padding: 12px;
     color: #b00020;
     background: #fff3f2;
     border-radius: 6px;
-    font-family: Segoe UI, Arial, sans-serif;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
 }
 
     .grid-error-overlay .actions {
-        margin-top: 12px;
+        margin-top: 10px;
         display: flex;
         gap: 8px;
     }
@@ -205,7 +219,7 @@ h1 {
             background: #1976d2;
             color: #fff;
             border: none;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 4px;
             cursor: pointer;
         }
@@ -229,7 +243,7 @@ h1 {
     border-radius: 6px;
     max-height: 300px;
     overflow: auto;
-    font-family: monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     font-size: 12px;
 }
 
@@ -238,93 +252,114 @@ h1 {
         margin-top: 8px;
     }
 
-.grid-logs-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.grid-logs-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-left: 12px;
-}
-
-.grid-logs-pre {
-    white-space: pre-wrap;
-    margin-top: 8px;
-}
-
 /* Basic button utility used by overlays */
 .btn {
     border: none;
     border-radius: 4px;
     padding: 6px 10px;
     cursor: pointer;
+    background: #1976d2;
+    color: #fff;
+    white-space: nowrap;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
 }
 
-/* Responsive adjustments */
+    .btn:hover {
+        background: #1565c0;
+    }
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
 @media (max-width: 1024px) {
     :root {
-        --doc-max-width: 1000px;
-        --doc-padding: 20px;
-        --header-footer-space: 140px;
+        --doc-max-width: 100%;
+        --doc-padding: 12px;
+        --header-footer-space: 70px;
     }
 
     .document-container {
-        margin: 20px;
-    }
-
-    .ag-theme-alpine {
-        height: calc(100vh - var(--header-footer-space));
-        min-height: 420px;
-    }
-}
-
-@media (max-width: 768px) {
-    :root {
-        --doc-padding: 16px;
-        --header-footer-space: 140px;
-    }
-
-    .document-container {
-        margin: 12px;
-        border-radius: 6px;
-        padding: 16px;
-    }
-
-    #filterInput {
-        max-width: 100%;
-        font-size: 15px;
-    }
-
-    .ag-theme-alpine {
-        height: calc(100vh - 200px);
-        min-height: 320px;
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    :root {
-        --header-footer-space: 220px;
-    }
-
-    .document-container {
-        padding: 12px;
         margin: 8px;
     }
 
     .ag-theme-alpine {
         height: calc(100vh - var(--header-footer-space));
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --doc-padding: 10px;
+        --header-footer-space: 90px;
+    }
+
+    .document-container {
+        margin: 6px;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    /* Stack header on smaller screens */
+    .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .controls {
+        width: 100%;
+    }
+
+    #filterInput {
+        width: 100%;
+        min-width: 120px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .ag-theme-alpine {
+        height: calc(100vh - var(--header-footer-space));
+        min-height: 350px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --header-footer-space: 90px;
+    }
+
+    .document-container {
+        padding: 8px;
+        margin: 4px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    #filterInput {
+        font-size: 14px;
+        padding: 5px 8px;
+    }
+
+    .btn {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+
+    .ag-theme-alpine {
+        height: calc(100vh - var(--header-footer-space));
         min-height: 300px;
-        font-size: 12px;
+        font-size: 13px;
     }
 
         .ag-theme-alpine button {
-            padding: 6px 8px;
+            padding: 5px 7px;
             font-size: 12px;
         }
 }
