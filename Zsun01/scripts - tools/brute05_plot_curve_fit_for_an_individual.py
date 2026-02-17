@@ -177,12 +177,10 @@ if __name__ == "__main__":
         barry_b ='5490373' #ftp 273
         bill_henson ='5726145' #ftp 245
         chris_lockwood = "6944221" #ftp 252
-
         david_evanetich='4945836' #ftp 238
         john_h ='1884456' #ftp 211 zmap 292
         kent_johnson='618585' #ftp 223
         ken_chappell='1111583' #ftp 240
-
         lynsey_s ='383480' #ftp 201
         josh_n ='2508033' #ftp 260
         richard_m ='1193' # ftp 200
@@ -198,10 +196,10 @@ if __name__ == "__main__":
         meridith_leubner ="1707548" #ftp 220
         melissa_warwick = "1657744" #ftp 213
         brandi_steeve = "991817" #ftp 196
+        sean_o_reilly = "7160372"
         selena_shaik = "2682791" #ftp 214
         steve_seiler = "6142432" #ftp 270
         coryc = "5569057"
-        sean_o_reilly = "7160372"
 
         # Define the riders and their Zwift IDs - we only use one at a time. see below
         chosen_zwiftID : str = sean_o_reilly # choose a rider to model
