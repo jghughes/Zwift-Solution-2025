@@ -6,7 +6,7 @@
 :root {
     --doc-max-width: 100%;
     --doc-padding: 12px;
-    --header-footer-space: 70px;
+    --header-footer-space: 110px; /* Adjusted for h1 + h2 + filter */
 }
 
 body {
@@ -26,31 +26,23 @@ body {
     box-sizing: border-box;
 }
 
-/* Compact header row with title and controls on same line */
-.header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 16px;
-}
-
+/* Compact header with title and subtitle */
 h1 {
-    margin: 0;
+    margin: 0 0 0.25em 0;
     font-size: 22px;
     white-space: nowrap;
 }
 
-/* Controls container for filter input only */
-.controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-shrink: 0;
+h2 {
+    margin: 0 0 0.75em 0;
+    font-size: 16px;
+    font-weight: 400;
+    color: #666;
 }
 
+/* Filter input */
 #filterInput {
-    margin-bottom: 0;
+    margin-bottom: 12px;
     padding: 6px 10px;
     width: 250px;
     font-size: 14px;
@@ -160,7 +152,7 @@ h1 {
 @media (max-width: 768px) {
     :root {
         --doc-padding: 10px;
-        --header-footer-space: 90px;
+        --header-footer-space: 130px; /* More space for stacked elements on mobile */
     }
 
     .document-container {
@@ -168,24 +160,17 @@ h1 {
         padding: 10px;
     }
 
-    /* Stack header on smaller screens */
-    .header-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+    h1 {
+        font-size: 20px;
     }
 
-    .controls {
-        width: 100%;
+    h2 {
+        font-size: 14px;
     }
 
     #filterInput {
         width: 100%;
         min-width: 120px;
-    }
-
-    h1 {
-        font-size: 20px;
     }
 
     .ag-theme-alpine {

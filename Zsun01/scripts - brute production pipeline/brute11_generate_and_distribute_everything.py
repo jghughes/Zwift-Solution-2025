@@ -48,7 +48,7 @@ and dataset preparation for club-level cycling analytics and reporting.
 import asyncio
 from email import message
 from pathlib import Path
-from typing import Type, Dict, List, Any
+from typing import Type, Dict, Any
 
 import pandas as pd
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
@@ -135,6 +135,9 @@ async def generate_everything_and_save_and_upload():
         reverse=True,  # highest w/kg first
     )
     dto_dict_rb = {k: RiderBruteItem.to_dataTransferObject(v) for k, v in sorted_items_rb}
+    for row_num, (_, item) in enumerate(dto_dict_rb.items(), start=1):
+        item.row = row_num
+
 
     await export_and_upload_dtos(
         dto_by_key=dto_dict_rb,
@@ -166,7 +169,11 @@ async def generate_everything_and_save_and_upload():
         key=lambda kv: _safe_zwift_zftp_wkg(kv[1]),
         reverse=True,  # highest w/kg first
     )
+
     dto_dict_rs = {k: RiderStatsItem.to_dataTransferObject(v) for k, v in sorted_items_rs}
+    for row_num, (_, item) in enumerate(dto_dict_rs.items(), start=1):
+        item.row = row_num
+
 
     await export_and_upload_dtos(
         dto_by_key=dto_dict_rs,

@@ -15,7 +15,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
     Can be used as a cache key or dictionary key, or in a set.
     """
     name							: str		= ""		# Name of the rider
-    zwift_country_code3					: str		= ""		# 2 letter name of country
+    zwift_country_code3				: str		= ""		# 2 letter name of country
     weight_kg						: float		= 0.0		# Weight of the rider in kilograms
     height_cm						: float		= 0.0		# Height of the rider in centimeters
     gender							: str		= ""		# Gender of the rider

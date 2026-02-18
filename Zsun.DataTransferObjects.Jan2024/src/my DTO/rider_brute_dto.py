@@ -3,6 +3,7 @@ from pydantic import BaseModel, RootModel
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
+	"row"									:	AliasChoices("row"),
 	"zwift_id"								:	AliasChoices("zwift_id", "zwiftId"),
 	"zwift_country_code3"					:	AliasChoices("zwift_country_code3", "zwiftCountry3"),
 	"name_racingapp"						:	AliasChoices("name_racingapp", "veloName"),
@@ -38,9 +39,10 @@ preferred_config_dict = configdictV1
 
 class RiderBruteDTO(BaseModel):
 	model_config	=	preferred_config_dict
-	zwift_id									:	str					=	""
+	row										:	int						=	0
+	zwift_id								:	str					=	""
 	name_racingapp							:	str						=	""
-	zwift_country_code3							:	str						=	""
+	zwift_country_code3						:	str						=	""
 	zwift_age_years							:	float					=	0.0
 	zwift_height_cm							:	float					=	0.0
 	zwift_weight_kg							:	float					=	0.0
@@ -50,7 +52,7 @@ class RiderBruteDTO(BaseModel):
 	zwift_racing_score						:	float					=	0.0
 	zwift_FTP_watts							:	float					=	0.0
 	# zwiftpower_zftp_watts					:	float					=	0.0
-	velo_zwiftpower_zFTP_watts						:	float					=	0.0
+	velo_zwiftpower_zFTP_watts				:	float					=	0.0
 	velo_cat_num_30_days					:	int						=	0
 	velo_rating_30_days						:	float					=	0.0
 	velo_cat_name_30_days					:	str						=	""

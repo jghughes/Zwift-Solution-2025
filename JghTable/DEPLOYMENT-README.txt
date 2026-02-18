@@ -11,7 +11,7 @@ Current Apps:
   * Membership List - rider statistics and power data
   * Olympics Results - ZRL race results
 
-Repository: https://github.com/jghughes/Zwift-Solution-2025
+Repository: https://github.com/jghhughes/Zwift-Solution-2025
 
 ================================================================================
 PROJECT STRUCTURE
@@ -27,10 +27,11 @@ JghTable/
 |
 +-- olympics/
 |   +-- index.html       (Entry point)
-|   +-- olympics_init.js (AG Grid setup)
+|   +-- index.js         (AG Grid initialization & data fetching)
+|   +-- index.css        (Custom styles)
 |   +-- 404.html         (Error page)
 |
-+-- README.txt           (This file)
++-- DEPLOYMENT-README.txt (This file)
 
 ================================================================================
 LOCAL DEVELOPMENT & TESTING
@@ -71,14 +72,15 @@ Step 2: Launch Local Web Server
 Step 3: Open in Browser
 
   Click the URL shown in terminal or navigate to:
-    http://127.0.0.1:8081/index.html
+    http://127.0.0.1:8080/index.html
 
 
 Step 4: Test the App
 
   * Verify the membership grid loads data
-  * Test the filter input (top-left text box)
-  * Test the "Toggle density" button
+  * Test the filter input functionality
+  * Test cell copying (Ctrl+C or double-click)
+  * Verify column sorting and resizing
   * Open browser console (F12) and check for errors
 
 
@@ -122,6 +124,8 @@ PREREQUISITES (One-time setup)
 DEPLOY SINGLE APP - MEMBERSHIP
 -------------------------------
 
+OPTION A: Windows Command Prompt (CMD)
+---------------------------------------
 From the JghTable folder, run:
 
     az storage blob upload-batch ^
@@ -130,11 +134,28 @@ From the JghTable folder, run:
         --source "./membership" ^
         --overwrite
 
-NOTE: Use ^ for Windows CMD. For PowerShell, use ` (backtick) instead.
+NOTE: Use ^ for line continuation in CMD.
+
+
+OPTION B: PowerShell
+---------------------
+From the JghTable folder, run:
+
+    az storage blob upload-batch `
+        --account-name customerzsun `
+        --destination '$web/membership' `
+        --source './membership' `
+        --overwrite
+
+NOTE: Use ` (backtick) for line continuation in PowerShell.
+NOTE: Use single quotes around $web to prevent variable expansion.
 
 
 DEPLOY SINGLE APP - OLYMPICS
 -----------------------------
+
+OPTION A: Windows Command Prompt (CMD)
+---------------------------------------
 
     az storage blob upload-batch ^
         --account-name customerzsun ^
@@ -143,10 +164,123 @@ DEPLOY SINGLE APP - OLYMPICS
         --overwrite
 
 
+OPTION B: PowerShell
+---------------------
+
+    az storage blob upload-batch `
+        --account-name customerzsun `
+        --destination '$web/olympics' `
+        --source './olympics' `
+        --overwrite
+
+
 DEPLOY ALL APPS
 ---------------
 
-Run both commands sequentially, or create a batch script.
+OPTION A: Windows Command Prompt (CMD) - Sequential
+----------------------------------------------------
+Run both commands sequentially:
+
+    az storage blob upload-batch ^
+        --account-name customerzsun ^
+        --destination "$web/membership" ^
+        --source "./membership" ^
+        --overwrite
+
+    az storage blob upload-batch ^
+        --account-name customerzsun ^
+        --destination "$web/olympics" ^
+        --source "./olympics" ^
+        --overwrite
+
+
+OPTION B: PowerShell - Sequential
+----------------------------------
+Run both commands sequentially:
+
+    az storage blob upload-batch `
+        --account-name customerzsun `
+        --destination '$web/membership' `
+        --source './membership' `
+        --overwrite
+
+    az storage blob upload-batch `
+        --account-name customerzsun `
+        --destination '$web/olympics' `
+        --source './olympics' `
+        --overwrite
+
+
+OPTION C: PowerShell Script (Recommended for multiple deployments)
+-------------------------------------------------------------------
+Create a file named deploy-all.ps1 in the JghTable folder:
+
+    # Deploy all ZSUN web apps to Azure Blob Storage
+    # Run from JghTable folder
+
+    $account = "customerzsun"
+    $apps = @("membership", "olympics")
+
+    Write-Host "Starting deployment of all apps..." -ForegroundColor Green
+
+    foreach ($app in $apps) {
+        Write-Host "`nDeploying $app..." -ForegroundColor Yellow
+        
+        az storage blob upload-batch `
+            --account-name $account `
+            --destination "`$web/$app" `
+            --source "./$app" `
+            --overwrite
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "$app deployed successfully!" -ForegroundColor Green
+        } else {
+            Write-Host "$app deployment failed!" -ForegroundColor Red
+        }
+    }
+
+    Write-Host "`nAll deployments complete!" -ForegroundColor Green
+
+Run the script:
+
+    cd C:\Users\johng\source\repos\Zwift-Solution-2025\JghTable
+    .\deploy-all.ps1
+
+NOTE: If you get an execution policy error, run:
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+
+OPTION D: Batch Script (CMD alternative)
+-----------------------------------------
+Create a file named deploy-all.bat in the JghTable folder:
+
+    @echo off
+    echo Starting deployment of all apps...
+
+    echo.
+    echo Deploying membership...
+    az storage blob upload-batch ^
+        --account-name customerzsun ^
+        --destination "$web/membership" ^
+        --source "./membership" ^
+        --overwrite
+
+    echo.
+    echo Deploying olympics...
+    az storage blob upload-batch ^
+        --account-name customerzsun ^
+        --destination "$web/olympics" ^
+        --source "./olympics" ^
+        --overwrite
+
+    echo.
+    echo All deployments complete!
+    pause
+
+Run the script:
+
+    cd C:\Users\johng\source\repos\Zwift-Solution-2025\JghTable
+    deploy-all.bat
 
 ================================================================================
 VERIFICATION
@@ -157,21 +291,27 @@ PRODUCTION URLS
 After deployment, test these URLs in your browser:
 
 Membership App:
-  https://customerzsun.blob.core.windows.net/$web/membership/
+  https://customerzsun.blob.core.windows.net/$web/membership/index.html
 
 Olympics App:
-  https://customerzsun.blob.core.windows.net/$web/olympics/
-
-NOTE: Azure automatically serves index.html when accessing a folder URL.
+  https://customerzsun.blob.core.windows.net/$web/olympics/index.html
 
 
 VERIFY INDIVIDUAL ASSETS
 -------------------------
 Check that these files are accessible:
 
+Membership:
+  https://customerzsun.blob.core.windows.net/$web/membership/index.html
   https://customerzsun.blob.core.windows.net/$web/membership/index.css
   https://customerzsun.blob.core.windows.net/$web/membership/index.js
-  https://customerzsun.blob.core.windows.net/$web/olympics/olympics_init.js
+  https://customerzsun.blob.core.windows.net/$web/membership/404.html
+
+Olympics:
+  https://customerzsun.blob.core.windows.net/$web/olympics/index.html
+  https://customerzsun.blob.core.windows.net/$web/olympics/index.css
+  https://customerzsun.blob.core.windows.net/$web/olympics/index.js
+  https://customerzsun.blob.core.windows.net/$web/olympics/404.html
 
 ================================================================================
 DATA SOURCES
@@ -215,7 +355,7 @@ ADDING A NEW APP
    * index.html (entry point)
    * index.js (your JavaScript)
    * index.css (your styles)
-   * 404.html (optional error page)
+   * 404.html (error page)
 
 3. Use relative paths in HTML:
    
@@ -224,7 +364,15 @@ ADDING A NEW APP
 
 4. Test locally (see testing steps above)
 
-5. Deploy to Azure:
+5. Deploy to Azure using PowerShell:
+   
+   az storage blob upload-batch `
+       --account-name customerzsun `
+       --destination '$web/[new-app-name]' `
+       --source './[new-app-name]' `
+       --overwrite
+
+   Or using CMD:
    
    az storage blob upload-batch ^
        --account-name customerzsun ^
@@ -251,6 +399,24 @@ SOLUTION: Re-authenticate with Azure:
   az login
 
 
+PROBLEM: PowerShell script execution policy error
+--------------------------------------------------
+SOLUTION: Allow script execution for current user:
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Or run script with bypass:
+  powershell -ExecutionPolicy Bypass -File .\deploy-all.ps1
+
+
+PROBLEM: PowerShell $web variable expansion error
+--------------------------------------------------
+SOLUTION: Use single quotes around $web:
+  --destination '$web/membership'
+
+NOT double quotes which cause variable expansion:
+  --destination "$web/membership" (WRONG in PowerShell)
+
+
 PROBLEM: Changes not showing on Azure after deployment
 -------------------------------------------------------
 SOLUTION: 
@@ -274,6 +440,16 @@ SOLUTION:
   * Verify index.css exists in the same folder as index.html
   * Check browser console (F12) for 404 errors
   * Ensure relative paths use ./ prefix: href="./index.css"
+  * Clear browser cache and hard refresh
+
+
+PROBLEM: JavaScript not executing
+----------------------------------
+SOLUTION:
+  * Verify index.js exists in the same folder as index.html
+  * Check browser console (F12) for syntax errors
+  * Ensure relative paths use ./ prefix: src="./index.js"
+  * Verify AG Grid CDN is accessible
 
 
 PROBLEM: Multiple blank grids appearing with "__adComponent" error
@@ -281,9 +457,7 @@ PROBLEM: Multiple blank grids appearing with "__adComponent" error
 SOLUTION:
   * This occurs when AG Grid is initialized multiple times
   * Check index.js for duplicate DOMContentLoaded listeners
-  * Ensure grid is destroyed before reinitializing (toggleDensity function)
-  * Verify index.html doesn't have duplicate <script src="./index.js"> tags
-  * Add initialization guard flag: if (gridInitialized) return;
+  * Verify index.html does not have duplicate <script src="./index.js"> tags
   * Clear browser cache completely and hard refresh (CTRL+SHIFT+DELETE)
 
 ================================================================================
@@ -298,6 +472,8 @@ BEST PRACTICES
 [X] Document any configuration changes in this README
 [X] Test in multiple browsers (Chrome, Firefox, Edge)
 [X] Check mobile responsiveness if making UI changes
+[X] Use PowerShell scripts for automated multi-app deployments
+[X] Use single quotes in PowerShell around $web to prevent variable expansion
 
 ================================================================================
 TECHNICAL DETAILS
@@ -340,6 +516,23 @@ Update all three references if upgrading:
   * ag-theme-alpine.css
   * ag-grid-community.min.js
 
+
+POWERSHELL VS CMD SYNTAX
+-------------------------
+Key differences when using Azure CLI:
+
+Line continuation:
+  PowerShell: Use backtick `
+  CMD:        Use caret ^
+
+Quoting $web:
+  PowerShell: Use single quotes '$web/app'
+  CMD:        Use double quotes "$web/app"
+
+Variables:
+  PowerShell: $variable = "value"
+  CMD:        set variable=value
+
 ================================================================================
 RELATED RESOURCES
 ================================================================================
@@ -352,6 +545,9 @@ Azure Blob Storage Static Websites:
 
 Azure CLI Reference:
   https://learn.microsoft.com/en-us/cli/azure/storage/blob
+
+PowerShell Documentation:
+  https://learn.microsoft.com/en-us/powershell/
 
 Project Repository:
   https://github.com/jghughes/Zwift-Solution-2025
@@ -375,6 +571,21 @@ MAINTENANCE LOG
             - Documented local development workflow
             - Documented Azure deployment process
             - Added troubleshooting section
+
+2026-02-17: Refactored both apps
+            - Externalized CSS to index.css files
+            - Renamed olympics_init.js to index.js for consistency
+            - Simplified error handling (removed log viewer)
+            - Reduced JavaScript code length by approximately 40%
+            - Updated 404 pages to match app styling
+            - Standardized file structure across all apps
+
+2026-02-17: Enhanced deployment documentation
+            - Added comprehensive PowerShell deployment instructions
+            - Included PowerShell script template for multi-app deployment
+            - Added Batch script alternative for CMD users
+            - Documented PowerShell-specific troubleshooting
+            - Added syntax comparison table for PowerShell vs CMD
 
 ================================================================================
 END OF DOCUMENT

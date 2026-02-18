@@ -3,6 +3,7 @@ from pydantic import BaseModel, RootModel
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
+	"row"									:	AliasChoices("row"),
 	"zwift_id"								:	AliasChoices("zwift_id", "zwiftId"),
 	"full_name"								:	AliasChoices("full_name", "fullName"),
 	"zwift_country_code3"					:	AliasChoices("zwift_country_code3", "zwiftCountryCode3"),
@@ -60,6 +61,7 @@ preferred_config_dict = configdictV1
 
 class RiderStatsDTO(BaseModel):
 	model_config							=	preferred_config_dict
+	row                                     :	int		=	0
 	zwift_id								:	str		=	""
 	full_name								:	str		=	""
 	zwift_country_code3						:	str		=	""

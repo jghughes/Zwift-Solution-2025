@@ -237,13 +237,13 @@ class RepositoryOfRiders:
                 age_years                         = zwiftItem.age_years,
                 age_group                         = zwiftracingappItem.age_group,
                 zwift_FTP_watts                   = round(zwiftItem.ftp_on_zwift),
-                velo_zwiftpower_zFTP_watts          = round(zwiftracingappItem.zp_FTP),
-                zwift_racing_score                 = round(zwiftItem.competition_metrics.zwift_racing_score),
-                zwift_cat_open                     = zwiftItem.competition_metrics.zwift_category_open,
-                zwift_cat_women                     = zwiftItem.competition_metrics.zwift_category_women,
-                velo_rating_30_days                = round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
-                velo_cat_num_30_days               = zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
-                velo_cat_name_30_days              = zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+                velo_zwiftpower_zFTP_watts        = round(zwiftracingappItem.zp_FTP),
+                zwift_racing_score                = round(zwiftItem.competition_metrics.zwift_racing_score),
+                zwift_cat_open                    = zwiftItem.competition_metrics.zwift_category_open,
+                zwift_cat_women                   = zwiftItem.competition_metrics.zwift_category_women,
+                velo_rating_30_days               = round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
+                velo_cat_num_30_days              = zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+                velo_cat_name_30_days             = zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
                 jgh_60_min_curve_coefficient      = jghcurveItem.sixty_min_curve_coefficient,
                 jgh_60_min_curve_exponent         = jghcurveItem.sixty_min_curve_exponent,
                 jgh_TTT_pull_curve_coefficient    = jghcurveItem.TTT_pull_curve_coefficient,
@@ -341,7 +341,8 @@ class RepositoryOfRiders:
             riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
 
             if riderStatsItem.cat_open == "":
-                riderStatsItem.cat_open = "?"  
+                riderStatsItem.cat_open = "?" 
+                riderStatsItem.cat_women = "?"
             if riderStatsItem.cat_women == "":
                 if riderStatsItem.gender_code == "m":
                     riderStatsItem.cat_women = ""
@@ -353,22 +354,13 @@ class RepositoryOfRiders:
                 cat_combo = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
 
             zftp_wkg : str = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg,2))}wkg"
-
             zwift_racing_score : str = format_number_0dp_padded4(riderStatsItem.zwift_racing_score)
-
-            # if riderStatsItem.zwift_racing_score== 0:
-            #     if (riderStatsItem.zwift_zftp_wkg == 0):
-            #         riderStatsItem.zwift_cat_label = "unknown"
-            #     else:
-            #         riderStatsItem.zwift_cat_label = zftp_wkg
-            # else:
             riderStatsItem.zwift_cat_label = f"{zftp_wkg} - {zwift_racing_score} - {cat_combo}"
-
             velo_cat_num = format_number_0dp_padded2(riderStatsItem.velo_cat_num_30_days)
             velo_rating = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
             if riderStatsItem.velo_rating_30_days == 0:
-                riderStatsItem.velo_cat_label= "00000"
+                riderStatsItem.velo_cat_label= "---------------------"
             else:
                 riderStatsItem.velo_cat_label = f"{velo_rating} - {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num}"
 
