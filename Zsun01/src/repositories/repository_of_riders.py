@@ -360,9 +360,9 @@ class RepositoryOfRiders:
             velo_rating = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
             if riderStatsItem.velo_rating_30_days == 0:
-                riderStatsItem.velo_cat_label= "---------------------"
+                riderStatsItem.velo_cat_label= "-------------------------"
             else:
-                riderStatsItem.velo_cat_label = f"{velo_rating} - {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num}"
+                riderStatsItem.velo_cat_label = f"{velo_rating} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num}"
 
             preliminary_answer[key] = riderStatsItem
 
