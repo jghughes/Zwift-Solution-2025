@@ -317,7 +317,7 @@ if __name__ == "__main__":
     start_time = time.time()
     try:
 
-        _team_name = "inhibited" 
+        _team_name = "betel" 
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         throw_if_no_internet_connection()
         asyncio.run(generate_ttt_scenarios_with_brute())

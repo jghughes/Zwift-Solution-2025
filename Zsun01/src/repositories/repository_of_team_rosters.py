@@ -41,9 +41,10 @@ class RepositoryOfTeamRosters:
             "dome": 1.03,
             "bojo": 1.0,
             "inhibited": 1.0,
+            "rangers": 1.0,
         }
     )
- 
+ # 8098136 456545
     _team_rosters_as_dict: Dict[str, Dict[str, str]] = defaultdict(
         lambda: defaultdict(str),
         {
@@ -51,6 +52,7 @@ class RepositoryOfTeamRosters:
                 "5490373": "barry_beck",
                 "991817": "brandi_steeve",
                 "9011": "bryan_bumpas",
+                "4204538": "ceri_pritchard",
             #     "163795": "colin_fetter",
             #     "5569057": "cory_cook",
             #     "3147366": "dave_konicek",
@@ -148,21 +150,25 @@ class RepositoryOfTeamRosters:
                 # "480698": "brent_huser",
                 # "9011": "bryan_bumpas",
                 # "991817": "brandi_steeve",
+                "456545": "carrie_merritt",
                 # "5569057": "cory_cook",
                 # "6944221": "chris_lockwood",
-                "4945836": "david_evanetich",
+                # "4945836": "david_evanetich",
                 # "183277": "giao_nguyen",
                 # "523861": "gary_putlock",
-                "1884456": "john_hughes",
+                "525104": "iva_gotz",
+                # "1884456": "john_hughes",
                 # "2508033": "josh_neil",
+                "207797": "lori_pridham",
                 # "2803600": "larry_mccamon",
                 # "383480": "lynsey_segal",
+                "4750594":"lydia_lequesne",
                 # "276319": "mark_goveia",
                 # "1024413": "matt_steeve",
                 # "2902662": "matthew_wongkee",
                 # "1657744": "melissa_warwick",
-                "1707548": "meridith_leubner",
-                "1618188": "michael_rebarchik",
+                # "1707548": "meridith_leubner",
+                # "1618188": "michael_rebarchik",
                 # "1609384": "mike_echo",
                 # "3142395": "rachel_laponsey",
                 # "1193": "richard_mann",
@@ -228,7 +234,16 @@ class RepositoryOfTeamRosters:
             }),
             "kissed": defaultdict(str, {
                 "383480": "lynsey_segal",
-            })
+            }),
+            "rangers": defaultdict(str, {
+                "6944221": "chris_lockwood",
+                "4945836": "david_evanetich",
+                "8098136": "eddie_nolen",
+                "1884456": "john_hughes",
+                "846200": "lisa_bick",
+                "172105": "dayton_danielson",
+                "1024413": "matt_steeve"
+            }),
         }
     )
 

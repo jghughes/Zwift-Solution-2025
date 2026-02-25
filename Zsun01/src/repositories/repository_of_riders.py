@@ -11,7 +11,7 @@ from zwiftid_file_reader_sync import (
     read_zwftracingappdto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
-from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded2, format_number_0dp_padded4
+from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
 from zwift_item import ZwiftItem
@@ -349,20 +349,21 @@ class RepositoryOfRiders:
                 else:
                     riderStatsItem.cat_women = "?"
             if riderStatsItem.gender_code == "m":
-                cat_combo = riderStatsItem.cat_open
+                cat_combo_text = riderStatsItem.cat_open
             else:
-                cat_combo = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
+                cat_combo_text = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
 
-            zftp_wkg : str = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg,2))}wkg"
-            zwift_racing_score : str = format_number_0dp_padded4(riderStatsItem.zwift_racing_score)
-            riderStatsItem.zwift_cat_label = f"{zftp_wkg} - {zwift_racing_score} - {cat_combo}"
-            velo_cat_num = format_number_0dp_padded2(riderStatsItem.velo_cat_num_30_days)
-            velo_rating = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
+            zftp_wkg_text : str = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg,2))}wkg"
+            zwift_racing_score_text : str = f"{format_number_0dp_padded3(riderStatsItem.zwift_racing_score)}zrs"
+            riderStatsItem.zwift_cat_label = f"{zftp_wkg_text} - {zwift_racing_score_text} - {cat_combo_text}"
+
+            velo_cat_num_text = format_number_0dp_padded1(riderStatsItem.velo_cat_num_30_days)
+            velo_rating_text = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
             if riderStatsItem.velo_rating_30_days == 0:
                 riderStatsItem.velo_cat_label= "-------------------------"
             else:
-                riderStatsItem.velo_cat_label = f"{velo_rating} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num}"
+                riderStatsItem.velo_cat_label = f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
 
             preliminary_answer[key] = riderStatsItem
 
