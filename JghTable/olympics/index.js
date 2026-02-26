@@ -2,26 +2,25 @@
 // OLYMPICS APP CONFIGURATION
 // ============================================================================
 
-const DATA_URL = "https://customerzsun.blob.core.windows.net/preprocessed/wtrl-zrl-2025-26-round3race6-leaderboard-club.json";
+const DATA_URL = "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/18-6-club-leaderboard.json";
 
 const FALLBACK_DATA = [
-    { row: 1, route: "long", place: 99999, time: "00:00:00", name: "John Doe", flag: "USA", gender: "O", competition: "Open regular", league: "Cherry", division: "B1", team: "Team A" }
+    { row: 1, route: "long", place: 99999, time: "00:00:00", "rider-name": "John Doe", "rider-flag": "USA", gender: "O", competition: "Open regular", league: "Cherry", division: "B1", "team-name": "Team A" }
 ];
 
 const BASE_COLUMN_DEFS = [
     { headerName: "row", field: "row", pinned: 'left', type: 'numericColumn', width: 60 },
-    { headerName: "Name", field: "name", pinned: 'left', width: 150 },
-    { headerName: "Flag", field: "flag" },
+    { headerName: "Name", field: "rider-name", pinned: 'left', width: 150 },
+    { headerName: "Flag", field: "rider-flag" },
     { headerName: "Place", field: "place", type: 'numericColumn' },
     { headerName: "Time", field: "time" },
+    { headerName: "Points", field: "rider-totrp" },
     { headerName: "Route", field: "route" },
-    //{ headerName: "Seconds", field: "seconds" },
     { headerName: "Gender", field: "gender" },
     { headerName: "Competition", field: "competition", width: 150 },
     { headerName: "League", field: "league" },
     { headerName: "Div", field: "division" },
-    { headerName: "Team", field: "team", width: 150 },
-    //{ headerName: "Club", field: "club", width: 150 },
+    { headerName: "Team", field: "team-name", width: 150 },
 ];
 
 // ============================================================================
