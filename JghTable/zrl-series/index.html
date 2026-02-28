@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZRL 2026 Round 3</title>
+    <!-- AG Grid CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.4/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.4/styles/ag-theme-alpine.css">
+    <link rel="stylesheet" href="./base-grid.css">
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div class="document-container">
+        <h1>Zwift Racing League 2026: Round 3</h1>
+        <h2>January - February, 2026</h2>
+        <div class="controls-row">
+            <select id="raceSelector"></select>
+            <input type="text" id="filterInput" placeholder="Filter..." />
+        </div>
+        <div id="myGrid" class="ag-theme-alpine"></div>
+    </div>
+    <!-- AG Grid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.4/dist/ag-grid-community.min.js"></script>
+    <script src="./base-grid.js"></script>
+    <script src="./index.js"></script>
+</body>
+</html>
