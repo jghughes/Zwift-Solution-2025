@@ -173,7 +173,11 @@ window.ZsunGridFramework = (function () {
             }
         }
 
-        loadData() {
+        loadData(url) {
+            if (url) {
+                this.config.dataUrl = url;
+            }
+
             if (this.gridOptions?.api?.showLoadingOverlay) {
                 try { this.gridOptions.api.showLoadingOverlay(); }
                 catch (e) { console.warn('showLoadingOverlay failed', e); }
