@@ -9,12 +9,6 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun.DataTransferObjects.Ja
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun01", "Zsun01\Zsun01.pyproj", "{3F670AD8-602C-4E11-AEBE-3D1B70B55DE2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "+README", "+README", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-	ProjectSection(SolutionItems) = preProject
-		README - how to reinitialise Git+Github repo.txt = README - how to reinitialise Git+Github repo.txt
-		README - how to relocate secrets to Azure KeyVault.txt = README - how to relocate secrets to Azure KeyVault.txt
-	EndProjectSection
-EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "JghTable", "JghTable\JghTable.esproj", "{8A21035B-FB12-5991-2FEC-B56BC7E0E998}"
 EndProject
 Global

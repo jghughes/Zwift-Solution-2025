@@ -17,11 +17,7 @@ This repository contains multiple Single Page Applications (SPAs) hosted on Azur
 ```
 JghTable/
 ?
-??? shared-mastercopies/
-?   ??? base-grid.css    # Master copy - Excel-style AG Grid layouts
-?   ??? base-grid.js     # Master copy - Shared AG Grid framework
-?
-??? membership/
+??? dirt racing series 2026/
 ?   ??? index.html       # Entry point
 ?   ??? index.js         # App-specific configuration (~50 lines)
 ?   ??? index.css        # App-specific styles
@@ -29,7 +25,19 @@ JghTable/
 ?   ??? base-grid.js     # Deployed copy from shared-mastercopies
 ?   ??? 404.html         # Error page
 ?
-??? olympics/
+??? wtrl zrl league 2025-6/
+?   ??? index.html       # Entry point
+?   ??? index.js         # App-specific configuration (~50 lines)
+?   ??? index.css        # App-specific styles
+?   ??? base-grid.css    # Deployed copy from shared-mastercopies
+?   ??? base-grid.js     # Deployed copy from shared-mastercopies
+?   ??? 404.html         # Error page
+?
+??? shared-mastercopies/
+?   ??? base-grid.css    # Master copy - Excel-style AG Grid layouts
+?   ??? base-grid.js     # Master copy - Shared AG Grid framework
+?
+??? zsun club membership/
 ?   ??? index.html       # Entry point
 ?   ??? index.js         # App-specific configuration (~50 lines)
 ?   ??? index.css        # App-specific styles
@@ -54,10 +62,13 @@ To reduce duplication while maintaining Azure Blob Storage compatibility (no-bui
    - `base-grid.js` - Shared AG Grid framework
 
 **2. COPY:** Duplicate to each app folder
-   - `shared-mastercopies/base-grid.css` ? `membership/base-grid.css`
-   - `shared-mastercopies/base-grid.css` ? `olympics/base-grid.css`
-   - `shared-mastercopies/base-grid.js` ? `membership/base-grid.js`
-   - `shared-mastercopies/base-grid.js` ? `olympics/base-grid.js`
+   - `shared-mastercopies/base-grid.css` ? `dirt racing series 2026/base-grid.css`
+   - `shared-mastercopies/base-grid.css` ? `wtrl zrl league 2025-6/base-grid.css`
+   - `shared-mastercopies/base-grid.css` ? `zsun club membership/base-grid.css`
+   - 
+   - `shared-mastercopies/base-grid.js` ? `dirt racing series 2026/base-grid.js`
+   - `shared-mastercopies/base-grid.js` ? `wtrl zrl league 2025-6/base-grid.js`
+   - `shared-mastercopies/base-grid.js` ? `zsun club membership/base-grid.js`
 
 **3. DEPLOY:** Azure serves each app's complete folder independently
 
@@ -249,18 +260,7 @@ Press `CTRL+C` in the terminal
 
 ---
 
-### Testing the Olympics App
 
-Same steps, but use the `olympics` folder:
-
-```bash
-cd C:\Users\johng\source\repos\Zwift-Solution-2025\JghTable\olympics
-http-server .
-```
-
-Then open: [http://127.0.0.1:8080/index.html](http://127.0.0.1:8080/index.html)
-
----
 
 ### Alternative: Python HTTP Server
 
@@ -383,9 +383,6 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **Membership App:**  
 [https://customerzsun.blob.core.windows.net/$web/membership/index.html](https://customerzsun.blob.core.windows.net/$web/membership/index.html)
 
-**Olympics App:**  
-[https://customerzsun.blob.core.windows.net/$web/olympics/index.html](https://customerzsun.blob.core.windows.net/$web/olympics/index.html)
-
 ---
 
 ### Verify Shared Files Deployed
@@ -422,9 +419,6 @@ Both apps fetch JSON data from Azure Blob Storage:
 
 **Membership data:**  
 [https://customerzsun.blob.core.windows.net/preprocessed/rider_stats_dto_as_list.json](https://customerzsun.blob.core.windows.net/preprocessed/rider_stats_dto_as_list.json)
-
-**Olympics data:**  
-[https://customerzsun.blob.core.windows.net/preprocessed/wtrl-zrl-2025-26-round3race6-leaderboard-club.json](https://customerzsun.blob.core.windows.net/preprocessed/wtrl-zrl-2025-26-round3race6-leaderboard-club.json)
 
 > Data is updated by Python scripts in the Zsun01 project (separate repository).
 

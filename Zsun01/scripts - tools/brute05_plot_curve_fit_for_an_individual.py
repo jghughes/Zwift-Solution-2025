@@ -41,14 +41,13 @@ The script performs the following steps:
 This tool demonstrates data loading, machine learning for curve fitting,
 and visualization for cycling performance analysis using matplotlib.
 """
-from datetime import datetime
 from pathlib import Path
 
 import critical_power as cp
 import matplotlib.pyplot as plt
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_units_ticks
-from scipy.optimize import curve_fit
-from sklearn.metrics import r2_score
+from scipy.optimize import curve_fit #ignore squiggly
+from sklearn.metrics import r2_score #ignore squiggly
 
 from constants import ZWIFTPOWER_GRAPH_WINDOW
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
@@ -172,38 +171,40 @@ if __name__ == "__main__":
     try:
 
         # Define the riders and their Zwift IDs - we only use one at a time. see below
-        alex_shiver='2619046' #ftp 200
-        anthony_dangelo='7712769' #ftp 163
-        barry_b ='5490373' #ftp 273
-        bill_henson ='5726145' #ftp 245
+        alex_shiver='2619046'
+        anthony_dangelo='7712769'
+        barry_b ='5490373'
+        bill_henson ='5726145'
+        brandi_steeve = "991817"
+        bryan_bumpas = "9011"
         ceri_pritchard = '4204538'
-        chris_lockwood = "6944221" #ftp 252
-        david_evanetich='4945836' #ftp 238
-        john_h ='1884456' #ftp 211 zmap 292
-        kent_johnson='618585' #ftp 223
-        ken_chappell='1111583' #ftp 240
-        lynsey_s ='383480' #ftp 201
-        josh_n ='2508033' #ftp 260
-        richard_m ='1193' # ftp 200
-        mark_b ='5530045' #ftp 280
-        dave_k ='3147366' #ftp 276 critical_power 278
-        husky ='5134' #ftp 268
-        scott_m ='11526' #ftp 247
-        tim_r ='5421258' #ftp 380
-        tom_bick ='11741' #ftp 303 critical_power 298
-        bryan_bumpas = "9011" #ftp 214
-        matt_steeve = "1024413"
-        giao_nguyen = "183277" #ftp 189
-        meridith_leubner ="1707548" #ftp 220
-        melissa_warwick = "1657744" #ftp 213
-        brandi_steeve = "991817" #ftp 196
-        sean_o_reilly = "7160372"
-        selena_shaik = "2682791" #ftp 214
-        steve_seiler = "6142432" #ftp 270
+        chris_lockwood = "6944221"
         coryc = "5569057"
+        dave_k ='3147366'
+        david_evanetich='4945836'
+        dayton_danielson='172105'
+        giao_nguyen = "183277"
+        husky ='5134'
+        john_h ='1884456'
+        josh_n ='2508033'
+        ken_chappell='1111583'
+        kent_johnson='618585'
+        lynsey_s ='383480'
+        mark_b ='5530045'
+        matt_steeve = "1024413"
+        melissa_warwick = "1657744"
+        meridith_leubner ="1707548"
+        richard_m ='1193'
+        scott_m ='11526'
+        sean_o_reilly = "7160372"
+        selena_shaik = "2682791"
+        steve_seiler = "6142432"
+        stewart_lalieu = "103825"
+        tim_r ='5421258'
+        tom_bick ='11741'
 
         # Define the riders and their Zwift IDs - we only use one at a time. see below
-        chosen_zwiftID : str = ceri_pritchard # choose a rider to model
+        chosen_zwiftID : str = stewart_lalieu # choose a rider to model
         team_name = "scratchpad" # rider must be on this team otherwise throw exception
 
         plot_curve_fit_for_an_individual()

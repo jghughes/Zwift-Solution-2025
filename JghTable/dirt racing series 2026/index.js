@@ -3,32 +3,31 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r1-leaderboard-club.json" },
-    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r2-leaderboard-club.json" },
-    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r3-leaderboard-club.json" },
-    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r4-leaderboard-club.json" },
-    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r5-leaderboard-club.json" },
-    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r6-leaderboard-club.json" },
-    { label: "Tour", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-tour-leaderboard-club.json" },
+    { label: "Stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage1-leaderboard-club.json" },
+    { label: "Stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage2-leaderboard-club.json" },
+    { label: "Stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage3-leaderboard-club.json" },
+    { label: "Stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage4-leaderboard-club.json" },
+    { label: "Stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage5-leaderboard-club.json" },
+    { label: "Stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage6-leaderboard-club.json" },
+    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-yellow-jersey-club.json" },
 ];
 
 const FALLBACK_DATA = [
-    { row: 1, route: "long", place: 99999, time: "00:00:00", "rider-name": "John Doe", "rider-flag": "USA", gender: "O", competition: "Open regular", league: "Cherry", division: "B1", "team-name": "Team A" }
+    { row: 1, rider: "John Doe" }
 ];
 
 const BASE_COLUMN_DEFS = [
     { headerName: "row", field: "row", pinned: 'left', type: 'numericColumn', width: 60 },
-    { headerName: "Name", field: "rider-name", pinned: 'left', width: 150 },
-    { headerName: "Flag", field: "rider-flag" },
+    { headerName: "Name", field: "rider", pinned: 'left', width: 150 },
+    { headerName: "Zone", field: "time-zone" },
     { headerName: "Place", field: "place", type: 'numericColumn' },
+    { headerName: "KOM-pts", field: "points-kom" },
+    { headerName: "Sprint-pts", field: "points-sprint" },
+    { headerName: "Fin-pts", field: "points-finish" },
+    { headerName: "Total-pts", field: "points-total" },
     { headerName: "Time", field: "time" },
-    { headerName: "Points", field: "rider-totrp" },
-    { headerName: "Route", field: "route" },
-    { headerName: "Gender", field: "gender" },
-    { headerName: "Competition", field: "competition", width: 150 },
-    { headerName: "League", field: "league" },
-    { headerName: "Div", field: "division" },
-    { headerName: "Team", field: "team-name", width: 150 },
+    { headerName: "League", field: "league", width: 150 },
+    { headerName: "Team", field: "team", width: 150 },
 ];
 
 // ============================================================================

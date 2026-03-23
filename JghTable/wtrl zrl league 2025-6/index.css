@@ -1,10 +1,10 @@
 /* ============================================================================
-   OLYMPICS APP - SPECIFIC STYLES
+   ZRL 2026 ROUND 3 - SPECIFIC STYLES
    ============================================================================ */
 
 /* App-specific spacing */
 :root {
-    --header-footer-space: 110px;
+    --header-footer-space: 140px;
 }
 
 /* Compact header with title and subtitle */
@@ -19,9 +19,26 @@ h2 {
     color: #666;
 }
 
+/* Controls row */
+.controls-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+#raceSelector {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #b0b0b0;
+    border-radius: 4px;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+}
+
 /* Filter input */
 #filterInput {
-    margin-bottom: 12px;
+    margin-bottom: 0;
 }
 
 /* ============================================================================
@@ -30,11 +47,20 @@ h2 {
 
 @media (max-width: 768px) {
     :root {
-        --header-footer-space: 130px;
+        --header-footer-space: 160px;
     }
 
     h2 {
         font-size: 14px;
+    }
+
+    .controls-row {
+        flex-wrap: wrap;
+    }
+
+    #raceSelector {
+        width: 100%;
+        min-width: 120px;
     }
 }
 
