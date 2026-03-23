@@ -51,8 +51,8 @@ FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xl
 
 AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
 AZURE_CONTAINERNAME_BRUTE = "brute"
-AZURE_CONTAINERNAME_PREPROCESSED = "preprocessed"
-AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE = "preprocessed-archive"
+AZURE_CONTAINERNAME_ZSUN = "zsun"
+AZURE_CONTAINERNAME_ZSUN_BACK = "zsun-back"
 AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT = FILENAME_RIDER_BRUTE_DTO_JSON_DICT
 AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST = FILENAME_RIDER_BRUTE_DTO_JSON_LIST
 AZURE_BLOBNAME_RIDER_STATS_DTO_DICT = FILENAME_RIDER_STATS_DTO_JSON_DICT
@@ -73,8 +73,6 @@ def format_save_filename_for_document_of_single_paceline_plan(team_name: str, pl
     suffix = DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS.get(plan_type, "unknown_paceline_plan_type.html")
     answer = f"{created}_{team_name}_{suffix}"
     return answer
-
-
 
 def make_filename_for_one_page_summary_html_doc(team_name: str) -> str:
     created : str = format_timestamp_as_yyyy_mm_dd()  

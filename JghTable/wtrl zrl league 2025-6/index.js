@@ -3,13 +3,13 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r1-leaderboard-club.json" },
-    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r2-leaderboard-club.json" },
-    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r3-leaderboard-club.json" },
-    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r4-leaderboard-club.json" },
-    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r5-leaderboard-club.json" },
-    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-r6-leaderboard-club.json" },
-    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl-results-consolidated/sr18-yellow-jersey.json" },
+    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r1.json" },
+    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r2.json" },
+    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r3.json" },
+    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r4.json" },
+    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r5.json" },
+    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r6.json" },
+    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-yellow-jersey.json" },
 ];
 
 const FALLBACK_DATA = [

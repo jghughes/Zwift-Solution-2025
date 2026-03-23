@@ -60,7 +60,7 @@ from storage_config import (
     DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
     AZURE_CONTAINERNAME_BRUTE,
-    AZURE_CONTAINERNAME_PREPROCESSED,
+    AZURE_CONTAINERNAME_ZSUN,
     AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
     make_filename_for_one_page_summary_html_doc,)
 
@@ -102,13 +102,13 @@ async def generate_ttt_scenarios_with_brute() -> None:
         return
 
     # ===========================
-    print(f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_PREPROCESSED}\n   Blob: {AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST}")
+    print(f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST}")
     # ===========================
 
     try:
         azure_client = AzureStorageServiceClient()
 
-        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST)
+        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST)
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
         # ===========================
         print(f"\ndownloaded {blob_size}")

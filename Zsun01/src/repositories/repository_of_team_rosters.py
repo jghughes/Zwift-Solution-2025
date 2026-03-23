@@ -162,7 +162,7 @@ class RepositoryOfTeamRosters:
 
             }),
             "betel": defaultdict(str, {
-                "5490373": "barry_beck",
+                # "5490373": "barry_beck",
                 # "5726145": "bill_henson",
                 # "480698": "brent_huser",
                 # "9011": "bryan_bumpas",
@@ -178,7 +178,7 @@ class RepositoryOfTeamRosters:
                 "2508033": "josh_neil",
                 # "207797": "lori_pridham",
                 # "2803600": "larry_mccamon",
-                "383480": "lynsey_segal",
+                # "383480": "lynsey_segal",
                 # "4750594":"lydia_lequesne",
                 # "276319": "mark_goveia",
                 # "1024413": "matt_steeve",

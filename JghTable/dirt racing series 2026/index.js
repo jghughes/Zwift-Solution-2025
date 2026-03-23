@@ -3,13 +3,13 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "Stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage1-leaderboard-club.json" },
-    { label: "Stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage2-leaderboard-club.json" },
-    { label: "Stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage3-leaderboard-club.json" },
-    { label: "Stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage4-leaderboard-club.json" },
-    { label: "Stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage5-leaderboard-club.json" },
-    { label: "Stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-stage6-leaderboard-club.json" },
-    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/dirt-results-consolidated/2026-yellow-jersey-club.json" },
+    { label: "stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s1.json" },
+    { label: "stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s2.json" },
+    { label: "stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s3.json" },
+    { label: "stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s4.json" },
+    { label: "stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s5.json" },
+    { label: "stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s6.json" },
+    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/dirt/2026-yellow-jersey.json" },
 ];
 
 const FALLBACK_DATA = [
@@ -21,10 +21,10 @@ const BASE_COLUMN_DEFS = [
     { headerName: "Name", field: "rider", pinned: 'left', width: 150 },
     { headerName: "Zone", field: "time-zone" },
     { headerName: "Place", field: "place", type: 'numericColumn' },
-    { headerName: "KOM-pts", field: "points-kom" },
-    { headerName: "Sprint-pts", field: "points-sprint" },
-    { headerName: "Fin-pts", field: "points-finish" },
-    { headerName: "Total-pts", field: "points-total" },
+    { headerName: "KOM-pts", field: "points-kom", type: 'numericColumn' },
+    { headerName: "Sprint-pts", field: "points-sprint", type: 'numericColumn' },
+    { headerName: "Fin-pts", field: "points-finish", type: 'numericColumn' },
+    { headerName: "Total-pts", field: "points-total", type: 'numericColumn' },
     { headerName: "Time", field: "time" },
     { headerName: "League", field: "league", width: 150 },
     { headerName: "Team", field: "team", width: 150 },

@@ -58,7 +58,7 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_read_write import write_excel_file, write_json_file
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
 from storage_config import (
-    AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE,
+    AZURE_CONTAINERNAME_ZSUN_BACK,
     DIRPATH_ZWIFT_FILES, 
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -73,7 +73,7 @@ from storage_config import (
     FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
     FILENAME_RIDER_STATS_DTO_JSON_LIST,
     AZURE_ACCOUNTNAME_ZSUN, 
-    AZURE_CONTAINERNAME_PREPROCESSED, 
+    AZURE_CONTAINERNAME_ZSUN, 
     AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST, 
     AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
@@ -259,14 +259,14 @@ async def export_and_upload_dtos(
 
         # Upload to Azure (current container)
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_dict_blobname, dto_dict_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json)
         file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
 
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED, json_list_blobname, dto_list_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_list_blobname, dto_list_json)
         file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
@@ -278,14 +278,14 @@ async def export_and_upload_dtos(
         archived_list_blob = f"{date}_{json_list_blobname}"
 
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, archived_dict_blob, dto_dict_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob, dto_dict_json)
         file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
 
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_PREPROCESSED_ARCHIVE, archived_list_blob, dto_list_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob, dto_list_json)
         file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
