@@ -1,0 +1,81 @@
+/* ============================================================================
+   ZRL 2026 ROUND 3 - SPECIFIC STYLES
+   ============================================================================ */
+
+/* App-specific spacing */
+:root {
+    --header-footer-space: 140px;
+}
+
+/* Compact header with title and subtitle */
+h1 {
+    margin: 0 0 0.25em 0;
+}
+
+h2 {
+    margin: 0 0 0.75em 0;
+    font-size: 16px;
+    font-weight: 400;
+    color: #666;
+}
+
+/* Controls row */
+.controls-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+#raceSelector {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #b0b0b0;
+    border-radius: 4px;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+}
+
+/* Filter input */
+#filterInput {
+    margin-bottom: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS - APP SPECIFIC
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --header-footer-space: 160px;
+    }
+
+    h2 {
+        font-size: 14px;
+    }
+
+    .controls-row {
+        flex-wrap: wrap;
+    }
+
+    #raceSelector {
+        width: 100%;
+        min-width: 120px;
+    }
+}
+
+/* ============================================================================
+   PRINT - APP SPECIFIC
+   ============================================================================ */
+
+@media print {
+    h2 {
+        font-size: 12pt;
+        color: #000 !important;
+        margin-bottom: 8pt;
+    }
+
+    h1 {
+        margin-bottom: 4pt;
+    }
+}

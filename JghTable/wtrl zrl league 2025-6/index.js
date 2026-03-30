@@ -3,13 +3,14 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r1.json" },
-    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r2.json" },
-    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r3.json" },
-    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r4.json" },
-    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r5.json" },
-    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r6.json" },
-    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-yellow-jersey.json" },
+    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r1-ZSUN.json" },
+    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r2-ZSUN.json" },
+    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r3-ZSUN.json" },
+    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r4-ZSUN.json" },
+    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r5-ZSUN.json" },
+    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r6-ZSUN.json" },
+    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-yellow-jersey-ZSUN.json" },
+    { label: "Green jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-green-jersey-ZSUN.json" },
 ];
 
 const FALLBACK_DATA = [
@@ -22,7 +23,11 @@ const BASE_COLUMN_DEFS = [
     { headerName: "Flag", field: "rider-flag" },
     { headerName: "Place", field: "place", type: 'numericColumn' },
     { headerName: "Time", field: "time" },
-    { headerName: "Points", field: "rider-totrp" },
+    { headerName: "FAL", field: "rider-falrp" },
+    { headerName: "FTS", field: "rider-ftsrp" },
+    { headerName: "FIN", field: "rider-finrp" },
+    { headerName: "BONUS", field: "rider-pbprp" },
+    { headerName: "TOTAL", field: "rider-totrp" },
     { headerName: "Route", field: "route" },
     { headerName: "Gender", field: "gender" },
     { headerName: "Competition", field: "competition", width: 150 },
