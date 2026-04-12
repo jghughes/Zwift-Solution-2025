@@ -1,5 +1,5 @@
 // ============================================================================
-// ZRL 2026 ROUND 3 APP CONFIGURATION
+// CONFIGURATION
 // ============================================================================
 
 const RACE_OPTIONS = [
@@ -9,7 +9,7 @@ const RACE_OPTIONS = [
     { label: "stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s4-DIRT.json" },
     { label: "stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s5-DIRT.json" },
     { label: "stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s6-DIRT.json" },
-    { label: "Green jersey", url: "https://customerzsun.blob.core.windows.net/dirt/2026-green-jersey-DIRT.json" },
+    { label: "Series - totals", url: "https://customerzsun.blob.core.windows.net/dirt/2026-series-DIRT.json" },
 ];
 
 const FALLBACK_DATA = [
@@ -17,17 +17,17 @@ const FALLBACK_DATA = [
 ];
 
 const BASE_COLUMN_DEFS = [
-    { headerName: "row", field: "row", pinned: 'left', type: 'numericColumn', width: 60 },
+    { headerName: "PlacePts", field: "finishingPlacePoints", pinned: 'left', type: 'numericColumn', width: 60 },
     { headerName: "Name", field: "rider", pinned: 'left', width: 150 },
-    { headerName: "Zone", field: "time-zone" },
-    { headerName: "Place", field: "place", type: 'numericColumn' },
-    { headerName: "KOM-pts", field: "points-kom", type: 'numericColumn' },
-    { headerName: "Sprint-pts", field: "points-sprint", type: 'numericColumn' },
-    { headerName: "Fin-pts", field: "points-finish", type: 'numericColumn' },
-    { headerName: "Total-pts", field: "points-total", type: 'numericColumn' },
-    { headerName: "Time", field: "time" },
-    { headerName: "League", field: "league", width: 150 },
     { headerName: "Team", field: "team", width: 150 },
+    { headerName: "Zone", field: "timeZone" },
+    { headerName: "KOM-pts", field: "pointsKom", type: 'numericColumn' },
+    { headerName: "Sprint-pts", field: "pointsSprint", type: 'numericColumn' },
+    { headerName: "Fin-pts", field: "pointsFinish", type: 'numericColumn' },
+    { headerName: "Total-pts", field: "pointsTotal", type: 'numericColumn' },
+    { headerName: "Time", field: "finishTimeHHMMSS" },
+    { headerName: "PlaceTime", field: "finishingPlaceTime", type: 'numericColumn', width: 60 },
+    { headerName: "League", field: "league", width: 150 },
 ];
 
 // ============================================================================

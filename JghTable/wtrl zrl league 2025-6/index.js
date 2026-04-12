@@ -1,16 +1,16 @@
 // ============================================================================
-// ZRL 2026 ROUND 3 APP CONFIGURATION
+// APP CONFIGURATION
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "Race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r1-ZSUN.json" },
-    { label: "Race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r2-ZSUN.json" },
-    { label: "Race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r3-ZSUN.json" },
-    { label: "Race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r4-ZSUN.json" },
-    { label: "Race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r5-ZSUN.json" },
-    { label: "Race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r6-ZSUN.json" },
-    { label: "Yellow jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-yellow-jersey-ZSUN.json" },
-    { label: "Green jersey", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-green-jersey-ZSUN.json" },
+    { label: "race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r1-ZSUN.json" },
+    { label: "race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r2-ZSUN.json" },
+    { label: "race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r3-ZSUN.json" },
+    { label: "race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r4-ZSUN.json" },
+    { label: "race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r5-ZSUN.json" },
+    { label: "race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-r6-ZSUN.json" },
+    { label: "series - time", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-yellow-jersey-ZSUN.json" },
+    { label: "series - points", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr18-green-jersey-ZSUN.json" },
 ];
 
 const FALLBACK_DATA = [
