@@ -3,13 +3,13 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s1-DIRT.json" },
-    { label: "stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s2-DIRT.json" },
-    { label: "stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s3-DIRT.json" },
-    { label: "stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s4-DIRT.json" },
-    { label: "stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s5-DIRT.json" },
-    { label: "stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt/2026-s6-DIRT.json" },
-    { label: "Series - totals", url: "https://customerzsun.blob.core.windows.net/dirt/2026-series-DIRT.json" },
+    { label: "stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s1-ZSUN.json" },
+    { label: "stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt/11-s2-ZSUN.json" },
+    { label: "stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s3-ZSUN.json" },
+    { label: "stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s4-ZSUN.json" },
+    { label: "stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt/11-s5-ZSUN.json" },
+    { label: "stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s6-ZSUN.json" },
+    { label: "Series - totals", url: "https://customerzsun.blob.core.windows.net/dirt/11-series-ZSUN.json" },
 ];
 
 const FALLBACK_DATA = [
