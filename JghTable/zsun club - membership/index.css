@@ -1,0 +1,65 @@
+/* ============================================================================
+   MEMBERSHIP APP - SPECIFIC STYLES
+   ============================================================================ */
+
+/* App-specific spacing */
+:root {
+    --header-footer-space: 70px;
+}
+
+/* Compact header row with title and controls on same line */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 16px;
+}
+
+h1 {
+    margin: 0;
+}
+
+/* Controls container for filter input */
+.controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#filterInput {
+    margin-bottom: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS - APP SPECIFIC
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --header-footer-space: 90px;
+    }
+
+    /* Stack header on smaller screens */
+    .header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .controls {
+        width: 100%;
+    }
+}
+
+/* ============================================================================
+   PRINT - APP SPECIFIC
+   ============================================================================ */
+
+@media print {
+    /* Hide filter input when printing */
+    .controls {
+        display: none !important;
+    }
+}

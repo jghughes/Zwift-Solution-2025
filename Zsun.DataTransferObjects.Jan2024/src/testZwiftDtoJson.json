@@ -1,0 +1,25 @@
+{
+  "id": 1193,
+  "publicId": "2791c5cc-8b8f-4480-bbde-28192c5c2a91",
+  "firstName": "Richard",
+  "lastName": "Mann ZSUN",
+  "male": true,
+  "eventCategory": "MALE",
+  "playerType": "NORMAL",
+  "countryAlpha3": "usa",
+  "countryCode": 840,
+  "useMetric": true,
+  "riding": false,
+  "age": 60,
+  "height": 1780,
+  "weight": 91000,
+  "ftp": 229,
+  "achievementLevel": 8151,
+  "competitionMetrics": {
+    "racingScore": 228.0,
+    "category": "D",
+    "categoryWomen": "E"
+  },
+  "totalWattHoursPerKg": 217.95192,
+  "zwift_last_updated": "2026-05-01T14:05:14.756778+00:00"
+}

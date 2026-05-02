@@ -4,7 +4,8 @@ COEFFICIENT_g: float = 9.80665  # gravity (m/s^2)
 COEFFICIENT_rho: float = 1.226  # air density at sea level (kg/m^3)
 COEFFICIENT_Cd: float = 0.63  # typical for road cyclist
 COEFFICIENT_Crr: float = 0.004  # typical for road tires
-COEFFICIENT_gradient: float = 0.0  # flat road - must be a ratio, not a %, i.e tan(0 degrees) = 0.0
+COEFFICIENT_gradient: float = 0.0  # gradient is the same as slope and is height divided by distance travelled.i.e a fraction. If we were modeling a climb with a 5% slope, we would set COEFFICIENT_gradient to 0.05.
+
 #The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. The coefficients are not derived from any specific mathematical or domain-specific principle, but rather serve as fixed parameters for the calculations. They are based on empirical measurements and standard values used in cycling performance modeling. The empirical values give excellent results compared in practice, and they are widely accepted in the cycling community.
 
 COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms. This is a constant value used in calculations related to the total weight of the rider and bike combination. 

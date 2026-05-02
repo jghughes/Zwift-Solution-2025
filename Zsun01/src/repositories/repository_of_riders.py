@@ -8,7 +8,7 @@ from paceline_computation_types import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
-    read_zwftracingappdto_files_to_item_dict_sync,
+    read_zwiftracingappdto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
@@ -73,7 +73,7 @@ class RepositoryOfRiders:
         print(f"2. Reading hundreds of ZwiftPower 90-day power watts files on hard-drive.")
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
         print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
-        self._dict_of_ZwiftRacingAppItem = read_zwftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
+        self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -227,6 +227,7 @@ class RepositoryOfRiders:
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
+
             bruteItem = RiderBruteItem(
                 zwift_id                          = zwiftItem.zwift_id,
                 name                              = cleanup_name_string(name),
@@ -287,25 +288,28 @@ class RepositoryOfRiders:
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
+            print(f"Repository message: computing brute item for ZwiftID={key}, Name={name}. Level={zwiftItem.achievement_level}")
+
             riderStatsItem = RiderStatsItem(
-                zwift_id=zwiftItem.zwift_id,
-                name=cleanup_name_string(name),
-                zwift_country_code3=zwiftItem.country_code3,
-                age=zwiftItem.age_years,
-                height_cm=round((zwiftItem.height_mm or 0.0) / 10.0),
-                weight_kg=round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
-                gender_code="m" if zwiftItem.is_male else "f",
-                cat_open=zwiftItem.competition_metrics.zwift_category_open,
-                cat_women=zwiftItem.competition_metrics.zwift_category_women,
-                zwift_racing_score=round(zwiftItem.competition_metrics.zwift_racing_score),
-                zwift_ftp_w=round(zwiftItem.ftp_on_zwift),
-                zwift_zftp_w=round(zwiftracingappItem.zp_FTP),
-                zwift_zftp_wkg=0.0,  # No direct mapping, set to 0.0 or compute if possible
-                zwift_cat_label="",  # see below
-                velo_age_group=zwiftracingappItem.age_group,
-                velo_cat_num_30_days=zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
-                velo_cat_name_30_days=zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
-                velo_rating_30_days=round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
+                zwift_id            =   zwiftItem.zwift_id,
+                name                =   cleanup_name_string(name),
+                zwift_country_code3 =   zwiftItem.country_code3,
+                age                 =   zwiftItem.age_years,
+                height_cm           =   round((zwiftItem.height_mm or 0.0) / 10.0),
+                weight_kg           =   round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
+                gender_code         =   "m" if zwiftItem.is_male else "f",
+                cat_open            =   zwiftItem.competition_metrics.zwift_category_open,
+                cat_women           =   zwiftItem.competition_metrics.zwift_category_women,
+                achievement_level   =   round(zwiftItem.achievement_level /100),
+                zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
+                zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
+                zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
+                zwift_zftp_wkg      =   0.0,  # No direct mapping, set to 0.0 or compute if possible
+                zwift_cat_label     =   "",  # see below
+                velo_age_group      =   zwiftracingappItem.age_group,
+                velo_cat_num_30_days=   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+                velo_cat_name_30_days=   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+                velo_rating_30_days =   round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
                 velo_cat_label="",  # see below
                 wkg_05sec=0.0, # all the power data points below are set from _dict_of_ZwiftPower90dayWattsItem - except for 60min which is from jghcurvefit
                 wkg_15sec=0.0,

@@ -18,6 +18,7 @@ const BASE_COLUMN_DEFS = [
     { headerName: "open", field: "cat_open" },
     { headerName: "women", field: "cat_women" },
     { headerName: "vELO", field: "velo_cat_label", width: 150 },
+    { headerName: "level", field: "achievement_level" },
     { headerName: "zwiftID", field: "zwift_id" },
     //{ headerName: "country", field: "zwift_country_code3" },
     //{ headerName: "age", field: "age_years" },

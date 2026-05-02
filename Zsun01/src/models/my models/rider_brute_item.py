@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
+from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg
+from jgh_formulae00 import frontal_area, solve_speed_from_power
+
 from jgh_number import safe_divide
 from rider_brute_dto import RiderBruteDTO
 from zwift_id_base import FrozenZwiftIdBase
@@ -52,7 +55,10 @@ class RiderBruteItem(FrozenZwiftIdBase):
             velo_age_group						= item.age_group,
             zwift_FTP_watts						= item.zwift_FTP_watts,
             velo_zwiftpower_zFTP_watts			= item.velo_zwiftpower_zFTP_watts,
-            jgh_60_min_watts					= item.get_1_hour_curvefit_watts(), # odd man out, we do this as a lazy convenience for display purposes in the DTO only. hack
+            jgh_60_min_watts					= round(item.get_1_hour_curvefit_watts()),
+            jgh_60_min_kph_0pc_gradient			= round(item.get_1_hour_curvefit_kph_0pc_gradient(),1),
+            jgh_60_min_kph_2pc_gradient			= round(item.get_1_hour_curvefit_kph_2pc_gradient(),1),
+	        jgh_60_min_kph_4pc_gradient			= round(item.get_1_hour_curvefit_kph_4pc_gradient(),1),
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,
@@ -205,6 +211,27 @@ class RiderBruteItem(FrozenZwiftIdBase):
         if self.weight_kg == 0:
             return 0.0
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
+
+    def get_1_hour_curvefit_kph_0pc_gradient(self) -> float:
+        frontalarea: float = frontal_area(self.height_cm, self.weight_kg)
+        total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
+        speed_kmh: float = solve_speed_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, frontalarea, COEFFICIENT_Crr, total_mass, 0.0)
+        print(f"Estimated speed: {speed_kmh:.2f} km/h at {self.get_1_hour_curvefit_watts()}W on flat terrain")
+        return speed_kmh
+
+    def get_1_hour_curvefit_kph_2pc_gradient(self) -> float:
+        frontalarea: float = frontal_area(self.height_cm, self.weight_kg)
+        total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
+        speed_kmh: float = solve_speed_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, frontalarea, COEFFICIENT_Crr, total_mass, 0.02)
+        print(f"Estimated speed: {speed_kmh:.2f} km/h at {self.get_1_hour_curvefit_watts()}W on 2% gradient")
+        return speed_kmh
+
+    def get_1_hour_curvefit_kph_4pc_gradient(self) -> float:
+        frontalarea: float = frontal_area(self.height_cm, self.weight_kg)
+        total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
+        speed_kmh: float = solve_speed_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, frontalarea, COEFFICIENT_Crr, total_mass, 0.04)
+        print(f"Estimated speed: {speed_kmh:.2f} km/h at {self.get_1_hour_curvefit_watts()}W on 4% gradient")
+        return speed_kmh
 
     def get_watts_per_kg(self, wattage : float) -> float:
         if self.weight_kg == 0:

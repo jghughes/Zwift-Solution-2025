@@ -22,6 +22,9 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"velo_cat_name_30_days"					:	AliasChoices("velo_cat_name_30_days", "veloCatName30Days"),
 	"velo_age_group"						:	AliasChoices("velo_age_group", "veloAgeGroup"),
 	"jgh_60_min_watts"						:	AliasChoices("jgh_60_min_watts", "60minWattsCurveFit"),
+	"jgh_60_min_kph_0pc_gradient"			:	AliasChoices("jgh_60_min_kph_0pc_gradient", "60minKphCurveFitGradient0pc"),
+	"jgh_60_min_kph_2pc_gradient"			:	AliasChoices("jgh_60_min_kph_2pc_gradient", "60minKphCurveFitGradient2pc"),
+	"jgh_60_min_kph_4pc_gradient"			:	AliasChoices("jgh_60_min_kph_4pc_gradient", "60minKphCurveFitGradient4pc"),
 	"jgh_60_min_curve_coefficient"			:	AliasChoices("jgh_60_min_curve_coefficient", "60minCurveCoefficient"),
 	"jgh_60_min_curve_exponent"				:	AliasChoices("jgh_60_min_curve_exponent", "60minCurveExponent"),
 	"jgh_ttt_pull_curve_coefficient"		:	AliasChoices("jgh_ttt_pull_curve_coefficient", "tttPullCurveCoefficient"),
@@ -38,9 +41,9 @@ preferred_config_dict = configdictV1
 
 
 class RiderBruteDTO(BaseModel):
-	model_config	=	preferred_config_dict
+	model_config =	preferred_config_dict
 	row										:	int						=	0
-	zwift_id								:	str					=	""
+	zwift_id								:	str						=	""
 	name_racingapp							:	str						=	""
 	zwift_country_code3						:	str						=	""
 	zwift_age_years							:	float					=	0.0
@@ -58,6 +61,9 @@ class RiderBruteDTO(BaseModel):
 	velo_cat_name_30_days					:	str						=	""
 	velo_age_group							:	str						=	""
 	jgh_60_min_watts						:	float					=	0.0
+	jgh_60_min_kph_0pc_gradient				:	float					=	0.0
+	jgh_60_min_kph_2pc_gradient				:	float					=	0.0
+	jgh_60_min_kph_4pc_gradient				:	float					=	0.0
 	jgh_60_min_curve_coefficient			:	float					=	0.0
 	jgh_60_min_curve_exponent				:	float					=	0.0
 	jgh_ttt_pull_curve_coefficient			:	float					=	0.0

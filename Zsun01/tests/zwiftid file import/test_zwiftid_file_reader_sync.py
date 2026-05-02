@@ -2,7 +2,7 @@ from pathlib import Path
 
 from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 from zwiftid_file_reader_sync import (
-    read_zwiftdto_files_to_item_dict_sync, read_zwftracingappdto_files_to_item_dict_sync,
+    read_zwiftdto_files_to_item_dict_sync, read_zwiftracingappdto_files_to_item_dict_sync,
     # read_zwiftpowerprofiledto_files_to_item_dict_sync, 
     read_zwiftpower90daywattsdto_files_to_item_dict_sync
 )
@@ -26,7 +26,7 @@ def test03():
             )
             print(f"Profile for zwiftid = {zwift_id} is missing.")
         else:
-            print(f"{zwift_id} {item.last_name} zFTP = {round(item.ftp_on_zwift)} Watts, Height = {round(item.height_mm/10.0)} cm")
+            print(f"{zwift_id} {item.last_name} zFTP = {round(item.ftp_on_zwift)} Watts, Height = {round(item.height_mm/10.0)} cm Level = {item.achievement_level}")
     log_event(
         logger,
         message=f"Imported {len(my_dict)} zwift_files",
@@ -35,7 +35,7 @@ def test03():
     print(f"\nHard drive has {len(my_dict)} zwift_files")
 
 def test04():
-    my_dict = read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None)
+    my_dict = read_zwiftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None)
     for zwift_id, item in my_dict.items():
         if not item:
             log_event(
@@ -104,8 +104,8 @@ if __name__ == "__main__":
 
         print("Starting tests...\n")
         test03()
-        test04()
-        test06()
+        # test04()
+        # test06()
 
         end_time = time.time()
         duration = end_time - start_time

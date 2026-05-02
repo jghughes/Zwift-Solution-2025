@@ -3,14 +3,12 @@
 // ============================================================================
 
 const RACE_OPTIONS = [
-    { label: "race 1", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r1-ZSUN.json" },
-    { label: "race 2", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r2-ZSUN.json" },
-    { label: "race 3", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r3-ZSUN.json" },
-    { label: "race 4", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r4-ZSUN.json" },
-    { label: "race 5", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r5-ZSUN.json" },
-    { label: "race 6", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r6-ZSUN.json" },
-    { label: "series - time", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-yellow-jersey-ZSUN.json" },
-    { label: "series - points", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-green-jersey-ZSUN.json" },
+    { label: "Race 1 - TTT - Hell of the North, France", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r1-ZSUN.json" },
+    { label: "Race 2 - Points - The Classic, Watopia", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r2-ZSUN.json" },
+    { label: "Race 3 - Scratch - Croissant, France", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r3-ZSUN.json" },
+    { label: "Race 4 - Points - Double Span Spin, New York", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-r4-ZSUN.json" },
+    { label: "Series - Cumulative time", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-yellow-jersey-ZSUN.json" },
+    { label: "Series - Total points", url: "https://customerzsun.blob.core.windows.net/wtrl-zrl/sr19-green-jersey-ZSUN.json" },
 ];
 
 const FALLBACK_DATA = [
@@ -20,7 +18,8 @@ const FALLBACK_DATA = [
 const BASE_COLUMN_DEFS = [
     { headerName: "row", field: "row", pinned: 'left', type: 'numericColumn', width: 60 },
     { headerName: "Name", field: "rider-name", pinned: 'left', width: 150 },
-    { headerName: "Flag", field: "rider-flag" },
+    { headerName: "Team", field: "team-name", width: 150 },
+    { headerName: "Div", field: "division" },
     { headerName: "Place", field: "place", type: 'numericColumn' },
     { headerName: "Time", field: "time" },
     { headerName: "FAL", field: "rider-falrp" },
@@ -32,8 +31,7 @@ const BASE_COLUMN_DEFS = [
     { headerName: "Gender", field: "gender" },
     { headerName: "Competition", field: "competition", width: 150 },
     { headerName: "League", field: "league" },
-    { headerName: "Div", field: "division" },
-    { headerName: "Team", field: "team-name", width: 150 },
+    { headerName: "Flag", field: "rider-flag" },
 ];
 
 // ============================================================================

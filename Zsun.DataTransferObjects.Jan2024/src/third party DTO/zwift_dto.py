@@ -13,6 +13,7 @@ validation_alias_choices_map_ZwiftDTO: dict[str, AliasChoices] = {
 	"height_mm"					:	AliasChoices("height_mm", "height"),
 	"weight_grams"				:	AliasChoices("weight_grams", "weight"),
 	"ftp_on_zwift"				:	AliasChoices("ftp_on_zwift", "ftp"),
+	"achievement_level"			:	AliasChoices("achievement_level", "achievementLevel"),
 	"competition_metrics"		:	AliasChoices("competition_metrics", "competitionMetrics"),
 }
 
@@ -51,6 +52,7 @@ class ZwiftDTO(BaseModel):
 	height_mm					:	Optional[float]					=	0	# Height in millimeters
 	weight_grams				:	Optional[float]					=	0	# Weight in grams
 	ftp_on_zwift				:	Optional[float]					=	0	# This is not zFTP, it is FTP
+	achievement_level			:	Optional[int]					=	0	# Zwift achievement level
 	competition_metrics			:	Optional[CompetitionMetricsDTO]	=	Field(default_factory=CompetitionMetricsDTO)
 
 	# Validator for zwift_id to convert int to string

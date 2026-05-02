@@ -148,7 +148,7 @@ def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Opt
                                                          ZwiftItem, 
                                                          ZwiftItem.from_dataTransferObject)
 
-def read_zwftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
+def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
     return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftRacingAppDTO, 

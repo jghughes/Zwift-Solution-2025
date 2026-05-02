@@ -8,10 +8,11 @@ from storage_config import (
     DIRPATH_ZWIFTRACINGAPP_FILES,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
+from test_zwiftid_file_reader_sync import test04
 from working_file_read_write import read_file_as_json_dict_of_RiderDTO
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
-    read_zwftracingappdto_files_to_item_dict_sync,
+    read_zwiftracingappdto_files_to_item_dict_sync,
     # read_zwiftpowerprofiledto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
@@ -39,7 +40,7 @@ def test01():
 def test03():
 
     dict_of_zwiftItem = dict(read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES),None))
-    dict_of_zwiftracingappItem = dict(read_zwftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None))
+    dict_of_zwiftracingappItem = dict(read_zwiftracingappdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTRACINGAPP_FILES), None))
     # dict_of_zwiftpowerItem = dict(read_zwiftpowerprofiledto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE), None))
     dict_of_zsunWattsItem = dict(read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), None))
 
@@ -47,6 +48,13 @@ def test03():
     print (f"Imported {len(dict_of_zwiftracingappItem)} zwiftracingapp profile items")
     # print(f"Imported {len(dict_of_zwiftpowerItem)} zwiftpower profile items")
     print(f"Imported {len(dict_of_zsunWattsItem)} zwiftpower 90-day best graph items")
+
+def test04():
+    dict_of_zwiftItem = dict(read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES),None))
+    print(f"Imported {len(dict_of_zwiftItem)} zwift profile items")
+
+    for zwift_id, item in dict_of_zwiftItem.items():
+        print(f"Key: {zwift_id}, Zwift ID: {item.zwift_id}, Name: {item.last_name}, Achievement Level: {item.achievement_level}")
 
 #test runner
 if __name__ == "__main__":
@@ -58,7 +66,8 @@ if __name__ == "__main__":
 
         print("Starting tests...be patient, this may take a while, thousands of files to process...\n")
         # test01()
-        test03()
+        # test03()
+        test04()
 
         end_time = time.time()
         duration = end_time - start_time

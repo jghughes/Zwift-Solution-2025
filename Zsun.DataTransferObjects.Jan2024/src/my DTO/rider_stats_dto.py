@@ -13,6 +13,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"gender_code"							:	AliasChoices("gender_code", "genderCode"),
 	"cat_open"								:	AliasChoices("cat_open", "catOpen"),
 	"cat_women"								:	AliasChoices("cat_women", "catWomen"),
+	"achievement_level"						:	AliasChoices("achievement_level", "achievementLevel"),
 	"zwift_racing_score"					:	AliasChoices("zwift_racing_score", "zwiftRacingScore"),
 	"zwift_ftp_w"							:	AliasChoices("zwift_ftp_w", "zwiftWattsFTP"),
 	"zwift_zftp_w"							:	AliasChoices("zwift_zftp_w", "zwiftWattsZFTP"),
@@ -71,6 +72,7 @@ class RiderStatsDTO(BaseModel):
 	gender_code								:	str		=	""
 	cat_open								:	str		=	""
 	cat_women								:	str		=	""
+	achievement_level						:	int		=	0
 	zwift_racing_score						:	float	=	0.0
 	zwift_ftp_w								:	float	=	0.0
 	zwift_zftp_w							:	float	=	0.0

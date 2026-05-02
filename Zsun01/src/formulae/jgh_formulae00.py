@@ -56,7 +56,7 @@ from scipy.optimize import newton # type: ignore - the best performer in testing
 from constants import COEFFICIENT_g, COEFFICIENT_rho
 
 
-# the suite of formulae in the model is based on the physics of cycling and takes into account various factors such as air resistance, rolling resistance, and gravitational forces: it is the formula from the foundational paper on the subject written in 1998 from the University of Utah, which is what Zwift most likely used and then parameterised. The parameters they use are unknown, but the physics is sound. # the foundational paper on the subject can be found here: https://collections.lib.utah.edu/dl_files/b4/8e/b48ef26086091662c561e673d7bd990d77868437.pdf
+# this suite of formulae in the model is based on the physics of cycling and takes into account various factors such as air resistance, rolling resistance, and gravitational forces: it is the formula from the foundational paper on the subject written in 1998 from the University of Utah, which is what Zwift most likely used and then parameterised. The parameters they use are unknown, but the physics is sound. # the foundational paper on the subject can be found here: https://collections.lib.utah.edu/dl_files/b4/8e/b48ef26086091662c561e673d7bd990d77868437.pdf
 
 # Constants
 g: float = COEFFICIENT_g  # gravity (m/s^2)
@@ -113,14 +113,15 @@ def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_
     output (in watts) and physical parameters.
 
     Uses Newton-Raphson root finding for fast convergence.
+    Raises ValueError for non-positive power or non-convergence.
     """
+    if power <= 0.0:
+        raise ValueError(f"power must be positive, got {power}")
+
     def equation(v: float) -> float:
         return power_required(v, Cd, A, Crr, total_mass, gradient) - power
 
     def equation_prime(v: float) -> float:
-        # Derivative of power_required with respect to v
-        # F_aero = 0.5 * rho * Cd * A * v ** 2
-        # dF_aero/dv = rho * Cd * A * v
         F_aero = 0.5 * rho * Cd * A * v ** 2
 
         if gradient == 0.0:
@@ -130,15 +131,21 @@ def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_
             F_roll: float = Crr * total_mass * g * math.cos(math.atan(gradient))
             F_gravity: float = total_mass * g * math.sin(math.atan(gradient))
 
-
         F_total = F_aero + F_roll + F_gravity
         dF_aero_dv = rho * Cd * A * v
         dF_total_dv = dF_aero_dv  # Only F_aero depends on v
         return F_total + v * dF_total_dv
 
     v_initial_guess: float = 6.0  # m/s - approx 21 km/h
-    v_solution: float = newton(equation, v_initial_guess, fprime=equation_prime, tol=1e-5)
-    return v_solution * 3.6  # convert to km/h
+    try:
+        v_solution: float = newton(equation, v_initial_guess, fprime=equation_prime, tol=1e-5)
+    except RuntimeError as e:
+        raise ValueError(f"solve_speed_from_power failed to converge: {e}") from e
+
+    if v_solution <= 0.0:
+        raise ValueError(f"Solver returned non-physical speed: {v_solution:.4f} m/s")
+
+    return v_solution * 3.6  # convert to kph
 
 def solve_power_from_speed(speed_kmh: float, Cd: float, A: float, Crr: float, total_mass: float, gradient: float) -> float:
     """
