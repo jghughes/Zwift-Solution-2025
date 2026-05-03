@@ -288,7 +288,7 @@ class RepositoryOfRiders:
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
-            print(f"Repository message: computing brute item for ZwiftID={key}, Name={name}. Level={zwiftItem.achievement_level}")
+            # print(f"Repository message: computing brute item for ZwiftID={key}, Name={name}. Level={zwiftItem.achievement_level}")
 
             riderStatsItem = RiderStatsItem(
                 zwift_id            =   zwiftItem.zwift_id,
@@ -300,7 +300,10 @@ class RepositoryOfRiders:
                 gender_code         =   "m" if zwiftItem.is_male else "f",
                 cat_open            =   zwiftItem.competition_metrics.zwift_category_open,
                 cat_women           =   zwiftItem.competition_metrics.zwift_category_women,
-                achievement_level   =   round(zwiftItem.achievement_level /100),
+                level               =   int(zwiftItem.achievement_level /100.0),
+                total_distance_km   =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
+                total_experience_points =   zwiftItem.total_experience_points,
+                target_experience_points =  zwiftItem.target_experience_points,
                 zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
                 zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
                 zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
@@ -342,6 +345,11 @@ class RepositoryOfRiders:
                 timestamp=get_current_utc_iso8601_timestamp(),
             )
 
+            riderStatsItem.populate_accelerated_target_achievement_level()
+
+            if riderStatsItem.zwift_id == "103825": # example ZwiftID for testing Stewart Lalieu
+                print(f"Repository message: {riderStatsItem.name} ZwiftId = {riderStatsItem.zwift_id} Level = {riderStatsItem.level}  Level 101+ = {riderStatsItem.level_accelerated}  TotalExpPoints = {riderStatsItem.total_experience_points} km = {riderStatsItem.total_distance_km}")
+
             riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
 
             if riderStatsItem.cat_open == "":
@@ -365,7 +373,8 @@ class RepositoryOfRiders:
             velo_rating_text = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
             if riderStatsItem.velo_rating_30_days == 0:
-                riderStatsItem.velo_cat_label= "-------------------------"
+                riderStatsItem.velo_cat_label= "- none"
+                # riderStatsItem.velo_cat_label= "-------------------------"
             else:
                 riderStatsItem.velo_cat_label = f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
 
@@ -533,4 +542,5 @@ class RepositoryOfRiders:
     ) -> list[str]:
         df = self._create_union_of_sets_filtered_by_membership_as_dataframe(zwift, racingapp, zwiftpower_90day_cp)
         return df[self.COL_ZWIFT_ID].tolist()
+
 

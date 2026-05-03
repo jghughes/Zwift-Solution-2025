@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass
+
 from zwift_id_base import ZwiftIdBase
 from typing import Optional
 from rider_stats_dto import RiderStatsDTO
@@ -14,7 +15,11 @@ class RiderStatsItem(ZwiftIdBase):
 	gender_code					:	str		=	""
 	cat_open					:	str		=	""
 	cat_women					:	str		=	""
-	achievement_level			:	int		=	0
+	level						:	int		=	0
+	total_distance_km           :	float	=	0.0
+	total_experience_points		:	int		=	0
+	target_experience_points	:	int		=	0
+	level_accelerated			:	int		=	0
 	zwift_racing_score			:	float	=	0.0
 	zwift_ftp_w					:	float	=	0.0
 	zwift_zftp_w				:	float	=	0.0
@@ -69,7 +74,11 @@ class RiderStatsItem(ZwiftIdBase):
 			gender_code					= item.gender_code,
 			cat_open					= item.cat_open,
 			cat_women					= item.cat_women,
-			achievement_level			= item.achievement_level,
+			level						= item.level,
+			total_distance_km           = item.total_distance_km,
+			total_experience_points		= item.total_experience_points,
+			target_experience_points	= item.target_experience_points,
+			level_accelerated			= item.level_accelerated,
 			zwift_racing_score			= item.zwift_racing_score,
 			zwift_ftp_w					= int(item.zwift_ftp_w),
 			zwift_zftp_w				= int(item.zwift_zftp_w),
@@ -125,7 +134,9 @@ class RiderStatsItem(ZwiftIdBase):
 		item.gender_code				= dto.gender_code
 		item.cat_open					= dto.cat_open
 		item.cat_women					= dto.cat_women
-		item.achievement_level			= dto.achievement_level
+		item.level			= dto.achievement_level
+		item.total_experience_points    = dto.total_experience_points
+		item.level_accelerated= dto.achievement_level_equilibrium
 		item.zwift_racing_score			= dto.zwift_racing_score
 		item.zwift_ftp_w				= dto.zwift_ftp_w
 		item.zwift_zftp_w				= dto.zwift_zftp_w
@@ -165,4 +176,11 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
 		item.timestamp					= dto.timestamp
+		item.populate_accelerated_target_achievement_level()
 		return item
+
+	def populate_accelerated_target_achievement_level(self)-> None:
+		if self.level < 100:
+			self.level_accelerated = self.level
+		else:
+			self.level_accelerated = int((self.target_experience_points - (5_000* self.level) + 119_3000) / 15_000.0)

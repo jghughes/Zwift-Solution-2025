@@ -18,15 +18,16 @@ from rider_brute_item import RiderBruteItem
 
 @dataclass
 class RiderContributionDisplayObject():
+    index                                  : int   = 0
     name                                   : str   = ""
-    pretty_concatenated_racing_cat_descriptor     : str   = ""
-    zwift_racing_score                              : float = 0.0 
+    pretty_concatenated_racing_cat_descriptor : str   = ""
+    zwift_racing_score                     : float = 0.0 
     zwift_zrs_cat                          : str   = ""
     zwiftracingapp_zpFTP_cat               : str   = ""
     zwiftracingapp_pretty_cat_descriptor   : str   = ""
-    velo_zpftp_watts                        : float = 0.0 
+    velo_zpftp_watts                       : float = 0.0 
     zwiftracingapp_zpFTP_wkg               : float = 0.0 
-    pretty_zwiftracingapp_zpFTP_wkg        : str = "" 
+    pretty_zwiftracingapp_zpFTP_wkg        : str   = "" 
     speed_kph                              : float = 0.0 
     p1_duration                            : float = 0.0 
     p1_wkg                                 : float = 0.0 
@@ -39,7 +40,7 @@ class RiderContributionDisplayObject():
     p3_w                                   : float = 0.0 
     p4_w                                   : float = 0.0 
     pretty_p1_2_3_4_w                      : str   = ""
-    jgh_60_min_watts                        : float = 0.0 
+    jgh_60_min_watts                       : float = 0.0 
     average_watts                          : float = 0.0 
     average_wkg                            : float = 0.0 
     pretty_average_watts                   : str   = ""
@@ -176,6 +177,11 @@ class RiderContributionDisplayObject():
         for rider, item in riders.items():
             rider_contribution_display_object   = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
             answer[rider]                       = rider_contribution_display_object
+        
+        index =1;
+        for contribution_display_object in answer.values():
+            contribution_display_object.index = index
+            index += 1
 
         return answer
 
@@ -240,7 +246,6 @@ class PackageOfPacelineComputationReportDisplayObject:
             return PackageOfPacelineComputationReportDisplayObject()
 
         solutions : Dict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
-
 
         for plan_type in PacelinePlanTypeEnum:
             solution_item           = report.dict_of_solutions.get(plan_type)

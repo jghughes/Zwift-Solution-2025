@@ -176,6 +176,7 @@ def format_single_paceline_plan_as_html_document(
 
     # Column headers with footnote markers where appropriate
     column_header_labels = [
+        "#",
         "Name<sup>1,2</sup>",
         "Race Cat",
         "Pull<sup>3</sup>",
@@ -193,6 +194,7 @@ def format_single_paceline_plan_as_html_document(
 
     for rider, z in plan_report.rider_contributions_display_objects.items():
         rows_of_data.append([
+            z.index,
             rider.name,
             z.pretty_concatenated_racing_cat_descriptor,
             z.pretty_pull,

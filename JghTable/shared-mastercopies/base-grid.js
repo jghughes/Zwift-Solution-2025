@@ -61,7 +61,7 @@ window.ZsunGridFramework = (function () {
         const span = document.createElement('span');
         span.className = 'copyable-cell';
         span.tabIndex = 0;
-        const text = params.value == null ? '' : String(params.value);
+        const text = params.valueFormatted != null ? String(params.valueFormatted) : (params.value == null ? '' : String(params.value));
         span.textContent = text;
 
         span.addEventListener('keydown', (ev) => {

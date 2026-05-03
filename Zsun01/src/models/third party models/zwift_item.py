@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass, field
+
 from zwift_id_base import ZwiftIdBase
 from typing import Optional
 
@@ -41,7 +42,10 @@ class ZwiftItem(ZwiftIdBase):
     height_mm               : float = 0.0
     weight_grams            : float = 0.0
     ftp_on_zwift            : float = 0.0
-    achievement_level       : int = 0 
+    achievement_level       : int   = 0 
+    total_distance_meters   : float = 0.0
+    total_experience_points	: int	=	0
+    target_experience_points: int	=	0
     competition_metrics     : CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
 
     @staticmethod
@@ -60,7 +64,10 @@ class ZwiftItem(ZwiftIdBase):
             weight_grams        = dto.weight_grams or 0.0,
             ftp_on_zwift        = dto.ftp_on_zwift or 0.0,
             achievement_level   = dto.achievement_level or 0,
-            competition_metrics = CompetitionMetricsItem.from_dataTransferObject(dto.competition_metrics),
+            total_distance_meters       = dto.total_distance_meters or 0.0,
+            total_experience_points	    = dto.total_experience_points or 0,
+            target_experience_points	= dto.target_experience_points or 0,
+            competition_metrics         = CompetitionMetricsItem.from_dataTransferObject(dto.competition_metrics),
         )
 
     @staticmethod
@@ -78,5 +85,8 @@ class ZwiftItem(ZwiftIdBase):
             weight_grams        = item.weight_grams,
             ftp_on_zwift        = item.ftp_on_zwift,
             achievement_level   = item.achievement_level,
-            competition_metrics = CompetitionMetricsItem.to_dataTransferObject(item.competition_metrics),
+            total_distance_meters       = item.total_distance_meters,
+            total_experience_points	    = item.total_experience_points,
+            target_experience_points	= item.target_experience_points,
+            competition_metrics         = CompetitionMetricsItem.to_dataTransferObject(item.competition_metrics),
         )

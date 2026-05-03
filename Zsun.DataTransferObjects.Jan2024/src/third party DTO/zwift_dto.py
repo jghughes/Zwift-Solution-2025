@@ -14,6 +14,9 @@ validation_alias_choices_map_ZwiftDTO: dict[str, AliasChoices] = {
 	"weight_grams"				:	AliasChoices("weight_grams", "weight"),
 	"ftp_on_zwift"				:	AliasChoices("ftp_on_zwift", "ftp"),
 	"achievement_level"			:	AliasChoices("achievement_level", "achievementLevel"),
+	"total_distance_meters"		:	AliasChoices("total_distance_meters", "totalDistance"),
+	"total_experience_points"	:	AliasChoices("total_experience_points", "totalExperiencePoints"),
+	"target_experience_points"	:	AliasChoices("target_experience_points", "targetExperiencePoints"),
 	"competition_metrics"		:	AliasChoices("competition_metrics", "competitionMetrics"),
 }
 
@@ -52,7 +55,10 @@ class ZwiftDTO(BaseModel):
 	height_mm					:	Optional[float]					=	0	# Height in millimeters
 	weight_grams				:	Optional[float]					=	0	# Weight in grams
 	ftp_on_zwift				:	Optional[float]					=	0	# This is not zFTP, it is FTP
-	achievement_level			:	Optional[int]					=	0	# Zwift achievement level
+	achievement_level			:	Optional[int]					=	0	# Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
+	total_distance_meters		:	Optional[float]					=	0	# Total distance ridden in meters
+	total_experience_points		:	int								=	0
+	target_experience_points	:	int								=	0	# Experience points needed to reach the accelerated achievement level
 	competition_metrics			:	Optional[CompetitionMetricsDTO]	=	Field(default_factory=CompetitionMetricsDTO)
 
 	# Validator for zwift_id to convert int to string
