@@ -61,7 +61,7 @@ from paceline_computation_display_objects import (
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_1dp, format_number_with_comma_separators
-from jgh_read_write import write_html_file
+from jgh_read_write import write_text_with_html_file_extension
 from jgh_string import first_n_chars
 from paceline_plan_captions import (
     DISPLAY_ORDER_OF_PACELINE_PLANS,
@@ -246,7 +246,7 @@ def export_package_of_paceline_plans_as_multiple_individual_html_documents(
         log_single_paceline_plan_as_pretty_table(paceline_report)
         html_fragment = format_single_paceline_plan_as_html_document(paceline_report, html_footnotes, True)
         filename = format_save_filename_for_document_of_single_paceline_plan(team_name, key)
-        write_html_file(dirpath, filename, html_fragment)
+        write_text_with_html_file_extension(dirpath, filename, html_fragment)
 
 def format_paceline_plans_as_one_page_html_doc(
     package_report_displayobject: Optional[PackageOfPacelineComputationReportDisplayObject],
@@ -302,7 +302,7 @@ def save_html_document_to_hard_drive(
     filename: str,
     hml_doc: str,
 ) -> Path:
-    write_html_file(dir_path, filename, hml_doc)
+    write_text_with_html_file_extension(dir_path, filename, hml_doc)
     file_path = Path(dir_path) / Path(filename)
     # file_path = dir_path / filename # Use Path object overload for joining path and filename
     return file_path

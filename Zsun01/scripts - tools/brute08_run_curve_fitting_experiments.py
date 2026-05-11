@@ -79,7 +79,7 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_read_write import write_excel_file
 from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from working_file_read_write import write_with_json_file_ext_dict_of_RegressionModellingDto
+from working_file_read_write import write_regression_modelling_dict_to_json
 from regression_modelling_item import RegressionModellingItem
 from repository_of_riders import RepositoryOfRiders
 from rider_brute_item import RiderBruteItem
@@ -293,7 +293,7 @@ def run_curve_fitting_experiments():
     write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), regression_filename_excel, df3)
     print(f"\nSaved {len(df3)} correlation data-set items to: {DIRPATH_RUBBISH_SCRATCHPAD}{regression_filename_excel}\n")
 
-    write_with_json_file_ext_dict_of_RegressionModellingDto(Path(DIRPATH_RUBBISH_SCRATCHPAD),regression_filename_json_generated_by_tool08, dict_of_riders_with_high_fidelity)
+    write_regression_modelling_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD),regression_filename_json_generated_by_tool08, dict_of_riders_with_high_fidelity)
 
     # runner
 

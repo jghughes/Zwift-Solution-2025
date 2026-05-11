@@ -51,11 +51,12 @@ from pathlib import Path
 from typing import Type, Dict, Any
 
 import pandas as pd
+from sqlalchemy import Null
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import write_excel_file, write_json_file
+from jgh_read_write import write_dataframe_as_csv_file, write_dataframe_as_xlsx_file, write_text_with_json_file_extension
 from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
 from storage_config import (
     AZURE_CONTAINERNAME_ZSUN_BACK,
@@ -67,17 +68,27 @@ from storage_config import (
     )
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
-    FILENAME_RIDER_BRUTE_DTO_XLSX_LIST, 
     FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
+    FILENAME_RIDER_BRUTE_DTO_XLSX_LIST, 
+    FILENAME_RIDER_BRUTE_DTO_CSV_LIST,
+
     FILENAME_RIDER_STATS_DTO_JSON_DICT, 
-    FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
     FILENAME_RIDER_STATS_DTO_JSON_LIST,
+    FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
+    FILENAME_RIDER_STATS_DTO_CSV_LIST,
+
+    FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP,
+
     AZURE_ACCOUNTNAME_ZSUN, 
     AZURE_CONTAINERNAME_ZSUN, 
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST, 
+
     AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
+    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST, 
+    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST_AS_CSV,
+
     AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
+    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV
     )
 from repository_of_riders import RepositoryOfRiders
 from rider_brute_item import RiderBruteItem
@@ -120,7 +131,7 @@ async def generate_everything_and_save_and_upload():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
@@ -146,9 +157,11 @@ async def generate_everything_and_save_and_upload():
         output_dir=DIRPATH_RIDER_BRUTE_DTO,
         json_dict_filename=FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
         json_list_filename=FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
-        excel_filename=FILENAME_RIDER_BRUTE_DTO_XLSX_LIST,
+        excel_list_filename=FILENAME_RIDER_BRUTE_DTO_XLSX_LIST,
+        csv_list_filename=FILENAME_RIDER_BRUTE_DTO_CSV_LIST,
         json_dict_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
         json_list_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
+        csv_list_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST_AS_CSV,
         logger=logger,
     )
 
@@ -174,17 +187,18 @@ async def generate_everything_and_save_and_upload():
     for row_num, (_, item) in enumerate(dto_dict_rs.items(), start=1):
         item.row = row_num
 
-
     await export_and_upload_dtos(
         dto_by_key=dto_dict_rs,
         dict_model_cls=RiderStatsDtoDictModel,
         list_model_cls=RiderStatsDtoListModel,
-        output_dir=DIRPATH_RIDER_STATS_DTO,
-        json_dict_filename=FILENAME_RIDER_STATS_DTO_JSON_DICT,
-        json_list_filename=FILENAME_RIDER_STATS_DTO_JSON_LIST,
-        excel_filename=FILENAME_RIDER_STATS_DTO_XLSX_LIST,
-        json_dict_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-        json_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+        output_dir          =DIRPATH_RIDER_STATS_DTO,
+        json_dict_filename  =FILENAME_RIDER_STATS_DTO_JSON_DICT,
+        json_list_filename  =FILENAME_RIDER_STATS_DTO_JSON_LIST,
+        excel_list_filename =FILENAME_RIDER_STATS_DTO_XLSX_LIST,
+        csv_list_filename   =FILENAME_RIDER_STATS_DTO_CSV_LIST,
+        json_dict_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+        json_list_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+        csv_list_blobname   =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
         logger=logger,
     )
 
@@ -197,9 +211,11 @@ async def export_and_upload_dtos(
     output_dir: str,
     json_dict_filename: str,
     json_list_filename: str,
-    excel_filename: str,
+    excel_list_filename: str,
+    csv_list_filename : str,
     json_dict_blobname: str,
     json_list_blobname: str,
+    csv_list_blobname : str,
     logger: logging.Logger,
 ):
     """
@@ -232,9 +248,9 @@ async def export_and_upload_dtos(
         raise
 
     try:
-        # Write JSON files
-        write_json_file(Path(output_dir), json_dict_filename, dto_dict_json)
-        write_json_file(Path(output_dir), json_list_filename, dto_list_json)
+        # Write JSON files for dict and list formats
+        write_text_with_json_file_extension(Path(output_dir), json_dict_filename, dto_dict_json)
+        write_text_with_json_file_extension(Path(output_dir), json_list_filename, dto_list_json)
         print(f"Saved JSON file: {json_dict_filename}")
         print(f"Saved JSON file: {json_list_filename}")
         logger.info("JSON files written successfully.")
@@ -242,22 +258,33 @@ async def export_and_upload_dtos(
         logger.error(f"Error writing JSON files: {e}", exc_info=True)
         raise
 
+    dto_list_dataframe_column_order = list(dto_list[0].model_fields.keys())
+    dto_list_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
+    dto_list_as_dataframe = pd.DataFrame(dto_list_dataframe_rows, columns=dto_list_dataframe_column_order)
+    dto_list_as_csv = dto_list_as_dataframe.to_csv(index=False)  
+
     try:
-        # Write Excel file
-        dto_dataframe_column_order = list(dto_list[0].model_fields.keys())
-        dto_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
-        dto_as_dataframe = pd.DataFrame(dto_dataframe_rows, columns=dto_dataframe_column_order)
-        write_excel_file(Path(output_dir), excel_filename, dto_as_dataframe)
-        print(f"Saved Excel file: {excel_filename}")
+        # Write Excel file for list format (dict-root doesn't lend itself to tabular format)
+        write_dataframe_as_xlsx_file(Path(output_dir), excel_list_filename, dto_list_as_dataframe)
+        print(f"Saved .xlsx file: {excel_list_filename}")
         logger.info("Excel file written successfully.")
     except Exception as e:
-        logger.error(f"Error writing Excel file: {e}", exc_info=True)
+        logger.error(f"Error writing .xlsx file: {e}", exc_info=True)
+        raise
+
+    try:
+        # Write csv file for list format (dict-root doesn't lend itself to tabular format)
+        write_dataframe_as_csv_file(Path(output_dir), csv_list_filename, dto_list_as_dataframe)
+        print(f"Saved CSV file: {csv_list_filename}")
+        logger.info("CSV file written successfully.")
+    except Exception as e:
+        logger.error(f"Error writing CSV file: {e}", exc_info=True)
         raise
 
     try:
         throw_if_no_internet_connection()
 
-        # Upload to Azure (current container)
+        # Upload to Azure (current container for live access by all apps that use realtime data)
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
             AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json)
         file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
@@ -272,24 +299,35 @@ async def export_and_upload_dtos(
         print(message2)
         logger.info(message2)
 
-        # Upload dated archive copies
+        # Upload dated archive copies to Azure (separate container for archival storage, not used by live apps)
         date: str = format_timestamp_as_yyyy_mm_dd()
-        archived_dict_blob = f"{date}_{json_dict_blobname}"
-        archived_list_blob = f"{date}_{json_list_blobname}"
+        archived_dict_blob_name = f"{date}_{json_dict_blobname}"
+        archived_list_blob_name = f"{date}_{json_list_blobname}"
+        archived_list_blob_as_csv_name = f"{date}_{csv_list_blobname}"
 
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob, dto_dict_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob_name, dto_dict_json)
         file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
         message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message)
         logger.info(message)
 
         url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob, dto_list_json)
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_name, dto_list_json)
         file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
         message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
         print(message2)
         logger.info(message2)
+
+        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_as_csv_name, dto_list_as_csv)
+        file_size = make_pretty_count_of_bytes(len(dto_list_as_csv.encode('utf-8')))
+        message3 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
+        print(message3)
+        logger.info(message3)
+
+
+
     except Exception as e:
         logger.error(f"Error uploading to Azure: {e}", exc_info=True)
         raise

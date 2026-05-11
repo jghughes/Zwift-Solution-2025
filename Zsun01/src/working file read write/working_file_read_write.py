@@ -1,19 +1,37 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 import json
 
 from jgh_path_helpers import throw_if_file_path_ingredients_invalid_or_not_exists
-from jgh_read_write import read_text, write_json_file
+from jgh_read_write import read_text, write_text_with_json_file_extension
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
 from rider_brute_item import RiderBruteItem
 from rider_brute_dto import RiderBruteDtoDictModel
+from rider_stats_item import RiderStatsItem
+from rider_stats_dto import RiderStatsDtoListModel
+
 
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem 
 
-def read_file_as_json_dict_of_RiderDTO(dirpath: Path, filename: str) -> Dict[str, RiderBruteItem]:
+def read_rider_brute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderBruteItem]:
+    """
+    Reads a JSON file and deserializes its contents into a dictionary of RiderBruteItem domain objects.
+
+    Args:
+        dirpath: Directory path containing the target file.
+        filename: Name of the JSON file (without extension).
+
+    Returns:
+        A defaultdict of RiderBruteItem instances keyed by rider ID string,
+        defaulting to an empty RiderBruteItem for missing keys.
+
+    Raises:
+        ValueError: If the directory or file path is invalid or the file does not exist.
+    """
+
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
         filename,
@@ -32,7 +50,48 @@ def read_file_as_json_dict_of_RiderDTO(dirpath: Path, filename: str) -> Dict[str
         }
     )
 
-def read_file_as_json_dict_of_ZwiftPower90DayWattsDTO(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> List[RiderStatsItem]:
+    """
+    Reads a JSON file and deserializes its contents into a list of RiderStatsItem domain objects.
+
+    Args:
+        dirpath: Directory path containing the target file.
+        filename: Name of the JSON file (without extension).
+
+    Returns:
+        A list of RiderStatsItem instances populated from the JSON data.
+
+    Raises:
+        ValueError: If the directory or file path is invalid or the file does not exist.
+    """
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath,
+        filename,
+        ".json",
+        require_file_exists_for_read=True,
+        validate_dir_and_extension_only=False
+    )
+    text = read_text(dirpath, filename)
+    something = json.loads(text)
+    answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
+    return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
+
+def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+    """
+    Reads a JSON file and deserializes its contents into a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects.
+
+    Args:
+        dirpath: Directory path containing the target file.
+        filename: Name of the JSON file (without extension).
+
+    Returns:
+        A defaultdict of ZwiftPowerFlattened90dayWattsItem instances keyed by rider ID string,
+        defaulting to an empty ZwiftPowerFlattened90dayWattsItem for missing keys.
+
+    Raises:
+        ValueError: If the directory or file path is invalid or the file does not exist.
+    """
+
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
         filename,
@@ -51,7 +110,22 @@ def read_file_as_json_dict_of_ZwiftPower90DayWattsDTO(dirpath: Path, filename: s
         }
     )
 
-def read_file_as_json_dict_of_RegressionModellingDTO(dirpath: Path, filename: str) -> Dict[str, RegressionModellingItem]:
+def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RegressionModellingItem]:
+    """
+    Reads a JSON file and deserializes its contents into a dictionary of RegressionModellingItem domain objects.
+
+    Args:
+        dirpath: Directory path containing the target file.
+        filename: Name of the JSON file (without extension).
+
+    Returns:
+        A defaultdict of RegressionModellingItem instances keyed by rider ID string,
+        defaulting to an empty RegressionModellingItem for missing keys.
+
+    Raises:
+        ValueError: If the directory or file path is invalid or the file does not exist.
+    """
+
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
         filename,
@@ -70,14 +144,22 @@ def read_file_as_json_dict_of_RegressionModellingDTO(dirpath: Path, filename: st
         }
     )
 
-def write_with_json_file_ext_dict_of_ZwiftPower90dayWattsDTO(
-    dirpath: Path,
-    filename: str,
-    data: Dict[str, ZwiftPowerFlattened90dayWattsItem]
-) -> None:
+def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data: Dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
     """
-    Serializes and writes a dictionary of ZwiftPower90dayWattsDto objects to a JSON file.
+    Serializes and writes a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects to a JSON file.
+
+    Args:
+        dirpath: Directory path where the output file will be written.
+        filename: Name of the JSON file (without extension).
+        data: Dictionary of ZwiftPowerFlattened90dayWattsItem instances keyed by rider ID string.
+
+    Returns:
+        None.
+
+    Raises:
+        ValueError: If the directory or file path is invalid.
     """
+
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
         filename,
@@ -91,16 +173,24 @@ def write_with_json_file_ext_dict_of_ZwiftPower90dayWattsDTO(
     }
     myObj = ZwiftPower90DayWattsDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
-    write_json_file(dirpath, filename, text)
+    write_text_with_json_file_extension(dirpath, filename, text)
 
-def write_with_json_file_ext_dict_of_RegressionModellingDto(
-    dirpath: Path,
-    filename: str,
-    data: Dict[str, RegressionModellingItem]
-) -> None:
+def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: Dict[str, RegressionModellingItem]) -> None:
     """
-    Serializes and writes a dictionary of RegressionModellingDto objects to a JSON file.
+    Serializes and writes a dictionary of RegressionModellingItem domain objects to a JSON file.
+
+    Args:
+        dirpath: Directory path where the output file will be written.
+        filename: Name of the JSON file (without extension).
+        data: Dictionary of RegressionModellingItem instances keyed by rider ID string.
+
+    Returns:
+        None.
+
+    Raises:
+        ValueError: If the directory or file path is invalid.
     """
+
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
         filename,
@@ -114,7 +204,7 @@ def write_with_json_file_ext_dict_of_RegressionModellingDto(
     }
     myObj = RegressionModellingDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
-    write_json_file(dirpath, filename, text)
+    write_text_with_json_file_extension(dirpath, filename, text)
 
 
 

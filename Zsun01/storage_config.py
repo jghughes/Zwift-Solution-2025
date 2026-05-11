@@ -43,20 +43,28 @@ _riderDtoFileNamePrefix = "rider_brute_dto"
 FILENAME_RIDER_BRUTE_DTO_JSON_DICT = f"{_riderDtoFileNamePrefix}_as_dict.json"
 FILENAME_RIDER_BRUTE_DTO_JSON_LIST = f"{_riderDtoFileNamePrefix}_as_list.json"
 FILENAME_RIDER_BRUTE_DTO_XLSX_LIST = f"{_riderDtoFileNamePrefix}_as_list.xlsx"
+FILENAME_RIDER_BRUTE_DTO_CSV_LIST = f"{_riderDtoFileNamePrefix}_as_list.csv"
 
 _riderStatsDtoFileNamePrefix = "rider_stats_dto"
 FILENAME_RIDER_STATS_DTO_JSON_DICT = f"{_riderStatsDtoFileNamePrefix}_as_dict.json"
 FILENAME_RIDER_STATS_DTO_JSON_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.json"
 FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xlsx"
+FILENAME_RIDER_STATS_DTO_CSV_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.csv"
+
+FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP = r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\authored\2026-04-30_rider_stats_on_date_of_introduction_of_accelerated_levelling_up.json"
 
 AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
 AZURE_CONTAINERNAME_BRUTE = "brute"
 AZURE_CONTAINERNAME_ZSUN = "zsun"
 AZURE_CONTAINERNAME_ZSUN_BACK = "zsun-back"
+
 AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT = FILENAME_RIDER_BRUTE_DTO_JSON_DICT
 AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST = FILENAME_RIDER_BRUTE_DTO_JSON_LIST
+AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST_AS_CSV = FILENAME_RIDER_BRUTE_DTO_CSV_LIST
+
 AZURE_BLOBNAME_RIDER_STATS_DTO_DICT = FILENAME_RIDER_STATS_DTO_JSON_DICT
 AZURE_BLOBNAME_RIDER_STATS_DTO_LIST = FILENAME_RIDER_STATS_DTO_JSON_LIST
+AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV = FILENAME_RIDER_STATS_DTO_CSV_LIST
 
 DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
     PacelinePlanTypeEnum.THIRTY_SEC_PULL:    "01_no_drop_thirty_second_pulls.html",

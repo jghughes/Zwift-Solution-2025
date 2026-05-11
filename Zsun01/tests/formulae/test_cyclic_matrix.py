@@ -2,7 +2,7 @@ from cyclic_matrix import generate_cyclic_matrix
 from rider_brute_item import RiderBruteItem
 from pathlib import Path
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT
-from working_file_read_write import read_file_as_json_dict_of_RiderDTO
+from working_file_read_write import read_rider_brute_dict_from_json
 
 import time
 import logging
@@ -13,7 +13,7 @@ from storage_config import DIRPATH_LOGGING
 # Example usage:
 def test00():
 
-    dict_of_zwiftrideritem = read_file_as_json_dict_of_RiderDTO(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
+    dict_of_zwiftrideritem = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
 
     barryb : RiderBruteItem = dict_of_zwiftrideritem['5490373'] # barryb
     johnh : RiderBruteItem = dict_of_zwiftrideritem['1884456'] # johnh

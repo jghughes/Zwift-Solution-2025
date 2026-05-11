@@ -39,7 +39,7 @@ from storage_config import (
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from working_file_read_write import write_with_json_file_ext_dict_of_ZwiftPower90dayWattsDTO
+from working_file_read_write import write_zwiftpower_90day_watts_dict_to_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
 
 import time
@@ -70,7 +70,7 @@ def run_curve_fitting_comparisons():
 
     dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), test_IDs) 
 
-    write_with_json_file_ext_dict_of_ZwiftPower90dayWattsDTO(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_file_name, dict_of_zsunwatts_graphs_for_testIDs)
+    write_zwiftpower_90day_watts_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_file_name, dict_of_zsunwatts_graphs_for_testIDs)
 
     # log all the x and y data for all riders in pretty tables
 

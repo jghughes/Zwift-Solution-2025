@@ -165,7 +165,7 @@ def read_excel(dirpath: Path, filename: str) -> pd.DataFrame:
 # File Writing Utilities
 # ===========================
 
-def write_text(dirpath: Path, filename: str, text: str) -> str:
+def write_text_with_txt_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
     Writes text to a file.
 
@@ -188,7 +188,7 @@ def write_text(dirpath: Path, filename: str, text: str) -> str:
     except Exception as err:
         raise IOError(f"Error writing file {file_path}: {err}")
 
-def write_lines(dirpath: Path, filename: str, lines: List[str]) -> str:
+def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: List[str]) -> str:
     """
     Writes a list of text lines to a file.
 
@@ -211,7 +211,7 @@ def write_lines(dirpath: Path, filename: str, lines: List[str]) -> str:
     except Exception as err:
         raise IOError(f"Error writing file {file_path}: {err}")
 
-def write_json_file(dirpath: Path, filename: str, text: str) -> str:
+def write_text_with_json_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
     Writes JSON text to a file.
 
@@ -234,7 +234,30 @@ def write_json_file(dirpath: Path, filename: str, text: str) -> str:
     except Exception as err:
         raise IOError(f"Error writing file {file_path}: {err}")
 
-def write_html_file(dirpath: Path, filename: str, text: str) -> str:
+def write_text_with_csv_file_extension(dirpath: Path, filename: str, text: str) -> str:
+    """
+    Writes CSV text to a file.
+
+    Validates that the file path is absolute and the directory exists.
+    Raises ValueError if any check fails, and IOError if writing the file fails.
+    Returns the string path to the written file.
+    """
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath,
+        filename,
+        ".csv",
+        require_file_exists_for_read=False,
+        validate_dir_and_extension_only=False
+    )
+    file_path = Path(dirpath) / Path(filename)
+    try:
+        with file_path.open('w', encoding='utf-8') as json_file:
+            json_file.write(text)
+        return str(file_path)
+    except Exception as err:
+        raise IOError(f"Error writing file {file_path}: {err}")
+
+def write_text_with_html_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
     Writes HTML text to a file.
 
@@ -257,7 +280,7 @@ def write_html_file(dirpath: Path, filename: str, text: str) -> str:
     except Exception as err:
         raise IOError(f"Error writing file {file_path}: {err}")
 
-def write_excel_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
+def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
     """
     Writes a pandas DataFrame to an Excel (.xlsx) file.
 
@@ -278,3 +301,25 @@ def write_excel_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> s
         return str(file_path)
     except Exception as err:
         raise IOError(f"Error writing Excel file {file_path}: {err}")
+
+def write_dataframe_as_csv_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
+    """
+    Writes a pandas DataFrame to a CSV file.
+
+    Validates that the file path is absolute and the directory exists.
+    Raises ValueError if any check fails, and IOError if writing the file fails.
+    Returns the string path to the written file.
+    """
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath,
+        filename,
+        ".csv",
+        require_file_exists_for_read=False,
+        validate_dir_and_extension_only=False
+    )
+    file_path = Path(dirpath) / Path(filename)
+    try:
+        dataframe.to_csv(file_path, index=False, encoding="utf-8")
+        return str(file_path)
+    except Exception as err:
+        raise IOError(f"Error writing CSV file {file_path}: {err}")

@@ -20,7 +20,7 @@ const BASE_COLUMN_DEFS = [
     { headerName: "km total", field: "total_distance_km", type: 'numericColumn', valueFormatter: params => params.value?.toLocaleString('en-GB', { maximumFractionDigits: 0 }) },
     { headerName: "exp pts", field: "total_experience_points", type: 'numericColumn', valueFormatter: params => params.value?.toLocaleString('en-GB', { maximumFractionDigits: 0 }) },
     { headerName: "level", field: "level", type: 'numericColumn', width: 80 },
-    { headerName: "level+", field: "level_accelerated", type: 'numericColumn', width: 80 },
+    { headerName: "101+ level", field: "level_accelerated", type: 'numericColumn', width: 80 },
     { headerName: "ZRA rating", field: "velo_cat_label", width: 130 },
     { headerName: "zwiftID", field: "zwift_id" },
 ];

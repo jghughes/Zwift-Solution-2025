@@ -14,6 +14,7 @@ from zwiftid_file_reader_sync import (
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
+from working_file_read_write import read_rider_stats_list_from_json
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_brute_item import RiderBruteItem
@@ -28,6 +29,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
+    _dict_of_RiderStatsItem             :   Dict[str, RiderStatsItem] = field(default_factory=dict)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
@@ -49,6 +51,7 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
+        filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up : str,
     )->bool:
 
         """
@@ -74,6 +77,8 @@ class RepositoryOfRiders:
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
         print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
         self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
+        print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
+        self._dict_of_RiderStatsItem = self._read_file_of_RiderStatsItem(Path(filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up))
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -288,7 +293,13 @@ class RepositoryOfRiders:
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
-            # print(f"Repository message: computing brute item for ZwiftID={key}, Name={name}. Level={zwiftItem.achievement_level}")
+            lookup = self._dict_of_RiderStatsItem.get(key)
+
+            is_eligible_for_accelerated_leveling_up = False # default
+            if lookup is not None and lookup.zwift_id == key:
+                level = lookup.achievement_level
+                if level >= 100:
+                    is_eligible_for_accelerated_leveling_up = True
 
             riderStatsItem = RiderStatsItem(
                 zwift_id            =   zwiftItem.zwift_id,
@@ -300,10 +311,12 @@ class RepositoryOfRiders:
                 gender_code         =   "m" if zwiftItem.is_male else "f",
                 cat_open            =   zwiftItem.competition_metrics.zwift_category_open,
                 cat_women           =   zwiftItem.competition_metrics.zwift_category_women,
-                level               =   int(zwiftItem.achievement_level /100.0),
+                achievement_level               =   int(zwiftItem.achievement_level /100.0),
                 total_distance_km   =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
                 total_experience_points =   zwiftItem.total_experience_points,
                 target_experience_points =  zwiftItem.target_experience_points,
+                is_white_listed_for_accelerated_leveling_up= is_eligible_for_accelerated_leveling_up,
+                achievement_level_accelerated = 0, # to be populated below based on achievement level and target_experience_points
                 zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
                 zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
                 zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
@@ -347,9 +360,6 @@ class RepositoryOfRiders:
 
             riderStatsItem.populate_accelerated_target_achievement_level()
 
-            if riderStatsItem.zwift_id == "103825": # example ZwiftID for testing Stewart Lalieu
-                print(f"Repository message: {riderStatsItem.name} ZwiftId = {riderStatsItem.zwift_id} Level = {riderStatsItem.level}  Level 101+ = {riderStatsItem.level_accelerated}  TotalExpPoints = {riderStatsItem.total_experience_points} km = {riderStatsItem.total_distance_km}")
-
             riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
 
             if riderStatsItem.cat_open == "":
@@ -373,8 +383,7 @@ class RepositoryOfRiders:
             velo_rating_text = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
             if riderStatsItem.velo_rating_30_days == 0:
-                riderStatsItem.velo_cat_label= "- none"
-                # riderStatsItem.velo_cat_label= "-------------------------"
+                riderStatsItem.velo_cat_label= "# none"
             else:
                 riderStatsItem.velo_cat_label = f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
 
@@ -390,6 +399,21 @@ class RepositoryOfRiders:
             answer[zwift_id] = rider_stats_item
 
         print (f"Repository message: completed computing rider stats items for {len(answer)} riders.")
+
+        return answer
+
+    def _read_file_of_RiderStatsItem(self, filepath: Path) -> Dict[str, RiderStatsItem]:
+
+        # parse filepath to get directory and filename
+        dirPath = filepath.parent
+        filename = filepath.name
+        rider_stats_items = read_rider_stats_list_from_json(dirPath, filename)
+
+        answer: Dict[str,RiderStatsItem] = {}
+
+        # store RiderStatsItems in a dictionary keyed by zwift_id
+        for item in rider_stats_items:
+            answer[item.zwift_id] = item
 
         return answer
 
