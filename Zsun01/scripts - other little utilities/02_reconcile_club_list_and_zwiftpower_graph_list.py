@@ -21,8 +21,7 @@ from pathlib import Path
 from typing import List
 from jgh_read_write import read_text
 from jgh_string import  make_pretty_time_from_seconds
-from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
-import time
+from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 import logging
 from jgh_exceptions import AlertMessageError
 

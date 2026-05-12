@@ -1,7 +1,7 @@
 import json
 import csv
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from pathlib import Path
 import pandas as pd
 from jgh_path_helpers import throw_if_file_path_invalid_or_not_exists, throw_if_dirpath_invalid_or_not_exists, throw_if_file_path_ingredients_invalid_or_not_exists

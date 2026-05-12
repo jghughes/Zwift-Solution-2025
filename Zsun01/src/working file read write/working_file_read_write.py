@@ -1,10 +1,12 @@
-from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any, Type
 import json
+from collections import defaultdict
+
+import pandas as pd
 
 from jgh_path_helpers import throw_if_file_path_ingredients_invalid_or_not_exists
-from jgh_read_write import read_text, write_text_with_json_file_extension
+from jgh_read_write import read_text, write_text_with_json_file_extension, write_dataframe_as_csv_file, write_dataframe_as_xlsx_file
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
 from rider_brute_item import RiderBruteItem
@@ -207,4 +209,49 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
     write_text_with_json_file_extension(dirpath, filename, text)
 
 
+def read_json_list_and_export_tabular(
+    input_dirpath: Path,
+    input_filename: str,
+    list_model_class: Type[Any],
+    output_dirpath: Path,
+) -> pd.DataFrame:
+    """
+    Reads a JSON list file, validates it with a Pydantic list-root model,
+    and writes the validated DTOs to both a CSV and an XLSX file.
+    Output files are written to output_dirpath using the same stem as
+    input_filename, with .csv and .xlsx extensions respectively.
 
+    Args:
+        input_dirpath:   Directory containing the source JSON file.
+        input_filename:  Filename of the JSON list file (with extension).
+        list_model_class:  A Pydantic list-root model class whose .root is List[DTO].
+        output_dirpath:  Directory where the CSV and XLSX files will be written.
+
+    Returns:
+        A pandas DataFrame representing the validated DTO list, with columns
+        ordered according to the DTO's model_fields declaration.
+
+    Raises:
+        ValueError:      If any path or filename argument is invalid, or the
+                         JSON list is empty after validation.
+        ValidationError: If the JSON does not conform to the list model schema.
+        IOError:         If reading or writing any file fails.
+    """
+    stem = Path(input_filename).stem
+
+    raw_text = read_text(input_dirpath, input_filename)
+    raw_data = json.loads(raw_text)
+
+    validated_list = list_model_class.model_validate(raw_data, strict=True).root
+
+    if not validated_list:
+        raise ValueError(f"No DTOs found after validating '{input_filename}'.")
+
+    column_order = list(validated_list[0].model_fields.keys())
+    rows = [dto.model_dump(exclude_none=False) for dto in validated_list]
+    dataframe = pd.DataFrame(rows, columns=column_order)
+
+    write_dataframe_as_csv_file(output_dirpath, f"{stem}.csv", dataframe)
+    write_dataframe_as_xlsx_file(output_dirpath, f"{stem}.xlsx", dataframe)
+
+    return dataframe
