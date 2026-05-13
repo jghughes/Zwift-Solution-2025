@@ -51,7 +51,7 @@ FILENAME_RIDER_STATS_DTO_JSON_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.js
 FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xlsx"
 FILENAME_RIDER_STATS_DTO_CSV_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.csv"
 
-FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP = r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\authored\2026-04-30_rider_stats_on_date_of_introduction_of_accelerated_levelling_up.json"
+FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP = r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\special\2026-05-03_rider_stats_dto_as_list_four_days_after_accelerated_levelling_up_introduced.json"
 
 AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
 AZURE_CONTAINERNAME_BRUTE = "brute"

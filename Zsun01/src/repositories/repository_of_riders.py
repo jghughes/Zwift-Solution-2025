@@ -12,6 +12,8 @@ from zwiftid_file_reader_sync import (
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
+from jgh_formulae10 import calculate_projected_accelerated_level_up
+
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
 from working_file_read_write import read_rider_stats_list_from_json
@@ -29,7 +31,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_RiderStatsItem             :   Dict[str, RiderStatsItem] = field(default_factory=dict)
+    _dict_of_RiderStatsItem_2026_05_03  :   Dict[str, RiderStatsItem] = field(default_factory=dict)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
@@ -78,7 +80,7 @@ class RepositoryOfRiders:
         print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
         self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
-        self._dict_of_RiderStatsItem = self._read_file_of_RiderStatsItem(Path(filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up))
+        self._dict_of_RiderStatsItem_2026_05_03 = self._read_file_of_RiderStatsItem(Path(filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up))
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -293,13 +295,6 @@ class RepositoryOfRiders:
             else:
                 name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
-            lookup = self._dict_of_RiderStatsItem.get(key)
-
-            is_eligible_for_accelerated_leveling_up = False # default
-            if lookup is not None and lookup.zwift_id == key:
-                level = lookup.achievement_level
-                if level >= 100:
-                    is_eligible_for_accelerated_leveling_up = True
 
             riderStatsItem = RiderStatsItem(
                 zwift_id            =   zwiftItem.zwift_id,
@@ -311,12 +306,11 @@ class RepositoryOfRiders:
                 gender_code         =   "m" if zwiftItem.is_male else "f",
                 cat_open            =   zwiftItem.competition_metrics.zwift_category_open,
                 cat_women           =   zwiftItem.competition_metrics.zwift_category_women,
-                achievement_level               =   int(zwiftItem.achievement_level /100.0),
+                achievement_level   =   int(zwiftItem.achievement_level /100.0),
                 total_distance_km   =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
                 total_experience_points =   zwiftItem.total_experience_points,
-                target_experience_points =  zwiftItem.target_experience_points,
-                is_white_listed_for_accelerated_leveling_up= is_eligible_for_accelerated_leveling_up,
-                achievement_level_accelerated = 0, # to be populated below based on achievement level and target_experience_points
+                rider_score         =  zwiftItem.target_experience_points,
+                projected_accelerated_achievement_level = 0, # populated below based on achievement level and rider_score/target_experience_points
                 zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
                 zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
                 zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
@@ -358,7 +352,9 @@ class RepositoryOfRiders:
                 timestamp=get_current_utc_iso8601_timestamp(),
             )
 
-            riderStatsItem.populate_accelerated_target_achievement_level()
+            this_rider_on_2026_05_03 = self._dict_of_RiderStatsItem_2026_05_03.get(key)
+            if this_rider_on_2026_05_03 is not None and this_rider_on_2026_05_03.zwift_id == key:
+                riderStatsItem.projected_accelerated_achievement_level = calculate_projected_accelerated_level_up(this_rider_on_2026_05_03.achievement_level, this_rider_on_2026_05_03.rider_score)
 
             riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
 

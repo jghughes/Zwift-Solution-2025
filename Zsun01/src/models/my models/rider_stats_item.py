@@ -18,9 +18,8 @@ class RiderStatsItem(ZwiftIdBase):
 	achievement_level			:	int		=	0
 	total_distance_km           :	float	=	0.0
 	total_experience_points		:	int		=	0
-	target_experience_points	:	int		=	0
-	is_white_listed_for_accelerated_leveling_up	:	bool	=	False
-	achievement_level_accelerated:	int		=	0
+	rider_score					:	int		=	0
+	projected_accelerated_achievement_level:	int		=	0
 	zwift_racing_score			:	float	=	0.0
 	zwift_ftp_w					:	float	=	0.0
 	zwift_zftp_w				:	float	=	0.0
@@ -78,9 +77,8 @@ class RiderStatsItem(ZwiftIdBase):
 			level						= item.achievement_level,
 			total_distance_km           = item.total_distance_km,
 			total_experience_points		= item.total_experience_points,
-			target_experience_points	= item.target_experience_points,
-			is_white_listed_for_accelerated_leveling_up= item.is_white_listed_for_accelerated_leveling_up,
-			level_accelerated			= item.achievement_level_accelerated,
+			target_experience_points	= item.rider_score,
+			projected_accelerated_achievement_level	= item.projected_accelerated_achievement_level,
 			zwift_racing_score			= item.zwift_racing_score,
 			zwift_ftp_w					= int(item.zwift_ftp_w),
 			zwift_zftp_w				= int(item.zwift_zftp_w),
@@ -138,8 +136,8 @@ class RiderStatsItem(ZwiftIdBase):
 		item.cat_women					= dto.cat_women
 		item.achievement_level			= dto.level
 		item.total_experience_points    = dto.total_experience_points
-		item.is_white_listed_for_accelerated_leveling_up    = dto.is_white_listed_for_accelerated_leveling_up
-		item.achievement_level_accelerated= dto.level_accelerated
+		item.rider_score                = dto.target_experience_points
+		item.projected_accelerated_achievement_level= dto.projected_accelerated_achievement_level
 		item.zwift_racing_score			= dto.zwift_racing_score
 		item.zwift_ftp_w				= dto.zwift_ftp_w
 		item.zwift_zftp_w				= dto.zwift_zftp_w
@@ -179,15 +177,5 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
 		item.timestamp					= dto.timestamp
-		item.populate_accelerated_target_achievement_level()
 		return item
-
-	def populate_accelerated_target_achievement_level(self)-> None:
-		if self.achievement_level < 100:
-			self.achievement_level_accelerated = self.achievement_level
-		elif self.is_white_listed_for_accelerated_leveling_up is False:
-			self.achievement_level_accelerated = self.achievement_level
-		else:
-			level_accelerated_candidate = int((self.target_experience_points - (5_000* self.achievement_level) + 119_3000) / 15_000.0)
-			self.achievement_level_accelerated = level_accelerated_candidate
 
