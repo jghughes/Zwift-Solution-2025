@@ -17,7 +17,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"total_distance_km"						:	AliasChoices("total_distance_km", "totalDistanceKm"),
 	"total_experience_points"				:	AliasChoices("total_experience_points", "totalExperiencePoints"),
 	"target_experience_points"				:	AliasChoices("target_experience_points", "targetExperiencePoints"),
-	"projected_accelerated_achievement_level" :	AliasChoices("projected_accelerated_achievement_level", "projectedAcceleratedAchievementLevel"),
+	"projected_accelerated_level"			:	AliasChoices("projected_accelerated_level", "projectedAcceleratedLevel"),
 	"zwift_racing_score"					:	AliasChoices("zwift_racing_score", "zwiftRacingScore"),
 	"zwift_ftp_w"							:	AliasChoices("zwift_ftp_w", "zwiftWattsFTP"),
 	"zwift_zftp_w"							:	AliasChoices("zwift_zftp_w", "zwiftWattsZFTP"),
@@ -80,7 +80,7 @@ class RiderStatsDTO(BaseModel):
 	total_distance_km						:	float	=	0.0
 	total_experience_points					:	int		=	0
 	target_experience_points				:	int		=	0
-	projected_accelerated_achievement_level :	int		=	0
+	projected_accelerated_level				:	int		=	0
 	zwift_racing_score						:	float	=	0.0
 	zwift_ftp_w								:	float	=	0.0
 	zwift_zftp_w							:	float	=	0.0

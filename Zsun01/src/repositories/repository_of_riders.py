@@ -31,7 +31,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_RiderStatsItem_2026_05_03  :   Dict[str, RiderStatsItem] = field(default_factory=dict)
+    _dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date  :   Dict[str, RiderStatsItem] = field(default_factory=dict)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
@@ -53,7 +53,7 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up : str,
+        filepath_for__RiderStatsItems_as_at_accelerated_levelling_up_launch_date : str,
     )->bool:
 
         """
@@ -80,7 +80,7 @@ class RepositoryOfRiders:
         print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
         self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
-        self._dict_of_RiderStatsItem_2026_05_03 = self._read_file_of_RiderStatsItem(Path(filepath_for_whitelisting_riders_eligible_for_accelerated_levelling_up))
+        self._dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date = self._read_file_of_RiderStatsItem(Path(filepath_for__RiderStatsItems_as_at_accelerated_levelling_up_launch_date))
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -310,7 +310,7 @@ class RepositoryOfRiders:
                 total_distance_km   =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
                 total_experience_points =   zwiftItem.total_experience_points,
                 rider_score         =  zwiftItem.target_experience_points,
-                projected_accelerated_achievement_level = 0, # populated below based on achievement level and rider_score/target_experience_points
+                projected_accelerated_level = 0, # populated below based on level,and rider_score/target_experience_points as at begin-May 2026
                 zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
                 zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
                 zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
@@ -352,9 +352,9 @@ class RepositoryOfRiders:
                 timestamp=get_current_utc_iso8601_timestamp(),
             )
 
-            this_rider_on_2026_05_03 = self._dict_of_RiderStatsItem_2026_05_03.get(key)
-            if this_rider_on_2026_05_03 is not None and this_rider_on_2026_05_03.zwift_id == key:
-                riderStatsItem.projected_accelerated_achievement_level = calculate_projected_accelerated_level_up(this_rider_on_2026_05_03.achievement_level, this_rider_on_2026_05_03.rider_score)
+            this_rider_on_launch_date = self._dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date.get(key)
+            if this_rider_on_launch_date is not None and this_rider_on_launch_date.zwift_id == key:
+                riderStatsItem.projected_accelerated_level = calculate_projected_accelerated_level_up(this_rider_on_launch_date.achievement_level, this_rider_on_launch_date.rider_score)
 
             riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
 

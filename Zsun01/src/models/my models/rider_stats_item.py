@@ -19,7 +19,7 @@ class RiderStatsItem(ZwiftIdBase):
 	total_distance_km           :	float	=	0.0
 	total_experience_points		:	int		=	0
 	rider_score					:	int		=	0
-	projected_accelerated_achievement_level:	int		=	0
+	projected_accelerated_level:	int		=	0
 	zwift_racing_score			:	float	=	0.0
 	zwift_ftp_w					:	float	=	0.0
 	zwift_zftp_w				:	float	=	0.0
@@ -78,7 +78,7 @@ class RiderStatsItem(ZwiftIdBase):
 			total_distance_km           = item.total_distance_km,
 			total_experience_points		= item.total_experience_points,
 			target_experience_points	= item.rider_score,
-			projected_accelerated_achievement_level	= item.projected_accelerated_achievement_level,
+			projected_accelerated_level	= item.projected_accelerated_level,
 			zwift_racing_score			= item.zwift_racing_score,
 			zwift_ftp_w					= int(item.zwift_ftp_w),
 			zwift_zftp_w				= int(item.zwift_zftp_w),
@@ -137,7 +137,7 @@ class RiderStatsItem(ZwiftIdBase):
 		item.achievement_level			= dto.level
 		item.total_experience_points    = dto.total_experience_points
 		item.rider_score                = dto.target_experience_points
-		item.projected_accelerated_achievement_level= dto.projected_accelerated_achievement_level
+		item.projected_accelerated_level= dto.projected_accelerated_level
 		item.zwift_racing_score			= dto.zwift_racing_score
 		item.zwift_ftp_w				= dto.zwift_ftp_w
 		item.zwift_zftp_w				= dto.zwift_zftp_w
