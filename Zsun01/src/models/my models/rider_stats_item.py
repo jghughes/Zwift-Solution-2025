@@ -5,6 +5,8 @@ from zwift_id_base import ZwiftIdBase
 from typing import Optional
 from rider_stats_dto import RiderStatsDTO
 
+# this domain model is instantiated in rider_item_builders.py
+
 @dataclass
 class RiderStatsItem(ZwiftIdBase):
 	name						:	str		=	""

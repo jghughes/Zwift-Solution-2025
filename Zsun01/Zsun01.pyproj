@@ -79,6 +79,8 @@
     <Compile Include="src\models\my models\zwiftpower_flattened_90_day_watts_item.py" />
     <Compile Include="src\models\third party models\zwiftracingapp_item.py" />
     <Compile Include="src\models\third party models\zwift_item.py" />
+    <Compile Include="src\repositories\repository_diagnostics.py" />
+    <Compile Include="src\repositories\rider_item_builders.py" />
     <Compile Include="src\zwiftid file import\zwiftid_file_fetcher_async.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_accessor.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_service_client.py" />
