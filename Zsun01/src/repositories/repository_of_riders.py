@@ -275,128 +275,142 @@ class RepositoryOfRiders:
 
         print(f"Repository message: computing rider stats items for {len(zwift_ids)} riders.")
 
- 
         for key in zwift_ids:
 
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
-                continue  # skip this rider if no Zwift data
+                continue  # skip this key/rider if no Zwift data
 
             zwiftracingappItem = self._dict_of_ZwiftRacingAppItem.get(key)
             if zwiftracingappItem is None:
-                zwiftracingappItem = ZwiftRacingAppItem() # proceed with default values, not deemed critical. many/most riders will not have zwiftracingapp data
+                zwiftracingappItem = ZwiftRacingAppItem()  # proceed with default values, not deemed critical. many/most riders will not have zwiftracingapp data
 
             jghRiderBruteItem = self._computed_dict_of_riderBruteItem.get(key)
             if jghRiderBruteItem is None:
-                jghRiderBruteItem = RiderBruteItem() # proceed with empty values, not deemed critical for rider stats. many riders will not have brute items because they are not curve fitted because they lack zwiftpower90daywatts data
-
-            if key in self._dict_of_ZwiftRacingAppItem:
-                name = self._dict_of_ZwiftRacingAppItem[key].full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
-            else:
-                name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
-
-
-            riderStatsItem = RiderStatsItem(
-                zwift_id            =   zwiftItem.zwift_id,
-                name                =   cleanup_name_string(name),
-                zwift_country_code3 =   zwiftItem.country_code3,
-                age                 =   zwiftItem.age_years,
-                height_cm           =   round((zwiftItem.height_mm or 0.0) / 10.0),
-                weight_kg           =   round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
-                gender_code         =   "m" if zwiftItem.is_male else "f",
-                cat_open            =   zwiftItem.competition_metrics.zwift_category_open,
-                cat_women           =   zwiftItem.competition_metrics.zwift_category_women,
-                achievement_level   =   int(zwiftItem.achievement_level /100.0),
-                total_distance_km   =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
-                total_experience_points =   zwiftItem.total_experience_points,
-                rider_score         =  zwiftItem.target_experience_points,
-                projected_accelerated_level = 0, # populated below based on level,and rider_score/target_experience_points as at begin-May 2026
-                zwift_racing_score  =   round(zwiftItem.competition_metrics.zwift_racing_score),
-                zwift_ftp_w         =   round(zwiftItem.ftp_on_zwift),
-                zwift_zftp_w        =   round(zwiftracingappItem.zp_FTP),
-                zwift_zftp_wkg      =   0.0,  # No direct mapping, set to 0.0 or compute if possible
-                zwift_cat_label     =   "",  # see below
-                velo_age_group      =   zwiftracingappItem.age_group,
-                velo_cat_num_30_days=   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
-                velo_cat_name_30_days=   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
-                velo_rating_30_days =   round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
-                velo_cat_label="",  # see below
-                wkg_05sec=0.0, # all the power data points below are set from _dict_of_ZwiftPower90dayWattsItem - except for 60min which is from jghcurvefit
-                wkg_15sec=0.0,
-                wkg_30sec=0.0,
-                wkg_01min=0.0,
-                wkg_02min=0.0,
-                wkg_03min=0.0,
-                wkg_05min=0.0,
-                wkg_10min=0.0,
-                wkg_12min=0.0,
-                wkg_15min=0.0,
-                wkg_20min=0.0,
-                wkg_30min=0.0,
-                wkg_40min=0.0,
-                wkg_60min_curvefit=round(jghRiderBruteItem.get_1_hour_curvefit_wkg(), 2),
-                w_05sec=0.0,
-                w_15sec=0.0,
-                w_30sec=0.0,
-                w_01min=0.0,
-                w_02min=0.0,
-                w_03min=0.0,
-                w_05min=0.0,
-                w_10min=0.0,
-                w_12min=0.0,
-                w_15min=0.0,
-                w_20min=0.0,
-                w_30min=0.0,
-                w_40min=0.0,
-                w_60min_curvefit=round(jghRiderBruteItem.get_1_hour_curvefit_watts(), 2),
-                timestamp=get_current_utc_iso8601_timestamp(),
-            )
+                jghRiderBruteItem = RiderBruteItem()  # proceed with empty values, not deemed critical for rider stats. many riders will not have brute items because they are not curve fitted because they lack zwiftpower90daywatts data
 
             this_rider_on_launch_date = self._dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date.get(key)
             if this_rider_on_launch_date is not None and this_rider_on_launch_date.zwift_id == key:
-                riderStatsItem.projected_accelerated_level = calculate_projected_accelerated_level_up(this_rider_on_launch_date.achievement_level, this_rider_on_launch_date.rider_score)
-
-            riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
-
-            if riderStatsItem.cat_open == "":
-                riderStatsItem.cat_open = "?" 
-                riderStatsItem.cat_women = "?"
-            if riderStatsItem.cat_women == "":
-                if riderStatsItem.gender_code == "m":
-                    riderStatsItem.cat_women = ""
-                else:
-                    riderStatsItem.cat_women = "?"
-            if riderStatsItem.gender_code == "m":
-                cat_combo_text = riderStatsItem.cat_open
+                projected_accelerated_level = calculate_projected_accelerated_level_up(this_rider_on_launch_date.achievement_level, this_rider_on_launch_date.rider_score)
             else:
-                cat_combo_text = riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
+                projected_accelerated_level = 0  # if rider not in the file with list of riders eligible for accelerated levelling up, we set projected_accelerated_level to 0
 
-            zftp_wkg_text : str = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg,2))}wkg"
-            zwift_racing_score_text : str = f"{format_number_0dp_padded3(riderStatsItem.zwift_racing_score)}zrs"
-            riderStatsItem.zwift_cat_label = f"{zftp_wkg_text} - {zwift_racing_score_text} - {cat_combo_text}"
+            preliminary_riderStatsItem = RepositoryOfRiders._build_RiderStatsItem(zwiftItem, zwiftracingappItem, jghRiderBruteItem, projected_accelerated_level)
 
-            velo_cat_num_text = format_number_0dp_padded1(riderStatsItem.velo_cat_num_30_days)
-            velo_rating_text = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
-
-            if riderStatsItem.velo_rating_30_days == 0:
-                riderStatsItem.velo_cat_label= "# none"
-            else:
-                riderStatsItem.velo_cat_label = f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
-
-            preliminary_answer[key] = riderStatsItem
+            preliminary_answer[key] = preliminary_riderStatsItem 
 
         for zwift_id, rider_stats_item in preliminary_answer.items():
             watts_90_day_item = self._dict_of_ZwiftPower90dayWattsItem.get(zwift_id)
             weight_kg = rider_stats_item.weight_kg
             if watts_90_day_item is not None:
                 rider_stats_item = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
-                    rider_stats_item, watts_90_day_item, weight_kg
-                )
+                    rider_stats_item, watts_90_day_item, weight_kg)
+
             answer[zwift_id] = rider_stats_item
 
-        print (f"Repository message: completed computing rider stats items for {len(answer)} riders.")
+        print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")
 
         return answer
+    @staticmethod
+    def _build_RiderStatsItem(
+        zwiftItem: ZwiftItem,
+        zwiftracingappItem: ZwiftRacingAppItem,
+        jghRiderBruteItem: RiderBruteItem,
+        projected_accelerated_level: int,
+    ) -> RiderStatsItem:
+
+        if zwiftItem.zwift_id in {zwiftracingappItem.full_name} or zwiftracingappItem.full_name:
+            name = zwiftracingappItem.full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
+        else:
+            name = f"{zwiftItem.first_name} {zwiftItem.last_name}"
+
+        weight_kg = round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1)
+
+        riderStatsItem = RiderStatsItem(
+            zwift_id                    =   zwiftItem.zwift_id,
+            name                        =   cleanup_name_string(name),
+            zwift_country_code3         =   zwiftItem.country_code3,
+            age                         =   zwiftItem.age_years,
+            height_cm                   =   round((zwiftItem.height_mm or 0.0) / 10.0),
+            weight_kg                   =   weight_kg,
+            gender_code                 =   "m" if zwiftItem.is_male else "f",
+            cat_open                    =   zwiftItem.competition_metrics.zwift_category_open,
+            cat_women                   =   zwiftItem.competition_metrics.zwift_category_women,
+            achievement_level           =   int(zwiftItem.achievement_level / 100.0),
+            total_distance_km           =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
+            total_experience_points     =   zwiftItem.total_experience_points,
+            rider_score                 =   zwiftItem.target_experience_points,
+            projected_accelerated_level =   projected_accelerated_level,
+            zwift_racing_score          =   round(zwiftItem.competition_metrics.zwift_racing_score),
+            zwift_ftp_w                 =   round(zwiftItem.ftp_on_zwift),
+            zwift_zftp_w                =   round(zwiftracingappItem.zp_FTP),
+            zwift_zftp_wkg              =   0.0,
+            zwift_cat_label             =   "",
+            velo_age_group              =   zwiftracingappItem.age_group,
+            velo_cat_num_30_days        =   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+            velo_cat_name_30_days       =   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+            velo_rating_30_days         =   round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
+            velo_cat_label              =   "",
+            wkg_05sec=0.0,
+            wkg_15sec=0.0,
+            wkg_30sec=0.0,
+            wkg_01min=0.0,
+            wkg_02min=0.0,
+            wkg_03min=0.0,
+            wkg_05min=0.0,
+            wkg_10min=0.0,
+            wkg_12min=0.0,
+            wkg_15min=0.0,
+            wkg_20min=0.0,
+            wkg_30min=0.0,
+            wkg_40min=0.0,
+            wkg_60min_curvefit          =   round(jghRiderBruteItem.get_1_hour_curvefit_wkg(), 2),
+            w_05sec=0.0,
+            w_15sec=0.0,
+            w_30sec=0.0,
+            w_01min=0.0,
+            w_02min=0.0,
+            w_03min=0.0,
+            w_05min=0.0,
+            w_10min=0.0,
+            w_12min=0.0,
+            w_15min=0.0,
+            w_20min=0.0,
+            w_30min=0.0,
+            w_40min=0.0,
+            w_60min_curvefit            =   round(jghRiderBruteItem.get_1_hour_curvefit_watts(), 2),
+            timestamp                   =   get_current_utc_iso8601_timestamp(),
+        )
+
+        riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
+
+        if riderStatsItem.cat_open == "":
+            riderStatsItem.cat_open = "?"
+            riderStatsItem.cat_women = "?"
+        if riderStatsItem.cat_women == "":
+            if riderStatsItem.gender_code != "m":
+                riderStatsItem.cat_women = "?"
+
+        cat_combo_text = (
+            riderStatsItem.cat_open
+            if riderStatsItem.gender_code == "m"
+            else riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
+        )
+
+        zftp_wkg_text           = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg, 2))}wkg"
+        zwift_racing_score_text = f"{format_number_0dp_padded3(riderStatsItem.zwift_racing_score)}zrs"
+        riderStatsItem.zwift_cat_label = f"{zftp_wkg_text} - {zwift_racing_score_text} - {cat_combo_text}"
+
+        velo_cat_num_text = format_number_0dp_padded1(riderStatsItem.velo_cat_num_30_days)
+        velo_rating_text  = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
+
+        riderStatsItem.velo_cat_label = (
+            "# none"
+            if riderStatsItem.velo_rating_30_days == 0
+            else f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
+        )
+
+        return riderStatsItem
 
     def _read_file_of_RiderStatsItem(self, filepath: Path) -> Dict[str, RiderStatsItem]:
 
