@@ -45,7 +45,7 @@ class RepositoryOfTeamRosters:
             "rangers": 1.0,
         }
     )
- # 8098136 456545
+
     _team_rosters_as_dict: Dict[str, Dict[str, str]] = defaultdict(
         lambda: defaultdict(str),
         {
@@ -169,9 +169,9 @@ class RepositoryOfTeamRosters:
                 # "991817": "brandi_steeve",
                 # "1646703": "cara_houston",
                 # "456545": "carrie_merritt",
-                "5569057": "cory_cook",
+                # "5569057": "cory_cook",
                 # "6944221": "chris_lockwood",
-                "4945836": "david_evanetich",
+                # "4945836": "david_evanetich",
                 # "183277": "giao_nguyen",
                 # "523861": "gary_putlock",
                 # "525104": "iva_gotz",
@@ -180,7 +180,7 @@ class RepositoryOfTeamRosters:
                 # "1111583": "ken_chapple",
                 # "207797": "lori_pridham",
                 # "2803600": "larry_mccamon",
-                "846200": "lisa_bick",
+                # "846200": "lisa_bick",
                 # "383480": "lynsey_segal",
                 # "4750594":"lydia_lequesne",
                 # "7720774": "mario_bautista",

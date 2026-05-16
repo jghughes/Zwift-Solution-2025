@@ -21,8 +21,8 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from paceline_compute_types import PacelineIngredientsItem, PacelineComputationReportItem
-from paceline_computation_display_objects import (
+from paceline_dataclasses import PacelineIngredientsItem, PacelineComputationReportItem
+from paceline_display_objects import (
     PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
@@ -53,7 +53,7 @@ from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_brute_dto import RiderBruteDTO, RiderBruteDtoListModel
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -122,8 +122,8 @@ async def generate_ttt_scenarios_with_brute() -> None:
             for rider_brute_dto in list_of_RiderDTO]
 
         dict_of_RiderItem: Dict[str, RiderComputeItem] = {
-            rider_compute_item.zwift_id: rider_compute_item
-            for rider_compute_item in list_of_RiderItem
+            rider_dataclasses.zwift_id: rider_dataclasses
+            for rider_dataclasses in list_of_RiderItem
         }    
         print(f"\ncount of riders: {len(list_of_RiderDTO)}")
     except Exception as e:

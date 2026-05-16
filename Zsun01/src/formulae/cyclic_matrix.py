@@ -1,5 +1,5 @@
 from typing import List
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.

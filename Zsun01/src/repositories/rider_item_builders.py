@@ -4,25 +4,25 @@ from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp,
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string
 
-from paceline_compute_types import CurveFittingResultItem
+from paceline_dataclasses import CurveFittingResultItem
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
 
-def build_RiderBruteItem(
+def build_RiderComputeItem(
     zwiftItem: ZwiftItem,
     zwiftracingappItem: Optional[ZwiftRacingAppItem],
     jghcurveItem: CurveFittingResultItem,
 ) -> RiderComputeItem:
     """
-    Constructs and returns a fully populated RiderBruteItem for a single rider.
+    Constructs and returns a fully populated RiderComputeItem for a single rider.
 
-    This is the sole place in the codebase where a RiderBruteItem is instantiated.
+    This is the sole place in the codebase where a RiderComputeItem is instantiated.
     zwiftItem and jghcurveItem are required -- callers must not pass None for either.
-    By definition, a RiderBruteItem only exists for riders who have curve fit data.
+    By definition, a RiderComputeItem only exists for riders who have curve fit data.
     zwiftracingappItem is accepted as Optional; if None it is replaced with a default
     empty instance so that the rest of the function can operate unconditionally.
 
@@ -36,7 +36,7 @@ def build_RiderBruteItem(
             Curve fitting result for the rider. Required -- callers must not pass None.
 
     Returns:
-        RiderBruteItem: A fully populated rider brute item.
+        RiderComputeItem: A fully populated rider riderCompute item.
     """
 
     if zwiftracingappItem is None:
@@ -72,7 +72,7 @@ def build_RiderBruteItem(
 def build_RiderStatsItem(
     zwiftItem: ZwiftItem,
     zwiftracingappItem: Optional[ZwiftRacingAppItem],
-    jghRiderBruteItem: Optional[RiderComputeItem],
+    jghRiderComputeItem: Optional[RiderComputeItem],
     watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem],
     projected_accelerated_level: int,
 ) -> RiderStatsItem:
@@ -86,7 +86,7 @@ def build_RiderStatsItem(
 
     The function performs the following steps in order:
         1. Resolves None inputs to safe defaults.
-        2. Instantiates RiderStatsItem from zwiftItem, zwiftracingappItem, and jghRiderBruteItem.
+        2. Instantiates RiderStatsItem from zwiftItem, zwiftracingappItem, and jghRiderComputeItem.
         3. Computes derived fields: zwift_zftp_wkg, zwift_cat_label, and velo_cat_label.
         4. Populates all wkg/w power fields from watts_90_day_item.
 
@@ -96,8 +96,8 @@ def build_RiderStatsItem(
         zwiftracingappItem (Optional[ZwiftRacingAppItem]):
             ZwiftRacingApp profile data. If None, a default ZwiftRacingAppItem() is used.
             Many riders will not have ZwiftRacingApp data.
-        jghRiderBruteItem (Optional[RiderBruteItem]):
-            Curve-fitted brute power data. If None, a default RiderBruteItem() is used.
+        jghRiderComputeItem (Optional[RiderComputeItem]):
+            Curve-fitted power data. If None, a default RiderComputeItem() is used.
             Many riders lack this because they have no ZwiftPower 90-day watts data.
         watts_90_day_item (Optional[ZwiftPowerFlattened90dayWattsItem]):
             ZwiftPower 90-day best-power data. If None, a default ZwiftPowerFlattened90dayWattsItem() is used.
@@ -113,8 +113,8 @@ def build_RiderStatsItem(
     if zwiftracingappItem is None:
         zwiftracingappItem = ZwiftRacingAppItem()  # proceed with default values, not deemed critical. many/most riders will not have zwiftracingapp data
 
-    if jghRiderBruteItem is None:
-        jghRiderBruteItem = RiderComputeItem()  # proceed with empty values, not deemed critical for rider stats. many riders will not have brute items because they are not curve fitted because they lack zwiftpower90daywatts data
+    if jghRiderComputeItem is None:
+        jghRiderComputeItem = RiderComputeItem()  # proceed with empty values, not deemed critical for rider stats. many riders will not have riderCompute items because they are not curve fitted because they lack zwiftpower90daywatts data
 
     if watts_90_day_item is None:
         watts_90_day_item = ZwiftPowerFlattened90dayWattsItem()  # proceed with default values, not deemed critical. many riders will not have zwiftpower 90-day watts data
@@ -160,7 +160,7 @@ def build_RiderStatsItem(
         wkg_20min=0.0,
         wkg_30min=0.0,
         wkg_40min=0.0,
-        wkg_60min_curvefit          =   round(jghRiderBruteItem.get_1_hour_curvefit_wkg(), 2),
+        wkg_60min_curvefit          =   round(jghRiderComputeItem.get_1_hour_curvefit_wkg(), 2),
         w_05sec=0.0,
         w_15sec=0.0,
         w_30sec=0.0,
@@ -174,7 +174,7 @@ def build_RiderStatsItem(
         w_20min=0.0,
         w_30min=0.0,
         w_40min=0.0,
-        w_60min_curvefit            =   round(jghRiderBruteItem.get_1_hour_curvefit_watts(), 2),
+        w_60min_curvefit            =   round(jghRiderComputeItem.get_1_hour_curvefit_watts(), 2),
         timestamp                   =   get_current_utc_iso8601_timestamp(),
     )
 

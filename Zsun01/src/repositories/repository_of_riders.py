@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, TypeVar
 
-from paceline_compute_types import CurveFittingResultItem
+from paceline_dataclasses import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -14,11 +14,11 @@ from jgh_formulae10 import calculate_projected_accelerated_level_up
 from working_file_read_write import read_rider_stats_list_from_json
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
-from rider_item_builders import build_RiderBruteItem, build_RiderStatsItem, build_CurveFittingResultItem
+from rider_item_builders import build_RiderComputeItem, build_RiderStatsItem, build_CurveFittingResultItem
 
 
 T = TypeVar("T")  # Generic type variable for the item type in the dict
@@ -32,7 +32,7 @@ class RepositoryOfRiders:
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
-    _computed_dict_of_riderBruteItem    :  Dict[str, RiderComputeItem] = field(default_factory=dict)
+    _computed_dict_of_riderComputeItem    :  Dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
     # The heavy lifting: building the repository. The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
@@ -58,7 +58,7 @@ class RepositoryOfRiders:
             3. Reads ZwiftRacingApp profile files from disk.
             4. Reads the launch-date snapshot file for the accelerated levelling-up scheme.
             5. Fits decay and CP/W-prime curves to the 90-day power watts data.
-            6. Computes RiderBruteItems for riders who have curve fit data.
+            6. Computes RiderComputeItems for riders who have curve fit data.
             7. Computes RiderStatsItems for all riders with a Zwift profile.
 
         File presence is best-effort: file_names defines the candidate set of Zwift IDs to attempt.
@@ -105,8 +105,8 @@ class RepositoryOfRiders:
         all_zwift_ids_as_list = list(all_zwift_ids_as_set)
 
         self._computed_dict_of_curveFitItem = self.do_curve_fitting(all_zwift_ids_as_list) #do first
-        print(f"5. Doing rider brute items.")
-        self._computed_dict_of_riderBruteItem = self._make_dict_of_RiderBruteItem(all_zwift_ids_as_list) # do second
+        print(f"5. Doing rider compute/brute items.")
+        self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids_as_list) # do second
         print(f"6. Doing rider stats items.")
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids_as_list) # do third
         print(f"Repository successfully populated.")
@@ -116,7 +116,7 @@ class RepositoryOfRiders:
     # Getters for the repository    
 
     def get_dict_of_RiderBruteItem(self) -> Dict[str, RiderComputeItem]:
-        return self._computed_dict_of_riderBruteItem
+        return self._computed_dict_of_riderComputeItem
 
     def get_dict_of_RiderStatsItem(self) -> Dict[str, RiderStatsItem]:
         return self._computed_dict_of_riderStatsItem
@@ -148,7 +148,7 @@ class RepositoryOfRiders:
         return {key: source_dict[key] for key in zwift_id_set if key in source_dict}
 
     def get_dict_of_RiderBruteItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
-        return self._get_dict_by_ids(self._computed_dict_of_riderBruteItem, zwift_ids)
+        return self._get_dict_by_ids(self._computed_dict_of_riderComputeItem, zwift_ids)
 
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
         return self._get_dict_by_ids(self._dict_of_ZwiftItem, zwift_ids)
@@ -219,7 +219,7 @@ class RepositoryOfRiders:
         print(f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_90dayWattsItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
         return answer
 
-    def _make_dict_of_RiderBruteItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+    def _make_dict_of_RiderComputeItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
         """
         Iterates over the candidate Zwift IDs and builds a RiderBruteItem for each rider
         that has both a Zwift profile and curve fit data. Riders missing either data source
@@ -235,7 +235,7 @@ class RepositoryOfRiders:
                 and no items are produced.
 
         Returns:
-            Dict[str, RiderBruteItem]: Dictionary of RiderBruteItems keyed by zwift_id.
+            Dict[str, RiderBruteItem]: Dictionary of RiderComputeItems keyed by zwift_id.
             Only riders with both a ZwiftItem and a CurveFittingResultItem are included.
         """
 
@@ -255,9 +255,9 @@ class RepositoryOfRiders:
 
             jghcurveItem = self._computed_dict_of_curveFitItem.get(key)
             if jghcurveItem is None:
-                continue  # skip this rider if no curve fit data. by definition a Brute rider is someone with curve fit data
+                continue  # skip this rider if no curve fit data. by definition a Compute rider is someone with curve fit data
 
-            answer[key] = build_RiderBruteItem(
+            answer[key] = build_RiderComputeItem(
                 zwiftItem,
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 jghcurveItem,
@@ -314,7 +314,7 @@ class RepositoryOfRiders:
             answer[key] = build_RiderStatsItem(
                 zwiftItem,
                 self._dict_of_ZwiftRacingAppItem.get(key),
-                self._computed_dict_of_riderBruteItem.get(key),
+                self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
                 projected_accelerated_level,
             )

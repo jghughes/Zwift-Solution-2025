@@ -55,7 +55,7 @@ from storage_config import FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWE
 from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import read_rider_brute_dict_from_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 import time
 import logging

@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 
 # (No third-party imports)
 from jgh_number import safe_divide
-from paceline_compute_types import (
+from paceline_dataclasses import (
     PackageOfPacelineComputationReportItem,
     PacelineComputationReportItem,
     RiderContributionItem,
@@ -12,7 +12,7 @@ from paceline_compute_types import (
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_2dp, round_to_nearest_10
 from jgh_number import safe_divide
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 # import statements found in __main__ block: None
 

@@ -52,14 +52,14 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from paceline_compute_types import (
+from paceline_dataclasses import (
     PacelineComputationReportItem,
     PacelineIngredientsItem,
     PackageOfPacelineComputationReportItem,
     RiderContributionItem,
     WorthyCandidateSolutionItem,
 )
-from paceline_computation_display_objects import (
+from paceline_display_objects import (
     PacelinePlanTypeEnum,
     PackageOfPacelineComputationReportDisplayObject,
 )
@@ -92,7 +92,7 @@ from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
 from jgh_number import safe_divide
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 

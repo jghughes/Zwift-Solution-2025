@@ -55,13 +55,13 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from paceline_compute_types import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
+from paceline_dataclasses import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
 from jgh_formulae01 import estimate_drag_ratio_in_paceline, estimate_speed_from_wattage, estimate_watts_from_speed
 from jgh_number import safe_divide
 from calc_rolling_average import calculate_rolling_averages
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 # All of these functions are called during parallel processing. Logging forbidden
 

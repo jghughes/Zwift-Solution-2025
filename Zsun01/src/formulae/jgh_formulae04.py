@@ -38,8 +38,8 @@ Example Usage:
 from collections import defaultdict
 from typing import Dict, List
 
-from paceline_compute_types import RiderWorkAssignmentItem
-from rider_compute_item import RiderComputeItem
+from paceline_dataclasses import RiderWorkAssignmentItem
+from rider_dataclasses import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:

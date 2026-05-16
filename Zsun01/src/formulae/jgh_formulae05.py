@@ -36,10 +36,10 @@ Example Usage:
 
 from collections import defaultdict
 from typing import Dict, List
-from paceline_compute_types import RiderExertionItem, RiderWorkAssignmentItem
+from paceline_dataclasses import RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
 from jgh_formulae02 import calculate_wattage_riding_in_the_paceline
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]) -> Dict[RiderComputeItem, List[RiderExertionItem]]:

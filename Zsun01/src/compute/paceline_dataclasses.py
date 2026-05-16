@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 # (No third-party imports)
 
 from jgh_enums import PacelinePlanTypeEnum
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 
 @dataclass
 class CurveFittingResultItem:

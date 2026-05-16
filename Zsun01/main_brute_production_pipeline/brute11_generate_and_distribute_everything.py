@@ -90,7 +90,7 @@ from storage_config import (
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV
     )
 from repository_of_riders import RepositoryOfRiders
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 from rider_brute_dto import RiderBruteDtoDictModel, RiderBruteDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel

@@ -71,7 +71,7 @@ from typing import Dict
 import numpy as np
 # import pandas as pd
 
-from paceline_compute_types import CurveFittingResultItem
+from paceline_dataclasses import CurveFittingResultItem
 from critical_power import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
@@ -82,7 +82,7 @@ from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read
 from working_file_read_write import write_regression_modelling_dict_to_json
 from regression_modelling_item import RegressionModellingItem
 from repository_of_riders import RepositoryOfRiders
-from rider_compute_item import RiderComputeItem
+from rider_dataclasses import RiderComputeItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
 import time
