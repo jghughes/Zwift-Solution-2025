@@ -76,7 +76,7 @@ from storage_config import (
     FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
     FILENAME_RIDER_STATS_DTO_CSV_LIST,
 
-    FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP,
+    FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED,
 
     AZURE_ACCOUNTNAME_ZSUN, 
     AZURE_CONTAINERNAME_ZSUN, 
@@ -90,7 +90,7 @@ from storage_config import (
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV
     )
 from repository_of_riders import RepositoryOfRiders
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from rider_brute_dto import RiderBruteDtoDictModel, RiderBruteDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
@@ -130,7 +130,7 @@ async def generate_everything_and_save_and_upload():
     print("\nTHE MEAT: populate repository of riders.")
     timer_start = time.perf_counter()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_FOR_WHITELISTING_RIDERS_ELIGIBLE_FOR_ACCELERATED_LEVELLING_UP) 
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
@@ -144,7 +144,7 @@ async def generate_everything_and_save_and_upload():
         key=lambda kv: kv[1].get_velo_zwiftpower_zFTP_wkg() if hasattr(kv[1], "get_velo_zwiftpower_zFTP_wkg") else 0.0,
         reverse=True,  # highest w/kg first
     )
-    dto_dict_rb = {k: RiderBruteItem.to_dataTransferObject(v) for k, v in sorted_items_rb}
+    dto_dict_rb = {k: RiderComputeItem.to_dataTransferObject(v) for k, v in sorted_items_rb}
     for row_num, (_, item) in enumerate(dto_dict_rb.items(), start=1):
         item.row = row_num
 

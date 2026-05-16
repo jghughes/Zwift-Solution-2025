@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>scripts - brute production pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\models;src\models\my models;src\models\third party models;src\models\computation models;scripts - tools;javascript</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;scripts - brute production pipeline;scripts - other little utilities;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;src\models\computation models;scripts - tools;..\Zsun.DataModels.Jan2024\src\my models;..\Zsun.DataModels.Jan2024\src\third party models;src\computation models</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -34,10 +34,7 @@
     <Folder Include="docs\" />
     <Folder Include="scripts - tools\" />
     <Folder Include="scripts - other little utilities\" />
-    <Folder Include="src\models\" />
-    <Folder Include="src\models\my models\" />
-    <Folder Include="src\models\computation models\" />
-    <Folder Include="src\models\third party models\" />
+    <Folder Include="src\computation models\" />
     <Folder Include="tests\" />
     <Folder Include="src\zwiftid file import\" />
     <Folder Include="tests\azure\" />
@@ -68,17 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="scripts - other little utilities\03_map_json_list_to_xlsx_and_csv.py" />
-    <Compile Include="scripts - tools\brute15_inhibited_million_dollar_challenge_targets.py" />
+    <Compile Include="scripts - other little utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
     <Compile Include="scripts - brute production pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="scripts - other little utilities\01_RichardM.py" />
     <Compile Include="scripts - other little utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
-    <Compile Include="src\models\my models\regression_modelling_item.py" />
-    <Compile Include="src\models\my models\rider_brute_item.py" />
-    <Compile Include="src\models\my models\rider_stats_item.py" />
-    <Compile Include="src\models\my models\zwiftpower_flattened_90_day_watts_item.py" />
-    <Compile Include="src\models\third party models\zwiftracingapp_item.py" />
-    <Compile Include="src\models\third party models\zwift_item.py" />
+    <Compile Include="src\computation models\rider_compute_item.py" />
     <Compile Include="src\repositories\repository_diagnostics.py" />
     <Compile Include="src\repositories\rider_item_builders.py" />
     <Compile Include="src\zwiftid file import\zwiftid_file_fetcher_async.py" />
@@ -115,7 +107,7 @@
     <Compile Include="src\html\paceline_plan_captions.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\models\computation models\paceline_computation_display_objects.py" />
+    <Compile Include="src\computation models\paceline_computation_display_objects.py" />
     <Compile Include="src\enums\jgh_enums.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
     <Compile Include="src\formulae\jgh_formulae09.py">
@@ -125,7 +117,7 @@
     <Compile Include="storage_config.py" />
     <Compile Include="src\repositories\repository_of_team_rosters.py" />
     <Compile Include="docs\zwiftinsider_stuff.txt" />
-    <Compile Include="src\models\computation models\paceline_computation_types.py" />
+    <Compile Include="src\computation models\paceline_compute_types.py" />
     <Compile Include="src\repositories\repository_of_riders.py" />
     <Compile Include="src\matplot\matplot_utilities.py" />
     <Compile Include="scripts - brute production pipeline\brute16_generate_ttt_scenarios.py" />

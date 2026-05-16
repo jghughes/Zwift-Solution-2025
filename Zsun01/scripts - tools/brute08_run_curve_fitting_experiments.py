@@ -71,18 +71,18 @@ from typing import Dict
 import numpy as np
 # import pandas as pd
 
-from paceline_computation_types import CurveFittingResultItem
+from paceline_compute_types import CurveFittingResultItem
 from critical_power import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 
-from jgh_read_write import write_excel_file
+from jgh_read_write import write_dataframe_as_xlsx_file
 from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import write_regression_modelling_dict_to_json
 from regression_modelling_item import RegressionModellingItem
 from repository_of_riders import RepositoryOfRiders
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
 import time
@@ -235,7 +235,7 @@ def run_curve_fitting_experiments():
     merged_df = pd.merge(df1, df2, left_on="zwift_id", right_on="zwift_id", suffixes=('_profile', '_power'))
 
     # write to excel
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), curve_fitting_filename_for_excel, merged_df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), curve_fitting_filename_for_excel, merged_df)
     print(f"\nSaved {len(merged_df)} power curve fitting results to: {DIRPATH_RUBBISH_SCRATCHPAD + curve_fitting_filename_for_excel}\n")
 
     # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
@@ -243,9 +243,9 @@ def run_curve_fitting_experiments():
     repository : RepositoryOfRiders = RepositoryOfRiders()
 
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
-    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES)
+    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "")
     
-    dict_of_RiderItem : Dict[str, RiderBruteItem] = repository.get_dict_of_RiderBruteItem_by_ids(zwiftIds_with_high_fidelity)
+    dict_of_RiderItem : Dict[str, RiderComputeItem] = repository.get_dict_of_RiderBruteItem_by_ids(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : Dict[str,ZwiftPowerFlattened90dayWattsItem] = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwiftIds_with_high_fidelity)
     
     dict_of_riders_with_high_fidelity : Dict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)
@@ -290,7 +290,7 @@ def run_curve_fitting_experiments():
     riders = dict_of_riders_with_high_fidelity.values()
     df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), regression_filename_excel, df3)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), regression_filename_excel, df3)
     print(f"\nSaved {len(df3)} correlation data-set items to: {DIRPATH_RUBBISH_SCRATCHPAD}{regression_filename_excel}\n")
 
     write_regression_modelling_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD),regression_filename_json_generated_by_tool08, dict_of_riders_with_high_fidelity)

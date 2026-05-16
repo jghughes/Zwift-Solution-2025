@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, TypeVar
 
-from paceline_computation_types import CurveFittingResultItem
+from paceline_compute_types import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -14,7 +14,7 @@ from jgh_formulae10 import calculate_projected_accelerated_level_up
 from working_file_read_write import read_rider_stats_list_from_json
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
@@ -28,14 +28,14 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date  :   Dict[str, RiderStatsItem] = field(default_factory=dict)
+    _snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched  :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
-    _computed_dict_of_riderBruteItem    :  Dict[str, RiderBruteItem] = field(default_factory=dict)
+    _computed_dict_of_riderBruteItem    :  Dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
-    # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing.
+    # The heavy lifting: building the repository. The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
 
     def populate_repository(
         self,
@@ -43,7 +43,7 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        filepath_for__RiderStatsItems_as_at_accelerated_levelling_up_launch_date : str,
+        filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched : str,
     )->bool:
 
         """
@@ -75,7 +75,7 @@ class RepositoryOfRiders:
                 Directory path containing ZwiftRacingApp profile files.
             zwiftpower_90day_graph_watts_dir_path (str):
                 Directory path containing ZwiftPower 90-day best-power graph files.
-            filepath_for__RiderStatsItems_as_at_accelerated_levelling_up_launch_date (str):
+            filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched (Optional[str]):
                 Full file path to the JSON snapshot of RiderStatsItems captured at the launch date
                 of the accelerated levelling-up scheme. Used to compute projected_accelerated_level
                 for eligible riders.
@@ -90,8 +90,10 @@ class RepositoryOfRiders:
         self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
         print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
         self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
+
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
-        self._dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date = self._read_file_of_RiderStatsItem(Path(filepath_for__RiderStatsItems_as_at_accelerated_levelling_up_launch_date))
+        if filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched != "":
+            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = self._read_file_of_RiderStatsItem(Path(filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched))
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -102,7 +104,7 @@ class RepositoryOfRiders:
         )
         all_zwift_ids_as_list = list(all_zwift_ids_as_set)
 
-        self._computed_dict_of_curveFitItem = self._do_curve_fitting(all_zwift_ids_as_list) #do first
+        self._computed_dict_of_curveFitItem = self.do_curve_fitting(all_zwift_ids_as_list) #do first
         print(f"5. Doing rider brute items.")
         self._computed_dict_of_riderBruteItem = self._make_dict_of_RiderBruteItem(all_zwift_ids_as_list) # do second
         print(f"6. Doing rider stats items.")
@@ -113,25 +115,11 @@ class RepositoryOfRiders:
 
     # Getters for the repository    
 
-    def get_dict_of_RiderBruteItem(self) -> Dict[str, RiderBruteItem]:
+    def get_dict_of_RiderBruteItem(self) -> Dict[str, RiderComputeItem]:
         return self._computed_dict_of_riderBruteItem
 
     def get_dict_of_RiderStatsItem(self) -> Dict[str, RiderStatsItem]:
         return self._computed_dict_of_riderStatsItem
-
-    def get_dict_of_RiderBruteItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderBruteItem]:
-        return self._get_dict_by_ids(self._computed_dict_of_riderBruteItem, zwift_ids)
-
-    def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftItem, zwift_ids)
-
-    def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftRacingAppItem, zwift_ids)
-
-    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
-
-    # The meat: buidling the repository
 
     def _get_dict_by_ids(self, source_dict: Dict[str, T], zwift_ids: Optional[list[str]]) -> Dict[str, T]:
         """
@@ -159,7 +147,21 @@ class RepositoryOfRiders:
         # Only include keys that exist in source_dict.
         return {key: source_dict[key] for key in zwift_id_set if key in source_dict}
 
-    def _do_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
+    def get_dict_of_RiderBruteItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+        return self._get_dict_by_ids(self._computed_dict_of_riderBruteItem, zwift_ids)
+
+    def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
+        return self._get_dict_by_ids(self._dict_of_ZwiftItem, zwift_ids)
+
+    def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
+        return self._get_dict_by_ids(self._dict_of_ZwiftRacingAppItem, zwift_ids)
+
+    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+        return self._get_dict_by_ids(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
+
+    # ...the heavy lifting: building the repository
+
+    def do_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 
         min_coordinates = 5
         skipped_count = 0
@@ -217,7 +219,7 @@ class RepositoryOfRiders:
         print(f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_90dayWattsItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
         return answer
 
-    def _make_dict_of_RiderBruteItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderBruteItem]:
+    def _make_dict_of_RiderBruteItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
         """
         Iterates over the candidate Zwift IDs and builds a RiderBruteItem for each rider
         that has both a Zwift profile and curve fit data. Riders missing either data source
@@ -238,7 +240,7 @@ class RepositoryOfRiders:
         """
 
 
-        answer: Dict[str, RiderBruteItem] = {}
+        answer: Dict[str, RiderComputeItem] = {}
 
         if zwift_ids is None:
             zwift_ids = []
@@ -290,7 +292,6 @@ class RepositoryOfRiders:
             Only riders with a ZwiftItem are included.
         """
 
-
         answer: Dict[str, RiderStatsItem] = {}
 
         if zwift_ids is None:
@@ -304,7 +305,7 @@ class RepositoryOfRiders:
             if zwiftItem is None:
                 continue  # skip this key/rider if no Zwift data
 
-            this_rider_on_launch_date = self._dict_of_RiderStatsItem_as_at_accelerated_levelling_up_launch_date.get(key)
+            this_rider_on_launch_date = self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched.get(key)
             if this_rider_on_launch_date is not None and this_rider_on_launch_date.zwift_id == key:
                 projected_accelerated_level = calculate_projected_accelerated_level_up(this_rider_on_launch_date.achievement_level, this_rider_on_launch_date.rider_score)
             else:

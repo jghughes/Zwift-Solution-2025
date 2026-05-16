@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from paceline_computation_types import PacelineIngredientsItem, PacelineComputationReportItem
+from paceline_compute_types import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_computation_display_objects import (
     PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
@@ -53,7 +53,7 @@ from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_brute_dto import RiderBruteDTO, RiderBruteDtoListModel
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -117,13 +117,13 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
         something = json.loads(blob_as_text)
         list_of_RiderDTO: List[RiderBruteDTO] = RiderBruteDtoListModel.model_validate(something, strict=True).root
-        list_of_RiderItem: List[RiderBruteItem] = [
-            RiderBruteItem.from_dataTransferObject(rider_brute_dto)
+        list_of_RiderItem: List[RiderComputeItem] = [
+            RiderComputeItem.from_dataTransferObject(rider_brute_dto)
             for rider_brute_dto in list_of_RiderDTO]
 
-        dict_of_RiderItem: Dict[str, RiderBruteItem] = {
-            rider_brute_item.zwift_id: rider_brute_item
-            for rider_brute_item in list_of_RiderItem
+        dict_of_RiderItem: Dict[str, RiderComputeItem] = {
+            rider_compute_item.zwift_id: rider_compute_item
+            for rider_compute_item in list_of_RiderItem
         }    
         print(f"\ncount of riders: {len(list_of_RiderDTO)}")
     except Exception as e:
@@ -131,7 +131,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         return
 
     try:
-        full_team_of_riders: List[RiderBruteItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderBruteItem)
+        full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
     except Exception as e:
         print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return

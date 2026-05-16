@@ -1,10 +1,16 @@
 from typing import Dict, Optional
-from constants import ZWIFTPOWER_GRAPH_WINDOW
 from dataclasses import dataclass
 from zwift_id_base import ZwiftIdBase
 from rider_stats_item import RiderStatsItem
 from zwiftpower_graph_watts_dto import ZwiftPowerGraphWattsDTO, EffortDTO
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPowerFlattened90DayWattsDTO
+
+# Note: don't think of moving this domain object into Zsun.DataModels.Jan2024 because it is 
+# very specific to the way we are modeling the 90-day best power data from ZwiftPower. 
+# It is not a general-purpose domain object that could be used in other contexts.
+
+ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW = "90days" # or "30days"
+
 
 @dataclass
 class EffortItem:
@@ -1038,7 +1044,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         if dto is None:
             return ZwiftPowerFlattened90dayWattsItem()
 
-        xx = dto.efforts_obj.get(ZWIFTPOWER_GRAPH_WINDOW, []) if dto.efforts_obj else []
+        xx = dto.efforts_obj.get(ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW, []) if dto.efforts_obj else []
 
         effortItems = [EffortItem.from_dataTransferObject(effort) for effort in xx]
 

@@ -50,8 +50,8 @@ import pandas as pd
 from jgh_number import safe_divide
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
-from jgh_read_write import write_excel_file
-from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES
+from jgh_read_write import write_dataframe_as_xlsx_file
+from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES
 from storage_config import DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_RUBBISH_SCRATCHPAD
 from working_file_read_write import *
 from repository_of_riders import RepositoryOfRiders
@@ -71,21 +71,21 @@ class DummyItem:
     gender                     : str   = ""    # Gender of the rider
     age_years                  : float = 0.0   # Age of the rider in years
     jgh_one_hour_power         : float = 0.0
-    velo_zpftp_watts       : float = 0.0    #Originates in Zwiftracingapp profile
+    velo_zpftp_watts           : float = 0.0    #Originates in Zwiftracingapp profile
     delta                      : float = 0.0   # Difference between velo_zpftp_watts and jgh_one_hour_power
     percent                    : float = 0.0   # Percentage difference between velo_zpftp_watts and jgh_one_hour_power
     value_of_curve_x_for_zwiftracingapp_zpFTP_y : float = 0.0   # The x value of the curve fit for the y value of velo_zpftp_watts
-    zwift_racing_score                  : float   = 0.0     # Zwift racing score
-    zwift_cat_open                  : str   = ""    # A+, A, B, C, D, E
-    velo_rating_30_days       : float = 0.0   # Velo score typically over 1000
-    velo_cat_num_30_days     : int   = 0     # Velo rating 1 to 10
+    zwift_racing_score         : float   = 0.0     # Zwift racing score
+    zwift_cat_open             : str   = ""    # A+, A, B, C, D, E
+    velo_rating_30_days        : float = 0.0   # Velo score typically over 1000
+    velo_cat_num_30_days       : int   = 0     # Velo rating 1 to 10
     velo_cat_name_30_days    : str   = ""    # Copper, Silver, Gold etc
 
 def run_comparisons_of_ftp_estimates():
 
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_ZWIFT_FILES),Path(DIRPATH_ZWIFTRACINGAPP_FILES), Path(DIRPATH_ZWIFTPOWER), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_ZWIFT_FILES),Path(DIRPATH_ZWIFTRACINGAPP_FILES), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
     except Exception as err:
         print(err)
         return
@@ -99,8 +99,8 @@ def run_comparisons_of_ftp_estimates():
    
     repository : RepositoryOfRiders = RepositoryOfRiders()
     test_IDs = None # i.e. will have the effect of populating the repository with all available riders, modify as you please
-    repository.populate_repository(test_IDs, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
-    dict_of_curve_fits = repository._do_curve_fitting(test_IDs)
+    repository.populate_repository(test_IDs, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "") 
+    dict_of_curve_fits = repository.do_curve_fitting(test_IDs)
 
     comparative_FTPs : list[DummyItem] = list()
 
@@ -138,7 +138,7 @@ def run_comparisons_of_ftp_estimates():
 
     df = pd.DataFrame([asdict(item) for item in comparative_FTPs])
 
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename,df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename,df)
     print(f"\n{len(comparative_FTPs)} line items saved to: {DIRPATH_RUBBISH_SCRATCHPAD}/{output_filename}\n")
 
 

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 # (No third-party imports)
 
 from jgh_enums import PacelinePlanTypeEnum
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 @dataclass
 class CurveFittingResultItem:
@@ -54,7 +54,7 @@ class RiderContributionItem():
 
 @dataclass
 class PacelineIngredientsItem:
-    riders_list                  : List[RiderBruteItem]      = field(default_factory=list)
+    riders_list                  : List[RiderComputeItem]      = field(default_factory=list)
     sequence_of_pull_periods_sec : List[float]         = field(default_factory=list)
     pull_speeds_kph              : List[float]         = field(default_factory=list)
     max_exertion_intensity_factor: float               = 0.95 # Default to 95% of one hour power, can be overridden by caller
@@ -68,7 +68,7 @@ class PacelineComputationReportItem:
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    rider_contributions                          : Dict[RiderBruteItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
+    rider_contributions                          : Dict[RiderComputeItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 @dataclass
 class PackageOfPacelineComputationReportItem:

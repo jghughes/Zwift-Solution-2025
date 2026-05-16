@@ -9,17 +9,17 @@ from jgh_formulae02 import (
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
 )
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_rider_brute_dict_from_json
-from paceline_computation_types import PacelineIngredientsItem
+from paceline_compute_types import PacelineIngredientsItem
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 
 def test01():
     dict_of_all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
     riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
-    riders: List[RiderBruteItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderBruteItem)
+    riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
 
     riders = arrange_riders_interleaved_by_1_minute_strength(riders) # an arbitrary choice of ordering as a test
     pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST

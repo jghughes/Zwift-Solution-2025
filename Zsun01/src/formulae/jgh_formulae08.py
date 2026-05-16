@@ -52,7 +52,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from paceline_computation_types import (
+from paceline_compute_types import (
     PacelineComputationReportItem,
     PacelineIngredientsItem,
     PackageOfPacelineComputationReportItem,
@@ -92,7 +92,7 @@ from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
 from jgh_number import safe_divide
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
@@ -101,7 +101,7 @@ from rider_brute_item import RiderBruteItem
 def log_multiline(lines: list[str]) -> None:
     print("\n".join(lines))
 
-def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[RiderBruteItem]):
+def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[RiderComputeItem]):
 
     upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_paceline_speed(riders)
     upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
@@ -146,11 +146,11 @@ def log_workload_suffix_message(report : PackageOfPacelineComputationReportDispl
     log_multiline(message_lines)
 
 def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
-    riders:                        List[RiderBruteItem],
+    riders:                        List[RiderComputeItem],
     standard_pull_periods_seconds: List[float],
     pull_speeds_kph:               List[float],
     max_exertion_intensity_factor: float
-) -> Tuple[float, Dict[RiderBruteItem, RiderContributionItem]]:
+) -> Tuple[float, Dict[RiderComputeItem, RiderContributionItem]]:
     """
     Computes the contributions of each rider in a single paceline solution.
 
@@ -225,7 +225,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
     num_riders = len(riders)
 
     compute_iterations_performed: int = 0 # Initialisation of number of iterations ultimately performed in the binary search, part of the answer
-    dict_of_rider_contributions: Dict[RiderBruteItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
+    dict_of_rider_contributions: Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
 
     # Initial parameters used to determine a safe upper_bound for the binary search
     lower_bound_for_next_search_iteration_kph = lowest_conceivable_kph

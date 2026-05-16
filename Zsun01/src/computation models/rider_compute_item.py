@@ -14,7 +14,7 @@ from jgh_power_curve_fit_models import decay_model_numpy
 # this domain model is instantiated in rider_item_builders.py
 
 @dataclass(frozen=True, eq=True)  # immutable and hashable, we use this as a dictionary key everywhere
-class RiderBruteItem(FrozenZwiftIdBase):
+class RiderComputeItem(FrozenZwiftIdBase):
     """
     A frozen data class representing a Zwift rider.
     Can be used as a cache key or dictionary key, or in a set.
@@ -43,7 +43,7 @@ class RiderBruteItem(FrozenZwiftIdBase):
     jgh_when_curves_fitted			: str		= ""		# Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["RiderBruteItem"]) -> RiderBruteDTO:
+    def to_dataTransferObject(item: Optional["RiderComputeItem"]) -> RiderBruteDTO:
         if item is None:
             return RiderBruteDTO()
         return RiderBruteDTO(
@@ -76,10 +76,10 @@ class RiderBruteItem(FrozenZwiftIdBase):
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[RiderBruteDTO]) -> "RiderBruteItem":
+    def from_dataTransferObject(dto: Optional[RiderBruteDTO]) -> "RiderComputeItem":
         if dto is None:
-            return RiderBruteItem()
-        return RiderBruteItem(
+            return RiderComputeItem()
+        return RiderComputeItem(
             zwift_id							= dto.zwift_id or "",
             name								= dto.name_racingapp or "",
             zwift_country_code3					= dto.zwift_country_code3 or "",

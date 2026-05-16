@@ -55,17 +55,17 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from paceline_computation_types import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
+from paceline_compute_types import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
 from jgh_formulae01 import estimate_drag_ratio_in_paceline, estimate_speed_from_wattage, estimate_watts_from_speed
 from jgh_number import safe_divide
 from calc_rolling_average import calculate_rolling_averages
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 # All of these functions are called during parallel processing. Logging forbidden
 
-def calculate_kph_riding_alone(rider : RiderBruteItem, power: float) -> float:
+def calculate_kph_riding_alone(rider : RiderComputeItem, power: float) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
     height_cm (cm) using the Newton-Raphson method.
@@ -80,7 +80,7 @@ def calculate_kph_riding_alone(rider : RiderBruteItem, power: float) -> float:
     speed_kph = estimate_speed_from_wattage(power, rider.weight_kg, rider.height_cm)
     return speed_kph
 
-def calculate_wattage_riding_alone(rider : RiderBruteItem, speed: float) -> float:
+def calculate_wattage_riding_alone(rider : RiderComputeItem, speed: float) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
     height_cm (cm).
@@ -95,7 +95,7 @@ def calculate_wattage_riding_alone(rider : RiderBruteItem, speed: float) -> floa
     power = estimate_watts_from_speed(speed, rider.weight_kg, rider.height_cm)
     return power
 
-def calculate_wattage_riding_in_the_paceline(rider : RiderBruteItem, speed: float, position: int
+def calculate_wattage_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int
 ) -> float:
     """
     Calculate the wattage required for a rider given their speed and position 
@@ -120,7 +120,7 @@ def calculate_wattage_riding_in_the_paceline(rider : RiderBruteItem, speed: floa
 
     return adjusted_power
 
-def calculate_speed_riding_in_the_paceline(rider : RiderBruteItem, power: float, position: int
+def calculate_speed_riding_in_the_paceline(rider : RiderComputeItem, power: float, position: int
 ) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 
@@ -144,11 +144,11 @@ def calculate_speed_riding_in_the_paceline(rider : RiderBruteItem, power: float,
         
     return speed_kph
 
-def calculate_speed_at_standard_00sec_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_00sec_pull_watts(rider : RiderComputeItem) -> float:
       
     return calculate_speed_at_standard_30sec_pull_watts(rider)
 
-def calculate_speed_at_standard_30sec_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_30sec_pull_watts(rider : RiderComputeItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
     Returns:
@@ -159,7 +159,7 @@ def calculate_speed_at_standard_30sec_pull_watts(rider : RiderBruteItem) -> floa
         
     return speed_kph
 
-def calculate_speed_at_standard_1_minute_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_1_minute_pull_watts(rider : RiderComputeItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
     Returns:
@@ -170,7 +170,7 @@ def calculate_speed_at_standard_1_minute_pull_watts(rider : RiderBruteItem) -> f
         
     return speed_kph
 
-def calculate_speed_at_standard_2_minute_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_2_minute_pull_watts(rider : RiderComputeItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
     Returns:
@@ -181,7 +181,7 @@ def calculate_speed_at_standard_2_minute_pull_watts(rider : RiderBruteItem) -> f
         
     return speed_kph
 
-def calculate_speed_at_standard_3_minute_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_3_minute_pull_watts(rider : RiderComputeItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
     Returns:
@@ -192,7 +192,7 @@ def calculate_speed_at_standard_3_minute_pull_watts(rider : RiderBruteItem) -> f
         
     return speed_kph
 
-def calculate_speed_at_standard_4_minute_pull_watts(rider : RiderBruteItem) -> float:
+def calculate_speed_at_standard_4_minute_pull_watts(rider : RiderComputeItem) -> float:
     """
     Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
     Returns:
@@ -203,7 +203,7 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : RiderBruteItem) -> f
         
     return speed_kph
 
-def calculate_speed_at_n_second_watts(rider : RiderBruteItem, seconds: float) -> float:
+def calculate_speed_at_n_second_watts(rider : RiderComputeItem, seconds: float) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 
     for a specific duration in seconds.
@@ -217,7 +217,7 @@ def calculate_speed_at_n_second_watts(rider : RiderBruteItem, seconds: float) ->
         
     return speed_kph
 
-def calculate_speed_at_one_hour_watts(rider : RiderBruteItem) -> float: 
+def calculate_speed_at_one_hour_watts(rider : RiderComputeItem) -> float: 
     """
     Calculate the speed (km/h) for a rider given their one-hour power output (watts).
     Returns:
@@ -308,7 +308,7 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
 
     return normalized_watts
 
-def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderBruteItem, List[RiderExertionItem]]) -> float:
+def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderComputeItem, List[RiderExertionItem]]) -> float:
     """
     Calculate the average speed (km/h) for the rider is the paceline to whom 
     this list of paceline efforts belong.
@@ -338,7 +338,7 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderBruteIt
 
     return average_speed_kph
 
-def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderBruteItem]) -> float:
+def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderComputeItem]) -> float:
 
     _, _, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
     _, _, lower_bound_1_hour_rider_speed = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
@@ -347,7 +347,7 @@ def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(rid
 
     return safe_lowest_bound_speed
 
-def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderBruteItem, rider_contribution: RiderContributionItem) -> float:
+def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderComputeItem, rider_contribution: RiderContributionItem) -> float:
     """
     Calculate the intensity factor for a given rider and their contribution plan.
 
@@ -366,7 +366,7 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderBruteIt
 
     return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
-def calculate_upper_bound_paceline_speed(riders: List[RiderBruteItem]) -> Tuple[RiderBruteItem, float, float]:
+def calculate_upper_bound_paceline_speed(riders: List[RiderComputeItem]) -> Tuple[RiderComputeItem, float, float]:
     """
     Determines the maxima of permitted pull speed among all standard pull durations of all riders.
     For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
@@ -399,7 +399,7 @@ def calculate_upper_bound_paceline_speed(riders: List[RiderBruteItem]) -> Tuple[
                 fastest_duration = duration
     return fastest_rider, fastest_duration, highest_speed
 
-def calculate_lower_bound_paceline_speed(riders: List[RiderBruteItem]) -> Tuple[RiderBruteItem, float, float]:
+def calculate_lower_bound_paceline_speed(riders: List[RiderComputeItem]) -> Tuple[RiderComputeItem, float, float]:
     """
     Determines the minima permitted pull speed among all standard pull durations of all riders.
 
@@ -438,7 +438,7 @@ def calculate_lower_bound_paceline_speed(riders: List[RiderBruteItem]) -> Tuple[
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderBruteItem]) -> Tuple[RiderBruteItem, float, float]:
+def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem]) -> Tuple[RiderComputeItem, float, float]:
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
     slowest_duration = 3600.0  # 1 hour in seconds
@@ -454,7 +454,7 @@ def calculate_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderBru
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderBruteItem]) -> Tuple[RiderBruteItem, float, float]:
+def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem]) -> Tuple[RiderComputeItem, float, float]:
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
     fastest_duration = 3600.0  # 1 hour in seconds
@@ -468,7 +468,7 @@ def calculate_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderBru
             fastest_duration = 3600.0
     return fastest_rider, fastest_duration, highest_speed
 
-def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderBruteItem, RiderContributionItem]) -> float:
+def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderComputeItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
 
@@ -498,29 +498,29 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderB
 
     return std_deviation_of_intensity_factors
 
-def arrange_riders_by_30_sec_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_30_sec_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_wkg(), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_1_minute_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_40_minute_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_40_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_wkg(), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_velo_rating(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_velo_rating(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.velo_rating_30_days, reverse=True)
     return sorted_riders
 
 
 
-def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     """
     Arrange the riders in an optimal order based on their strength metric.
 
@@ -547,7 +547,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderBruteItem]
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
-    optimal_order: List[RiderBruteItem] = [None] * n  # type: ignore
+    optimal_order: List[RiderComputeItem] = [None] * n  # type: ignore
 
     # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
     front_idx = 0
@@ -563,7 +563,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderBruteItem]
 
     return optimal_order
 
-def arrange_riders_by_name(riders: List[RiderBruteItem]) -> List[RiderBruteItem]:
+def arrange_riders_by_name(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     """
     Arrange the riders alphabetically.
 
@@ -577,13 +577,13 @@ def arrange_riders_by_name(riders: List[RiderBruteItem]) -> List[RiderBruteItem]
 
     return sorted_riders
 
-def select_n_riders_at_the_top_of_the_list(riders: List[RiderBruteItem], n : int) -> List[RiderBruteItem]:
+def select_n_riders_at_the_top_of_the_list(riders: List[RiderComputeItem], n : int) -> List[RiderComputeItem]:
     if not riders:
         return []
 
     # riders.sort(key=lambda r: r.get_proxy_1_minute_wkg(), reverse=True)
 
-    topmost_riders: List[RiderBruteItem] = []
+    topmost_riders: List[RiderComputeItem] = []
 
     if len(riders) <= n:
         return riders
@@ -594,7 +594,7 @@ def select_n_riders_at_the_top_of_the_list(riders: List[RiderBruteItem], n : int
     return topmost_riders
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_sequences_being_pruned: NDArray[np.float64],
-    riders: List[RiderBruteItem]
+    riders: List[RiderComputeItem]
 ) -> NDArray[np.float64]:
     """
     Efficiently prunes a large set of paceline pull period sequences (pull period assignments) using empirical rules
@@ -731,7 +731,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
         return np.empty((0, length_of_paceline), dtype=np.float64)
 
     # Error handling: fn to check for non-unique riders
-    def has_duplicates(riders_list: list[RiderBruteItem]) -> bool:
+    def has_duplicates(riders_list: list[RiderComputeItem]) -> bool:
         return len(riders_list) != len(set(id(r) for r in riders_list))
 
     if has_duplicates(paceline_ingredients.riders_list):

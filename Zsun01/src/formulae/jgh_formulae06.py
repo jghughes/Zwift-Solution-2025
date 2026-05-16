@@ -41,13 +41,13 @@ from collections import defaultdict
 from tabulate import tabulate
 from typing import Dict, List, Tuple
 
-from paceline_computation_types import RiderContributionItem, RiderExertionItem
+from paceline_compute_types import RiderContributionItem, RiderExertionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
 from jgh_number import safe_divide
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_contributions(riders: Dict[RiderBruteItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> Dict[RiderBruteItem, RiderContributionItem]:
+def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> Dict[RiderComputeItem, RiderContributionItem]:
 
     def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
@@ -85,7 +85,7 @@ def populate_rider_contributions(riders: Dict[RiderBruteItem, List[RiderExertion
 
         return p1_speed_kph, p1_duration
  
-    answer : Dict[RiderBruteItem, RiderContributionItem] = defaultdict(RiderContributionItem)
+    answer : Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
@@ -121,7 +121,7 @@ def populate_rider_contributions(riders: Dict[RiderBruteItem, List[RiderExertion
     return answer
 
 
-def log_rider_contributions(test_description: str, result: Dict[RiderBruteItem, RiderContributionItem]) -> None:
+def log_rider_contributions(test_description: str, result: Dict[RiderComputeItem, RiderContributionItem]) -> None:
     print(test_description)
     table = []
     for rider, z in result.items():

@@ -1,11 +1,11 @@
 from typing import List
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 #   this is not used anywhere. it is a method to test the cyclic formula used 
 #   for determining the order of riders in a rotating paceline.
 #   see populate_rider_work_assignments() in jgh_formulae04.py
 
-def generate_cyclic_matrix(riders: List[RiderBruteItem]) -> List[List[RiderBruteItem]]:
+def generate_cyclic_matrix(riders: List[RiderComputeItem]) -> List[List[RiderComputeItem]]:
     """
     Generates a cyclic matrix where each column is a cyclic permutation of the first_name column.
 
@@ -29,7 +29,7 @@ def generate_cyclic_matrix(riders: List[RiderBruteItem]) -> List[List[RiderBrute
     n = len(riders)
     
     # Generate the cyclic matrix using simple iteration
-    matrix: List[List[RiderBruteItem]] = []
+    matrix: List[List[RiderComputeItem]] = []
     for i in range(n):
         row = [riders[(i + j) % n] for j in range(n)]
         matrix.append(row)

@@ -62,11 +62,11 @@ import numpy as np, pandas as pd
 from jgh_number import safe_divide
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_power_curve_fit_models import decay_model_numpy
-from jgh_read_write import write_excel_file
+from jgh_read_write import write_dataframe_as_xlsx_file
 from jgh_string import cleanup_name_string
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD 
 from repository_of_riders import RepositoryOfRiders
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 # from zwiftpower_profile_item import ZwiftPowerProfileItem
 
 import time
@@ -74,7 +74,7 @@ import logging
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
-# from paceline_computation_types import CurveFittingResultItem
+# from paceline_compute_types import CurveFittingResultItem
 
 
 def run_experiments_on_determinants_of_rider_eligibility():
@@ -92,7 +92,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
 
 
     repository : RepositoryOfRiders = RepositoryOfRiders()
-    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES) 
+    repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "") 
 
     eligible_IDs = repository._create_union_of_sets_filtered_by_membership_as_list("y","y_or_n","y")
 
@@ -102,7 +102,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
     dict_of_ZwiftRacingAppItem = repository.get_dict_of_ZwiftRacingAppItem_by_ids(eligible_IDs)
     # dict_of_ZwiftPowerProfileItem = repository.get_dict_of_ZwiftPowerProfileItem_by_ids(eligible_IDs)
     dict_of_flattenedZwiftPower90dayWatts = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(eligible_IDs)
-    dict_of_curve_fits = repository._do_curve_fitting(eligible_IDs)
+    dict_of_curve_fits = repository.do_curve_fitting(eligible_IDs)
 
     print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT_FILES}\n")
     print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP_FILES}\n")
@@ -159,7 +159,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
     )
 
     #step 6: make a list from Step 5 - but only those with successful curve fits. save to Excel
-    answer_dict : dict[str, RiderBruteItem] = dict[str, RiderBruteItem]()
+    answer_dict : dict[str, RiderComputeItem] = dict[str, RiderComputeItem]()
 
     for key in zwift_id_intersection_list:
         zwiftItem = dict_of_zwiftItem[key]
@@ -180,7 +180,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
         p60min = decay_model_numpy(np.array([3_600]), jgh_curve_fit.sixty_min_curve_coefficient, jgh_curve_fit.sixty_min_curve_exponent)
         one_hour_watts =  p60min[0]
 
-        answer = RiderBruteItem(
+        answer = RiderComputeItem(
         	zwift_id                         = zwiftItem.zwift_id,
         	name                             = cleanup_name_string(name),
             zwift_country_code3              = zwiftItem.country_code3,
@@ -213,29 +213,29 @@ def run_experiments_on_determinants_of_rider_eligibility():
     print(f"Trimmed the list to exclude failed curve fits: {len(riders)} riders.")
 
     df = pd.DataFrame([asdict(rider) for rider in riders])
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename02, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename02, df)
     print(f"\nSubset saved to:  {DIRPATH_RUBBISH_SCRATCHPAD + output_filename02}")
 
     # Step 7: Remove items where both zwift_racing_score and velo rating is zero (last 30_days)
 
-    filtered_riders: list[RiderBruteItem] = [
+    filtered_riders: list[RiderComputeItem] = [
         rider for rider in riders
         if rider.zwift_racing_score != 0 or rider.velo_rating_30_days != 0
     ]
 
     df = pd.DataFrame([asdict(rider) for rider in filtered_riders])
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename03, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename03, df)
     print(f"Trimmed the final list to exclude those who don't yet have a zwift_racing_score and/or velo rating score: {len(filtered_riders)} riders\nSaved to:  {DIRPATH_RUBBISH_SCRATCHPAD + output_filename03}")
 
     #Step 9: write to excel the riders who got excluded in step 7
-    excluded_riders: list[RiderBruteItem] = [
+    excluded_riders: list[RiderComputeItem] = [
         rider for rider in riders
         if rider not in filtered_riders
     ]
 
     excluded_output_filename = "riders_excluded_due_to_missing_racing_or_velo_scores.xlsx"
     df_excluded = pd.DataFrame([asdict(rider) for rider in excluded_riders])
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), excluded_output_filename, df_excluded)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), excluded_output_filename, df_excluded)
     print(f"Saved excluded riders to: {DIRPATH_RUBBISH_SCRATCHPAD + excluded_output_filename} ({len(excluded_riders)} riders)")
 
 

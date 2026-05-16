@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from jgh_read_write import write_excel_file
+from jgh_read_write import write_dataframe_as_xlsx_file
 from repository_of_riders import RepositoryOfRiders
 
 from storage_config import (
@@ -32,6 +32,7 @@ def test09():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
     print(f"Test09: There are {len(repository.get_dict_of_RiderBruteItem())} active racers.")
 
@@ -43,6 +44,7 @@ def test11():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
 
     # Define sample Zwift IDs for testing
@@ -77,14 +79,14 @@ def test11():
     # print("DataFrame of union of Zwift IDs in all datasets including samples:")
     # print(df)
     output_filename = "beautiful_union_of_everything.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
 
     # Example: get the intersection - should be about 80
     df = repository._create_intersection_of_sets_as_dataframe([], [])
     # print("DataFrame of intersection of Zwift IDs in main datasets:")
     # print(df)
     OUTPUT_FILENAME2 = "beautiful_intersection_of_main_datasets.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), OUTPUT_FILENAME2, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), OUTPUT_FILENAME2, df)
 
 
     # Example: get an intersection of all main sets and betel - should be tiny - 4
@@ -92,7 +94,7 @@ def test11():
     # print("DataFrame of intersection of Zwift IDs in all datasets and Betel:")
     # print(df)
     OUTPUT_FILENAME3 = "beautiful_intersection_of_main_datasets_and_betel.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), OUTPUT_FILENAME3, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), OUTPUT_FILENAME3, df)
 
 def test12():
     # repository = RepositoryOfRiders()
@@ -104,6 +106,7 @@ def test12():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
 
     # Define any test parameters for _create_union_of_sets_filtered_by_membership_as_dataframe
@@ -130,7 +133,7 @@ def test12():
 
     # Optionally, save the filtered DataFrame to an Excel file for verification
     output_filename = "beautiful_matching_specified_boolean_filter_criteria.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, filtered_df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, filtered_df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 def test13():
@@ -154,6 +157,7 @@ def test13():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftItem_by_ids([])
@@ -165,7 +169,7 @@ def test13():
 
     df = pd.DataFrame(data)
     output_filename = "sexy_spreadsheet_of_all_Zwift_profiles.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 def test14():
@@ -185,6 +189,7 @@ def test14():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftRacingAppItem_by_ids([])
@@ -195,7 +200,7 @@ def test14():
         data.append(asdict(item))
     df = pd.DataFrame(data)
     output_filename = "sexy_spreadsheet_of_all_ZwiftRacingApp_profiles.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 # def test15():
@@ -216,6 +221,7 @@ def test14():
 #     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
 #     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
 #     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+#     #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
 #     # )
 
 #     dict_of_items = repository.get_dict_of_ZwiftPowerProfileItem_by_ids([])
@@ -226,7 +232,7 @@ def test14():
 #         data.append(asdict(item))
 #     df = pd.DataFrame(data)
 #     output_filename = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
-#     write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+#     write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
 #     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 def test16():
@@ -246,6 +252,7 @@ def test16():
     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
 
     dict_of_items = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids([])
@@ -265,7 +272,7 @@ def test16():
     print("DataFrame of all Jgh best power curves:")
     # print(df)
     output_filename = "sexy_spreadsheet_of_all_Jgh_best_power_curves.xlsx"
-    write_excel_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 
@@ -283,6 +290,7 @@ if __name__ == "__main__":
             zwift_dir_path=DIRPATH_ZWIFT_FILES,
             zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
             zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+            filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
         )
         print("Starting tests...\n")
         # Comment/uncomment the lines below to run the tests you want. 

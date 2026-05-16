@@ -36,13 +36,13 @@ Example Usage:
 
 from collections import defaultdict
 from typing import Dict, List
-from paceline_computation_types import RiderExertionItem, RiderWorkAssignmentItem
+from paceline_compute_types import RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
 from jgh_formulae02 import calculate_wattage_riding_in_the_paceline
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_exertions(rider_work_assignments: Dict[RiderBruteItem, List[RiderWorkAssignmentItem]]) -> Dict[RiderBruteItem, List[RiderExertionItem]]:
+def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]) -> Dict[RiderComputeItem, List[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -55,7 +55,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderBruteItem, List[R
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage). Each rider has a list of dict_of_rider_exertions
     """
-    rider_workloads: Dict[RiderBruteItem, List[RiderExertionItem]] = defaultdict(list)
+    rider_workloads: Dict[RiderComputeItem, List[RiderExertionItem]] = defaultdict(list)
     
     for rider, dict_of_rider_work_assignments in rider_work_assignments.items():
         dict_of_rider_exertions: List[RiderExertionItem] = []
@@ -68,7 +68,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderBruteItem, List[R
     
     return rider_workloads
 
-def log_rider_exertions(test_description: str, result: Dict[RiderBruteItem, List[RiderExertionItem]]) -> None:
+def log_rider_exertions(test_description: str, result: Dict[RiderComputeItem, List[RiderExertionItem]]) -> None:
     from tabulate import tabulate
     print(test_description)
     table = []

@@ -3,7 +3,7 @@ from typing import List
 
 from jgh_formulae04 import log_rider_work_assignments, populate_rider_work_assignments
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT
-from rider_brute_item import RiderBruteItem
+from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_rider_brute_dict_from_json
 from zwift_id_base import lookup_Items_by_ZwiftID
@@ -19,7 +19,7 @@ def test01() -> None:
 
     dict_of_all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
     riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
-    riders: List[RiderBruteItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderBruteItem)
+    riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
 
     pull_durations = [120.0, 0.0, 120.0, 120.0] # in this demo, duration array MUST be same len as riders (or longer), and the sequence MUST match the rider order in the paceline
     pull_speeds_kph = [40.0] * len(riders)
