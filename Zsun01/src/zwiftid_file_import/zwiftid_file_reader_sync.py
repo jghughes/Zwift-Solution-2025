@@ -8,8 +8,6 @@ from jgh_path_helpers import find_all_file_paths_in_folder, throw_if_dirpath_inv
 from jgh_read_write import read_text_from_path
 from zwift_id_base import HasZwiftID
 from zwift_item import ZwiftItem
-# from zwiftpower_profile_item import ZwiftPowerProfileItem
-# from zwiftpower_profile_dto import ZwiftPowerProfileDTO
 from zwiftpower_graph_watts_dto import ZwiftPowerGraphWattsDTO
 from zwift_dto import ZwiftDTO
 from zwiftracingapp_item import ZwiftRacingAppItem

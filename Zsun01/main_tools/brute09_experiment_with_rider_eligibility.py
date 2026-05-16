@@ -55,7 +55,6 @@ well as NumPy for numerical operations related to power curve modeling.
 import os
 from dataclasses import asdict
 from pathlib import Path
-# from typing import Any
 
 import numpy as np, pandas as pd
 
@@ -64,17 +63,15 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_power_curve_fit_models import decay_model_numpy
 from jgh_read_write import write_dataframe_as_xlsx_file
 from jgh_string import cleanup_name_string
-from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD 
+from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD 
 from repository_of_riders import RepositoryOfRiders
 from rider_dataclasses import RiderComputeItem
-# from zwiftpower_profile_item import ZwiftPowerProfileItem
 
 import time
 import logging
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
-# from paceline_compute_types import CurveFittingResultItem
 
 
 def run_experiments_on_determinants_of_rider_eligibility():
@@ -85,7 +82,7 @@ def run_experiments_on_determinants_of_rider_eligibility():
         print(err)
         return
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_BRUTE_DTO_JSON_DICT, output_filename01, output_filename02, output_filename03,])
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, output_filename01, output_filename02, output_filename03,])
     except Exception as err:
         print(err)
         return

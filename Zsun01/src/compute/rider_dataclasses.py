@@ -6,7 +6,7 @@ from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_k
 from jgh_formulae00 import frontal_area, solve_speed_from_power
 
 from jgh_number import safe_divide
-from rider_brute_dto import RiderBruteDTO
+from rider_compute_dto import RiderComputeDTO   
 from zwift_id_base import FrozenZwiftIdBase
 
 from jgh_power_curve_fit_models import decay_model_numpy
@@ -43,10 +43,10 @@ class RiderComputeItem(FrozenZwiftIdBase):
     jgh_when_curves_fitted			: str		= ""		# Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["RiderComputeItem"]) -> RiderBruteDTO:
+    def to_dataTransferObject(item: Optional["RiderComputeItem"]) -> RiderComputeDTO:
         if item is None:
-            return RiderBruteDTO()
-        return RiderBruteDTO(
+            return RiderComputeDTO()
+        return RiderComputeDTO  (
             zwift_id							= item.zwift_id,
             name_racingapp						= item.name,
             zwift_country_code3					= item.zwift_country_code3,
@@ -76,7 +76,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[RiderBruteDTO]) -> "RiderComputeItem":
+    def from_dataTransferObject(dto: Optional[RiderComputeDTO]) -> "RiderComputeItem":
         if dto is None:
             return RiderComputeItem()
         return RiderComputeItem(

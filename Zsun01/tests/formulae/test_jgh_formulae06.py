@@ -4,7 +4,7 @@ from typing import List
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import log_rider_contributions, populate_rider_contributions
-from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT
+from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 from rider_dataclasses import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_rider_brute_dict_from_json
@@ -19,7 +19,7 @@ from storage_config import DIRPATH_LOGGING
 
 def test01() -> None:
 
-    dict_of_all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
+    dict_of_all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
     
     riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)

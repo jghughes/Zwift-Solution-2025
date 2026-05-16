@@ -77,7 +77,7 @@ from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 
 from jgh_read_write import write_dataframe_as_xlsx_file
-from storage_config import (FILENAME_RIDER_BRUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
+from storage_config import (FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER,DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)
 from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from working_file_read_write import write_regression_modelling_dict_to_json
 from regression_modelling_item import RegressionModellingItem
@@ -101,7 +101,7 @@ def run_curve_fitting_experiments():
         return
 
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_BRUTE_DTO_JSON_DICT, regression_filename_excel, regression_filename_json_generated_by_tool08, curve_fitting_filename_for_excel])
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, regression_filename_excel, regression_filename_json_generated_by_tool08, curve_fitting_filename_for_excel])
     except Exception as err:
         print(err)
         return

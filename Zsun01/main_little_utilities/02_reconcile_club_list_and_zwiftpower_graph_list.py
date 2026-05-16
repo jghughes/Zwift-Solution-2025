@@ -11,8 +11,8 @@ from storage_config import (
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     )
 from storage_config import (
-    FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
-    FILENAME_RIDER_BRUTE_DTO_XLSX_LIST, 
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
+    FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST, 
     )
 from repository_of_riders import RepositoryOfRiders
 import json
@@ -42,8 +42,8 @@ async def reconcile_lists_and_save():
         return
     try:
         throw_if_any_filename_invalid([
-            FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
-            FILENAME_RIDER_BRUTE_DTO_XLSX_LIST]
+            FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
+            FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST]
         )
     except Exception as err:
         logger.error(f"Filename validation error: {err}", exc_info=True)

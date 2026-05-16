@@ -2,7 +2,7 @@
 // MEMBERSHIP APP CONFIGURATION
 // ============================================================================
 
-const DATA_URL = "https://customerzsun.blob.core.windows.net/zsun/rider_brute_dto_as_list.json";
+const DATA_URL = "https://customerzsun.blob.core.windows.net/zsun/rider_compute_dto_as_list.json";
 
 const FALLBACK_DATA = [
     { row: 1, name_racingapp: "Joe Soap" }

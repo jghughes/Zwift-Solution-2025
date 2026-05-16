@@ -290,7 +290,7 @@ if __name__ == "__main__":
             zwift_dir_path=DIRPATH_ZWIFT_FILES,
             zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
             zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
-            filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
+            snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath=""
         )
         print("Starting tests...\n")
         # Comment/uncomment the lines below to run the tests you want. 

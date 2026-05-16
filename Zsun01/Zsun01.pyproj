@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>main_brute_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;src\working file read write;src\zwiftid file import;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;..\Zsun.DataTransferObjects.Jan2024\src\my DTO;..\Zsun.DataTransferObjects.Jan2024\src\third party DTO;..\Zsun.DataModels.Jan2024\src\my models;..\Zsun.DataModels.Jan2024\src\third party models;src\compute;main_brute_production_pipeline;main_little_utilities;main_tools;src\display_objects;src\working_file_read_write;src\zwiftid_file_import</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;src\compute;main_brute_production_pipeline;main_little_utilities;main_tools;src\display_objects;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>

@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\my DTO\rider_brute_dto.py</StartupFile>
-    <SearchPath>src;..\Thon.Goodies.Jan2025\src;src\my DTO;src\third party DTO</SearchPath>
+    <StartupFile>src\my_DTO\rider_compute_dto.py</StartupFile>
+    <SearchPath>src;..\Thon.Goodies.Jan2025\src;src\my_DTO;src\third_party_DTO</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun.DataTransferObjects.Jan2024</Name>
@@ -22,19 +22,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\" />
-    <Folder Include="src\my DTO\" />
-    <Folder Include="src\third party DTO\" />
+    <Folder Include="src\my_DTO\" />
+    <Folder Include="src\third_party_DTO\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\my DTO\regression_modelling_dto.py" />
-    <Compile Include="src\my DTO\rider_stats_dto.py" />
-    <Compile Include="src\my DTO\zwiftpower_flattened_90_day_watts_dto.py" />
-    <Compile Include="src\third party DTO\zwiftpower_graph_watts_dto.py" />
-    <Compile Include="src\third party DTO\zwiftracingapp_dto.py" />
-    <Compile Include="src\my DTO\rider_brute_dto.py">
+    <Compile Include="src\my_DTO\regression_modelling_dto.py" />
+    <Compile Include="src\my_DTO\rider_stats_dto.py" />
+    <Compile Include="src\my_DTO\zwiftpower_flattened_90_day_watts_dto.py" />
+    <Compile Include="src\third_party_DTO\zwiftpower_graph_watts_dto.py" />
+    <Compile Include="src\third_party_DTO\zwiftracingapp_dto.py" />
+    <Compile Include="src\my_DTO\rider_compute_dto.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\third party DTO\zwift_dto.py" />
+    <Compile Include="src\third_party_DTO\zwift_dto.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\testZwiftDtoJson.json" />

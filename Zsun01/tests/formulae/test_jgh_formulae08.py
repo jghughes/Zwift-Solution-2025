@@ -12,7 +12,7 @@ from jgh_formatting import format_number_with_comma_separators
 from jgh_formulae02 import generate_all_paceline_rotation_sequences_in_the_total_solution_space, prune_all_sequences_of_pull_periods_in_the_total_solution_space
 from jgh_formulae08 import generate_paceline_solutions_using_parallel_workstealing_algorithm, generate_paceline_solutions_using_serial_processing_algorithm
 from jgh_read_write import write_lines
-from storage_config import DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_BRUTE_DTO_JSON_DICT
+from storage_config import DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 from rider_dataclasses import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_rider_brute_dict_from_json
@@ -81,7 +81,7 @@ def test01():
       - Exceptions are logged if encountered during computation.
 
     Dependencies:
-      - Expects global variables FILENAME_RIDER_BRUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT to be set.
+      - Expects global variables FILENAME_RIDER_COMPUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT to be set.
       - Requires pandas, seaborn, matplotlib, and other project-specific modules.
     """
 
@@ -193,7 +193,7 @@ def test02():
       - Exceptions are logged if encountered during computation.
 
     Dependencies:
-      - Expects global variables FILENAME_RIDER_BRUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL to be set.
+      - Expects global variables FILENAME_RIDER_COMPUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL to be set.
       - Requires pandas, seaborn, matplotlib, and other project-specific modules.
     """
 
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         _output_filename_01_stub = f"compare_serial_processing_versus_parallel_processing_duration_"
         _output_filename_02_stub = f"compare_serial_processing_versus_parallel_processing_duration_after_pruning_"
         # get ready
-        dict_of_all_riders = read_rider_brute_dict_from_json(Path( DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
+        dict_of_all_riders = read_rider_brute_dict_from_json(Path( DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
         riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team("scratchpad")
         riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
         all_conceivable_paceline_rotation_sequences = generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(riders), PERMISSABLE_PULL_PERIODS_SEC_AS_LIST)

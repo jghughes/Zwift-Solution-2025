@@ -43,7 +43,7 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched : str,
+        snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath : str,
     )->bool:
 
         """
@@ -92,8 +92,8 @@ class RepositoryOfRiders:
         self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
 
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
-        if filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched != "":
-            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = self._read_file_of_RiderStatsItem(Path(filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched))
+        if snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath != "":
+            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = self._read_file_of_RiderStatsItem(Path(snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath))
         
         print(f"4. Fitting curves to 90-day power watts datapoints.")
 
@@ -102,13 +102,13 @@ class RepositoryOfRiders:
             self._dict_of_ZwiftPower90dayWattsItem.keys(),
             self._dict_of_ZwiftRacingAppItem.keys()
         )
-        all_zwift_ids_as_list = list(all_zwift_ids_as_set)
+        all_zwift_ids = list(all_zwift_ids_as_set)
 
-        self._computed_dict_of_curveFitItem = self.do_curve_fitting(all_zwift_ids_as_list) #do first
+        self._computed_dict_of_curveFitItem = self.do_curve_fitting(all_zwift_ids) #do first
         print(f"5. Doing rider compute/brute items.")
-        self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids_as_list) # do second
+        self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids) # do second
         print(f"6. Doing rider stats items.")
-        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids_as_list) # do third
+        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids) # do third
         print(f"Repository successfully populated.")
    
         return True

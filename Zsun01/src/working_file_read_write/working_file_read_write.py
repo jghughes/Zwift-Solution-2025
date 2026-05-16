@@ -10,7 +10,7 @@ from jgh_read_write import read_text, write_text_with_json_file_extension, write
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
 from rider_dataclasses import RiderComputeItem
-from rider_brute_dto import RiderBruteDtoDictModel
+from rider_compute_dto import RiderComputeDtoDictModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoListModel
 
@@ -18,7 +18,7 @@ from rider_stats_dto import RiderStatsDtoListModel
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem 
 
-def read_rider_brute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderComputeItem]:
+def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderComputeItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of RiderBruteItem domain objects.
 
@@ -43,7 +43,7 @@ def read_rider_brute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, R
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
-    answer = RiderBruteDtoDictModel.model_validate(something, strict=True).root
+    answer = RiderComputeDtoDictModel.model_validate(something, strict=True).root
     return defaultdict(
         RiderComputeItem,
         {

@@ -52,16 +52,16 @@ from jgh_string import capitalize_first_letter
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
-from rider_brute_dto import RiderBruteDTO, RiderBruteDtoListModel
+from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_dataclasses import RiderComputeItem
 from storage_config import (
-    FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
     AZURE_CONTAINERNAME_BRUTE,
     AZURE_CONTAINERNAME_ZSUN,
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
     make_filename_for_one_page_summary_html_doc,)
 
 import time
@@ -96,19 +96,19 @@ async def generate_ttt_scenarios_with_brute() -> None:
         return
 
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_BRUTE_DTO_JSON_DICT])
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
     except Exception as err:
         print(err)
         return
 
     # ===========================
-    print(f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST}")
+    print(f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
     # ===========================
 
     try:
         azure_client = AzureStorageServiceClient()
 
-        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST)
+        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST)
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
         # ===========================
         print(f"\ndownloaded {blob_size}")
@@ -116,10 +116,10 @@ async def generate_ttt_scenarios_with_brute() -> None:
         blob_as_text = blob_as_bytes.decode('utf-8')
 
         something = json.loads(blob_as_text)
-        list_of_RiderDTO: List[RiderBruteDTO] = RiderBruteDtoListModel.model_validate(something, strict=True).root
+        list_of_RiderDTO: List[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
         list_of_RiderItem: List[RiderComputeItem] = [
-            RiderComputeItem.from_dataTransferObject(rider_brute_dto)
-            for rider_brute_dto in list_of_RiderDTO]
+            RiderComputeItem.from_dataTransferObject(rider_compute_dto)
+            for rider_compute_dto in list_of_RiderDTO]
 
         dict_of_RiderItem: Dict[str, RiderComputeItem] = {
             rider_dataclasses.zwift_id: rider_dataclasses

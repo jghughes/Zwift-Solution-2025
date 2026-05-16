@@ -32,7 +32,7 @@ from tabulate import tabulate
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from storage_config import (
-    FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_ZWIFT_FILES,
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     DIRPATH_RUBBISH_SCRATCHPAD,
@@ -58,7 +58,7 @@ def run_curve_fitting_comparisons():
         return
 
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_BRUTE_DTO_JSON_DICT])
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
     except Exception as err:
         print(err)
         return

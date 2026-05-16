@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from storage_config import (
-    FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_ZWIFT_FILES,
     # DIRPATH_ZWIFTPOWER_PROFILE_PAGE,
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
@@ -26,7 +26,7 @@ from storage_config import DIRPATH_LOGGING
 #tests
 def test01():
 
-    all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_BRUTE_DTO_JSON_DICT)
+    all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
 
     print(f"Imported {len(all_riders)} zsun riders from VS2022 python project file.")
 

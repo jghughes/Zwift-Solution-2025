@@ -40,7 +40,7 @@ configdictV1 = ConfigDict(alias_generator=AliasGenerator(
 preferred_config_dict = configdictV1
 
 
-class RiderBruteDTO(BaseModel):
+class RiderComputeDTO(BaseModel):
 	model_config =	preferred_config_dict
 	row										:	int						=	0
 	zwift_id								:	str						=	""
@@ -78,8 +78,8 @@ class RiderBruteDTO(BaseModel):
 			return str(value)
 		return value
 
-class RiderBruteDtoDictModel(RootModel[Dict[str, RiderBruteDTO]]):
+class RiderComputeDtoDictModel(RootModel[Dict[str, RiderComputeDTO]]):
     pass
 
-class RiderBruteDtoListModel(RootModel[List[RiderBruteDTO]]):
+class RiderComputeDtoListModel(RootModel[List[RiderComputeDTO]]):
     pass

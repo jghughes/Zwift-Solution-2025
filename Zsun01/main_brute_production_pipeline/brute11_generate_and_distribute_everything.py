@@ -62,14 +62,14 @@ from storage_config import (
     DIRPATH_ZWIFT_FILES, 
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
-    DIRPATH_RIDER_BRUTE_DTO,
+    DIRPATH_RIDER_COMPUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
     )
 from storage_config import (
-    FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
-    FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
-    FILENAME_RIDER_BRUTE_DTO_XLSX_LIST, 
-    FILENAME_RIDER_BRUTE_DTO_CSV_LIST,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
+    FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
+    FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST, 
+    FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
 
     FILENAME_RIDER_STATS_DTO_JSON_DICT, 
     FILENAME_RIDER_STATS_DTO_JSON_LIST,
@@ -81,9 +81,9 @@ from storage_config import (
     AZURE_ACCOUNTNAME_ZSUN, 
     AZURE_CONTAINERNAME_ZSUN, 
 
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST_AS_CSV,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST, 
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
 
     AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
@@ -91,7 +91,7 @@ from storage_config import (
     )
 from repository_of_riders import RepositoryOfRiders
 from rider_dataclasses import RiderComputeItem
-from rider_brute_dto import RiderBruteDtoDictModel, RiderBruteDtoListModel
+from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
 
@@ -119,8 +119,8 @@ async def generate_everything_and_save_and_upload():
         return
     try:
         throw_if_any_filename_invalid([
-            FILENAME_RIDER_BRUTE_DTO_JSON_DICT, 
-            FILENAME_RIDER_BRUTE_DTO_XLSX_LIST]
+            FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
+            FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST]
         )
     except Exception as err:
         logger.error(f"Filename validation error: {err}", exc_info=True)
@@ -151,16 +151,16 @@ async def generate_everything_and_save_and_upload():
 
     await export_and_upload_dtos(
         dto_by_key=dto_dict_rb,
-        dict_model_cls=RiderBruteDtoDictModel,
-        list_model_cls=RiderBruteDtoListModel,
-        output_dir=DIRPATH_RIDER_BRUTE_DTO,
-        json_dict_filename=FILENAME_RIDER_BRUTE_DTO_JSON_DICT,
-        json_list_filename=FILENAME_RIDER_BRUTE_DTO_JSON_LIST,
-        excel_list_filename=FILENAME_RIDER_BRUTE_DTO_XLSX_LIST,
-        csv_list_filename=FILENAME_RIDER_BRUTE_DTO_CSV_LIST,
-        json_dict_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_DICT,
-        json_list_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST,
-        csv_list_blobname=AZURE_BLOBNAME_RIDER_BRUTE_DTO_LIST_AS_CSV,
+        dict_model_cls=RiderComputeDtoDictModel,
+        list_model_cls=RiderComputeDtoListModel,
+        output_dir=DIRPATH_RIDER_COMPUTE_DTO,
+        json_dict_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+        json_list_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
+        excel_list_filename=FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST,
+        csv_list_filename=FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
+        json_dict_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
+        json_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
+        csv_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
         logger=logger,
     )
 
