@@ -68,8 +68,8 @@ async def reconcile_lists_and_save():
 
     dict_of_ZwiftPower90dayWattsItem = rider_repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(None)
     dict_of_ZwiftRacingAppItem_by_ids = rider_repository.get_dict_of_ZwiftRacingAppItem_by_ids(None)
-    dict_of_RiderBruteItem = rider_repository.get_dict_of_RiderBruteItem()
-    dict_of_RiderStatsItem = rider_repository.get_dict_of_RiderStatsItem()
+    dict_of_RiderBruteItem = rider_repository.get_dict_of_RiderComputeItem_by_ids(None)
+    dict_of_RiderStatsItem = rider_repository.get_dict_of_RiderStatsItem_by_ids(None)
     print(f"number of member IDs in file: {len(zwiftIDs)}")
     print(f"number of racers with power graphs: {len(dict_of_ZwiftPower90dayWattsItem)}")
     print(f"number of racers with RacingApp profiles: {len(dict_of_ZwiftRacingAppItem_by_ids)}")

@@ -36,9 +36,6 @@
     </Compile>
     <Compile Include="src\third_party_DTO\zwift_dto.py" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="src\testZwiftDtoJson.json" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in

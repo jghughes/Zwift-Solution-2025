@@ -134,11 +134,11 @@ async def generate_everything_and_save_and_upload():
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
-    print(f"ended up with {len(rider_repository.get_dict_of_RiderBruteItem())} curve fitted brute riders.")
+    print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted brute riders.")
 
     print("\nTask #1: distributing all the RiderBruteItem records")
 
-    items_rb = rider_repository.get_dict_of_RiderBruteItem()
+    items_rb = rider_repository.get_dict_of_RiderComputeItem_by_ids(None)
     sorted_items_rb = sorted(
         items_rb.items(),
         key=lambda kv: kv[1].get_velo_zwiftpower_zFTP_wkg() if hasattr(kv[1], "get_velo_zwiftpower_zFTP_wkg") else 0.0,
@@ -175,7 +175,7 @@ async def generate_everything_and_save_and_upload():
         except Exception:
             return 0.0
 
-    items_rs = rider_repository.get_dict_of_RiderStatsItem()
+    items_rs = rider_repository.get_dict_of_RiderStatsItem_by_ids(None)
     sorted_items_rs = sorted(
         items_rs.items(),
         key=lambda kv: _safe_zwift_zftp_wkg(kv[1]),

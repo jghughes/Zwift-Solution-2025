@@ -100,11 +100,11 @@ def run_comparisons_of_ftp_estimates():
     repository : RepositoryOfRiders = RepositoryOfRiders()
     test_IDs = None # i.e. will have the effect of populating the repository with all available riders, modify as you please
     repository.populate_repository(test_IDs, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "") 
-    dict_of_curve_fits = repository.do_curve_fitting(test_IDs)
+    dict_of_curve_fits = repository._do_power_graph_curve_fitting(test_IDs)
 
     comparative_FTPs : list[DummyItem] = list()
 
-    for RiderBruteItem in repository.get_dict_of_RiderBruteItem_by_ids(test_IDs).values():
+    for RiderBruteItem in repository.get_dict_of_RiderComputeItem_by_ids(test_IDs).values():
         y_pred = round(RiderBruteItem.get_n_second_curvefit_y_ordinate_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
         y_actual = RiderBruteItem.velo_zwiftpower_zFTP_watts
         if y_pred == 0.0 or y_actual == 0 or RiderBruteItem.zwift_racing_score == 0 or RiderBruteItem.velo_rating_30_days == 0:

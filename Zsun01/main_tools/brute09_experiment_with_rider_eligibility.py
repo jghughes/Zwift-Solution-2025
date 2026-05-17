@@ -97,9 +97,8 @@ def run_experiments_on_determinants_of_rider_eligibility():
 
     dict_of_zwiftItem = repository.get_dict_of_ZwiftItem_by_ids(eligible_IDs)
     dict_of_ZwiftRacingAppItem = repository.get_dict_of_ZwiftRacingAppItem_by_ids(eligible_IDs)
-    # dict_of_ZwiftPowerProfileItem = repository.get_dict_of_ZwiftPowerProfileItem_by_ids(eligible_IDs)
     dict_of_flattenedZwiftPower90dayWatts = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(eligible_IDs)
-    dict_of_curve_fits = repository.do_curve_fitting(eligible_IDs)
+    dict_of_curve_fits = repository._do_power_graph_curve_fitting(eligible_IDs)
 
     print(f"Imported {len(dict_of_zwiftItem)} zwift profiles from : - \nDir : {DIRPATH_ZWIFT_FILES}\n")
     print(f"Imported {len(dict_of_ZwiftRacingAppItem)} racingapp profiles from : - \nDir :{DIRPATH_ZWIFTRACINGAPP_FILES}\n")

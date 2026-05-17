@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, TypeVar
+from typing import Dict, Optional
 
 from paceline_dataclasses import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
@@ -9,9 +9,10 @@ from zwiftid_file_reader_sync import (
     read_zwiftracingappdto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
+from jgh_dictionary_helpers import filter_generic_dict_by_key
 from jgh_formulae10 import calculate_projected_accelerated_level_up
 
-from working_file_read_write import read_rider_stats_list_from_json
+from working_file_read_write import read_rider_stats_list_from_json_as_dict
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_dataclasses import RiderComputeItem
@@ -21,7 +22,10 @@ from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWatts
 from rider_item_builders import build_RiderComputeItem, build_RiderStatsItem, build_CurveFittingResultItem
 
 
-T = TypeVar("T")  # Generic type variable for the item type in the dict
+
+
+
+
 @dataclass
 class RepositoryOfRiders:
 
@@ -32,10 +36,10 @@ class RepositoryOfRiders:
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
-    _computed_dict_of_riderComputeItem    :  Dict[str, RiderComputeItem] = field(default_factory=dict)
+    _computed_dict_of_riderComputeItem  :  Dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
-    # The heavy lifting: building the repository. The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
+    # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
 
     def populate_repository(
         self,
@@ -93,9 +97,9 @@ class RepositoryOfRiders:
 
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
         if snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath != "":
-            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = self._read_file_of_RiderStatsItem(Path(snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath))
+            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = read_rider_stats_list_from_json_as_dict(Path(snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath))
         
-        print(f"4. Fitting curves to 90-day power watts datapoints.")
+        print(f"5. Fitting curves to 90-day power watts datapoints.")
 
         # now that we have read all the files that we could find, we need to determine the unique set of the union of zwiftIDs (dict keys) across all three datasets
         all_zwift_ids_as_set = set(self._dict_of_ZwiftItem.keys()).union(
@@ -104,10 +108,10 @@ class RepositoryOfRiders:
         )
         all_zwift_ids = list(all_zwift_ids_as_set)
 
-        self._computed_dict_of_curveFitItem = self.do_curve_fitting(all_zwift_ids) #do first
-        print(f"5. Doing rider compute/brute items.")
+        self._computed_dict_of_curveFitItem = self._do_power_graph_curve_fitting(all_zwift_ids) #do first
+        print(f"6. Building RiderComputeItems.")
         self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids) # do second
-        print(f"6. Doing rider stats items.")
+        print(f"7. Building RiderStatsItems.")
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids) # do third
         print(f"Repository successfully populated.")
    
@@ -115,53 +119,24 @@ class RepositoryOfRiders:
 
     # Getters for the repository    
 
-    def get_dict_of_RiderBruteItem(self) -> Dict[str, RiderComputeItem]:
-        return self._computed_dict_of_riderComputeItem
+    def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+        return filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids)
 
-    def get_dict_of_RiderStatsItem(self) -> Dict[str, RiderStatsItem]:
-        return self._computed_dict_of_riderStatsItem
-
-    def _get_dict_by_ids(self, source_dict: Dict[str, T], zwift_ids: Optional[list[str]]) -> Dict[str, T]:
-        """
-        Returns a dictionary containing only the items from `source_dict` whose keys are present in `zwift_ids`.
-
-        If `zwift_ids` is None or empty, all items from `source_dict` are included.
-        If a key in `zwift_ids` does not exist in `source_dict`, it is skipped.
-
-        Args:
-            source_dict (Dict[str, T]): The source dictionary to filter.
-            zwift_ids (Optional[list[str]]): List of keys to include in the result. If None or empty, include all.
-
-        Returns:
-            Dict[str, T]: A dictionary containing only the requested items.
-        """
-
-        # If zwift_ids is None or empty, return a shallow copy of the entire source_dict.
-        if not zwift_ids:
-            return dict(source_dict)
-
-        # Convert zwift_ids to a set for fast O(1) membership checks.
-        zwift_id_set = set(zwift_ids)
-
-        # Use dictionary comprehension for efficient filtering.
-        # Only include keys that exist in source_dict.
-        return {key: source_dict[key] for key in zwift_id_set if key in source_dict}
-
-    def get_dict_of_RiderBruteItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
-        return self._get_dict_by_ids(self._computed_dict_of_riderComputeItem, zwift_ids)
+    def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+        return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
 
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftItem, zwift_ids)
+        return filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids)
 
     def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftRacingAppItem, zwift_ids)
+        return filter_generic_dict_by_key(self._dict_of_ZwiftRacingAppItem, zwift_ids)
 
     def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-        return self._get_dict_by_ids(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
+        return filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
 
     # ...the heavy lifting: building the repository
 
-    def do_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
+    def _do_power_graph_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
 
         min_coordinates = 5
         skipped_count = 0
@@ -320,21 +295,6 @@ class RepositoryOfRiders:
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")
-
-        return answer
-
-    def _read_file_of_RiderStatsItem(self, filepath: Path) -> Dict[str, RiderStatsItem]:
-
-        # parse filepath to get directory and filename
-        dirPath = filepath.parent
-        filename = filepath.name
-        rider_stats_items = read_rider_stats_list_from_json(dirPath, filename)
-
-        answer: Dict[str,RiderStatsItem] = {}
-
-        # store RiderStatsItems in a dictionary keyed by zwift_id
-        for item in rider_stats_items:
-            answer[item.zwift_id] = item
 
         return answer
 

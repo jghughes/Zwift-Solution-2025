@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>main_brute_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;src\compute;main_brute_production_pipeline;main_little_utilities;main_tools;src\display_objects;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO</SearchPath>
+    <StartupFile>main_production_pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;src\compute;main_little_utilities;main_tools;src\display_objects;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -49,7 +49,7 @@
     <Folder Include="src\enums\" />
     <Folder Include="src\azure\" />
     <Folder Include="src\repositories\" />
-    <Folder Include="main_brute_production_pipeline\" />
+    <Folder Include="main_production_pipeline\" />
     <Folder Include="src\" />
     <Folder Include="src\html\" />
     <Folder Include="src\css\" />
@@ -67,7 +67,7 @@
   <ItemGroup>
     <Compile Include="main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
     <Compile Include="main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
-    <Compile Include="main_brute_production_pipeline\brute10_fetch_files_from_dk.py" />
+    <Compile Include="main_production_pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="main_little_utilities\01_RichardM.py" />
     <Compile Include="main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
@@ -121,7 +121,7 @@
     <Compile Include="src\compute\paceline_dataclasses.py" />
     <Compile Include="src\repositories\repository_of_riders.py" />
     <Compile Include="src\matplot\matplot_utilities.py" />
-    <Compile Include="main_brute_production_pipeline\brute16_generate_ttt_scenarios.py" />
+    <Compile Include="main_production_pipeline\brute16_generate_ttt_scenarios.py" />
     <Compile Include="src\formulae\calc_rolling_average.py" />
     <Compile Include="src\formulae\jgh_formulae06.py" />
     <Compile Include="src\working_file_read_write\working_file_read_write.py" />
@@ -141,7 +141,7 @@
     <Compile Include="main_tools\brute07_run_curve_fitting_comparisons.py" />
     <Compile Include="main_tools\brute08_run_curve_fitting_experiments.py" />
     <Compile Include="main_tools\brute13_compare_methods_of_ftp_estimation.py" />
-    <Compile Include="main_brute_production_pipeline\brute11_generate_and_distribute_everything.py" />
+    <Compile Include="main_production_pipeline\brute11_generate_and_distribute_everything.py" />
     <Compile Include="main_tools\brute09_experiment_with_rider_eligibility.py" />
     <Compile Include="main_tools\brute14_experiment_with_regression_models.py" />
     <Compile Include="vs2022_project_refactoring\strip_non_ascii_characters.py" />

@@ -245,7 +245,7 @@ def run_curve_fitting_experiments():
     # AOK. Restart from the beginning with concise dataload. HEAP POWERFUL
     repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "")
     
-    dict_of_RiderItem : Dict[str, RiderComputeItem] = repository.get_dict_of_RiderBruteItem_by_ids(zwiftIds_with_high_fidelity)
+    dict_of_RiderItem : Dict[str, RiderComputeItem] = repository.get_dict_of_RiderComputeItem_by_ids(zwiftIds_with_high_fidelity)
     dict_of_zp_90day_graph_watts : Dict[str,ZwiftPowerFlattened90dayWattsItem] = repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwiftIds_with_high_fidelity)
     
     dict_of_riders_with_high_fidelity : Dict[str, RegressionModellingItem] = defaultdict(RegressionModellingItem)

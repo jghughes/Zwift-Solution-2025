@@ -78,6 +78,31 @@ def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> List[RiderS
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
+
+def read_rider_stats_list_from_json_as_dict(filepath: Path) -> Dict[str, RiderStatsItem]:
+
+    # parse filepath to get directory and filename
+    dirPath = filepath.parent
+    filename = filepath.name
+    rider_stats_items = read_rider_stats_list_from_json(dirPath, filename)
+
+    answer: Dict[str,RiderStatsItem] = {}
+
+    # store RiderStatsItems in a dictionary keyed by zwift_id
+    for item in rider_stats_items:
+        answer[item.zwift_id] = item
+
+    return answer
+
+
+
+
+
+
+
+
+
+
 def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects.
@@ -207,7 +232,6 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
     myObj = RegressionModellingDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
-
 
 def read_json_list_and_export_tabular(
     input_dirpath: Path,

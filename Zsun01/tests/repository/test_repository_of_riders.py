@@ -34,7 +34,7 @@ def test09():
     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
     # )
-    print(f"Test09: There are {len(repository.get_dict_of_RiderBruteItem())} active racers.")
+    print(f"Test09: There are {len(repository.get_dict_of_RiderComputeItem_by_ids(None))} active racers.")
 
 def test11():
     # repository = RepositoryOfRiders()
