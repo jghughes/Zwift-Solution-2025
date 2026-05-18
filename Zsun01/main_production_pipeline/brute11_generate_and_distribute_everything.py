@@ -136,7 +136,7 @@ async def generate_everything_and_save_and_upload():
     print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
     print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted brute riders.")
 
-    print("\nTask #1: distributing all the RiderBruteItem records")
+    print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")
 
     items_rb = rider_repository.get_dict_of_RiderComputeItem_by_ids(None)
     sorted_items_rb = sorted(
@@ -148,23 +148,6 @@ async def generate_everything_and_save_and_upload():
     for row_num, (_, item) in enumerate(dto_dict_rb.items(), start=1):
         item.row = row_num
 
-
-    await export_and_upload_dtos(
-        dto_by_key=dto_dict_rb,
-        dict_model_cls=RiderComputeDtoDictModel,
-        list_model_cls=RiderComputeDtoListModel,
-        output_dir=DIRPATH_RIDER_COMPUTE_DTO,
-        json_dict_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
-        json_list_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
-        excel_list_filename=FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST,
-        csv_list_filename=FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
-        json_dict_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
-        json_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
-        csv_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
-        logger=logger,
-    )
-
-    print("\nTask #2: distributing all the RiderStatsItem records")
 
     def _safe_zwift_zftp_wkg(value_obj: RiderStatsItem) -> float:
         try:
@@ -186,19 +169,37 @@ async def generate_everything_and_save_and_upload():
     for row_num, (_, item) in enumerate(dto_dict_rs.items(), start=1):
         item.row = row_num
 
-    await export_and_upload_dtos(
-        dto_by_key=dto_dict_rs,
-        dict_model_cls=RiderStatsDtoDictModel,
-        list_model_cls=RiderStatsDtoListModel,
-        output_dir          =DIRPATH_RIDER_STATS_DTO,
-        json_dict_filename  =FILENAME_RIDER_STATS_DTO_JSON_DICT,
-        json_list_filename  =FILENAME_RIDER_STATS_DTO_JSON_LIST,
-        excel_list_filename =FILENAME_RIDER_STATS_DTO_XLSX_LIST,
-        csv_list_filename   =FILENAME_RIDER_STATS_DTO_CSV_LIST,
-        json_dict_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-        json_list_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
-        csv_list_blobname   =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
-        logger=logger,
+    # Tasks #1 and #2 write to independent directories and blobs — run concurrently.
+    print("\nTask #1 and Task #2: distributing RiderComputeItem and RiderStatsItem records concurrently")
+    await asyncio.gather(
+        export_and_upload_dtos(
+            dto_by_key=dto_dict_rb,
+            dict_model_cls=RiderComputeDtoDictModel,
+            list_model_cls=RiderComputeDtoListModel,
+            output_dir=DIRPATH_RIDER_COMPUTE_DTO,
+            json_dict_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+            json_list_filename=FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
+            excel_list_filename=FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST,
+            csv_list_filename=FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
+            json_dict_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
+            json_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
+            csv_list_blobname=AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
+            logger=logger,
+        ),
+        export_and_upload_dtos(
+            dto_by_key=dto_dict_rs,
+            dict_model_cls=RiderStatsDtoDictModel,
+            list_model_cls=RiderStatsDtoListModel,
+            output_dir          =DIRPATH_RIDER_STATS_DTO,
+            json_dict_filename  =FILENAME_RIDER_STATS_DTO_JSON_DICT,
+            json_list_filename  =FILENAME_RIDER_STATS_DTO_JSON_LIST,
+            excel_list_filename =FILENAME_RIDER_STATS_DTO_XLSX_LIST,
+            csv_list_filename   =FILENAME_RIDER_STATS_DTO_CSV_LIST,
+            json_dict_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+            json_list_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+            csv_list_blobname   =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
+            logger=logger,
+        ),
     )
 
     print("\nwork complete. consult the log files for details.\nyou may close the app. thank you.")
@@ -283,49 +284,32 @@ async def export_and_upload_dtos(
     try:
         throw_if_no_internet_connection()
 
-        # Upload to Azure (current container for live access by all apps that use realtime data)
-        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json)
-        file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
-        message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
-        print(message)
-        logger.info(message)
-
-        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_list_blobname, dto_list_json)
-        file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
-        message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
-        print(message2)
-        logger.info(message2)
-
         # Upload dated archive copies to Azure (separate container for archival storage, not used by live apps)
         date: str = format_timestamp_as_yyyy_mm_dd()
         archived_dict_blob_name = f"{date}_{json_dict_blobname}"
         archived_list_blob_name = f"{date}_{json_list_blobname}"
         archived_list_blob_as_csv_name = f"{date}_{csv_list_blobname}"
 
-        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob_name, dto_dict_json)
-        file_size = make_pretty_count_of_bytes(len(dto_dict_json.encode('utf-8')))
-        message = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
-        print(message)
-        logger.info(message)
+        # All five uploads are independent — fire them concurrently.
+        upload_results = await asyncio.gather(
+            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json),
+            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_list_blobname, dto_list_json),
+            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob_name, dto_dict_json),
+            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_name, dto_list_json),
+            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_as_csv_name, dto_list_as_csv),
+        )
 
-        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_name, dto_list_json)
-        file_size = make_pretty_count_of_bytes(len(dto_list_json.encode('utf-8')))
-        message2 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
-        print(message2)
-        logger.info(message2)
-
-        url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(
-            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_as_csv_name, dto_list_as_csv)
-        file_size = make_pretty_count_of_bytes(len(dto_list_as_csv.encode('utf-8')))
-        message3 = f"Uploaded blob: {url_of_uploaded_blob} ({file_size})"
-        print(message3)
-        logger.info(message3)
-
-
+        upload_log = [
+            (upload_results[0], len(dto_dict_json.encode('utf-8'))),
+            (upload_results[1], len(dto_list_json.encode('utf-8'))),
+            (upload_results[2], len(dto_dict_json.encode('utf-8'))),
+            (upload_results[3], len(dto_list_json.encode('utf-8'))),
+            (upload_results[4], len(dto_list_as_csv.encode('utf-8'))),
+        ]
+        for url, size in upload_log:
+            msg = f"Uploaded blob: {url} ({make_pretty_count_of_bytes(size)})"
+            print(msg)
+            logger.info(msg)
 
     except Exception as e:
         logger.error(f"Error uploading to Azure: {e}", exc_info=True)

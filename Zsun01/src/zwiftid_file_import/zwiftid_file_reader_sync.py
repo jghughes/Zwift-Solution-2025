@@ -1,6 +1,7 @@
 import os
 import json
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Callable, Dict, Optional, Type, TypeVar
 from jgh_exceptions import AlertMessageError
@@ -121,16 +122,21 @@ def read_many_files_named_by_zwiftId_to_dict_sync(
         )
         return {}
 
-    for file_path in file_paths:
-        zwift_id, item, error = read_file_named_by_zwiftId_to_tuple_sync(file_path, data_transfer_class, function_to_translate_from_dto_to_corresponding_item)
-        if error is not None:
-            log_event(
-                logger,
-                message=error,
-                level=logging.ERROR
-            )
-        elif zwift_id and item:
-            answer[zwift_id] = item
+    def _read_one(file_path: str):
+        return read_file_named_by_zwiftId_to_tuple_sync(file_path, data_transfer_class, function_to_translate_from_dto_to_corresponding_item)
+
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(_read_one, fp): fp for fp in file_paths}
+        for future in as_completed(futures):
+            zwift_id, item, error = future.result()
+            if error is not None:
+                log_event(
+                    logger,
+                    message=error,
+                    level=logging.ERROR
+                )
+            elif zwift_id and item:
+                answer[zwift_id] = item
 
     log_event(
         logger,

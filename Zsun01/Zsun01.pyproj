@@ -43,6 +43,7 @@
     <Folder Include="tests\zwiftid file import\" />
     <Folder Include="tests\working file read write\" />
     <Folder Include="tests\repository\" />
+    <Folder Include="tools\" />
     <Folder Include="vs2022_project_refactoring\" />
     <Folder Include="src\working_file_read_write\" />
     <Folder Include="src\formulae\" />
@@ -94,6 +95,8 @@
     <Compile Include="tests\zwiftid file import\test_zwiftid_file_fetcher_async.py" />
     <Compile Include="tests\zwiftid file import\test_zwiftid_file_reader_sync.py" />
     <Compile Include="constants.py" />
+    <Compile Include="tools\profile_write_vs_network.py" />
+    <Compile Include="tools\tune_concurrency.py" />
     <Compile Include="vs2022_project_refactoring\delete_old_bak_files.py" />
     <Compile Include="vs2022_project_refactoring\find_jgh_logging_imports.py" />
     <Compile Include="vs2022_project_refactoring\revert_py_from_bak.py" />

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -88,12 +89,24 @@ class RepositoryOfRiders:
             bool: True if the repository was populated successfully.
         """
         print(f"Repository to read raw data is populating itself. This will take up to a minute.")
-        print(f"1. Reading hundreds of Zwift files on hard-drive.")
-        self._dict_of_ZwiftItem = read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
-        print(f"2. Reading hundreds of ZwiftPower 90-day power watts files on hard-drive.")
-        self._dict_of_ZwiftPower90dayWattsItem = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path),file_names)
-        print(f"3. Reading hundreds of ZwiftRacingApp files on hard-drive.")
-        self._dict_of_ZwiftRacingAppItem = read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path),file_names)
+        print(f"1-3. Reading Zwift, ZwiftPower 90-day, and ZwiftRacingApp files in parallel.")
+
+        def _read_zwift():
+            return read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
+
+        def _read_zwiftpower():
+            return read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path), file_names)
+
+        def _read_zwiftracingapp():
+            return read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path), file_names)
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            future_zwift        = executor.submit(_read_zwift)
+            future_zwiftpower   = executor.submit(_read_zwiftpower)
+            future_racingapp    = executor.submit(_read_zwiftracingapp)
+            self._dict_of_ZwiftItem                 = future_zwift.result()
+            self._dict_of_ZwiftPower90dayWattsItem  = future_zwiftpower.result()
+            self._dict_of_ZwiftRacingAppItem        = future_racingapp.result()
 
         print(f"4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
         if snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath != "":

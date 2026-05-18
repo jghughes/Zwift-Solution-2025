@@ -3,6 +3,7 @@ import json
 import time
 from pathlib import Path
 from typing import List
+import httpx
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_read_write import read_text, list_files_in_directory
 from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
@@ -25,32 +26,24 @@ async def go_fetch_thousands_of_files_from_dk_V2() -> None:
     array_of_cobbled_together_zwiftId: List[str] = json.loads(json_array_of_zwiftId)
     print(f"\nzwiftIds of active members: {len(array_of_cobbled_together_zwiftId)} (we use these zwiftIDs to look for Zwift, ZwiftPower90Day, and ZwiftRacingApp files on daveK server)")
 
-    print("\nsearch for as many as possible corresponding Zwift files available on daveK server")
     urls_for_zwift_files: List[str] = [f"{URL_ROOT_FOR_ZWIFT_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    _ = await fetch_and_save_files(
-        urls_for_zwift_files,
-        DIRPATH_ZWIFT_FILES,
-        concurrency=5
-    )
-    print("\nsearch for as many as possible corresponding 90-day best files available on daveK server")
     urls_for_zwiftpower_90_day_best_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    _ = await fetch_and_save_files(
-        urls_for_zwiftpower_90_day_best_files,
-        DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
-        concurrency=5
-    )
-    print("\nsearch for as many as possible corresponding ZwiftRacingApp files available on daveK server")
     urls_for_racing_app_files: List[str] = [f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    _ = await fetch_and_save_files(
-        urls_for_racing_app_files,
-        DIRPATH_ZWIFTRACINGAPP_FILES,
-        concurrency=5
-    )
+
+    limits = httpx.Limits(max_connections=60, max_keepalive_connections=30)
+    async with httpx.AsyncClient(limits=limits) as shared_client:
+        print("\nsearch for Zwift, ZwiftPower90Day, and ZwiftRacingApp files concurrently")
+        await asyncio.gather(
+            fetch_and_save_files(urls_for_zwift_files, DIRPATH_ZWIFT_FILES, concurrency=20, http_client=shared_client),
+            fetch_and_save_files(urls_for_zwiftpower_90_day_best_files, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, concurrency=20, http_client=shared_client),
+            fetch_and_save_files(urls_for_racing_app_files, DIRPATH_ZWIFTRACINGAPP_FILES, concurrency=20, http_client=shared_client),
+        )
 
 async def fetch_and_save_files(
     list_of_fetch_urls: List[str],
     save_dirpath: str,
-    concurrency: int = 5
+    concurrency: int = 20,
+    http_client=None,
 ) -> List[Path]:
     """
     Fetches files from the given URLs and saves them to the specified directory.
@@ -69,7 +62,7 @@ async def fetch_and_save_files(
 
     throw_if_no_internet_connection()
 
-    await download_and_save_many_files_to_hard_drive(list_of_fetch_urls, save_dirpath, None, concurrency)
+    await download_and_save_many_files_to_hard_drive(list_of_fetch_urls, save_dirpath, None, concurrency, http_client)
     elapsed = time.time() - start_time
 
     files_in_save_destination = list_files_in_directory(Path(save_dirpath), "*.json")

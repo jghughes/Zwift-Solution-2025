@@ -73,19 +73,6 @@ async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, 
         )
         return
 
-    # Validate the destination folder
-    if dest_folder:
-        valid_foldername, foldername_msg = is_valid_foldername(dest_folder)
-        if not valid_foldername:
-            log_event(
-                logger,
-                message=foldername_msg,
-                level=logging.ERROR,
-                extra_fields={"field_name": "dest_folder"}
-            )
-            return
-        return
-
     # Treat None or "" as "no folder"
     if dest_folder:
         valid_foldername, foldername_msg = is_valid_foldername(dest_folder)
@@ -199,12 +186,25 @@ async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, 
             )
             return
 
-async def download_and_save_many_files_to_hard_drive(urls: List[str], dest_dir_path: str, dest_folder: Optional[str], max_concurrent: int = 5) -> None:
+async def download_and_save_many_files_to_hard_drive(
+    urls: List[str],
+    dest_dir_path: str,
+    dest_folder: Optional[str],
+    max_concurrent: int = 20,
+    http_client: Optional[httpx.AsyncClient] = None,
+) -> None:
     semaphore = asyncio.Semaphore(max_concurrent)
-    async with httpx.AsyncClient() as http_client:
+    if http_client is not None:
         tasks = [
             _download_file_and_save_to_hard_drive(http_client, url, dest_dir_path, dest_folder, semaphore)
             for url in urls
         ]
         await asyncio.gather(*tasks)
+    else:
+        async with httpx.AsyncClient() as owned_client:
+            tasks = [
+                _download_file_and_save_to_hard_drive(owned_client, url, dest_dir_path, dest_folder, semaphore)
+                for url in urls
+            ]
+            await asyncio.gather(*tasks)
 
