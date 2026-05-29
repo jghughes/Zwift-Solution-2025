@@ -52,7 +52,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from paceline_dataclasses import (
+from paceline_modelling_items import (
     PacelineComputationReportItem,
     PacelineIngredientsItem,
     PackageOfPacelineComputationReportItem,
@@ -92,7 +92,7 @@ from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
 from jgh_number import safe_divide
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 
 # IT WILL LEAD TO GARBAGE OUTPUT. THE LOGGER CANT HANDLE MULTIPLE THREADS IN MULTIPLE CORES WRITING TO IT AT 
@@ -149,19 +149,21 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     riders:                        List[RiderComputeItem],
     standard_pull_periods_seconds: List[float],
     pull_speeds_kph:               List[float],
+    slope:                         float,
     max_exertion_intensity_factor: float
 ) -> Tuple[float, Dict[RiderComputeItem, RiderContributionItem]]:
     """
     Computes the contributions of each rider in a single paceline solution.
 
     This function determines the work assignments, exertions, and final contributions for each rider
-    based on the provided pull periods, target speeds, and maximum allowed exertion intensity.
+    based on the provided pull periods, target speeds, slope, and maximum allowed exertion intensity.
     It returns the overall average speed of the paceline and a mapping of each rider to their computed contribution.
 
     Args:
         riders: List of RiderBruteItem objects representing the riders in the paceline.
         standard_pull_periods_seconds: List of pull durations (in seconds) for each rider.
         pull_speeds_kph: List of target pull speeds (in kph) for each rider.
+        slope: The slope of the terrain (in percentage).
         max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
 
     Returns:
@@ -170,8 +172,8 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
             - dict_of_rider_contributions (Dict[RiderBruteItem, RiderContributionItem]):
                 Mapping of each rider to their computed RiderContributionItem, including effort metrics and constraint violations.
     """
-    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph)
-
+    dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph, slope)
+        
     dict_of_rider_exertions = populate_rider_exertions(dict_of_rider_work_assignments)
 
     overall_av_speed_of_paceline = calculate_overall_average_speed_of_paceline_kph(dict_of_rider_exertions)
@@ -196,7 +198,8 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
             An object containing all necessary parameters for the paceline computation, including:
                 - riders_list: List of RiderBruteItem objects representing the riders.
                 - sequence_of_pull_periods_sec: List of pull durations (in seconds) for each rider.
-                - pull_speeds_kph: List of initial pull speeds (in kph).
+                - pull_speeds_kph: List of initial pull speeds (in kph)
+                - slope: Road slope as a ratio (e.g., 0.05 for 5%). Defaults to 0.0
                 - max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
 
     Returns:
@@ -221,6 +224,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
     lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3) #This line sets the starting lower bound for the paceline speed search, using the first_name provided speed (formatted to three decimal places), ensuring the algorithm begins with a valid, precise, and user-supplied minimum speed
     max_exertion_intensity_factor = paceline_ingredients.max_exertion_intensity_factor
+    slope = paceline_ingredients.slope 
 
     num_riders = len(riders)
 
@@ -240,7 +244,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH):
 
-        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, max_exertion_intensity_factor)
+        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, slope, max_exertion_intensity_factor)
 
         if any(contribution.effort_constraint_violation_reason for contribution in dict_of_rider_contributions.values()):
             break # break out of the loop as soon as we successfuly find a speed that violates at least one rider's ability
@@ -273,7 +277,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
 
         mid_point_kph =safe_divide( (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph), 2)
 
-        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, max_exertion_intensity_factor)
+        _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, slope, max_exertion_intensity_factor)
 
         compute_iterations_performed += 1
 
@@ -283,7 +287,7 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
             lower_bound_for_next_search_iteration_kph = mid_point_kph
 
     # Knowing the speed, we can rework the contributions and thus the solution
-    speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , max_exertion_intensity_factor)
+    speed_of_paceline,dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders , slope, max_exertion_intensity_factor)
 
     answer = PacelineComputationReportItem(
         algorithm_ran_to_completion                 = True,  
@@ -331,6 +335,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+        slope                           = paceline_ingredients.slope,
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
     paceline_computation_reports: List[PacelineComputationReportItem] = []
@@ -389,6 +394,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
+        slope                           = paceline_ingredients.slope,   
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
     list_of_instructions: List[PacelineIngredientsItem] = []    

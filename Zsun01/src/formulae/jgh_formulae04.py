@@ -38,11 +38,11 @@ Example Usage:
 from collections import defaultdict
 from typing import Dict, List
 
-from paceline_dataclasses import RiderWorkAssignmentItem
-from rider_dataclasses import RiderComputeItem
+from paceline_modelling_items import RiderWorkAssignmentItem
+from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float]) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float], slope: float = 0.0) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
     Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
@@ -57,6 +57,7 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
         riders (List[RiderBruteItem]): The list of Zwift riders from head to tail.
         pull_durations (List[float]): The list of pull durations from head to tail.
         pull_speeds_kph (List[float]): The list of pull speeds from head to tail.
+        slope (float): The slope of the course.
 
     Returns:
         Dict[RiderBruteItem, List[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
@@ -87,9 +88,9 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
             if j < min_length:
                 duration = pull_durations[j]
                 speed = pull_speeds_kph[j]
-                workunit = RiderWorkAssignmentItem(position=position, duration=duration, speed=speed)
+                workunit = RiderWorkAssignmentItem(position=position, duration=duration, speed=speed, slope=slope)
             else:
-                workunit = RiderWorkAssignmentItem(position=position)
+                workunit = RiderWorkAssignmentItem(position=position, slope=slope)
             workunits.append(workunit)
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
@@ -105,14 +106,16 @@ def log_rider_work_assignments(test_description: str, result: Dict[RiderComputeI
                 rider.name, 
                 assignment.position, 
                 assignment.duration, 
-                assignment.speed
+                assignment.speed,
+                assignment.slope
             ])
 
     headers = [
         "Rider", 
         "Position", 
         "Duration (sec)", 
-        "Speed (kph)"
+        "Speed (kph)",
+        "Slope"
     ]
     print(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
 

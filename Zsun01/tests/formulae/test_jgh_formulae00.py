@@ -1,5 +1,5 @@
 
-from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_gradient, COEFFICIENT_bike_weight_kg
+from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, SLOPE, COEFFICIENT_bike_weight_kg
 from jgh_formulae00 import frontal_area, solve_speed_from_power
 
 import time
@@ -22,7 +22,7 @@ def test00():
     bike_weight: float = COEFFICIENT_bike_weight_kg  # kg
     Cd: float = COEFFICIENT_Cd  # typical for road cyclist
     Crr: float = COEFFICIENT_Crr  # typical for road tires
-    gradient: float = COEFFICIENT_gradient  # flat road
+    gradient: float = SLOPE  # flat road
 
     # Calculations
     A: float = frontal_area(height_cm, rider_weight)

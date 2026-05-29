@@ -9,7 +9,7 @@ from jgh_path_helpers import throw_if_file_path_ingredients_invalid_or_not_exist
 from jgh_read_write import read_text, write_text_with_json_file_extension, write_dataframe_as_csv_file, write_dataframe_as_xlsx_file
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from rider_compute_dto import RiderComputeDtoDictModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoListModel

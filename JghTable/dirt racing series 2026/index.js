@@ -2,13 +2,13 @@
 // CONFIGURATION
 // ============================================================================
 const RACE_OPTIONS = [
-    { label: "stage 1 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s1-ZSUN.json" },
-    { label: "stage 2 - TTR", url: "https://customerzsun.blob.core.windows.net/dirt/11-s2-ZSUN.json" },
-    { label: "stage 3 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s3-ZSUN.json" },
-    { label: "stage 4 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s4-ZSUN.json" },
-    { label: "stage 5 - iTT", url: "https://customerzsun.blob.core.windows.net/dirt/11-s5-ZSUN.json" },
-    { label: "stage 6 - points", url: "https://customerzsun.blob.core.windows.net/dirt/11-s6-ZSUN.json" },
-    { label: "Series - totals", url: "https://customerzsun.blob.core.windows.net/dirt/11-series-ZSUN.json" },
+    { label: "stage 1 - points - Peaky Pave", url: "https://customerzsun.blob.core.windows.net/dirt/12-s1-ZSUN.json" },
+    { label: "stage 2 - TTR - ZG25 Queen", url: "https://customerzsun.blob.core.windows.net/dirt/12-s2-ZSUN.json" },
+    { label: "stage 3 - points - Coast Crusher", url: "https://customerzsun.blob.core.windows.net/dirt/12-s3-ZSUN.json" },
+    { label: "stage 4 - points - Temples and Towers", url: "https://customerzsun.blob.core.windows.net/dirt/12-s4-ZSUN.json" },
+    { label: "stage 5 - points - Downtown Dolphins", url: "https://customerzsun.blob.core.windows.net/dirt/12-s5-ZSUN.json" },
+    { label: "stage 6 - iTT - Harrowgate Circuit Reverse", url: "https://customerzsun.blob.core.windows.net/dirt/12-s6-ZSUN.json" },
+    { label: "Series - totals", url: "https://customerzsun.blob.core.windows.net/dirt/12-series-ZSUN.json" },
 ];
 
 const FALLBACK_DATA = [
@@ -16,17 +16,18 @@ const FALLBACK_DATA = [
 ];
 
 const BASE_COLUMN_DEFS = [
-    { headerName: "PlacePts", field: "finishingPlacePoints", pinned: 'left', type: 'numericColumn', width: 60 },
+    { headerName: "Place (by Pts)", field: "finishingPlacePoints", pinned: 'left', type: 'numericColumn', width: 60 },
     { headerName: "Name", field: "rider", pinned: 'left', width: 150 },
     { headerName: "Team", field: "team", width: 150 },
     { headerName: "Zone", field: "timeZone" },
     { headerName: "KOM-pts", field: "pointsKom", type: 'numericColumn' },
     { headerName: "Sprint-pts", field: "pointsSprint", type: 'numericColumn' },
-    { headerName: "Fin-pts", field: "pointsFinish", type: 'numericColumn' },
+    { headerName: "Finish-pts", field: "pointsFinish", type: 'numericColumn' },
     { headerName: "Total-pts", field: "pointsTotal", type: 'numericColumn' },
     { headerName: "Time", field: "finishTimeHHMMSS" },
-    { headerName: "PlaceTime", field: "finishingPlaceTime", type: 'numericColumn', width: 60 },
+    { headerName: "Place (by Time)", field: "finishingPlaceTime", type: 'numericColumn', width: 60 },
     { headerName: "League", field: "league", width: 150 },
+    { headerName: "ZwiftID", field: "zwiftId"},
 ];
 
 // ============================================================================

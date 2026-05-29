@@ -4,7 +4,7 @@ from typing import Dict, List, Any
 import pandas as pd
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_string import make_pretty_time_from_seconds
+from jgh_string import format_seconds_to_hh_mm_ss
 from storage_config import (
     DIRPATH_ZWIFT_FILES,  
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 from typing import List
 from jgh_read_write import read_text
-from jgh_string import  make_pretty_time_from_seconds
+from jgh_string import  format_seconds_to_hh_mm_ss
 from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 import logging
 from jgh_exceptions import AlertMessageError
@@ -63,7 +63,7 @@ async def reconcile_lists_and_save():
     rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, "") 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
-    print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
+    print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
 
 
     dict_of_ZwiftPower90dayWattsItem = rider_repository.get_dict_of_ZwiftPower90dayWattsItem_by_ids(None)

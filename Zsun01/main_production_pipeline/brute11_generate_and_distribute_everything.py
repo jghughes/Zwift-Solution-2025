@@ -56,7 +56,7 @@ from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_read_write import write_dataframe_as_csv_file, write_dataframe_as_xlsx_file, write_text_with_json_file_extension
-from jgh_string import make_pretty_count_of_bytes, make_pretty_time_from_seconds
+from jgh_string import make_pretty_count_of_bytes, format_seconds_to_hh_mm_ss
 from storage_config import (
     AZURE_CONTAINERNAME_ZSUN_BACK,
     DIRPATH_ZWIFT_FILES, 
@@ -90,7 +90,7 @@ from storage_config import (
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV
     )
 from repository_of_riders import RepositoryOfRiders
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
@@ -133,7 +133,7 @@ async def generate_everything_and_save_and_upload():
     rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED) 
     timer_end = time.perf_counter()
     elapsed = timer_end - timer_start
-    print(f"\nrider_repository populated in: {make_pretty_time_from_seconds(elapsed)}")
+    print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
     print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted brute riders.")
 
     print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")

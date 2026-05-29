@@ -41,10 +41,10 @@ from collections import defaultdict
 from tabulate import tabulate
 from typing import Dict, List, Tuple
 
-from paceline_dataclasses import RiderContributionItem, RiderExertionItem
+from paceline_modelling_items import RiderContributionItem, RiderExertionItem
 from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
 from jgh_number import safe_divide
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> Dict[RiderComputeItem, RiderContributionItem]:

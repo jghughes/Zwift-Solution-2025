@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
 
-from paceline_dataclasses import CurveFittingResultItem
+from paceline_modelling_items import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -16,7 +16,7 @@ from jgh_formulae10 import calculate_projected_accelerated_level_up
 from working_file_read_write import read_rider_stats_list_from_json_as_dict
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 

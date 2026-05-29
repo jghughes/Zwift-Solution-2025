@@ -54,6 +54,9 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"w_30min"								:	AliasChoices("w_30min", "w30min"),
 	"w_40min"								:	AliasChoices("w_40min", "w40min"),
 	"w_60min_curvefit"						:	AliasChoices("w_60min_curvefit", "w60minCurvefit"),
+	"prediction_duration_sec"				:	AliasChoices("prediction_duration_sec", "predictionDurationSec"),
+	"prediction_duration_hh_mm_ss"			:	AliasChoices("prediction_duration_hh_mm_ss", "predictionDurationHhMmSs"),
+	"prediction_distance_km"				:	AliasChoices("prediction_distance_km", "predictionDistanceKm"),
 	"timestamp"								:	AliasChoices("timestamp", "timestamp"),
 }
 
@@ -119,6 +122,9 @@ class RiderStatsDTO(BaseModel):
 	w_30min									:	float	=	0.0
 	w_40min									:	float	=	0.0
 	w_60min_curvefit						:	float	=	0.0
+	prediction_duration_sec					: 	float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
+	prediction_duration_hh_mm_ss			: 	str		=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
+	prediction_distance_km					:	float	=	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
 	timestamp								:	str		=	""
 
 	# Validator for zwift_id to convert int to string

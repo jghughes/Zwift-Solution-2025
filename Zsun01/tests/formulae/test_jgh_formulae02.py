@@ -9,10 +9,10 @@ from jgh_formulae02 import (
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
 )
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from working_file_read_write import read_rider_brute_dict_from_json
-from paceline_dataclasses import PacelineIngredientsItem
+from paceline_modelling_items import PacelineIngredientsItem
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 

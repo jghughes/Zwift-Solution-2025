@@ -21,13 +21,14 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from paceline_dataclasses import PacelineIngredientsItem, PacelineComputationReportItem
+from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST, SLOPE
+
+from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_display_objects import (
     PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae02 import (
@@ -61,7 +62,7 @@ from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -156,6 +157,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph                 = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
+        slope                           = SLOPE,
         )
     report_30sec_plan : PacelineComputationReportItem = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients)
     report_30sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_30sec_plan)
@@ -181,6 +183,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph                 = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
+        slope                           = SLOPE,
         )
     report_60sec_plan : PacelineComputationReportItem = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients)
     report_60sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_60sec_plan)
@@ -206,6 +209,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
+        slope                         = SLOPE,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
 
@@ -238,6 +242,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
+        slope                         = SLOPE,
     )
 
     package: Any = generate_package_of_paceline_solutions(ingredients)
@@ -260,6 +265,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
+        slope                         = SLOPE,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]

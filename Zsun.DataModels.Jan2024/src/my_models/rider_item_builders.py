@@ -1,13 +1,15 @@
 from typing import Optional
-
+from constants import DISTANCE_KM_FOR_PREDICTION, SLOPE
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
+from jgh_formulae02 import calculate_seconds_riding_solo
+import jgh_formulae02
 from jgh_number import safe_divide
-from jgh_string import cleanup_name_string
+from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 
-from paceline_dataclasses import CurveFittingResultItem
+from paceline_modelling_items import CurveFittingResultItem
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
@@ -209,6 +211,10 @@ def build_RiderStatsItem(
     riderStatsItem = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
         riderStatsItem, watts_90_day_item, weight_kg
     )
+
+    riderStatsItem.prediction_distance_km = round(DISTANCE_KM_FOR_PREDICTION, 1)
+    riderStatsItem.prediction_duration_sec = round(calculate_seconds_riding_solo(jghRiderComputeItem, DISTANCE_KM_FOR_PREDICTION, SLOPE), 1)
+    riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
 
     return riderStatsItem
 

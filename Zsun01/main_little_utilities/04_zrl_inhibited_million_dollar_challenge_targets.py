@@ -35,7 +35,7 @@ from zwift_id_base import lookup_Items_by_ZwiftID
 
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,

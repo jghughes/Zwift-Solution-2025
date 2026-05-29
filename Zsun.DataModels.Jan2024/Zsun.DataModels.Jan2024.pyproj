@@ -25,7 +25,11 @@
     <Folder Include="src\third_party_models\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\my_models\paceline_display_objects.py" />
+    <Compile Include="src\my_models\paceline_modelling_items.py" />
     <Compile Include="src\my_models\regression_modelling_item.py" />
+    <Compile Include="src\my_models\rider_compute_item.py" />
+    <Compile Include="src\my_models\rider_item_builders.py" />
     <Compile Include="src\my_models\rider_stats_item.py" />
     <Compile Include="src\third_party_models\zwiftpower_flattened_90_day_watts_item.py" />
     <Compile Include="src\third_party_models\zwiftracingapp_item.py" />

@@ -12,24 +12,24 @@ https://collections.lib.utah.edu/dl_files/b4/8e/b48ef26086091662c561e673d7bd990d
 Key Features:
 -------------
 - Calculates the power required to maintain a given speed, considering
-  air resistance, rolling resistance, and gradient.
+  air resistance, rolling resistance, and slope.
 - Estimates a cyclist's frontal area using a height- and weight-based
   formula calibrated to match typical literature values.
 - Solves for steady-state speed given a target power output using
   fast root-finding algorithms (Newton-Raphson, Brent, fsolve).
 - Optimizes calculations for flat terrain by avoiding unnecessary
-  trigonometric operations when gradient is zero.
+  trigonometric operations when slope is zero.
 - Provides robust error handling for non-convergence and non-physical
   results in numerical solvers.
 
 Functions:
 ----------
 - frontal_area(height_cm, weight_kg): Estimate frontal area in square meters.
-- power_required(v, Cd, A, Crr, total_mass, gradient): Compute power
+- power_required(v, Cd, A, Crr, total_mass, slope): Compute power
   required at speed v in meters per second.
-- solve_speed_from_power(power, Cd, A, Crr, total_mass, gradient):
+- solve_speed_from_power(power, Cd, A, Crr, total_mass, slope):
   Find steady-state speed in kilometers per hour for a given power.
-- solve_power_from_speed(speed_kmh, Cd, A, Crr, total_mass, gradient):
+- solve_power_from_speed(speed_kmh, Cd, A, Crr, total_mass, slope):
   Find required power in watts for a given speed in kilometers per hour.
 
 Usage Example:
@@ -53,7 +53,7 @@ from scipy.optimize import fsolve # type: ignore
 from scipy.optimize import brentq  # type: ignore
 from scipy.optimize import newton # type: ignore - the best performer in testing, by far
 
-from constants import COEFFICIENT_g, COEFFICIENT_rho
+from constants import COEFFICIENT_g, COEFFICIENT_rho, SAFE_INITIAL_GUESS_M_PER_S
 
 
 # this suite of formulae in the model is based on the physics of cycling and takes into account various factors such as air resistance, rolling resistance, and gravitational forces: it is the formula from the foundational paper on the subject written in 1998 from the University of Utah, which is what Zwift most likely used and then parameterised. The parameters they use are unknown, but the physics is sound. # the foundational paper on the subject can be found here: https://collections.lib.utah.edu/dl_files/b4/8e/b48ef26086091662c561e673d7bd990d77868437.pdf
@@ -88,26 +88,26 @@ def frontal_area(height_cm: float, weight_kg: float) -> float:
     """
     return 0.0022 * height_cm + 0.0016 * weight_kg - 0.075
 
-def power_required(v: float, Cd: float, A: float, Crr: float, total_mass: float, gradient: float) -> float:
+def power_required(v: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Calculate the power (watts) required for a cyclist to maintain a given
     speed on a road, considering aerodynamic drag, rolling resistance, and
     gravitational force due to slope.
-    Optimized: avoids trig if gradient == 0.
+    Optimized: avoids trig if slope == 0.
     """
     F_aero: float = 0.5 * rho * Cd * A * v ** 2
 
-    if gradient == 0.0:
+    if slope == 0.0:
         F_roll: float = Crr * total_mass * g
         F_gravity: float = 0.0
     else:
-        F_roll: float = Crr * total_mass * g * math.cos(math.atan(gradient))
-        F_gravity: float = total_mass * g * math.sin(math.atan(gradient))
+        F_roll: float = Crr * total_mass * g * math.cos(math.atan(slope))
+        F_gravity: float = total_mass * g * math.sin(math.atan(slope))
 
     F_total: float = F_aero + F_roll + F_gravity
     return v * F_total
 
-def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_mass: float, gradient: float) -> float:
+def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Solve for the steady-state cycling speed (in km/h) given a target power
     output (in watts) and physical parameters.
@@ -119,24 +119,23 @@ def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_
         raise ValueError(f"power must be positive, got {power}")
 
     def equation(v: float) -> float:
-        return power_required(v, Cd, A, Crr, total_mass, gradient) - power
+        return power_required(v, Cd, A, Crr, total_mass, slope) - power
 
     def equation_prime(v: float) -> float:
-        F_aero = 0.5 * rho * Cd * A * v ** 2
-
-        if gradient == 0.0:
+        if slope == 0.0:
             F_roll: float = Crr * total_mass * g
             F_gravity: float = 0.0
         else:
-            F_roll: float = Crr * total_mass * g * math.cos(math.atan(gradient))
-            F_gravity: float = total_mass * g * math.sin(math.atan(gradient))
+            F_roll: float = Crr * total_mass * g * math.cos(math.atan(slope))
+            F_gravity: float = total_mass * g * math.sin(math.atan(slope))
 
+        F_aero: float = 0.5 * rho * Cd * A * v ** 2
         F_total = F_aero + F_roll + F_gravity
         dF_aero_dv = rho * Cd * A * v
         dF_total_dv = dF_aero_dv  # Only F_aero depends on v
         return F_total + v * dF_total_dv
 
-    v_initial_guess: float = 6.0  # m/s - approx 21 km/h
+    v_initial_guess: float = SAFE_INITIAL_GUESS_M_PER_S  # m/s - approx 1.8 km/h
     try:
         v_solution: float = newton(equation, v_initial_guess, fprime=equation_prime, tol=1e-5)
     except RuntimeError as e:
@@ -147,7 +146,7 @@ def solve_speed_from_power(power: float, Cd: float, A: float, Crr: float, total_
 
     return v_solution * 3.6  # convert to kph
 
-def solve_power_from_speed(speed_kmh: float, Cd: float, A: float, Crr: float, total_mass: float, gradient: float) -> float:
+def solve_power_from_speed(speed_kmh: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Calculate the power output (in watts) required for a cyclist to maintain
     a specified steady-state speed (in kilometers per hour) given physical
@@ -156,7 +155,7 @@ def solve_power_from_speed(speed_kmh: float, Cd: float, A: float, Crr: float, to
     This function converts the input speed from km/h to m/s and then calls
     the power_required function, which applies the standard cycling physics
     model. The calculation accounts for aerodynamic drag, rolling resistance,
-    and gravitational force due to road gradient.
+    and gravitational force due to road slope.
 
     Args:
         speed_kmh (float): Target speed in kilometers per hour (km/h).
@@ -164,11 +163,11 @@ def solve_power_from_speed(speed_kmh: float, Cd: float, A: float, Crr: float, to
         A (float): Frontal area in square meters (m^2).
         Crr (float): Rolling resistance coefficient.
         total_mass (float): Combined mass of rider and bike in kilograms (kg).
-        gradient (float): Road gradient as a ratio (e.g., 0.01 for 1%).
+        slope (float): Road slope as a ratio (e.g., 0.01 for 1%).
 
     Returns:
         float: Required power output in watts (W).
     """
     v: float = speed_kmh / 3.6  # convert to m/s
-    return power_required(v, Cd, A, Crr, total_mass, gradient)
+    return power_required(v, Cd, A, Crr, total_mass, slope)
 

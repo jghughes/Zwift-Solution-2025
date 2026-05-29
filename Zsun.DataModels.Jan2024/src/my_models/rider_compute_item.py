@@ -58,9 +58,9 @@ class RiderComputeItem(FrozenZwiftIdBase):
             zwift_FTP_watts						= item.zwift_FTP_watts,
             velo_zwiftpower_zFTP_watts			= item.velo_zwiftpower_zFTP_watts,
             jgh_60_min_watts					= round(item.get_1_hour_curvefit_watts()),
-            jgh_60_min_kph_0pc_gradient			= round(item.get_1_hour_curvefit_kph_Xpc_gradient(0.0),1),
-            jgh_60_min_kph_2pc_gradient			= round(item.get_1_hour_curvefit_kph_Xpc_gradient(0.02),1),
-	        jgh_60_min_kph_4pc_gradient			= round(item.get_1_hour_curvefit_kph_Xpc_gradient(0.04),1),
+            jgh_60_min_km_0pc_slope			    = round(item.get_1_hour_km_on_slope(0.0),1),
+            jgh_60_min_km_2pc_slope			    = round(item.get_1_hour_km_on_slope(0.02),1),
+	        jgh_60_min_km_4pc_slope			    = round(item.get_1_hour_km_on_slope(0.04),1),
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,
@@ -214,10 +214,10 @@ class RiderComputeItem(FrozenZwiftIdBase):
             return 0.0
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
 
-    def get_1_hour_curvefit_kph_Xpc_gradient(self, gradient : float) -> float:
+    def get_1_hour_km_on_slope(self, slope : float) -> float:
         frontalarea: float = frontal_area(self.height_cm, self.weight_kg)
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
-        speed_kmh: float = solve_speed_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, frontalarea, COEFFICIENT_Crr, total_mass, gradient)
+        speed_kmh: float = solve_speed_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, frontalarea, COEFFICIENT_Crr, total_mass, slope)
         return speed_kmh
 
     def get_watts_per_kg(self, wattage : float) -> float:

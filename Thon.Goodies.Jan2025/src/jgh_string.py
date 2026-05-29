@@ -76,7 +76,7 @@ def concat_as_paragraphs(*array_of_texts: str) -> str:
 # Formatting and Messaging Helpers
 # ============================================================
 
-def make_pretty_time_from_seconds(elapsed_time: float) -> str:
+def format_seconds_to_hh_mm_ss(elapsed_time: float) -> str:
     """
     Returns a human-readable string representing the elapsed time.
     Formats as seconds, minutes, or hours as appropriate.

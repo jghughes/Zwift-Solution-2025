@@ -65,7 +65,7 @@ from jgh_read_write import write_dataframe_as_xlsx_file
 from jgh_string import cleanup_name_string
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_RUBBISH_SCRATCHPAD 
 from repository_of_riders import RepositoryOfRiders
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 
 import time
 import logging

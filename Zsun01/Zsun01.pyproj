@@ -34,8 +34,6 @@
     <Folder Include="docs\" />
     <Folder Include="main_tools\" />
     <Folder Include="main_little_utilities\" />
-    <Folder Include="src\compute\" />
-    <Folder Include="src\display_objects\" />
     <Folder Include="tests\" />
     <Folder Include="src\zwiftid_file_import\" />
     <Folder Include="tests\azure\" />
@@ -69,12 +67,9 @@
     <Compile Include="main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
     <Compile Include="main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
     <Compile Include="main_production_pipeline\brute10_fetch_files_from_dk.py" />
-    <Compile Include="main_little_utilities\01_RichardM.py" />
     <Compile Include="main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
-    <Compile Include="src\compute\rider_dataclasses.py" />
-    <Compile Include="src\repositories\repository_diagnostics.py" />
-    <Compile Include="src\repositories\rider_item_builders.py" />
+    <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\zwiftid_file_import\zwiftid_file_fetcher_async.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_accessor.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_service_client.py" />
@@ -111,7 +106,6 @@
     <Compile Include="src\html\paceline_plan_captions.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\display_objects\paceline_display_objects.py" />
     <Compile Include="src\enums\jgh_enums.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
     <Compile Include="src\formulae\jgh_formulae09.py">
@@ -121,7 +115,6 @@
     <Compile Include="storage_config.py" />
     <Compile Include="src\repositories\repository_of_team_rosters.py" />
     <Compile Include="docs\zwiftinsider_stuff.txt" />
-    <Compile Include="src\compute\paceline_dataclasses.py" />
     <Compile Include="src\repositories\repository_of_riders.py" />
     <Compile Include="src\matplot\matplot_utilities.py" />
     <Compile Include="main_production_pipeline\brute16_generate_ttt_scenarios.py" />

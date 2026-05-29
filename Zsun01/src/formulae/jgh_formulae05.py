@@ -36,10 +36,10 @@ Example Usage:
 
 from collections import defaultdict
 from typing import Dict, List
-from paceline_dataclasses import RiderExertionItem, RiderWorkAssignmentItem
+from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
 from jgh_formulae02 import calculate_wattage_riding_in_the_paceline
-from rider_dataclasses import RiderComputeItem
+from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]) -> Dict[RiderComputeItem, List[RiderExertionItem]]:
@@ -53,14 +53,14 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
     Returns:
         Dict[RiderBruteItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
-            a single workload is (position, speed, duration, wattage). Each rider has a list of dict_of_rider_exertions
+            a single workload is (position, speed, duration, wattage, slope). Each rider has a list of dict_of_rider_exertions
     """
     rider_workloads: Dict[RiderComputeItem, List[RiderExertionItem]] = defaultdict(list)
     
     for rider, dict_of_rider_work_assignments in rider_work_assignments.items():
         dict_of_rider_exertions: List[RiderExertionItem] = []
         for assignment in dict_of_rider_work_assignments:
-            wattage = calculate_wattage_riding_in_the_paceline(rider, assignment.speed, assignment.position)
+            wattage = calculate_wattage_riding_in_the_paceline(rider, assignment.speed, assignment.position, assignment.slope)
             kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
             dict_of_rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
