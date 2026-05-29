@@ -11,7 +11,7 @@ from zwift_id_base import FrozenZwiftIdBase
 
 from jgh_power_curve_fit_models import decay_model_numpy
 
-# this domain model is instantiated in rider_item_builders.py
+# this domain model is instantiated in model_constructors.py
 
 @dataclass(frozen=True, eq=True)  # immutable and hashable, we use this as a dictionary key everywhere
 class RiderComputeItem(FrozenZwiftIdBase):

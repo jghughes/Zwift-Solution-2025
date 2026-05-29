@@ -5,7 +5,7 @@ from zwift_id_base import ZwiftIdBase
 from typing import Optional
 from rider_stats_dto import RiderStatsDTO
 
-# this domain model is instantiated in rider_item_builders.py
+# this domain model is instantiated in model_constructors.py
 
 @dataclass
 class RiderStatsItem(ZwiftIdBase):
@@ -123,9 +123,10 @@ class RiderStatsItem(ZwiftIdBase):
 			w_30min						= int(item.w_30min),
 			w_40min						= int(item.w_40min),
 			w_60min_curvefit			= int(item.w_60min_curvefit),
-			prediction_duration_sec		= item.prediction_duration_sec,
+			prediction_distance_km			= item.prediction_distance_km,
+			prediction_watts				= item.prediction_watts,
+			prediction_duration_sec			= item.prediction_duration_sec,
 			prediction_duration_hh_mm_ss	= item.prediction_duration_hh_mm_ss,
-			prediction_distance_km		= item.prediction_distance_km,
 			timestamp					= item.timestamp,
 		)
 
@@ -185,9 +186,10 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_30min					= dto.w_30min
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
+		item.prediction_distance_km			= dto.prediction_distance_km
+		item.prediction_watts				= dto.prediction_watts
 		item.prediction_duration_sec		= dto.prediction_duration_sec
-		item.prediction_duration_hh_mm_ss= dto.prediction_duration_hh_mm_ss
-		item.prediction_distance_km		= dto.prediction_distance_km
+		item.prediction_duration_hh_mm_ss	= dto.prediction_duration_hh_mm_ss
 		item.timestamp					= dto.timestamp
 		return item
 
