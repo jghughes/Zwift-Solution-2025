@@ -56,6 +56,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"w_60min_curvefit"						:	AliasChoices("w_60min_curvefit", "w60minCurvefit"),
 	"prediction_distance_km"				:	AliasChoices("prediction_distance_km", "predictionDistanceKm"),
 	"prediction_watts"						:	AliasChoices("prediction_watts", "predictionWatts"),
+	"prediction_wkg"						:	AliasChoices("prediction_wkg", "predictionWkg"),
 	"prediction_duration_sec"				:	AliasChoices("prediction_duration_sec", "predictionDurationSec"),
 	"prediction_duration_hh_mm_ss"			:	AliasChoices("prediction_duration_hh_mm_ss", "predictionDurationHhMmSs"),
 	"timestamp"								:	AliasChoices("timestamp", "timestamp"),
@@ -125,6 +126,7 @@ class RiderStatsDTO(BaseModel):
 	w_60min_curvefit						:	float	=	0.0
 	prediction_distance_km					:	float	=	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
 	prediction_watts						:	float	=	0.0 # Predicted watts for the specified distance
+	prediction_wkg							:	float	=	0.0 # Predicted watts per kg for the specified distance
 	prediction_duration_sec					: 	float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
 	prediction_duration_hh_mm_ss			: 	str		=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
 	timestamp								:	str		=	""

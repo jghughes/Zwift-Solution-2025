@@ -146,23 +146,30 @@ def read_many_files_named_by_zwiftId_to_dict_sync(
     return answer
 
 def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftItem]:
-    return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftDTO, 
                                                          ZwiftItem, 
                                                          ZwiftItem.from_dataTransferObject)
 
+    #zeroise the height of each zwift item, at stewart's temporary request
+    # for item in answer.values():
+    #     item.height_mm = 0.0
+
+    return answer
+
 def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
-    return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftRacingAppDTO, 
                                                          ZwiftRacingAppItem, 
                                                          ZwiftRacingAppItem.from_dataTransferObject)
+    return answer
 
 def read_zwiftpower90daywattsdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    return read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftPowerGraphWattsDTO, 
                                                          ZwiftPowerFlattened90dayWattsItem, 
                                                          ZwiftPowerFlattened90dayWattsItem.from_ZwiftPowerWattsDTO)
-
+    return answer

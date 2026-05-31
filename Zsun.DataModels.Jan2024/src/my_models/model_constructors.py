@@ -273,8 +273,9 @@ def construct_RiderStatsItem(
     riderStatsItem.prediction_duration_sec = round(calculate_seconds_riding_solo(jghRiderComputeItem, DISTANCE_KM_FOR_PREDICTION, SLOPE), 1)
     riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
 
-    speedKph = safe_divide((DISTANCE_KM_FOR_PREDICTION * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
-    riderStatsItem.prediction_watts = round(calculate_wattage_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 1)
+    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
+    riderStatsItem.prediction_watts = round(calculate_wattage_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 0)
+    riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
 
     return riderStatsItem
 

@@ -57,7 +57,7 @@ from numpy.typing import NDArray
 from scipy.optimize import newton
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
-from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, SAFE_INITIAL_GUESS_M_PER_S, REQUIRED_PRECISION_OF_NEWTON_SOLVER_RESIDUAL_KM
+from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM
 from jgh_formatting import truncate
 from jgh_formulae01 import estimate_drag_ratio_in_paceline, estimate_speed_from_wattage, estimate_watts_from_speed
 from jgh_number import safe_divide
@@ -140,9 +140,7 @@ def calculate_seconds_riding_solo(rider: RiderComputeItem, distanceKm: float, sl
     if distanceKm <= 0.0:
         return 0.0
 
-    safe_initial_guess_speed: float = SAFE_INITIAL_GUESS_M_PER_S * 3.6  # convert m/s to km/h
-
-    safe_initial_estimate_of_root: float = (distanceKm / safe_initial_guess_speed) * 3600.0
+    initial_estimate_of_root_sec: float = (distanceKm / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 # initial guess of duration in seconds, based on an approximate likely speed for the distance. This is not critical to be accurate, but it should be in the right ballpark to help convergence speed.
 
     def distance_residual_km(duration_seconds: float) -> float:
         if duration_seconds < 1.0:
@@ -154,12 +152,13 @@ def calculate_seconds_riding_solo(rider: RiderComputeItem, distanceKm: float, sl
         return speed_kph * (duration_seconds / 3600.0) - distanceKm
 
     try:
-        duration_seconds: float = newton(distance_residual_km, safe_initial_estimate_of_root, tol=REQUIRED_PRECISION_OF_NEWTON_SOLVER_RESIDUAL_KM)
+        duration_seconds: float = newton(distance_residual_km, initial_estimate_of_root_sec, tol=REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM)
+        print(f"calculate_seconds_riding_solo: rider {rider.zwift_id} {rider.name} distanceKm={distanceKm:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
     except RuntimeError as e:
-        raise ValueError(f"calculate_seconds_riding_solo failed to converge: {e}") from e
+        raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. calculate_seconds_riding_solo failed to converge: {e}") from e
 
     if duration_seconds <= 0.0:
-        raise ValueError(f"Solver returned non-physical duration: {duration_seconds:.4f} seconds")
+        raise ValueError(f"rider {rider.zwift_id} {rider.name} Solver returned non-physical duration: {duration_seconds:.4f} seconds")
 
     return duration_seconds
 
@@ -170,7 +169,7 @@ def calculate_wattage_riding_in_the_paceline(rider : RiderComputeItem, speed: fl
     in the peloton.
 
     Args:
-    rider (RiderBruteItem): The rider object.
+    rider (RiderComputeItem): The rider object.
     speed (float): The speed in km/h.
     position (int): The position in the peloton.
 

@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 from typing import List
 
-from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
+from constants import PULL_DURATION_OPTIONS_SEC
 from jgh_formulae02 import (
     arrange_riders_interleaved_by_1_minute_strength,
     calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
@@ -22,7 +22,7 @@ def test01():
     riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
 
     riders = arrange_riders_interleaved_by_1_minute_strength(riders) # an arbitrary choice of ordering as a test
-    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),

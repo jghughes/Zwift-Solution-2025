@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from constants import PERMISSABLE_PULL_PERIODS_SEC_AS_LIST, SLOPE
+from constants import PULL_DURATION_OPTIONS_SEC, SLOPE
 
 from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_display_objects import (
@@ -203,7 +203,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     riders = arrange_riders_interleaved_by_1_minute_strength(full_team_of_riders)
-    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
@@ -236,7 +236,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
     riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
-    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
@@ -259,7 +259,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
     riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
-    pull_periods_sec_as_list = PERMISSABLE_PULL_PERIODS_SEC_AS_LIST
+    pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),

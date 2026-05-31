@@ -69,7 +69,7 @@ from constants import (
     REQUIRED_PRECISION_OF_SPEED,
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
-    PERMISSABLE_PULL_PERIODS_SEC_AS_LIST,
+    PULL_DURATION_OPTIONS_SEC,
     SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH,
 )
 from jgh_enums import PacelinePlanTypeEnum
@@ -758,7 +758,7 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
     # pruned_sequences = pruned_sequences.tolist()
 
     if len(pruned_sequences) > ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
-        print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. We have pruned the rider sequences to be evaluated down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds or even more than a minute. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less broad.\n\n")
+        print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PULL_DURATION_OPTIONS_SEC))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. We have pruned the rider sequences to be evaluated down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds or even more than a minute. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less broad.\n\n")
 
 
     # universe_of_rotation_sequences= generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
@@ -771,7 +771,7 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
     # pruned_sequences = pruned_sequences.tolist()
 
     # if len(pruned_sequences) > ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
-    #     print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PERMISSABLE_PULL_PERIODS_SEC_AS_LIST))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_with_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
+    #     print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PULL_DURATION_OPTIONS_SEC))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_with_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
 
     start_time = time.perf_counter()
 

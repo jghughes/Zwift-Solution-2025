@@ -132,11 +132,6 @@ class RepositoryOfRiders:
 
     # Getters for the repository    
 
-    def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
-        return filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids)
-
-    def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
-        return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
 
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids)
@@ -146,6 +141,13 @@ class RepositoryOfRiders:
 
     def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
+
+    def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+        return filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids)
+
+    def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+        return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
+
 
     # ...the heavy lifting: building the repository
 

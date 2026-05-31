@@ -60,10 +60,11 @@ class RiderStatsItem(ZwiftIdBase):
 	w_30min						:	float	=	0.0
 	w_40min						:	float	=	0.0
 	w_60min_curvefit			:	float	=	0.0
-	prediction_duration_sec		: 	float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
-	prediction_duration_hh_mm_ss	: 	str		=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
-	prediction_distance_km		: float = 0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
-
+	prediction_duration_sec			: float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
+	prediction_watts				: float =	0.0 # Predicted watts for the specified distance
+	prediction_wkg					: float =	0.0 # Predicted watts per kg for the specified distance
+	prediction_duration_hh_mm_ss	: str	=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
+	prediction_distance_km			: float =	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
@@ -125,6 +126,7 @@ class RiderStatsItem(ZwiftIdBase):
 			w_60min_curvefit			= int(item.w_60min_curvefit),
 			prediction_distance_km			= item.prediction_distance_km,
 			prediction_watts				= item.prediction_watts,
+			prediction_wkg					= item.prediction_wkg,
 			prediction_duration_sec			= item.prediction_duration_sec,
 			prediction_duration_hh_mm_ss	= item.prediction_duration_hh_mm_ss,
 			timestamp					= item.timestamp,
@@ -188,6 +190,7 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_60min_curvefit			= dto.w_60min_curvefit
 		item.prediction_distance_km			= dto.prediction_distance_km
 		item.prediction_watts				= dto.prediction_watts
+		item.prediction_wkg					= dto.prediction_wkg
 		item.prediction_duration_sec		= dto.prediction_duration_sec
 		item.prediction_duration_hh_mm_ss	= dto.prediction_duration_hh_mm_ss
 		item.timestamp					= dto.timestamp
