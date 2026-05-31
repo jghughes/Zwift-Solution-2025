@@ -1,6 +1,7 @@
 
 from dataclasses import dataclass
 
+from jgh_formulae00 import calculate_frontal_area
 from zwift_id_base import ZwiftIdBase
 from typing import Optional
 from rider_stats_dto import RiderStatsDTO
@@ -60,6 +61,7 @@ class RiderStatsItem(ZwiftIdBase):
 	w_30min						:	float	=	0.0
 	w_40min						:	float	=	0.0
 	w_60min_curvefit			:	float	=	0.0
+	frontal_area_m2				:	float	=	0.0
 	prediction_duration_sec			: float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
 	prediction_watts				: float =	0.0 # Predicted watts for the specified distance
 	prediction_wkg					: float =	0.0 # Predicted watts per kg for the specified distance
@@ -124,6 +126,7 @@ class RiderStatsItem(ZwiftIdBase):
 			w_30min						= int(item.w_30min),
 			w_40min						= int(item.w_40min),
 			w_60min_curvefit			= int(item.w_60min_curvefit),
+			frontal_area_m2				= item.frontal_area_m2,
 			prediction_distance_km			= item.prediction_distance_km,
 			prediction_watts				= item.prediction_watts,
 			prediction_wkg					= item.prediction_wkg,
@@ -188,6 +191,7 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_30min					= dto.w_30min
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
+		item.frontal_area_m2			= dto.frontal_area_m2
 		item.prediction_distance_km			= dto.prediction_distance_km
 		item.prediction_watts				= dto.prediction_watts
 		item.prediction_wkg					= dto.prediction_wkg

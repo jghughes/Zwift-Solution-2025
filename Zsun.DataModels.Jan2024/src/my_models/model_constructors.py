@@ -1,6 +1,7 @@
 from typing import Optional
 from constants import DISTANCE_KM_FOR_PREDICTION, SLOPE
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
+from jgh_formulae00 import calculate_frontal_area
 from jgh_formulae02 import calculate_seconds_riding_solo, calculate_wattage_riding_solo
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
@@ -13,14 +14,9 @@ from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
 
-def construct_CurveFittingResultItem(
-    zwift_id: str,
-    coefficient_one_hour: float,
-    exponent_one_hour: float,
-    r_squared_one_hour: float,
-    coefficient_pull: float,
-    exponent_pull: float,
-    r_squared_pull: float,
+def construct_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
+    exponent_pull_curve: float,
+    r_squared_pull_best_fit: float,
     critical_power: float,
     anaerobic_work_capacity: float,
 ) -> CurveFittingResultItem:
@@ -40,11 +36,11 @@ def construct_CurveFittingResultItem(
             Exponent from the 60-minute decay model curve fit.
         r_squared_one_hour (float):
             R-squared goodness-of-fit from the 60-minute decay model.
-        coefficient_pull (float):
+        coefficient_pull_curve (float):
             Coefficient from the TTT pull decay model curve fit.
-        exponent_pull (float):
+        exponent_pull_curve (float):
             Exponent from the TTT pull decay model curve fit.
-        r_squared_pull (float):
+        r_squared_pull_best_fit (float):
             R-squared goodness-of-fit from the TTT pull decay model.
         critical_power (float):
             Raw critical power in watts from the CP/W-prime model.
@@ -61,20 +57,16 @@ def construct_CurveFittingResultItem(
         sixty_min_curve_coefficient = coefficient_one_hour,
         sixty_min_curve_exponent    = exponent_one_hour,
         sixty_min_curve_r_squared   = r_squared_one_hour,
-        TTT_pull_curve_coefficient  = coefficient_pull,
-        TTT_pull_curve_exponent     = exponent_pull,
-        TTT_pull_curve_r_squared    = r_squared_pull,
+        TTT_pull_curve_coefficient  = coefficient_pull_curve,
+        TTT_pull_curve_exponent     = exponent_pull_curve,
+        TTT_pull_curve_r_squared    = r_squared_pull_best_fit,
         CP                          = round(critical_power),
         AWC                         = round((anaerobic_work_capacity / 1_000.0), 1),
         when_curves_fitted          = get_current_utc_iso8601_timestamp(),
     )
 
 
-def construct_RiderComputeItem(
-    zwiftItem: ZwiftItem,
-    zwiftracingappItem: Optional[ZwiftRacingAppItem],
-    jghcurveItem: CurveFittingResultItem,
-) -> RiderComputeItem:
+def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
     """
     Constructs and returns a fully populated RiderComputeItem for a single rider.
 
@@ -276,6 +268,7 @@ def construct_RiderStatsItem(
     speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
     riderStatsItem.prediction_watts = round(calculate_wattage_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 0)
     riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
+    riderStatsItem.frontal_area_m2 = round(calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg), 2)
 
     return riderStatsItem
 

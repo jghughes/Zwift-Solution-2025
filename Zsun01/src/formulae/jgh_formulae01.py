@@ -46,7 +46,7 @@ from constants import (
     POWER_CURVE_IN_PACELINE,
     COEFFICIENT_bike_weight_kg,
 )
-from jgh_formulae00 import frontal_area, solve_velocity_from_power, solve_power_from_velocity
+from jgh_formulae00 import calculate_frontal_area, solve_velocity_from_power, solve_power_from_velocity
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -84,7 +84,7 @@ def estimate_watts_from_speed(kph: float, weight: float, height: float, slope: f
     Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (fraction).
     """
 
-    rider_frontal_area: float = frontal_area(height, weight)
+    rider_frontal_area: float = calculate_frontal_area(height, weight)
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
     watts = solve_power_from_velocity(kph, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope)
 
@@ -95,7 +95,7 @@ def estimate_speed_from_wattage(wattage: float, weight: float, height: float, sl
     Estimate the speed (km/h) given the power (wattage), weight (kg), height (cm), and slope (fraction)
     """
 
-    rider_frontal_area: float = frontal_area(height, weight)
+    rider_frontal_area: float = calculate_frontal_area(height, weight)
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
     speed_kmh: float = solve_velocity_from_power(wattage, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope)
 

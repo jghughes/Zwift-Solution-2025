@@ -5,7 +5,7 @@ import numpy as np
 from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg
 import warnings
 
-from jgh_formulae00 import frontal_area, solve_velocity_from_power
+from jgh_formulae00 import calculate_frontal_area, solve_velocity_from_power
 
 from jgh_number import safe_divide
 from rider_compute_dto import RiderComputeDTO   
@@ -217,7 +217,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
 
     def get_1_hour_distance_km_on_slope(self, slope : float) -> float:
-        area: float = frontal_area(self.height_cm, self.weight_kg)
+        area: float = calculate_frontal_area(self.height_cm, self.weight_kg)
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
 
         try:

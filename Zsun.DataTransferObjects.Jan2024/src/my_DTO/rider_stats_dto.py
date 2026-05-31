@@ -54,6 +54,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"w_30min"								:	AliasChoices("w_30min", "w30min"),
 	"w_40min"								:	AliasChoices("w_40min", "w40min"),
 	"w_60min_curvefit"						:	AliasChoices("w_60min_curvefit", "w60minCurvefit"),
+	"frontal_area_m2"						:	AliasChoices("frontal_area_m2", "frontalAreaM2"),
 	"prediction_distance_km"				:	AliasChoices("prediction_distance_km", "predictionDistanceKm"),
 	"prediction_watts"						:	AliasChoices("prediction_watts", "predictionWatts"),
 	"prediction_wkg"						:	AliasChoices("prediction_wkg", "predictionWkg"),
@@ -124,6 +125,7 @@ class RiderStatsDTO(BaseModel):
 	w_30min									:	float	=	0.0
 	w_40min									:	float	=	0.0
 	w_60min_curvefit						:	float	=	0.0
+	frontal_area_m2					:	float	=	0.0
 	prediction_distance_km					:	float	=	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
 	prediction_watts						:	float	=	0.0 # Predicted watts for the specified distance
 	prediction_wkg							:	float	=	0.0 # Predicted watts per kg for the specified distance

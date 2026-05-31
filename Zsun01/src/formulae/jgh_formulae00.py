@@ -27,7 +27,7 @@ such as Zwift, Golden Cheetah, and WKO.
    angle (radians). Martin et al. treat CdA as a single empirically
    measured quantity rather than estimating A from anthropometric data.
    This module follows the same physics but estimates A separately via
-   a linear anthropometric formula (see frontal_area() below and note 3).
+   a linear anthropometric formula (see calculate_frontal_area() below and note 3).
 
 2. Bassett, D.R., Kyle, C.R., Passfield, L., Broker, J.P., & Burke, E.R.
    (1999). "Comparing cycling world hour records, 1967-1996: modeling
@@ -56,6 +56,7 @@ such as Zwift, Golden Cheetah, and WKO.
    For a 75 kg rider this yields A ~= 0.394 m^2, closely matching the
    0.4 m^2 reference value. Heil's power-law formula would be a more rigorously
    validated single-variable alternative if a change were ever desired.
+   (Note from JGH: this needs to be checked. I am dubious.)
 
 4. Padilla, S., Mujika, I., Angulo, F., & Goiriena, J.J. (2000).
    "Scientific approach to the 1-h cycling world record." Journal of
@@ -69,8 +70,8 @@ such as Zwift, Golden Cheetah, and WKO.
    cannot be measured directly.
 
 5. I have no idea where ChatGPT got the linear formula used in this module
-    but it seems to work. 
-
+    but it seems to work. The biggest guy in the club has 0.5 m**2 and the 
+    smallest girl has 0.28 m**2, and the formula gives reasonable estimates for both. 
 """
 
 
@@ -133,7 +134,7 @@ def _calculate_gravity_and_rolling_forces(Crr: float, total_mass: float, slope: 
     
     return F_roll, F_gravity
 
-def frontal_area(height_cm: float, weight_kg: float) -> float:
+def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
     """
     Estimate the frontal area (A) of a cyclist in square meters (m^2) using
     a simple linear formula based on both height and weight.
@@ -201,8 +202,8 @@ def frontal_area(height_cm: float, weight_kg: float) -> float:
     # To yield exactly 0.4 m² for (183 cm, 75 kg): (Zwift Insider's dimensions)
     # 0.0022*183 + 0.0016*75 - C = 0.4
     # C = 0.5226 - 0.4 = 0.1226
-    answer = 0.0016 * weight_kg - 0.1226 
-    # answer = 0.0022 * height_cm + 0.0016 * weight_kg - 0.1226
+    # answer = 0.0016 * weight_kg - 0.1226 # test rubbish formula that only depends on weight
+    answer = 0.0022 * height_cm + 0.0016 * weight_kg - 0.1226
 
     if answer <= 0.0:
         warnings.warn(
@@ -216,7 +217,7 @@ def frontal_area(height_cm: float, weight_kg: float) -> float:
     return answer
 
 
-def power_required(velocity_m_per_s: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
+def calculate_power_required(velocity_m_per_s: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a constant velocity, accounting for aerodynamic drag, rolling resistance,
@@ -254,7 +255,7 @@ def power_required(velocity_m_per_s: float, Cd: float, A: float, Crr: float, tot
             for a road cyclist in the drops: ~0.63.
         area (float):
             Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See frontal_area() for estimation.
+            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
         Crr (float):
             Dimensionless rolling resistance coefficient. Typical value
             for road tyres on tarmac: ~0.004.
@@ -330,7 +331,7 @@ def solve_velocity_from_power(power_watts: float, Cd: float, area: float, Crr: f
             for a road cyclist in the drops: ~0.63.
         area (float):
             Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See frontal_area() for estimation.
+            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
         Crr (float):
             Dimensionless rolling resistance coefficient. Typical value
             for road tyres on tarmac: ~0.004.
@@ -403,14 +404,14 @@ def solve_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: 
     parameters.
 
     This function is a thin unit-conversion wrapper around
-    power_required(). It converts the input velocity from km/h to m/s
+    calculate_power_required(). It converts the input velocity from km/h to m/s
     (dividing by 3.6, since 1 km/h = 1000/3600 m/s) and delegates
-    directly to power_required(), which implements the full Martin et al.
+    directly to calculate_power_required(), which implements the full Martin et al.
     (1998) cycling physics model:
 
         P = v * (F_aero + F_roll + F_gravity)
 
-    See power_required() for full details of the physics, the force
+    See calculate_power_required() for full details of the physics, the force
     components, and the trig optimisations used for non-zero slopes.
 
     Args:
@@ -425,7 +426,7 @@ def solve_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: 
             for a road cyclist in the drops: ~0.63.
         area (float):
             Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See frontal_area() for estimation.
+            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
         Crr (float):
             Dimensionless rolling resistance coefficient. Typical value
             for road tyres on tarmac: ~0.004.
@@ -449,4 +450,4 @@ def solve_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: 
         raise ValueError(f"velocity_kph must be non-negative, got {velocity_kph}")
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
-    return power_required(velocity_mps, Cd, area, Crr, total_mass, slope)
+    return calculate_power_required(velocity_mps, Cd, area, Crr, total_mass, slope)
