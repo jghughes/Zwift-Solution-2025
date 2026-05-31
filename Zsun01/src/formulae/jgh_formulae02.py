@@ -25,8 +25,8 @@ Key Features:
 
 Functions:
 ----------
-- calculate_kph_riding_solo, calculate_wattage_riding_solo
-- calculate_wattage_riding_in_the_paceline, calculate_speed_riding_in_the_paceline
+- calculate_speed_riding_solo, calculate_power_riding_solo
+- calculate_power_riding_in_the_paceline, calculate_speed_riding_in_the_paceline
 - calculate_speed_at_standard_*_pull_watts, calculate_speed_at_n_second_watts
 - calculate_overall_average_watts, calculate_overall_normalized_watts
 - calculate_overall_average_speed_of_paceline_kph
@@ -44,8 +44,8 @@ Notes:
 
 Example Usage:
 --------------
-    speed = calculate_kph_riding_solo(rider, 300)
-    watts = calculate_wattage_riding_in_the_paceline(rider, 40, 2)
+    speed = calculate_speed_riding_solo(rider, 300)
+    watts = calculate_power_riding_in_the_paceline(rider, 40, 2)
     pruned = prune_all_sequences_of_pull_periods_in_the_total_solution_space(
         sequences, riders
     )
@@ -59,7 +59,7 @@ from scipy.optimize import newton
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM
 from jgh_formatting import truncate
-from jgh_formulae01 import estimate_drag_ratio_in_paceline, estimate_speed_from_wattage, estimate_watts_from_speed
+from jgh_formulae01 import estimate_drag_ratio_in_paceline, solve_for_speed_from_wattage, estimate_watts_from_speed
 from jgh_number import safe_divide
 from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
@@ -67,7 +67,7 @@ from rider_compute_item import RiderComputeItem
 
 # All of these functions are called during parallel processing. Logging forbidden
 
-def calculate_kph_riding_solo(rider : RiderComputeItem, power: float, slope: float = 0.0) -> float:
+def calculate_speed_riding_solo(rider : RiderComputeItem, power: float, slope: float = 0.0) -> float:
     """
     Estimate the speed (km/h) given the power (wattage), weight_kg (kg), and 
     height_cm (cm) using the Newton-Raphson method.
@@ -78,11 +78,10 @@ def calculate_kph_riding_solo(rider : RiderComputeItem, power: float, slope: flo
     Returns:
     float: The estimated speed in km/h.
     """
-    # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(power, rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(power, rider.weight_kg, rider.height_cm, slope)
     return speed_kph
 
-def calculate_wattage_riding_solo(rider : RiderComputeItem, speed: float, slope: float = 0.0) -> float:
+def calculate_power_riding_solo(rider : RiderComputeItem, speed: float, slope: float = 0.0) -> float:
     """
     Calculate the power (P) as a function of speed (km/h), weight_kg (kg), and 
     height_cm (cm).
@@ -93,11 +92,10 @@ def calculate_wattage_riding_solo(rider : RiderComputeItem, speed: float, slope:
     Returns:
     float: The calculated power in watts.
     """
-    # Calculate the power using the estimate_watts_from_speed function
     power = estimate_watts_from_speed(speed, rider.weight_kg, rider.height_cm, slope)
     return power
 
-def calculate_seconds_riding_solo(rider: RiderComputeItem, distanceKm: float, slope: float = 0.0) -> float:
+def solve_for_duration_riding_solo (rider: RiderComputeItem, distanceKm: float, slope: float = 0.0) -> float:
     """
     Calculate the duration in seconds for a rider to cover a given distance
     in kilometres, using their fitted 60-minute power-duration decay curve.
@@ -140,7 +138,7 @@ def calculate_seconds_riding_solo(rider: RiderComputeItem, distanceKm: float, sl
     if distanceKm <= 0.0:
         return 0.0
 
-    initial_estimate_of_root_sec: float = (distanceKm / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 # initial guess of duration in seconds, based on an approximate likely speed for the distance. This is not critical to be accurate, but it should be in the right ballpark to help convergence speed.
+    initial_estimate_of_root_sec: float = (distanceKm / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 
 
     def distance_residual_km(duration_seconds: float) -> float:
         if duration_seconds < 1.0:
@@ -148,22 +146,21 @@ def calculate_seconds_riding_solo(rider: RiderComputeItem, distanceKm: float, sl
 
 
         watts: float = float(decay_model_numpy(np.array([duration_seconds]), decay_curve_coefficient, decay_curve_exponent)[0])
-        speed_kph: float = estimate_speed_from_wattage(watts, rider.weight_kg, rider.height_cm, slope)
+        speed_kph: float = solve_for_speed_from_wattage(watts, rider.weight_kg, rider.height_cm, slope)
         return speed_kph * (duration_seconds / 3600.0) - distanceKm
 
     try:
         duration_seconds: float = newton(distance_residual_km, initial_estimate_of_root_sec, tol=REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM)
-        print(f"calculate_seconds_riding_solo: rider {rider.zwift_id} {rider.name} distanceKm={distanceKm:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
+        print(f"solve_for_duration_riding_solo : rider {rider.zwift_id} {rider.name} distanceKm={distanceKm:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
     except RuntimeError as e:
-        raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. calculate_seconds_riding_solo failed to converge: {e}") from e
+        raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. solve_for_duration_riding_solo  failed to converge: {e}") from e
 
     if duration_seconds <= 0.0:
         raise ValueError(f"rider {rider.zwift_id} {rider.name} Solver returned non-physical duration: {duration_seconds:.4f} seconds")
 
     return duration_seconds
 
-def calculate_wattage_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope: float = 0.0
-) -> float:
+def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope: float = 0.0) -> float:
     """
     Calculate the wattage required for a rider given their speed and position 
     in the peloton.
@@ -177,7 +174,7 @@ def calculate_wattage_riding_in_the_paceline(rider : RiderComputeItem, speed: fl
     float: The required wattage in watts.
     """
     # Calculate the base power required for the given speed
-    base_power = calculate_wattage_riding_solo(rider, speed, slope)
+    base_power = calculate_power_riding_solo(rider, speed, slope)
 
     # Get the power factor based on the rider's position in the peloton
     power_factor = estimate_drag_ratio_in_paceline(position)
@@ -205,26 +202,12 @@ def calculate_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
     # Adjust the power based on the power factor
     adjusted_watts = safe_divide(power, power_factor)
 
-    # Estimate the speed in km/h using the estimate_speed_from_wattage function
-    speed_kph = estimate_speed_from_wattage(adjusted_watts, rider.weight_kg, rider.height_cm, slope)
+    # Estimate the speed in km/h using the solve_for_speed_from_wattage function
+    speed_kph = solve_for_speed_from_wattage(adjusted_watts, rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
 def calculate_speed_at_standard_00sec_pull_watts(rider : RiderComputeItem, slope: float = 0.0) -> float:
-    """
-    Calculate the speed (km/h) for a rider at the '0-second' standard pull duration.
-
-    This is a sentinel function representing the case where no specific pull
-    duration has been assigned. It delegates to the 30-second pull calculation
-    as the shortest meaningful standard pull duration in the model.
-
-    Args:
-        rider (RiderComputeItem): The rider whose power-duration curve is used.
-        slope (float): Road slope as a ratio (e.g., 0.05 for 5%). Defaults to 0.0.
-
-    Returns:
-        float: The estimated speed in km/h, equivalent to the 30-second pull speed.
-    """
     return calculate_speed_at_standard_30sec_pull_watts(rider, slope)
 
 def calculate_speed_at_standard_30sec_pull_watts(rider : RiderComputeItem, slope: float = 0.0) -> float:
@@ -233,7 +216,7 @@ def calculate_speed_at_standard_30sec_pull_watts(rider : RiderComputeItem, slope
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_proxy_30sec_pull_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_proxy_30sec_pull_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -243,7 +226,7 @@ def calculate_speed_at_standard_1_minute_pull_watts(rider : RiderComputeItem, sl
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_proxy_1_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_proxy_1_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -253,7 +236,7 @@ def calculate_speed_at_standard_2_minute_pull_watts(rider : RiderComputeItem, sl
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_proxy_2_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_proxy_2_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -263,7 +246,7 @@ def calculate_speed_at_standard_3_minute_pull_watts(rider : RiderComputeItem, sl
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_proxy_3_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_proxy_3_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -273,7 +256,7 @@ def calculate_speed_at_standard_4_minute_pull_watts(rider : RiderComputeItem, sl
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_proxy_4_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_proxy_4_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -286,7 +269,7 @@ def calculate_speed_at_n_second_watts(rider : RiderComputeItem, seconds: float, 
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_n_second_curvefit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_n_second_curvefit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 
@@ -296,7 +279,7 @@ def calculate_speed_at_one_hour_watts(rider : RiderComputeItem, slope: float = 0
     Returns:
     float: The estimated speed in km/h.
     """
-    speed_kph = estimate_speed_from_wattage(rider.get_1_hour_curvefit_watts(), rider.weight_kg, rider.height_cm, slope)
+    speed_kph = solve_for_speed_from_wattage(rider.get_1_hour_curvefit_watts(), rider.weight_kg, rider.height_cm, slope)
         
     return speed_kph
 

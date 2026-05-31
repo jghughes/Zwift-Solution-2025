@@ -113,7 +113,6 @@ def _validate_physical_params(Cd: float, area : float, Crr: float, total_mass: f
     if total_mass < 0.0:
         raise ValueError(f"total_mass must be non-negative, got {total_mass}")
 
-
 def _calculate_gravity_and_rolling_forces(Crr: float, total_mass: float, slope: float) -> tuple[float, float]:
     """
     Calculate the rolling resistance and gravitational forces.
@@ -216,80 +215,79 @@ def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
         return LOWER_BOUND_FRONTAL_AREA_CLAMP
     return answer
 
+# def calculate_power_required(velocity_m_per_s: float, Cd: float, area: float, Crr: float, total_mass: float, slope: float) -> float:
+#     """
+#     Calculate the mechanical power (W) required for a cyclist to maintain
+#     a constant velocity, accounting for aerodynamic drag, rolling resistance,
+#     and gravitational force on a gradient.
 
-def calculate_power_required(velocity_m_per_s: float, Cd: float, A: float, Crr: float, total_mass: float, slope: float) -> float:
-    """
-    Calculate the mechanical power (W) required for a cyclist to maintain
-    a constant velocity, accounting for aerodynamic drag, rolling resistance,
-    and gravitational force on a gradient.
+#     The model is based on Martin et al. (1998) and implements:
 
-    The model is based on Martin et al. (1998) and implements:
+#         P = v * (F_aero + F_roll + F_gravity)
 
-        P = v * (F_aero + F_roll + F_gravity)
+#     where each force component is:
 
-    where each force component is:
+#         F_aero    = 0.5 * rho * Cd * A * v^2          [N]
+#         F_roll    = Crr * total_mass * g * cos(theta)  [N]
+#         F_gravity = total_mass * g * sin(theta)        [N]
 
-        F_aero    = 0.5 * rho * Cd * A * v^2          [N]
-        F_roll    = Crr * total_mass * g * cos(theta)  [N]
-        F_gravity = total_mass * g * sin(theta)        [N]
+#     and theta = atan(slope) is the road angle in radians.
 
-    and theta = atan(slope) is the road angle in radians.
+#     The trig terms are evaluated using the closed-form identities:
 
-    The trig terms are evaluated using the closed-form identities:
+#         sin(atan(slope)) = slope / sqrt(1 + slope^2)
+#         cos(atan(slope)) = 1     / sqrt(1 + slope^2)
 
-        sin(atan(slope)) = slope / sqrt(1 + slope^2)
-        cos(atan(slope)) = 1     / sqrt(1 + slope^2)
+#     to avoid the overhead of calling atan() during Newton-Raphson
+#     iteration. When slope == 0.0 all trig is bypassed entirely:
+#     cos(theta) = 1 and sin(theta) = 0 exactly.
 
-    to avoid the overhead of calling atan() during Newton-Raphson
-    iteration. When slope == 0.0 all trig is bypassed entirely:
-    cos(theta) = 1 and sin(theta) = 0 exactly.
+#     A negative slope (descent) causes F_gravity to become negative,
+#     correctly reducing the required power. No special-casing is needed.
 
-    A negative slope (descent) causes F_gravity to become negative,
-    correctly reducing the required power. No special-casing is needed.
+#     Args:
+#         velocity_m_per_s (float):
+#             Cyclist velocity in metres per second (m/s). Must be >= 0.
+#         Cd (float):
+#             Dimensionless aerodynamic drag coefficient. Typical value
+#             for a road cyclist in the drops: ~0.63.
+#         area (float):
+#             Frontal area in square metres (m^2). Typical value for a
+#             road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
+#         Crr (float):
+#             Dimensionless rolling resistance coefficient. Typical value
+#             for road tyres on tarmac: ~0.004.
+#         total_mass (float):
+#             Combined mass of rider and bicycle in kilograms (kg).
+#         slope (float):
+#             Road gradient expressed as a dimensionless ratio
+#             (rise / run). For example, a 5% climb is slope = 0.05,
+#             a 5% descent is slope = -0.05. Flat terrain is slope = 0.0.
 
-    Args:
-        velocity_m_per_s (float):
-            Cyclist velocity in metres per second (m/s). Must be >= 0.
-        Cd (float):
-            Dimensionless aerodynamic drag coefficient. Typical value
-            for a road cyclist in the drops: ~0.63.
-        area (float):
-            Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
-        Crr (float):
-            Dimensionless rolling resistance coefficient. Typical value
-            for road tyres on tarmac: ~0.004.
-        total_mass (float):
-            Combined mass of rider and bicycle in kilograms (kg).
-        slope (float):
-            Road gradient expressed as a dimensionless ratio
-            (rise / run). For example, a 5% climb is slope = 0.05,
-            a 5% descent is slope = -0.05. Flat terrain is slope = 0.0.
+#     Returns:
+#         float: Required mechanical power in watts (W).
 
-    Returns:
-        float: Required mechanical power in watts (W).
+#     Internal variables:
+#         rho (float):  Air density at sea level, kg/m^3 (from constants).
+#         g   (float):  Gravitational acceleration, m/s^2 (from constants).
+#         F_aero (float):    Aerodynamic drag force, N.
+#         F_roll (float):    Rolling resistance force, N.
+#         F_gravity (float): Gravitational component force along slope, N.
+#         F_total (float):   Sum of all resistive forces, N.
+#         _hyp (float):      sqrt(1 + slope^2), dimensionless; used to
+#                            evaluate sin and cos of atan(slope) without
+#                            calling atan().
+#     """
 
-    Internal variables:
-        rho (float):  Air density at sea level, kg/m^3 (from constants).
-        g   (float):  Gravitational acceleration, m/s^2 (from constants).
-        F_aero (float):    Aerodynamic drag force, N.
-        F_roll (float):    Rolling resistance force, N.
-        F_gravity (float): Gravitational component force along slope, N.
-        F_total (float):   Sum of all resistive forces, N.
-        _hyp (float):      sqrt(1 + slope^2), dimensionless; used to
-                           evaluate sin and cos of atan(slope) without
-                           calling atan().
-    """
+#     F_aero: float = 0.5 * rho * Cd * area * velocity_m_per_s ** 2
 
-    F_aero: float = 0.5 * rho * Cd * A * velocity_m_per_s ** 2
+#     F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope)
 
-    F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope)
+#     F_total: float = F_aero + F_roll + F_gravity
 
-    F_total: float = F_aero + F_roll + F_gravity
+#     return velocity_m_per_s * F_total
 
-    return velocity_m_per_s * F_total
-
-def solve_velocity_from_power(power_watts: float, Cd: float, area: float, Crr: float, total_mass: float, slope: float) -> float:
+def solve_for_velocity_from_power(power_watts: float, Cd: float, area: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given
@@ -390,24 +388,20 @@ def solve_velocity_from_power(power_watts: float, Cd: float, area: float, Crr: f
     try:
         v_solution: float = newton(power_difference_equation, initial_estimate_of_root_meters_per_sec, fprime=power_derivative_equation, tol=required_precision_meters_per_sec)
     except RuntimeError as e:
-        raise ValueError(f"solve_velocity_from_power failed to converge: {e}") from e
+        raise ValueError(f"solve_for_velocity_from_power failed to converge: {e}") from e
 
     if v_solution < 0.0:
         raise ValueError(f"Solver returned negative velocity: {v_solution:.4f} m/s")
 
     return v_solution * 3.6  # convert to kph
 
-def solve_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: float, total_mass: float, slope: float) -> float:
+def calculate_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: float, total_mass: float, slope: float) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
     parameters.
 
-    This function is a thin unit-conversion wrapper around
-    calculate_power_required(). It converts the input velocity from km/h to m/s
-    (dividing by 3.6, since 1 km/h = 1000/3600 m/s) and delegates
-    directly to calculate_power_required(), which implements the full Martin et al.
-    (1998) cycling physics model:
+    This function implements the full Martin et al. (1998) cycling physics model:
 
         P = v * (F_aero + F_roll + F_gravity)
 
@@ -440,14 +434,22 @@ def solve_power_from_velocity(velocity_kph: float, Cd: float, area: float, Crr: 
     Returns:
         float: Required mechanical power in watts (W).
 
-    Internal variables:
-        velocity_mps (float): Speed converted to metres per second (m/s),
-                   computed as velocity_kph / 3.6.
     """
 
     _validate_physical_params(Cd, area, Crr, total_mass)
+
     if velocity_kph < 0.0:
         raise ValueError(f"velocity_kph must be non-negative, got {velocity_kph}")
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
-    return calculate_power_required(velocity_mps, Cd, area, Crr, total_mass, slope)
+
+    F_aero: float = 0.5 * rho * Cd * area * velocity_mps ** 2
+
+    F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope)
+
+    F_total: float = F_aero + F_roll + F_gravity
+
+    return F_total * velocity_mps
+
+
+    # return calculate_power_required(velocity_mps, Cd, area, Crr, total_mass, slope)

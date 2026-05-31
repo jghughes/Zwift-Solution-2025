@@ -2,7 +2,7 @@ from typing import Optional
 from constants import DISTANCE_KM_FOR_PREDICTION, SLOPE
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_formulae00 import calculate_frontal_area
-from jgh_formulae02 import calculate_seconds_riding_solo, calculate_wattage_riding_solo
+from jgh_formulae02 import solve_for_duration_riding_solo , calculate_power_riding_solo
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 
@@ -120,13 +120,8 @@ def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optiona
     )
 
 
-def construct_RiderStatsItem(
-    zwiftItem: ZwiftItem,
-    zwiftracingappItem: Optional[ZwiftRacingAppItem],
-    jghRiderComputeItem: Optional[RiderComputeItem],
-    watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem],
-    projected_accelerated_level: int,
-) -> RiderStatsItem:
+def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
+                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -262,11 +257,11 @@ def construct_RiderStatsItem(
     )
 
     riderStatsItem.prediction_distance_km = round(DISTANCE_KM_FOR_PREDICTION, 1)
-    riderStatsItem.prediction_duration_sec = round(calculate_seconds_riding_solo(jghRiderComputeItem, DISTANCE_KM_FOR_PREDICTION, SLOPE), 1)
+    riderStatsItem.prediction_duration_sec = round(solve_for_duration_riding_solo (jghRiderComputeItem, DISTANCE_KM_FOR_PREDICTION, SLOPE), 1)
     riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
 
     speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
-    riderStatsItem.prediction_watts = round(calculate_wattage_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 0)
+    riderStatsItem.prediction_watts = round(calculate_power_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 0)
     riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
     riderStatsItem.frontal_area_m2 = round(calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg), 2)
 

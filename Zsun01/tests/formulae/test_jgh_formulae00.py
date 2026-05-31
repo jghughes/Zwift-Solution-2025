@@ -1,6 +1,6 @@
 
 from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, SLOPE, COEFFICIENT_bike_weight_kg
-from jgh_formulae00 import calculate_frontal_area, solve_velocity_from_power
+from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power
 
 import time
 import logging
@@ -27,7 +27,7 @@ def test00():
     # Calculations
     A: float = calculate_frontal_area(height_cm, rider_weight)
     total_mass: float = rider_weight + bike_weight
-    speed_kmh: float = solve_velocity_from_power(power, Cd, A, Crr, total_mass, gradient)
+    speed_kmh: float = solve_for_velocity_from_power(power, Cd, A, Crr, total_mass, gradient)
 
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on flat terrain")
 
