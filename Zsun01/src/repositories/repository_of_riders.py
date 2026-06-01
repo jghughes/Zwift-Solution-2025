@@ -3,6 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
 
+from constants import DISTANCE_KM_FOR_SEGMENT, SLOPE_OF_SEGMENT
+
 from paceline_modelling_items import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
@@ -307,6 +309,8 @@ class RepositoryOfRiders:
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
                 projected_accelerated_level,
+                DISTANCE_KM_FOR_SEGMENT,
+                SLOPE_OF_SEGMENT,
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")

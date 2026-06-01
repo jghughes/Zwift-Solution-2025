@@ -57,7 +57,12 @@ from numpy.typing import NDArray
 from scipy.optimize import newton
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
-from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM
+from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM, CHUNK_OF_WATTS_PER_ITERATION, MAX_WATTS_FOR_ITERATION, SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH, REQUIRED_PRECISION_OF_WATTS, MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION
+
+
+
+
+
 from jgh_formatting import truncate
 from jgh_formulae01 import estimate_drag_ratio_in_paceline, solve_for_speed_from_wattage, estimate_watts_from_speed
 from jgh_number import safe_divide
@@ -845,3 +850,109 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
         [seq[idx] for idx in index_map] for seq in arr_valid_combinations
     ]
     return np.array(reordered_combinations, dtype=np.float64)
+
+def calculate_route_time_for_constant_power(rider: RiderComputeItem, segments: List[Tuple[float, float]], power_watts: float) -> float:
+    """
+    Calculate the total duration (in seconds) required to ride a multi-segment route at a constant power output.
+    
+    Args:
+        rider (RiderComputeItem): The rider attempting the route.
+        segments (List[Tuple[float, float]]): A list of tuples, each containing (distance_km, slope_fraction).
+        power_watts (float): The constant wattage to maintain over the route.
+        
+    Returns:
+        float: The sum of the durations across all segments.
+    """
+    total_duration_sec = 0.0
+    for distance_km, slope in segments:
+        speed_kph = calculate_speed_riding_solo(rider, power_watts, slope)
+        
+        # Guard against zero or negative speeds breaking the duration math
+        if speed_kph <= 0:
+            return float('inf') 
+            
+        speed_meters_per_second = speed_kph / 3.6
+        distance_meters = distance_km * 1000.0
+        
+        segment_duration_sec = distance_meters / speed_meters_per_second
+        total_duration_sec += segment_duration_sec
+        
+    return total_duration_sec
+
+def solve_for_duration_on_multi_segment_route(rider: RiderComputeItem, segments: List[Tuple[float, float]]) -> List[Tuple[float, float, float]]:
+    """
+    Solves for the optimal constant power output over a multi-segment route and returns the duration details.
+    
+    This function uses a binary search pattern parallel to the paceline solvers found elsewhere 
+    in the solution, adapted for Wattage bounds against a rider's duration curve.
+
+    Args:
+        rider (RiderComputeItem): The rider profile containing their power curve model.
+        segments (List[Tuple[float, float]]): A list of tuples, each containing (distance_km, slope_fraction).
+
+    Returns:
+        List[Tuple[float, float, float]]: A simulated route breakdown containing 
+        (distance_km, slope_fraction, segment_duration_sec) for the optimized sustainable power.
+    """
+    if not segments:
+        return []
+
+    # 1. Setup Variables
+    lowest_conceivable_power_watts = 50.0  
+    lower_bound_watts = lowest_conceivable_power_watts
+    upper_bound_watts = lower_bound_watts
+
+    # 2. Find Safe Upper Bound
+    compute_iterations_performed = 0
+    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH):
+        simulated_total_duration_sec = calculate_route_time_for_constant_power(rider, segments, upper_bound_watts)
+        
+        # Guard against mathematically impossible infinite times on steep inclines at low bounds
+        if simulated_total_duration_sec == float('inf'):
+             max_power_for_duration = 0.0 # Force loop to increase watts if we can't move forward
+        else:
+             max_power_for_duration = rider.get_1_hour_curvefit_watts() if simulated_total_duration_sec > 864000 else decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
+
+        # Did we push the guess power past what the rider is capable of for the time it took?
+        if upper_bound_watts > max_power_for_duration:
+            break
+            
+        upper_bound_watts += CHUNK_OF_WATTS_PER_ITERATION
+        compute_iterations_performed += 1
+    else:
+        # Failsafe: if we max out iterations finding upper bound, return simple empty
+        return []
+
+    # 3. Binary Search
+    while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and compute_iterations_performed < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
+        mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
+        
+        simulated_total_duration_sec = calculate_route_time_for_constant_power(rider, segments, mid_point_watts)
+        
+        if simulated_total_duration_sec == float('inf'):
+            max_power_for_duration = 0.0
+        else:
+             max_power_for_duration = rider.get_1_hour_curvefit_watts() if simulated_total_duration_sec > 864000 else decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
+
+        compute_iterations_performed += 1
+
+        if mid_point_watts > max_power_for_duration:
+            upper_bound_watts = mid_point_watts
+        else:
+            lower_bound_watts = mid_point_watts
+
+    # 4. Final generation with the converged sustainable power guess (upper_bound is safest constraint)
+    converged_power_watts = upper_bound_watts
+    final_route_result: List[Tuple[float, float, float]] = []
+
+    for distance_km, slope in segments:
+        speed_kph = calculate_speed_riding_solo(rider, converged_power_watts, slope)
+        
+        if speed_kph <= 0:
+            final_route_result.append((distance_km, slope, float('inf')))
+            continue
+            
+        segment_duration_sec = (distance_km * 1000.0) / (speed_kph / 3.6)
+        final_route_result.append((distance_km, slope, segment_duration_sec))
+        
+    return final_route_result

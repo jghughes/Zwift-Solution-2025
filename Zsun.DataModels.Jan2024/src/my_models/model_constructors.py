@@ -1,5 +1,5 @@
 from typing import Optional
-from constants import DISTANCE_KM_FOR_PREDICTION, SLOPE
+from constants import DISTANCE_KM_FOR_SEGMENT, SLOPE_OF_SEGMENT
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_formulae00 import calculate_frontal_area
 from jgh_formulae02 import solve_for_duration_riding_solo , calculate_power_riding_solo
@@ -121,7 +121,8 @@ def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optiona
 
 
 def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
-                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,) -> RiderStatsItem:
+                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,
+                             segment_distance_km: float, segment_slope: float) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -151,6 +152,10 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         projected_accelerated_level (int):
             The rider's projected level under the accelerated levelling-up scheme.
             Set to 0 if the rider was not present in the launch-date snapshot file.
+        segment_distance_km (float):
+            The segment distance in kilometers used to calculate the predicted duration and power.
+        segment_slope (float):
+            The gradient (slope) of the segment used to calculate the predicted duration and power.
 
     Returns:
         RiderStatsItem: A fully populated rider statistics item.
@@ -256,14 +261,12 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         riderStatsItem, watts_90_day_item, weight_kg
     )
 
-    riderStatsItem.prediction_distance_km = round(DISTANCE_KM_FOR_PREDICTION, 1)
-    riderStatsItem.prediction_duration_sec = round(solve_for_duration_riding_solo (jghRiderComputeItem, DISTANCE_KM_FOR_PREDICTION, SLOPE), 1)
+    riderStatsItem.segment_distance_km = round(segment_distance_km, 1)
+    riderStatsItem.prediction_duration_sec = round(solve_for_duration_riding_solo(jghRiderComputeItem, segment_distance_km, segment_slope), 1)
     riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
 
-    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
-    riderStatsItem.prediction_watts = round(calculate_power_riding_solo(jghRiderComputeItem, speedKph, SLOPE), 0)
+    speedKph = safe_divide((riderStatsItem.segment_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
+    riderStatsItem.prediction_watts = round(calculate_power_riding_solo(jghRiderComputeItem, speedKph, segment_slope), 0)
     riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
-    riderStatsItem.frontal_area_m2 = round(calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg), 2)
 
     return riderStatsItem
-

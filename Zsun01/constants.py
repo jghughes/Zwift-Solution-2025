@@ -50,6 +50,12 @@ SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD = 512 # Below this threshold, serial-pro
 
 ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL = 1000 # Emprically researched. See test01() in formula08.py for details of the determination. The sweet zone is 1,000 - 2,500, which keeps compute time within a 7 - 14sec time-frame for up to 6 riders. This constant is an aspirational  target. If the solution space is smaller than 1,000, we do not prune it. We use brute force to analyse and solve the solution space without compromise. If the solution space is more than 1,000, we throw the pruning algorithm at it. The algorithm breaks as soon as the pruned space dips below 1,000. if the algorithm goes all the way and the solution space is still more than 1,000, that's the end of the story. We analyse the space that remains, no matter how time-consuming. The Cartesian cross product of eight riders and seven pull sequences generates a solution space of 5.76 million which takes literally days to compute. The algorithm prunes this down to 3,003 which is manageable (39sec compute time). 
 
-DISTANCE_KM_FOR_PREDICTION = 19.6 # The distance in kilometers for which the predicted duration is calculated. This is a fixed value used in the model to provide a standardized prediction of performance over a specific distance. It is not derived from any specific mathematical or domain-specific principle, but rather serves as a practical benchmark for performance prediction. If you want a base case, 19.6 km is the lead-in to one lap of Tempus Fugit which is a flat TT route on Zwift. 12.44 km is Alpe du Zwift.
+DISTANCE_KM_FOR_SEGMENT = 19.6 # The distance in kilometers for which the predicted duration is calculated. This is a fixed value used in the model to provide a standardized prediction of performance over a specific distance. It is not derived from any specific mathematical or domain-specific principle, but rather serves as a practical benchmark for performance prediction. If you want a base case, 19.6 km is the lead-in to one lap of Tempus Fugit which is a flat TT route on Zwift. 12.44 km is Alpe du Zwift.
 
-SLOPE: float = 0.00  # gradient is the same as slope and is height gained divided by distance travelled on the slope.i.e a fraction. If we were modeling a climb with a 5% slope, we would set SLOPE to 0.05. 8.5% or 0.085 is the slope of Alpe du Zwift. 
+SLOPE_OF_SEGMENT: float = 0.00  # gradient is the same as slope and is height gained divided by distance travelled on the slope.i.e a fraction. If we were modeling a climb with a 5% slope, we would set SLOPE_OF_SEGMENT to 0.05. 8.5% or 0.085 is the slope of Alpe du Zwift. 
+
+CHUNK_OF_WATTS_PER_ITERATION = 20.0 # Starting at lowest conceivable power, the watts are increased by this chunk in each iteration.
+REQUIRED_PRECISION_OF_WATTS = 1.0 # The desired precision for the power binary search algorithm.
+
+
+
