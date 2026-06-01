@@ -37,8 +37,8 @@ Example Usage:
 from collections import defaultdict
 from typing import Dict, List
 from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
-from jgh_formulae01 import estimate_kilojoules_from_wattage_and_time
-from jgh_formulae02 import calculate_power_riding_in_the_paceline
+from jgh_formulae01 import calculate_kilojoules_from_wattage_and_time
+from jgh_formulae03 import calculate_power_riding_in_the_paceline
 from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
@@ -48,10 +48,10 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
     
     Args:
         speed (float): The speed of the paceline.
-        rider_work_assignments (Dict[RiderBruteItem, List[RiderWorkAssignmentItem]): The dictionary of rider workunits.
+        rider_work_assignments (Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]): The dictionary of rider workunits.
 
     Returns:
-        Dict[RiderBruteItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
+        Dict[RiderComputeItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage, slope). Each rider has a list of dict_of_rider_exertions
     """
@@ -61,7 +61,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
         dict_of_rider_exertions: List[RiderExertionItem] = []
         for assignment in dict_of_rider_work_assignments:
             wattage = calculate_power_riding_in_the_paceline(rider, assignment.speed, assignment.position, assignment.slope)
-            kilojoules = estimate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
+            kilojoules = calculate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
 
             dict_of_rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
         rider_workloads[rider] = dict_of_rider_exertions

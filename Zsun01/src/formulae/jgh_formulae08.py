@@ -79,13 +79,13 @@ from jgh_formatting import (
     format_pretty_duration_hms,
     truncate,
 )
-from jgh_formulae02 import (
+from jgh_formulae03 import (
     calculate_dispersion_of_intensity_of_effort,
-    calculate_lower_bound_paceline_speed,
-    calculate_lower_bound_paceline_speed_at_one_hour_watts,
+    solve_for_lower_bound_paceline_speed,
+    solve_for_lower_bound_paceline_speed_at_one_hour_watts,
     calculate_overall_average_speed_of_paceline_kph,
-    calculate_upper_bound_paceline_speed,
-    calculate_upper_bound_paceline_speed_at_one_hour_watts,
+    solve_for_upper_bound_paceline_speed,
+    solve_for_upper_bound_paceline_speed_at_one_hour_watts,
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
 )
 from jgh_formulae04 import populate_rider_work_assignments
@@ -103,10 +103,10 @@ def log_multiline(lines: list[str]) -> None:
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[RiderComputeItem]):
 
-    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = calculate_upper_bound_paceline_speed(riders)
-    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = calculate_upper_bound_paceline_speed_at_one_hour_watts(riders)
-    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = calculate_lower_bound_paceline_speed(riders)
-    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = calculate_lower_bound_paceline_speed_at_one_hour_watts(riders)
+    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = solve_for_upper_bound_paceline_speed(riders)
+    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders)
+    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders)
+    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders)
 
     message_lines = [
         "\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans:\n",

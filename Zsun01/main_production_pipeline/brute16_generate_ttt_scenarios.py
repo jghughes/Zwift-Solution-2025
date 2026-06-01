@@ -31,7 +31,7 @@ from paceline_display_objects import (
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_azure_storage_service_client import AzureStorageServiceClient
-from jgh_formulae02 import (
+from jgh_formulae03 import (
     arrange_riders_by_1_minute_strength,
     arrange_riders_by_zwiftracingapp_zpFTP_strength,
     arrange_riders_interleaved_by_1_minute_strength,

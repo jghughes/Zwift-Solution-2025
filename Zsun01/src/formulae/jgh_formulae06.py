@@ -42,7 +42,7 @@ from tabulate import tabulate
 from typing import Dict, List, Tuple
 
 from paceline_modelling_items import RiderContributionItem, RiderExertionItem
-from jgh_formulae02 import calculate_overall_average_watts, calculate_overall_normalized_watts
+from jgh_formulae03 import calculate_overall_average_watts, calculate_overall_normalized_watts
 from jgh_number import safe_divide
 from rider_compute_item import RiderComputeItem
 

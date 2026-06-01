@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 from constants import PULL_DURATION_OPTIONS_SEC
-from jgh_formulae02 import (
+from jgh_formulae03 import (
     arrange_riders_interleaved_by_1_minute_strength,
     calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,

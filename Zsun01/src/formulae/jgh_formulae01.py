@@ -18,11 +18,11 @@ Key Features:
 
 Functions:
 ----------
-- estimate_drag_ratio_in_paceline(position):
+- calculate_drag_ratio_in_paceline(position):
   Estimate the drag reduction factor for a rider's position.
-- estimate_kilojoules_from_wattage_and_time(wattage, duration):
+- calculate_kilojoules_from_wattage_and_time(wattage, duration):
   Compute energy expenditure in kilojoules.
-- estimate_watts_from_speed(kph, weight, height, slope):
+- calculate_watts_from_speed(kph, weight, height, slope):
   Calculate required power for a given speed.
 - solve_for_speed_from_wattage(wattage, weight, height, slope):
   Estimate speed from rider wattage.
@@ -35,8 +35,8 @@ Notes:
 Example Usage:
 --------------
     speed = solve_for_speed_from_wattage(300, 75, 183, 0.0)
-    watts = estimate_watts_from_speed(40, 75, 183, 0.0)
-    drag_factor = estimate_drag_ratio_in_paceline(3)
+    watts = calculate_watts_from_speed(40, 75, 183, 0.0)
+    drag_factor = calculate_drag_ratio_in_paceline(3)
 """
 
 
@@ -50,7 +50,7 @@ from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power
 
 # All of these functions are called during parallel processing. Logging forbidden
 
-def estimate_drag_ratio_in_paceline(position: int) -> float:
+def calculate_drag_ratio_in_paceline(position: int) -> float:
     """
     Calculate the power factor based on the rider's position in the peloton.
     The leader's factor is 1.0. Follower's in the paceline are based on ZwiftInsider's
@@ -66,7 +66,7 @@ def estimate_drag_ratio_in_paceline(position: int) -> float:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator
 
-def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
+def calculate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
     
@@ -79,7 +79,7 @@ def estimate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -
     """
     return wattage * duration/1_000
 
-def estimate_watts_from_speed(kph: float, weight: float, height: float, slope: float) -> float:
+def calculate_watts_from_speed(kph: float, weight: float, height: float, slope: float) -> float:
     """
     Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (fraction).
     """

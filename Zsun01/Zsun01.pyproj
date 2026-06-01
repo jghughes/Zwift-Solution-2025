@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>main_production_pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;src\compute;main_little_utilities;main_tools;src\display_objects;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;main_little_utilities;main_tools;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline;src\paceline_display</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -45,7 +45,7 @@
     <Folder Include="vs2022_project_refactoring\" />
     <Folder Include="src\working_file_read_write\" />
     <Folder Include="src\formulae\" />
-    <Folder Include="src\enums\" />
+    <Folder Include="src\paceline_display\" />
     <Folder Include="src\azure\" />
     <Folder Include="src\repositories\" />
     <Folder Include="main_production_pipeline\" />
@@ -68,6 +68,8 @@
     <Compile Include="main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
     <Compile Include="main_production_pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
+    <Compile Include="src\paceline_display\paceline_display_objects.py" />
+    <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\zwiftid_file_import\zwiftid_file_fetcher_async.py" />
@@ -79,7 +81,7 @@
     <Compile Include="tests\formulae\test_cyclic_paceline.py" />
     <Compile Include="tests\formulae\test_jgh_formulae00.py" />
     <Compile Include="tests\formulae\test_jgh_formulae01.py" />
-    <Compile Include="tests\formulae\test_jgh_formulae02.py" />
+    <Compile Include="tests\formulae\test_jgh_formulae03.py" />
     <Compile Include="tests\formulae\test_jgh_formulae04.py" />
     <Compile Include="tests\formulae\test_jgh_formulae05.py" />
     <Compile Include="tests\formulae\test_jgh_formulae06.py" />
@@ -106,9 +108,9 @@
     <Compile Include="src\html\paceline_plan_captions.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\enums\jgh_enums.py" />
+    <Compile Include="src\paceline_display\jgh_enums.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
-    <Compile Include="src\formulae\jgh_formulae09.py">
+    <Compile Include="src\paceline_display\jgh_formulae09.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
