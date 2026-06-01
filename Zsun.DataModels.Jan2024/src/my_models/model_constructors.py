@@ -1,7 +1,8 @@
 from typing import Optional
-from constants import DISTANCE_KM_FOR_SEGMENT, SLOPE_OF_SEGMENT
+from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
-from jgh_formulae02 import solve_for_duration_on_single_segment , calculate_power_riding_solo
+from jgh_formulae00 import calculate_frontal_area
+from jgh_formulae02 import solve_for_fastest_achievable_time_by_rider_for_segment_using_newton , calculate_hypothetical_power_of_rider_at_given_speed
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 
@@ -11,6 +12,7 @@ from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
+from route_segment_item import RouteSegmentItem
 
 
 def construct_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
@@ -121,7 +123,7 @@ def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optiona
 
 def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
                              watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,
-                             segment_distance_km: float, segment_slope: float) -> RiderStatsItem:
+                             segment_distance_km: float, segment_slope_per_cent: float) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -153,7 +155,7 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
             Set to 0 if the rider was not present in the launch-date snapshot file.
         segment_distance_km (float):
             The segment distance in kilometers used to calculate the predicted duration and power.
-        segment_slope (float):
+        segment_slope_per_cent (float):
             The gradient (slope) of the segment used to calculate the predicted duration and power.
 
     Returns:
@@ -260,12 +262,13 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         riderStatsItem, watts_90_day_item, weight_kg
     )
 
-    riderStatsItem.segment_distance_km = round(segment_distance_km, 1)
-    riderStatsItem.prediction_duration_sec = round(solve_for_duration_on_single_segment(jghRiderComputeItem, segment_distance_km, segment_slope), 1)
-    riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
 
-    speedKph = safe_divide((riderStatsItem.segment_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
-    riderStatsItem.prediction_watts = round(calculate_power_riding_solo(jghRiderComputeItem, speedKph, segment_slope), 0)
+    riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg)
+    riderStatsItem.prediction_distance_km = round(segment_distance_km, 1)
+    riderStatsItem.prediction_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(jghRiderComputeItem, RouteSegmentItem(num=1, distance_km=segment_distance_km, slope_per_cent=segment_slope_per_cent)), 1)
+    riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
+    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
+    riderStatsItem.prediction_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, segment_slope_per_cent), 0)
     riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
 
     return riderStatsItem

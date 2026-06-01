@@ -42,7 +42,7 @@ from paceline_modelling_items import RiderWorkAssignmentItem
 from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float], slope: float = 0.0) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float], slope_pc: float = 0.0) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
     Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
@@ -57,7 +57,7 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
         riders (List[RiderBruteItem]): The list of Zwift riders from head to tail.
         pull_durations (List[float]): The list of pull durations from head to tail.
         pull_speeds_kph (List[float]): The list of pull speeds from head to tail.
-        slope (float): The slope of the course.
+        slope_pc (float): The slope of the course in percentage.
 
     Returns:
         Dict[RiderBruteItem, List[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
@@ -88,7 +88,7 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
             if j < min_length:
                 duration = pull_durations[j]
                 speed = pull_speeds_kph[j]
-                workunit = RiderWorkAssignmentItem(position=position, duration=duration, speed=speed, slope=slope)
+                workunit = RiderWorkAssignmentItem(position=position, duration=duration, speed=speed, slope_pc=slope_pc)
             else:
                 workunit = RiderWorkAssignmentItem(position=position, slope=slope)
             workunits.append(workunit)

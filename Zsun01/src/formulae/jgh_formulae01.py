@@ -24,7 +24,7 @@ Functions:
   Compute energy expenditure in kilojoules.
 - calculate_watts_from_speed(kph, weight, height, slope):
   Calculate required power for a given speed.
-- solve_for_speed_from_wattage(wattage, weight, height, slope):
+- solve_for_speed_from_wattage_using_newton(wattage, weight, height, slope):
   Estimate speed from rider wattage.
 
 Notes:
@@ -34,7 +34,7 @@ Notes:
 
 Example Usage:
 --------------
-    speed = solve_for_speed_from_wattage(300, 75, 183, 0.0)
+    speed = solve_for_speed_from_wattage_using_newton(300, 75, 183, 0.0)
     watts = calculate_watts_from_speed(40, 75, 183, 0.0)
     drag_factor = calculate_drag_ratio_in_paceline(3)
 """
@@ -46,7 +46,7 @@ from constants import (
     POWER_CURVE_IN_PACELINE,
     COEFFICIENT_bike_weight_kg,
 )
-from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power, calculate_power_from_velocity
+from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power_using_newton, calculate_power_from_velocity
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -66,6 +66,7 @@ def calculate_drag_ratio_in_paceline(position: int) -> float:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator
 
+
 def calculate_kilojoules_from_wattage_and_time(wattage: float, duration: float) -> float:
     """
     Calculate the energy consumption given power and duration.
@@ -79,25 +80,27 @@ def calculate_kilojoules_from_wattage_and_time(wattage: float, duration: float) 
     """
     return wattage * duration/1_000
 
-def calculate_watts_from_speed(kph: float, weight: float, height: float, slope: float) -> float:
+
+def calculate_watts_from_speed(kph: float, weight: float, height: float, slope_pc: float) -> float:
     """
-    Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (fraction).
+    Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (%).
     """
 
     rider_frontal_area: float = calculate_frontal_area(height, weight)
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
-    watts = calculate_power_from_velocity(kph, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope)
+    watts = calculate_power_from_velocity(kph, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope_pc)
 
     return watts
 
-def solve_for_speed_from_wattage(wattage: float, weight: float, height: float, slope: float) -> float:
+
+def solve_for_speed_from_wattage_using_newton(wattage: float, weight: float, height: float, slope_pc: float) -> float:
     """
-    Estimate the speed (km/h) given the power (wattage), weight (kg), height (cm), and slope (fraction)
+    Estimate the speed (km/h) given the power (wattage), weight (kg), height (cm), and slope (%)
     """
 
     rider_frontal_area: float = calculate_frontal_area(height, weight)
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
-    speed_kmh: float = solve_for_velocity_from_power(wattage, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope)
+    speed_kmh: float = solve_for_velocity_from_power_using_newton(wattage, COEFFICIENT_Cd, rider_frontal_area, COEFFICIENT_Crr, rider_plus_bike_mass, slope_pc)
 
     return speed_kmh
 

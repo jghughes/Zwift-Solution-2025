@@ -64,13 +64,9 @@ from paceline_display_objects import (
     PackageOfPacelineComputationReportDisplayObject,
 )
 from constants import (
-    CHUNK_OF_KPH_PER_ITERATION,
-    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION,
-    REQUIRED_PRECISION_OF_SPEED,
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
     PULL_DURATION_OPTIONS_SEC,
-    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH,
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import (
@@ -182,7 +178,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
 
     return overall_av_speed_of_paceline, dict_of_rider_contributions
 
-def generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients: PacelineIngredientsItem,
+def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients: PacelineIngredientsItem,
 ) -> PacelineComputationReportItem:
     """
     Computes a single paceline solution that adheres to rider exertion constraints using a binary search approach.
@@ -242,7 +238,12 @@ def generate_a_single_paceline_solution_complying_with_exertion_constraints(pace
     # triggered the violation, but it is a safe upper bound. This is required for 
     # the binary search to work correctly to pin down the precise speed.
 
-    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND_KPH):
+    REQUIRED_PRECISION_OF_SPEED = 0.05 # The desired precision for the paceline speed binary search algorithm. 
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
+    CHUNK_OF_KPH_PER_ITERATION = 5.0 # Starting at SAFE_LOWER_BOUND_KPH,
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # the ample maximum number of attempts to find the upper bound for the binary search
+
+    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
 
         _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [upper_bound_for_next_search_iteration_kph] * num_riders, slope, max_exertion_intensity_factor)
 
@@ -335,7 +336,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
-        slope                           = paceline_ingredients.slope,
+        slope_pc                        = paceline_ingredients.slope_pc,
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
     paceline_computation_reports: List[PacelineComputationReportItem] = []
@@ -343,7 +344,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
     for sequence in paceline_rotation_sequence_alternatives:
         try:
             paceline_ingredients.sequence_of_pull_periods_sec = list(sequence)
-            result = generate_a_single_paceline_solution_complying_with_exertion_constraints(paceline_ingredients)
+            result = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
             answer = PacelineComputationReportItem(
                 algorithm_ran_to_completion                 = result.algorithm_ran_to_completion,
                 compute_iterations_performed_count          = result.compute_iterations_performed_count,
@@ -394,7 +395,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = paceline_ingredients.riders_list,
         pull_speeds_kph                 = [paceline_ingredients.pull_speeds_kph[0]] * len(paceline_ingredients.riders_list),
-        slope                           = paceline_ingredients.slope,   
+        slope_pc                        = paceline_ingredients.slope_pc,   
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
     list_of_instructions: List[PacelineIngredientsItem] = []    
@@ -407,7 +408,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         future_to_params = {
-            executor.submit(generate_a_single_paceline_solution_complying_with_exertion_constraints, p): p
+            executor.submit(solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search, p): p
             for p in list_of_instructions
         }
         for future in concurrent.futures.as_completed(future_to_params):
@@ -761,18 +762,6 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
         print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PULL_DURATION_OPTIONS_SEC))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. We have pruned the rider sequences to be evaluated down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds or even more than a minute. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less broad.\n\n")
 
 
-    # universe_of_rotation_sequences= generate_all_paceline_rotation_sequences_in_the_total_solution_space(len(paceline_ingredients.riders_list), paceline_ingredients.sequence_of_pull_periods_sec)
-
-    # pruned_sequences = prune_all_sequences_of_pull_periods_in_the_total_solution_space(
-    #     universe_of_rotation_sequences, paceline_ingredients.riders_list
-    # )
-
-    # # Convert to list of lists for downstream compatibility
-    # pruned_sequences = pruned_sequences.tolist()
-
-    # if len(pruned_sequences) > ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
-    #     print(f"\n\nWarning. The number of riders is {len(paceline_ingredients.riders_list)}. The number of different pull-periods in the system is {format_number_with_comma_separators(len(PULL_DURATION_OPTIONS_SEC))}. For n riders and k pull-periods, the Cartesian product generates k^n possible rider sequences to be evaluated. This is {format_number_with_comma_separators(len(universe_of_rotation_sequences))}. We have pruned these down to {format_number_with_comma_separators(len(pruned_sequences))} sequences. This is still a big number. Computation could take a while - like more than twenty seconds. If this is a problem, reduce the number of riders. Pull-periods are specified in system Constants and it would be a pity to reduce them because it would make solutions less granular.\n\n")
-
     start_time = time.perf_counter()
 
     all_computation_reports = generate_paceline_solutions_using_serial_and_parallel_algorithms(paceline_ingredients, pruned_sequences)
@@ -823,13 +812,4 @@ def generate_package_of_paceline_solutions(paceline_ingredients: PacelineIngredi
         
     return answer
 
-    # return PackageOfPacelineComputationReportItem(
-    #     total_pull_sequences_examined           = len(pruned_sequences),
-    #     total_compute_iterations_performed      = total_compute_iterations_performed,
-    #     # computational_time                      = time_taken_to_compute,
-    #     balanced_intensity_of_effort_solution   = balanced_intensity_candidate.solution,
-    #     everybody_pull_hard_solution            = everybody_pulls_hard_candidate.solution,
-    #     race_solution_with_possible_drop                        = race_candidate.solution,
-    #     all_solutions                           = all_computation_reports
-    # )
 

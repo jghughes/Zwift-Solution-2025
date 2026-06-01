@@ -5,7 +5,7 @@ import numpy as np
 from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg
 import warnings
 
-from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power
+from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power_using_newton
 
 from jgh_number import safe_divide
 from rider_compute_dto import RiderComputeDTO   
@@ -61,8 +61,8 @@ class RiderComputeItem(FrozenZwiftIdBase):
             velo_zwiftpower_zFTP_watts			= item.velo_zwiftpower_zFTP_watts,
             jgh_60_min_watts					= round(item.get_1_hour_curvefit_watts()),
             jgh_60_min_km_0pc_slope			    = round(item.get_1_hour_distance_km_on_slope(0.0),1),
-            jgh_60_min_km_2pc_slope			    = round(item.get_1_hour_distance_km_on_slope(0.02),1),
-	        jgh_60_min_km_4pc_slope			    = round(item.get_1_hour_distance_km_on_slope(0.04),1),
+            jgh_60_min_km_2pc_slope			    = round(item.get_1_hour_distance_km_on_slope(2.0),1),
+	        jgh_60_min_km_4pc_slope			    = round(item.get_1_hour_distance_km_on_slope(4.0),1),
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,
@@ -216,14 +216,14 @@ class RiderComputeItem(FrozenZwiftIdBase):
             return 0.0
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
 
-    def get_1_hour_distance_km_on_slope(self, slope : float) -> float:
+    def get_1_hour_distance_km_on_slope(self, slope_pc : float) -> float:
         area: float = calculate_frontal_area(self.height_cm, self.weight_kg)
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
 
         try:
-            speed_kmh: float = solve_for_velocity_from_power(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, area, COEFFICIENT_Crr, total_mass, slope)
+            speed_kmh: float = solve_for_velocity_from_power_using_newton(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, area, COEFFICIENT_Crr, total_mass, slope_pc)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power_using_newton failed to converge: {e}. defaulting to 0.0")
             speed_kmh = 0.0
 
         return speed_kmh

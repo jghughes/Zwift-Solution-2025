@@ -1,4 +1,4 @@
-from jgh_formulae01 import solve_for_speed_from_wattage
+from jgh_formulae01 import solve_for_speed_from_wattage_using_newton
 
 import time
 import logging
@@ -17,7 +17,7 @@ def test00():
     # for TTT, ZwiftInsider rode bog standard Zwift TT frame with Zipp 808 wheels (weight is a Zwift secret)
     # for road, ZwiftInsider rode bog standard Zwift Carbon road bike frames with Zwift 32mm carbon wheels (weight is a Zwift secret)
 
-    speed_kmh: float = solve_for_speed_from_wattage(power, rider_weight, height_cm)
+    speed_kmh: float = solve_for_speed_from_wattage_using_newton(power, rider_weight, height_cm)
 
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on flat terrain")
 

@@ -114,16 +114,19 @@ def _validate_physical_params(Cd: float, area : float, Crr: float, total_mass: f
         raise ValueError(f"total_mass must be non-negative, got {total_mass}")
 
 
-def _calculate_gravity_and_rolling_forces(Crr: float, total_mass: float, slope: float) -> tuple[float, float]:
+def _calculate_gravity_and_rolling_forces(Crr: float, total_mass: float, slope_pc: float) -> tuple[float, float]:
     """
     Calculate the rolling resistance and gravitational forces.
     Treats 'slope' as sin(theta) (rise over hypotenuse, standard for cycling grades).
+    slope_pc expressed as a %.
     
     Returns:
         tuple[float, float]: (F_roll, F_gravity)
     """
-    if slope == 0.0:
+    if slope_pc == 0.0:
         return Crr * total_mass * g, 0.0
+
+    slope=slope_pc/100.0
 
     # cos(theta) = sqrt(1 - sin^2(theta))
     # max() prevents a math domain error if a logically invalid slope > 1.0 or < -1.0 is passed.
@@ -218,7 +221,7 @@ def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
     return answer
 
 
-def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope: float) -> float:
+def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope_pc: float) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
@@ -246,9 +249,9 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: 
             for road tyres on tarmac: ~0.004.
         total_mass (float):
             Combined mass of rider and bicycle in kilograms (kg).
-        slope (float):
+        slope_pc (float):
             Road gradient as a dimensionless ratio (rise / run).
-            For example, 0.05 for a 5% climb, -0.05 for a 5% descent,
+            For example, 5.0 for a 5% climb, -5.0 for a 5% descent,
             0.0 for flat terrain.
 
     Returns:
@@ -260,7 +263,7 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: 
     if velocity_kph < 0.0:
         raise ValueError(f"velocity_kph must be non-negative, got {velocity_kph}")
 
-    F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope)
+    F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope_pc)
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
 
@@ -271,7 +274,7 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: 
     return F_total * velocity_mps
 
 
-def solve_for_velocity_from_power(power_watts: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope: float) -> float:
+def solve_for_velocity_from_power_using_newton(power_watts: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope_pc: float) -> float:
     """
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given
@@ -319,10 +322,10 @@ def solve_for_velocity_from_power(power_watts: float, Cd: float, frontal_area: f
             for road tyres on tarmac: ~0.004.
         total_mass (float):
             Combined mass of rider and bicycle in kilograms (kg).
-        slope (float):
-            Road gradient as a dimensionless ratio (rise / run).
-            For example, 0.05 for a 5% climb, -0.05 for a 5% descent,
-            0.0 for flat terrain.
+        slope_pc (float):
+            Road gradient as a % (rise / run).
+            For example, 5 for a 5% for a climb, -5 for a 5% descent,
+            0 for flat terrain.
 
     Returns:
         float: Steady-state velocity in kilometres per hour (km/h).
@@ -355,7 +358,7 @@ def solve_for_velocity_from_power(power_watts: float, Cd: float, frontal_area: f
 
     # F_roll and F_gravity are independent of velocity; precompute once
     # so both closures share the same values and cannot drift.
-    _F_roll, _F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope)
+    _F_roll, _F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope_pc)
 
     def delta_power_equation(velocity_mps: float) -> float:
         F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
@@ -372,7 +375,7 @@ def solve_for_velocity_from_power(power_watts: float, Cd: float, frontal_area: f
     try:
         v_solution: float = newton(delta_power_equation, initial_estimate_of_root_meters_per_sec, fprime=power_derivative_equation, tol=required_precision_meters_per_sec)
     except RuntimeError as e:
-        raise ValueError(f"solve_for_velocity_from_power failed to converge: {e}") from e
+        raise ValueError(f"solve_for_velocity_from_power_using_newton failed to converge: {e}") from e
 
     if v_solution < 0.0:
         raise ValueError(f"Solver returned negative velocity: {v_solution:.4f} m/s")

@@ -8,16 +8,16 @@ from scipy.optimize import newton
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
-from jgh_formulae01 import calculate_drag_ratio_in_paceline, solve_for_speed_from_wattage
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts, calculate_power_riding_solo
-# from jgh_formulae03 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_lower_bound_paceline_speed, solve_for_speed_at_one_hour_watts, calculate_power_riding_solo
+from jgh_formulae01 import calculate_drag_ratio_in_paceline, solve_for_speed_from_wattage_using_newton
+from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
+# from jgh_formulae03 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_lower_bound_paceline_speed, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
 from jgh_number import safe_divide
 from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
 
 # All of these functions are called during parallel processing. Logging forbidden
-def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope: float = 0.0) -> float:
+def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope_pc: float = 0.0) -> float:
     """
     Calculate the wattage required for a rider given their speed and position 
     in the peloton.
@@ -31,7 +31,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
     float: The required wattage in watts.
     """
     # Calculate the base power required for the given speed
-    base_power = calculate_power_riding_solo(rider, speed, slope)
+    base_power = calculate_hypothetical_power_of_rider_at_given_speed(rider, speed, slope_pc)
 
     # Get the power factor based on the rider's position in the peloton
     power_factor = calculate_drag_ratio_in_paceline(position)
@@ -41,7 +41,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
 
     return adjusted_power
 
-def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: float, position: int, slope: float = 0.0) -> float:
+def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: float, position: int, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts) 
     and position in the peloton.
@@ -59,8 +59,8 @@ def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
     # Adjust the power based on the power factor
     adjusted_watts = safe_divide(power, power_factor)
 
-    # Estimate the speed in km/h using the solve_for_speed_from_wattage function
-    speed_kph = solve_for_speed_from_wattage(adjusted_watts, rider.weight_kg, rider.height_cm, slope)
+    # Estimate the speed in km/h using the solve_for_speed_from_wattage_using_newton function
+    speed_kph = solve_for_speed_from_wattage_using_newton(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc)
         
     return speed_kph
 
@@ -174,7 +174,7 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderCompute
 
     return average_speed_kph
 
-def calculate_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderComputeItem], slope: float = 0.0) -> float:
+def solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderComputeItem], slope: float = 0.0) -> float:
 
     _, _, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders, slope)
     _, _, lower_bound_1_hour_rider_speed = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders, slope)
@@ -202,7 +202,7 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderCompute
 
     return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
-def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
+def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     """
     Determines the maxima of permitted pull speed among all standard pull durations of all riders.
     For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
@@ -223,19 +223,19 @@ def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope: 
         (30.0, solve_for_speed_at_standard_30sec_pull_watts),
         (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
         (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (180.0, solve_for_speed_at_standard_2_minute_pull_watts),
+        (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
         (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
     ]
     for rider in riders:
         for duration, func in duration_functions:
-            speed = func(rider, slope)
+            speed = func(rider, slope_pc)
             if speed > highest_speed:
                 highest_speed = speed
                 fastest_rider = rider
                 fastest_duration = duration
     return fastest_rider, fastest_duration, highest_speed
 
-def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
+def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     """
     Determines the minima permitted pull speed among all standard pull durations of all riders.
 
@@ -266,7 +266,7 @@ def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope: 
 
     for rider in riders:
         for duration, func in duration_functions:
-            speed = func(rider, slope)
+            speed = func(rider, slope_pc)
             if speed < slowest_speed:
                 slowest_speed = speed
                 slowest_rider = rider
@@ -274,14 +274,14 @@ def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope: 
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
+def solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     # (rider, duration_sec, speed_kph)
     slowest_rider = riders[0]
     slowest_duration = 3600.0  # 1 hour in seconds
-    slowest_speed = solve_for_speed_at_one_hour_watts(slowest_rider, slope)
+    slowest_speed = solve_for_speed_at_one_hour_watts(slowest_rider, slope_pc)
 
     for rider in riders:
-        speed = solve_for_speed_at_one_hour_watts(rider, slope)
+        speed = solve_for_speed_at_one_hour_watts(rider, slope_pc)
         if speed < slowest_speed:
             slowest_speed = speed
             slowest_rider = rider
@@ -290,13 +290,13 @@ def solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderCom
 
     return slowest_rider, slowest_duration, slowest_speed
 
-def solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
+def solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     # (rider, duration_sec, speed_kph)
     fastest_rider = riders[0]
     fastest_duration = 3600.0  # 1 hour in seconds
-    highest_speed = solve_for_speed_at_one_hour_watts(fastest_rider, slope)
+    highest_speed = solve_for_speed_at_one_hour_watts(fastest_rider, slope_pc)
     for rider in riders:
-        speed = solve_for_speed_at_one_hour_watts(rider, slope)
+        speed = solve_for_speed_at_one_hour_watts(rider, slope_pc)
         if speed > highest_speed:
             highest_speed = speed
             fastest_rider = rider

@@ -9,9 +9,9 @@ class RouteSegmentItem:
     num                 : int = 1
     distance_km         : float = 0.0 
     slope_per_cent      : float = 0.0 
-    segment_watts      : float = 0.0
-    segment_speed_kph  : float = 0.0
-    segment_time_sec : float = 0.0
+    segment_watts       : float = 0.0
+    segment_speed_kph   : float = 0.0
+    segment_time_sec    : float = 0.0
 
     @staticmethod
     def from_dataTransferObject(dto: RouteSegmentDTO) -> "RouteSegmentItem":

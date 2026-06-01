@@ -2,9 +2,7 @@ from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
-
-from constants import DISTANCE_KM_FOR_SEGMENT, SLOPE_OF_SEGMENT
-
+from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
 from paceline_modelling_items import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
@@ -14,20 +12,13 @@ from zwiftid_file_reader_sync import (
 )
 from jgh_dictionary_helpers import filter_generic_dict_by_key
 from jgh_formulae10 import calculate_projected_accelerated_level_up
-
 from working_file_read_write import read_rider_stats_list_from_json_as_dict
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-
 from model_constructors import construct_RiderComputeItem, construct_RiderStatsItem, construct_CurveFittingResultItem
-
-
-
-
-
 
 @dataclass
 class RepositoryOfRiders:
@@ -309,8 +300,8 @@ class RepositoryOfRiders:
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
                 projected_accelerated_level,
-                DISTANCE_KM_FOR_SEGMENT,
-                SLOPE_OF_SEGMENT,
+                SINGLE_SEGMENT_PREDICTION_DISTANCE_KM,
+                SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")
