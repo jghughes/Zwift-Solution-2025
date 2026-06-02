@@ -7,11 +7,13 @@ from route_segment_dto import RouteSegmentDTO
 
 class RouteDTO(BaseModel):
     route_name: str = ""
+    zwift_map_name: str = ""
     route_description: str = ""
-    advertised_distance_km : float = 0.0
-    advertised_elevation_m : float = 0.0
-    governing_intensity_factor : float = 0.0
-    segments: List[RouteSegmentDTO] = Field(default_factory=list)
+    route_length_km : float = 0.0
+    route_elevation_m : float = 0.0
+    lead_in_length_km : float = 0.0
+    imposed_intensity_factor : float = 0.0
+    route_segments: List[RouteSegmentDTO] = Field(default_factory=list)
 
 class RouteDTODictModel(RootModel[Dict[str, RouteDTO]]):
     pass

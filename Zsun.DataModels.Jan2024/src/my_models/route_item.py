@@ -8,21 +8,25 @@ from route_dto import RouteDTO
 @dataclass()
 class RouteItem:
     route_name: str = ""
+    zwift_map_name: str = ""
     route_description : str = ""
-    advertised_distance_km : float = 0.0
-    advertised_elevation_m : float = 0.0
-    governing_intensity_factor : float = 0.0
+    route_length_km : float = 0.0
+    route_elevation_m : float = 0.0
+    lead_in_length_km : float = 0.0
+    imposed_intensity_factor : float = 0.0
     route_segments: List[RouteSegmentItem] = field(default_factory=list)
 
     @staticmethod
     def from_dataTransferObject(dto: RouteDTO) -> "RouteItem":
         return RouteItem(
             route_name = dto.route_name,
+            zwift_map_name = dto.zwift_map_name,
             route_description = dto.route_description,
-            advertised_distance_km = dto.advertised_distance_km,
-            advertised_elevation_m = dto.advertised_elevation_m,
-            governing_intensity_factor = dto.governing_intensity_factor,
-            route_segments = [RouteSegmentItem.from_dataTransferObject(segment_dto) for segment_dto in dto.segments]
+            route_length_km = dto.route_length_km,
+            route_elevation_m = dto.route_elevation_m,
+            lead_in_length_km = dto.lead_in_length_km,
+            imposed_intensity_factor = dto.imposed_intensity_factor,
+            route_segments = [RouteSegmentItem.from_dataTransferObject(segment_dto) for segment_dto in dto.route_segments]
         )
 
     @staticmethod
@@ -33,9 +37,11 @@ class RouteItem:
     def to_dataTransferObject(item: "RouteItem") -> RouteDTO:
         return RouteDTO(
             route_name = item.route_name,
+            zwift_map_name = item.zwift_map_name,
             route_description = item.route_description,
-            advertised_distance_km = item.advertised_distance_km,
-            advertised_elevation_m = item.advertised_elevation_m,
-            governing_intensity_factor = item.governing_intensity_factor,
-            segments = [RouteSegmentItem.to_dataTransferObject(segment_item) for segment_item in item.route_segments]
+            route_length_km = item.route_length_km,
+            route_elevation_m = item.route_elevation_m,
+            lead_in_length_km = item.lead_in_length_km,
+            imposed_intensity_factor = item.imposed_intensity_factor,
+            route_segments = [RouteSegmentItem.to_dataTransferObject(segment_item) for segment_item in item.route_segments]
         )

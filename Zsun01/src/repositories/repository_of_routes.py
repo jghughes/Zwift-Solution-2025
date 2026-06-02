@@ -1,5 +1,4 @@
 from typing import List, Dict
-from collections import defaultdict
 from route_item import RouteItem
 from route_segment_item import RouteSegmentItem
 
@@ -23,25 +22,29 @@ class RepositoryOfRoutes:
 
         "Tempus Fugit": RouteItem(
             route_name                  = "Tempus Fugit",
+            zwift_map_name                    = "Watopia",
             route_description           = "A flat, fast route on Watopia's highway. Ideal for TT efforts.",
-            advertised_distance_km      = 17.1,
-            advertised_elevation_m      = 43.0,
-            governing_intensity_factor  = 1.0,
+            route_length_km             = 17.1,
+            route_elevation_m           = 43.0,
+            lead_in_length_km           = 0.0,
+            imposed_intensity_factor  = 1.0,
             route_segments              = [
-                RouteSegmentItem(num=1, segment_description="Full flat loop", distance_km=17.1, slope_per_cent=0.0, advertised_ascent_m=43.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
+                RouteSegmentItem(num=1, segment_description="Full flat loop", segment_length_km=17.1, slope_per_cent=0.0, segment_ascent_m=43.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
             ]
         ),
 
         "Alpe du Zwift": RouteItem(
             route_name                  = "Alpe du Zwift",
+            zwift_map_name                    = "Watopia",
             route_description           = "A gruelling 21-hairpin climb modelled on Alpe d'Huez.",
-            advertised_distance_km      = 12.2,
-            advertised_elevation_m      = 1036.0,
-            governing_intensity_factor  = 1.0,
+            route_length_km             = 12.2,
+            route_elevation_m           = 1036.0,
+            lead_in_length_km           = 0.0,
+            imposed_intensity_factor  = 1.0,
             route_segments              = [
-                RouteSegmentItem(num=1, segment_description="Lower slopes", distance_km=4.0, slope_per_cent=8.5, advertised_ascent_m=340.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
-                RouteSegmentItem(num=2, segment_description="Mid climb",    distance_km=4.1, slope_per_cent=8.5, advertised_ascent_m=349.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
-                RouteSegmentItem(num=3, segment_description="Upper slopes", distance_km=4.1, slope_per_cent=8.5, advertised_ascent_m=347.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
+                RouteSegmentItem(num=1, segment_description="Lower slopes", segment_length_km=4.0, slope_per_cent=8.5, segment_ascent_m=340.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
+                RouteSegmentItem(num=2, segment_description="Mid climb",    segment_length_km=4.1, slope_per_cent=8.5, segment_ascent_m=349.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
+                RouteSegmentItem(num=3, segment_description="Upper slopes", segment_length_km=4.1, slope_per_cent=8.5, segment_ascent_m=347.0, segment_watts=0.0, segment_speed_kph=0.0, segment_time_sec=0.0),
             ]
         ),
 

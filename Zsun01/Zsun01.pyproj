@@ -71,6 +71,7 @@
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
+    <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\zwiftid_file_import\zwiftid_file_fetcher_async.py" />
     <Compile Include="tests\azure\test_jgh_azure_storage_accessor.py" />
