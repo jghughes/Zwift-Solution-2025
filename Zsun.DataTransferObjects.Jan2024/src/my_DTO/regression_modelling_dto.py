@@ -14,7 +14,7 @@ class RegressionModellingDTO(BaseModel):
     zwift_racing_score              : float         = 0.0   # Zwift racing score
     zwift_cat_open                  : str           = ""    # A+, A, B, C, D, E
     zwift_ftp_watts                 : float         = 0.0
-    jgh_60_min_watts              : float         = 0.0
+    jgh_60_min_watts                : float         = 0.0
     jgh_40_minute_watts             : float         = 0.0
     velo_zpftp_watts                : float         = 0.0
     velo_rating_30_days             : float         = 0.0   # Velo score typically over 1000
@@ -32,8 +32,8 @@ class RegressionModellingDTO(BaseModel):
     bp_1200                         : float         = 0.0
     bp_1800                         : float         = 0.0
     bp_2400                         : float         = 0.0
-    jgh_60_min_curve_coefficient  : float         = 0.0
-    jgh_60_min_curve_exponent     : float         = 0.0
+    jgh_60_min_curve_coefficient    : float         = 0.0
+    jgh_60_min_curve_exponent       : float         = 0.0
 
 class RegressionModellingDTODictModel(RootModel[Dict[str, RegressionModellingDTO]]):
     pass

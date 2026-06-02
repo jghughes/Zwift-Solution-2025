@@ -61,9 +61,9 @@ class RiderComputeDTO(BaseModel):
 	velo_cat_name_30_days					:	str						=	""
 	velo_age_group							:	str						=	""
 	jgh_60_min_watts						:	float					=	0.0
-	jgh_60_min_km_0pc_slope				:	float					=	0.0
-	jgh_60_min_km_2pc_slope				:	float					=	0.0
-	jgh_60_min_km_4pc_slope				:	float					=	0.0
+	jgh_60_min_km_0pc_slope					:	float					=	0.0
+	jgh_60_min_km_2pc_slope					:	float					=	0.0
+	jgh_60_min_km_4pc_slope					:	float					=	0.0
 	jgh_60_min_curve_coefficient			:	float					=	0.0
 	jgh_60_min_curve_exponent				:	float					=	0.0
 	jgh_ttt_pull_curve_coefficient			:	float					=	0.0

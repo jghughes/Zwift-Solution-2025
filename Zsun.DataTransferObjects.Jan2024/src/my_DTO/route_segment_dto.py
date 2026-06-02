@@ -6,11 +6,13 @@ from pydantic import BaseModel, RootModel
 
 class RouteSegmentDTO(BaseModel):
     num                 : int = 1
+    segment_description   : str = ""
     distance_km         : float = 0.0 
     slope_per_cent      : float = 0.0 
-    segment_watts      : float = 0.0
-    segment_speed_kph  : float = 0.0
-    segment_time_sec : float = 0.0
+    advertised_ascent_m  : float = 0.0
+    segment_watts       : float = 0.0
+    segment_speed_kph   : float = 0.0
+    segment_time_sec    : float = 0.0
 
 class RouteSegmentDTODictModel(RootModel[Dict[str, RouteSegmentDTO]]):
     pass

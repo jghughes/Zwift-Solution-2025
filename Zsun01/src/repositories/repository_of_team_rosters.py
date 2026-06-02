@@ -15,14 +15,8 @@ class RepositoryOfTeamRosters:
     Methods:
         get_dict_of_teams_and_their_riders():
             Returns the dictionary of all teams and their riders.
-        get_nicknames_of_teams():
-            Returns a list of all team nicknames.
         get_IDs_of_riders_on_a_team(team_nickname):
             Returns a list of Zwift IDs for riders on the specified team.
-        get_nicknames_of_riders_on_a_team(team_nickname):
-            Returns a list of rider nicknames for the specified team.
-        get_rider_nickname_by_zwiftID(zwift_id):
-            Returns the nickname of a rider given their Zwift ID, or an empty string if not found.
         get_exertion_intensity_factor_for_team(team_nickname):
             Returns the exertion intensity factor for the specified team.
     """
@@ -268,34 +262,14 @@ class RepositoryOfTeamRosters:
         }
     )
 
-
     @staticmethod
-    def get_nicknames_of_teams(team_nickname: str) -> List[str]:
-        return list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())
+    def get_dict_of_teams_and_their_riders() -> Dict[str, Dict[str, str]]:
+        return RepositoryOfTeamRosters._team_rosters_as_dict
 
     @staticmethod
     def get_IDs_of_riders_on_a_team(team_nickname: str) -> List[str]:
         if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict:
             return list(RepositoryOfTeamRosters._team_rosters_as_dict[team_nickname].keys())
-        else:
-            raise ValueError(
-                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())}"
-            )
-
-    @staticmethod
-    def get_IDs_of_all_riders_on_all_teams() -> List[str]:
-        """
-        Returns a sorted list of unique Zwift IDs for all riders across all teams.
-        """
-        all_ids: set[str] = set()
-        for roster in RepositoryOfTeamRosters._team_rosters_as_dict.values():
-            all_ids.update(roster.keys())
-        return sorted(all_ids)
-
-    @staticmethod
-    def get_nicknames_of_riders_on_a_team(team_nickname: str) -> List[str]:
-        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict:
-            return list(RepositoryOfTeamRosters._team_rosters_as_dict[team_nickname].values())
         else:
             raise ValueError(
                 f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())}"
@@ -310,13 +284,3 @@ class RepositoryOfTeamRosters:
                 f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_exertion_intensity_factors_as_dict.keys())}"
             )
 
-    @staticmethod
-    def get_rider_nickname_by_zwiftID(zwift_id: str) -> str:
-        for roster in RepositoryOfTeamRosters._team_rosters_as_dict.values():
-            if zwift_id in roster:
-                return roster[zwift_id]
-        return ""
-
-    @staticmethod
-    def get_dict_of_teams_and_their_riders() -> Dict[str, Dict[str, str]]:
-        return RepositoryOfTeamRosters._team_rosters_as_dict

@@ -30,6 +30,7 @@
     <Compile Include="src\my_models\rider_compute_item.py" />
     <Compile Include="src\my_models\model_constructors.py" />
     <Compile Include="src\my_models\rider_stats_item.py" />
+    <Compile Include="src\my_models\route_item.py" />
     <Compile Include="src\my_models\route_segment_item.py" />
     <Compile Include="src\third_party_models\zwiftpower_flattened_90_day_watts_item.py" />
     <Compile Include="src\third_party_models\zwiftracingapp_item.py" />

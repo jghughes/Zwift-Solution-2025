@@ -125,7 +125,7 @@ class RiderStatsDTO(BaseModel):
 	w_30min									:	float	=	0.0
 	w_40min									:	float	=	0.0
 	w_60min_curvefit						:	float	=	0.0
-	frontal_area_m2					:	float	=	0.0
+	frontal_area_m2							:	float	=	0.0
 	prediction_distance_km					:	float	=	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
 	prediction_watts						:	float	=	0.0 # Predicted watts for the specified distance
 	prediction_wkg							:	float	=	0.0 # Predicted watts per kg for the specified distance
