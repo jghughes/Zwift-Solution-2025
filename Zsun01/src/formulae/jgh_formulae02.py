@@ -199,8 +199,7 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
     """
     total_duration_sec = 0.0
     for segment in segments:
-        slope_fraction = segment.slope_per_cent / 100.0
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, slope_fraction)
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, segment.slope_per_cent)
         
         # Guard against zero or negative speeds breaking the duration math
         if speed_kph <= 0:
@@ -216,35 +215,78 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
 
 def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider: RiderComputeItem, segments: List[RouteSegmentItem]) -> List[RouteSegmentItem]:
     """
-    Solves for the optimal constant power output over a multi-segment route, 1
-    mutates the segment items with the predicted performance metrics, and returns the modified list.
-    
+    Finds the highest constant power output the rider can just barely sustain over a
+    multi-segment route, populates each segment with the resulting watts, speed, and
+    duration, and returns the mutated segment list.
+
+    The problem is self-referential: the power the rider can sustain depends on how long
+    the route takes, and how long the route takes depends on that power.  This function
+    resolves the circularity with a two-phase binary search over watts, using the rider's
+    fitted power-duration decay curve (decay_model_numpy) as the sustainability criterion.
+
+    Violation criterion:
+        At a given mandated power, the route is simulated to obtain a total duration.
+        The rider's decay curve is then evaluated at that duration to yield the maximum
+        power they could sustain for that long.  A violation occurs when:
+            mandated_power > decay_model_numpy(simulated_total_duration)
+        i.e. the rider is being asked to hold more watts than their curve says they can
+        for that duration.  The converged answer is the upper bound — the lowest power
+        at which a violation is first triggered.
+
+    Phase 1 — Upper-bound scan:
+        Starting from 0 W, the candidate power is stepped up by
+        CHUNK_OF_WATTS_PER_ITERATION (20 W) per iteration until a violation is detected,
+        establishing a safe upper bound for Phase 2.  The loop is capped at
+        SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND (40) iterations.
+        If no violation is found within the cap, the function returns the unmodified
+        segments list as a failsafe.
+        Iterations are counted separately in upper_bound_scan_iterations.
+
+    Phase 2 — Binary search:
+        The interval [lower_bound_watts, upper_bound_watts] is halved on each iteration.
+        If the mid-point triggers a violation the upper bound is moved down; otherwise
+        the lower bound is moved up.  The loop terminates when the interval width falls
+        below REQUIRED_PRECISION_OF_WATTS (1.0 W) or binary_search_iterations reaches
+        MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION (30).
+        Iterations are counted independently in binary_search_iterations.
+
+    Final population:
+        Each segment is populated in-place using converged_power_watts (= upper_bound_watts):
+            segment.segment_watts       rounded to 1 decimal place (W)
+            segment.segment_speed_kph   rounded to 2 decimal places (kph)
+            segment.segment_time_sec    rounded to 1 decimal place (sec)
+        If the computed speed for a segment is zero or negative,
+        segment.segment_speed_kph is set to 0.0 and segment.segment_time_sec to inf.
+
     Args:
-        rider (RiderComputeItem): The rider profile containing their power curve model.
-        segments (List[RouteSegmentItem]): The route defined as a list of segments.
+        rider (RiderComputeItem): The rider, supplying weight_kg, height_cm, and the
+            fitted decay-curve coefficients jgh_60_min_curve_coefficient and
+            jgh_60_min_curve_exponent.
+        segments (List[RouteSegmentItem]): The route as an ordered list of segments,
+            each supplying distance_km and slope_per_cent.
 
     Returns:
-        List[RouteSegmentItem]: The same list of segments, but fully populated with 
-        segment_watts, segment_speed_kph, and segment_time_sec based on the optimal pace.
+        List[RouteSegmentItem]: The same list object, with each segment mutated to carry
+            segment_watts, segment_speed_kph, and segment_time_sec.
+            Returns [] if segments is empty.
+            Returns the unmodified segments list if Phase 1 exhausts its iteration cap
+            without finding an upper bound.
     """
+
     if not segments:
         return []
 
-    SAFE_LOWER_BOUND_WATTS = 40.0 # pretty arbitrary. Hopefully this will be safe in all conceivable scenarios. 
-    CHUNK_OF_WATTS_PER_ITERATION = 20.0 # Starting at lowest conceivable power, the watts are increased by this chunk in each iteration.
-    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # the ample maximum number of attempts to find the upper bound for the binary search
-    REQUIRED_PRECISION_OF_WATTS = 1.0 # The desired precision for the power binary search algorithm.
-    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
-    MAX_CONCEIVABLE_ROUTE_DURATION_SEC: float = 864000  # 10 days — beyond this, decay model extrapolation is non-physical; fall back to 1-hour power
-
-    # 1. Setup Variables
-    lowest_conceivable_power_watts = SAFE_LOWER_BOUND_WATTS 
+    # Get ready
+    lowest_conceivable_power_watts = 0
     lower_bound_watts = lowest_conceivable_power_watts
     upper_bound_watts = lower_bound_watts
+    upper_bound_scan_iterations = 0
 
-    compute_iterations_performed = 0
+    # 1. Find Safe Upper Bound for binary-search
 
-    # 2. Find Safe Upper Bound
+    CHUNK_OF_WATTS_PER_ITERATION = 20.0 # arbitrary
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 40 # 800 W . conservative
+
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
 
         simulated_total_duration_sec = solve_for_hypothetical_route_time_at_a_mandated_power(rider, segments, upper_bound_watts)
@@ -252,23 +294,25 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
         if simulated_total_duration_sec == float('inf'):
              max_power_for_duration = 0.0 # Force loop to increase watts if we can't move forward
         else:
-             max_power_for_duration = (
-                 rider.get_1_hour_curvefit_watts() if simulated_total_duration_sec > MAX_CONCEIVABLE_ROUTE_DURATION_SEC
-                 else decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
-             )
-
+             max_power_for_duration = decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
+             
         # Did we push the guess power past what the rider is capable of for the time it took?
         if upper_bound_watts > max_power_for_duration:
             break
             
         upper_bound_watts += CHUNK_OF_WATTS_PER_ITERATION
-        compute_iterations_performed += 1
+        upper_bound_scan_iterations += 1
     else:
         # Failsafe: if we max out iterations finding upper bound, return the unmodified segments
         return segments
 
-    # 3. Binary Search
-    while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and compute_iterations_performed < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
+    # 2. Do binary-search.
+
+    REQUIRED_PRECISION_OF_WATTS = 1.0 
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 40 # conservative?
+
+    binary_search_iterations = 0
+    while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
         
         simulated_total_duration_sec = solve_for_hypothetical_route_time_at_a_mandated_power(rider, segments, mid_point_watts)
@@ -276,27 +320,21 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
         if simulated_total_duration_sec == float('inf'):
             max_power_for_duration = 0.0
         else:
-             max_power_for_duration = (
-                 rider.get_1_hour_curvefit_watts() if simulated_total_duration_sec > MAX_CONCEIVABLE_ROUTE_DURATION_SEC
-                 else decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
-             )
+             max_power_for_duration = decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
 
-        compute_iterations_performed += 1
+        binary_search_iterations += 1
 
         if mid_point_watts > max_power_for_duration:
             upper_bound_watts = mid_point_watts
         else:
             lower_bound_watts = mid_point_watts
 
-    # 4. Final Route Result Population
-    # Using the safest maximum sustainable power boundary
+    # 4. Populate final Route Result population using the safest maximum sustainable power boundary
     converged_power_watts = upper_bound_watts
 
     for segment in segments:
         speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, converged_power_watts, segment.slope_per_cent)
-        
         segment.segment_watts = round(converged_power_watts, 1)
-
         if speed_kph <= 0:
             segment.segment_speed_kph = 0.0
             segment.segment_time_sec = float('inf')

@@ -181,67 +181,88 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
 def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients: PacelineIngredientsItem,
 ) -> PacelineComputationReportItem:
     """
-    Computes a single paceline solution that adheres to rider exertion constraints using a binary search approach.
+    Finds the highest paceline speed at which at least one rider's exertion intensity
+    constraint is exactly met, using a two-phase binary search.
 
-    This function determines the maximum feasible paceline speed such that no rider exceeds the specified exertion intensity factor.
-    It first_name finds a safe upper bound for speed where at least one rider violates the exertion constraint, then performs a binary search
-    between the lower and upper bounds to pinpoint the precise speed at which the constraint is just met. The function returns a detailed
-    computation report including whether the algorithm ran to completion, the number of iterations performed, the computed average speed,
-    and each rider's contribution and constraint status.
+    Phase 1 — Upper-bound scan:
+        Starting from pull_speeds_kph[0] (the caller-supplied lower bound, truncated to
+        3 decimal places), the speed is stepped up by CHUNK_OF_KPH_PER_ITERATION (5.0 kph)
+        on each iteration until at least one rider's effort_constraint_violation_reason is
+        non-empty, establishing a safe upper bound.  The loop is capped at
+        SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND (20) iterations.
+        If no violation is found within that cap, the function returns immediately with
+        algorithm_ran_to_completion=False and sentinel values
+        (calculated_average_speed_of_paceline_kph=0,
+        calculated_dispersion_of_intensity_of_effort=999).
+
+    Phase 2 — Binary search:
+        The interval [lower_bound, upper_bound] is halved on each iteration.
+        The mid-point is tested: if any rider is in violation the upper bound is moved
+        down to mid-point; otherwise the lower bound is moved up.  The loop terminates
+        when the interval width falls below REQUIRED_PRECISION_OF_SPEED_KPH (0.05 kph)
+        or the combined iteration count (Phase 1 + Phase 2) reaches
+        MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION (30).
+
+    Answer:
+        The converged upper bound is the answer — the lowest speed at which at least one
+        rider is in violation.  A final call to
+        populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(..)
+        at that speed produces the definitive rider contributions and the reported paceline
+        average speed.
 
     Args:
-        paceline_ingredients: PacelineIngredientsItem
-            An object containing all necessary parameters for the paceline computation, including:
-                - riders_list: List of RiderBruteItem objects representing the riders.
-                - sequence_of_pull_periods_sec: List of pull durations (in seconds) for each rider.
-                - pull_speeds_kph: List of initial pull speeds (in kph)
-                - slope: Road slope as a ratio (e.g., 0.05 for 5%). Defaults to 0.0
-                - max_exertion_intensity_factor: Maximum allowed exertion intensity factor for any rider.
+        paceline_ingredients (PacelineIngredientsItem): All inputs for the computation:
+            - riders_list (List[RiderComputeItem]): The riders in the paceline.
+            - sequence_of_pull_periods_sec (List[float]): Pull duration (seconds) for each rider.
+            - pull_speeds_kph (List[float]): Only pull_speeds_kph[0] is consumed, as the
+              starting lower bound for the speed search.  Remaining elements are ignored.
+            - slope_pc (float): Road slope as a percentage (e.g. 5.0 for 5 %). Defaults to 0.0.
+            - max_exertion_intensity_factor (float): The ceiling intensity factor
+              (normalised_watts / one-hour_watts) permitted for any rider.
 
     Returns:
-        PacelineComputationReportItem: An object containing:
-            - algorithm_ran_to_completion (bool): Whether the binary search completed within the permitted iterations.
-            - compute_iterations_performed_count (int): Number of iterations performed during the search.
-            - calculated_average_speed_of_paceline_kph (float): The computed average speed of the paceline (kph).
-            - rider_contributions (Dict[RiderBruteItem, RiderContributionItem]): Mapping of each rider to their computed contribution,
-              including effort metrics and any constraint violations.
+        PacelineComputationReportItem: The computation result, containing:
+            - algorithm_ran_to_completion (bool): True if the binary search converged
+              normally; False if Phase 1 exhausted its iteration cap without finding a
+              violation.
+            - compute_iterations_performed_count (int): Total iterations across both phases.
+              Does not count the final confirmation call.
+            - computational_time (float): Wall-clock elapsed time in seconds.
+            - exertion_intensity_constraint_used (float): The max_exertion_intensity_factor
+              value that was applied.
+            - calculated_average_speed_of_paceline_kph (float): The converged paceline speed.
+              0 if algorithm_ran_to_completion is False.
+            - calculated_dispersion_of_intensity_of_effort (float): Spread of intensity
+              factors across riders at the converged speed.  999 if
+              algorithm_ran_to_completion is False.
+            - rider_contributions (Dict[RiderComputeItem, RiderContributionItem]): Each
+              rider's detailed effort metrics and constraint-violation status at the
+              converged speed.
 
-    Notes:
-        - If a feasible solution cannot be found within the maximum permitted iterations, the function returns the last_name computed result
-          and sets algorithm_ran_to_completion to False.
-        - The function assumes all input parameters are valid and finite.
-
-    WARNING: DO NOT USE LOGGING IN THIS FUNCTION OR ANY FUNCTIONS IT CALLS DIRECTLY OR INDIRECTLY. IT IS CALLED BY THE ProcessPoolExecutor. ANY CALL TO LOGGING OFF THE MAIN THREAD WILL LEAD TO GARBAGE OUTPUT.
+    WARNING: DO NOT USE LOGGING IN THIS FUNCTION OR ANY FUNCTIONS IT CALLS DIRECTLY OR
+    INDIRECTLY.  IT IS CALLED BY ProcessPoolExecutor.  ANY LOGGING OFF THE MAIN THREAD
+    WILL PRODUCE GARBAGE OUTPUT.
     """
-
     start_time = time.perf_counter()
 
+    # get ready
     riders = paceline_ingredients.riders_list
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
-    lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3) #This line sets the starting lower bound for the paceline speed search, using the first_name provided speed (formatted to three decimal places), ensuring the algorithm begins with a valid, precise, and user-supplied minimum speed
+    lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3) #This line sets the starting lower bound for the paceline speed search, using the first provided speed (formatted to three decimal places), ensuring the algorithm begins with a valid, precise, and user-supplied minimum speed
     max_exertion_intensity_factor = paceline_ingredients.max_exertion_intensity_factor
-    slope = paceline_ingredients.slope 
-
+    slope = paceline_ingredients.slope_pc 
     num_riders = len(riders)
-
-    compute_iterations_performed: int = 0 # Initialisation of number of iterations ultimately performed in the binary search, part of the answer
-    dict_of_rider_contributions: Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
-
-    # Initial parameters used to determine a safe upper_bound for the binary search
     lower_bound_for_next_search_iteration_kph = lowest_conceivable_kph
     upper_bound_for_next_search_iteration_kph = lower_bound_for_next_search_iteration_kph
+    upper_bound_scan_iterations: int = 0 
+    binary_search_iterations = 0
 
-    # Find a speed at which at least one rider's plan has already become in violation.
-    # This is done by iteratively increasing the speed until we stumble upon a speed 
-    # that violates the contribution of at least one rider. This speed is not the answer 
-    # we are looking for. It will most likely be way above the precise speed that 
-    # triggered the violation, but it is a safe upper bound. This is required for 
-    # the binary search to work correctly to pin down the precise speed.
+    dict_of_rider_contributions: Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
 
-    REQUIRED_PRECISION_OF_SPEED = 0.05 # The desired precision for the paceline speed binary search algorithm. 
-    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
-    CHUNK_OF_KPH_PER_ITERATION = 5.0 # Starting at SAFE_LOWER_BOUND_KPH,
-    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # the ample maximum number of attempts to find the upper bound for the binary search
+    # 1. Find Safe Upper Bound for binary-search.
+
+    CHUNK_OF_KPH_PER_ITERATION = 5.0
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # the ample maximum number of loops to find the upper bound for the binary search
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
 
@@ -252,35 +273,31 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
         
         upper_bound_for_next_search_iteration_kph += CHUNK_OF_KPH_PER_ITERATION
 
-        compute_iterations_performed += 1
+        upper_bound_scan_iterations += 1
     else:
-        # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last_name result
+        # If we never find an upper_bound_for_next_search_iteration_kph bound, just bale and return the last result
         return PacelineComputationReportItem(
             algorithm_ran_to_completion                     = False,  # We did not run to completion, we hit the max iterations
             exertion_intensity_constraint_used              = paceline_ingredients.max_exertion_intensity_factor,
-            compute_iterations_performed_count              = compute_iterations_performed,
+            compute_iterations_performed_count              = upper_bound_scan_iterations,
             computational_time                              = time.perf_counter() - start_time,
-            calculated_average_speed_of_paceline_kph        =0,
+            calculated_average_speed_of_paceline_kph        = 0,
             calculated_dispersion_of_intensity_of_effort    = 999,
             rider_contributions                             = dict_of_rider_contributions,
         )
 
-    # Do the binary search. The concept is to search by bouncing back and forth between speeds bounded by  
-    # lower_bound_for_next_search_iteration_kph and upper_bound_for_next_search_iteration_kph, continuing
-    # until the difference between the two bounds is less than REQUIRED_PRECISION_OF_SPEED i.e. until we are within a small enough range
-    # of speeds that we can consider the solution precise enough. We have thus found the speed at the point at which it 
-    # violates the contribution of at least one rider. The cause of the violation is flagged inside populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(..). 
-    # At this moment, we know that the speed of the paceline is somewhere between the lower and upper bounds, the difference 
-    # between which is negligible i.e. less than REQUIRED_PRECISION_OF_SPEED. Use the upper_bound_for_next_search_iteration_kph as our answer
+    # 2. Do binary-search.
 
+    REQUIRED_PRECISION_OF_SPEED_KPH = 0.05 
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
 
-    while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > REQUIRED_PRECISION_OF_SPEED and compute_iterations_performed < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
+    while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > REQUIRED_PRECISION_OF_SPEED_KPH and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
 
         mid_point_kph =safe_divide( (lower_bound_for_next_search_iteration_kph + upper_bound_for_next_search_iteration_kph), 2)
 
         _, dict_of_rider_contributions = populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(riders, standard_pull_periods_seconds, [mid_point_kph] * num_riders, slope, max_exertion_intensity_factor)
 
-        compute_iterations_performed += 1
+        binary_search_iterations += 1
 
         if any(rider_contribution.effort_constraint_violation_reason for rider_contribution in dict_of_rider_contributions.values()):
             upper_bound_for_next_search_iteration_kph = mid_point_kph
@@ -292,7 +309,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
 
     answer = PacelineComputationReportItem(
         algorithm_ran_to_completion                 = True,  
-        compute_iterations_performed_count          = compute_iterations_performed,
+        compute_iterations_performed_count          = upper_bound_scan_iterations + binary_search_iterations,
         computational_time                          = time.perf_counter() - start_time,
         exertion_intensity_constraint_used          = paceline_ingredients.max_exertion_intensity_factor,
         calculated_average_speed_of_paceline_kph    = speed_of_paceline,

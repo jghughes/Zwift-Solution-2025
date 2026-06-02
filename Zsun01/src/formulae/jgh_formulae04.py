@@ -107,7 +107,7 @@ def log_rider_work_assignments(test_description: str, result: Dict[RiderComputeI
                 assignment.position, 
                 assignment.duration, 
                 assignment.speed,
-                assignment.slope
+                assignment.slope_pc
             ])
 
     headers = [
