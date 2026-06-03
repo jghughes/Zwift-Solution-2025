@@ -4,20 +4,22 @@ COEFFICIENT_g: float = 9.80665  # gravity (m/s^2)
 COEFFICIENT_rho: float = 1.226  # air density at sea level (kg/m^3)
 COEFFICIENT_Cd: float = 0.63  # typical for road cyclist
 COEFFICIENT_Crr: float = 0.004  # typical for road tires
+COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms. This is a constant value used in calculations related to the total weight of the rider and bike combination. 
 
 #The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. The coefficients are not derived from any specific mathematical or domain-specific principle, but rather serve as fixed parameters for the calculations. They are based on empirical measurements and standard values used in cycling performance modeling. The empirical values give excellent results compared in practice, and they are widely accepted in the cycling community.
 
 UPPER_BOUND_HEIGHT_CLAMP_CM	: float	= 250.0
 LOWER_BOUND_HEIGHT_CLAMP_CM	: float= 150.0
-
 UPPER_BOUND_WEIGHT_CLAMP_KG	: float = 140.0
 LOWER_BOUND_WEIGHT_CLAMP_KG	: float = 40.0
-
 LOWER_BOUND_FRONTAL_AREA_CLAMP = 0.3  # Arbitraryfrontal area for a small road cyclist in m^2. Used as a fallback. Typical modern road positions with hands on hoods are 0.35 - 0.38m^2. 0.4 m^2 is often used as a benchmark for a larger rider or a more upright climbing position.
 
+INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 55 # arbitrary best-guess (on the high side as recommended) of 55 km/h for riders. used in jgh_formulae00.py and and jgh_formulae02.py.
+REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH = 0.01 # Convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae00.py
+REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM = 0.001 # The convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae02.py
 
-COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms. This is a constant value used in calculations related to the total weight of the rider and bike combination. 
-
+SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 19.6 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km
+SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 0.00  # The calculated standard duration for a rider.  Tempus Fugit is (16/19.6E3)*100= 0.08% on average, Alpe du Zwift is (1036/12.2E3)*100 = 8.49% on average
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of test - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. I did a thumsuck extrapolation for an additional four riders to cater for an eight person paceline. The overall numbers are not important, only the ratio between them.
 
@@ -27,24 +29,11 @@ PULL_DURATION_OPTIONS_SEC: tuple[float] = [0.0, 30.0, 60.0, 120.0, 180.0, 240.0,
 
 DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each team has its own factor depending on the calibre of the team. see class RepositoryOfTeamRosters in Zsun01/src/data_repositories/repository_of_team_rosters.py for details. This is the default factor used when a team does not have a specific factor defined. 
 
-
-
 SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD = 512 # Below this threshold, serial-processing is faster than parallel-processing.Above this threshold, parallel-processing is faster. The threshold is empirically determined and might be different on different machines with different number physicaland virtual cores. see test01() in formula08.py for details of the determination.
 
 ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL = 1000 # Emprically researched. See test01() in formula08.py for details of the determination. The sweet zone is 1,000 - 2,500, which keeps compute time within a 7 - 14sec time-frame for up to 6 riders. This constant is an aspirational  target. If the solution space is smaller than 1,000, we do not prune it. We use brute force to analyse and solve the solution space without compromise. If the solution space is more than 1,000, we throw the pruning algorithm at it. The algorithm breaks as soon as the pruned space dips below 1,000. if the algorithm goes all the way and the solution space is still more than 1,000, that's the end of the story. We analyse the space that remains, no matter how time-consuming. The Cartesian cross product of eight riders and seven pull sequences generates a solution space of 5.76 million which takes literally days to compute. The algorithm prunes this down to 3,003 which is manageable (39sec compute time). 
 
 
-SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 19.6 # The distance in kilometers for which the predicted duration is calculated. This is a fixed value used in the model to provide a standardized prediction of performance over a specific distance. It is not derived from any specific mathematical or domain-specific principle, but rather serves as a practical benchmark for performance prediction. If you want a base case, 19.6 km is the lead-in to one lap of Tempus Fugit which is a flat TT route on Zwift. 12.44 km is Alpe du Zwift.
-
-
-SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 0.00  # gradient is the same as slope and is height gained divided by distance travelled on the slope. This is the slope of the segment for which the predicted duration is calculated. It is a fixed value used in the model to provide a standardized prediction of performance over a specific slope. A slope of 0% represents flat terrain.
-
-
-INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 55 # arbitrary best-guess (on the high side as recommended) of 55 km/h for riders. used in both functions namely,  jgh_formulae00.solve_for_velocity_from_power_using_newton(...) and jgh_formulae02.solve_for_fastest_achievable_time_by_rider_for_segment_using_newton (...).
-
-REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH = 0.01 # The convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae00.solve_for_velocity_from_power_using_newton(...) above. 
-
-REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM = 0.001 # The convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae02.solve_for_fastest_achievable_time_by_rider_for_segment_using_newton (...). 
 
 
 

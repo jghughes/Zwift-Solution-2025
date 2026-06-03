@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>main_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\enums;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;main_little_utilities;main_tools;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline;src\paceline_display</SearchPath>
+    <StartupFile>scratchpad\veloviewer-api.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;main_little_utilities;main_tools;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline;src\paceline_display;scratchpad</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -34,6 +34,7 @@
     <Folder Include="docs\" />
     <Folder Include="main_tools\" />
     <Folder Include="main_little_utilities\" />
+    <Folder Include="scratchpad\" />
     <Folder Include="tests\" />
     <Folder Include="src\zwiftid_file_import\" />
     <Folder Include="tests\azure\" />
@@ -68,6 +69,7 @@
     <Compile Include="main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
     <Compile Include="main_production_pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
+    <Compile Include="scratchpad\veloviewer-api.py" />
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
