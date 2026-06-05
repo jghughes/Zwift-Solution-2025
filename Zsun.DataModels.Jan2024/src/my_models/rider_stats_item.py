@@ -62,11 +62,11 @@ class RiderStatsItem(ZwiftIdBase):
 	w_40min						:	float	=	0.0
 	w_60min_curvefit			:	float	=	0.0
 	frontal_area_m2				:	float	=	0.0
-	prediction_duration_sec			: float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
-	prediction_watts				: float =	0.0 # Predicted watts for the specified distance
-	prediction_wkg					: float =	0.0 # Predicted watts per kg for the specified distance
-	prediction_duration_hh_mm_ss	: str	=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
-	prediction_distance_km			: float =	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
+	single_segment_duration_sec			: float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
+	single_segment_watts				: float =	0.0 # Predicted watts for the specified distance
+	single_segment_wgk					: float =	0.0 # Predicted watts per kg for the specified distance
+	single_segment_duration_hh_mm_ss	: str	=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
+	single_segment_distance_km			: float =	0.0 # Distance in km for which the single_segment_duration_sec and single_segment_duration_hh_mm_ss are calculated
 	route_name								: str = ""
 	route_zwift_world_name					: str = ""
 	route_description						: str = ""
@@ -77,6 +77,7 @@ class RiderStatsItem(ZwiftIdBase):
 	route_fastest_achievable_time_sec		: float = 0.0
 	route_fastest_achievable_time_hh_mm_ss	: str = ""
 	route_power_output_watts				: float = 0
+	route_power_output_wkg				: float = 0.0
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
@@ -137,11 +138,22 @@ class RiderStatsItem(ZwiftIdBase):
 			w_40min						= int(item.w_40min),
 			w_60min_curvefit			= int(item.w_60min_curvefit),
 			frontal_area_m2				= item.frontal_area_m2,
-			prediction_distance_km			= item.prediction_distance_km,
-			prediction_watts				= item.prediction_watts,
-			prediction_wkg					= item.prediction_wkg,
-			prediction_duration_sec			= item.prediction_duration_sec,
-			prediction_duration_hh_mm_ss	= item.prediction_duration_hh_mm_ss,
+			single_segment_distance_km			= item.single_segment_distance_km,
+			single_segment_watts				= item.single_segment_watts,
+			single_segment_wgk					= item.single_segment_wgk,
+			single_segment_duration_sec			= item.single_segment_duration_sec,
+			single_segment_duration_hh_mm_ss	= item.single_segment_duration_hh_mm_ss,
+			route_name								= item.route_name,
+			route_zwift_world_name					= item.route_zwift_world_name,
+			route_description						= item.route_description,
+			route_length_km							= item.route_length_km,
+			route_elevation_m						= item.route_elevation_m,
+			route_lead_in_length_km					= item.route_lead_in_length_km,
+			route_imposed_intensity_factor			= item.route_imposed_intensity_factor,
+			route_fastest_achievable_time_sec		= item.route_fastest_achievable_time_sec,
+			route_fastest_achievable_time_hh_mm_ss	= item.route_fastest_achievable_time_hh_mm_ss,
+			route_power_output_watts				= item.route_power_output_watts,
+			route_power_output_wkg					= item.route_power_output_wkg,
 			timestamp					= item.timestamp,
 		)
 
@@ -202,11 +214,22 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
 		item.frontal_area_m2			= dto.frontal_area_m2
-		item.prediction_distance_km			= dto.prediction_distance_km
-		item.prediction_watts				= dto.prediction_watts
-		item.prediction_wkg					= dto.prediction_wkg
-		item.prediction_duration_sec		= dto.prediction_duration_sec
-		item.prediction_duration_hh_mm_ss	= dto.prediction_duration_hh_mm_ss
+		item.single_segment_distance_km			= dto.single_segment_distance_km
+		item.single_segment_watts				= dto.single_segment_watts
+		item.single_segment_wgk					= dto.single_segment_wgk
+		item.single_segment_duration_sec		= dto.single_segment_duration_sec
+		item.single_segment_duration_hh_mm_ss	= dto.single_segment_duration_hh_mm_ss
+		item.route_name								= dto.route_name
+		item.route_zwift_world_name					= dto.route_zwift_world_name
+		item.route_description						= dto.route_description
+		item.route_length_km						= dto.route_length_km
+		item.route_elevation_m						= dto.route_elevation_m
+		item.route_lead_in_length_km				= dto.route_lead_in_length_km
+		item.route_imposed_intensity_factor			= dto.route_imposed_intensity_factor
+		item.route_fastest_achievable_time_sec		= dto.route_fastest_achievable_time_sec
+		item.route_fastest_achievable_time_hh_mm_ss	= dto.route_fastest_achievable_time_hh_mm_ss
+		item.route_power_output_watts				= dto.route_power_output_watts
+		item.route_power_output_wkg					= dto.route_power_output_wkg
 		item.timestamp					= dto.timestamp
 		return item
 

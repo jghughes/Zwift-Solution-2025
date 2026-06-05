@@ -1,4 +1,3 @@
-from typing import Dict, List, Tuple
 
 import numpy as np
 # from numpy.typing import NDArray
@@ -175,7 +174,7 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: R
 
     try:
         duration_seconds: float = newton(distance_residual_km, initial_estimate_of_root_sec, tol=REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM)
-        print(f"solve_for_fastest_achievable_time_by_rider_for_segment_using_newton : rider {rider.zwift_id} {rider.name} distanceKm={segment.bucket_length_km:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
+        # print(f"solve_for_fastest_achievable_time_by_rider_for_segment_using_newton : rider {rider.zwift_id} {rider.name} distanceKm={segment.bucket_length_km:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
     except RuntimeError as e:
         raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. solve_for_fastest_achievable_time_by_rider_for_segment_using_newton failed to converge: {e}") from e
 
@@ -198,6 +197,23 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
         RouteItem: The same RouteItem object, with each bucket mutated to carry
             calculated_bucket_watts, calculated_bucket_speed_kph, and calculated_bucket_duration_sec.
     """
+    # before doing anything else, we need to do a hack. if the total distance of the buckets is less than the total length of the route
+    # (which is ordinarily well be), add the residual distance to the 0% slope bucket - creating a 0% bucket if there isn't one
+    # 
+    
+    candidate_distance_km : float =  sum(bucket.bucket_length_km for bucket in route.route_slope_buckets)
+
+    if (candidate_distance_km < route.lead_in_length_km + route.route_length_km):
+        residual_distance = route.lead_in_length_km + route.route_length_km - candidate_distance_km
+
+        #  DO a hack to deal with the fact that the route data is imperfect on https://veloviewer.com/segments but it the best we have.
+        #  This code adds a 0% slope bucket with the residual distance if the total distance of the buckets is less than the total length of the route.
+        zero_slope_bucket = next((bucket for bucket in route.route_slope_buckets if bucket.bucket_slope_pc == 0.0), None)
+        if zero_slope_bucket:
+            zero_slope_bucket.bucket_length_km += residual_distance
+        else:
+            route.route_slope_buckets.append(SlopeBucketItem(bucket_description="residual 0% bucket", bucket_length_km=residual_distance, bucket_slope_pc=0.0))
+
     for bucket in route.route_slope_buckets:
         speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, bucket.bucket_slope_pc)
         

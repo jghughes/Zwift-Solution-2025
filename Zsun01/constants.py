@@ -14,7 +14,7 @@ UPPER_BOUND_WEIGHT_CLAMP_KG	: float = 140.0
 LOWER_BOUND_WEIGHT_CLAMP_KG	: float = 40.0
 LOWER_BOUND_FRONTAL_AREA_CLAMP = 0.3  # Arbitraryfrontal area for a small road cyclist in m^2. Used as a fallback. Typical modern road positions with hands on hoods are 0.35 - 0.38m^2. 0.4 m^2 is often used as a benchmark for a larger rider or a more upright climbing position.
 
-INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 55 # arbitrary best-guess (on the high side as recommended) of 55 km/h for riders. used in jgh_formulae00.py and and jgh_formulae02.py.
+INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 70  # A high guess like this means a few extra Newton iterations. A higher (safer) initial guess is calculated for descents. Used in jgh_formulae00.py and and jgh_formulae02.py.
 REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH = 0.01 # Convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae00.py
 REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM = 0.001 # The convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae02.py
 

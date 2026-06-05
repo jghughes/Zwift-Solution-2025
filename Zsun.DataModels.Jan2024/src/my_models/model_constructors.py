@@ -266,12 +266,12 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
 
 
     riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg)
-    riderStatsItem.prediction_distance_km = round(single_segment.bucket_length_km, 1)                                                              
-    riderStatsItem.prediction_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(jghRiderComputeItem, single_segment), 1)
-    riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
-    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6
-    riderStatsItem.prediction_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, single_segment.bucket_slope_pc), 1) 
-    riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
+    riderStatsItem.single_segment_distance_km = round(single_segment.bucket_length_km, 1)                                                              
+    riderStatsItem.single_segment_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(jghRiderComputeItem, single_segment), 1)
+    riderStatsItem.single_segment_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.single_segment_duration_sec)  
+    speedKph = safe_divide((riderStatsItem.single_segment_distance_km * 1_000.0), riderStatsItem.single_segment_duration_sec) * 3.6
+    riderStatsItem.single_segment_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, single_segment.bucket_slope_pc), 1) 
+    riderStatsItem.single_segment_wgk = round(safe_divide(riderStatsItem.single_segment_watts, riderStatsItem.weight_kg), 2)
 
     riderStatsItem.route_name = routeItem.route_name
     riderStatsItem.route_zwift_world_name = routeItem.zwift_world_name
@@ -292,4 +292,5 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         riderStatsItem.route_fastest_achievable_time_hh_mm_ss = format_seconds_to_hh_mm_ss(route_time_sec)
 
     riderStatsItem.route_power_output_watts = round((routeItem.route_slope_buckets[0].calculated_bucket_watts if len(routeItem.route_slope_buckets) > 0 else 0.0), 1)
+    riderStatsItem.route_power_output_wkg = round(safe_divide(riderStatsItem.route_power_output_watts, riderStatsItem.weight_kg), 2)
     return riderStatsItem

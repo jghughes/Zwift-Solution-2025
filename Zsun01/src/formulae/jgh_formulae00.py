@@ -370,7 +370,61 @@ def solve_for_velocity_from_power_using_newton(power_watts: float, Cd: float, fr
         dF_aero_dv: float = rho * Cd * frontal_area * velocity_mps  # Only F_aero depends on velocity_mps
         return F_total + velocity_mps * dF_aero_dv
 
-    initial_estimate_of_root_meters_per_sec: float = INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH / 3.6
+    def estimate_initial_velocity_mps(power_watts: float, Cd: float, frontal_area: float, total_mass: float, slope_pc: float,
+    ) -> float:
+        """
+        Estimate a starting guess (m/s) for the Newton-Raphson solver.
+
+        On gentle or flat terrain the fixed constant
+        INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH is adequate.  On steep
+        descents a rider producing significant power can exceed 120 km/h, so
+        the fixed guess may fall below the actual solution and land in the
+        region where dP/dv < 0, causing the solver to diverge.
+
+        The estimate is derived in two steps:
+
+            1.  Coasting terminal velocity (gravity balances aero drag, P = 0):
+                    v_terminal = sqrt(F_gravity / (0.5 * rho * CdA))
+
+            2.  Power-aware estimate.  At the actual solution v*, aero drag
+                must absorb BOTH the rider's mechanical power AND the
+                gravitational energy rate F_gravity * v*.  Substituting
+                v_terminal for v* on the right-hand side (an underestimate,
+                so the result remains below v*) and solving for v:
+                    v_estimate = ((power_watts + F_gravity * v_terminal)
+                                  / (0.5 * rho * CdA)) ** (1/3)
+
+            A 10 % safety margin is added so the guess sits above v* in the
+            region where dP/dv > 0 and Newton-Raphson converges reliably.
+
+        Args:
+            power_watts (float):  Rider's mechanical power output (W).
+            Cd (float):           Aerodynamic drag coefficient (dimensionless).
+            frontal_area (float): Frontal area (m^2).
+            total_mass (float):   Rider + bike mass (kg).
+            slope_pc (float):     Road gradient (%).  Negative = descent.
+
+        Returns:
+            float: Initial velocity guess in m/s.
+        """
+        base_kph = INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH
+
+        if slope_pc < -5.0:
+            cda: float = Cd * frontal_area
+            f_gravity: float = total_mass * g * abs(slope_pc) / 100.0
+
+            # Step 1: coasting terminal velocity
+            v_terminal: float = math.sqrt(f_gravity / (0.5 * rho * cda))
+
+            # Step 2: estimate accounting for actual power output
+            v_estimate: float = ((power_watts + f_gravity * v_terminal) / (0.5 * rho * cda)) ** (1.0 / 3.0)
+
+            # 10% buffer above estimate, never below the flat-terrain default
+            base_kph = max(base_kph, v_estimate * 3.6 * 1.1)
+
+        return base_kph / 3.6
+
+    initial_estimate_of_root_meters_per_sec: float = estimate_initial_velocity_mps(power_watts, Cd, frontal_area, total_mass, slope_pc)
     required_precision_meters_per_sec: float = REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH / 3.6
     try:
         v_solution: float = newton(delta_power_equation, initial_estimate_of_root_meters_per_sec, fprime=power_derivative_equation, tol=required_precision_meters_per_sec)

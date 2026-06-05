@@ -40,7 +40,7 @@ class RepositoryOfRoutes:
         "Oh_Hill_No": RouteItem(
             route_name                  = "Oh Hill No",
             zwift_world_name              = "Watopia",
-            route_description           = "The Grade (for FTP testing)",
+            route_description           = "Up and down the Grade (for FTP testing)",
             route_length_km             = 7.9,
             route_elevation_m           = 306,
             lead_in_length_km           = 0.2,
