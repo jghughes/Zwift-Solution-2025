@@ -49,8 +49,11 @@ import asyncio
 from email import message
 from pathlib import Path
 from typing import Type, Dict, Any
+import time
+
 
 import pandas as pd
+from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
@@ -94,6 +97,9 @@ from rider_compute_item import RiderComputeItem
 from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
+from slope_bucket_item import SlopeBucketItem
+from route_item import RouteItem
+from repository_of_routes import RepositoryOfRoutes
 
 import time
 import logging
@@ -128,13 +134,14 @@ async def generate_everything_and_save_and_upload():
         return
     print("dir_paths and filenames validated.")
     print("\nTHE MEAT: populate repository of riders.")
-    timer_start = time.perf_counter()
+    start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED) 
-    timer_end = time.perf_counter()
-    elapsed = timer_end - timer_start
+    singleSegement : SlopeBucketItem = SlopeBucketItem(num=1, bucket_description=f"single segment performance over {SINGLE_SEGMENT_PREDICTION_DISTANCE_KM} km at {SINGLE_SEGMENT_PREDICTION_SLOPE_PC}% grade", bucket_length_km=SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, bucket_slope_pc=SINGLE_SEGMENT_PREDICTION_SLOPE_PC)
+    route: RouteItem = RepositoryOfRoutes.get_RouteItem("Tempus_Fugit")
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED, singleSegement, route)
+    elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
-    print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted brute riders.")
+    print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders.")
 
     print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")
 

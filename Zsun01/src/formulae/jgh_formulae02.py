@@ -9,7 +9,8 @@ from jgh_formulae01 import solve_for_speed_from_wattage_using_newton, calculate_
 from jgh_number import safe_divide
 from jgh_power_curve_fit_models import decay_model_numpy
 from rider_compute_item import RiderComputeItem
-from route_segment_item import RouteSegmentItem
+from slope_bucket_item import SlopeBucketItem
+from route_item import RouteItem
 
 # All of these functions are called during parallel processing. Logging forbidden
 
@@ -120,9 +121,9 @@ def solve_for_speed_at_one_hour_watts(rider : RiderComputeItem, slope_pc: float 
         
     return speed_kph
 
-def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: RiderComputeItem, segment: RouteSegmentItem) -> float:
+def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: RiderComputeItem, segment: SlopeBucketItem) -> float:
     """
-    Calculate the duration in seconds for a rider to cover a given segment,
+    Calculate the duration in seconds for a rider to cover a given distance with a given slope,
     using their fitted 60-minute power-duration decay curve.
 
     The power-duration decay curve is evaluated by decay_model_numpy(), which
@@ -141,11 +142,11 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: R
     It is solved by Newton's method (secant variant) as a root-finding
     problem:
         distance_residual_km(duration_seconds) = speed(duration_seconds)
-            * (duration_seconds / 3600.0) - segment.distance_km = 0
+            * (duration_seconds / 3600.0) - segment.bucket_length_km = 0
 
     Args:
         rider (RiderComputeItem): The rider whose curve coefficients are used.
-        segment (RouteSegmentItem): The route segment object containing distance_km and slope_per_cent.
+        segment (SlopeBucketItem): The route segment object containing bucket_length_km and bucket_slope_pc.
 
     Returns:
         float: The estimated duration in seconds. Returns 0.0 if the rider's
@@ -159,23 +160,22 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: R
         return 0.0
 
     # Guard: nonsensical distance
-    if segment.distance_km <= 0.0:
+    if segment.bucket_length_km <= 0.0:
         return 0.0
 
-    slope_fraction = segment.slope_per_cent / 100.0
-    initial_estimate_of_root_sec: float = (segment.distance_km / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 
+    initial_estimate_of_root_sec: float = (segment.bucket_length_km / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 
 
     def distance_residual_km(duration_seconds: float) -> float:
         if duration_seconds < 1.0:
             duration_seconds = 1.0  # clamp: decay_model_numpy requires xdata >= 1; sub-1s durations are non-physical anyway
 
         watts: float = float(decay_model_numpy(np.array([duration_seconds]), decay_curve_coefficient, decay_curve_exponent)[0])
-        speed_kph: float = solve_for_speed_from_wattage_using_newton(watts, rider.weight_kg, rider.height_cm, slope_fraction)
-        return speed_kph * (duration_seconds / 3600.0) - segment.distance_km
+        speed_kph: float = solve_for_speed_from_wattage_using_newton(watts, rider.weight_kg, rider.height_cm, segment.bucket_slope_pc)
+        return speed_kph * (duration_seconds / 3600.0) - segment.bucket_length_km
 
     try:
         duration_seconds: float = newton(distance_residual_km, initial_estimate_of_root_sec, tol=REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM)
-        print(f"solve_for_fastest_achievable_time_by_rider_for_segment_using_newton : rider {rider.zwift_id} {rider.name} distanceKm={segment.distance_km:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
+        print(f"solve_for_fastest_achievable_time_by_rider_for_segment_using_newton : rider {rider.zwift_id} {rider.name} distanceKm={segment.bucket_length_km:.2f} km, initial_guess={initial_estimate_of_root_sec:.2f} sec, calculated_duration={duration_seconds:.2f} sec")
     except RuntimeError as e:
         raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. solve_for_fastest_achievable_time_by_rider_for_segment_using_newton failed to converge: {e}") from e
 
@@ -184,103 +184,78 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: R
 
     return duration_seconds
 
-def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeItem, segments: List[RouteSegmentItem], power_watts: float) -> float:
+def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeItem, route: RouteItem, power_watts: float) -> RouteItem:
     """
-    Calculate the total duration (in seconds) to ride a multi-segment route at a 
+    Calculate the total duration (in seconds) to ride a route at a 
     constant mandated power.
     
     Args:
         rider (RiderComputeItem): The rider attempting the route.
-        segments (List[RouteSegmentItem]): The route defined as a list of segments.
+        route (RouteItem): The route defined as a RouteItem object containing a list of buckets.
         power_watts (float): The constant wattage to maintain over the route.
         
     Returns:
-        float: The sum of the durations across all segments.
+        RouteItem: The same RouteItem object, with each bucket mutated to carry
+            calculated_bucket_watts, calculated_bucket_speed_kph, and calculated_bucket_duration_sec.
     """
-    total_duration_sec = 0.0
-    for segment in segments:
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, segment.slope_per_cent)
+    for bucket in route.route_slope_buckets:
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, bucket.bucket_slope_pc)
         
         # Guard against zero or negative speeds breaking the duration math
         if speed_kph <= 0:
-            return float('inf') 
-            
+            bucket.calculated_bucket_watts = power_watts
+            bucket.calculated_bucket_speed_kph = 0.0
+            bucket.calculated_bucket_duration_sec = float('inf')
+            return route   # early-out: inf duration flags this route as infeasible to the caller
+    
         speed_meters_per_second = speed_kph / 3.6
-        distance_meters = segment.distance_km * 1000.0
+        distance_meters = bucket.bucket_length_km * 1000.0
         
         segment_duration_sec = distance_meters / speed_meters_per_second
-        total_duration_sec += segment_duration_sec
-        
-    return total_duration_sec
 
-def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider: RiderComputeItem, segments: List[RouteSegmentItem]) -> List[RouteSegmentItem]:
+        bucket.calculated_bucket_watts = power_watts
+        bucket.calculated_bucket_speed_kph = speed_kph
+        bucket.calculated_bucket_duration_sec = segment_duration_sec
+    
+    return route
+
+def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem) -> RouteItem:
     """
     Finds the highest constant power output the rider can just barely sustain over a
-    multi-segment route, populates each segment with the resulting watts, speed, and
-    duration, and returns the mutated segment list.
+    multi-bucket route, populates each bucket with the resulting watts, speed, and
+    duration, and returns the mutated RouteItem.
 
-    The problem is self-referential: the power the rider can sustain depends on how long
-    the route takes, and how long the route takes depends on that power.  This function
-    resolves the circularity with a two-phase binary search over watts, using the rider's
-    fitted power-duration decay curve (decay_model_numpy) as the sustainability criterion.
-
-    Violation criterion:
-        At a given mandated power, the route is simulated to obtain a total duration.
-        The rider's decay curve is then evaluated at that duration to yield the maximum
-        power they could sustain for that long.  A violation occurs when:
-            mandated_power > decay_model_numpy(simulated_total_duration)
-        i.e. the rider is being asked to hold more watts than their curve says they can
-        for that duration.  The converged answer is the upper bound — the lowest power
-        at which a violation is first triggered.
-
-    Phase 1 — Upper-bound scan:
-        Starting from 0 W, the candidate power is stepped up by
-        CHUNK_OF_WATTS_PER_ITERATION (20 W) per iteration until a violation is detected,
-        establishing a safe upper bound for Phase 2.  The loop is capped at
-        SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND (40) iterations.
-        If no violation is found within the cap, the function returns the unmodified
-        segments list as a failsafe.
-        Iterations are counted separately in upper_bound_scan_iterations.
-
-    Phase 2 — Binary search:
-        The interval [lower_bound_watts, upper_bound_watts] is halved on each iteration.
-        If the mid-point triggers a violation the upper bound is moved down; otherwise
-        the lower bound is moved up.  The loop terminates when the interval width falls
-        below REQUIRED_PRECISION_OF_WATTS (1.0 W) or binary_search_iterations reaches
-        MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION (30).
-        Iterations are counted independently in binary_search_iterations.
+    ...
 
     Final population:
-        Each segment is populated in-place using converged_power_watts (= upper_bound_watts):
-            segment.segment_watts       rounded to 1 decimal place (W)
-            segment.segment_speed_kph   rounded to 2 decimal places (kph)
-            segment.segment_time_sec    rounded to 1 decimal place (sec)
-        If the computed speed for a segment is zero or negative,
-        segment.segment_speed_kph is set to 0.0 and segment.segment_time_sec to inf.
+        Each bucket is populated in-place using converged_power_watts (= upper_bound_watts):
+            calculated_bucket_watts         rounded to 1 decimal place (W)
+            calculated_bucket_speed_kph     rounded to 2 decimal places (kph)
+            calculated_bucket_duration_sec  rounded to 1 decimal place (sec)
+        If the computed speed for a bucket is zero or negative,
+        calculated_bucket_speed_kph is set to 0.0 and calculated_bucket_duration_sec to inf.
 
     Args:
         rider (RiderComputeItem): The rider, supplying weight_kg, height_cm, and the
             fitted decay-curve coefficients jgh_60_min_curve_coefficient and
             jgh_60_min_curve_exponent.
-        segments (List[RouteSegmentItem]): The route as an ordered list of segments,
-            each supplying distance_km and slope_per_cent.
+        routeItem (RouteItem): The route, supplying an ordered list of buckets (SlopeBucketItem),
+            each supplying bucket_length_km and bucket_slope_pc.
 
     Returns:
-        List[RouteSegmentItem]: The same list object, with each segment mutated to carry
-            segment_watts, segment_speed_kph, and segment_time_sec.
-            Returns [] if segments is empty.
-            Returns the unmodified segments list if Phase 1 exhausts its iteration cap
+        RouteItem: The same RouteItem object, with each bucket mutated to carry
+            calculated_bucket_watts, calculated_bucket_speed_kph, and calculated_bucket_duration_sec.
+            Returns the unmodified routeItem if route_slope_buckets is empty.
+            Returns the unmodified routeItem if Phase 1 exhausts its iteration cap
             without finding an upper bound.
     """
-
-    if not segments:
-        return []
+    if not routeItem.route_slope_buckets:
+        return routeItem
 
     # Get ready
-    lowest_conceivable_power_watts = 0
-    lower_bound_watts = lowest_conceivable_power_watts
+    lower_bound_watts = 5.0 # arbitrary small number to avoid zero-watt edge case in Phase 1
     upper_bound_watts = lower_bound_watts
-    upper_bound_scan_iterations = 0
+    max_power_for_duration: float = 0.0
 
     # 1. Find Safe Upper Bound for binary-search
 
@@ -289,22 +264,22 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
 
-        simulated_total_duration_sec = solve_for_hypothetical_route_time_at_a_mandated_power(rider, segments, upper_bound_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, upper_bound_watts)
         
-        if simulated_total_duration_sec == float('inf'):
+        if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
              max_power_for_duration = 0.0 # Force loop to increase watts if we can't move forward
         else:
-             max_power_for_duration = decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
+             simulated_total_duration_sec = sum(bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets)
+             max_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec  ]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
              
         # Did we push the guess power past what the rider is capable of for the time it took?
         if upper_bound_watts > max_power_for_duration:
             break
             
         upper_bound_watts += CHUNK_OF_WATTS_PER_ITERATION
-        upper_bound_scan_iterations += 1
     else:
-        # Failsafe: if we max out iterations finding upper bound, return the unmodified segments
-        return segments
+        # Failsafe: if we max out iterations finding upper bound, return the unmodified routeItem
+        return routeItem        
 
     # 2. Do binary-search.
 
@@ -312,15 +287,17 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
     MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 40 # conservative?
 
     binary_search_iterations = 0
+
     while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
         
-        simulated_total_duration_sec = solve_for_hypothetical_route_time_at_a_mandated_power(rider, segments, mid_point_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, mid_point_watts)
         
-        if simulated_total_duration_sec == float('inf'):
+        if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
             max_power_for_duration = 0.0
         else:
-             max_power_for_duration = decay_model_numpy(simulated_total_duration_sec, rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)
+             simulated_total_duration_sec = sum(bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets)
+             max_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec  ]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
 
         binary_search_iterations += 1
 
@@ -329,20 +306,20 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
         else:
             lower_bound_watts = mid_point_watts
 
-    # 4. Populate final Route Result population using the safest maximum sustainable power boundary
+   # 3. Populate final Route result with our solved maximum sustainable power boundary
     converged_power_watts = upper_bound_watts
 
-    for segment in segments:
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, converged_power_watts, segment.slope_per_cent)
-        segment.segment_watts = round(converged_power_watts, 1)
+    for bucket in routeItem.route_slope_buckets:
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, converged_power_watts, bucket.bucket_slope_pc)
+        bucket.calculated_bucket_watts = round(converged_power_watts, 1)
         if speed_kph <= 0:
-            segment.segment_speed_kph = 0.0
-            segment.segment_time_sec = float('inf')
+            bucket.calculated_bucket_speed_kph = 0.0
+            bucket.calculated_bucket_duration_sec = float('inf')
         else:
-            segment_duration_sec = (segment.distance_km * 1000.0) / (speed_kph / 3.6)
-            segment.segment_speed_kph = round(speed_kph, 2)
-            segment.segment_time_sec = round(segment_duration_sec, 1)
+            duration_sec = (bucket.bucket_length_km * 1000.0) / (speed_kph / 3.6)
+            bucket.calculated_bucket_duration_sec = round(duration_sec, 1)
+            bucket.calculated_bucket_speed_kph = round(speed_kph, 2)
 
-    return segments
+    return routeItem
 
 

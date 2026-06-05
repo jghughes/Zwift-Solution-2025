@@ -1,8 +1,8 @@
 from typing import Optional
-from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
+import math
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_formulae00 import calculate_frontal_area
-from jgh_formulae02 import solve_for_fastest_achievable_time_by_rider_for_segment_using_newton , calculate_hypothetical_power_of_rider_at_given_speed
+from jgh_formulae02 import solve_for_fastest_achievable_time_by_rider_for_segment_using_newton , calculate_hypothetical_power_of_rider_at_given_speed, solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 
@@ -12,7 +12,9 @@ from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-from route_segment_item import RouteSegmentItem
+from slope_bucket_item import SlopeBucketItem
+from route_item import RouteItem
+
 
 
 def construct_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
@@ -123,7 +125,7 @@ def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optiona
 
 def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
                              watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,
-                             segment_distance_km: float, segment_slope_per_cent: float) -> RiderStatsItem:
+                             single_segment: SlopeBucketItem, routeItem: RouteItem) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -153,11 +155,11 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         projected_accelerated_level (int):
             The rider's projected level under the accelerated levelling-up scheme.
             Set to 0 if the rider was not present in the launch-date snapshot file.
-        segment_distance_km (float):
-            The segment distance in kilometers used to calculate the predicted duration and power.
-        segment_slope_per_cent (float):
-            The gradient (slope) of the segment used to calculate the predicted duration and power.
-
+        single_segment (SlopeBucketItem):
+            The segment used to calculate the duration and power over a single segment, if any.
+        routeItem (RouteItem):
+            The route item used to calculate route-specific statistics, if any.
+    
     Returns:
         RiderStatsItem: A fully populated rider statistics item.
     """
@@ -197,7 +199,7 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
         velo_age_group              =   zwiftracingappItem.age_group,
         velo_cat_num_30_days        =   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
         velo_cat_name_30_days       =   zwiftracingappItem.raceitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
-        velo_rating_30_days         =   round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating),
+        velo_rating_30_days         =   round(zwiftracingappItem.raceitem.racing_score_max30_obj.velo_rating, 0),
         velo_cat_label              =   "",
         wkg_05sec=0.0,
         wkg_15sec=0.0,
@@ -264,11 +266,30 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
 
 
     riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg)
-    riderStatsItem.prediction_distance_km = round(segment_distance_km, 1)
-    riderStatsItem.prediction_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(jghRiderComputeItem, RouteSegmentItem(num=1, distance_km=segment_distance_km, slope_per_cent=segment_slope_per_cent)), 1)
+    riderStatsItem.prediction_distance_km = round(single_segment.bucket_length_km, 1)                                                              
+    riderStatsItem.prediction_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(jghRiderComputeItem, single_segment), 1)
     riderStatsItem.prediction_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.prediction_duration_sec)  
-    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6  # m/s to kph
-    riderStatsItem.prediction_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, segment_slope_per_cent), 0)
+    speedKph = safe_divide((riderStatsItem.prediction_distance_km * 1_000.0), riderStatsItem.prediction_duration_sec) * 3.6
+    riderStatsItem.prediction_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, single_segment.bucket_slope_pc), 1) 
     riderStatsItem.prediction_wkg = round(safe_divide(riderStatsItem.prediction_watts, riderStatsItem.weight_kg), 2)
 
+    riderStatsItem.route_name = routeItem.route_name
+    riderStatsItem.route_zwift_world_name = routeItem.zwift_world_name
+    riderStatsItem.route_description = routeItem.route_description
+    riderStatsItem.route_length_km = routeItem.route_length_km
+    riderStatsItem.route_elevation_m = routeItem.route_elevation_m
+    riderStatsItem.route_lead_in_length_km = routeItem.lead_in_length_km
+    routeItem = solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(jghRiderComputeItem, routeItem)
+    riderStatsItem.route_imposed_intensity_factor = routeItem.imposed_intensity_factor
+
+
+    route_time_sec = sum(b.calculated_bucket_duration_sec for b in routeItem.route_slope_buckets)
+    if not math.isfinite(route_time_sec):
+        riderStatsItem.route_fastest_achievable_time_sec = 0.0
+        riderStatsItem.route_fastest_achievable_time_hh_mm_ss = "n/a"
+    else:
+        riderStatsItem.route_fastest_achievable_time_sec = round(route_time_sec, 1)
+        riderStatsItem.route_fastest_achievable_time_hh_mm_ss = format_seconds_to_hh_mm_ss(route_time_sec)
+
+    riderStatsItem.route_power_output_watts = round((routeItem.route_slope_buckets[0].calculated_bucket_watts if len(routeItem.route_slope_buckets) > 0 else 0.0), 1)
     return riderStatsItem

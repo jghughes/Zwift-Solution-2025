@@ -29,7 +29,7 @@
     <Compile Include="src\my_DTO\regression_modelling_dto.py" />
     <Compile Include="src\my_DTO\rider_stats_dto.py" />
     <Compile Include="src\my_DTO\route_dto.py" />
-    <Compile Include="src\my_DTO\route_bucket_dto.py" />
+    <Compile Include="src\my_DTO\slope_bucket_dto.py" />
     <Compile Include="src\my_DTO\zwiftpower_flattened_90_day_watts_dto.py" />
     <Compile Include="src\third_party_DTO\zwiftpower_graph_watts_dto.py" />
     <Compile Include="src\third_party_DTO\zwiftracingapp_dto.py" />

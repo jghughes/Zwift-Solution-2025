@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
-from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
 from paceline_modelling_items import CurveFittingResultItem
 from critical_power import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
@@ -15,8 +14,12 @@ from jgh_formulae10 import calculate_projected_accelerated_level_up
 from working_file_read_write import read_rider_stats_list_from_json_as_dict
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
+from repository_of_routes import RepositoryOfRoutes
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
+from slope_bucket_item import SlopeBucketItem
+from route_item import RouteItem
+
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 from model_constructors import construct_RiderComputeItem, construct_RiderStatsItem, construct_CurveFittingResultItem
 
@@ -33,6 +36,10 @@ class RepositoryOfRiders:
     _computed_dict_of_riderComputeItem  :  Dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
 
+    _singleSegment           : SlopeBucketItem = field(default_factory = SlopeBucketItem)
+
+    _routeItem                : RouteItem = field(default_factory = RouteItem) 
+
     # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
 
     def populate_repository(
@@ -42,6 +49,8 @@ class RepositoryOfRiders:
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
         snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath : str,
+        single_segment: SlopeBucketItem,
+        routeItem: RouteItem
     )->bool:
 
         """
@@ -81,6 +90,10 @@ class RepositoryOfRiders:
         Returns:
             bool: True if the repository was populated successfully.
         """
+
+        self._singleSegment = single_segment
+        self._routeItem = routeItem
+
         print(f"Repository to read raw data is populating itself. This will take up to a minute.")
         print(f"1-3. Reading Zwift, ZwiftPower 90-day, and ZwiftRacingApp files in parallel.")
 
@@ -300,8 +313,8 @@ class RepositoryOfRiders:
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
                 projected_accelerated_level,
-                SINGLE_SEGMENT_PREDICTION_DISTANCE_KM,
-                SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
+                self._singleSegment,
+                self._routeItem
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")

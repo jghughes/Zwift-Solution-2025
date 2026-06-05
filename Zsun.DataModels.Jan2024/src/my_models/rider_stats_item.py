@@ -67,6 +67,16 @@ class RiderStatsItem(ZwiftIdBase):
 	prediction_wkg					: float =	0.0 # Predicted watts per kg for the specified distance
 	prediction_duration_hh_mm_ss	: str	=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
 	prediction_distance_km			: float =	0.0 # Distance in km for which the prediction_duration_sec and prediction_duration_hh_mm_ss are calculated
+	route_name								: str = ""
+	route_zwift_world_name					: str = ""
+	route_description						: str = ""
+	route_length_km							: float = 0.0
+	route_elevation_m						: float = 0.0
+	route_lead_in_length_km					: float = 0.0
+	route_imposed_intensity_factor			: float = 0.0
+	route_fastest_achievable_time_sec		: float = 0.0
+	route_fastest_achievable_time_hh_mm_ss	: str = ""
+	route_power_output_watts				: float = 0
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
