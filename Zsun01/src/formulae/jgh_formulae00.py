@@ -75,68 +75,142 @@ such as Zwift, Golden Cheetah, and WKO.
 """
 
 
+from calendar import c
 import math
 import warnings
 from scipy.optimize import newton
 
-from constants import COEFFICIENT_g, COEFFICIENT_rho, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP
+from constants import COEFFICIENT_g, COEFFICIENT_rho, INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP, LOWER_BOUND_SLOPE_CLAMP_PC, UPPER_BOUND_SLOPE_CLAMP_PC , UPPER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_POWER_CLAMP_W, UPPER_BOUND_POWER_CLAMP_W, ZWIFT_DESCENT_ATTENUATION_FACTOR
+from jgh_number import safe_divide
 
 # abbreviations
 g: float = COEFFICIENT_g  # gravity (m/s^2)
 rho: float = COEFFICIENT_rho  # air density at sea level (kg/m^3)
 
-def _validate_physical_params(Cd: float, area : float, Crr: float, total_mass: float,) -> None:
-    """
-    Validate that the physical parameters passed to the cycling power
-    model are within plausible positive bounds.
+def _clampWeight(total_mass_kg: float) -> float:
+    if total_mass_kg < LOWER_BOUND_WEIGHT_CLAMP_KG:
+        warnings.warn(
+            f"Unusually low total_mass_kg={total_mass_kg!r}: must be between {LOWER_BOUND_WEIGHT_CLAMP_KG} and {UPPER_BOUND_WEIGHT_CLAMP_KG}kg."
+            f"Clamping to {LOWER_BOUND_WEIGHT_CLAMP_KG} kg.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return LOWER_BOUND_WEIGHT_CLAMP_KG
+    if total_mass_kg > UPPER_BOUND_WEIGHT_CLAMP_KG:
+        warnings.warn(
+            f"Unusually heavy total_mass_kg={total_mass_kg!r}: must be between {LOWER_BOUND_WEIGHT_CLAMP_KG} and {UPPER_BOUND_WEIGHT_CLAMP_KG}kg."
+            f"Clamping to {UPPER_BOUND_WEIGHT_CLAMP_KG} kg.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return UPPER_BOUND_WEIGHT_CLAMP_KG
+    return total_mass_kg
 
-    All four parameters must be strictly positive; zero or negative
-    values are physically meaningless and will produce incorrect power
-    or velocity results without raising an obvious error.
+def _clampHeight(height_cm: float) -> float:
+    if height_cm < LOWER_BOUND_HEIGHT_CLAMP_CM:
+        warnings.warn(
+            f"Unusually short height_cm={height_cm!r}: must be between {LOWER_BOUND_HEIGHT_CLAMP_CM} and {UPPER_BOUND_HEIGHT_CLAMP_CM}cm."
+            f"Clamping to {LOWER_BOUND_HEIGHT_CLAMP_CM} cm.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return LOWER_BOUND_HEIGHT_CLAMP_CM
+    if height_cm > UPPER_BOUND_HEIGHT_CLAMP_CM:
+        warnings.warn(
+            f"Unusually tall height_cm={height_cm!r}: must be between {LOWER_BOUND_HEIGHT_CLAMP_CM} and {UPPER_BOUND_HEIGHT_CLAMP_CM}cm."
+            f"Clamping to {UPPER_BOUND_HEIGHT_CLAMP_CM} cm.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return UPPER_BOUND_HEIGHT_CLAMP_CM
+    return height_cm
 
-    Args:
-        Cd (float):         Drag coefficient (dimensionless).
-        A (float):          Frontal area (m^2).
-        Crr (float):        Rolling resistance coefficient (dimensionless).
-        total_mass (float): Combined rider + bike mass (kg).
+def _clampSlope(slope_pc: float) -> float:
+    if slope_pc < LOWER_BOUND_SLOPE_CLAMP_PC:
+        warnings.warn(
+            f"Unusually low slope_pc={slope_pc!r}: must be between {LOWER_BOUND_SLOPE_CLAMP_PC} and {UPPER_BOUND_SLOPE_CLAMP_PC}%."
+            f"Clamping to {LOWER_BOUND_SLOPE_CLAMP_PC} %.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return LOWER_BOUND_SLOPE_CLAMP_PC
+    if slope_pc > UPPER_BOUND_SLOPE_CLAMP_PC:
+        warnings.warn(
+            f"Unusually high slope_pc={slope_pc!r}: must be between {LOWER_BOUND_SLOPE_CLAMP_PC} and {UPPER_BOUND_SLOPE_CLAMP_PC}%."
+            f"Clamping to {UPPER_BOUND_SLOPE_CLAMP_PC} %.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return UPPER_BOUND_SLOPE_CLAMP_PC
+    return slope_pc
 
-    Raises:
-        ValueError: If any parameter is zero or negative, with a
-            message identifying the offending parameter and its value.
-    """
-    if Cd < 0.0:
-        raise ValueError(f"Cd must be non-negative, got {Cd}")
-    if area < 0.0:
-        raise ValueError(f"area must be non-negative, got {area}")
-    if Crr < 0.0:
-        raise ValueError(f"Crr must be non-negative, got {Crr}")
-    if total_mass < 0.0:
-        raise ValueError(f"total_mass must be non-negative, got {total_mass}")
+def _clampSpeed_kph(velocity_kph: float) -> float:
+    if velocity_kph < LOWER_BOUND_SPEED_CLAMP_KPH:
+        warnings.warn(
+            f"Unusually low velocity_kph={velocity_kph!r}: must be between {LOWER_BOUND_SPEED_CLAMP_KPH} and {UPPER_BOUND_SPEED_CLAMP_KPH} km/h."
+            f"Clamping to {LOWER_BOUND_SPEED_CLAMP_KPH} km/h.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return LOWER_BOUND_SPEED_CLAMP_KPH
+    if velocity_kph > UPPER_BOUND_SPEED_CLAMP_KPH:
+        warnings.warn(
+            f"Unusually high velocity_kph={velocity_kph!r}: must be between {LOWER_BOUND_SPEED_CLAMP_KPH} and {UPPER_BOUND_SPEED_CLAMP_KPH} km/h."
+            f"Clamping to {UPPER_BOUND_SPEED_CLAMP_KPH} km/h.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return UPPER_BOUND_SPEED_CLAMP_KPH
+    return velocity_kph
 
+def _clampPower(power_watts: float) -> float:
+    if power_watts < LOWER_BOUND_POWER_CLAMP_W:
+        warnings.warn(
+            f"Unusually low power_watts={power_watts!r}: must be between {LOWER_BOUND_POWER_CLAMP_W} and {UPPER_BOUND_POWER_CLAMP_W} W."
+            f"Clamping to {LOWER_BOUND_POWER_CLAMP_W} W.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return LOWER_BOUND_POWER_CLAMP_W
+    if power_watts > UPPER_BOUND_POWER_CLAMP_W:
+        warnings.warn(
+            f"Unusually high power_watts={power_watts!r}: must be between {LOWER_BOUND_POWER_CLAMP_W} and {UPPER_BOUND_POWER_CLAMP_W} W."
+            f"Clamping to {UPPER_BOUND_POWER_CLAMP_W} W.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return UPPER_BOUND_POWER_CLAMP_W
+    return power_watts
 
-def _calculate_gravity_and_rolling_forces(Crr: float, total_mass: float, slope_pc: float) -> tuple[float, float]:
+def _calculate_rolling_resistance_and_gravity_force(Crr: float, total_mass_kg: float, slope_pc: float) -> tuple[float, float]:
     """
     Calculate the rolling resistance and gravitational forces.
-    Treats 'slope' as sin(theta) (rise over hypotenuse, standard for cycling grades).
-    slope_pc expressed as a %.
-    
+
+    For negative slopes (descents):
+      - sin_theta < 0  →  F_gravity < 0  (gravity assists motion)
+      - cos_theta > 0  →  F_roll   > 0  (rolling resistance always opposes motion)
+
+    Note the attenuation factor applied to descents to reflect Zwift's physics 
+    model, which limits maximum speeds on descents. 
+
     Returns:
         tuple[float, float]: (F_roll, F_gravity)
+            F_roll   is always >= 0
+            F_gravity is negative on descents, positive on climbs
     """
-    if slope_pc == 0.0:
-        return Crr * total_mass * g, 0.0
 
-    slope=slope_pc/100.0
+    total_mass_kg = _clampWeight(total_mass_kg)
+    slope_pc = _clampSlope(slope_pc)
 
-    # cos(theta) = sqrt(1 - sin^2(theta))
-    # max() prevents a math domain error if a logically invalid slope > 1.0 or < -1.0 is passed.
-    cos_theta: float = math.sqrt(max(0.0, 1.0 - slope * slope))
-    
-    F_roll: float = Crr * total_mass * g * cos_theta
-    F_gravity: float = total_mass * g * slope
-    
+    if slope_pc < 0.0:
+        slope_pc *= ZWIFT_DESCENT_ATTENUATION_FACTOR
+
+    theta : float = math.atan(slope_pc / 100.0)
+
+    F_roll: float    = Crr * total_mass_kg * g * math.cos(theta) # always >= 0
+    F_gravity: float = total_mass_kg * g * math.sin(theta)        # <0 descent, >0 climb
+
     return F_roll, F_gravity
-
 
 def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
     """
@@ -167,46 +241,13 @@ def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
         UserWarning: If height_cm or weight_kg is outside normal bound, they are 
         clamped to the nearest valid value.
     """
-    if height_cm < LOWER_BOUND_HEIGHT_CLAMP_CM:
-        warnings.warn(
-            f"Unusually short height_cm={height_cm!r}: must be between {LOWER_BOUND_HEIGHT_CLAMP_CM} and {UPPER_BOUND_HEIGHT_CLAMP_CM} cm."
-            f"Clamping to {LOWER_BOUND_HEIGHT_CLAMP_CM} cm.",
-            UserWarning,
-            stacklevel=2,
-        )
-        height_cm = LOWER_BOUND_HEIGHT_CLAMP_CM
 
-    if height_cm > UPPER_BOUND_HEIGHT_CLAMP_CM:
-        warnings.warn(
-            f"Unusually tall height_cm={height_cm!r}: must be between {LOWER_BOUND_HEIGHT_CLAMP_CM} and {UPPER_BOUND_HEIGHT_CLAMP_CM} cm. "
-            f"Clamping to {UPPER_BOUND_HEIGHT_CLAMP_CM} cm.",
-            UserWarning,
-            stacklevel=2,
-        )
-        height_cm = UPPER_BOUND_HEIGHT_CLAMP_CM
-
-    if weight_kg < LOWER_BOUND_WEIGHT_CLAMP_KG:
-        warnings.warn(
-            f"Unusually low weight_kg={weight_kg!r}: must be between {LOWER_BOUND_WEIGHT_CLAMP_KG} and {UPPER_BOUND_WEIGHT_CLAMP_KG} kg. "
-            f"Clamping to {LOWER_BOUND_WEIGHT_CLAMP_KG} kg.",
-            UserWarning,
-            stacklevel=2,
-        )
-        weight_kg = LOWER_BOUND_WEIGHT_CLAMP_KG
-
-    if weight_kg > UPPER_BOUND_WEIGHT_CLAMP_KG:
-        warnings.warn(
-            f"Unusually heavy weight_kg={weight_kg!r}: must be between {LOWER_BOUND_WEIGHT_CLAMP_KG} and {UPPER_BOUND_WEIGHT_CLAMP_KG} kg. "
-            f"Clamping to {UPPER_BOUND_WEIGHT_CLAMP_KG} kg.",
-            UserWarning,
-            stacklevel=2,
-        )
-        weight_kg = UPPER_BOUND_WEIGHT_CLAMP_KG
+    height_cm = _clampHeight(height_cm)
+    weight_kg = _clampWeight(weight_kg)
 
     # To yield exactly 0.4 m² for (183 cm, 75 kg): (Zwift Insider's dimensions)
     # 0.0022*183 + 0.0016*75 - C = 0.4
     # C = 0.5226 - 0.4 = 0.1226
-    # answer = 0.0016 * weight_kg - 0.1226 # test rubbish formula that only depends on weight
     answer = 0.0022 * height_cm + 0.0016 * weight_kg - 0.1226
 
     if answer <= 0.0:
@@ -220,8 +261,7 @@ def calculate_frontal_area(height_cm: float, weight_kg: float) -> float:
         return LOWER_BOUND_FRONTAL_AREA_CLAMP
     return answer
 
-
-def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope_pc: float) -> float:
+def calculate_power_from_velocity(velocity_kph: float, Cd: float, height_cm: float, Crr: float, total_mass_kg: float, slope_pc: float) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
@@ -233,39 +273,37 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: 
 
     Args:
         velocity_kph (float):
-            Target steady-state velocity in kilometres per hour (km/h).
-            Should be positive; passing zero or a negative value will
-            produce zero or negative power, which is physically
-            meaningless but is not explicitly guarded here — validation
-            is the caller's responsibility.
+            Steady-state velocity in kilometres per hour (km/h).
         Cd (float):
             Dimensionless aerodynamic drag coefficient. Typical value
             for a road cyclist in the drops: ~0.63.
-        frontal_area (float):
-            Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
+        height_cm (float):
+            Rider height in centimetres (cm).
         Crr (float):
             Dimensionless rolling resistance coefficient. Typical value
             for road tyres on tarmac: ~0.004.
-        total_mass (float):
-            Combined mass of rider and bicycle in kilograms (kg).
+        total_mass_kg (float):
+            Combined mass of rider and bicycle.
         slope_pc (float):
-            Road gradient as a dimensionless ratio (rise / run).
+            Road gradient as a % (rise / run).
             For example, 5.0 for a 5% climb, -5.0 for a 5% descent,
-            0.0 for flat terrain.
+            0.0 for flat terrain. Zwift's physics model applies an 
+            attenuation factor to descents, so the effective slope 
+            is reduced on negative gradients.
 
     Returns:
         float: Required mechanical power in watts (W).
     """
+    velocity_kph = _clampSpeed_kph(velocity_kph)
+    height_cm = _clampHeight(height_cm)
+    total_mass_kg = _clampWeight(total_mass_kg)
+    slope_pc = _clampSlope(slope_pc)
 
-    _validate_physical_params(Cd, frontal_area, Crr, total_mass)
-
-    if velocity_kph < 0.0:
-        raise ValueError(f"velocity_kph must be non-negative, got {velocity_kph}")
-
-    F_roll, F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope_pc)
+    F_roll, F_gravity = _calculate_rolling_resistance_and_gravity_force(Crr, total_mass_kg, slope_pc)
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
+
+    frontal_area = calculate_frontal_area(height_cm, total_mass_kg)
 
     F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
 
@@ -273,166 +311,264 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, frontal_area: 
 
     return F_total * velocity_mps
 
-
-def solve_for_velocity_from_power_using_newton(power_watts: float, Cd: float, frontal_area: float, Crr: float, total_mass: float, slope_pc: float) -> float:
+def solve_for_velocity_from_power_using_binary_search(power_watts: float, Cd: float, height_cm: float, Crr: float, total_mass_kg: float, slope_pc: float) -> float:
     """
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given
     the physical and environmental parameters of the rider and road.
 
-    Problem formulation
-    -------------------
-    The Martin et al. (1998) power model gives power as a function of
-    velocity:
+    Algorithm
+    ---------
+    Phase 1 – Upper bound scan:
+        Start at 0 kph and step upward in fixed increments until
+        calculate_power_from_velocity() first exceeds power_watts.
+        That step becomes the upper bound for the binary search.
 
-        P(v) = v * (F_aero(v) + F_roll + F_gravity)
-
-    where v is velocity in m/s. This function inverts that relationship:
-    given P, find v such that P(v) - power_watts = 0. Because P(v) is a
-    strictly increasing cubic in v for positive resistance forces, there
-    is exactly one positive real root, which is the physically meaningful
-    steady-state velocity.
-
-    Numerical method
-    ----------------
-    The root is found using the Newton-Raphson method (scipy.optimize.
-    newton), supplied with both the residual function P(v) - power_watts
-    and its analytic derivative dP/dv. This gives fast quadratic
-    convergence, typically in 4-6 iterations from the initial estimate.
-    The analytic derivative is:
-
-        dP/dv = F_total(v) + v * dF_aero/dv
-              = (F_aero + F_roll + F_gravity) + v * (rho * Cd * area * v)
-
-    Only F_aero depends on v; F_roll and F_gravity are constant for a
-    given slope and total mass.
+    Phase 2 – Binary search:
+        Bisect [lower_bound_kph, upper_bound_kph] until the interval
+        width is within REQUIRED_PRECISION_OF_SPEED_KPH.
 
     Args:
         power_watts (float):
-            Target mechanical power output in watts (W). Must be
-            strictly positive; raises ValueError otherwise.
+            Target mechanical power output in watts (W).
         Cd (float):
-            Dimensionless aerodynamic drag coefficient. Typical value
-            for a road cyclist in the drops: ~0.63.
-        frontal_area (float):
-            Frontal area in square metres (m^2). Typical value for a
-            road cyclist: ~0.4 m^2. See calculate_frontal_area() for estimation.
+            Dimensionless aerodynamic drag coefficient. 
+        height_cm (float):
+            Rider height in centimetres (cm).
         Crr (float):
-            Dimensionless rolling resistance coefficient. Typical value
-            for road tyres on tarmac: ~0.004.
-        total_mass (float):
-            Combined mass of rider and bicycle in kilograms (kg).
+            Dimensionless rolling resistance coefficient.
+        total_mass_kg (float):
+            Combined mass of rider and bicycle in kilograms (kg)..
         slope_pc (float):
             Road gradient as a % (rise / run).
-            For example, 5 for a 5% for a climb, -5 for a 5% descent,
+            For example, 5 for a 5% climb, -5 for a 5% descent,
             0 for flat terrain.
 
     Returns:
         float: Steady-state velocity in kilometres per hour (km/h).
 
     Raises:
-        ValueError: If power_watts <= 0.
-        ValueError: If the Newton-Raphson solver fails to converge
-            (wraps the underlying scipy RuntimeError).
-        ValueError: If the solver converges to a non-physical
-            (zero or negative) velocity.
-
-    Internal variables:
-        equation (callable):       Residual P(v) - power_watts (W).
-        equation_prime (callable): Analytic derivative dP/dv (W·s/m).
-        v (float):                 Speed in m/s, local to the closures.
-        F_aero (float):            Aerodynamic drag force, N.
-        F_roll (float):            Rolling resistance force, N.
-        F_gravity (float):         Gravitational force along slope, N.
-        F_total (float):           Sum of all resistive forces, N.
-        dF_aero_dv (float):        d(F_aero)/dv = rho*Cd*area*v, N·s/m.
-        dF_total_dv (float):       d(F_total)/dv = dF_aero_dv, N·s/m.
-        _hyp (float):              sqrt(1 + slope^2), dimensionless.
-        v_solution (float):        Newton-Raphson root in m/s.
+        ValueError: If Phase 1 fails to find an upper bound within
+            SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND steps.
     """
 
-    _validate_physical_params(Cd, frontal_area, Crr, total_mass)
+    power_watts = _clampPower(power_watts)
+    height_cm = _clampHeight(height_cm)
+    total_mass_kg = _clampWeight(total_mass_kg)
+    slope_pc = _clampSlope(slope_pc)
 
-    if power_watts <= 0.0:
-        raise ValueError(f"power_watts must be positive, got {power_watts}")
+    # 1. Find safe upper bound for binary search.
 
-    # F_roll and F_gravity are independent of velocity; precompute once
-    # so both closures share the same values and cannot drift.
-    _F_roll, _F_gravity = _calculate_gravity_and_rolling_forces(Crr, total_mass, slope_pc)
+    CHUNK_OF_KPH_PER_ITERATION = 20.0
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # must be large enough to reach UPPER_BOUND_SPEED_CLAMP_KPH
 
-    def delta_power_equation(velocity_mps: float) -> float:
-        F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
-        return velocity_mps * (F_aero + _F_roll + _F_gravity) - power_watts
+    lower_bound_kph: float = 0.0
+    upper_bound_kph: float = 0.0
 
-    def power_derivative_equation(velocity_mps: float) -> float:
-        F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
-        F_total: float = F_aero + _F_roll + _F_gravity
-        dF_aero_dv: float = rho * Cd * frontal_area * velocity_mps  # Only F_aero depends on velocity_mps
-        return F_total + velocity_mps * dF_aero_dv
+    for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
+        upper_bound_kph += CHUNK_OF_KPH_PER_ITERATION
+        if calculate_power_from_velocity(upper_bound_kph, Cd, height_cm=height_cm, Crr=Crr, total_mass_kg=total_mass_kg, slope_pc=slope_pc) > power_watts:
+            break
+        lower_bound_kph = upper_bound_kph 
+    else:
+        raise ValueError(
+            f"solve_for_velocity_from_power_using_binary_search failed to find an upper bound "
+            f"after {SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND} iterations "
+            f"at {power_watts:.1f} W. Maximum speed scanned: {upper_bound_kph:.1f} kph."
+        )
 
-    def estimate_initial_velocity_mps(power_watts: float, Cd: float, frontal_area: float, total_mass: float, slope_pc: float,
-    ) -> float:
-        """
-        Estimate a starting guess (m/s) for the Newton-Raphson solver.
+    # 2. Binary search within [lower_bound_kph, upper_bound_kph].
+    #    Invariant: power(lower_bound_kph) <= power_watts < power(upper_bound_kph)
 
-        On gentle or flat terrain the fixed constant
-        INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH is adequate.  On steep
-        descents a rider producing significant power can exceed 120 km/h, so
-        the fixed guess may fall below the actual solution and land in the
-        region where dP/dv < 0, causing the solver to diverge.
+    REQUIRED_PRECISION_OF_SPEED_KPH = 0.05
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
 
-        The estimate is derived in two steps:
+    binary_search_iterations: int = 0
 
-            1.  Coasting terminal velocity (gravity balances aero drag, P = 0):
-                    v_terminal = sqrt(F_gravity / (0.5 * rho * CdA))
+    while (upper_bound_kph - lower_bound_kph) > REQUIRED_PRECISION_OF_SPEED_KPH and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
+        mid_point_kph: float = (lower_bound_kph + upper_bound_kph) / 2.0
+        binary_search_iterations += 1
+        if calculate_power_from_velocity(mid_point_kph, Cd, height_cm=height_cm, Crr=Crr, total_mass_kg=total_mass_kg, slope_pc=slope_pc) > power_watts:
+            upper_bound_kph = mid_point_kph
+        else:
+            lower_bound_kph = mid_point_kph
 
-            2.  Power-aware estimate.  At the actual solution v*, aero drag
-                must absorb BOTH the rider's mechanical power AND the
-                gravitational energy rate F_gravity * v*.  Substituting
-                v_terminal for v* on the right-hand side (an underestimate,
-                so the result remains below v*) and solving for v:
-                    v_estimate = ((power_watts + F_gravity * v_terminal)
-                                  / (0.5 * rho * CdA)) ** (1/3)
+    if (upper_bound_kph - lower_bound_kph) > REQUIRED_PRECISION_OF_SPEED_KPH:
+        warnings.warn(
+            f"solve_for_velocity_from_power_using_binary_search hit the iteration cap "
+            f"({MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION} iterations) without "
+            f"achieving the required precision of {REQUIRED_PRECISION_OF_SPEED_KPH} kph. "
+            f"Residual interval: {upper_bound_kph - lower_bound_kph:.5f} kph "
+            f"at {power_watts:.1f} W, slope {slope_pc:.1f}%.",
+            UserWarning,
+            stacklevel=2,
+        )
 
-            A 10 % safety margin is added so the guess sits above v* in the
-            region where dP/dv > 0 and Newton-Raphson converges reliably.
+    # Return lower_bound: the highest speed provably achievable at power_watts.
+    return lower_bound_kph
 
-        Args:
-            power_watts (float):  Rider's mechanical power output (W).
-            Cd (float):           Aerodynamic drag coefficient (dimensionless).
-            frontal_area (float): Frontal area (m^2).
-            total_mass (float):   Rider + bike mass (kg).
-            slope_pc (float):     Road gradient (%).  Negative = descent.
+# def solve_for_velocity_from_power_using_newton(power_watts: float, Cd: float, height_cm: float, Crr: float, total_mass_kg: float, slope_pc: float) -> float:
+#     """
+#     Solve for the steady-state cycling velocity (km/h) at which a rider
+#     producing a specified constant power output (W) will travel, given
+#     the physical and environmental parameters of the rider and road.
 
-        Returns:
-            float: Initial velocity guess in m/s.
-        """
-        base_kph = INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH
+#     Problem formulation
+#     -------------------
+#     The Martin et al. (1998) power model gives power as a function of
+#     velocity:
 
-        if slope_pc < -5.0:
-            cda: float = Cd * frontal_area
-            f_gravity: float = total_mass * g * abs(slope_pc) / 100.0
+#         P(v) = v * (F_aero(v) + F_roll + F_gravity)
 
-            # Step 1: coasting terminal velocity
-            v_terminal: float = math.sqrt(f_gravity / (0.5 * rho * cda))
+#     where v is velocity in m/s. This function inverts that relationship:
+#     given P, find v such that P(v) - power_watts = 0. Because P(v) is a
+#     strictly increasing cubic in v for positive resistance forces, there
+#     is exactly one positive real root, which is the physically meaningful
+#     steady-state velocity.
 
-            # Step 2: estimate accounting for actual power output
-            v_estimate: float = ((power_watts + f_gravity * v_terminal) / (0.5 * rho * cda)) ** (1.0 / 3.0)
+#     Numerical method
+#     ----------------
+#     The root is found using the Newton-Raphson method (scipy.optimize.
+#     newton), supplied with both the residual function P(v) - power_watts
+#     and its analytic derivative dP/dv. This gives fast quadratic
+#     convergence, typically in 4-6 iterations from the initial estimate.
+#     The analytic derivative is:
 
-            # 10% buffer above estimate, never below the flat-terrain default
-            base_kph = max(base_kph, v_estimate * 3.6 * 1.1)
+#         dP/dv = F_total(v) + v * dF_aero/dv
+#               = (F_aero + F_roll + F_gravity) + v * (rho * Cd * area * v)
 
-        return base_kph / 3.6
+#     Only F_aero depends on v; F_roll and F_gravity are constant for a
+#     given slope and total mass.
 
-    initial_estimate_of_root_meters_per_sec: float = estimate_initial_velocity_mps(power_watts, Cd, frontal_area, total_mass, slope_pc)
-    required_precision_meters_per_sec: float = REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH / 3.6
-    try:
-        v_solution: float = newton(delta_power_equation, initial_estimate_of_root_meters_per_sec, fprime=power_derivative_equation, tol=required_precision_meters_per_sec)
-    except RuntimeError as e:
-        raise ValueError(f"solve_for_velocity_from_power_using_newton failed to converge: {e}") from e
+#     Args:
+#         power_watts (float):
+#             Target mechanical power output in watts (W). Must be
+#             strictly positive; raises ValueError otherwise.
+#         Cd (float):
+#             Dimensionless aerodynamic drag coefficient. Typical value
+#             for a road cyclist in the drops: ~0.63.
+#         height_cm (float):
+#             Rider height in centimetres (cm). Typical value for a
+#             road cyclist: ~183 cm. See calculate_frontal_area() for estimation.
+#         Crr (float):
+#             Dimensionless rolling resistance coefficient. Typical value
+#             for road tyres on tarmac: ~0.004.
+#         total_mass_kg (float):
+#             Combined mass of rider and bicycle in kilograms (kg).
+#         slope_pc (float):
+#             Road gradient as a % (rise / run).
+#             For example, 5 for a 5% for a climb, -5 for a 5% descent,
+#             0 for flat terrain.
 
-    if v_solution < 0.0:
-        raise ValueError(f"Solver returned negative velocity: {v_solution:.4f} m/s")
+#     Returns:
+#         float: Steady-state velocity in kilometres per hour (km/h).
 
-    return v_solution * 3.6
+#     Raises:
+#         ValueError: If power_watts <= 0.
+#         ValueError: If the Newton-Raphson solver fails to converge
+#             (wraps the underlying scipy RuntimeError).
+#         ValueError: If the solver converges to a non-physical
+#             (zero or negative) velocity.
 
+#     Internal variables:
+#         equation (callable):       Residual P(v) - power_watts (W).
+#         equation_prime (callable): Analytic derivative dP/dv (W·s/m).
+#         v (float):                 Speed in m/s, local to the closures.
+#         F_aero (float):            Aerodynamic drag force, N.
+#         F_roll (float):            Rolling resistance force, N.
+#         F_gravity (float):         Gravitational force along slope, N.
+#         F_total (float):           Sum of all resistive forces, N.
+#         dF_aero_dv (float):        d(F_aero)/dv = rho*Cd*area*v, N·s/m.
+#         dF_total_dv (float):       d(F_total)/dv = dF_aero_dv, N·s/m.
+#         _hyp (float):              sqrt(1 + slope^2), dimensionless.
+#         v_solution (float):        Newton-Raphson root in m/s.
+#     """
+
+#     power_watts = _clampPower(power_watts)
+#     height_cm = _clampHeight(height_cm)
+#     total_mass_kg = _clampWeight(total_mass_kg)
+#     slope_pc = _clampSlope(slope_pc)
+
+#     _F_roll, _F_gravity = _calculate_rolling_resistance_and_gravity_force(Crr, total_mass_kg, slope_pc)
+
+#     def delta_power_equation(velocity_mps: float) -> float:
+#         F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
+#         return velocity_mps * (F_aero + _F_roll + _F_gravity) - power_watts
+
+#     def power_derivative_equation(velocity_mps: float) -> float:
+#         F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
+#         F_total: float = F_aero + _F_roll + _F_gravity
+#         dF_aero_dv: float = rho * Cd * frontal_area * velocity_mps  # Only F_aero depends on velocity_mps
+#         return F_total + velocity_mps * dF_aero_dv
+
+#     def estimate_initial_velocity_mps(power_watts: float, Cd: float, height_cm: float, total_mass_kg: float, slope_pc: float,
+#     ) -> float:
+#         """
+#         Estimate a starting guess (m/s) for the Newton-Raphson solver.
+
+#         On gentle or flat terrain the fixed constant
+#         INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH is adequate.  On steep
+#         descents a rider producing significant power can exceed 120 km/h, so
+#         the fixed guess may fall below the actual solution and land in the
+#         region where dP/dv < 0, causing the solver to diverge.
+
+#         The estimate is derived in two steps:
+
+#             1.  Coasting terminal velocity (gravity balances aero drag, P = 0):
+#                     v_terminal = sqrt(F_gravity / (0.5 * rho * CdA))
+
+#             2.  Power-aware estimate.  At the actual solution v*, aero drag
+#                 must absorb BOTH the rider's mechanical power AND the
+#                 gravitational energy rate F_gravity * v*.  Substituting
+#                 v_terminal for v* on the right-hand side (an underestimate,
+#                 so the result remains below v*) and solving for v:
+#                     v_estimate = ((power_watts + F_gravity * v_terminal)
+#                                   / (0.5 * rho * CdA)) ** (1/3)
+
+#             A 10 % safety margin is added so the guess sits above v* in the
+#             region where dP/dv > 0 and Newton-Raphson converges reliably.
+
+#         Args:
+#             power_watts (float):  Rider's mechanical power output (W).
+#             Cd (float):           Aerodynamic drag coefficient (dimensionless).
+#             frontal_area (float): Frontal area (m^2).
+#             total_mass (float):   Rider + bike mass (kg).
+#             slope_pc (float):     Road gradient (%).  Negative = descent.
+
+#         Returns:
+#             float: Initial velocity guess in m/s.
+#         """
+
+#         height_cm = _clampHeight(height_cm)
+#         total_mass_kg = _clampWeight(total_mass_kg)
+
+#         base_kph = INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH
+
+#         if slope_pc < -5.0:
+#             cda: float = Cd * calculate_frontal_area(height_cm, total_mass_kg)
+#             f_gravity: float = total_mass_kg * g * abs(slope_pc) / 100.0
+
+#             # Step 1: coasting terminal velocity
+#             v_terminal: float = math.sqrt(f_gravity / (0.5 * rho * cda))
+
+#             # Step 2: estimate accounting for actual power output
+#             v_estimate: float = ((power_watts + f_gravity * v_terminal) / (0.5 * rho * cda)) ** (1.0 / 3.0)
+
+#             # 10% buffer above estimate, never below the flat-terrain default
+#             base_kph = max(base_kph, v_estimate * 3.6 * 1.1)
+
+#         return base_kph / 3.6
+
+#     initial_estimate_of_root_meters_per_sec: float = estimate_initial_velocity_mps(power_watts, Cd, height_cm, total_mass_kg, slope_pc)
+
+#     required_precision_meters_per_sec: float = REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH / 3.6
+
+#     try:
+#         v_solution: float = newton(func=delta_power_equation, x0=initial_estimate_of_root_meters_per_sec, fprime=power_derivative_equation, tol=required_precision_meters_per_sec)
+#     except RuntimeError as e:
+#         raise ValueError(f"solve_for_velocity_from_power_using_newton failed to converge: {e}") from e
+
+#     if v_solution < 0.0:
+#         raise ValueError(f"Solver returned negative velocity: {v_solution:.4f} m/s")
+
+#     return v_solution * 3.6

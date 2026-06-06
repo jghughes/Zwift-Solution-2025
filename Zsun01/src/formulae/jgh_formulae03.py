@@ -8,7 +8,7 @@ from scipy.optimize import newton
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
-from jgh_formulae01 import calculate_drag_ratio_in_paceline, solve_for_speed_from_wattage_using_newton
+from jgh_formulae01 import calculate_drag_ratio_in_paceline, solve_for_speed_from_wattage_using_binary_search
 from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
 # from jgh_formulae03 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_lower_bound_paceline_speed, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
 from jgh_number import safe_divide
@@ -59,8 +59,8 @@ def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
     # Adjust the power based on the power factor
     adjusted_watts = safe_divide(power, power_factor)
 
-    # Estimate the speed in km/h using the solve_for_speed_from_wattage_using_newton function
-    speed_kph = solve_for_speed_from_wattage_using_newton(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc)
+    # Estimate the speed in km/h using the solve_for_speed_from_wattage_using_binary_search function
+    speed_kph = solve_for_speed_from_wattage_using_binary_search(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc)
         
     return speed_kph
 

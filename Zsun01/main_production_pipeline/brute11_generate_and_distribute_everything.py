@@ -134,10 +134,12 @@ async def generate_everything_and_save_and_upload():
         return
     print("dir_paths and filenames validated.")
     print("\nTHE MEAT: populate repository of riders.")
+
+    route: RouteItem = RepositoryOfRoutes.get_RouteItem("Accelerate_to_Elevate")
+
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
     singleSegement : SlopeBucketItem = SlopeBucketItem(bucket_description=f"single segment performance over {SINGLE_SEGMENT_PREDICTION_DISTANCE_KM} km at {SINGLE_SEGMENT_PREDICTION_SLOPE_PC}% grade", bucket_length_km=SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, bucket_slope_pc=SINGLE_SEGMENT_PREDICTION_SLOPE_PC)
-    route: RouteItem = RepositoryOfRoutes.get_RouteItem("Oh_Hill_No")
     rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED, singleSegement, route)
     elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")

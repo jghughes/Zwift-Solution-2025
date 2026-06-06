@@ -25,9 +25,9 @@ def test00():
     gradient: float = SINGLE_SEGMENT_PREDICTION_SLOPE_PC  # flat road
 
     # Calculations
-    A: float = calculate_frontal_area(height_cm, rider_weight)
+    # A: float = calculate_frontal_area(height_cm, rider_weight)
     total_mass: float = rider_weight + bike_weight
-    speed_kmh: float = solve_for_velocity_from_power_using_newton(power, Cd, A, Crr, total_mass, gradient)
+    speed_kmh: float = solve_for_velocity_from_power_using_newton(power, Cd, height_cm=height_cm, Crr=Crr, total_mass_kg=total_mass, slope_pc=gradient)
 
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on flat terrain")
 

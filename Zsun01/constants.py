@@ -6,20 +6,32 @@ COEFFICIENT_Cd: float = 0.63  # typical for road cyclist
 COEFFICIENT_Crr: float = 0.004  # typical for road tires
 COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms. This is a constant value used in calculations related to the total weight of the rider and bike combination. 
 
-#The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. The coefficients are not derived from any specific mathematical or domain-specific principle, but rather serve as fixed parameters for the calculations. They are based on empirical measurements and standard values used in cycling performance modeling. The empirical values give excellent results compared in practice, and they are widely accepted in the cycling community.
+#The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. 
 
 UPPER_BOUND_HEIGHT_CLAMP_CM	: float	= 250.0
 LOWER_BOUND_HEIGHT_CLAMP_CM	: float= 150.0
 UPPER_BOUND_WEIGHT_CLAMP_KG	: float = 140.0
 LOWER_BOUND_WEIGHT_CLAMP_KG	: float = 40.0
-LOWER_BOUND_FRONTAL_AREA_CLAMP = 0.3  # Arbitraryfrontal area for a small road cyclist in m^2. Used as a fallback. Typical modern road positions with hands on hoods are 0.35 - 0.38m^2. 0.4 m^2 is often used as a benchmark for a larger rider or a more upright climbing position.
+LOWER_BOUND_FRONTAL_AREA_CLAMP = 0.3  # Arbitraryfrontal area for a small road cyclist in m^2. Typical modern road positions with hands on hoods are 0.35 - 0.38m^2. 0.4 m^2 is often used as a benchmark for a larger rider or a more upright climbing position.
 
-INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 70  # A high guess like this means a few extra Newton iterations. A higher (safer) initial guess is calculated for descents. Used in jgh_formulae00.py and and jgh_formulae02.py.
-REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH = 0.01 # Convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae00.py
-REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM = 0.001 # The convergence tolerance for the Newton-Raphson root-finding solver used in jgh_formulae02.py
+UPPER_BOUND_SLOPE_CLAMP_PC	: float	= 16.00 # The maximum slope in percent that the model can handle. For example, the Alpe du Zwift has a maximum slope of around 14%.
+LOWER_BOUND_SLOPE_CLAMP_PC	: float = -16.00 # The minimum slope in percent that the model can handle.
 
-SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 19.6 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km
-SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 0.00  # The calculated standard duration for a rider.  Tempus Fugit is (16/19.6E3)*100= 0.08% on average, Alpe du Zwift is (1036/12.2E3)*100 = 8.49% on average
+UPPER_BOUND_POWER_CLAMP_W	: float	= 2_000.00 
+LOWER_BOUND_POWER_CLAMP_W	: float = 0.00 
+
+
+ZWIFT_DESCENT_ATTENUATION_FACTOR : float = 0.7 # Zwift's physics model does not allow riders to reach the same speeds on descents as they would in real life. No-one knows what this factor is. must determine empirically. TODO
+
+UPPER_BOUND_SPEED_CLAMP_KPH : float = 120.0
+LOWER_BOUND_SPEED_CLAMP_KPH : float = 0.0
+
+INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH = 70  # A high guess like this means a few extra Newton iterations. A higher (safer) initial guess must be calculated for descents where speeds exceed 100kph. Used in jgh_formulae00.py and and jgh_formulae02.py.
+REQUIRED_NEWTON_SOLVER_VELOCITY_PRECISION_KPH = 0.01 # Used in jgh_formulae00.py
+REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM = 0.001 # Used in jgh_formulae02.py
+
+SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 3.52 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km. The Grade KOM
+SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 8.6  # Tempus Fugit is (16/19.6E3)*100= 0.08% on average, Alpe du Zwift is (1036/12.2E3)*100 = 8.49% on average. The GradeKOM = 8.6%
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of test - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. I did a thumsuck extrapolation for an additional four riders to cater for an eight person paceline. The overall numbers are not important, only the ratio between them.
 
