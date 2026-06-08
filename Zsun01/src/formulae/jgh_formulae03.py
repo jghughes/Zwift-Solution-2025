@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
-from scipy.optimize import newton
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL

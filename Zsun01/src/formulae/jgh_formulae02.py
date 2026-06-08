@@ -1,9 +1,6 @@
 
 import numpy as np
-# from numpy.typing import NDArray
-from scipy.optimize import newton
 
-from constants import INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH, REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM
 from jgh_formulae01 import solve_for_speed_from_wattage_using_binary_search, calculate_watts_from_speed
 from jgh_number import safe_divide
 from jgh_power_curve_fit_models import decay_model_numpy
@@ -17,7 +14,7 @@ def solve_for_hypothetical_speed_of_rider_at_given_power(rider : RiderComputeIte
     """
     Estimate the speed (km/h) given the power (wattage) for the specified
     rider and the slope he is riding on. Wind resistance is governed by his 
-    height_cm and weight_kg. Uses the Newton-Raphson solver.
+    height_cm and weight_kg. Uses the binary search solver.
 
     Args:
     power (float): The power in watts.
@@ -120,77 +117,10 @@ def solve_for_speed_at_one_hour_watts(rider : RiderComputeItem, slope_pc: float 
         
     return speed_kph
 
-def solve_for_fastest_achievable_time_by_rider_for_segment_using_newton(rider: RiderComputeItem, segment: SlopeBucketItem) -> float:
-    """
-    Calculate the duration in seconds for a rider to cover a given distance with a given slope,
-    using their fitted 60-minute power-duration decay curve.
-
-    The power-duration decay curve is evaluated by decay_model_numpy(), which
-    is the single source of truth for the decay formula. Refer to that function
-    for the formula definition and its parameters.
-
-    The curve coefficients are sourced from the rider object:
-        coefficient = jgh_60_min_curve_coefficient
-        exponent    = jgh_60_min_curve_exponent
-
-    This curve is applied across the full range of durations. For the
-    practical range of 30-120 minutes this is the correct model.
-
-    The problem is self-referential: duration drives power (via the decay
-    curve), power drives speed (via physics), and speed drives distance.
-    It is solved by Newton's method (secant variant) as a root-finding
-    problem:
-        distance_residual_km(duration_seconds) = speed(duration_seconds)
-            * (duration_seconds / 3600.0) - segment.bucket_length_km = 0
-
-    Args:
-        rider (RiderComputeItem): The rider whose curve coefficients are used.
-        segment (SlopeBucketItem): The route segment object containing bucket_length_km and bucket_slope_pc.
-
-    Returns:
-        float: The estimated duration in seconds. Returns 0.0 if the rider's
-               curve has not been fitted (zero coefficient) or if the segment distance is nonsensical.
-    """
-    decay_curve_coefficient: float = rider.jgh_60_min_curve_coefficient
-    decay_curve_exponent: float = rider.jgh_60_min_curve_exponent
-
-    # Guard: curve has not been fitted
-    if decay_curve_coefficient == 0.0 or decay_curve_exponent == 0.0:
-        return 0.0
-
-    # Guard: nonsensical distance
-    if segment.bucket_length_km <= 0.0:
-        return 0.0
-
-    initial_estimate_of_root_sec: float = (segment.bucket_length_km / INITIAL_VELOCITY_GUESS_FOR_NEWTON_SOLVER_KPH) * 3600.0 
-
-    def distance_residual_km(duration_seconds: float) -> float:
-        if duration_seconds < 1.0:
-            duration_seconds = 1.0  # clamp: decay_model_numpy requires xdata >= 1; sub-1s durations are non-physical anyway
-
-        watts: float = float(decay_model_numpy(np.array([duration_seconds]), decay_curve_coefficient, decay_curve_exponent)[0])
-        speed_kph: float = solve_for_speed_from_wattage_using_binary_search(watts, rider.weight_kg, rider.height_cm, segment.bucket_slope_pc)
-        return speed_kph * (duration_seconds / 3600.0) - segment.bucket_length_km
-
-    try:
-        duration_seconds: float = newton(distance_residual_km, initial_estimate_of_root_sec, tol=REQUIRED_NEWTON_SOLVER_DISTANCE_PRECISION_KM)
-    except RuntimeError as e:
-        raise ValueError(f"rider {rider.zwift_id} {rider.name} encountered a problem. solve_for_fastest_achievable_time_by_rider_for_segment_using_newton failed to converge: {e}") from e
-
-    if duration_seconds <= 0.0:
-        raise ValueError(f"rider {rider.zwift_id} {rider.name} Solver returned non-physical duration: {duration_seconds:.4f} seconds")
-
-    return duration_seconds
-
-
-
 def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(rider: RiderComputeItem, segment: SlopeBucketItem) -> float:
     """
     Calculate the duration in seconds for a rider to cover a given distance with a given slope,
     using their fitted 60-minute power-duration decay curve, using a binary search root-finder.
-
-    This operates via the same physics as solve_for_fastest_achievable_time_by_rider_for_segment_using_newton
-    but uses binary bisection to guarantee convergence and cleanly handle stall boundaries.
 
     Args:
         rider (RiderComputeItem): The rider whose curve coefficients are used.
@@ -279,22 +209,6 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(r
     # (upper_bound_sec models slightly more time, producing slightly lower power,
     # ensuring the rider absolutely can complete the distance).
     return round(upper_bound_sec, 2)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeItem, route: RouteItem, power_watts: float) -> RouteItem:
