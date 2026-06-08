@@ -21,7 +21,7 @@ AERO_POSITION_FACTOR_SUPERTUCK = 0.75
 AERO_POSITION_FACTOR_FULLTUCK = 0.55
 
 UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP	: float	= 1.8
-LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP	: float= 0.6
+LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP	: float= 0.5
 
 
 UPPER_BOUND_SLOPE_CLAMP_PC	: float	= 16.00 # The maximum slope in percent that the model can handle. For example, the Alpe du Zwift has a maximum slope of around 14%.

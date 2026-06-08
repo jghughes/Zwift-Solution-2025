@@ -8,10 +8,7 @@ from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
 def test01():
-    rider_weight: float = 75.0  # kg 
-    height: float = 183
-
-    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK]
+    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
     height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
 
     column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
@@ -24,7 +21,7 @@ def test01():
             row.append(f"{area:.2f}") 
         rows.append(row)
 
-    print("Frontal area (m^2) as a function of height and aero factor - calculate_frontal_area()")
+    print("Frontal area (m^2) as a function of height and aero-position - calculate_frontal_area()")
 
     print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
 
@@ -41,7 +38,7 @@ def test02():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column in this row is value of slope
         for mass in mass_values:
-            rr_N, fg_N  = calculate_rolling_resistance_and_gravity_force(Crr=COEFFICIENT_Crr, total_mass_kg=mass, slope_pc=slope)
+            rr_N, fg_N  = calculate_rolling_resistance_and_gravity_force(mass_kg=mass, slope_pc=slope)
             row.append(f"{rr_N:.0f}" + " " f"{fg_N:.0f}") 
             # row.append(f"{rr_N + fg_N:.0f}") 
         rows.append(row)
@@ -64,7 +61,7 @@ def test04():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column is slope
         for velocity in velocity_values:
-            power_w : float = calculate_power_from_velocity(velocity_kph=velocity, Cd = COEFFICIENT_Cd, height_cm=height, Crr=COEFFICIENT_Crr, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_SUPERTUCK)
+            power_w : float = calculate_power_from_velocity(velocity_kph=velocity, height_cm=height, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_TT)
             row.append(f"{power_w:.0f}") 
         rows.append(row)
     print("Power as a function of slope and velocity - calculate_power_from_velocity()")
@@ -83,7 +80,7 @@ def test06():
 
     total_mass: float = rider_weight + COEFFICIENT_bike_weight_kg
 
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power, Cd=COEFFICIENT_Cd, height_cm=height, Crr=COEFFICIENT_Crr, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_HOODS) # NB: hoods not TT
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_HOODS) # NB: hoods not TT
 
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on gradient of {gradient}% - solve_for_velocity_from_power_using_binary_search()")
 
@@ -102,7 +99,7 @@ def test07():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column is slope
         for power in power_values:
-            speed_kmh : float = solve_for_velocity_from_power_using_binary_search(power, Cd = COEFFICIENT_Cd, height_cm=height, Crr=COEFFICIENT_Crr, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_SUPERTUCK)
+            speed_kmh : float = solve_for_velocity_from_power_using_binary_search(power_watts=power, height_cm=height, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_TT)
             row.append(f"{speed_kmh:.0f}") 
         rows.append(row)
     print("Speed as a function of slope and power - solve_for_velocity_from_power_using_binary_search()")
@@ -117,11 +114,11 @@ if __name__ == "__main__":
     start_time = time.time()
     try:
 
-        # test01()
-        # test02()
-        # test04()
+        test01()
+        test02()
+        test04()
         test06()
-        # test07()
+        test07()
 
         end_time = time.time()
         duration = end_time - start_time

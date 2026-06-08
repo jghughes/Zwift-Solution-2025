@@ -75,7 +75,7 @@ such as Zwift, Golden Cheetah, and WKO.
 import math
 import warnings
 
-from constants import COEFFICIENT_g, COEFFICIENT_rho, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP, LOWER_BOUND_SLOPE_CLAMP_PC, UPPER_BOUND_SLOPE_CLAMP_PC , UPPER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_POWER_CLAMP_W, UPPER_BOUND_POWER_CLAMP_W, LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP, UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK
+from constants import COEFFICIENT_g, COEFFICIENT_rho,COEFFICIENT_Cd,COEFFICIENT_Crr, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP, LOWER_BOUND_SLOPE_CLAMP_PC, UPPER_BOUND_SLOPE_CLAMP_PC , UPPER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_POWER_CLAMP_W, UPPER_BOUND_POWER_CLAMP_W, LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP, UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK
 
 # abbreviations
 g: float = COEFFICIENT_g  # gravity (m/s^2)
@@ -196,7 +196,7 @@ def _clampPower(power_watts: float) -> float:
         return UPPER_BOUND_POWER_CLAMP_W
     return power_watts
 
-def calculate_rolling_resistance_and_gravity_force(Crr: float, total_mass_kg: float, slope_pc: float) -> tuple[float, float]:
+def calculate_rolling_resistance_and_gravity_force(mass_kg: float, slope_pc: float) -> tuple[float, float]:
     """
     Calculate the rolling resistance and gravitational forces.
 
@@ -211,21 +211,20 @@ def calculate_rolling_resistance_and_gravity_force(Crr: float, total_mass_kg: fl
             unit is Newtons (N)
     """
 
-    total_mass_kg = _clampWeight(total_mass_kg)
+    mass_kg = _clampWeight(mass_kg)
     slope_pc = _clampSlope(slope_pc)
-
 
     theta : float = math.atan(slope_pc / 100.0)
 
-    F_roll: float    = Crr * total_mass_kg * g * math.cos(theta) # always >= 0
-    F_gravity: float = total_mass_kg * g * math.sin(theta)        # <0 descent, >0 climb
+    F_roll: float    = COEFFICIENT_Crr * mass_kg * g * math.cos(theta) # always >= 0
+    F_gravity: float = mass_kg * g * math.sin(theta)        # <0 descent, >0 climb
 
     return F_roll, F_gravity
 
 def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
     """
     Estimate the frontal area (A) of a cyclist in square meters (m^2) using
-    a simple linear formula based on height and riding position multiplier
+    a simple formula based on height and riding position multiplier from ChatGPT
     
     Formula:
         A = aero_factor * (0.0155 * height_cm)/100 
@@ -258,7 +257,7 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
         return LOWER_BOUND_FRONTAL_AREA_CLAMP
     return answer
 
-def calculate_power_from_velocity(velocity_kph: float, Cd: float, height_cm: float, Crr: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
+def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
@@ -297,13 +296,16 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, height_cm: flo
     slope_pc = _clampSlope(slope_pc)
     aero_factor= _clampAeroMultiplier(aero_factor)
 
-    F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(Crr, total_mass_kg, slope_pc)
+    F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(total_mass_kg, slope_pc)
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
 
-    frontal_area = calculate_frontal_area(height_cm, aero_factor)
+    if (velocity_kph > 60.0 and slope_pc >4.0):
+        frontal_area = calculate_frontal_area(height_cm, AERO_POSITION_FACTOR_SUPERTUCK)
+    else:
+        frontal_area = calculate_frontal_area(height_cm, aero_factor)
 
-    F_aero: float = 0.5 * rho * Cd * frontal_area * velocity_mps ** 2
+    F_aero: float = 0.5 * rho * COEFFICIENT_Cd * frontal_area * velocity_mps ** 2
 
     F_total: float = F_aero + F_roll + F_gravity
 
@@ -314,9 +316,7 @@ def calculate_power_from_velocity(velocity_kph: float, Cd: float, height_cm: flo
 
     return power_w
 
-
-
-def solve_for_velocity_from_power_using_binary_search(power_watts: float, Cd: float, height_cm: float, Crr: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
+def solve_for_velocity_from_power_using_binary_search(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
     """
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given
@@ -372,7 +372,7 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, Cd: fl
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
         upper_bound_kph += CHUNK_OF_KPH_PER_ITERATION
-        if calculate_power_from_velocity(upper_bound_kph, Cd, height_cm=height_cm, Crr=Crr, total_mass_kg=total_mass_kg, slope_pc=slope_pc, aero_factor=aero_factor) > power_watts:
+        if calculate_power_from_velocity(upper_bound_kph, height_cm=height_cm, total_mass_kg=total_mass_kg, slope_pc=slope_pc, aero_factor=aero_factor) > power_watts:
             break
         lower_bound_kph = upper_bound_kph 
     else:
@@ -393,7 +393,7 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, Cd: fl
     while (upper_bound_kph - lower_bound_kph) > REQUIRED_PRECISION_OF_SPEED_KPH and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_kph: float = (lower_bound_kph + upper_bound_kph) / 2.0
         binary_search_iterations += 1
-        if calculate_power_from_velocity(mid_point_kph, Cd, height_cm=height_cm, Crr=Crr, total_mass_kg=total_mass_kg, slope_pc=slope_pc, aero_factor=aero_factor) > power_watts:
+        if calculate_power_from_velocity(mid_point_kph, height_cm=height_cm, total_mass_kg=total_mass_kg, slope_pc=slope_pc, aero_factor=aero_factor) > power_watts:
             upper_bound_kph = mid_point_kph
         else:
             lower_bound_kph = mid_point_kph
