@@ -119,25 +119,25 @@ def _clampHeight(height_cm: float) -> float:
         return UPPER_BOUND_HEIGHT_CLAMP_CM
     return height_cm
 
-def _clampAeroMultiplier(AERO_MULTIPLIER: float) -> float:
-    if AERO_MULTIPLIER < LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP:
+def _clampAeroFactor(aero_factor: float) -> float:
+    if aero_factor < LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP:
         warnings.warn(
-            f"Unusually low AERO_MULTIPLIER={AERO_MULTIPLIER!r}: must be between {LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP} and {UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP}."
+            f"Unusually low aero factor={aero_factor!r}: must be between {LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP} and {UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP}."
             f"Clamping to {LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP}.",
             UserWarning,
             stacklevel=2,
         )
         return LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP
-    if AERO_MULTIPLIER > UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP:
+    if aero_factor > UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP:
         warnings.warn(
-            f"Unusually high AERO_MULTIPLIER={AERO_MULTIPLIER!r}: must be between {LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP} and {UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP}."
+            f"Unusually high aero factor={aero_factor!r}: must be between {LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP} and {UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP}."
             f"Clamping to {UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP}.",
             UserWarning,
             stacklevel=2,
         )
         return UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP
 
-    return AERO_MULTIPLIER   
+    return aero_factor   
 
 def _clampSlope(slope_pc: float) -> float:
     if slope_pc < LOWER_BOUND_SLOPE_CLAMP_PC:
@@ -196,6 +196,21 @@ def _clampPower(power_watts: float) -> float:
         return UPPER_BOUND_POWER_CLAMP_W
     return power_watts
 
+def demonstrateCdA(height_cm: float, aero_position_factor: float) -> float:
+    """
+    Demonstrate the calculation of the frontal area (CdA) for a cyclist.
+
+    Args:
+        height_cm (float): Rider's height in centimeters.
+        aero_position_factor (float): Multiplier based on rider's position.
+
+    Returns:
+        float: CdA in square meters (m^2).
+    """
+    effective_frontal_area = calculate_frontal_area(height_cm, aero_position_factor)
+
+    return COEFFICIENT_Cd * effective_frontal_area
+
 def calculate_rolling_resistance_and_gravity_force(mass_kg: float, slope_pc: float) -> tuple[float, float]:
     """
     Calculate the rolling resistance and gravitational forces.
@@ -224,7 +239,7 @@ def calculate_rolling_resistance_and_gravity_force(mass_kg: float, slope_pc: flo
 def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
     """
     Estimate the frontal area (A) of a cyclist in square meters (m^2) using
-    a simple formula based on height and riding position multiplier from ChatGPT
+    a simple formula based on height and riding position multiplier from ChatGPT.
     
     Formula:
         A = aero_factor * (0.0155 * height_cm)/100 
@@ -235,10 +250,13 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
 
     Args:
         height_cm (float): Rider's height in centimeters.
-            Clamped to UPPER_BOUND_HEIGHT_CLAMP_CM or LOWER_BOUND_HEIGHT_CLAMP_CM if invalid.
+            Clamped to UPPER_BOUND_HEIGHT_CLAMP_CM or 
+            LOWER_BOUND_HEIGHT_CLAMP_CM if invalid.
         aero_factor (float): Multiplier based on rider's position.
-            Clamped to UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP or LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP if invalid.
-            Defaults to AERO_POSITION_FACTOR_TT, which represents a typical time trial position (not hoods or supertuck).
+            Clamped to UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP or 
+            LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP if invalid.
+            Defaults to AERO_POSITION_FACTOR_TT, which represents 
+            a typical time trial position (not hoods or supertuck).
 
     Returns:
         float: Frontal area in square meters (m^2).
@@ -249,7 +267,7 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
     """
 
     height_cm = _clampHeight(height_cm)
-    aero_factor= _clampAeroMultiplier(aero_factor)
+    aero_factor= _clampAeroFactor(aero_factor)
 
     answer = aero_factor * (0.00155 * height_cm) 
 
@@ -261,7 +279,9 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
-    parameters.
+    parameters. Defaults to a typical time-trial position for the 
+    aero factor, which is not the same as the hoods position 
+    or the supertuck position.
 
     This function implements the full Martin et al. (1998) cycling physics model:
 
@@ -271,13 +291,13 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
         velocity_kph (float):
             Steady-state velocity in kilometres per hour (km/h).
         Cd (float):
-            Dimensionless aerodynamic drag coefficient. Typical value
-            for a road cyclist in the drops: ~0.63.
+            Dimensionless aerodynamic drag coefficient. 
+            Typical value for a road cyclist in the drops: ~0.63.
         height_cm (float):
             Rider height in centimetres (cm).
         Crr (float):
-            Dimensionless rolling resistance coefficient. Typical value
-            for road tyres on tarmac: ~0.004.
+            Dimensionless rolling resistance coefficient. 
+            Typical value for road tyres on tarmac: ~0.004.
         total_mass_kg (float):
             Combined mass of rider and bicycle.
         slope_pc (float):
@@ -294,17 +314,13 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
     height_cm = _clampHeight(height_cm)
     total_mass_kg = _clampWeight(total_mass_kg)
     slope_pc = _clampSlope(slope_pc)
-    aero_factor= _clampAeroMultiplier(aero_factor)
+    aero_factor= _clampAeroFactor(aero_factor)
 
     F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(total_mass_kg, slope_pc)
 
     velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
 
-    if (velocity_kph > 60.0 and slope_pc >4.0):
-        frontal_area = calculate_frontal_area(height_cm, AERO_POSITION_FACTOR_SUPERTUCK)
-    else:
-        frontal_area = calculate_frontal_area(height_cm, aero_factor)
-
+    frontal_area = calculate_frontal_area(height_cm, aero_factor)
     F_aero: float = 0.5 * rho * COEFFICIENT_Cd * frontal_area * velocity_mps ** 2
 
     F_total: float = F_aero + F_roll + F_gravity
@@ -321,6 +337,10 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, height
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given
     the physical and environmental parameters of the rider and road.
+    Defaults to a typical time-trial position for the 
+    aero factor, which is not the same as the hoods position 
+    or the supertuck position.
+
 
     Algorithm
     ---------
@@ -336,8 +356,9 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, height
     Args:
         power_watts (float):
             Target mechanical power output in watts (W).
-        Cd (float):
-            Dimensionless aerodynamic drag coefficient. 
+        aero_factor (float):
+            Dimensionless aerodynamic factor. 
+            Defaults to a typical time-trial position.
         height_cm (float):
             Rider height in centimetres (cm).
         Crr (float):
@@ -361,6 +382,8 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, height
     height_cm = _clampHeight(height_cm)
     total_mass_kg = _clampWeight(total_mass_kg)
     slope_pc = _clampSlope(slope_pc)
+    aero_factor= _clampAeroFactor(aero_factor)
+
 
     # 1. Find safe upper bound for binary search.
 

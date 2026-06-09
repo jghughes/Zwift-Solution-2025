@@ -22,7 +22,7 @@ Functions:
   Estimate the drag reduction factor for a rider's position.
 - calculate_kilojoules_from_wattage_and_time(wattage, duration):
   Compute energy expenditure in kilojoules.
-- calculate_watts_from_speed(kph, weight, height, slope):
+- calculate_watts_from_speed(speed, weight, height, slope):
   Calculate required power for a given speed.
 - solve_for_speed_from_wattage_using_binary_search(wattage, weight, height, slope):
   Estimate speed from rider wattage.
@@ -34,8 +34,8 @@ Notes:
 
 Example Usage:
 --------------
-    speed = solve_for_speed_from_wattage_using_binary_search(300, 75, 183, 0.0)
-    watts = calculate_watts_from_speed(40, 75, 183, 0.0)
+    speed = solve_for_speed_from_wattage_using_binary_search(wattage=300, weight_kg=75, height_cm=183, slope_pc=0.0)
+    watts = calculate_watts_from_speed(speed=40, weight_kg=75, height_cm=183, slope_pc=0.0)
     drag_factor = calculate_drag_ratio_in_paceline(3)
 """
 
@@ -81,13 +81,13 @@ def calculate_kilojoules_from_wattage_and_time(wattage: float, duration: float) 
     return wattage * duration/1_000
 
 
-def calculate_watts_from_speed(kph: float, weight: float, height: float, slope_pc: float) -> float:
+def calculate_watts_from_speed(speed: float, weight: float, height: float, slope_pc: float) -> float:
     """
     Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (%).
     """
 
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
-    watts = calculate_power_from_velocity(kph, COEFFICIENT_Cd, height_cm=height, Crr=COEFFICIENT_Crr, total_mass_kg=rider_plus_bike_mass, slope_pc=slope_pc)
+    watts = calculate_power_from_velocity(speed, height, rider_plus_bike_mass, slope_pc)
 
     return watts
 
@@ -98,7 +98,7 @@ def solve_for_speed_from_wattage_using_binary_search(wattage: float, weight: flo
     """
 
     rider_plus_bike_mass: float = weight + COEFFICIENT_bike_weight_kg
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(wattage, COEFFICIENT_Cd, height_cm=height, Crr=COEFFICIENT_Crr, total_mass_kg=rider_plus_bike_mass, slope_pc=slope_pc)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(wattage, height, rider_plus_bike_mass, slope_pc)
 
     return speed_kmh
 

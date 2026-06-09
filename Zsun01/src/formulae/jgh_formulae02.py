@@ -211,7 +211,7 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(r
     return round(upper_bound_sec, 2)
 
 
-def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeItem, route: RouteItem, power_watts: float) -> RouteItem:
+def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeItem, route: RouteItem, power: float) -> RouteItem:
     """
     Calculate the total duration (in seconds) to ride a route at a 
     constant mandated power.
@@ -219,7 +219,7 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
     Args:
         rider (RiderComputeItem): The rider attempting the route.
         route (RouteItem): The route defined as a RouteItem object containing a list of buckets.
-        power_watts (float): The constant wattage to maintain over the route.
+        power (float): The constant wattage to maintain over the route.
         
     Returns:
         RouteItem: The same RouteItem object, with each bucket mutated to carry
@@ -243,11 +243,11 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
             route.route_slope_buckets.append(SlopeBucketItem(bucket_description="residual 0% bucket", bucket_length_km=residual_distance, bucket_slope_pc=0.0))
 
     for bucket in route.route_slope_buckets:
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power_watts, bucket.bucket_slope_pc)
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider=rider, power=power, slope_pc=bucket.bucket_slope_pc)
         
         # Guard against zero or negative speeds breaking the duration math
         if speed_kph <= 0:
-            bucket.calculated_bucket_watts = power_watts
+            bucket.calculated_bucket_watts = power
             bucket.calculated_bucket_speed_kph = 0.0
             bucket.calculated_bucket_duration_sec = float('inf')
             return route   # early-out: inf duration flags this route as infeasible to the caller
@@ -257,7 +257,7 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
         
         segment_duration_sec = distance_meters / speed_meters_per_second
 
-        bucket.calculated_bucket_watts = power_watts
+        bucket.calculated_bucket_watts = power
         bucket.calculated_bucket_speed_kph = speed_kph
         bucket.calculated_bucket_duration_sec = segment_duration_sec
     
@@ -309,7 +309,7 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
         # Note: This mutates routeItem in-place. The implicit distance-correction hack inside 
         # this helper will execute securely on the first iteration and skip thereafter.
-        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, upper_bound_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider=rider, route=routeItem, power=upper_bound_watts)
         
         # Did the rider stall (velocity <= 0) because gravity beat their power?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
@@ -337,7 +337,7 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
     while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
         
-        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, mid_point_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider=rider, route=routeItem, power=mid_point_watts)
         
         # Did the rider stall on this attempt?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):

@@ -16,7 +16,7 @@ LOWER_BOUND_FRONTAL_AREA_CLAMP = 0.15  # In m^2. ChatGPT, says the baseline is 0
 
 
 AERO_POSITION_FACTOR_HOODS = 1.7 # these parameters come from ChatGPT
-AERO_POSITION_FACTOR_TT = 0.95
+AERO_POSITION_FACTOR_TT = 1.05
 AERO_POSITION_FACTOR_SUPERTUCK = 0.75
 AERO_POSITION_FACTOR_FULLTUCK = 0.55
 
@@ -33,7 +33,7 @@ LOWER_BOUND_POWER_CLAMP_W	: float = 0.00
 
 # ZWIFT_DESCENT_ATTENUATION_FRACTION : float = 0.5 # Zwift's physics model does not allow riders to reach the same speeds on descents as they would in real life. No-one knows what this factor is. must determine empirically. 1.0 means no attentuation. 0.7 means the slope is accounted for as 70% of it's true value.TODO
 
-UPPER_BOUND_SPEED_CLAMP_KPH : float = 120.0
+UPPER_BOUND_SPEED_CLAMP_KPH : float = 140.0
 LOWER_BOUND_SPEED_CLAMP_KPH : float = 0.0
 
 SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 5.5 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km. The Grade KOM

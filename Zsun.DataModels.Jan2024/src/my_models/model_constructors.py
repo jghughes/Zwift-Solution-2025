@@ -1,5 +1,6 @@
 from typing import Optional
 import math
+from constants import AERO_POSITION_FACTOR_HOODS
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_formulae00 import calculate_frontal_area
 from jgh_formulae02 import solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search , calculate_hypothetical_power_of_rider_at_given_speed, solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search
@@ -265,7 +266,7 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
     )
 
 
-    riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, riderStatsItem.weight_kg)
+    riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, AERO_POSITION_FACTOR_HOODS)
     riderStatsItem.single_segment_distance_km = round(single_segment.bucket_length_km, 1)                                                              
     riderStatsItem.single_segment_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(jghRiderComputeItem, single_segment), 1)
     riderStatsItem.single_segment_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.single_segment_duration_sec)  

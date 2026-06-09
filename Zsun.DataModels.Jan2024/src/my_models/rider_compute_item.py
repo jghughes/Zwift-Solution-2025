@@ -219,7 +219,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
 
         try:
-            speed_kmh: float = solve_for_velocity_from_power_using_binary_search(self.get_1_hour_curvefit_watts(), COEFFICIENT_Cd, height_cm=self.height_cm, Crr=COEFFICIENT_Crr, total_mass_kg=total_mass, slope_pc=slope_pc)
+            speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=self.get_1_hour_curvefit_watts(), height_cm=self.height_cm, total_mass_kg=total_mass, slope_pc=slope_pc)
         except RuntimeError as e:
             warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power_using_binary_search failed to converge: {e}. defaulting to 0.0")
             speed_kmh = 0.0
