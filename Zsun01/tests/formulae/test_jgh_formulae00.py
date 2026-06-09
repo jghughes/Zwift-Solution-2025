@@ -1,14 +1,14 @@
 from tabulate import tabulate
 import time
 import logging
-from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK
+from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK
 from jgh_formulae00 import demonstrateCdA, calculate_rolling_resistance_and_gravity_force, calculate_frontal_area,calculate_power_from_velocity, solve_for_velocity_from_power_using_binary_search
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
 def test00():
-    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
+    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
     height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
 
     column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
@@ -30,7 +30,7 @@ def test00():
 
 
 def test01():
-    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
+    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
     height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
     column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
 
@@ -97,9 +97,9 @@ def test03():
     print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%  ZwiftInsider got 44.53 kph")
 
     print(f"In the aero position:")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_300, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_TT)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_300, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_DEFAULT)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_400, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_TT)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_400, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_DEFAULT)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%")
 
     print("\n")

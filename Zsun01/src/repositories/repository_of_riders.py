@@ -154,7 +154,6 @@ class RepositoryOfRiders:
     def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
         return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
 
-
     # ...the heavy lifting: building the repository
 
     def _do_power_graph_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:

@@ -117,7 +117,19 @@ def solve_for_speed_at_one_hour_watts(rider : RiderComputeItem, slope_pc: float 
         
     return speed_kph
 
-def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(rider: RiderComputeItem, segment: SlopeBucketItem) -> float:
+def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_searchV2(rider: RiderComputeItem, segment: SlopeBucketItem, intensity_factor: float = 1.0) -> RouteItem:
+    route = RouteItem()
+    route.route_name = "n/a"
+    route.route_description = segment.bucket_description
+    route.route_length_km = segment.bucket_length_km
+    route.route_elevation_m = segment.bucket_length_km * (segment.bucket_slope_pc / 100.0) * 1000.0
+    route.route_slope_buckets=[segment]
+
+    route = solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider, route, intensity_factor)
+    return route
+
+
+def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(rider: RiderComputeItem, segment: SlopeBucketItem, intensity_factor: float = 1.0) -> float:
     """
     Calculate the duration in seconds for a rider to cover a given distance with a given slope,
     using their fitted 60-minute power-duration decay curve, using a binary search root-finder.
@@ -152,7 +164,7 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(r
     
     for _ in range(MAX_PHASE_1_ITERATIONS):
         watts = float(decay_model_numpy(np.array([t_guess]), decay_curve_coefficient, decay_curve_exponent)[0])
-        
+        watts *= intensity_factor
         try:
             speed_kph = solve_for_speed_from_wattage_using_binary_search(watts, rider.weight_kg, rider.height_cm, segment.bucket_slope_pc)
         except ValueError:
@@ -187,6 +199,7 @@ def solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(r
         iterations += 1
         
         watts = float(decay_model_numpy(np.array([mid_sec]), decay_curve_coefficient, decay_curve_exponent)[0])
+        watts *= intensity_factor
         
         try:
             speed_kph = solve_for_speed_from_wattage_using_binary_search(watts, rider.weight_kg, rider.height_cm, segment.bucket_slope_pc)
@@ -243,7 +256,7 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
             route.route_slope_buckets.append(SlopeBucketItem(bucket_description="residual 0% bucket", bucket_length_km=residual_distance, bucket_slope_pc=0.0))
 
     for bucket in route.route_slope_buckets:
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider=rider, power=power, slope_pc=bucket.bucket_slope_pc)
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, power, bucket.bucket_slope_pc)
         
         # Guard against zero or negative speeds breaking the duration math
         if speed_kph <= 0:
@@ -264,7 +277,7 @@ def solve_for_hypothetical_route_time_at_a_mandated_power(rider: RiderComputeIte
     return route
 
 
-def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem) -> RouteItem:
+def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem, intensity_factor: float = 1.0) -> RouteItem:
     """
     Finds the highest constant power output the rider can just barely sustain over a
     multi-bucket route, populates each bucket with the resulting watts, speed, and
@@ -286,6 +299,8 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
             jgh_60_min_curve_exponent.
         routeItem (RouteItem): The route, supplying an ordered list of buckets (SlopeBucketItem),
             each supplying bucket_length_km and bucket_slope_pc.
+        intensity_factor (float): The factor to apply to the rider's best 90-day power 
+        for the duration of the route.
 
     Returns:
         RouteItem: The same RouteItem object, with each bucket mutated to carry
@@ -309,17 +324,17 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
         # Note: This mutates routeItem in-place. The implicit distance-correction hack inside 
         # this helper will execute securely on the first iteration and skip thereafter.
-        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider=rider, route=routeItem, power=upper_bound_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, upper_bound_watts)
         
         # Did the rider stall (velocity <= 0) because gravity beat their power?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
              pass # Stalled! The test power is simply too low. Loop must continue to increase watts.
         else:
              simulated_total_duration_sec = sum(bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets)
-             max_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
+             best_90_day_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
              
              # Did we push the guess power past what the rider is physically capable of for this duration?
-             if upper_bound_watts > max_power_for_duration:
+             if upper_bound_watts > best_90_day_power_for_duration * intensity_factor:
                  break
             
         upper_bound_watts += CHUNK_OF_WATTS_PER_ITERATION
@@ -336,8 +351,7 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
 
     while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
-        
-        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider=rider, route=routeItem, power=mid_point_watts)
+        simulated_route = solve_for_hypothetical_route_time_at_a_mandated_power(rider, routeItem, mid_point_watts)
         
         # Did the rider stall on this attempt?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
@@ -345,9 +359,9 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
             lower_bound_watts = mid_point_watts
         else:
              simulated_total_duration_sec = sum(bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets)
-             max_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
-
-             if mid_point_watts > max_power_for_duration:
+             best_90_day_power_for_duration = float(decay_model_numpy(np.array([simulated_total_duration_sec]), rider.jgh_60_min_curve_coefficient, rider.jgh_60_min_curve_exponent)[0]) 
+             target_power_for_duration =best_90_day_power_for_duration * intensity_factor
+             if mid_point_watts > target_power_for_duration:
                  upper_bound_watts = mid_point_watts
              else:
                  lower_bound_watts = mid_point_watts
@@ -355,12 +369,10 @@ def solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(rid
         binary_search_iterations += 1
 
    # 3. Populate final Route result with our solved maximum sustainable power boundary.
-   # CRITICAL FIX: We must use the LOWER bound, representing a power output the rider can actually achieve.
-    converged_power_watts = lower_bound_watts
-
+   #    We must use the LOWER bound, representing a power output the rider can actually achieve.
     for bucket in routeItem.route_slope_buckets:
-        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, converged_power_watts, bucket.bucket_slope_pc)
-        bucket.calculated_bucket_watts = round(converged_power_watts, 1)
+        speed_kph = solve_for_hypothetical_speed_of_rider_at_given_power(rider, lower_bound_watts, bucket.bucket_slope_pc)
+        bucket.calculated_bucket_watts = round(lower_bound_watts, 1)
         if speed_kph <= 0:
             bucket.calculated_bucket_speed_kph = 0.0
             bucket.calculated_bucket_duration_sec = float('inf')

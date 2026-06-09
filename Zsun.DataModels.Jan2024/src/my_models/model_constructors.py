@@ -1,6 +1,6 @@
 from typing import Optional
 import math
-from constants import AERO_POSITION_FACTOR_HOODS
+from constants import AERO_POSITION_FACTOR_HOODS, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
 from jgh_formulae00 import calculate_frontal_area
 from jgh_formulae02 import solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search , calculate_hypothetical_power_of_rider_at_given_speed, solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search
@@ -267,12 +267,16 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
 
 
     riderStatsItem.frontal_area_m2 = calculate_frontal_area(riderStatsItem.height_cm, AERO_POSITION_FACTOR_HOODS)
-    riderStatsItem.single_segment_distance_km = round(single_segment.bucket_length_km, 1)                                                              
-    riderStatsItem.single_segment_duration_sec = round(solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(jghRiderComputeItem, single_segment), 1)
-    riderStatsItem.single_segment_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.single_segment_duration_sec)  
-    speedKph = safe_divide((riderStatsItem.single_segment_distance_km * 1_000.0), riderStatsItem.single_segment_duration_sec) * 3.6
-    riderStatsItem.single_segment_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, single_segment.bucket_slope_pc), 1) 
-    riderStatsItem.single_segment_wgk = round(safe_divide(riderStatsItem.single_segment_watts, riderStatsItem.weight_kg), 2)
+
+    segment_routeItem = solve_for_fastest_achievable_time_by_rider_for_segment_using_binary_search(jghRiderComputeItem, single_segment, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
+
+
+    # riderStatsItem.single_segment_distance_km = round(segment_routeItem.route_length_km, 1)                                                              
+    # riderStatsItem.single_segment_duration_sec = round(segment_routeItem.route_slope_buckets[0].calculated_bucket_duration_sec, 1)
+    # riderStatsItem.single_segment_duration_hh_mm_ss = format_seconds_to_hh_mm_ss(riderStatsItem.single_segment_duration_sec)  
+    # speedKph = safe_divide((riderStatsItem.single_segment_distance_km * 1_000.0), riderStatsItem.single_segment_duration_sec) * 3.6
+    # riderStatsItem.single_segment_watts = round(calculate_hypothetical_power_of_rider_at_given_speed(jghRiderComputeItem, speedKph, single_segment.bucket_slope_pc), 1) 
+    # riderStatsItem.single_segment_wgk = round(safe_divide(riderStatsItem.single_segment_watts, riderStatsItem.weight_kg), 2)
 
     riderStatsItem.route_name = routeItem.route_name
     riderStatsItem.route_zwift_world_name = routeItem.zwift_world_name
@@ -280,11 +284,11 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
     riderStatsItem.route_length_km = routeItem.route_length_km
     riderStatsItem.route_elevation_m = routeItem.route_elevation_m
     riderStatsItem.route_lead_in_length_km = routeItem.lead_in_length_km
-    routeItem = solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(jghRiderComputeItem, routeItem)
-    riderStatsItem.route_imposed_intensity_factor = routeItem.imposed_intensity_factor
+    routeItem = solve_for_fastest_achievable_time_by_rider_for_route_using_binary_search(jghRiderComputeItem, routeItem, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
+    # riderStatsItem.route_imposed_intensity_factor = DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
 
 
-    route_time_sec = sum(b.calculated_bucket_duration_sec for b in routeItem.route_slope_buckets)
+    route_time_sec = sum(bucket.calculated_bucket_duration_sec for bucket in routeItem.route_slope_buckets)
     if not math.isfinite(route_time_sec):
         riderStatsItem.route_fastest_achievable_time_sec = 0.0
         riderStatsItem.route_fastest_achievable_time_hh_mm_ss = "n/a"

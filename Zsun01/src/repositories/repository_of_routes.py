@@ -27,8 +27,8 @@ class RepositoryOfRoutes:
             route_length_km             = 17.3,
             route_elevation_m           = 103.0,
             lead_in_length_km           = 2.3,
-            imposed_intensity_factor  = 1.0,
-            route_slope_buckets              = [
+            # imposed_intensity_factor    = 1.0,
+            route_slope_buckets         = [
                 SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.129, bucket_slope_pc=-2.0),
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=1.520, bucket_slope_pc=-1.0),
                 SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=14.0, bucket_slope_pc=0.0),
@@ -43,8 +43,8 @@ class RepositoryOfRoutes:
             route_length_km             = 3.52,
             route_elevation_m           = 305,
             lead_in_length_km           = 0.0,
-            imposed_intensity_factor  = 1.0,
-            route_slope_buckets              = [
+            # imposed_intensity_factor    = 1.0,
+            route_slope_buckets         = [
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.010, bucket_slope_pc=-1.0),
                 SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.156, bucket_slope_pc=0.0),
                 SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.054, bucket_slope_pc=1.0),
@@ -69,8 +69,8 @@ class RepositoryOfRoutes:
             route_length_km             = 5.9,
             route_elevation_m           = 377,
             lead_in_length_km           = 0.0,
-            imposed_intensity_factor  = 1.0,
-            route_slope_buckets              = [
+            # imposed_intensity_factor    = 1.0,
+            route_slope_buckets         = [
                 # SlopeBucketItem(bucket_description="minus 12% bucket", bucket_length_km=0.0, bucket_slope_pc=-12.0),
                 # SlopeBucketItem(bucket_description="minus 11% bucket", bucket_length_km=0.0, bucket_slope_pc=-11.0),
                 # SlopeBucketItem(bucket_description="minus 10% bucket", bucket_length_km=0.0, bucket_slope_pc=-10.0),
@@ -106,8 +106,8 @@ class RepositoryOfRoutes:
             route_length_km             = 7.9,
             route_elevation_m           = 306,
             lead_in_length_km           = 0.2,
-            imposed_intensity_factor  = 1.0,
-            route_slope_buckets              = [
+            # imposed_intensity_factor    = 1.0,
+            route_slope_buckets         = [
                 SlopeBucketItem(bucket_description="minus 12% bucket", bucket_length_km=0.356, bucket_slope_pc=-12.0),
                 SlopeBucketItem(bucket_description="minus 11% bucket", bucket_length_km=0.185, bucket_slope_pc=-11.0),
                 SlopeBucketItem(bucket_description="minus 10% bucket", bucket_length_km=1.575, bucket_slope_pc=-10.0),
@@ -144,8 +144,8 @@ class RepositoryOfRoutes:
             route_length_km             = 41.0,
             route_elevation_m           = 1153,
             lead_in_length_km           = 2.3,
-            imposed_intensity_factor  = 1.0,
-            route_slope_buckets              = [
+            # imposed_intensity_factor    = 1.0,
+            route_slope_buckets         = [
                 SlopeBucketItem(bucket_description="minus 3% bucket", bucket_length_km=0.734, bucket_slope_pc=-3.0),
                 SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=1.786, bucket_slope_pc=-2.0),
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=4.282, bucket_slope_pc=-1.0),
@@ -165,21 +165,6 @@ class RepositoryOfRoutes:
 
             ]
         ),
-
-        # "Alpe-du-Zwift": RouteItem(
-        #     route_name                  = "Alpe du Zwift",
-        #     zwift_world_name              = "Watopia",
-        #     route_description           = "A gruelling 21-hairpin climb modelled on Alpe d'Huez.",
-        #     route_length_km             = 12.2,
-        #     route_elevation_m           = 1036.0,
-        #     lead_in_length_km           = 0.0,
-        #     imposed_intensity_factor  = 1.0,
-        #     route_slope_buckets              = [
-        #         SlopeBucketItem(bucket_description="Lower slopes", bucket_length_km=4.0, bucket_slope_pc=8.5, bucket_elevation_m=340.0),
-        #         SlopeBucketItem(bucket_description="Mid climb",    bucket_length_km=4.1, bucket_slope_pc=8.5, bucket_elevation_m=349.0),
-        #         SlopeBucketItem(bucket_description="Upper slopes", bucket_length_km=4.1, bucket_slope_pc=8.5, bucket_elevation_m=347.0),
-        #     ]
-        # ),
 
     }
 

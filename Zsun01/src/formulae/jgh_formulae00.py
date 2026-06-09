@@ -75,7 +75,7 @@ such as Zwift, Golden Cheetah, and WKO.
 import math
 import warnings
 
-from constants import COEFFICIENT_g, COEFFICIENT_rho,COEFFICIENT_Cd,COEFFICIENT_Crr, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP, LOWER_BOUND_SLOPE_CLAMP_PC, UPPER_BOUND_SLOPE_CLAMP_PC , UPPER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_POWER_CLAMP_W, UPPER_BOUND_POWER_CLAMP_W, LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP, UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK
+from constants import COEFFICIENT_g, COEFFICIENT_rho,COEFFICIENT_Cd,COEFFICIENT_Crr, UPPER_BOUND_HEIGHT_CLAMP_CM, LOWER_BOUND_HEIGHT_CLAMP_CM, UPPER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_WEIGHT_CLAMP_KG, LOWER_BOUND_FRONTAL_AREA_CLAMP, LOWER_BOUND_SLOPE_CLAMP_PC, UPPER_BOUND_SLOPE_CLAMP_PC , UPPER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_SPEED_CLAMP_KPH, LOWER_BOUND_POWER_CLAMP_W, UPPER_BOUND_POWER_CLAMP_W, LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP, UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK
 
 # abbreviations
 g: float = COEFFICIENT_g  # gravity (m/s^2)
@@ -236,7 +236,7 @@ def calculate_rolling_resistance_and_gravity_force(mass_kg: float, slope_pc: flo
 
     return F_roll, F_gravity
 
-def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
+def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Estimate the frontal area (A) of a cyclist in square meters (m^2) using
     a simple formula based on height and riding position multiplier from ChatGPT.
@@ -255,7 +255,7 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
         aero_factor (float): Multiplier based on rider's position.
             Clamped to UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP or 
             LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP if invalid.
-            Defaults to AERO_POSITION_FACTOR_TT, which represents 
+            Defaults to AERO_POSITION_FACTOR_DEFAULT, which represents 
             a typical time trial position (not hoods or supertuck).
 
     Returns:
@@ -275,7 +275,7 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
         return LOWER_BOUND_FRONTAL_AREA_CLAMP
     return answer
 
-def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
+def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Calculate the mechanical power (W) required for a cyclist to maintain
     a specified steady-state velocity, given physical and environmental
@@ -332,7 +332,7 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
 
     return power_w
 
-def solve_for_velocity_from_power_using_binary_search(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_TT) -> float:
+def solve_for_velocity_from_power_using_binary_search(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Solve for the steady-state cycling velocity (km/h) at which a rider
     producing a specified constant power output (W) will travel, given

@@ -19,6 +19,7 @@ AERO_POSITION_FACTOR_HOODS = 1.7 # these parameters come from ChatGPT
 AERO_POSITION_FACTOR_TT = 1.05
 AERO_POSITION_FACTOR_SUPERTUCK = 0.75
 AERO_POSITION_FACTOR_FULLTUCK = 0.55
+AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_TT
 
 UPPER_BOUND_AERO_POSITION_FACTOR_CLAMP	: float	= 1.8
 LOWER_BOUND_AERO_POSITION_FACTOR_CLAMP	: float= 0.5
@@ -30,14 +31,13 @@ LOWER_BOUND_SLOPE_CLAMP_PC	: float = -16.00 # The minimum slope in percent that 
 UPPER_BOUND_POWER_CLAMP_W	: float	= 2_000.00 
 LOWER_BOUND_POWER_CLAMP_W	: float = 0.00 
 
-
-# ZWIFT_DESCENT_ATTENUATION_FRACTION : float = 0.5 # Zwift's physics model does not allow riders to reach the same speeds on descents as they would in real life. No-one knows what this factor is. must determine empirically. 1.0 means no attentuation. 0.7 means the slope is accounted for as 70% of it's true value.TODO
+DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for routes and segments when no specific factor is defined.
 
 UPPER_BOUND_SPEED_CLAMP_KPH : float = 140.0
 LOWER_BOUND_SPEED_CLAMP_KPH : float = 0.0
 
-SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 5.5 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km. The Grade KOM
-SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 5.8  # Tempus Fugit is (16/19.6E3)*100= 0.08% on average, Alpe du Zwift is (1036/12.2E3)*100 = 8.49% on average. The GradeKOM = 8.6%
+SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 3.52 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km. The Grade KOM=3.52
+SINGLE_SEGMENT_PREDICTION_SLOPE_PC: float = 8.6  # Tempus Fugit is (16/19.6E3)*100= 0.08% on average, Alpe du Zwift is (1036/12.2E3)*100 = 8.49% on average. The Grade KOM = 8.6%
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of test - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. I did a thumsuck extrapolation for an additional four riders to cater for an eight person paceline. The overall numbers are not important, only the ratio between them.
 
