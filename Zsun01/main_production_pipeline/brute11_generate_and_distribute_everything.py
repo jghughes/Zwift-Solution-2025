@@ -53,7 +53,6 @@ import time
 
 
 import pandas as pd
-from constants import SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
@@ -139,8 +138,7 @@ async def generate_everything_and_save_and_upload():
 
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    singleSegement : SlopeBucketItem = SlopeBucketItem(bucket_description=f"segment {SINGLE_SEGMENT_PREDICTION_DISTANCE_KM} km at {SINGLE_SEGMENT_PREDICTION_SLOPE_PC}%", bucket_length_km=SINGLE_SEGMENT_PREDICTION_DISTANCE_KM, bucket_slope_pc=SINGLE_SEGMENT_PREDICTION_SLOPE_PC)
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED, singleSegement, route)
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED, route)
     elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
     print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders.")

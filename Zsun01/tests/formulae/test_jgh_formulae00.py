@@ -17,7 +17,7 @@ def test00():
     for height in height_values:
         row : list[str] = [f"{height:.1f}"] # leftmost column in this row is  height
         for aero_factor in aero_values:
-            area  = calculate_frontal_area(height_cm=height, aero_factor=aero_factor)
+            area  = calculate_frontal_area(height, aero_factor)
             row.append(f"{area:.2f}") 
         rows.append(row)
 
@@ -38,7 +38,7 @@ def test01():
     for height in height_values:
         row : list[str] = [f"{height:.1f}"] # leftmost column in this row is  height
         for aero_factor in aero_values:
-            cdA  = demonstrateCdA(height_cm=height, aero_position_factor=aero_factor)
+            cdA  = demonstrateCdA(height, aero_factor)
             row.append(f"{cdA:.2f}") 
         rows.append(row)
 
@@ -62,7 +62,7 @@ def test02():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column in this row is  slope
         for mass in mass_values:
-            rr_N, fg_N  = calculate_rolling_resistance_and_gravity_force(mass_kg=mass, slope_pc=slope)
+            rr_N, fg_N  = calculate_rolling_resistance_and_gravity_force(mass, slope)
             row.append(f"{rr_N:.0f}" + " " f"{fg_N:.0f}") 
             # row.append(f"{rr_N + fg_N:.0f}") 
         rows.append(row)
@@ -91,15 +91,15 @@ def test03():
     print(f"Benchmark vs ZwiftInsider's empirical measurements in the hoods on the flat.")
     print(f"    solve_for_velocity_from_power_using_binary_search()")
     print(f"In the hoods:")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_300, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_HOODS)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%  ZwiftInsider got 40.19 kph")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_400, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_HOODS)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%  ZwiftInsider got 44.53 kph")
 
     print(f"In the aero position:")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_300, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_DEFAULT)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_DEFAULT)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%")
-    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=power_400, height_cm=height, total_mass_kg=total_mass, slope_pc=gradient, aero_factor=AERO_POSITION_FACTOR_DEFAULT)
+    speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_DEFAULT)
     print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%")
 
     print("\n")
@@ -118,7 +118,7 @@ def test04():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column is slope
         for velocity in velocity_values:
-            power_w : float = calculate_power_from_velocity(velocity_kph=velocity, height_cm=height, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_HOODS)
+            power_w : float = calculate_power_from_velocity(velocity, height, mass, slope, AERO_POSITION_FACTOR_HOODS)
             row.append(f"{power_w:.0f}") 
         rows.append(row)
     print(f"Climbing power for {rider_weight} kg rider in the hoods.")
@@ -141,7 +141,7 @@ def test05():
     for slope in slope_values:
         row : list[str] = [f"{slope:.1f}"] # leftmost column is slope
         for power in power_values:
-            speed_kmh : float = solve_for_velocity_from_power_using_binary_search(power_watts=power, height_cm=height, total_mass_kg=mass, slope_pc=slope, aero_factor=AERO_POSITION_FACTOR_SUPERTUCK)
+            speed_kmh : float = solve_for_velocity_from_power_using_binary_search(power, height, mass, slope, AERO_POSITION_FACTOR_SUPERTUCK)
             row.append(f"{speed_kmh:.0f}") 
         rows.append(row)
     print(f"Descending speed for {rider_weight} kg rider in supertuck position.")

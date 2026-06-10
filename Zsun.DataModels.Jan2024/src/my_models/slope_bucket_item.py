@@ -12,7 +12,7 @@ class SlopeBucketItem:
     calculated_bucket_elevation_m  : float = 0.0
     calculated_bucket_watts        : float = 0.0
     calculated_bucket_speed_kph    : float = 0.0
-    calculated_bucket_duration_sec : float = 0.0
+    calculated_bucket_duration_sec : float = float('inf')
 
     @staticmethod
     def from_dataTransferObject(dto: SlopeBucketDTO) -> "SlopeBucketItem":

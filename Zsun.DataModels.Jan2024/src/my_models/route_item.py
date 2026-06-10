@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 from slope_bucket_item import SlopeBucketItem
 from route_dto import RouteDTO
+from rider_stats_item import RiderStatsItem
 
 @dataclass()
 class RouteItem:
@@ -43,6 +44,17 @@ class RouteItem:
             # imposed_intensity_factor = item.imposed_intensity_factor,
             route_slope_buckets = [SlopeBucketItem.to_dataTransferObject(segment_item) for segment_item in item.route_slope_buckets]
         )
+
     @staticmethod
     def to_dataTransferObjectList(item_list: List["RouteItem"]) -> List[RouteDTO]:
         return [RouteItem.to_dataTransferObject(item) for item in item_list]
+
+    @staticmethod
+    def populate_riderStatsItem_with_routeItem(route_item: "RouteItem", rider_stats_item: RiderStatsItem) -> RiderStatsItem:
+        rider_stats_item.route_name = route_item.route_name
+        rider_stats_item.zwift_world_name = route_item.zwift_world_name
+        rider_stats_item.route_description = route_item.route_description
+        rider_stats_item.route_length_km = route_item.route_length_km
+        rider_stats_item.route_elevation_m = route_item.route_elevation_m
+        rider_stats_item.lead_in_length_km = route_item.lead_in_length_km
+        return rider_stats_item

@@ -37,7 +37,6 @@ Example Usage:
 from collections import defaultdict
 from typing import Dict, List
 from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
-from jgh_formulae01 import calculate_kilojoules_from_wattage_and_time
 from jgh_formulae03 import calculate_power_riding_in_the_paceline
 from rider_compute_item import RiderComputeItem
 
@@ -61,7 +60,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
         dict_of_rider_exertions: List[RiderExertionItem] = []
         for assignment in dict_of_rider_work_assignments:
             wattage = calculate_power_riding_in_the_paceline(rider, assignment.speed, assignment.position, assignment.slope_pc)
-            kilojoules = calculate_kilojoules_from_wattage_and_time(wattage, assignment.duration)
+            kilojoules = wattage * assignment.duration / 1_000  # Convert to kilojoules 
 
             dict_of_rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
         rider_workloads[rider] = dict_of_rider_exertions

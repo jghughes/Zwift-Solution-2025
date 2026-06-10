@@ -49,8 +49,7 @@ class RepositoryOfRiders:
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
         snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath : str,
-        single_segment: SlopeBucketItem,
-        routeItem: RouteItem
+        routeItem: RouteItem = None
     )->bool:
 
         """
@@ -91,7 +90,6 @@ class RepositoryOfRiders:
             bool: True if the repository was populated successfully.
         """
 
-        self._singleSegment = single_segment
         self._routeItem = routeItem
 
         print(f"Repository to read raw data is populating itself. This will take up to a minute.")
@@ -312,7 +310,6 @@ class RepositoryOfRiders:
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
                 projected_accelerated_level,
-                self._singleSegment,
                 self._routeItem
             )
 

@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>988382e8-f8bc-46b3-a768-f7c382a8c147</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\third_party_models\zwiftpower_flattened_90_day_watts_item.py</StartupFile>
+    <StartupFile>src\my_models\model_constructors.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src\my_models;src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01;..\Zsun01\src\formulae;..\Zsun01\src\paceline_display</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

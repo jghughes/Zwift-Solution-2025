@@ -3,14 +3,15 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
+from jgh_number import safe_divide
+
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
-from jgh_formulae01 import calculate_drag_ratio_in_paceline, solve_for_speed_from_wattage_using_binary_search
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
-# from jgh_formulae03 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_lower_bound_paceline_speed, solve_for_speed_at_one_hour_watts, calculate_hypothetical_power_of_rider_at_given_speed
-from jgh_number import safe_divide
+from jgh_formulae00 import calculate_drag_ratio_in_paceline, calculate_watts_from_speed
+from jgh_formulae01 import solve_for_speed_from_wattage_using_binary_search
+from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts
 from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
@@ -30,7 +31,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
     float: The required wattage in watts.
     """
     # Calculate the base power required for the given speed
-    base_power = calculate_hypothetical_power_of_rider_at_given_speed(rider, speed, slope_pc)
+    base_power = calculate_watts_from_speed(speed, rider.weight_kg, rider.height_cm, slope_pc)
 
     # Get the power factor based on the rider's position in the peloton
     power_factor = calculate_drag_ratio_in_paceline(position)

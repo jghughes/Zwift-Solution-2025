@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
-from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg
+from constants import COEFFICIENT_bike_weight_kg
 import warnings
 
-from jgh_formulae00 import calculate_frontal_area, solve_for_velocity_from_power_using_binary_search
+from jgh_formulae01 import solve_for_velocity_from_power_using_binary_search
 from jgh_number import safe_divide
 from rider_compute_dto import RiderComputeDTO   
 from zwift_id_base import FrozenZwiftIdBase
@@ -79,7 +79,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
     @staticmethod
     def from_dataTransferObject(dto: Optional[RiderComputeDTO]) -> "RiderComputeItem":
         if dto is None:
-            return RiderComputeItem()
+            return RiderComputeItem
         return RiderComputeItem(
             zwift_id							= dto.zwift_id or "",
             name								= dto.name_racingapp or "",
@@ -217,9 +217,8 @@ class RiderComputeItem(FrozenZwiftIdBase):
 
     def get_1_hour_distance_km_on_slope(self, slope_pc : float) -> float:
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
-
         try:
-            speed_kmh: float = solve_for_velocity_from_power_using_binary_search(power_watts=self.get_1_hour_curvefit_watts(), height_cm=self.height_cm, total_mass_kg=total_mass, slope_pc=slope_pc)
+            speed_kmh: float = solve_for_velocity_from_power_using_binary_search(self.get_1_hour_curvefit_watts(), self.height_cm, total_mass, slope_pc)
         except RuntimeError as e:
             warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power_using_binary_search failed to converge: {e}. defaulting to 0.0")
             speed_kmh = 0.0
@@ -232,17 +231,13 @@ class RiderComputeItem(FrozenZwiftIdBase):
         return safe_divide(wattage,self.weight_kg)
 
     def get_n_second_curvefit_y_ordinate_watts(self, seconds: float) -> float:
-
         one_hour_curve = decay_model_numpy(np.array([seconds]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
-
         if seconds < 900:
             pull_curve = decay_model_numpy(np.array([seconds]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
             answer = max(pull_curve[0], one_hour_curve[0])
-
         elif seconds >= 900 and seconds < 1200:
             pull_curve = decay_model_numpy(np.array([seconds]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
-            # Linear transition from max(...) at 900s to one_hour_curve[0] at 1200s
-            t = (seconds - 900) / 300.0
+            t = (seconds - 900) / 300.0 # Linear transition from max(...) at 900s to one_hour_curve[0] at 1200s
             start_val = max(pull_curve[0], one_hour_curve[0])
             end_val = one_hour_curve[0]
             answer = (1 - t) * start_val + t * end_val

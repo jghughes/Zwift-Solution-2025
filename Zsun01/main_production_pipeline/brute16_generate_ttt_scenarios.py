@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from constants import PULL_DURATION_OPTIONS_SEC, SINGLE_SEGMENT_PREDICTION_SLOPE_PC
+from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_PACELINE_SLOPE_PC
 
 from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_display_objects import (
@@ -158,7 +158,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = SINGLE_SEGMENT_PREDICTION_SLOPE_PC
+        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC
         )
     report_30sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
     report_30sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_30sec_plan)
@@ -184,7 +184,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
+        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
         )
     report_60sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
     report_60sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_60sec_plan)
@@ -210,7 +210,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
+        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
 
@@ -243,7 +243,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
+        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
     )
 
     package: Any = generate_package_of_paceline_solutions(ingredients)
@@ -266,7 +266,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = SINGLE_SEGMENT_PREDICTION_SLOPE_PC,
+        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
