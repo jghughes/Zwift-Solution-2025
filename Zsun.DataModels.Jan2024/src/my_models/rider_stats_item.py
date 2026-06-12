@@ -137,12 +137,6 @@ class RiderStatsItem(ZwiftIdBase):
 			w_30min						= int(item.w_30min),
 			w_40min						= int(item.w_40min),
 			w_60min_curvefit			= int(item.w_60min_curvefit),
-			# frontal_area_m2				= item.frontal_area_m2,
-			# single_segment_distance_km			= item.single_segment_distance_km,
-			# single_segment_watts				= item.single_segment_watts,
-			# single_segment_wgk					= item.single_segment_wgk,
-			# single_segment_duration_sec			= item.single_segment_duration_sec,
-			# single_segment_duration_hh_mm_ss	= item.single_segment_duration_hh_mm_ss,
 			route_name								= item.route_name,
 			route_zwift_world_name					= item.route_zwift_world_name,
 			route_description						= item.route_description,
@@ -213,12 +207,6 @@ class RiderStatsItem(ZwiftIdBase):
 		item.w_30min					= dto.w_30min
 		item.w_40min					= dto.w_40min
 		item.w_60min_curvefit			= dto.w_60min_curvefit
-		# item.frontal_area_m2			= dto.frontal_area_m2
-		# item.single_segment_distance_km			= dto.single_segment_distance_km
-		# item.single_segment_watts				= dto.single_segment_watts
-		# item.single_segment_wgk					= dto.single_segment_wgk
-		# item.single_segment_duration_sec		= dto.single_segment_duration_sec
-		# item.single_segment_duration_hh_mm_ss	= dto.single_segment_duration_hh_mm_ss
 		item.route_name								= dto.route_name
 		item.route_zwift_world_name					= dto.route_zwift_world_name
 		item.route_description						= dto.route_description

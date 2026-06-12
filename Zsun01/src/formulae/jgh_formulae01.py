@@ -1,57 +1,9 @@
-"""
-Cycling Paceline Utility Formulae
-=================================
-
-This module provides utility functions for cycling paceline analysis,
-including speed, power, energy, and drag estimations. It leverages
-core physics models and constants from the project to support
-simulation and optimization of rider performance in a paceline.
-
-Key Features:
--------------
-- Triangulates speed, time, and distance for cycling segments.
-- Estimates drag reduction ratios for riders in different paceline
-  positions using ZwiftInsider's power matrix.
-- Calculates energy expenditure in kilojoules from wattage and time.
-- Computes required power for a given speed, weight, and height.
-- Estimates steady-state speed from rider wattage, weight, and height.
-
-Functions:
-----------
-- calculate_drag_ratio_in_paceline(position):
-  Estimate the drag reduction factor for a rider's position.
-  Compute energy expenditure in kilojoules.
-- calculate_watts_from_speed(speed, weight, height, slope):
-  Calculate required power for a given speed.
-- solve_for_speed_from_wattage_using_binary_search(wattage, weight, height, slope):
-  Estimate speed from rider wattage.
-
-Notes:
-------
-- All calculations use SI units unless otherwise specified.
-- Logging is disabled in functions called during parallel processing.
-
-Example Usage:
---------------
-    speed = solve_for_speed_from_wattage_using_binary_search(wattage=300, weight_kg=75, height_cm=183, slope_pc=0.0)
-    watts = calculate_watts_from_speed(speed=40, weight_kg=75, height_cm=183, slope_pc=0.0)
-    drag_factor = calculate_drag_ratio_in_paceline(3)
-"""
-
-import numpy as np
 import warnings
-
-
-from jgh_number import safe_divide
-from jgh_power_curve_fit_models import decay_model_numpy
-
 from constants import (
     COEFFICIENT_bike_weight_kg,
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_PACELINE_SLOPE_PC,
 )
-# from jgh_number import safe_divide
-
 from jgh_formulae00 import calculate_power_from_velocity
 
 

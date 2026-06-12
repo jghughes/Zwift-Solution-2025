@@ -54,12 +54,6 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"w_30min"								:	AliasChoices("w_30min", "w30min"),
 	"w_40min"								:	AliasChoices("w_40min", "w40min"),
 	"w_60min_curvefit"						:	AliasChoices("w_60min_curvefit", "w60minCurvefit"),
-	# "frontal_area_m2"						:	AliasChoices("frontal_area_m2", "frontalAreaM2"),
-	# "single_segment_distance_km"			:	AliasChoices("single_segment_distance_km", "predictionDistanceKm"),
-	# "single_segment_watts"					:	AliasChoices("single_segment_watts", "predictionWatts"),
-	# "single_segment_wgk"					:	AliasChoices("single_segment_wgk", "predictionWkg"),
-	# "single_segment_duration_sec"			:	AliasChoices("single_segment_duration_sec", "predictionDurationSec"),
-	# "single_segment_duration_hh_mm_ss"		:	AliasChoices("single_segment_duration_hh_mm_ss", "predictionDurationHhMmSs"),
 	"route_name"							:	AliasChoices("route_name", "routeName"),
 	"route_zwift_world_name"				:	AliasChoices("route_zwift_world_name", "routeZwiftWorldName"),
 	"route_description"						:	AliasChoices("route_description", "routeDescription"),
@@ -136,24 +130,18 @@ class RiderStatsDTO(BaseModel):
 	w_30min									:	float	=	0.0
 	w_40min									:	float	=	0.0
 	w_60min_curvefit						:	float	=	0.0
-	# frontal_area_m2							:	float	=	0.0
-	# single_segment_distance_km				:	float	=	0.0 # Distance in km for which the single_segment_duration_sec and single_segment_duration_hh_mm_ss are calculated
-	# single_segment_watts					:	float	=	0.0 # Predicted watts for the specified distance
-	# single_segment_wgk						:	float	=	0.0 # Predicted watts per kg for the specified distance
-	# single_segment_duration_sec				: 	float	=	0.0 # Predicted duration for a distance in km (specified in constants.py) in seconds
-	# single_segment_duration_hh_mm_ss		: 	str		=	"" # Predicted duration for a distance in km (specified in constants.py), must be in format HH:mm:ss
-	route_name								: str = ""
-	route_zwift_world_name					: str = ""
-	route_description						: str = ""
-	route_length_km							: float = 0.0
-	route_elevation_m						: float = 0.0
-	route_lead_in_length_km					: float = 0.0
-	route_imposed_intensity_factor			: float = 0.0
-	route_fastest_achievable_time_sec		: float = 0.0
-	route_fastest_achievable_time_hh_mm_ss	: str = ""
-	route_power_output_watts				: float = 0.0
-	route_power_output_wkg					: float = 0.0
-	timestamp								: str =	""
+	route_name								:	str		=	""
+	route_zwift_world_name					:	str		=	""
+	route_description						:	str		=	""
+	route_length_km							:	float	=	0.0
+	route_elevation_m						:	float	=	0.0
+	route_lead_in_length_km					:	float	=	0.0
+	route_imposed_intensity_factor			:	float	=	0.0
+	route_fastest_achievable_time_sec		:	float	=	0.0
+	route_fastest_achievable_time_hh_mm_ss	:	str		=	""
+	route_power_output_watts				:	float	=	0.0
+	route_power_output_wkg					:	float	=	0.0
+	timestamp								:	str		=	""
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")
 	def convert_int_to_str(cls, value : Any):

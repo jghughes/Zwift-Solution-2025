@@ -19,62 +19,31 @@ from rider_compute_item import RiderComputeItem
 # All of these functions are called during parallel processing. Logging forbidden
 def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope_pc: float = 0.0) -> float:
     """
-    Calculate the wattage required for a rider given their speed and position 
-    in the peloton.
-
-    Args:
-    rider (RiderComputeItem): The rider object.
-    speed (float): The speed in km/h.
-    position (int): The position in the peloton.
-
-    Returns:
-    float: The required wattage in watts.
+    Calculate required wattage (watts) for a rider at given speed
+    (km/h), position, slope (%), weight (kg), and height (cm) in the
+    peloton.
     """
-    # Calculate the base power required for the given speed
     base_power = calculate_watts_from_speed(speed, rider.weight_kg, rider.height_cm, slope_pc)
-
-    # Get the power factor based on the rider's position in the peloton
     power_factor = calculate_drag_ratio_in_paceline(position)
-
-    # Adjust the power based on the power factor
     adjusted_power = base_power * power_factor
 
     return adjusted_power
 
 def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: float, position: int, slope_pc: float = 0.0) -> float:
     """
-    Calculate the speed (km/h) for a rider given their power output (watts) 
-    and position in the peloton.
-
-    Args:
-    power (float): The power output in watts.
-    position (int): The position in the peloton.
-
-    Returns:
-    float: The estimated speed in km/h.
+    Calculate speed (km/h) for a rider at given power (watts),
+    position, slope (%), weight (kg), and height (cm) in the peloton.
     """
-    # Get the power factor based on the rider's position in the peloton
     power_factor = calculate_drag_ratio_in_paceline(position)
-
-    # Adjust the power based on the power factor
     adjusted_watts = safe_divide(power, power_factor)
-
-    # Estimate the speed in km/h using the solve_for_speed_from_wattage_using_binary_search function
     speed_kph = solve_for_speed_from_wattage_using_binary_search(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc)
         
     return speed_kph
 
 def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     """
-    Calculate the average power for a list of efforts.
-    The average power is calculated as the total work done (in kilojoules) divided by 
-    the total duration (in seconds). The function sums the kilojoules for each workload 
-    item and divides by the total duration to obtain the average power.
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts.
-    Returns:
-        float: The average power.
+    Calculate average wattage (watts) from a list of rider efforts with
+    given wattage and duration (seconds).
     """
     if not efforts:
         return 0
@@ -86,45 +55,15 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
 
 def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> float:
     """
-    Calculate the normalized power for a list of efforts.
-
-    Normalized Power (NP) is a metric used to better quantify the physiological 
-    demands of a workout compared to average power. It accounts for the variability 
-    in power output and provides a more accurate representation of the effort 
-    required. The calculation involves several steps:
-
-    1. Create a list of instantaneous wattages for every second of the durations 
-       of all efforts.
-    2. Calculate the 30-second rolling average power.
-    3. Raise the smoothed power values to the fourth power.
-    4. Calculate the average of these values.
-    5. Take the fourth root of the average.
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts. 
-        Each item contains the wattage and duration for a specific segment of the 
-        workout.
-
-    Returns:
-        float: The normalized power.
-
-    Example:
-        >>> efforts = [
-        ...     RiderExertionItem(position=1, speed=35, duration=60, wattage=200, wattage_ftp_ratio=0.8, kilojoules=12000),
-        ...     RiderExertionItem(position=2, speed=30, duration=30, wattage=180, wattage_ftp_ratio=0.72, kilojoules=5400)
-        ... ]
-        >>> calculate_overall_normalized_watts(efforts)
-        192.0
-
-    In this example, the normalized power is calculated for two efforts. 
-    The first_name item has a duration of 60 seconds and a wattage of 200, and the 
-    second item has a duration of 30 seconds and a wattage of 180. The function 
-    computes the normalized power based on these values.
+    Calculate normalized power (watts) for a list of efforts accounting
+    for variability in power output. Creates instantaneous wattages for
+    each second, applies a 5-second rolling average, raises to the fourth
+    power, averages, and takes the fourth root.
     """
+
     if not efforts:
         return 0
 
-    # Create a list of instantaneous wattages for every second of the durations of all efforts
     instantaneous_wattages: List[float] = []
     for item in efforts:
         instantaneous_wattages.extend([item.wattage] * int(item.duration))
@@ -146,17 +85,8 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
 
 def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderComputeItem, List[RiderExertionItem]]) -> float:
     """
-    Calculate the average speed (km/h) for the rider is the paceline to whom 
-    this list of paceline efforts belong.
-
-    The average speed is calculated as the total distance covered divided by the total duration.
-    Each effort should have a speed (km/h) and a duration (seconds).
-
-    Args:
-        efforts (List[RiderExertionItem]): The list of efforts.
-
-    Returns:
-        float: The average speed in km/h.
+    Calculate average paceline speed (km/h) as total distance covered
+    divided by total duration (seconds) from rider exertions.
     """
     if not exertions:
         return 0.0
@@ -185,36 +115,17 @@ def solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(rid
 
 def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderComputeItem, rider_contribution: RiderContributionItem) -> float:
     """
-    Calculate the intensity factor for a given rider and their contribution plan.
-
-    The intensity factor is defined as the ratio of the normalized watts for a rider's planned effort
-    to their one-hour power (FTP). This metric is used to assess how hard a rider is working relative
-    to their sustainable threshold.
-
-    Args:
-        rider (RiderBruteItem): The rider for whom the intensity factor is being calculated.
-        rider_contribution (RiderContributionItem): The contribution plan containing normalized watts for the rider.
-
-    Returns:
-        float: The calculated intensity factor. Returns 0.0 if the rider's one-hour watts is zero.
-
+    Calculate intensity factor as the ratio of normalized watts to
+    one-hour power (FTP).
     """
-
     return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
 def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     """
-    Determines the maxima of permitted pull speed among all standard pull durations of all riders.
-    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
-    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall fastest speed found.
-    Args:
-        riders (list[RiderComputeItem]): List of RiderComputeItem objects representing the riders.
-    Returns:
-        Tuple[RiderComputeItem, float, float]: A tuple containing:
-            - The RiderComputeItem with the highest speed,
-            - The pull duration in seconds for which this maxima occurs,
-            - The maxima speed in kph.
+    Find maximum permitted pull speed across all riders and standard
+    durations (30s-240s). This function calculates the speed the rider 
+    can go given their permitted pull watts for that duration. 
+    Returns: (RiderComputeItem, duration in seconds, speed in kph).
     """
     fastest_rider = riders[0]
     fastest_duration = 30.0  # arbitrary short
@@ -237,20 +148,14 @@ def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope_p
 
 def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
     """
-    Determines the minima permitted pull speed among all standard pull durations of all riders.
-
-    For each rider and each permitted pull duration (30s, 60s, 120s, 180s, 240s), this function calculates the speed
-    the rider goes at their permitted pull watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall slowest speed found.
-
-    Args:
-        riders (list[RiderComputeItem]): List of RiderComputeItem objects representing the riders.
-
-    Returns:
-        Tuple[RiderComputeItem, float, float]: A tuple containing:
-            - The RiderComputeItem with the lowest speed,
-            - The pull duration in seconds for which this minima occurs,
-            - The minima speed in kph.
+    Determines the minima permitted pull speed among all standard 
+    pull durations of all riders. For each rider and each permitted
+    pull duration (30s, 60s, 120s, 180s, 240s), this function 
+    calculates the speed the rider goes at their permitted pull 
+    watts for that duration. It returns the rider, duration, and speed
+    corresponding to the overall slowest speed found. Returns a tuple 
+    of (RiderComputeItem, duration in seconds, speed in kph) 
+    for the slowest rider and duration.
     """
     slowest_rider = riders[0]
     slowest_duration = 30.0  # arbitrary short
@@ -306,19 +211,17 @@ def solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderCom
 
 def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderComputeItem, RiderContributionItem]) -> float:
     """
-    Calculate the dispersion (standard deviation) of intensity factors among all riders who performed a pull.
+    Calculate the dispersion (standard deviation) of 
+    intensity factors among all riders who performed a pull.
 
-    This function computes the standard deviation of the intensity factors for all riders whose
-    primary pull duration (`p1_duration`) is not zero. Riders with `p1_duration == 0` are excluded
-    from the calculation, as they did not perform a pull.
-
-    Args:
-        rider_contributions (Dict[RiderComputeItem, RiderContributionItem]):
-            A mapping of riders to their contribution data, including intensity factor and pull duration.
-
-    Returns:
-        float: The standard deviation of intensity factors among all pullers.
-               Returns 100 if there are no valid pullers or if the result is not finite.
+    This function computes the standard deviation of 
+    the intensity factors for all riders whose primary pull 
+    duration (`p1_duration`) is not zero. Riders with 
+    `p1_duration == 0` are excluded from the calculation, as 
+    they did not perform a pull.Returns the standard 
+    deviation of intensity factors among all pullers.
+    Returns 100 if there are no valid pullers or if the 
+    result is not finite.
     """
 
     array_of_rider_effort_intensity_factors = [
@@ -370,9 +273,6 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeIte
     - The fourth strongest rider is placed ahead of the second strongest (position n-1).
     - This pattern continues until all riders are placed.
 
-    Args:
-        riders (List[RiderComputeItem]): The list of riders to be arranged.
-
     Returns:
         List[RiderComputeItem]: The list of riders arranged in the optimal interleaved order.
     """
@@ -399,13 +299,8 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeIte
 
 def arrange_riders_by_name(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     """
-    Arrange the riders alphabetically.
-
-    Args:
-        riders (List[RiderComputeItem]): The list of riders to be arranged.
-
-    Returns:
-        List[RiderComputeItem]: The list of sorted riders.
+    Arrange the riders alphabetically. Returns the List[RiderComputeItem] 
+    of sorted riders.
     """
     sorted_riders = sorted(riders, key=lambda rider: rider.name, reverse=False)
 

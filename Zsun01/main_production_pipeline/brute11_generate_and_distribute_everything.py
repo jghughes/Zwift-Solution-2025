@@ -134,7 +134,7 @@ async def generate_everything_and_save_and_upload():
     print("dir_paths and filenames validated.")
     print("\nTHE MEAT: populate repository of riders.")
 
-    route: RouteItem = RepositoryOfRoutes.get_RouteItem("The_Grade_KOM")
+    route: RouteItem = RepositoryOfRoutes.get_RouteItem("Tempus_Fugit")
 
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()

@@ -11,9 +11,8 @@ class RouteItem:
     route_description           : str = ""
     route_length_km             : float = 0.0
     route_elevation_m           : float = 0.0
-    lead_in_length_km           : float = 0.0
-    # imposed_intensity_factor    : float = 0.0
-    route_slope_buckets: List[SlopeBucketItem] = field(default_factory=list)
+    route_lead_in_length_km     : float = 0.0
+    route_slope_buckets         : List[SlopeBucketItem] = field(default_factory=list)
 
     @staticmethod
     def from_dataTransferObject(dto: RouteDTO) -> "RouteItem":
@@ -23,9 +22,8 @@ class RouteItem:
             route_description       = dto.route_description,
             route_length_km         = dto.route_length_km,
             route_elevation_m       = dto.route_elevation_m,
-            lead_in_length_km       = dto.lead_in_length_km,
-            # imposed_intensity_factor = dto.imposed_intensity_factor,
-            route_slope_buckets = [SlopeBucketItem.from_dataTransferObject(segment_dto) for segment_dto in dto.route_slope_buckets]
+            route_lead_in_length_km = dto.route_lead_in_length_km,
+            route_slope_buckets     = [SlopeBucketItem.from_dataTransferObject(segment_dto) for segment_dto in dto.route_slope_buckets]
         )
 
     @staticmethod
@@ -40,9 +38,8 @@ class RouteItem:
             route_description       = item.route_description,
             route_length_km         = item.route_length_km,
             route_elevation_m       = item.route_elevation_m,
-            lead_in_length_km       = item.lead_in_length_km,
-            # imposed_intensity_factor = item.imposed_intensity_factor,
-            route_slope_buckets = [SlopeBucketItem.to_dataTransferObject(segment_item) for segment_item in item.route_slope_buckets]
+            route_lead_in_length_km = item.route_lead_in_length_km,
+            route_slope_buckets     = [SlopeBucketItem.to_dataTransferObject(segment_item) for segment_item in item.route_slope_buckets]
         )
 
     @staticmethod
@@ -51,10 +48,10 @@ class RouteItem:
 
     @staticmethod
     def populate_riderStatsItem_with_routeItem(route_item: "RouteItem", rider_stats_item: RiderStatsItem) -> RiderStatsItem:
-        rider_stats_item.route_name = route_item.route_name
-        rider_stats_item.zwift_world_name = route_item.zwift_world_name
-        rider_stats_item.route_description = route_item.route_description
-        rider_stats_item.route_length_km = route_item.route_length_km
-        rider_stats_item.route_elevation_m = route_item.route_elevation_m
-        rider_stats_item.lead_in_length_km = route_item.lead_in_length_km
+        rider_stats_item.route_name         = route_item.route_name
+        rider_stats_item.zwift_world_name   = route_item.zwift_world_name
+        rider_stats_item.route_description  = route_item.route_description
+        rider_stats_item.route_length_km    = route_item.route_length_km
+        rider_stats_item.route_elevation_m  = route_item.route_elevation_m
+        rider_stats_item.route_lead_in_length_km  = route_item.route_lead_in_length_km
         return rider_stats_item

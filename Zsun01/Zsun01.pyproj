@@ -61,6 +61,8 @@
     <Content Include="docs\information.txt">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="scratchpad\formulae00.htm" />
+    <Content Include="scratchpad\formulae00_for_excel.htm" />
     <Content Include="src\css\paceline_plan_summary.css" />
     <Content Include="src\html\footnotes.html" />
   </ItemGroup>

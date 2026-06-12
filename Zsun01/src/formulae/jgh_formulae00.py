@@ -56,37 +56,13 @@ from constants import (
     POWER_CURVE_IN_PACELINE,
 )
 
-def demonstrateCdA(height_cm: float, aero_position_factor: float) -> float:
-    """
-    Demonstrate the calculation of the frontal area (CdA) for a cyclist.
-
-    Args:
-        height_cm (float): Rider's height in centimeters.
-        aero_position_factor (float): Multiplier based on rider's position.
-
-    Returns:
-        float: CdA in square meters (m^2).
-    """
-    effective_frontal_area = calculate_frontal_area(height_cm, aero_position_factor)
-
-    return COEFFICIENT_Cd * effective_frontal_area
 
 
 def calculate_rolling_resistance_and_gravity_force(total_mass_kg: float, slope_pc: float) -> tuple[float, float]:
     """
-    Calculate the rolling resistance and gravitational forces.
-
-    For negative slopes (descents):
-      - sin_theta < 0  →  F_gravity < 0  (gravity assists motion)
-      - cos_theta > 0  →  F_roll   > 0  (rolling resistance always opposes motion)
-
-    Returns:
-        tuple[float, float]: (F_roll, F_gravity)
-            F_roll   is always >= 0, unit is Newtons (N)
-            F_gravity is negative on descents, positive on climbs
-            unit is Newtons (N)
+    Return rolling resistance and gravity forces from total mass (kg) 
+    and slope (%); returns (F_roll, F_gravity) in N.
     """
-
     theta : float = math.atan(slope_pc / 100.0)
 
     F_roll: float    = COEFFICIENT_Crr * total_mass_kg * COEFFICIENT_g * math.cos(theta) # always >= 0
@@ -97,74 +73,34 @@ def calculate_rolling_resistance_and_gravity_force(total_mass_kg: float, slope_p
 
 def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
-    Estimate the frontal area (A) of a cyclist in square meters (m^2) using
-    a simple formula based on height and riding position multiplier from ChatGPT.
-    
-    Formula:
-        A = aero_factor * (0.0155 * height_cm)/100 
-
-    Rationale:
-        The actual formula used by Zwift for frontal area is not publicly
-        known.
-
-    Args:
-        height_cm (float): Rider's height in centimeters.
-        aero_factor (float): Multiplier based on rider's position.
-            Defaults to AERO_POSITION_FACTOR_DEFAULT, which represents 
-            a typical time trial position (not hoods or supertuck).
-
-    Returns:
-        float: Frontal area in square meters (m^2).
-
+    Estimate frontal area from rider height (cm) and 
+    aero factor (unitless); returns area (m^2).
     """
-
     answer = aero_factor * (0.00155 * height_cm) 
 
     return answer
 
 
+def calculate_CdA(height_cm: float, aero_position_factor: float) -> float:
+    """
+    Estimate CdA from rider height (cm) and aero factor (unitless); returns CdA (m^2).
+    """
+    effective_frontal_area = calculate_frontal_area(height_cm, aero_position_factor)
+
+    return COEFFICIENT_Cd * effective_frontal_area
+
+
 def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
-    Calculate the mechanical power (W) required for a cyclist to maintain
-    a specified steady-state velocity, given physical and environmental
-    parameters. Defaults to a typical time-trial position for the 
-    aero factor, which is not the same as the hoods position 
-    or the supertuck position.
-
-    This function implements the full Martin et al. (1998) cycling physics model:
-
-        P = v * (F_aero + F_roll + F_gravity)
-
-    Args:
-        velocity_kph (float):
-            Steady-state velocity in kilometres per hour (km/h).
-        Cd (float):
-            Dimensionless aerodynamic drag coefficient. 
-            Typical value for a road cyclist in the drops: ~0.63.
-        height_cm (float):
-            Rider height in centimetres (cm).
-        Crr (float):
-            Dimensionless rolling resistance coefficient. 
-            Typical value for road tyres on tarmac: ~0.004.
-        total_mass_kg (float):
-            Combined mass of rider and bicycle.
-        slope_pc (float):
-            Road gradient as a % (rise / run).
-            For example, 5.0 for a 5% climb, -5.0 for a 5% descent,
-            0.0 for flat terrain. Zwift's physics model applies an 
-            attenuation factor to descents, so the effective slope 
-            is reduced on negative gradients.
-
-    Returns:
-        float: Required mechanical power in watts (W).
+    Return required watts from speed (km/h), rider weight (kg), 
+    rider height (cm), and slope (%); returns watts (W).
     """
-
     F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(total_mass_kg, slope_pc)
 
-    velocity_mps: float = velocity_kph / 3.6  # convert km/h to m/s (1 km/h = 1/3.6 m/s)
+    velocity_mps: float = velocity_kph / 3.6  
 
-    frontal_area = calculate_frontal_area(height_cm, aero_factor)
-    F_aero: float = 0.5 * COEFFICIENT_rho * COEFFICIENT_Cd * frontal_area * velocity_mps ** 2
+    CdA = calculate_CdA(height_cm, aero_factor)
+    F_aero: float = 0.5 * COEFFICIENT_rho * CdA * velocity_mps ** 2
 
     F_total: float = F_aero + F_roll + F_gravity
 
@@ -176,28 +112,32 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
     return power_w
 
 
-def calculate_watts_from_speed(speed: float, rider_weight: float, rider_height: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC) -> float:
+def calculate_watts_from_speed(speed_kph: float, rider_weight_kg: float, rider_height_cm: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC) -> float:
     """
-    Calculate the power (watts) as a function of speed (km/h), weight (kg), height (cm), slope (%).
+    Calculate the power (watts) as a function of 
+    speed (km/h), weight (kg), height (cm), slope (%).
     """
 
-    rider_plus_bike_mass: float = rider_weight + COEFFICIENT_bike_weight_kg
-    watts = calculate_power_from_velocity(speed, rider_height, rider_plus_bike_mass, slope_pc)
+    rider_plus_bike_mass: float = rider_weight_kg + COEFFICIENT_bike_weight_kg
+    watts = calculate_power_from_velocity(speed_kph, rider_height_cm, rider_plus_bike_mass, slope_pc)
 
     return watts
 
-def calculate_drag_ratio_in_paceline(position: int) -> float:
+
+def calculate_drag_ratio_in_paceline(position_in_paceline: int) -> float:
     """
-    Calculate the power factor based on the rider's position in the peloton.
-    The leader's factor is 1.0. Follower's in the paceline are based on ZwiftInsider's
-    power matrix. Their factors are less than 1.0, diminishing as they are further back.
-    This function guards against index out of range errors if POWER_CURVE_IN_PACELINE is shorter than 8.
+    Calculate the power factor based on the rider's position 
+    in the paceline. The leader's factor is 1.0. Followers in 
+    the paceline are based on ZwiftInsider's power matrix. 
+    Their factors are less than 1.0, diminishing as they are 
+    further back.This function guards against index out of 
+    range errors if POWER_CURVE_IN_PACELINE is shorter than 8.
     """
     denominator = POWER_CURVE_IN_PACELINE[0]
     max_index = len(POWER_CURVE_IN_PACELINE) - 1
     # Clamp position to valid range (1 to len(POWER_CURVE_IN_PACELINE)), else use last available value
-    if 1 <= position <= len(POWER_CURVE_IN_PACELINE):
-        numerator = POWER_CURVE_IN_PACELINE[position - 1]
+    if 1 <= position_in_paceline <= len(POWER_CURVE_IN_PACELINE):
+        numerator = POWER_CURVE_IN_PACELINE[position_in_paceline - 1]
     else:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
     return numerator / denominator

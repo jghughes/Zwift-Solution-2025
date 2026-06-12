@@ -2,7 +2,7 @@ from tabulate import tabulate
 import time
 import logging
 from constants import COEFFICIENT_Cd, COEFFICIENT_Crr, COEFFICIENT_bike_weight_kg, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK
-from jgh_formulae00 import demonstrateCdA, calculate_rolling_resistance_and_gravity_force, calculate_frontal_area,calculate_power_from_velocity, solve_for_velocity_from_power_using_binary_search
+from jgh_formulae00 import calculate_CdA, calculate_rolling_resistance_and_gravity_force, calculate_frontal_area,calculate_power_from_velocity, solve_for_velocity_from_power_using_binary_search
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
@@ -38,12 +38,12 @@ def test01():
     for height in height_values:
         row : list[str] = [f"{height:.1f}"] # leftmost column in this row is  height
         for aero_factor in aero_values:
-            cdA  = demonstrateCdA(height, aero_factor)
+            cdA  = calculate_CdA(height, aero_factor)
             row.append(f"{cdA:.2f}") 
         rows.append(row)
 
     print("CdA (m^2) as a function of height and aero-position.")
-    print("     demonstrateCdA()")
+    print("     calculate_CdA()")
     print("Note: This is the CdA, not the frontal area.")
     print(f"aero values: hoods, tt, supertuck, fulltuck")
     print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))

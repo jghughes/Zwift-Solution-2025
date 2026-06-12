@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Guide: Cycling Physics in Excel</title>
+    <style>
+        :root {
+            --bg: #f7f9fc;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --accent2: #0f766e;
+            --line: #dbe3ee;
+            --codebg: #0b1220;
+            --codefg: #e5e7eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 18px 48px;
+        }
+
+        header, .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        header {
+            padding: 28px;
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 12px;
+            line-height: 1.15;
+        }
+
+        h1 {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.05rem;
+            margin-top: 8px;
+        }
+
+        .note {
+            margin-top: 18px;
+            padding: 14px 16px;
+            background: #eff6ff;
+            border-left: 5px solid var(--accent);
+            border-radius: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .card {
+            padding: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #075985;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        pre {
+            margin: 12px 0 0;
+            padding: 12px 14px;
+            background: var(--codebg);
+            color: var(--codefg);
+            border-radius: 12px;
+            overflow-x: auto;
+            font-size: 0.92rem;
+            white-space: pre-wrap;
+        }
+
+        code {
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        .footer {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .small {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .formula {
+            color: var(--accent2);
+            font-weight: 700;
+        }
+
+        ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Student Guide: Cycling Physics in Excel</h1>
+            <div class="subtitle">How to translate the Python functions into Excel cell formulas</div>
+            <div class="note">
+                <strong>Important:</strong> Excel cannot call these Python functions directly unless Python is connected to Excel.
+                This guide shows the equivalent <strong>Excel formulas</strong> so students can use the same ideas in spreadsheets.
+            </div>
+        </header>
+
+        <section class="grid">
+            <div class="card">
+                <div class="tag">1. Frontal Area Demo</div>
+                <h3><code>demonstrateCdA</code></h3>
+                <p>Uses height and aero position to estimate <strong>CdA</strong>.</p>
+
+                <table>
+                    <tr><th>Inputs</th><th>Units</th></tr>
+                    <tr><td>Height</td><td>cm</td></tr>
+                    <tr><td>Aero factor</td><td>unitless</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Output</th><th>Units</th></tr>
+                    <tr><td>CdA</td><td>m²</td></tr>
+                </table>
+
+                <p class="small">Python idea:</p>
+                <pre><code>CdA = 0.63 × (aero_factor × 0.00155 × height_cm)</code></pre>
+
+                <p class="small">Excel formula:</p>
+                <pre><code>=0.63*(B2*0.00155*A2)</code></pre>
+
+                <p class="small">If <code>A2</code> = height in cm and <code>B2</code> = aero factor.</p>
+            </div>
+
+            <div class="card">
+                <div class="tag">2. Rolling Resistance + Gravity</div>
+                <h3><code>calculate_rolling_resistance_and_gravity_force</code></h3>
+                <p>Calculates the rolling resistance force and the gravity force on a slope.</p>
+
+                <table>
+                    <tr><th>Inputs</th><th>Units</th></tr>
+                    <tr><td>Total mass</td><td>kg</td></tr>
+                    <tr><td>Slope</td><td>%</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Outputs</th><th>Units</th></tr>
+                    <tr><td>Rolling resistance force</td><td>N</td></tr>
+                    <tr><td>Gravity force</td><td>N</td></tr>
+                </table>
+
+                <p class="small">Excel formulas:</p>
+                <pre><code>theta = ATAN(B2/100)
+F_roll = 0.004 * A2 * 9.81 * COS(theta)
+F_gravity = A2 * 9.81 * SIN(theta)</code></pre>
+
+                <p class="small">Direct Excel versions:</p>
+                <pre><code>=0.004*A2*9.81*COS(ATAN(B2/100))
+=A2*9.81*SIN(ATAN(B2/100))</code></pre>
+
+                <p class="small">If <code>A2</code> = total mass in kg and <code>B2</code> = slope %.</p>
+            </div>
+
+            <div class="card">
+                <div class="tag">3. Frontal Area</div>
+                <h3><code>calculate_frontal_area</code></h3>
+                <p>Estimates the rider’s frontal area from height and riding position.</p>
+
+                <table>
+                    <tr><th>Inputs</th><th>Units</th></tr>
+                    <tr><td>Height</td><td>cm</td></tr>
+                    <tr><td>Aero factor</td><td>unitless</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Output</th><th>Units</th></tr>
+                    <tr><td>Frontal area</td><td>m²</td></tr>
+                </table>
+
+                <p class="small">Excel formula:</p>
+                <pre><code>=B2*0.00155*A2</code></pre>
+
+                <p class="small">If <code>A2</code> = height in cm and <code>B2</code> = aero factor.</p>
+            </div>
+
+            <div class="card">
+                <div class="tag">4. Power from Speed</div>
+                <h3><code>calculate_power_from_velocity</code></h3>
+                <p>Calculates watts needed to hold a speed on flat ground, climbs, or descents.</p>
+
+                <table>
+                    <tr><th>Inputs</th><th>Units</th></tr>
+                    <tr><td>Velocity</td><td>km/h</td></tr>
+                    <tr><td>Height</td><td>cm</td></tr>
+                    <tr><td>Total mass</td><td>kg</td></tr>
+                    <tr><td>Slope</td><td>%</td></tr>
+                    <tr><td>Aero factor</td><td>unitless</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Output</th><th>Units</th></tr>
+                    <tr><td>Power</td><td>W</td></tr>
+                </table>
+
+                <p class="small">Python idea:</p>
+                <pre><code>power = speed × (aero force + rolling force + gravity force)</code></pre>
+
+                <p class="small">Excel formula:</p>
+                <pre><code>=IF(((0.5*1.225*0.63*(B2*0.00155*C2)*(A2/3.6)^2)
++ (0.004*D2*9.81*COS(ATAN(E2/100)))
++ (D2*9.81*SIN(ATAN(E2/100))))
+* (A2/3.6) <= 0, 0,
+((0.5*1.225*0.63*(B2*0.00155*C2)*(A2/3.6)^2)
++ (0.004*D2*9.81*COS(ATAN(E2/100)))
++ (D2*9.81*SIN(ATAN(E2/100))))
+* (A2/3.6))</code></pre>
+
+                <p class="small">
+                    If that looks too long, break it into helper cells:
+                    <ul>
+                        <li><code>velocity_mps = A2/3.6</code></li>
+                        <li><code>frontal_area = B2*0.00155*C2</code></li>
+                        <li><code>F_aero = 0.5*1.225*0.63*frontal_area*velocity_mps^2</code></li>
+                        <li><code>F_roll = 0.004*D2*9.81*COS(ATAN(E2/100))</code></li>
+                        <li><code>F_gravity = D2*9.81*SIN(ATAN(E2/100))</code></li>
+                        <li><code>Power = MAX(0,(F_aero+F_roll+F_gravity)*velocity_mps)</code></li>
+                    </ul>
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="tag">5. Watts from Speed</div>
+                <h3><code>calculate_watts_from_speed</code></h3>
+                <p>A simpler version that adds bike weight before calculating watts.</p>
+
+                <table>
+                    <tr><th>Inputs</th><th>Units</th></tr>
+                    <tr><td>Speed</td><td>km/h</td></tr>
+                    <tr><td>Rider weight</td><td>kg</td></tr>
+                    <tr><td>Rider height</td><td>cm</td></tr>
+                    <tr><td>Slope</td><td>%</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Output</th><th>Units</th></tr>
+                    <tr><td>Watts</td><td>W</td></tr>
+                </table>
+
+                <p class="small">Use bike weight = <strong>8.0 kg</strong>.</p>
+                <p class="small">Excel formula:</p>
+                <pre><code>=IF(((0.5*1.225*0.63*(B2*0.00155*C2)*(A2/3.6)^2)
++ (0.004*(D2+8)*9.81*COS(ATAN(E2/100)))
++ ((D2+8)*9.81*SIN(ATAN(E2/100))))
+* (A2/3.6) <= 0, 0,
+((0.5*1.225*0.63*(B2*0.00155*C2)*(A2/3.6)^2)
++ (0.004*(D2+8)*9.81*COS(ATAN(E2/100)))
++ ((D2+8)*9.81*SIN(ATAN(E2/100))))
+* (A2/3.6))</code></pre>
+
+                <p class="small">If <code>A2</code> = speed, <code>B2</code> = height, <code>D2</code> = rider weight, and <code>E2</code> = slope.</p>
+            </div>
+
+            <div class="card">
+                <div class="tag">6. Paceline Draft Ratio</div>
+                <h3><code>calculate_drag_ratio_in_paceline</code></h3>
+                <p>Returns a unitless draft factor based on a rider’s position in a group.</p>
+
+                <table>
+                    <tr><th>Input</th><th>Units</th></tr>
+                    <tr><td>Position in paceline</td><td>1-based index</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Output</th><th>Units</th></tr>
+                    <tr><td>Power ratio</td><td>unitless</td></tr>
+                </table>
+
+                <p class="small">Power curve values:</p>
+                <pre><code>{400, 309, 277, 268, 261, 255, 250, 245}</code></pre>
+
+                <p class="small">Excel formula:</p>
+                <pre><code>=IF(AND(A2>=1,A2<=8),CHOOSE(A2,400,309,277,268,261,255,250,245)/400,245/400)</code></pre>
+
+                <p class="small">
+                    This gives:
+                    <br><code>1.0000</code>, <code>0.7725</code>, <code>0.6925</code>, <code>0.6700</code>,
+                    <code>0.6525</code>, <code>0.6375</code>, <code>0.6250</code>, <code>0.6125</code>
+                </p>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top:18px;">
+            <h2>Suggested spreadsheet layout</h2>
+            <table>
+                <tr>
+                    <th>Cell</th>
+                    <th>Meaning</th>
+                </tr>
+                <tr><td><code>A2</code></td><td>Speed or height or position, depending on the formula</td></tr>
+                <tr><td><code>B2</code></td><td>Aero factor or another input value</td></tr>
+                <tr><td><code>C2</code></td><td>Height or another input value</td></tr>
+                <tr><td><code>D2</code></td><td>Mass or rider weight</td></tr>
+                <tr><td><code>E2</code></td><td>Slope %</td></tr>
+            </table>
+
+            <p class="footer">
+                Best practice: rename cells with labels like <code>Height_cm</code>, <code>Speed_kph</code>, and <code>Slope_pc</code> so the formulas are easier to read.
+            </p>
+        </section>
+    </div>
+</body>
+</html>
