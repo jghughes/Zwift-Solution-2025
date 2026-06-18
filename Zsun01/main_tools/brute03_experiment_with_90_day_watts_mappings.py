@@ -33,7 +33,7 @@ from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
 from working_file_read_write import (
-    read_rider_brute_dict_from_json,
+    read_rider_compute_dict_from_json,
     write_zwiftpower_90day_watts_dict_to_json,
 )
 from repository_of_team_rosters import RepositoryOfTeamRosters
@@ -59,7 +59,7 @@ def experiment_with_90_day_watts_mappings():
         print(err)
         return
 
-    all_rider_items_as_dict = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
+    all_rider_items_as_dict = read_rider_compute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
     print(f"loaded RiderItems for {len(all_rider_items_as_dict)} riders")
     test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     print(f"loaded {len(test_IDs)} IDs for our little test")

@@ -648,7 +648,7 @@ def experiment_with_regression_models():
 
     # A for Away. do all the various analyses and display the results, comment out the ones you don't want to run
 
-    # model_01(dict_of_regression_modellingItem)
+    model_01(dict_of_regression_modellingItem)
     # model_02(dict_of_regression_modellingItem)
     # model_03(dict_of_regression_modellingItem)
     # model_04(dict_of_regression_modellingItem)

@@ -156,7 +156,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     It returns the overall average speed of the paceline and a mapping of each rider to their computed contribution.
 
     Args:
-        riders: List of RiderBruteItem objects representing the riders in the paceline.
+        riders: List of RiderComputeItem objects representing the riders in the paceline.
         standard_pull_periods_seconds: List of pull durations (in seconds) for each rider.
         pull_speeds_kph: List of target pull speeds (in kph) for each rider.
         slope: The slope of the terrain (in percentage).
@@ -165,7 +165,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     Returns:
         Tuple containing:
             - overall_av_speed_of_paceline (float): The computed average speed of the paceline (kph).
-            - dict_of_rider_contributions (Dict[RiderBruteItem, RiderContributionItem]):
+            - dict_of_rider_contributions (Dict[RiderComputeItem, RiderContributionItem]):
                 Mapping of each rider to their computed RiderContributionItem, including effort metrics and constraint violations.
     """
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph, slope)

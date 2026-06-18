@@ -10,14 +10,14 @@ def generate_cyclic_matrix(riders: List[RiderComputeItem]) -> List[List[RiderCom
     Generates a cyclic matrix where each column is a cyclic permutation of the first_name column.
 
     Args:
-        riders (List[RiderBruteItem]): A list of RiderBruteItem objects.
+        riders (List[RiderComputeItem]): A list of RiderComputeItem objects.
 
     Returns:
-        List[List[RiderBruteItem]]: A 2D list representing the cyclic matrix.
+        List[List[RiderComputeItem]]: A 2D list representing the cyclic matrix.
 
-    The function uses the provided list of RiderBruteItem objects to create the initial column.
+    The function uses the provided list of RiderComputeItem objects to create the initial column.
     It then generates each subsequent column by cyclically shifting the elements of the initial column.
-    For example, if the list of riders contains RiderBruteItem objects (with names) 
+    For example, if the list of riders contains RiderComputeItem objects (with names) 
     ['Barry B', 'John H', 'Lynsey S'], the resulting matrix will be:
 
     [

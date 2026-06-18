@@ -21,7 +21,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
     """
     Calculate required wattage (watts) for a rider at given speed
     (km/h), position, slope (%), weight (kg), and height (cm) in the
-    peloton.
+    paceline.
     """
     base_power = calculate_watts_from_speed(speed, rider.weight_kg, rider.height_cm, slope_pc)
     power_factor = calculate_drag_ratio_in_paceline(position)
@@ -32,7 +32,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
 def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: float, position: int, slope_pc: float = 0.0) -> float:
     """
     Calculate speed (km/h) for a rider at given power (watts),
-    position, slope (%), weight (kg), and height (cm) in the peloton.
+    position, slope (%), weight (kg), and height (cm) in the paceline.
     """
     power_factor = calculate_drag_ratio_in_paceline(position)
     adjusted_watts = safe_divide(power, power_factor)
@@ -264,7 +264,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeIte
     Riders are ranked according to their strength, from strongest to weakest. 
     The strongest rider is ranked 1, and the weakest rider is ranked n. 
     The strength of a rider is determined by the value returned from the 
-    `RiderBruteItem.get_proxy_1_minute_wkg()` method.
+    `RiderComputeItem.get_proxy_1_minute_wkg()` method.
 
     To arrange the riders in optimal order, the riders are interleaved as follows:
     - The strongest rider is placed at the front (position 1).
@@ -435,7 +435,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
     Args:
         paceline_ingredients (PacelineIngredientsItem): 
             An object containing:
-                - riders_list: List of RiderBruteItem, the riders in the paceline.
+                - riders_list: List of RiderComputeItem, the riders in the paceline.
                 - sequence_of_pull_periods_sec: List[float], allowed pull durations (in seconds).
 
     Returns:

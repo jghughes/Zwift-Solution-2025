@@ -23,8 +23,7 @@ def _solve_for_route_time_at_a_mandated_power_using_binary_search(rider: RiderCo
             calculated_bucket_watts, calculated_bucket_speed_kph, and calculated_bucket_duration_sec.
     """
     # before doing anything else, we need to do a hack. if the total distance of the buckets is less than the total length of the route
-    # (which is ordinarily well be), add the residual distance to the 0% slope bucket - creating a 0% bucket if there isn't one
-    # 
+    # (which it ordinarily well be), add the residual distance to the 0% slope bucket - creating a 0% bucket if there isn't one
     
     candidate_distance_km : float =  sum(bucket.bucket_length_km for bucket in route.route_slope_buckets)
 
@@ -59,7 +58,6 @@ def _solve_for_route_time_at_a_mandated_power_using_binary_search(rider: RiderCo
         bucket.calculated_bucket_duration_sec = segment_duration_sec
     
     return route
-
 
 def solve_for_route_time_at_90_day_best_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem, intensity_factor: float = 1.0) -> RouteItem:
     """
@@ -161,8 +159,7 @@ def solve_for_route_time_at_90_day_best_using_binary_search(rider: RiderComputeI
 
     return routeItem
 
-
-# All of these functions are called during parallel processing. Logging forbidden
+# All of the following functions are called during parallel processing. Logging forbidden
 
 def solve_for_speed_at_standard_30sec_pull_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float:
     """

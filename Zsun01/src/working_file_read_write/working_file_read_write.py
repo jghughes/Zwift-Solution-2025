@@ -20,15 +20,15 @@ from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWatts
 
 def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderComputeItem]:
     """
-    Reads a JSON file and deserializes its contents into a dictionary of RiderBruteItem domain objects.
+    Reads a JSON file and deserializes its contents into a dictionary of RiderComputeItem domain objects.
 
     Args:
         dirpath: Directory path containing the target file.
         filename: Name of the JSON file (without extension).
 
     Returns:
-        A defaultdict of RiderBruteItem instances keyed by rider ID string,
-        defaulting to an empty RiderBruteItem for missing keys.
+        A defaultdict of RiderComputeItem instances keyed by rider ID string,
+        defaulting to an empty RiderComputeItem for missing keys.
 
     Raises:
         ValueError: If the directory or file path is invalid or the file does not exist.
@@ -78,7 +78,6 @@ def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> List[RiderS
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
-
 def read_rider_stats_list_from_json_as_dict(filepath: Path) -> Dict[str, RiderStatsItem]:
 
     # parse filepath to get directory and filename
@@ -93,15 +92,6 @@ def read_rider_stats_list_from_json_as_dict(filepath: Path) -> Dict[str, RiderSt
         answer[item.zwift_id] = item
 
     return answer
-
-
-
-
-
-
-
-
-
 
 def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """

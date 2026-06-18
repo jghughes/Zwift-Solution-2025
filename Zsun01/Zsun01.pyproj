@@ -145,7 +145,6 @@
     <Compile Include="main_tools\brute08_run_curve_fitting_experiments.py" />
     <Compile Include="main_tools\brute13_compare_methods_of_ftp_estimation.py" />
     <Compile Include="main_production_pipeline\brute11_generate_and_distribute_everything.py" />
-    <Compile Include="main_tools\brute09_experiment_with_rider_eligibility.py" />
     <Compile Include="main_tools\brute14_experiment_with_regression_models.py" />
     <Compile Include="vs2022_project_refactoring\strip_non_ascii_characters.py" />
   </ItemGroup>

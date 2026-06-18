@@ -1,41 +1,20 @@
-"""
-Paceline Plan Generation and Analysis Tool for Cycling Teams
-
-This module generates, analyzes, and exports detailed paceline plans for a specified cycling team,
-focusing on exertion-constrained and optimal strategies for team time trial (TTT) scenarios.
-
-Key Features:
-- Loads and arranges rider data for a given team, supporting multiple rider selection and ordering strategies.
-- Computes paceline plans under various pull durations (e.g., 30s, 60s) and exertion constraints.
-- Generates advanced paceline solutions for full teams and reduced team sizes (e.g., strongest five or four riders).
-- Applies combinatorial optimization to identify balanced, fastest, and high-intensity pacing strategies.
-- Summarizes results in display objects and exports individual and consolidated HTML reports.
-- Supports automated upload of summary reports to Azure Blob Storage for sharing and review.
-- Provides detailed logging and error handling for robust batch execution.
-
-This tool is intended for cycling performance analysts and coaches seeking to optimize TTT strategies
-using data-driven, reproducible methods in Python.
-"""
 import asyncio
 import json
+import time
+import logging
 from pathlib import Path
 from typing import Dict, List
 
 from jgh_azure_storage_service_client import AzureStorageServiceClient
-from jgh_formulae02 import (
-    arrange_riders_by_velo_rating,
-)
-from jgh_formulae08 import (
-    log_speed_bounds_of_exertion_constrained_paceline_solutions,
-)
+from jgh_formulae03 import (arrange_riders_by_zwiftracingapp_zpFTP_strength,)
+from jgh_formulae08 import (log_speed_bounds_of_exertion_constrained_paceline_solutions,)
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_count_of_bytes
-
-from zwift_id_base import lookup_Items_by_ZwiftID
-
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
+from jgh_exceptions import AlertMessageError
+from zwift_id_base import lookup_Items_by_ZwiftID
 from storage_config import (
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
@@ -43,11 +22,6 @@ from storage_config import (
     AZURE_ACCOUNTNAME_ZSUN,
     AZURE_CONTAINERNAME_ZSUN,
     AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,)
-
-import time
-import logging
-from jgh_exceptions import AlertMessageError
-
 
 # HEAP POWERFUL
 async def generate_team_targets() -> None:
@@ -106,7 +80,7 @@ async def generate_team_targets() -> None:
     print(f"\nTask #1: computing Million Dollar Prize 16 MINUTE 90-day best...\n")
     # ===========================
 
-    riders = arrange_riders_by_velo_rating(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
 
     for r in riders:
         watts  = r.get_n_second_curvefit_y_ordinate_watts(960) 

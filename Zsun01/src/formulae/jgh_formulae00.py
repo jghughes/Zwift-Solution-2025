@@ -124,6 +124,106 @@ def calculate_watts_from_speed(speed_kph: float, rider_weight_kg: float, rider_h
     return watts
 
 
+def calculate_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
+    """
+    Return equilibrium speed (km/h) for a given power output (W), rider
+    height (cm), total mass (kg), and slope (%).
+
+    Physics (Martin et al., 1998)
+    ==============================
+    The power-speed relation (see calculate_power_from_velocity) expands to:
+
+        P = A_coef * v^3 + B_coef * v
+
+    where
+        A_coef = 0.5 * rho * CdA          (kg/m, always > 0)
+        B_coef = Crr*m*g*cos(theta)
+                 + m*g*sin(theta)          (N; > 0 uphill, < 0 on descent)
+        theta  = atan(slope_pc / 100)      (radians)
+
+    Dividing through by A_coef gives the depressed cubic (no t^2 term):
+
+        t^3 + p*t + q = 0
+
+    where t = v (m/s) and
+        p = B_coef / A_coef
+        q = -P / A_coef
+
+    References
+    ----------
+    Wikipedia, "Cubic equation",
+    https://en.wikipedia.org/wiki/Cubic_equation
+
+    Nickalls, R.W.D. (2006). "Viete, Descartes, and the cubic equation."
+    Mathematical Gazette, 90(518), 203-208.
+    DOI: 10.1017/S0025557200179598
+
+    Discriminant (Wikipedia section 4.1)
+    =====================================
+
+        Delta = -(4*p^3 + 27*q^2)
+
+        Delta <= 0  =>  one real root    =>  Cardano's formula
+        Delta >  0  =>  three real roots =>  Viete's formula
+
+    For cycling ranges of -16% to +16% slope and P >= 0 W, the Viete
+    branch applies for descents of roughly -4% or steeper across the
+    full practical power range (0 to ~1500 W).
+
+    Cardano's formula (Wikipedia section 5)
+    =========================================
+    Valid when Delta <= 0. One real root, two complex conjugates.
+
+        D  = q^2/4 + p^3/27
+        u1 = -q/2 + sqrt(D)
+        C  = cbrt(u1)          (real cube root, sign-preserving)
+        t  = C - p/(3*C)
+
+    Viete's trigonometric formula (Wikipedia section 7.1)
+    =======================================================
+    Valid when Delta > 0. Three distinct real roots (casus irreducibilis).
+    p < 0 is guaranteed in this branch.
+
+        m   = 2 * sqrt(-p/3)
+        phi = arccos( (3*q)/(2*p) * sqrt(-3/p) )
+        t_k = m * cos(phi/3 - 2*pi*k/3)    for k = 0, 1, 2
+
+    Only k=0 is computed. It gives the largest root and is the physically
+    correct equilibrium speed in all descent conditions.
+    """
+    # --- physics: resolve forces and aerodynamic drag area -------------------
+    F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(total_mass_kg, slope_pc)
+    CdA: float = calculate_CdA(height_cm, aero_factor)
+
+    A_coef: float = 0.5 * COEFFICIENT_rho * CdA   # always > 0  (kg/m)
+    B_coef: float = F_roll + F_gravity             # N; sign depends on slope
+
+    # --- depressed cubic: t^3 + p*t + q = 0 (Wikipedia section 3) ----------
+    p: float = B_coef / A_coef
+    q: float = -power_watts / A_coef
+
+    # --- discriminant (Delta) (Wikipedia section 4.1) --------------------------------
+    Delta: float = -(4.0 * p**3 + 27.0 * q**2)
+
+    t: float = 0.0
+
+    if Delta <= 0.0:
+        # --- Cardano's formula (Wikipedia section 5) -------------------------
+        D: float  = q**2 / 4.0 + p**3 / 27.0
+        u1: float = -q / 2.0 + math.sqrt(D)
+        C: float  = math.copysign(abs(u1) ** (1.0 / 3.0), u1)
+        t = 0.0 if C == 0.0 else C - p / (3.0 * C)
+
+    else:
+        # --- Viete's trigonometric formula (Wikipedia section 7.1) ----------
+        m: float   = 2.0 * math.sqrt(-p / 3.0)
+        phi: float = math.acos((3.0 * q) / (2.0 * p) * math.sqrt(-3.0 / p))
+        t = m * math.cos(phi / 3.0)          # k=0: largest real root
+
+    velocity_mps: float = max(0.0, t)
+    return velocity_mps * 3.6               # m/s -> km/h
+
+
 def calculate_drag_ratio_in_paceline(position_in_paceline: int) -> float:
     """
     Calculate the power factor based on the rider's position 

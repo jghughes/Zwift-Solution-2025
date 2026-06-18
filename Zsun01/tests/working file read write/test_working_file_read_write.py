@@ -9,7 +9,7 @@ from storage_config import (
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
 from test_zwiftid_file_reader_sync import test04
-from working_file_read_write import read_rider_brute_dict_from_json
+from working_file_read_write import read_rider_compute_dict_from_json
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
     read_zwiftracingappdto_files_to_item_dict_sync,
@@ -26,7 +26,7 @@ from storage_config import DIRPATH_LOGGING
 #tests
 def test01():
 
-    all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
+    all_riders = read_rider_compute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
 
     print(f"Imported {len(all_riders)} zsun riders from VS2022 python project file.")
 

@@ -104,32 +104,32 @@ def run_comparisons_of_ftp_estimates():
 
     comparative_FTPs : list[DummyItem] = list()
 
-    for RiderBruteItem in repository.get_dict_of_RiderComputeItem_by_ids(test_IDs).values():
-        y_pred = round(RiderBruteItem.get_n_second_curvefit_y_ordinate_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
-        y_actual = RiderBruteItem.velo_zwiftpower_zFTP_watts
-        if y_pred == 0.0 or y_actual == 0 or RiderBruteItem.zwift_racing_score == 0 or RiderBruteItem.velo_rating_30_days == 0:
+    for RiderComputeItem in repository.get_dict_of_RiderComputeItem_by_ids(test_IDs).values():
+        y_pred = round(RiderComputeItem.get_n_second_curvefit_y_ordinate_watts(2400)) # N.B. note the shift. the closest correlation to zFTP is our 40min
+        y_actual = RiderComputeItem.velo_zwiftpower_zFTP_watts
+        if y_pred == 0.0 or y_actual == 0 or RiderComputeItem.zwift_racing_score == 0 or RiderComputeItem.velo_rating_30_days == 0:
             continue
         delta = round(y_pred - y_actual)
         percent = abs(round( safe_divide(((y_pred - y_actual) * 100), y_actual)))  # percent difference between zsun one hour power and zwiftracingapp zpFTP
-        curve = dict_of_curve_fits[RiderBruteItem.zwift_id]
+        curve = dict_of_curve_fits[RiderComputeItem.zwift_id]
         curve_x_ordinate = solve_decay_model_for_x_numpy(curve.sixty_min_curve_coefficient, curve.sixty_min_curve_exponent, np.array([y_actual]))
-        print(f"zpFTP versus curve-fit 40-minute-power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {RiderBruteItem.name}")
+        print(f"zpFTP versus curve-fit 40-minute-power: {round(y_actual)}/{round(y_pred)} delta = {delta} ({percent}%) {RiderComputeItem.name}")
 
         item = DummyItem(
-            zwift_id                                = RiderBruteItem.zwift_id,
-            name                                    = RiderBruteItem.name,
-            gender                                  = RiderBruteItem.gender,
-            age_years                               = RiderBruteItem.age_years,
+            zwift_id                                = RiderComputeItem.zwift_id,
+            name                                    = RiderComputeItem.name,
+            gender                                  = RiderComputeItem.gender,
+            age_years                               = RiderComputeItem.age_years,
             jgh_one_hour_power                      = y_pred,
             velo_zpftp_watts                        = y_actual,
             delta                                   = delta,
             percent                                 = percent,
             value_of_curve_x_for_zwiftracingapp_zpFTP_y = round(safe_divide(curve_x_ordinate[0],60)),
-            zwift_racing_score                      = RiderBruteItem.zwift_racing_score,
-            zwift_cat_open                          = RiderBruteItem.zwift_cat_open,
-            velo_rating_30_days                     = RiderBruteItem.velo_rating_30_days,
-            velo_cat_num_30_days                    = RiderBruteItem.velo_cat_num_30_days,
-            velo_cat_name_30_days                   = RiderBruteItem.velo_cat_name_30_days
+            zwift_racing_score                      = RiderComputeItem.zwift_racing_score,
+            zwift_cat_open                          = RiderComputeItem.zwift_cat_open,
+            velo_rating_30_days                     = RiderComputeItem.velo_rating_30_days,
+            velo_cat_num_30_days                    = RiderComputeItem.velo_cat_num_30_days,
+            velo_cat_name_30_days                   = RiderComputeItem.velo_cat_name_30_days
         )
         comparative_FTPs.append(item)
 

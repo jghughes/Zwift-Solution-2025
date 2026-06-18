@@ -214,9 +214,9 @@ class RepositoryOfRiders:
 
     def _make_dict_of_RiderComputeItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
         """
-        Iterates over the candidate Zwift IDs and builds a RiderBruteItem for each rider
+        Iterates over the candidate Zwift IDs and builds a RiderComputeItem for each rider
         that has both a Zwift profile and curve fit data. Riders missing either data source
-        are skipped -- by definition a RiderBruteItem only exists for curve-fitted riders.
+        are skipped -- by definition a RiderComputeItem only exists for curve-fitted riders.
 
         Construction of each item is delegated to build_RiderBruteItem in model_constructors.py.
         ZwiftRacingApp data is passed through as Optional; riders without it receive default
@@ -228,7 +228,7 @@ class RepositoryOfRiders:
                 and no items are produced.
 
         Returns:
-            Dict[str, RiderBruteItem]: Dictionary of RiderComputeItems keyed by zwift_id.
+            Dict[str, RiderComputeItem]: Dictionary of RiderComputeItems keyed by zwift_id.
             Only riders with both a ZwiftItem and a CurveFittingResultItem are included.
         """
 
@@ -266,7 +266,7 @@ class RepositoryOfRiders:
         that has a Zwift profile. Riders without a Zwift profile are skipped -- it is the
         minimum required data source for a RiderStatsItem.
 
-        ZwiftRacingApp data, RiderBruteItem data, and ZwiftPower 90-day watts data are all
+        ZwiftRacingApp data, RiderComputeItem data, and ZwiftPower 90-day watts data are all
         passed through as Optional; riders missing any of these receive default empty values
         inside the builder. Construction of each item is delegated to construct_RiderStatsItem
         in model_constructors.py.

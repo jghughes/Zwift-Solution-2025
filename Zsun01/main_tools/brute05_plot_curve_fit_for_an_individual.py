@@ -53,7 +53,7 @@ from zwiftpower_flattened_90_day_watts_item import ZWIFTPOWER_GRAPH_90_OR_30_DAY
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
 from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from working_file_read_write import read_rider_brute_dict_from_json
+from working_file_read_write import read_rider_compute_dict_from_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_item import RiderComputeItem
 
@@ -103,7 +103,7 @@ def plot_curve_fit_for_an_individual():
     print("\nModelling completed. Thank you.\n")
 
     # instantiate a power item to hold the results
-    dict_of_all_zsunriders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)# we need this to get the rider's name
+    dict_of_all_zsunriders = read_rider_compute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)# we need this to get the rider's name
 
     pi = RiderComputeItem(
         zwift_id=chosen_zwiftID,

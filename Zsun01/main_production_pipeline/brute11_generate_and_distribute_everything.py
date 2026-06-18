@@ -4,7 +4,7 @@ PIPELINE. It builds on all the previous tools.
 
 Each time a batch of raw data is received from DaveK, run this generate_everything_and_save_and_upload
 to generate a master JSON dictionary file of all actively racing club
-members, with all relevant data aggregated in a RiderBruteItem for each
+members, with all relevant data aggregated in a RiderComputeItem for each
 rider. A batch of raw data consists of several thousand files. 
 The master JSON dictionary file for July 2025 data contains 431 riders.
 

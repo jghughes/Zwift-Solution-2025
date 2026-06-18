@@ -11,13 +11,13 @@ from jgh_formulae03 import (
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
-from working_file_read_write import read_rider_brute_dict_from_json
+from working_file_read_write import read_rider_compute_dict_from_json
 from paceline_modelling_items import PacelineIngredientsItem
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 
 def test01():
-    dict_of_all_riders = read_rider_brute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
+    dict_of_all_riders = read_rider_compute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
     riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
 
