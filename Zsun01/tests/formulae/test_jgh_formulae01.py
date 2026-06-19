@@ -1,4 +1,4 @@
-from constants import AERO_FACTOR_ROAD_BIKE, AERO_FACTOR_TT_BIKE
+from constants import AERO_FACTOR_ROAD_BIKE, AERO_POSITION_FACTOR_TT
 from jgh_formulae01 import calculate_rider_kph_from_watts
 
 import time

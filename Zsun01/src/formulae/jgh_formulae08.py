@@ -262,7 +262,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
     # 1. Find Safe Upper Bound for binary-search.
 
     CHUNK_OF_KPH_PER_ITERATION = 5.0
-    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 20 # the ample maximum number of loops to find the upper bound for the binary search
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 200 # arbitrary. we can achieve huge speeds on steep slopes whe CdA is et to zero in testing
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
 
@@ -289,7 +289,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
     # 2. Do binary-search.
 
     REQUIRED_PRECISION_OF_SPEED_KPH = 0.05 
-    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 100 # i have no idea if this is adequate or not
 
     while (upper_bound_for_next_search_iteration_kph - lower_bound_for_next_search_iteration_kph) > REQUIRED_PRECISION_OF_SPEED_KPH and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
 

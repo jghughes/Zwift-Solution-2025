@@ -53,7 +53,6 @@ from constants import (
     COEFFICIENT_bike_weight_kg,
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_PACELINE_SLOPE_PC,
-    POWER_CURVE_IN_PACELINE,
 )
 
 
@@ -183,7 +182,7 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
     F_roll, F_gravity = calculate_rolling_resistance_and_gravity_force(total_mass_kg, slope_pc)
     CdA: float = calculate_CdA(height_cm, aero_factor)
 
-    A_coef: float = 0.5 * COEFFICIENT_rho * CdA   # always > 0  (kg/m)
+    A_coef: float = 0.5 * COEFFICIENT_rho * CdA   # must always be > 0  (kg/m) (0.0 will blow up, divide by zero below)
     B_coef: float = F_roll + F_gravity             # N; sign depends on slope
 
     # --- depressed cubic: t^3 + p*t + q = 0 (Wikipedia section 3) ----------

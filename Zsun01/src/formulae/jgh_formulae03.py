@@ -7,10 +7,10 @@ from jgh_number import safe_divide
 
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
-from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
+from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, AERO_POSITION_FACTOR_DEFAULT, POWER_CURVE_IN_PACELINE
 from jgh_formatting import truncate
 from jgh_formulae01 import calculate_rider_kph_from_watts, calculate_rider_watts_from_kph
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts
+from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_one_hour_watts
 from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
@@ -41,7 +41,7 @@ def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: floa
     (km/h), position, slope (%), weight (kg), and height (cm) in the
     paceline.
     """
-    base_power = calculate_rider_watts_from_kph(speed, rider.weight_kg, rider.height_cm, slope_pc, AERO_FACTOR_TT_BIKE)
+    base_power = calculate_rider_watts_from_kph(speed, rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
     power_factor = calculate_drag_ratio_in_paceline(position)
     adjusted_power = base_power * power_factor
 
@@ -54,7 +54,7 @@ def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
     """
     power_factor = calculate_drag_ratio_in_paceline(position)
     adjusted_watts = safe_divide(power, power_factor)
-    speed_kph = calculate_rider_kph_from_watts(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc, AERO_FACTOR_TT_BIKE)
+    speed_kph = calculate_rider_kph_from_watts(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         
     return speed_kph
 

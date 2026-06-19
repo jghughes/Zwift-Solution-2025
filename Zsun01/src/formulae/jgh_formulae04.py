@@ -90,7 +90,7 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
                 speed = pull_speeds_kph[j]
                 workunit = RiderWorkAssignmentItem(position=position, duration=duration, speed=speed, slope_pc=slope_pc)
             else:
-                workunit = RiderWorkAssignmentItem(position=position, slope=slope)
+                workunit = RiderWorkAssignmentItem(position=position, slope_pc=slope_pc)
             workunits.append(workunit)
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits

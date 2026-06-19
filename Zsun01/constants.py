@@ -9,13 +9,16 @@ COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms.
 #The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. 
 
 
-AERO_POSITION_FACTOR_HOODS = 1.7 # these parameters come from ChatGPT
+AERO_POSITION_FACTOR_HOODS = 1.7 # all these aero parameters come from ChatGPT, but i feel this one ties back to what ZwiftInsider used in his tests
 AERO_POSITION_FACTOR_TT = 1.05
 AERO_POSITION_FACTOR_SUPERTUCK = 0.75
 AERO_POSITION_FACTOR_FULLTUCK = 0.55
-AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_TT
+AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_HOODS
+# AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_TT
 
-DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
+DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each TTT team has its own factor depending on the calibre of the team. see class RepositoryOfTeamRosters in Zsun01/src/data_repositories/repository_of_team_rosters.py for details. This is the default factor used in the unliely event that a team does not have a specific factor defined. 
+
+DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
 
 # SINGLE_SEGMENT_PREDICTION_DISTANCE_KM = 3.52 # A standard segment as a simple benchmark. See model_constructors.py and repository_of_riders. Tempus Fugit=19.6 km inc lead-in. Alpe du Zwift=12.2 km. The Grade KOM=3.52
 DEFAULT_PACELINE_SLOPE_PC: float = 0.0
@@ -25,7 +28,6 @@ POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dty
 PULL_DURATION_OPTIONS_SEC: tuple[float] = [0.0, 30.0, 60.0, 120.0, 180.0, 240.0, 300.0] # NB. the elements MUST BE IN ASCENDING ORDER otherwise the algorithms will not work correctly. The list can be truncated to reduce compute time,maybe to handle larger groups of riders for example, but the values of the elements are fixed, they MUST NOT BE CHANGED otherwise the algorithms will generate nonesense. The values in this array map to the code in RiderComputeItem.get_proxy_pull_watts(..), which in turn maps to the values of RiderComputeItem.get_proxy_30sec_pull_watts(), RiderComputeItem.get_proxy_1_minute_pull_watts(), RiderComputeItem.get_proxy_2_minute_pull_watts(), RiderComputeItem.get_proxy_3_minute_pull_watts(), and RiderComputeItem.get_proxy_4_minute_pull_watts(). These methods are where the magic of curve-fitting comes together with the empirical experience of DaveK as a regular TTT racer. Each method is based parameters for what DaveK feels he can achieve in terms of repeated efforts and over/under intervals in a race. Assuming 8 riders, I recommend max 7 pull periods, otherwise the solution space becomes too large and the algorithm takes too long to compute (more than a minute). The pull periods are in seconds, and they represent the time each rider spends at the front of the paceline during a ride. The first_name element (0.0) is included to represent the case where a rider does not take a pull. The functions affected by PULL_DURATION_OPTIONS_SEC produce the Cartesian product of the allowed pull periods for each rider. For n riders and k allowed pull periods, it generates k^n possible sequences. Each row in the returned array is a sequence of pull periods for the paceline. For instance, six pull periods and eight riders generates 6^8 = 1,679,616 possible sequences. This is a large number, but it is manageable for the algorithm to process within a reasonable time frame, especially with the solution-space pruning applied prior to compute expensive processing. Pruning itself is compute intense, but much less intense than subsequent processing.
 
 
-DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each team has its own factor depending on the calibre of the team. see class RepositoryOfTeamRosters in Zsun01/src/data_repositories/repository_of_team_rosters.py for details. This is the default factor used when a team does not have a specific factor defined. 
 
 SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD = 512 # Below this threshold, serial-processing is faster than parallel-processing.Above this threshold, parallel-processing is faster. The threshold is empirically determined and might be different on different machines with different number physicaland virtual cores. see test01() in formula08.py for details of the determination.
 

@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
-from constants import COEFFICIENT_bike_weight_kg
+from constants import AERO_POSITION_FACTOR_DEFAULT
 import warnings
 
-from jgh_formulae01 import solve_for_velocity_from_power
+from jgh_formulae01 import calculate_rider_kph_from_watts
 from jgh_number import safe_divide
 from rider_compute_dto import RiderComputeDTO   
 from zwift_id_base import FrozenZwiftIdBase
@@ -216,11 +216,10 @@ class RiderComputeItem(FrozenZwiftIdBase):
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
 
     def get_1_hour_distance_km_on_slope(self, slope_pc : float) -> float:
-        total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
         try:
-            speed_kmh: float = solve_for_velocity_from_power(self.get_1_hour_curvefit_watts(), self.height_cm, total_mass, slope_pc)
+            speed_kmh: float = calculate_rider_kph_from_watts(self.get_1_hour_curvefit_watts(), self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
             speed_kmh = 0.0
 
         return speed_kmh

@@ -96,7 +96,7 @@ from rider_compute_item import RiderComputeItem
 from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_stats_item import RiderStatsItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
-from slope_bucket_item import SlopeBucketItem
+# from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
 from repository_of_routes import RepositoryOfRoutes
 

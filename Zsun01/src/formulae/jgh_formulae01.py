@@ -3,11 +3,8 @@ from constants import (
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_PACELINE_SLOPE_PC,
 )
-from jgh_formulae00 import calculate_velocity_from_power
+from jgh_formulae00 import calculate_velocity_from_power, calculate_power_from_velocity
 
-
-# def solve_for_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
-#     return calculate_velocity_from_power(power_watts, height_cm, total_mass_kg, slope_pc, aero_factor)
 
 def calculate_rider_watts_from_kph(speed_kph: float, rider_weight: float, rider_height: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """ 
