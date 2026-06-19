@@ -9,21 +9,39 @@ from jgh_number import safe_divide
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL
 from jgh_formatting import truncate
-from jgh_formulae00 import calculate_drag_ratio_in_paceline, calculate_watts_from_speed
-from jgh_formulae01 import solve_for_speed_from_wattage_using_binary_search
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts, solve_for_speed_at_one_hour_watts
+from jgh_formulae01 import calculate_rider_kph_from_watts, calculate_rider_watts_from_kph
+from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_n_second_watts, solve_for_speed_at_one_hour_watts
 from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
 
 # All of these functions are called during parallel processing. Logging forbidden
+
+def calculate_drag_ratio_in_paceline(position_in_paceline: int) -> float:
+    """
+    Calculate the power factor based on the rider's position 
+    in the paceline. The leader's factor is 1.0. Followers in 
+    the paceline are based on ZwiftInsider's power matrix. 
+    Their factors are less than 1.0, diminishing as they are 
+    further back.This function guards against index out of 
+    range errors if POWER_CURVE_IN_PACELINE is shorter than 8.
+    """
+    denominator = POWER_CURVE_IN_PACELINE[0]
+    max_index = len(POWER_CURVE_IN_PACELINE) - 1
+    # Clamp position to valid range (1 to len(POWER_CURVE_IN_PACELINE)), else use last available value
+    if 1 <= position_in_paceline <= len(POWER_CURVE_IN_PACELINE):
+        numerator = POWER_CURVE_IN_PACELINE[position_in_paceline - 1]
+    else:
+        numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
+    return numerator / denominator
+
 def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope_pc: float = 0.0) -> float:
     """
     Calculate required wattage (watts) for a rider at given speed
     (km/h), position, slope (%), weight (kg), and height (cm) in the
     paceline.
     """
-    base_power = calculate_watts_from_speed(speed, rider.weight_kg, rider.height_cm, slope_pc)
+    base_power = calculate_rider_watts_from_kph(speed, rider.weight_kg, rider.height_cm, slope_pc, AERO_FACTOR_TT_BIKE)
     power_factor = calculate_drag_ratio_in_paceline(position)
     adjusted_power = base_power * power_factor
 
@@ -36,7 +54,7 @@ def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
     """
     power_factor = calculate_drag_ratio_in_paceline(position)
     adjusted_watts = safe_divide(power, power_factor)
-    speed_kph = solve_for_speed_from_wattage_using_binary_search(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc)
+    speed_kph = calculate_rider_kph_from_watts(adjusted_watts, rider.weight_kg, rider.height_cm, slope_pc, AERO_FACTOR_TT_BIKE)
         
     return speed_kph
 

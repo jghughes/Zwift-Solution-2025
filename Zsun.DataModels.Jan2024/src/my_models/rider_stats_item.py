@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 
-from jgh_formulae00 import calculate_frontal_area
+# from jgh_formulae00 import calculate_frontal_area
 from zwift_id_base import ZwiftIdBase
 from typing import Optional
 from rider_stats_dto import RiderStatsDTO

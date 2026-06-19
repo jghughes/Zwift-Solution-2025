@@ -1,4 +1,5 @@
-from jgh_formulae01 import solve_for_speed_from_wattage_using_binary_search
+from constants import AERO_FACTOR_ROAD_BIKE, AERO_FACTOR_TT_BIKE
+from jgh_formulae01 import calculate_rider_kph_from_watts
 
 import time
 import logging
@@ -17,7 +18,7 @@ def test00():
     # for TTT, ZwiftInsider rode bog standard Zwift TT frame with Zipp 808 wheels (weight is a Zwift secret)
     # for road, ZwiftInsider rode bog standard Zwift Carbon road bike frames with Zwift 32mm carbon wheels (weight is a Zwift secret)
 
-    speed_kmh: float = solve_for_speed_from_wattage_using_binary_search(power, rider_weight, height_cm, slope_pc=0.0)
+    speed_kmh: float = calculate_rider_kph_from_watts(power, rider_weight, height_cm, 0.0, AERO_FACTOR_ROAD_BIKE)
 
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on a gradient of 0.0%")
 

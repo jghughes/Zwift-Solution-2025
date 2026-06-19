@@ -5,7 +5,7 @@ import numpy as np
 from constants import COEFFICIENT_bike_weight_kg
 import warnings
 
-from jgh_formulae01 import solve_for_velocity_from_power_using_binary_search
+from jgh_formulae01 import solve_for_velocity_from_power
 from jgh_number import safe_divide
 from rider_compute_dto import RiderComputeDTO   
 from zwift_id_base import FrozenZwiftIdBase
@@ -218,9 +218,9 @@ class RiderComputeItem(FrozenZwiftIdBase):
     def get_1_hour_distance_km_on_slope(self, slope_pc : float) -> float:
         total_mass: float = self.weight_kg + COEFFICIENT_bike_weight_kg
         try:
-            speed_kmh: float = solve_for_velocity_from_power_using_binary_search(self.get_1_hour_curvefit_watts(), self.height_cm, total_mass, slope_pc)
+            speed_kmh: float = solve_for_velocity_from_power(self.get_1_hour_curvefit_watts(), self.height_cm, total_mass, slope_pc)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power_using_binary_search failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: solve_for_velocity_from_power failed to converge: {e}. defaulting to 0.0")
             speed_kmh = 0.0
 
         return speed_kmh

@@ -90,7 +90,7 @@ def calculate_CdA(height_cm: float, aero_position_factor: float) -> float:
     return COEFFICIENT_Cd * effective_frontal_area
 
 
-def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
+def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Return required watts from speed (km/h), rider weight (kg), 
     rider height (cm), and slope (%); returns watts (W).
@@ -112,19 +112,7 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
     return power_w
 
 
-def calculate_watts_from_speed(speed_kph: float, rider_weight_kg: float, rider_height_cm: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC) -> float:
-    """
-    Calculate the power (watts) as a function of 
-    speed (km/h), weight (kg), height (cm), slope (%).
-    """
-
-    rider_plus_bike_mass: float = rider_weight_kg + COEFFICIENT_bike_weight_kg
-    watts = calculate_power_from_velocity(speed_kph, rider_height_cm, rider_plus_bike_mass, slope_pc)
-
-    return watts
-
-
-def calculate_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
+def calculate_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Return equilibrium speed (km/h) for a given power output (W), rider
     height (cm), total mass (kg), and slope (%).
@@ -161,10 +149,10 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
     Discriminant (Wikipedia section 4.1)
     =====================================
 
-        Delta = -(4*p^3 + 27*q^2)
+        Discriminant = -(4*p^3 + 27*q^2)
 
-        Delta <= 0  =>  one real root    =>  Cardano's formula
-        Delta >  0  =>  three real roots =>  Viete's formula
+        Discriminant <= 0  =>  one real root    =>  Cardano's formula
+        Discriminant >  0  =>  three real roots =>  Viete's formula
 
     For cycling ranges of -16% to +16% slope and P >= 0 W, the Viete
     branch applies for descents of roughly -4% or steeper across the
@@ -172,7 +160,7 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
 
     Cardano's formula (Wikipedia section 5)
     =========================================
-    Valid when Delta <= 0. One real root, two complex conjugates.
+    Valid when Discriminant <= 0. One real root, two complex conjugates.
 
         D  = q^2/4 + p^3/27
         u1 = -q/2 + sqrt(D)
@@ -181,7 +169,7 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
 
     Viete's trigonometric formula (Wikipedia section 7.1)
     =======================================================
-    Valid when Delta > 0. Three distinct real roots (casus irreducibilis).
+    Valid when Discriminant > 0. Three distinct real roots (casus irreducibilis).
     p < 0 is guaranteed in this branch.
 
         m   = 2 * sqrt(-p/3)
@@ -202,12 +190,12 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
     p: float = B_coef / A_coef
     q: float = -power_watts / A_coef
 
-    # --- discriminant (Delta) (Wikipedia section 4.1) --------------------------------
-    Delta: float = -(4.0 * p**3 + 27.0 * q**2)
+    # --- discriminant (Discriminant) (Wikipedia section 4.1) --------------------------------
+    Discriminant: float = -(4.0 * p**3 + 27.0 * q**2)
 
     t: float = 0.0
 
-    if Delta <= 0.0:
+    if Discriminant <= 0.0:
         # --- Cardano's formula (Wikipedia section 5) -------------------------
         D: float  = q**2 / 4.0 + p**3 / 27.0
         u1: float = -q / 2.0 + math.sqrt(D)
@@ -224,23 +212,6 @@ def calculate_velocity_from_power(power_watts: float, height_cm: float, total_ma
     return velocity_mps * 3.6               # m/s -> km/h
 
 
-def calculate_drag_ratio_in_paceline(position_in_paceline: int) -> float:
-    """
-    Calculate the power factor based on the rider's position 
-    in the paceline. The leader's factor is 1.0. Followers in 
-    the paceline are based on ZwiftInsider's power matrix. 
-    Their factors are less than 1.0, diminishing as they are 
-    further back.This function guards against index out of 
-    range errors if POWER_CURVE_IN_PACELINE is shorter than 8.
-    """
-    denominator = POWER_CURVE_IN_PACELINE[0]
-    max_index = len(POWER_CURVE_IN_PACELINE) - 1
-    # Clamp position to valid range (1 to len(POWER_CURVE_IN_PACELINE)), else use last available value
-    if 1 <= position_in_paceline <= len(POWER_CURVE_IN_PACELINE):
-        numerator = POWER_CURVE_IN_PACELINE[position_in_paceline - 1]
-    else:
-        numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
-    return numerator / denominator
 
 
 
