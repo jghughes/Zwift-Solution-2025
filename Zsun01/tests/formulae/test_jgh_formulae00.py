@@ -1,36 +1,45 @@
 from tabulate import tabulate
 import time
 import logging
-from constants import COEFFICIENT_bike_weight_kg, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK
+from constants import COEFFICIENT_bike_weight_kg, AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK
 from jgh_formulae00 import calculate_CdA, calculate_rolling_resistance_and_gravity_force, calculate_frontal_area,calculate_power_from_velocity, calculate_velocity_from_power
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
 def test00():
-    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
-    height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
+    # ZwiftInsider https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ 
+    # for TTT, ZwiftInsider rode bog standard Zwift TT frame with Zipp 808 wheels (weight is a Zwift secret)
+    # for road, ZwiftInsider rode bog standard Zwift Carbon road bike frames with Zwift 32mm carbon wheels (weight is a Zwift secret)
 
-    column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
+    gradient: float = 0.00  # he rode on the dead flat, peumably in a normal position on the hoods
+    rider_weight: float = 75.0  # kg 
+    height: float = 183
+    power_300: float = 300.0  # on a road bike he should be able to achieve 40.19 kph (TT bike 41.83 kph)
+    power_400: float = 400.0  # on a road bike he should be able to achieve 44.53 kph (TT bike 46.47 kph )
 
-    rows : list[str] = []
-    for height in height_values:
-        row : list[str] = [f"{height:.1f}"] # leftmost column in this row is  height
-        for aero_factor in aero_values:
-            area  = calculate_frontal_area(height, aero_factor)
-            row.append(f"{area:.2f}") 
-        rows.append(row)
+    total_mass: float = rider_weight + COEFFICIENT_bike_weight_kg
 
-    print("Frontal area (m^2) as a function of height and aero-position.")
-    print("     calculate_frontal_area()")
-    print("Note: This is the frontal area, not the CdA. To get CdA, multiply frontal area by Cd (0.88) - see calculate_frontal_area()")
-    print(f"aero values: hoods, tt, supertuck, fulltuck")
-    print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
+
+    print(f"Benchmark vs ZwiftInsider's empirical measurements in the hoods on the flat.")
+    print(f"    calculate_velocity_from_power()")
+    print(f"In the hoods:")
+    speed_kmh: float = calculate_velocity_from_power(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
+    print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%  ZwiftInsider got 40.19 kph")
+    speed_kmh: float = calculate_velocity_from_power(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
+    print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%  ZwiftInsider got 44.53 kph")
+
+    print(f"In the TT position:")
+    speed_kmh: float = calculate_velocity_from_power(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_TT)
+    print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%")
+    speed_kmh: float = calculate_velocity_from_power(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_TT)
+    print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%")
+
     print("\n")
 
 
 def test01():
-    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_DEFAULT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
+    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
     height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
     column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
 
@@ -47,6 +56,7 @@ def test01():
     print("Note: This is the CdA, not the frontal area.")
     print(f"aero values: hoods, tt, supertuck, fulltuck")
     print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
+    print("In June 2026, the GCN boys raced having achieved a CdA of 0.23 in the 'breakaway' position in full aero clothing. (which is not as good as the TT positon.) They")
     print("\n")
 
 def test02():
@@ -72,34 +82,26 @@ def test02():
     print("\n")
 
 def test03():
-    # ZwiftInsider https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ 
-    # for TTT, ZwiftInsider rode bog standard Zwift TT frame with Zipp 808 wheels (weight is a Zwift secret)
-    # for road, ZwiftInsider rode bog standard Zwift Carbon road bike frames with Zwift 32mm carbon wheels (weight is a Zwift secret)
+    aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
+    height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
 
-    gradient: float = 0.00  # he rode on the dead flat, peumably in a normal position on the hoods
-    rider_weight: float = 75.0  # kg 
-    height: float = 183
-    power_300: float = 300.0  # on a road bike he should be able to achieve 40.19 kph (TT bike 41.83 kph)
-    power_400: float = 400.0  # on a road bike he should be able to achieve 44.53 kph (TT bike 46.47 kph )
+    column_headers : list[str] = ["Height (cm)"] + [f"{m:.2f} aero factor" for m in aero_values]
 
-    total_mass: float = rider_weight + COEFFICIENT_bike_weight_kg
+    rows : list[str] = []
+    for height in height_values:
+        row : list[str] = [f"{height:.1f}"] # leftmost column in this row is  height
+        for aero_factor in aero_values:
+            area  = calculate_frontal_area(height, aero_factor)
+            row.append(f"{area:.2f}") 
+        rows.append(row)
 
-
-    print(f"Benchmark vs ZwiftInsider's empirical measurements in the hoods on the flat.")
-    print(f"    calculate_velocity_from_power()")
-    print(f"In the hoods:")
-    speed_kmh: float = calculate_velocity_from_power(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
-    print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%  ZwiftInsider got 40.19 kph")
-    speed_kmh: float = calculate_velocity_from_power(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_HOODS)
-    print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%  ZwiftInsider got 44.53 kph")
-
-    print(f"In the aero position:")
-    speed_kmh: float = calculate_velocity_from_power(power_300, height, total_mass, gradient, AERO_POSITION_FACTOR_DEFAULT)
-    print(f"Speed: {speed_kmh:.2f} km/h at {power_300}W on gradient of {gradient}%")
-    speed_kmh: float = calculate_velocity_from_power(power_400, height, total_mass, gradient, AERO_POSITION_FACTOR_DEFAULT)
-    print(f"Speed: {speed_kmh:.2f} km/h at {power_400}W on gradient of {gradient}%")
-
+    print("Frontal area (m^2) as a function of height and aero-position.")
+    print("     calculate_frontal_area()")
+    print("Note: This is the frontal area, not the CdA. To get CdA, multiply frontal area by Cd (0.88) - see calculate_frontal_area()")
+    print(f"aero values: hoods, tt, supertuck, fulltuck")
+    print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
     print("\n")
+
 
 def test04():
     rider_weight: float = 75.0  # kg
@@ -158,8 +160,8 @@ if __name__ == "__main__":
         test01()
         test02()
         test03()
-        test04()
-        test05()
+        # test04()
+        # test05()
 
         end_time = time.time()
         duration = end_time - start_time

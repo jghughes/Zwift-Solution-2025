@@ -50,7 +50,6 @@ from constants import (
     COEFFICIENT_rho,
     COEFFICIENT_Cd,
     COEFFICIENT_Crr, 
-    COEFFICIENT_bike_weight_kg,
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_PACELINE_SLOPE_PC,
 )
@@ -80,11 +79,11 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
     return answer
 
 
-def calculate_CdA(height_cm: float, aero_position_factor: float) -> float:
+def calculate_CdA(height_cm: float, aero_factor: float) -> float:
     """
     Estimate CdA from rider height (cm) and aero factor (unitless); returns CdA (m^2).
     """
-    effective_frontal_area = calculate_frontal_area(height_cm, aero_position_factor)
+    effective_frontal_area = calculate_frontal_area(height_cm, aero_factor)
 
     return COEFFICIENT_Cd * effective_frontal_area
 
