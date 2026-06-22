@@ -28,7 +28,7 @@
     <Compile Include="src\my_models\paceline_modelling_items.py" />
     <Compile Include="src\my_models\regression_modelling_item.py" />
     <Compile Include="src\my_models\rider_compute_item.py" />
-    <Compile Include="src\my_models\model_constructors.py" />
+    <Compile Include="src\my_models\model_builders.py" />
     <Compile Include="src\my_models\rider_stats_item.py" />
     <Compile Include="src\my_models\route_item.py" />
     <Compile Include="src\my_models\slope_bucket_item.py" />

@@ -21,7 +21,7 @@ from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
 
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-from model_constructors import construct_RiderComputeItem, construct_RiderStatsItem, construct_CurveFittingResultItem
+from model_builders import build_RiderComputeItem, build_RiderStatsItem, build_CurveFittingResultItem
 
 @dataclass
 class RepositoryOfRiders:
@@ -198,7 +198,7 @@ class RepositoryOfRiders:
             coefficient_pull, exponent_pull, r_squared_pull, _, _             = do_curve_fit_with_decay_model(raw_xy_data_pull)
             critical_power, anaerobic_work_capacity, _, _, _                  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
-            answer[zwift_id] = construct_CurveFittingResultItem(
+            answer[zwift_id] = build_CurveFittingResultItem(
                 zwift_id,
                 coefficient_one_hour,
                 exponent_one_hour,
@@ -218,7 +218,7 @@ class RepositoryOfRiders:
         that has both a Zwift profile and curve fit data. Riders missing either data source
         are skipped -- by definition a RiderComputeItem only exists for curve-fitted riders.
 
-        Construction of each item is delegated to build_RiderBruteItem in model_constructors.py.
+        Construction of each item is delegated to build_RiderBruteItem in model_builders.py.
         ZwiftRacingApp data is passed through as Optional; riders without it receive default
         empty values inside the builder.
 
@@ -250,7 +250,7 @@ class RepositoryOfRiders:
             if jghcurveItem is None:
                 continue  # skip this rider if no curve fit data. by definition a Compute rider is someone with curve fit data
 
-            answer[key] = construct_RiderComputeItem(
+            answer[key] = build_RiderComputeItem(
                 zwiftItem,
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 jghcurveItem,
@@ -268,8 +268,8 @@ class RepositoryOfRiders:
 
         ZwiftRacingApp data, RiderComputeItem data, and ZwiftPower 90-day watts data are all
         passed through as Optional; riders missing any of these receive default empty values
-        inside the builder. Construction of each item is delegated to construct_RiderStatsItem
-        in model_constructors.py.
+        inside the builder. Construction of each item is delegated to build_RiderStatsItem
+        in model_builders.py.
 
         The projected_accelerated_level for each rider is resolved here before the builder
         is called, as it requires access to the launch-date snapshot dictionary which is
@@ -304,7 +304,7 @@ class RepositoryOfRiders:
             else:
                 projected_accelerated_level = 0  # if rider not in the file with list of riders eligible for accelerated levelling up, we set projected_accelerated_level to 0
 
-            answer[key] = construct_RiderStatsItem(
+            answer[key] = build_RiderStatsItem(
                 zwiftItem,
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 self._computed_dict_of_riderComputeItem.get(key),

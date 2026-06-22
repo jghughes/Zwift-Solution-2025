@@ -88,8 +88,8 @@ def _calculate_route_time_at_constant_power(rider: RiderComputeItem, route: Rout
     
     candidate_distance_km : float =  sum(bucket.bucket_length_km for bucket in route.route_slope_buckets)
 
-    if (candidate_distance_km < route.route_lead_in_length_km + route.route_length_km):
-        residual_distance = route.route_lead_in_length_km + route.route_length_km - candidate_distance_km
+    if (candidate_distance_km < route.route_lead_in_km + route.route_length_km):
+        residual_distance = route.route_lead_in_km + route.route_length_km - candidate_distance_km
 
         #  DO a hack to deal with the fact that the route data is imperfect on https://veloviewer.com/segments but it the best we have.
         #  This code adds a 0% slope bucket with the residual distance if the total distance of the buckets is less than the total length of the route.

@@ -20,13 +20,13 @@ class RepositoryOfRoutes:
 
     _routes_as_dict: Dict[str, RouteItem] = {
         "Template": RouteItem(
-            route_name                  = "name",
-            zwift_world_name            = "world",
-            route_description           = "description",
-            route_length_km             = 0.0,
-            route_elevation_m           = 0,
-            route_lead_in_length_km     = 0.0,
-            route_slope_buckets         = [
+            route_name          = "name",
+            zwift_world_name    = "world",
+            route_description   = "description",
+            route_length_km     = 0.0,
+            route_elevation_m   = 0,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
                 SlopeBucketItem(bucket_description="minus 16% bucket", bucket_length_km=0.0, bucket_slope_pc=-16.0),
                 SlopeBucketItem(bucket_description="minus 15% bucket", bucket_length_km=0.0, bucket_slope_pc=-15.0),
                 SlopeBucketItem(bucket_description="minus 14% bucket", bucket_length_km=0.0, bucket_slope_pc=-14.0),
@@ -64,27 +64,27 @@ class RepositoryOfRoutes:
         ),
 
         "Dummy_Descent": RouteItem(
-            route_name                  = "dummy descent",
-            zwift_world_name            = "fantasy",
-            route_description           = "4k descent @ -5%",
-            route_length_km             = 4.0,
-            route_elevation_m           = -200.0,
-            route_lead_in_length_km     = 0.0,
-            route_slope_buckets         = [
-                SlopeBucketItem(bucket_description="minus 5% bucket", bucket_length_km=4.0, bucket_slope_pc=-5.0),
+            route_name              = "dummy descent",
+            zwift_world_name        = "fantasy",
+            route_description       = "4k descent @ -16%",
+            route_length_km         = 4.0,
+            route_elevation_m       = -200.0,
+            route_lead_in_km        = 0.0,
+            route_slope_buckets     = [
+                SlopeBucketItem(bucket_description="minus 16% bucket", bucket_length_km=4.0, bucket_slope_pc=-16.0),
             ]
         ),
 
 
 
         "Tempus_Fugit": RouteItem(
-            route_name                  = "Tempus Fugit",
-            zwift_world_name            = "Watopia",
-            route_description           = "A flat, fast route. Ideal for TT efforts.",
-            route_length_km             = 17.3,
-            route_elevation_m           = 103.0,
-            route_lead_in_length_km           = 2.3,
-            route_slope_buckets         = [
+            route_name          = "Tempus Fugit",
+            zwift_world_name    = "Watopia",
+            route_description   = "A flat, fast route. Ideal for TT efforts.",
+            route_length_km     = 17.3,
+            route_elevation_m   = 103.0,
+            route_lead_in_km    = 2.3,
+            route_slope_buckets = [
                 SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.129, bucket_slope_pc=-2.0),
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=1.520, bucket_slope_pc=-1.0),
                 SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=14.0, bucket_slope_pc=0.0),
@@ -93,13 +93,13 @@ class RepositoryOfRoutes:
             ]
         ),
         "The_Grade_KOM": RouteItem(
-            route_name                  = "The Grade KOM",
-            zwift_world_name            = "Watopia",
-            route_description           = "The Grade KOM (for FTP testing)",
-            route_length_km             = 3.52,
-            route_elevation_m           = 305,
-            route_lead_in_length_km     = 0.0,
-            route_slope_buckets         = [
+            route_name          = "The Grade KOM",
+            zwift_world_name    = "Watopia",
+            route_description   = "The Grade KOM (for FTP testing)",
+            route_length_km     = 3.52,
+            route_elevation_m   = 305,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.010, bucket_slope_pc=-1.0),
                 SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.156, bucket_slope_pc=0.0),
                 SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.054, bucket_slope_pc=1.0),
@@ -118,13 +118,13 @@ class RepositoryOfRoutes:
             ]
         ),
         "The_Grade_KOM_v2": RouteItem(
-            route_name                  = "The Grade KOM v2",
-            zwift_world_name            = "Watopia",
-            route_description           = "steady climb",
-            route_length_km             = 3.52,
-            route_elevation_m           = 305,
-            route_lead_in_length_km     = 0.0,
-            route_slope_buckets         = [
+            route_name              = "The Grade KOM v2",
+            zwift_world_name        = "Watopia",
+            route_description       = "steady climb",
+            route_length_km         = 3.52,
+            route_elevation_m       = 305,
+            route_lead_in_km        = 0.0,
+            route_slope_buckets     = [
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.010, bucket_slope_pc=-1.0),
                 SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.156, bucket_slope_pc=0.0),
                 SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.054, bucket_slope_pc=1.0),
@@ -143,13 +143,13 @@ class RepositoryOfRoutes:
             ]
         ),
         "Alto_de_Patios": RouteItem(
-            route_name                  = "Alto de Patios",
-            zwift_world_name            = "Climb Portal",
-            route_description           = "Alto de Patios",
-            route_length_km             = 5.9,
-            route_elevation_m           = 377,
-            route_lead_in_length_km           = 0.0,
-            route_slope_buckets         = [
+            route_name              = "Alto de Patios",
+            zwift_world_name        = "Climb Portal",
+            route_description       = "Alto de Patios",
+            route_length_km         = 5.9,
+            route_elevation_m       = 377,
+            route_lead_in_km        = 0.0,
+            route_slope_buckets     = [
                 SlopeBucketItem(bucket_description="minus 8% bucket", bucket_length_km=0.032, bucket_slope_pc=-8.0),
                 SlopeBucketItem(bucket_description="minus 7% bucket", bucket_length_km=0.025, bucket_slope_pc=-7.0),
                 SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.109, bucket_slope_pc=2.0),
@@ -163,13 +163,13 @@ class RepositoryOfRoutes:
             ]
         ),
         "Oh_Hill_No": RouteItem(
-            route_name                  = "Oh Hill No",
-            zwift_world_name            = "Watopia",
-            route_description           = "Oh Hill No (for FTP testing)",
-            route_length_km             = 7.9,
-            route_elevation_m           = 306,
-            route_lead_in_length_km     = 0.2,
-            route_slope_buckets         = [
+            route_name              = "Oh Hill No",
+            zwift_world_name        = "Watopia",
+            route_description       = "Oh Hill No (for FTP testing)",
+            route_length_km         = 7.9,
+            route_elevation_m       = 306,
+            route_lead_in_km        = 0.2,
+            route_slope_buckets     = [
                 SlopeBucketItem(bucket_description="minus 12% bucket", bucket_length_km=0.356, bucket_slope_pc=-12.0),
                 SlopeBucketItem(bucket_description="minus 11% bucket", bucket_length_km=0.185, bucket_slope_pc=-11.0),
                 SlopeBucketItem(bucket_description="minus 10% bucket", bucket_length_km=1.575, bucket_slope_pc=-10.0),
@@ -200,13 +200,13 @@ class RepositoryOfRoutes:
         ),
 
         "Accelerate_to_Elevate": RouteItem(
-            route_name                  = "Accelerate to Elevate",
-            zwift_world_name              = "Watopia",
-            route_description           = "Alpe du Zwift and return",
-            route_length_km             = 41.0,
-            route_elevation_m           = 1153,
-            route_lead_in_length_km         = 2.3,
-            route_slope_buckets         = [
+            route_name              = "Accelerate to Elevate",
+            zwift_world_name        = "Watopia",
+            route_description       = "Alpe du Zwift and return",
+            route_length_km         = 41.0,
+            route_elevation_m       = 1153,
+            route_lead_in_km        = 2.3,
+            route_slope_buckets     = [
                 SlopeBucketItem(bucket_description="minus 3% bucket", bucket_length_km=0.734, bucket_slope_pc=-3.0),
                 SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=1.786, bucket_slope_pc=-2.0),
                 SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=4.282, bucket_slope_pc=-1.0),

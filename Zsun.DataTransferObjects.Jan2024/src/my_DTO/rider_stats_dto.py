@@ -57,14 +57,15 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"route_name"							:	AliasChoices("route_name", "routeName"),
 	"route_zwift_world_name"				:	AliasChoices("route_zwift_world_name", "routeZwiftWorldName"),
 	"route_description"						:	AliasChoices("route_description", "routeDescription"),
+	"route_lead_in_km"						:	AliasChoices("route_lead_in_km", "routeLeadInLengthKm"),
 	"route_length_km"						:	AliasChoices("route_length_km", "routeLengthKm"),
 	"route_elevation_m"						:	AliasChoices("route_elevation_m", "routeElevationM"),
-	"route_lead_in_length_km"				:	AliasChoices("route_lead_in_length_km", "routeLeadInLengthKm"),
-	"route_imposed_intensity_factor"		:	AliasChoices("route_imposed_intensity_factor", "routeImposedIntensityFactor"),
-	"route_fastest_achievable_time_sec"		:	AliasChoices("route_fastest_achievable_time_sec", "routeFastestAchievableTimeSecs"),
-	"route_fastest_achievable_time_hh_mm_ss":	AliasChoices("route_fastest_achievable_time_hh_mm_ss", "routeFastestAchievableTimeHhMmSs"),
-	"route_power_output_watts"				:	AliasChoices("route_power_output_watts", "routePowerOutputWatts"),
-	"route_power_output_wkg"				:	AliasChoices("route_power_output_wkg", "routePowerOutputWkg"),
+	"route_intensity_factor_limit"			:	AliasChoices("route_intensity_factor_limit", "routeIntensityFactorLimit"),
+	"route_sec"								:	AliasChoices("route_sec", "routeDurationSec"),
+	"route_hh_mm_ss"						:	AliasChoices("route_hh_mm_ss", "routeDurationHhMmSs"),
+	"route_watts"							:	AliasChoices("route_watts", "routePowerOutputWatts"),
+	"route_wkg"								:	AliasChoices("route_wkg", "routePowerOutputWkg"),
+	"route_kph"								:	AliasChoices("route_kph", "routeSpeedKph"),
 	"timestamp"								:	AliasChoices("timestamp", "timestamp"),
 }
 
@@ -133,14 +134,15 @@ class RiderStatsDTO(BaseModel):
 	route_name								:	str		=	""
 	route_zwift_world_name					:	str		=	""
 	route_description						:	str		=	""
+	route_lead_in_km						:	float	=	0.0
 	route_length_km							:	float	=	0.0
 	route_elevation_m						:	float	=	0.0
-	route_lead_in_length_km					:	float	=	0.0
-	route_imposed_intensity_factor			:	float	=	0.0
-	route_fastest_achievable_time_sec		:	float	=	0.0
-	route_fastest_achievable_time_hh_mm_ss	:	str		=	""
-	route_power_output_watts				:	float	=	0.0
-	route_power_output_wkg					:	float	=	0.0
+	route_intensity_factor_limit			:	float	=	0.0
+	route_sec								:	float	=	0.0
+	route_hh_mm_ss							:	str		=	""
+	route_watts								:	float	=	0.0
+	route_wkg								:	float	=	0.0
+	route_kph								:	float	=	0.0
 	timestamp								:	str		=	""
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")

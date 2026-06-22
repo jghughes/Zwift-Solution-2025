@@ -11,7 +11,7 @@ class RouteDTO(BaseModel):
     route_description       : str = ""
     route_length_km         : float = 0.0
     route_elevation_m       : float = 0.0
-    route_lead_in_length_km       : float = 0.0
+    route_lead_in_km       : float = 0.0
     # imposed_intensity_factor : float = 0.0
     route_slope_buckets: List[SlopeBucketDTO] = Field(default_factory=list)
 

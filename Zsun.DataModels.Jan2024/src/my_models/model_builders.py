@@ -5,21 +5,17 @@ from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp,
 from jgh_formulae02 import solve_for_route_time_at_constant_90_day_best_using_binary_search
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
-
-from jgh_power_curve_fit_models import decay_model_numpy
-
 from paceline_modelling_items import CurveFittingResultItem
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
 
 
 
-def construct_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
+def build_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
     exponent_pull_curve: float,
     r_squared_pull_best_fit: float,
     critical_power: float,
@@ -71,7 +67,7 @@ def construct_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float,
     )
 
 
-def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
+def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
     """
     Constructs and returns a fully populated RiderComputeItem for a single rider.
 
@@ -125,7 +121,7 @@ def construct_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optiona
     )
 
 
-def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
+def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
                              watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,
                              routeItem: RouteItem) -> RiderStatsItem:
     """
@@ -234,17 +230,18 @@ def construct_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[
     riderStatsItem = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(riderStatsItem, watts_90_day_item, weight_kg)
 
     if (routeItem is not None and jghRiderComputeItem.jgh_60_min_curve_coefficient > 0 and jghRiderComputeItem.jgh_60_min_curve_exponent > 0):
-        print(f"Lead-in length={routeItem.route_lead_in_length_km}km")
+        print(f"Lead-in length={routeItem.route_lead_in_km}km")
         riderStatsItem = RouteItem.populate_riderStatsItem_with_routeItem(routeItem, riderStatsItem)
         routeItem = solve_for_route_time_at_constant_90_day_best_using_binary_search(jghRiderComputeItem, routeItem, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
         route_time_sec = sum(bucket.calculated_bucket_duration_sec for bucket in routeItem.route_slope_buckets)
         if not math.isfinite(route_time_sec):
-            riderStatsItem.route_fastest_achievable_time_sec = 0.0
-            riderStatsItem.route_fastest_achievable_time_hh_mm_ss = "n/a"
+            riderStatsItem.route_sec = 0.0
+            riderStatsItem.route_hh_mm_ss = "n/a"
         else:
-            riderStatsItem.route_fastest_achievable_time_sec = round(route_time_sec, 1)
-            riderStatsItem.route_fastest_achievable_time_hh_mm_ss = format_seconds_to_hh_mm_ss(route_time_sec)
-        riderStatsItem.route_power_output_watts = round((routeItem.route_slope_buckets[0].calculated_bucket_watts if len(routeItem.route_slope_buckets) > 0 else 0.0), 1)
-        riderStatsItem.route_power_output_wkg = round(safe_divide(riderStatsItem.route_power_output_watts, riderStatsItem.weight_kg), 2)
+            riderStatsItem.route_sec = round(route_time_sec, 1)
+            riderStatsItem.route_hh_mm_ss = format_seconds_to_hh_mm_ss(route_time_sec)
+        riderStatsItem.route_watts = round((routeItem.route_slope_buckets[0].calculated_bucket_watts if len(routeItem.route_slope_buckets) > 0 else 0.0), 1)
+        riderStatsItem.route_wkg = round(safe_divide(riderStatsItem.route_watts, riderStatsItem.weight_kg), 2)
+        riderStatsItem.route_kph = round(safe_divide(routeItem.route_lead_in_km + routeItem.route_length_km, route_time_sec/3600.0), 1)
     
     return riderStatsItem
