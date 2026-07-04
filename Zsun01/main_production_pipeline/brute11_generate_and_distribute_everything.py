@@ -50,9 +50,8 @@ from email import message
 from pathlib import Path
 from typing import Type, Dict, Any
 import time
-
-
 import pandas as pd
+from constants import SINGLE_RIDER_ROUTE_NAME
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
@@ -89,7 +88,7 @@ from storage_config import (
 
     AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV
+    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
     )
 from repository_of_riders import RepositoryOfRiders
 from rider_compute_item import RiderComputeItem
@@ -134,7 +133,7 @@ async def generate_everything_and_save_and_upload():
     print("dir_paths and filenames validated.")
     print("\nTHE MEAT: populate repository of riders.")
 
-    route: RouteItem = RepositoryOfRoutes.get_RouteItem("Tempus_Fugit")
+    route: RouteItem = RepositoryOfRoutes.get_RouteItem(SINGLE_RIDER_ROUTE_NAME)
 
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()

@@ -2,7 +2,7 @@ from typing import Optional
 import math
 from constants import DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
 from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
-from jgh_formulae02 import solve_for_route_time_at_constant_90_day_best_using_binary_search
+from jgh_formulae02 import solve_for_route_duration_at_constant_90_day_best_using_binary_search
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 from paceline_modelling_items import CurveFittingResultItem
@@ -230,9 +230,9 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[Zwif
     riderStatsItem = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(riderStatsItem, watts_90_day_item, weight_kg)
 
     if (routeItem is not None and jghRiderComputeItem.jgh_60_min_curve_coefficient > 0 and jghRiderComputeItem.jgh_60_min_curve_exponent > 0):
-        print(f"Lead-in length={routeItem.route_lead_in_km}km")
+        # print(f"Lead-in length={routeItem.route_lead_in_km}km")
         riderStatsItem = RouteItem.populate_riderStatsItem_with_routeItem(routeItem, riderStatsItem)
-        routeItem = solve_for_route_time_at_constant_90_day_best_using_binary_search(jghRiderComputeItem, routeItem, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
+        routeItem = solve_for_route_duration_at_constant_90_day_best_using_binary_search(jghRiderComputeItem, routeItem, DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
         route_time_sec = sum(bucket.calculated_bucket_duration_sec for bucket in routeItem.route_slope_buckets)
         if not math.isfinite(route_time_sec):
             riderStatsItem.route_sec = 0.0

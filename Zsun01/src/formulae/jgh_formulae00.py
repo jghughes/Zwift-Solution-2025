@@ -62,10 +62,8 @@ def calculate_rolling_resistance_and_gravity_force(total_mass_kg: float, slope_p
     and slope (%); returns (F_roll, F_gravity) in N.
     """
     theta : float = math.atan(slope_pc / 100.0)
-
     F_roll: float    = COEFFICIENT_Crr * total_mass_kg * COEFFICIENT_g * math.cos(theta) # always >= 0
     F_gravity: float = total_mass_kg * COEFFICIENT_g * math.sin(theta)        # <0 descent, >0 climb
-
     return F_roll, F_gravity
 
 
@@ -75,7 +73,6 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
     aero factor (unitless); returns area (m^2).
     """
     answer = aero_factor * (0.00155 * height_cm) 
-
     return answer
 
 
@@ -84,7 +81,6 @@ def calculate_CdA(height_cm: float, aero_factor: float) -> float:
     Estimate CdA from rider height (cm) and aero factor (unitless); returns CdA (m^2).
     """
     effective_frontal_area = calculate_frontal_area(height_cm, aero_factor)
-
     return COEFFICIENT_Cd * effective_frontal_area
 
 

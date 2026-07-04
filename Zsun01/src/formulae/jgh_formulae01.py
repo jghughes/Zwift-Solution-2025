@@ -18,9 +18,7 @@ def calculate_rider_kph_from_watts(wattage: float, rider_weight: float, rider_he
     """
     Estimate the speed (km/h) given the power (wattage), weight (kg), height (cm), and slope (%)
     """
-
     rider_plus_bike_mass: float = rider_weight + COEFFICIENT_bike_weight_kg
     speed_kmh: float = calculate_velocity_from_power(wattage, rider_height, rider_plus_bike_mass, slope_pc, aero_factor)
-
     return speed_kmh
 

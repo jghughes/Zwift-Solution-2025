@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
-from constants import AERO_POSITION_FACTOR_DEFAULT
+from constants import AERO_POSITION_FACTOR_DEFAULT, DEFAULT_PACELINE_SLOPE_PC
 import warnings
 
 from jgh_formulae01 import calculate_rider_kph_from_watts
@@ -141,7 +141,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         permissable_watts = self.get_1_hour_curvefit_watts() # default
 
         if seconds == 0:
-            permissable_watts = self.get_proxy_30sec_pull_watts()
+            permissable_watts = self.get_proxy_30sec_pull_watts() # kludge
         if seconds == 30:
             permissable_watts = self.get_proxy_30sec_pull_watts()
         if seconds == 60:
@@ -214,6 +214,35 @@ class RiderComputeItem(FrozenZwiftIdBase):
         if self.weight_kg == 0:
             return 0.0
         return safe_divide( self.get_1_hour_curvefit_watts(), self.weight_kg)
+
+    def get_proxy_30sec_pull_kph(self, slope_pc : float) -> float:
+        # apply 3.5 minute watts
+        watts = self.get_proxy_30sec_pull_watts()
+        try:
+            kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
+        except RuntimeError as e:
+            warnings.warn(f"Error computing get_proxy_30sec_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            kph = 0.0
+        return kph
+
+    def get_proxy_1_minute_pull_kph(self, slope_pc : float) -> float:
+        # apply 5 minute watts
+        watts = self.get_proxy_1_minute_pull_watts()
+        try:
+            kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
+        except RuntimeError as e:
+            warnings.warn(f"Error computing get_proxy_1_minute_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            kph = 0.0
+        return kph
+
+    def get_proxy_40_minute_curve_fit_kph(self, slope_pc : float) -> float:
+        watts = self.get_40_minute_curvefit_watts()
+        try:
+            kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
+        except RuntimeError as e:
+            warnings.warn(f"Error computing get_40_minute_curve_fit_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            kph = 0.0
+        return kph
 
     def get_1_hour_distance_km_on_slope(self, slope_pc : float) -> float:
         try:

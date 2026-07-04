@@ -146,120 +146,120 @@ def test01():
     plt.show()
     print(f"Bar chart saved to {save_chart_path}")
 
-def test02():
-    """
-    Identical to test01() except that it uses the pruned list of paceline-rotation
-    sequences rather than the full list of conceivable sequences, so as to
-    demonstrate the benefits of pruning on compute time and how it renders the
-    brute-force approach feasible for larger numbers of riders. Without pruning,
-    the brute-force approach becomes unfeasible very quickly as the number of
-    riders increases. Even with parallel processing, it becomes impractical beyond
-    4 riders. With pruning, it is excellent up to 6, which is the max size of a
-    paceline in ZRL events, remains decent up to 8 riders (the max in WTRL TTT
-    events), and can even be tolerable for 9 riders. The pruning heuristic 
-    takes a single parameter : ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL. 
-    For the test results shown here, this is set somewhat arbitrarily at 1,024. 
-    Notice how pruning radically reduces the solution space for 4 riders and beyond. 
-    At the time of writing (Aug 2025), the numbers look like this:
+# def test02():
+#     """
+#     Identical to test01() except that it uses the pruned list of paceline-rotation
+#     sequences rather than the full list of conceivable sequences, so as to
+#     demonstrate the benefits of pruning on compute time and how it renders the
+#     brute-force approach feasible for larger numbers of riders. Without pruning,
+#     the brute-force approach becomes unfeasible very quickly as the number of
+#     riders increases. Even with parallel processing, it becomes impractical beyond
+#     4 riders. With pruning, it is excellent up to 6, which is the max size of a
+#     paceline in ZRL events, remains decent up to 8 riders (the max in WTRL TTT
+#     events), and can even be tolerable for 9 riders. The pruning heuristic 
+#     takes a single parameter : ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL. 
+#     For the test results shown here, this is set somewhat arbitrarily at 1,024. 
+#     Notice how pruning radically reduces the solution space for 4 riders and beyond. 
+#     At the time of writing (Aug 2025), the numbers look like this:
         
-        Riders  Sequences After pruning serial-processing parallel-processing
-            1           7             7       <1s               5s 
-            2          49            49       <1s               7s
-            3         343           343        6s               11s
-            4       2,401           980       28s               10s
-            5      16,807           966       42s               12s
-            6     117,649           924       60s               13s
-            7     823,543         1,716      126s               21s
-            8   5,764,801         3,003      322s               37s    
-            9  40,353,607         5,005      699s               71s         
+#         Riders  Sequences After pruning serial-processing parallel-processing
+#             1           7             7       <1s               5s 
+#             2          49            49       <1s               7s
+#             3         343           343        6s               11s
+#             4       2,401           980       28s               10s
+#             5      16,807           966       42s               12s
+#             6     117,649           924       60s               13s
+#             7     823,543         1,716      126s               21s
+#             8   5,764,801         3,003      322s               37s    
+#             9  40,353,607         5,005      699s               71s         
 
 
-    This function:
-      - Loads rider data and team composition from JSON and utility functions.
-      - Generates all possible paceline rotation sequences for the team and standard pull periods.
-      - Runs the paceline solution algorithm using both serial and parallel approaches, timing each.
-      - Logs and writes a summary report comparing the compute times and time saved by parallelization.
-      - Visualizes the results in a bar chart and saves the chart as a PNG file.
+#     This function:
+#       - Loads rider data and team composition from JSON and utility functions.
+#       - Generates all possible paceline rotation sequences for the team and standard pull periods.
+#       - Runs the paceline solution algorithm using both serial and parallel approaches, timing each.
+#       - Logs and writes a summary report comparing the compute times and time saved by parallelization.
+#       - Visualizes the results in a bar chart and saves the chart as a PNG file.
 
-    The function is intended for performance analysis and does not return a value. All results are 
-    logged and saved as a .png.
+#     The function is intended for performance analysis and does not return a value. All results are 
+#     logged and saved as a .png.
 
-    Side Effects:
-      - Writes a summary report to a text file.
-      - Saves a bar chart visualization as a PNG file.
-      - Logs progress and results using the configured logger.
+#     Side Effects:
+#       - Writes a summary report to a text file.
+#       - Saves a bar chart visualization as a PNG file.
+#       - Logs progress and results using the configured logger.
 
-    Raises:
-      - Exceptions are logged if encountered during computation.
+#     Raises:
+#       - Exceptions are logged if encountered during computation.
 
-    Dependencies:
-      - Expects global variables FILENAME_RIDER_COMPUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL to be set.
-      - Requires pandas, seaborn, matplotlib, and other project-specific modules.
-    """
+#     Dependencies:
+#       - Expects global variables FILENAME_RIDER_COMPUTE_DTO_JSON_DICT and DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL to be set.
+#       - Requires pandas, seaborn, matplotlib, and other project-specific modules.
+#     """
 
-    paceline_ingredients = PacelineIngredientsItem(
-        riders_list                   = riders,
-        sequence_of_pull_periods_sec  = PULL_DURATION_OPTIONS_SEC,
-        pull_speeds_kph               = [30.0] * len(riders),
-        max_exertion_intensity_factor = 0.95
-    )
+#     paceline_ingredients = PacelineIngredientsItem(
+#         riders_list                   = riders,
+#         sequence_of_pull_periods_sec  = PULL_DURATION_OPTIONS_SEC,
+#         pull_speeds_kph               = [30.0] * len(riders),
+#         max_exertion_intensity_factor = 0.95
+#     )
 
-    save_filename_without_ext02 = f"{_output_filename_02_stub}{len(riders)}"
+#     save_filename_without_ext02 = f"{_output_filename_02_stub}{len(riders)}"
 
-    print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(PULL_DURATION_OPTIONS_SEC)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences before pruning and {pretty_number_of_sequences_after_pruning} sequences after pruning.")
-    print(f"\nCommencing serial processing. This could take a very long time depending on the number of sequences. Please wait....")
+#     print(f"Starting: head-to-head benchmarking of serial-processing versus parallel-processing with {len(riders)} riders, {len(PULL_DURATION_OPTIONS_SEC)} pull periods, and consequently {pretty_number_of_sequences_before_pruning} paceline_rotation sequences before pruning and {pretty_number_of_sequences_after_pruning} sequences after pruning.")
+#     print(f"\nCommencing serial processing. This could take a very long time depending on the number of sequences. Please wait....")
 
-    # Serial run as the base case (ignore squigglies here, they are inconsequential warnings)
-    s1 = time.perf_counter()
-    _ = generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, reduced_paceline_rotation_sequences_after_pruning)
-    s2 = time.perf_counter()
-    print(f"\nBase-case: serial run compute time: {round(s2 - s1, 2)} seconds")
-    print(f"\nCommencing parallel processing. Please wait....")
-    # Parallel run (ignore squigglies here, they are inconsequential warnings)
-    p1 = time.perf_counter()
-    _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, reduced_paceline_rotation_sequences_after_pruning)
-    p2 = time.perf_counter()
+#     # Serial run as the base case (ignore squigglies here, they are inconsequential warnings)
+#     s1 = time.perf_counter()
+#     _ = generate_paceline_solutions_using_serial_processing_algorithm(paceline_ingredients, reduced_paceline_rotation_sequences_after_pruning)
+#     s2 = time.perf_counter()
+#     print(f"\nBase-case: serial run compute time: {round(s2 - s1, 2)} seconds")
+#     print(f"\nCommencing parallel processing. Please wait....")
+#     # Parallel run (ignore squigglies here, they are inconsequential warnings)
+#     p1 = time.perf_counter()
+#     _ = generate_paceline_solutions_using_parallel_workstealing_algorithm(paceline_ingredients, reduced_paceline_rotation_sequences_after_pruning)
+#     p2 = time.perf_counter()
 
-    print(f"\nTest-case: parallel run compute time: {round(p2 - p1,2)} seconds")
+#     print(f"\nTest-case: parallel run compute time: {round(p2 - p1,2)} seconds")
 
-    # --- Summary Report ---
-    report_lines : List[str] = []
-    report_lines.append("Benchmark Summary Report\n")
-    report_lines.append(f"Number of riders: {len(riders)}\n")
-    report_lines.append(f"Number of standard pull periods: {len(PULL_DURATION_OPTIONS_SEC)}\n")
-    report_lines.append(f"Universe of all paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n")
-    report_lines.append(f"Pruning goal: {ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL}\n")
-    report_lines.append(f"Paceline-rotation sequences after pruning: {pretty_number_of_sequences_after_pruning}\n")
-    report_lines.append(f"Serial run: Compute time: {round(s2 - s1, 2)} seconds\n")
-    report_lines.append(f"Parallel run (work-stealing): Compute time: {round(p2 - p1,2)} seconds\n")
-    report_lines.append(f"Time saved by parallelisation: {round((s2 - s1) - (p2 - p1), 2)} seconds")
-    report_lines.append("\n")
+#     # --- Summary Report ---
+#     report_lines : List[str] = []
+#     report_lines.append("Benchmark Summary Report\n")
+#     report_lines.append(f"Number of riders: {len(riders)}\n")
+#     report_lines.append(f"Number of standard pull periods: {len(PULL_DURATION_OPTIONS_SEC)}\n")
+#     report_lines.append(f"Universe of all paceline-rotation sequences: {pretty_number_of_sequences_before_pruning}\n")
+#     report_lines.append(f"Pruning goal: {ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL}\n")
+#     report_lines.append(f"Paceline-rotation sequences after pruning: {pretty_number_of_sequences_after_pruning}\n")
+#     report_lines.append(f"Serial run: Compute time: {round(s2 - s1, 2)} seconds\n")
+#     report_lines.append(f"Parallel run (work-stealing): Compute time: {round(p2 - p1,2)} seconds\n")
+#     report_lines.append(f"Time saved by parallelisation: {round((s2 - s1) - (p2 - p1), 2)} seconds")
+#     report_lines.append("\n")
 
-    print("".join(report_lines))
+#     print("".join(report_lines))
 
-    write_lines(Path(DIRPATH_RUBBISH_SCRATCHPAD), f"{save_filename_without_ext02}.txt",report_lines )
+#     write_lines(Path(DIRPATH_RUBBISH_SCRATCHPAD), f"{save_filename_without_ext02}.txt",report_lines )
 
-    # with open(f"{save_filename_without_ext02}.txt", "w", encoding="utf-8") as f:
-    #     f.writelines(report_lines)
-    print(f"Summary report written to {save_filename_without_ext02}.txt")
+#     # with open(f"{save_filename_without_ext02}.txt", "w", encoding="utf-8") as f:
+#     #     f.writelines(report_lines)
+#     print(f"Summary report written to {save_filename_without_ext02}.txt")
 
-    # --- Visualization: Bar Chart ---
-    df = pd.DataFrame([
-        {"Method": "Serial-processing", "Compute Time (s)": s2 - s1},
-        {"Method": "Parallel-processing (work stealing)", "Compute Time (s)": p2 - p1},
-    ])
+#     # --- Visualization: Bar Chart ---
+#     df = pd.DataFrame([
+#         {"Method": "Serial-processing", "Compute Time (s)": s2 - s1},
+#         {"Method": "Parallel-processing (work stealing)", "Compute Time (s)": p2 - p1},
+#     ])
 
-    plt.figure(figsize=(8, 5))
-    sns.barplot(data=df, x="Method", y="Compute Time (s)", hue="Method", palette="Blues_d", legend=False)    
-    plt.title(f"Compute Time: Serial-processing vs Parallel-processing (work stealing): Paceline rotation sequences after pruning: {pretty_number_of_sequences_before_pruning}")
-    plt.ylabel("Compute Time (seconds)")
-    plt.xlabel("Method")
-    plt.tight_layout()
-    save_chart_path = os.path.join(DIRPATH_RUBBISH_SCRATCHPAD, f"{save_filename_without_ext02}.png")
+#     plt.figure(figsize=(8, 5))
+#     sns.barplot(data=df, x="Method", y="Compute Time (s)", hue="Method", palette="Blues_d", legend=False)    
+#     plt.title(f"Compute Time: Serial-processing vs Parallel-processing (work stealing): Paceline rotation sequences after pruning: {pretty_number_of_sequences_before_pruning}")
+#     plt.ylabel("Compute Time (seconds)")
+#     plt.xlabel("Method")
+#     plt.tight_layout()
+#     save_chart_path = os.path.join(DIRPATH_RUBBISH_SCRATCHPAD, f"{save_filename_without_ext02}.png")
 
-    plt.savefig(save_chart_path)
-    plt.show()
-    print(f"Bar chart saved to {save_chart_path}.png")
+#     plt.savefig(save_chart_path)
+#     plt.show()
+#     print(f"Bar chart saved to {save_chart_path}.png")
 
 if __name__ == "__main__":
     setup_json_logging(DIRPATH_LOGGING)

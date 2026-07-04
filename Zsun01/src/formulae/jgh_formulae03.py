@@ -11,7 +11,7 @@ from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, AERO_POSITIO
 from jgh_formatting import truncate
 from jgh_formulae01 import calculate_rider_kph_from_watts, calculate_rider_watts_from_kph
 from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_one_hour_watts
-from jgh_power_curve_fit_models import decay_model_numpy
+# from jgh_power_curve_fit_models import decay_model_numpy
 from calc_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
 
@@ -255,16 +255,19 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
 
     return std_deviation_of_intensity_factors
 
-def arrange_riders_by_30_sec_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+def arrange_riders_by_30_sec_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_wkg(), reverse=True)
+    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+def arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_40_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+def arrange_riders_by_40_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_wkg(), reverse=True)
+    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
 def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
@@ -275,7 +278,7 @@ def arrange_riders_by_velo_rating(riders: List[RiderComputeItem]) -> List[RiderC
     sorted_riders = sorted(riders, key=lambda rider: rider.velo_rating_30_days, reverse=True)
     return sorted_riders
 
-def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     """
     Arrange the riders in an optimal order based on their strength metric.
 
@@ -296,6 +299,7 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeIte
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
@@ -328,8 +332,6 @@ def select_n_riders_at_the_top_of_the_list(riders: List[RiderComputeItem], n : i
     if not riders:
         return []
 
-    # riders.sort(key=lambda r: r.get_proxy_1_minute_wkg(), reverse=True)
-
     topmost_riders: List[RiderComputeItem] = []
 
     if len(riders) <= n:
@@ -344,26 +346,26 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
     riders: List[RiderComputeItem]
 ) -> NDArray[np.float64]:
     """
-    Efficiently prunes a large set of paceline pull period sequences (pull period assignments) using empirical rules
+    Efficiently prunes a large set of paceline pull pull_duration sequences (pull pull_duration assignments) using empirical rules
     based on rider strength, to reduce the solution space for further computation.
 
     This function applies two main filters:
-      1. No rider (except the second weakest) can have a pull period shorter than the weakest rider's pull period.
+      1. No rider (except the second weakest) can have a pull pull_duration shorter than the weakest rider's pull pull_duration.
       2. For n in 1..12 (or up to the number of riders), no rider (except the top n-1 strongest) can have a pull
-         period longer than the nth strongest rider's pull period.
+         pull_duration longer than the nth strongest rider's pull pull_duration.
 
-    Filtering stops as soon as the number of remaining pull period sequences drops below the configured solution space constraint.
+    Filtering stops as soon as the number of remaining pull pull_duration sequences drops below the configured solution space constraint.
 
     Args:
         pull_period_sequences_being_pruned (NDArray[np.float_]):
-            2D NumPy array of candidate paceline pull period sequences, where each row is a sequence of pull periods (seconds)
+            2D NumPy array of extended_seq paceline pull pull_duration sequences, where each row is a sequence of pull periods (seconds)
             for each rider.
         riders (List[RiderComputeItem]):
             List of rider objects, used to determine rider strength order for filtering.
 
     Returns:
         NDArray[np.float_]:
-            The filtered 2D NumPy array of paceline pull period sequences, reduced according to empirical rules.
+            The filtered 2D NumPy array of paceline pull pull_duration sequences, reduced according to empirical rules.
 
     Notes:
         - Filtering is only applied if the number of input sequences exceeds the solution space size constraint.
@@ -383,10 +385,10 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
     # Filter 1: No rider (except 2nd weakest) can have a pull shorter than the weakest
     weakest_values = arr[:, weakest_idx][:, np.newaxis]
     mask = np.ones(arr.shape[0], dtype=bool)
-    for idx in range(arr.shape[1]):
-        if idx == second_weakest_idx:
+    for reorder_index in range(arr.shape[1]):
+        if reorder_index == second_weakest_idx:
             continue
-        mask &= arr[:, idx] >= weakest_values[:, 0]
+        mask &= arr[:, reorder_index] >= weakest_values[:, 0]
     arr = arr[mask]
     if len(arr) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
         return arr
@@ -398,18 +400,17 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
         nth_strongest_idx = strengths_desc[n-1]
         nth_values = arr[:, nth_strongest_idx][:, np.newaxis]
         mask = np.ones(arr.shape[0], dtype=bool)
-        for idx in range(arr.shape[1]):
-            if idx in indices[:-1]:
+        for reorder_index in range(arr.shape[1]):
+            if reorder_index in indices[:-1]:
                 continue
-            mask &= arr[:, idx] <= nth_values[:, 0]
+            mask &= arr[:, reorder_index] <= nth_values[:, 0]
         arr = arr[mask]
         if len(arr) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL:
             return arr
 
     return arr
 
-def generate_all_paceline_rotation_sequences_in_the_total_solution_space(length_of_paceline: int,
-    standard_pull_periods_seconds: List[float]
+def generate_all_paceline_rotation_sequences_in_the_total_solution_space(num_riders: int, list_of_allowable_pull_durations_sec: List[float]
 ) -> NDArray[np.float64]:
     """
     Generate all possible assignments of pull periods to a paceline as a NumPy array.
@@ -424,32 +425,31 @@ def generate_all_paceline_rotation_sequences_in_the_total_solution_space(length_
     a reasonable time frame, especially with the filtering applied later in the process.
 
     Args:
-        length_of_paceline (int): Number of riders in the paceline.
-        standard_pull_periods_seconds (List[float]): Allowed pull durations (in seconds).
+        num_riders (int): Number of riders in the paceline.
+        list_of_allowable_pull_durations_sec (List[float]): Allowed pull durations (in seconds).
 
     Returns:
-        NDArray[np.float64]: All possible paceline pull period sequences as a 2D NumPy array.
+        NDArray[np.float64]: All possible paceline pull pull_duration sequences as a 2D NumPy array.
     """
-    # Create a meshgrid for all possible pull period assignments
-    grids: tuple[NDArray[np.float64], ...] = np.meshgrid(*([standard_pull_periods_seconds] * length_of_paceline), indexing='ij')
+    # Create a meshgrid for all possible pull pull_duration assignments
+    grids: tuple[NDArray[np.float64], ...] = np.meshgrid(*([list_of_allowable_pull_durations_sec] * num_riders), indexing='ij')
     # Stack and reshape to get all combinations as rows
-    all_combinations: NDArray[np.float64] = np.stack(grids, axis=-1).reshape(-1, length_of_paceline)
+    complete_sequences: NDArray[np.float64] = np.stack(grids, axis=-1).reshape(-1, num_riders)
 
-    return all_combinations
+    return complete_sequences
 
-def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
-    paceline_ingredients: PacelineIngredientsItem
-) -> NDArray[np.float64]:
+def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(paceline_ingredients: PacelineIngredientsItem) -> NDArray[np.float64]:
     """
-    Generate all valid paceline pull period sequences as a NumPy array, enforcing a non-increasing
-    constraint on successive pull periods, with riders ordered by decreasing 1-minute strength.
-
-    This function constructs all possible assignments of pull periods to a paceline, where each rider
-    is assigned a pull period from the allowed set. Only those combinations are included where no
-    successive pull period is longer than the previous one (i.e., the sequence is non-increasing).
-    The rider list is reordered by 1-minute strength (strongest to weakest) to ensure the mapping
-    between pull periods and rider strength is correct.
-
+    This function constructs a NumPy array of all possible permutations of assignments of pull periods to 
+    each and every rider in a paceline. The matrix is populated such that each rider is ultimately assigned every pull from the allowed 
+    set e.g. 30s, 60s, 120s etc. Basically we are generating a cross-product of all possible pull durations for all riders. 
+    Only those combinations are included where no riders do stronger pulls than riders who are 
+    stronger than them. To put it another way, for an ordered set of riders, the pull durations are non-increasing in order 
+    of diminishing rider strength. For this purpose, the input rider list is temporarily ordered by 
+    descending 1-minute strength (strongest to weakest) so that each rider does not exceed 
+    the pull duration of the preceding rider in the list. The rider list is restored to 
+    its original input order before the final output is returned.
+    
     Args:
         paceline_ingredients (PacelineIngredientsItem): 
             An object containing:
@@ -457,7 +457,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
                 - sequence_of_pull_periods_sec: List[float], allowed pull durations (in seconds).
 
     Returns:
-        NDArray[np.float64]: 2D NumPy array of valid paceline pull period sequences.
+        NDArray[np.float64]: 2D NumPy array of valid paceline pull duration sequences.
             Each row is a sequence of pull periods (length = number of riders), satisfying the
             non-increasing constraint and mapped to the ordered rider list.
 
@@ -466,77 +466,67 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(
           even if the input rider list is not ordered by strength.
         - Returns an empty array if input lists are empty or if no valid combinations exist.
     """
-    length_of_paceline = len(paceline_ingredients.riders_list)
-    standard_pull_periods_seconds = paceline_ingredients.sequence_of_pull_periods_sec # this is the normally standard sequence, but modifiable by the user
+    num_riders = len(paceline_ingredients.riders_list)
+    list_of_available_pull_durations_sec = paceline_ingredients.sequence_of_pull_periods_sec # this is the normally standard sequence, but modifiable by the user
 
     # Error handling: Check for empty lists
-    if (
-        length_of_paceline == 0 or
-        not standard_pull_periods_seconds or
-        len(standard_pull_periods_seconds) == 0
-    ):
-        return np.empty((0, length_of_paceline), dtype=np.float64)
+    if (num_riders == 0 or not list_of_available_pull_durations_sec):
+        return np.empty((0, num_riders), dtype=np.float64)
 
     # Error handling: fn to check for non-unique riders
     def has_duplicates(riders_list: list[RiderComputeItem]) -> bool:
-        return len(riders_list) != len(set(id(r) for r in riders_list))
+        return len(riders_list) != len(set(id(rider) for rider in riders_list))
 
     if has_duplicates(paceline_ingredients.riders_list):
         raise ValueError("Duplicate riders found in paceline_ingredients.riders_list. Please eliminate the duplicates and try again.")
 
-    # Generate all valid combinations of pull period sequences (non-increasing sequences)
-    all_combinations: List[List[float]] = [[]]
-    for _ in range(length_of_paceline):
-        next_combinations: List[List[float]] = []
-        for seq in all_combinations:
-            for period in standard_pull_periods_seconds:
-                if seq and period > seq[-1]:
+    # Build up the universe of all sets of pulls, only including non-increasing sequences. 
+    # This is done by building up the sets one pull at a time, and  
+    # adding pulls one by one that are less than or equal to the last pull in the growing set. 
+    # This ensures that the final sequence of pulls in a set is non-increasing.
+    list_of_sequences_of_pull_periods_being_built: List[List[float]] = [[]]
+    for _ in range(num_riders):
+        extended_sequences: List[List[float]] = []
+        for single_sequence_of_pull_durations_being_built in list_of_sequences_of_pull_periods_being_built:
+            for pull_duration in list_of_available_pull_durations_sec:
+                if single_sequence_of_pull_durations_being_built and pull_duration > single_sequence_of_pull_durations_being_built[-1]:
                     continue # enforce non-increasing constraint
-                candidate = seq + [period]
-                next_combinations.append(candidate)
-        all_combinations = next_combinations
+                extended_seq = single_sequence_of_pull_durations_being_built + [pull_duration]
+                extended_sequences.append(extended_seq)
+        list_of_sequences_of_pull_periods_being_built = extended_sequences
 
-    # Only keep fully-formed combinations
-    valid_combinations = [seq for seq in all_combinations if len(seq) == length_of_paceline]
+    # --- transition: all sequences are now fully formed ---
+    list_of_sequences_of_pull_periods: List[List[float]] = list_of_sequences_of_pull_periods_being_built
 
-    # Error handling: Check for empty valid_combinations
-    if not valid_combinations:
-        return np.empty((0, length_of_paceline), dtype=np.float64)
+    # Error handling: Check for empty sets
+    if not list_of_sequences_of_pull_periods:
+        return np.empty((0, num_riders), dtype=np.float64)
 
     # Prepare rider lists
-    riders_list = paceline_ingredients.riders_list
-    ordered_rider_list = arrange_riders_by_1_minute_strength(riders_list) # order by strength decreasing i.e. non-increasing pull-periods
+    input_list_of_riders = paceline_ingredients.riders_list
+    riders_strongest_first = arrange_riders_by_1_minute_strength(input_list_of_riders) # order by strength decreasing
 
-    # Error handling: Check for inconsistent sequence lengths
-    expected_length = len(ordered_rider_list)
-    for i, seq in enumerate(valid_combinations):
-        if len(seq) != expected_length:
-            raise ValueError(
-                f"Sequence at index {i} in valid_combinations has length {len(seq)}, "
-                f"but expected {expected_length} (matches number of riders)."
-            )
-
-    # Error handling: Check for NaN or Inf in valid_combinations
-    arr_valid_combinations = np.array(valid_combinations, dtype=np.float64)
-    if np.isnan(arr_valid_combinations).any() or np.isinf(arr_valid_combinations).any():
-        raise ValueError("NaN or infinite value found in valid_combinations.")
+    # Error handling: Check for NaN or Inf in complete_sequences
+    array_of_sequences_of_pull_periods = np.array(list_of_sequences_of_pull_periods, dtype=np.float64)
+    if np.isnan(array_of_sequences_of_pull_periods).any() or np.isinf(array_of_sequences_of_pull_periods).any():
+        raise ValueError("NaN or infinite value found in array_of_sequences_of_pull_periods.")
 
     # If the order is already the same, return as is (no-op)
-    is_same_order = all(
-        a is b for a, b in zip(ordered_rider_list, riders_list)
+    riders_are_already_ordered_by_strength = all(
+        ordered_rider is original_rider for ordered_rider, original_rider in zip(riders_strongest_first, input_list_of_riders)
     )
-    if is_same_order:
-        return arr_valid_combinations
+    if riders_are_already_ordered_by_strength:
+        return array_of_sequences_of_pull_periods
+
     # Build index map for reordering
     try:
-        index_map = [ordered_rider_list.index(rider) for rider in riders_list]
+        reorder_indices = [riders_strongest_first.index(rider) for rider in input_list_of_riders]
     except ValueError as e:
         raise ValueError(
-            "A rider in paceline_ingredients.riders_list was not found in ordered_rider_list."
+            "A rider in paceline_ingredients.riders_list was not found in riders_strongest_first."
         ) from e
-    # Reorder each sequence
-    reordered_combinations = [
-        [seq[idx] for idx in index_map] for seq in arr_valid_combinations
-    ]
-    return np.array(reordered_combinations, dtype=np.float64)
+    
+    # For each sequence of pull durations, reorder the sequence to match the original input order of riders
+    sequences_in_original_order = [[single_sequence_of_pull_periods[reorder_index] for reorder_index in reorder_indices] for single_sequence_of_pull_periods in array_of_sequences_of_pull_periods]
+    return np.array(sequences_in_original_order, dtype=np.float64)
 

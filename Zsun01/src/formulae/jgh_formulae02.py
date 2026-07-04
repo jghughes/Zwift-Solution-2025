@@ -17,7 +17,6 @@ def solve_for_speed_at_standard_30sec_pull_watts(rider : RiderComputeItem, slope
     Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_proxy_30sec_pull_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_standard_1_minute_pull_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float:
@@ -25,7 +24,6 @@ def solve_for_speed_at_standard_1_minute_pull_watts(rider : RiderComputeItem, sl
     Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_proxy_1_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_standard_2_minute_pull_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float:
@@ -33,7 +31,6 @@ def solve_for_speed_at_standard_2_minute_pull_watts(rider : RiderComputeItem, sl
     Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_proxy_2_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_standard_3_minute_pull_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float:
@@ -41,7 +38,6 @@ def solve_for_speed_at_standard_3_minute_pull_watts(rider : RiderComputeItem, sl
     Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_proxy_3_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_standard_4_minute_pull_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float:
@@ -49,7 +45,6 @@ def solve_for_speed_at_standard_4_minute_pull_watts(rider : RiderComputeItem, sl
     Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_proxy_4_minute_pull_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_n_second_watts(rider : RiderComputeItem, seconds: float, slope_pc: float = 0.0) -> float:
@@ -58,7 +53,6 @@ def solve_for_speed_at_n_second_watts(rider : RiderComputeItem, seconds: float, 
     for a specific duration in seconds.
   """
     speed_kph = calculate_rider_kph_from_watts(rider.get_n_second_curvefit_y_ordinate_watts(seconds), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
 def solve_for_speed_at_one_hour_watts(rider : RiderComputeItem, slope_pc: float = 0.0) -> float: 
@@ -66,10 +60,9 @@ def solve_for_speed_at_one_hour_watts(rider : RiderComputeItem, slope_pc: float 
     Calculate the speed (km/h) for a rider given their one-hour power output (watts).
     """
     speed_kph = calculate_rider_kph_from_watts(rider.get_1_hour_curvefit_watts(), rider.weight_kg, rider.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
     return speed_kph
 
-def _calculate_route_time_at_constant_power(rider: RiderComputeItem, route: RouteItem, power: float) -> RouteItem:
+def _calculate_route_duration_at_constant_power(rider: RiderComputeItem, route: RouteItem, power: float) -> RouteItem:
     """
     Calculate the total duration (in seconds) to ride a route at a 
     constant mandated power.
@@ -120,7 +113,7 @@ def _calculate_route_time_at_constant_power(rider: RiderComputeItem, route: Rout
     
     return route
 
-def solve_for_route_time_at_constant_90_day_best_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem, intensity_factor: float = 1.0) -> RouteItem:
+def solve_for_route_duration_at_constant_90_day_best_using_binary_search(rider: RiderComputeItem, routeItem: RouteItem, intensity_factor: float = 1.0) -> RouteItem:
     """
     Finds the highest constant power output the rider can just barely sustain over a
     multi-bucket route, populates each bucket with the resulting watts, speed, and
@@ -161,7 +154,7 @@ def solve_for_route_time_at_constant_90_day_best_using_binary_search(rider: Ride
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
         # Note: This mutates routeItem in-place.
-        simulated_route = _calculate_route_time_at_constant_power(rider, routeItem, upper_bound_watts)
+        simulated_route = _calculate_route_duration_at_constant_power(rider, routeItem, upper_bound_watts)
         
         # Did the rider stall (velocity <= 0) because gravity beat their power?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
@@ -188,7 +181,7 @@ def solve_for_route_time_at_constant_90_day_best_using_binary_search(rider: Ride
 
     while (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION:
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
-        simulated_route = _calculate_route_time_at_constant_power(rider, routeItem, mid_point_watts)
+        simulated_route = _calculate_route_duration_at_constant_power(rider, routeItem, mid_point_watts)
         
         # Did the rider stall on this attempt?
         if any(bucket.calculated_bucket_duration_sec == float('inf') for bucket in simulated_route.route_slope_buckets):
