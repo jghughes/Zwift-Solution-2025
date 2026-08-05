@@ -31,9 +31,9 @@ def test00():
     print(f"Estimated speed: {speed_kmh:.2f} km/h at {power}W on a gradient of 0.0%")
 
 def test01():
-    rider_weight_kg: float = 75.0  # jgh 77, kevin 75
+    rider_weight_kg: float = 77.0  # jgh 77, kevin 75
     height_cm: float = 178 # jgh 171, kevin 178
-    power_watts: float = 100.0 # 186W is Jgh threshold power for this route. Kevin did it on Rouvy at 161W
+    power_watts: float = 120.0 # 186W is Jgh threshold power for this route. Kevin did it on Rouvy at 161W
     routeItem = RepositoryOfRoutes.get_RouteItem(SINGLE_RIDER_ROUTE_NAME)
 
     for bucket in routeItem.route_slope_buckets:

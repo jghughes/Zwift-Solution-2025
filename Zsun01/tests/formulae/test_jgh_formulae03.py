@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 from typing import List
 
-from constants import PULL_DURATION_OPTIONS_SEC
+from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_PACELINE_SLOPE_PC
 from jgh_formulae03 import (
     arrange_riders_interleaved_by_1_minute_strength,
     solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
@@ -25,7 +25,7 @@ def test01():
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(team_name),
     )

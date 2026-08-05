@@ -172,13 +172,13 @@ if __name__ == "__main__":
 
         # Define the riders and their Zwift IDs - we only use one at a time. see below
         alex_shiver='2619046'
-        anthony_dangelo='7712769'
+        anthony_dangelo='7712769' # no 90-day data for curve-fit data on zr.app
         barry_b ='5490373'
         bill_henson ='5726145'
         brandi_steeve = "991817"
         bryan_bumpas = "9011"
         ceri_pritchard = '4204538'
-        chris_lockwood = "6944221"
+        chris_lockwood = "6944221" # no 90-day data for curve-fit data on zr.app
         coryc = "5569057"
         dave_k ='3147366'
         david_evanetich='4945836'
@@ -187,24 +187,24 @@ if __name__ == "__main__":
         husky ='5134'
         john_h ='1884456'
         josh_n ='2508033'
-        ken_chappell='1111583'
+        ken_chappell='1111583' # no 90-day data for curve-fit data on zr.app
         kent_johnson='618585'
         lynsey_s ='383480'
         mark_b ='5530045'
         matt_steeve = "1024413"
         melissa_warwick = "1657744"
         meridith_leubner ="1707548"
-        richard_m ='1193'
+        richard_m ='1193' # no 90-day data for curve-fit data on zr.app
         scott_m ='11526'
-        sean_o_reilly = "7160372"
-        selena_shaik = "2682791"
+        sean_o_reilly = "7160372" # no 90-day data for curve-fit data on zr.app
+        selena_shaik = "2682791"  # no 90-day data for curve-fit data on zr.app
         steve_seiler = "6142432"
         stewart_lalieu = "103825"
         tim_r ='5421258'
         tom_bick ='11741'
 
         # Define the riders and their Zwift IDs - we only use one at a time. see below
-        chosen_zwiftID : str = stewart_lalieu # choose a rider to model
+        chosen_zwiftID : str = barry_b # choose a rider to model
         team_name = "scratchpad" # rider must be on this team otherwise throw exception
 
         plot_curve_fit_for_an_individual()

@@ -155,7 +155,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     pull_periods_sec_as_list: list[float] = [30.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC
@@ -181,7 +181,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     pull_periods_sec_as_list: list[float] = [60.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
@@ -207,7 +207,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
@@ -240,7 +240,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
@@ -263,7 +263,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
@@ -289,7 +289,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = report_fastest_strongest_five_plan_display_object
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = report_fastest_strongest_four_plan_display_object
 
-    package_report_optimised_plans_displayobject.caption = f"TTT scenarios by Brute: {capitalize_first_letter(_team_name)}"
+    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_PACELINE_SLOPE_PC}%"
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
     package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
 

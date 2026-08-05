@@ -125,6 +125,19 @@ class RepositoryOfRoutes:
             ]
         ),
 
+        "Glandon": RouteItem(
+            route_name          = "Col du Glandon",
+            zwift_world_name    = "n/a",
+            route_description   = "Col du Glandon from La Chambre",
+            route_length_km     = 20.9,
+            route_elevation_m   = 1474,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
+                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=20.9  , bucket_slope_pc=7.0),
+            ]
+        ),
+
+
         "Telegraphe": RouteItem(
             route_name          = "Col du Telegraphe",
             zwift_world_name    = "climb portal",

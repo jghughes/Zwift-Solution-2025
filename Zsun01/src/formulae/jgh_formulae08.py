@@ -67,6 +67,7 @@ from constants import (
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
     PULL_DURATION_OPTIONS_SEC,
+    DEFAULT_PACELINE_SLOPE_PC
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import (
@@ -99,13 +100,13 @@ def log_multiline(lines: list[str]) -> None:
 
 def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[RiderComputeItem]):
 
-    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = solve_for_upper_bound_paceline_speed(riders)
-    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders)
-    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders)
-    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders)
+    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = solve_for_upper_bound_paceline_speed(riders, DEFAULT_PACELINE_SLOPE_PC)
+    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders, DEFAULT_PACELINE_SLOPE_PC)
+    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders, DEFAULT_PACELINE_SLOPE_PC)
+    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders, DEFAULT_PACELINE_SLOPE_PC)
 
     message_lines = [
-        "\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans:\n",
+        f"\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans (gradient = {DEFAULT_PACELINE_SLOPE_PC}%):\n",
         f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_proxy_30sec_pull_watts())}w "
         f"{format_number_1dp(safe_divide(upper_bound_pull_rider.get_proxy_30sec_pull_watts(), upper_bound_pull_rider.weight_kg))}wkg by {upper_bound_pull_rider.name} "
         f"for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
@@ -249,6 +250,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
     riders = paceline_ingredients.riders_list
     standard_pull_periods_seconds = list(paceline_ingredients.sequence_of_pull_periods_sec)
     lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3) #This line sets the starting lower bound for the paceline speed search, using the first provided speed (formatted to three decimal places), ensuring the algorithm begins with a valid, precise, and user-supplied minimum speed
+    # print (f"DEBUG: lowest conceivable speed for the paceline is {lowest_conceivable_kph}kph")
     max_exertion_intensity_factor = paceline_ingredients.max_exertion_intensity_factor
     slope = paceline_ingredients.slope_pc 
     num_riders = len(riders)
