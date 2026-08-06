@@ -106,17 +106,11 @@ def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[Rid
     lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders, DEFAULT_PACELINE_SLOPE_PC)
 
     message_lines = [
-        f"\nPACELINE PULL SPEED: upper and lower bounds of exertion-constrained pull plans (gradient = {DEFAULT_PACELINE_SLOPE_PC}%):\n",
-        f"Upper bound pull        :  {round(upper_bound_pull_rider_speed)}kph @ {round(upper_bound_pull_rider.get_proxy_30sec_pull_watts())}w "
-        f"{format_number_1dp(safe_divide(upper_bound_pull_rider.get_proxy_30sec_pull_watts(), upper_bound_pull_rider.weight_kg))}wkg by {upper_bound_pull_rider.name} "
-        f"for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
-        f"Upper bound 1-hour pull :  {round(upper_bound_1_hour_rider_speed)}kph @ {round(upper_bound_1_hour_rider.get_1_hour_curvefit_watts())}w "
-        f"{format_number_1dp(safe_divide(upper_bound_1_hour_rider.get_1_hour_curvefit_watts(), upper_bound_1_hour_rider.weight_kg))}wkg by {upper_bound_1_hour_rider.name}.",
-        f"Lower bound pull        :  {round(lower_bound_pull_rider_speed)}kph @ {round(lower_bound_pull_rider.get_proxy_4_minute_pull_watts())}w "
-        f"{format_number_1dp(safe_divide(lower_bound_pull_rider.get_proxy_4_minute_pull_watts(), lower_bound_pull_rider.weight_kg))}wkg by {lower_bound_pull_rider.name} "
-        f"for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
-        f"Lower bound 1-hour pull :  {round(lower_bound_1_hour_rider_speed)}kph @ {round(lower_bound_1_hour_rider.get_1_hour_curvefit_watts())}w "
-        f"{format_number_1dp(safe_divide(lower_bound_1_hour_rider.get_1_hour_curvefit_watts(), lower_bound_1_hour_rider.weight_kg))}wkg by {lower_bound_1_hour_rider.name}."
+        f"\nEXAMPLE PACELINE SPEED: upper and lower bounds unconstrained by intensity factor (gradient = {DEFAULT_PACELINE_SLOPE_PC}%):\n",
+        f"Fastest conceivable pull:  {round(upper_bound_pull_rider_speed)}kph by {upper_bound_pull_rider.name} for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
+        f"Fastest 1-hour curve-fit:  {round(upper_bound_1_hour_rider_speed)}kph by {upper_bound_1_hour_rider.name}.",
+        f"Slowest conceivable pull:  {round(lower_bound_pull_rider_speed)}kph by {lower_bound_pull_rider.name} for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
+        f"Slowest 1-hour curve-fit:  {round(lower_bound_1_hour_rider_speed)}kph by {lower_bound_1_hour_rider.name}."
     ]
     log_multiline(message_lines)
 
@@ -132,12 +126,10 @@ def log_workload_suffix_message(report : PackageOfPacelineComputationReportDispl
         "2 minute pull capacity  = 12 minute pull-curve ordinate",
         "3 minute pull capacity  = 15 minute pull-curve ordinate",
         "4 minute pull capacity  = 18 minute pull-curve ordinate",
-        "5 minute pull capacity  = 20 minute pull-curve ordinate",
         "",
         "Riders with superior pull capacity are prioritised for longer pulls.",
         "The speed of the paceline is constant and does not vary from one rider to the next.",
         "The pull capacity of the slowest puller governs the speed, leaving room for upside.",
-        "The paceline puts weaker riders in the middle.",
         "Based on data from Zwiftpower as at March/April 2025. Some ZSUN riders have more comprehensive data than others.\n\n",
     ]
     log_multiline(message_lines)

@@ -25,6 +25,7 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"jgh_60_min_km_0pc_slope"				:	AliasChoices("jgh_60_min_km_0pc_slope", "60minKmCurveFitSlope0pc"),
 	"jgh_60_min_km_2pc_slope"				:	AliasChoices("jgh_60_min_km_2pc_slope", "60minKmCurveFitSlope2pc"),
 	"jgh_60_min_km_4pc_slope"				:	AliasChoices("jgh_60_min_km_4pc_slope", "60minKmCurveFitSlope4pc"),
+	"jgh_60_min_km_8pc_slope"				:	AliasChoices("jgh_60_min_km_8pc_slope", "60minKmCurveFitSlope8pc"),
 	"jgh_60_min_curve_coefficient"			:	AliasChoices("jgh_60_min_curve_coefficient", "60minCurveCoefficient"),
 	"jgh_60_min_curve_exponent"				:	AliasChoices("jgh_60_min_curve_exponent", "60minCurveExponent"),
 	"jgh_ttt_pull_curve_coefficient"		:	AliasChoices("jgh_ttt_pull_curve_coefficient", "tttPullCurveCoefficient"),
@@ -64,6 +65,7 @@ class RiderComputeDTO(BaseModel):
 	jgh_60_min_km_0pc_slope					:	float					=	0.0
 	jgh_60_min_km_2pc_slope					:	float					=	0.0
 	jgh_60_min_km_4pc_slope					:	float					=	0.0
+	jgh_60_min_km_8pc_slope					:	float					=	0.0
 	jgh_60_min_curve_coefficient			:	float					=	0.0
 	jgh_60_min_curve_exponent				:	float					=	0.0
 	jgh_ttt_pull_curve_coefficient			:	float					=	0.0

@@ -155,10 +155,10 @@ def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope_p
     highest_speed = 0.0  # Arbitrarily low speed
     duration_functions = [
         (30.0, solve_for_speed_at_standard_30sec_pull_watts),
-        (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
-        (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
-        (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
+        # (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
+        # (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
+        # (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
+        # (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
     ]
     for rider in riders:
         for duration, func in duration_functions:
@@ -191,9 +191,8 @@ def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope_p
         (30.0, solve_for_speed_at_standard_30sec_pull_watts),
         (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
         (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (180.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
-        (3600.0, solve_for_speed_at_one_hour_watts),
+        (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
+        (240.0, solve_for_speed_at_standard_4_minute_pull_watts), #presuming 4 min is the longest option available
     ]
 
     for rider in riders:

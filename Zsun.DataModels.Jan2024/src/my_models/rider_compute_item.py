@@ -62,6 +62,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
             jgh_60_min_km_0pc_slope			    = round(item.get_1_hour_distance_km_on_slope(0.0),1),
             jgh_60_min_km_2pc_slope			    = round(item.get_1_hour_distance_km_on_slope(2.0),1),
 	        jgh_60_min_km_4pc_slope			    = round(item.get_1_hour_distance_km_on_slope(4.0),1),
+	        jgh_60_min_km_8pc_slope			    = round(item.get_1_hour_distance_km_on_slope(8.0),1),
             zwift_racing_score					= item.zwift_racing_score,
             zwift_cat_open						= item.zwift_cat_open,
             zwift_cat_women						= item.zwift_cat_women,

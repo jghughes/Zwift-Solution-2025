@@ -156,7 +156,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
         pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
-        max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
+        max_exertion_intensity_factor   = _intensity_factor,
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC
         )
@@ -182,7 +182,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
         pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
-        max_exertion_intensity_factor   = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
+        max_exertion_intensity_factor   = _intensity_factor,
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
         slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
         )
@@ -202,15 +202,15 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
     print(f"\nTask #3 computing 3rd to 5th scenarios - full team")
     # ===========================
-
-    riders = arrange_riders_interleaved_by_1_minute_strength(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    # riders = arrange_riders_interleaved_by_1_minute_strength(full_team_of_riders)
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
+        max_exertion_intensity_factor= _intensity_factor,
+        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
 
@@ -232,18 +232,17 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
     print(f"\nTask #4: computing 6th scenario - strongest five riders")
     # ===========================
-
-    riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    # riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
-    riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
+        max_exertion_intensity_factor= _intensity_factor,
+        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
     )
 
     package: Any = generate_package_of_paceline_solutions(ingredients)
@@ -255,18 +254,17 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
     print(f"\nTask #5: computing 7th scenario - strongest four riders")
     # ===========================
-
-    riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    # riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
-    riders = arrange_riders_interleaved_by_1_minute_strength(riders)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name),
-        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
+        max_exertion_intensity_factor= _intensity_factor,
+        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
@@ -289,7 +287,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = report_fastest_strongest_five_plan_display_object
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = report_fastest_strongest_four_plan_display_object
 
-    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_PACELINE_SLOPE_PC}%"
+    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_PACELINE_SLOPE_PC}% : Intensity factor = {_intensity_factor}"
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
     package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
 
@@ -316,11 +314,13 @@ if __name__ == "__main__":
     start_time = time.time()
 
     try:
-        _team_name = "betel" 
+        # _team_name = "betel" 
+        _team_name = "sirius" 
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
+        _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
+
         throw_if_no_internet_connection()
         asyncio.run(generate_ttt_scenarios_with_brute())
-
         end_time = time.time()
         duration = end_time - start_time
 
