@@ -58,6 +58,7 @@ class RepositoryOfTeamRosters:
                 "2508033": "josh_neil",
                 "1111583": "ken_chappell",
                 "2803600": "larry_mccamon",
+                "846200": "lisa_bick",
                 "383480": "lynsey_segal",
                 "5530045": "mark_brzezinski",
                 "1024413": "matt_steeve",
@@ -112,31 +113,32 @@ class RepositoryOfTeamRosters:
             #     "11741": "tom_bick"
             }),
             "sirius": defaultdict(str, {
-                "5490373": "barry_beck",
+                # "5490373": "barry_beck",
                 # "480698": "brent_huser",
-                "9011": "bryan_bumpas",
+                # "9011": "bryan_bumpas",
                 "5569057": "cory_cook",
                 # "3147366": "dave_konicek",
                 # "4945836": "david_evanetich",
-                "5134": "husky_crone",
+                # "5134": "husky_crone",
                 # "523861": "gary_putlock",
-                # "1884456": "john_hughes",
+                "1884456": "john_hughes",
                 # "2508033": "josh_neil",
                 # "2803600": "larry_mccamon",
+                "846200": "lisa_bick",
                 # "383480": "lynsey_segal",
                 # "6454226": "mark_deckard",
                 # "276319": "mark_goveia",
                 # "1024413": "matt_steeve",
                 # "2902662": "matthew_wongkee",
-                # "1657744": "melissa_warwick",
+                "1657744": "melissa_warwick",
                 "1707548": "meridith_leubner",
                 # "1609384": "mike_echo",
                 # "1193": "richard_mann",
                 # "4284467": "richard_yamin",
                 # "5524007": "robo_hop",
                 # "384442": "roland_segal",
-                "11526": "scott_mcveigh",
-                "1956": "scott_yarosh",
+                # "11526": "scott_mcveigh",
+                # "1956": "scott_yarosh",
                 # "5421258": "tim_reid",
                 # "1549984": "tim_chang",
                 "11741": "tom_bick",
@@ -165,31 +167,31 @@ class RepositoryOfTeamRosters:
                 # "1646703": "cara_houston",
                 # "456545": "carrie_merritt",
                 # "5569057": "cory_cook",
-                "6944221": "chris_lockwood",
-                "4945836": "david_evanetich",
+                # "6944221": "chris_lockwood",
+                # "4945836": "david_evanetich",
                 # "183277": "giao_nguyen",
                 # "523861": "gary_putlock",
                 # "525104": "iva_gotz",
-                "1884456": "john_hughes",
-                "2508033": "josh_neil",
+                # "1884456": "john_hughes",
+                # "2508033": "josh_neil",
                 # "1111583": "ken_chapple",
                 # "207797": "lori_pridham",
                 # "2803600": "larry_mccamon",
                 # "846200": "lisa_bick",
-                "383480": "lynsey_segal",
+                # "383480": "lynsey_segal",
                 # "4750594":"lydia_lequesne",
                 # "7720774": "mario_bautista",
                 # "276319": "mark_goveia",
                 # "1024413": "matt_steeve",
                 # "2902662": "matthew_wongkee",
                 # "1657744": "melissa_warwick",
-                # "1707548": "meridith_leubner",
-                "1618188": "michael_rebarchik",
+                "1707548": "meridith_leubner",
+                # "1618188": "michael_rebarchik",
                 # "1609384": "mike_echo",
                 # "3142395": "rachel_laponsey",
                 # "1193": "richard_mann",
                 # "4284467": "richard_yamin",
-                "5524007": "robo_hop",
+                # "5524007": "robo_hop",
                 # "384442": "roland_segal",
                 # "6033853": "sarah_madden",
                 # "11526": "scott_mcveigh",
@@ -283,5 +285,20 @@ class RepositoryOfTeamRosters:
         else:
             raise ValueError(
                 f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_exertion_intensity_factors_as_dict.keys())}"
+            )
+
+    @staticmethod
+    def get_rider_nick_name(team_nickname: str, zwift_id: str) -> str:
+        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict:
+            team_roster = RepositoryOfTeamRosters._team_rosters_as_dict[team_nickname]
+            if zwift_id in team_roster:
+                return team_roster[zwift_id]
+            else:
+                raise ValueError(
+                    f"Zwift ID '{zwift_id}' not found in team '{team_nickname}'. Available IDs: {list(team_roster.keys())}"
+                )
+        else:
+            raise ValueError(
+                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())}"
             )
 
