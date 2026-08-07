@@ -123,16 +123,7 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderCompute
     return average_speed_kph
 
 def solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> float:
-
-    _, _, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders, slope_pc)
-    _, _, lower_bound_1_hour_rider_speed = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders, slope_pc)
-
-    safe_lowest_bound_speed = min(truncate(lower_bound_pull_rider_speed, 0), truncate(lower_bound_1_hour_rider_speed, 0))
-
-    # N.B. Do not use this safe_lowest_bound_speed because it fails to account for the fact that Intensity Factor (for a team) is an overriding constraint. 
-
-    return 1.0  # reset to arbitrarily small 1 kph to ensure the binary search algorithm starts at a safe lower bound speed.
-    # return safe_lowest_bound_speed
+    return 1.0  # arbitrarily small 1 kph to ensure the binary search algorithm starts at a safe lower bound speed.
 
 def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderComputeItem, rider_contribution: RiderContributionItem) -> float:
     """
@@ -141,134 +132,17 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderCompute
     """
     return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
-def solve_for_upper_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
-    """
-    Find maximum permitted pull speed across all riders and standard
-    durations (30s-240s). This function calculates the speed the rider 
-    can go given their permitted pull watts for that duration. 
-    Returns: (RiderComputeItem, duration in seconds, speed in kph).
-
-    N.B. This function ignores any Intensity Factor constraint
-    """
-    fastest_rider = riders[0]
-    fastest_duration = 30.0  # arbitrary short
-    highest_speed = 0.0  # Arbitrarily low speed
-    duration_functions = [
-        (30.0, solve_for_speed_at_standard_30sec_pull_watts),
-        # (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
-        # (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        # (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
-        # (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
-    ]
+def solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Dict[RiderComputeItem, float]:
+    speeds: Dict[RiderComputeItem, float] = {}
     for rider in riders:
-        for duration, func in duration_functions:
-            speed = func(rider, slope_pc)
-            if speed > highest_speed:
-                highest_speed = speed
-                fastest_rider = rider
-                fastest_duration = duration
-    return fastest_rider, fastest_duration, highest_speed
+        speeds[rider] = solve_for_speed_at_standard_30sec_pull_watts(rider, slope_pc)
+    return speeds
 
-def solve_for_lower_bound_paceline_speed(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
-    """
-    Determines the minima permitted pull speed among all standard 
-    pull durations of all riders. For each rider and each permitted
-    pull duration (30s, 60s, 120s, 180s, 240s), this function 
-    calculates the speed the rider goes at their permitted pull 
-    watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall slowest speed found. Returns a tuple 
-    of (RiderComputeItem, duration in seconds, speed in kph) 
-    for the slowest rider and duration.
-
-    N.B. This function ignores any Intensity Factor constraint
-    """
-    # print(f"DEBUG : solve_for_lower_bound_paceline_speed() SLOPE_PC = {slope_pc}")
-    slowest_rider = riders[0]
-    slowest_duration = 30.0  # arbitrary short
-    slowest_speed = 100.0  # Arbitrarily high speed
-
-    duration_functions = [
-        (30.0, solve_for_speed_at_standard_30sec_pull_watts),
-        (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
-        (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (180.0, solve_for_speed_at_standard_3_minute_pull_watts),
-        (240.0, solve_for_speed_at_standard_4_minute_pull_watts), #presuming 4 min is the longest option available
-    ]
-
+def solve_for_speed_at_one_hour_watts_for_all_riders(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Dict[RiderComputeItem, float]:
+    speeds: Dict[RiderComputeItem, float] = {}
     for rider in riders:
-        for duration, func in duration_functions:
-            speed = func(rider, slope_pc)
-            if speed < slowest_speed:
-                slowest_speed = speed
-                slowest_rider = rider
-                slowest_duration = duration
-
-    return slowest_rider, slowest_duration, slowest_speed
-
-def solve_for_lower_bound_paceline_speed_deprecated(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
-    """
-    Determines the minima permitted pull speed among all standard 
-    pull durations of all riders. For each rider and each permitted
-    pull duration (30s, 60s, 120s, 180s, 240s), this function 
-    calculates the speed the rider goes at their permitted pull 
-    watts for that duration. It returns the rider, duration, and speed
-    corresponding to the overall slowest speed found. Returns a tuple 
-    of (RiderComputeItem, duration in seconds, speed in kph) 
-    for the slowest rider and duration.
-    """
-    # print(f"DEBUG : solve_for_lower_bound_paceline_speed() SLOPE_PC = {slope_pc}")
-    slowest_rider = riders[0]
-    slowest_duration = 30.0  # arbitrary short
-    slowest_speed = 100.0  # Arbitrarily high speed
-
-    duration_functions = [
-        (30.0, solve_for_speed_at_standard_30sec_pull_watts),
-        (60.0, solve_for_speed_at_standard_1_minute_pull_watts),
-        (120.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (180.0, solve_for_speed_at_standard_2_minute_pull_watts),
-        (240.0, solve_for_speed_at_standard_4_minute_pull_watts),
-        (3600.0, solve_for_speed_at_one_hour_watts),
-    ]
-
-    for rider in riders:
-        for duration, func in duration_functions:
-            speed = func(rider, slope_pc)
-            if speed < slowest_speed:
-                slowest_speed = speed
-                slowest_rider = rider
-                slowest_duration = duration
-
-    return slowest_rider, slowest_duration, slowest_speed
-
-def solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
-    # (rider, duration_sec, speed_kph)
-    slowest_rider = riders[0]
-    slowest_duration = 3600.0  # 1 hour in seconds
-    slowest_speed = solve_for_speed_at_one_hour_watts(slowest_rider, slope_pc)
-
-    for rider in riders:
-        speed = solve_for_speed_at_one_hour_watts(rider, slope_pc)
-        if speed < slowest_speed:
-            slowest_speed = speed
-            slowest_rider = rider
-            # duration is always 1 hour for this function
-            slowest_duration = 3600.0
-
-    return slowest_rider, slowest_duration, slowest_speed
-
-def solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Tuple[RiderComputeItem, float, float]:
-    # (rider, duration_sec, speed_kph)
-    fastest_rider = riders[0]
-    fastest_duration = 3600.0  # 1 hour in seconds
-    highest_speed = solve_for_speed_at_one_hour_watts(fastest_rider, slope_pc)
-    for rider in riders:
-        speed = solve_for_speed_at_one_hour_watts(rider, slope_pc)
-        if speed > highest_speed:
-            highest_speed = speed
-            fastest_rider = rider
-            # duration is always 1 hour for this function
-            fastest_duration = 3600.0
-    return fastest_rider, fastest_duration, highest_speed
+        speeds[rider] = solve_for_speed_at_one_hour_watts(rider, slope_pc)
+    return speeds
 
 def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderComputeItem, RiderContributionItem]) -> float:
     """
@@ -298,27 +172,13 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
 
     return std_deviation_of_intensity_factors
 
-def arrange_riders_by_30_sec_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_wkg(), reverse=True)
-    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_30sec_pull_kph(slope_pc), reverse=True)
-    return sorted_riders
-
 def arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_40_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_wkg(), reverse=True)
-    # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_40_minute_pull_kph(slope_pc), reverse=True)
-    return sorted_riders
-
 def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
-    return sorted_riders
-
-def arrange_riders_by_velo_rating(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.velo_rating_30_days, reverse=True)
     return sorted_riders
 
 def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
@@ -361,15 +221,6 @@ def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeIte
         back_idx -= 1
 
     return optimal_order
-
-def arrange_riders_by_name(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
-    """
-    Arrange the riders alphabetically. Returns the List[RiderComputeItem] 
-    of sorted riders.
-    """
-    sorted_riders = sorted(riders, key=lambda rider: rider.name, reverse=False)
-
-    return sorted_riders
 
 def select_n_riders_at_the_top_of_the_list(riders: List[RiderComputeItem], n : int) -> List[RiderComputeItem]:
     if not riders:
@@ -547,7 +398,8 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
 
     # Prepare rider lists
     input_list_of_riders = paceline_ingredients.riders_list
-    riders_strongest_first = arrange_riders_by_1_minute_strength(input_list_of_riders) # order by strength decreasing
+    # riders_strongest_first = arrange_riders_by_1_minute_strength(input_list_of_riders) # order by strength decreasing
+    riders_strongest_first = arrange_riders_by_zwiftracingapp_zpFTP_strength(input_list_of_riders) # order by strength decreasing
 
     # Error handling: Check for NaN or Inf in complete_sequences
     array_of_sequences_of_pull_periods = np.array(list_of_sequences_of_pull_periods, dtype=np.float64)

@@ -42,7 +42,7 @@ from jgh_formulae03 import (
 from jgh_formulae08 import (
     solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search,
     generate_package_of_paceline_solutions,
-    log_speed_bounds_of_exertion_constrained_paceline_solutions,
+    show_table_of_standard_proxy_speeds_for_all_riders
 )
 from jgh_formulae09 import (
     # log_single_paceline_plan_as_pretty_table,
@@ -145,7 +145,8 @@ async def generate_ttt_scenarios_with_brute() -> None:
         print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 
-    log_speed_bounds_of_exertion_constrained_paceline_solutions(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    show_table_of_standard_proxy_speeds_for_all_riders(riders)
 
     # ===========================
     print(f"\nTask #1: computing 1st scenario - 30_sec pull full team...")

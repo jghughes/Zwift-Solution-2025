@@ -47,6 +47,7 @@ import concurrent.futures
 import time
 from collections import defaultdict
 from copy import deepcopy
+from tabulate import tabulate
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -78,12 +79,14 @@ from jgh_formatting import (
 )
 from jgh_formulae03 import (
     calculate_dispersion_of_intensity_of_effort,
-    solve_for_lower_bound_paceline_speed,
-    solve_for_lower_bound_paceline_speed_at_one_hour_watts,
+    # solve_for_lower_bound_paceline_speed,
+    # solve_for_lower_bound_paceline_speed_at_one_hour_watts,
     calculate_overall_average_speed_of_paceline_kph,
-    solve_for_upper_bound_paceline_speed,
-    solve_for_upper_bound_paceline_speed_at_one_hour_watts,
+    # solve_for_upper_bound_paceline_speed,
+    # solve_for_upper_bound_paceline_speed_at_one_hour_watts,
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
+    solve_for_proxy_standard_30sec_pull_speed_for_all_riders,
+    solve_for_speed_at_one_hour_watts_for_all_riders
 )
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
@@ -98,21 +101,15 @@ from rider_compute_item import RiderComputeItem
 def log_multiline(lines: list[str]) -> None:
     print("\n".join(lines))
 
-def log_speed_bounds_of_exertion_constrained_paceline_solutions(riders: List[RiderComputeItem]):
-
-    upper_bound_pull_rider, upper_bound_pull_rider_duration, upper_bound_pull_rider_speed   = solve_for_upper_bound_paceline_speed(riders, DEFAULT_PACELINE_SLOPE_PC)
-    upper_bound_1_hour_rider, _, upper_bound_1_hour_rider_speed                             = solve_for_upper_bound_paceline_speed_at_one_hour_watts(riders, DEFAULT_PACELINE_SLOPE_PC)
-    lower_bound_pull_rider, lower_bound_pull_rider_duration, lower_bound_pull_rider_speed   = solve_for_lower_bound_paceline_speed(riders, DEFAULT_PACELINE_SLOPE_PC)
-    lower_bound_1_hour_rider, _, lower_bound_1_hour_rider_speed                             = solve_for_lower_bound_paceline_speed_at_one_hour_watts(riders, DEFAULT_PACELINE_SLOPE_PC)
-
-    message_lines = [
-        f"\nEXAMPLE PACELINE SPEED: upper and lower bounds unconstrained by intensity factor (gradient = {DEFAULT_PACELINE_SLOPE_PC}%):\n",
-        f"Fastest conceivable pull:  {round(upper_bound_pull_rider_speed)}kph by {upper_bound_pull_rider.name} for a pull of {round(upper_bound_pull_rider_duration)} seconds.",
-        f"Fastest 1-hour curve-fit:  {round(upper_bound_1_hour_rider_speed)}kph by {upper_bound_1_hour_rider.name}.",
-        f"Slowest conceivable pull:  {round(lower_bound_pull_rider_speed)}kph by {lower_bound_pull_rider.name} for a pull of {round(lower_bound_pull_rider_duration)} seconds.",
-        f"Slowest 1-hour curve-fit:  {round(lower_bound_1_hour_rider_speed)}kph by {lower_bound_1_hour_rider.name}."
-    ]
-    log_multiline(message_lines)
+def show_table_of_standard_proxy_speeds_for_all_riders(riders: List[RiderComputeItem]) -> None:
+    print(f"\nILLUSTRATIVE RIDER CAPABILITIES : (gradient = {DEFAULT_PACELINE_SLOPE_PC}%) : Intensity Factor = 1.0\n")
+    names = [rider.name for rider in riders]
+    proxy_standard_30sec_pull_speeds_dict = solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders, DEFAULT_PACELINE_SLOPE_PC)
+    proxy_standard_30sec_pull_speed_values = [round(proxy_standard_30sec_pull_speeds_dict[rider], 1) for rider in riders]
+    standard_solo_speeds_at_one_hour_watts__dict = solve_for_speed_at_one_hour_watts_for_all_riders(riders, DEFAULT_PACELINE_SLOPE_PC)
+    standard_solo_speeds_at_one_hour_values = [round(standard_solo_speeds_at_one_hour_watts__dict[rider], 1) for rider in riders]
+    table = zip(names, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
+    print(tabulate(table, headers=["Rider", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
 
 def log_workload_suffix_message(report : PackageOfPacelineComputationReportDisplayObject) -> None:
 

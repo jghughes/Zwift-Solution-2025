@@ -303,7 +303,7 @@ if __name__ == "__main__":
         dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
 
         # model a single rider
-        zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[3]  
+        zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[1]  
         flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_rider_1]
         nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_rider_1)
         plot_curve_fit_chart_for_an_individual(zwiftID_rider_1,nick_name_rider_1, flattened_watts_rider_1)

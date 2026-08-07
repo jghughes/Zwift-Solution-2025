@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Dict, List
 
 from jgh_azure_storage_service_client import AzureStorageServiceClient
-from jgh_formulae03 import (arrange_riders_by_zwiftracingapp_zpFTP_strength,)
-from jgh_formulae08 import (log_speed_bounds_of_exertion_constrained_paceline_solutions,)
+from jgh_formulae03 import arrange_riders_by_zwiftracingapp_zpFTP_strength
+from jgh_formulae08 import show_table_of_standard_proxy_speeds_for_all_riders
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_count_of_bytes
 from repository_of_team_rosters import RepositoryOfTeamRosters
@@ -74,13 +74,13 @@ async def generate_team_targets() -> None:
         print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 
-    log_speed_bounds_of_exertion_constrained_paceline_solutions(full_team_of_riders)
+    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+
+    show_table_of_standard_proxy_speeds_for_all_riders(riders)
 
     # ===========================
     print(f"\nTask #1: computing Million Dollar Prize 16 MINUTE 90-day best...\n")
     # ===========================
-
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
 
     for r in riders:
         watts  = r.get_n_second_curvefit_y_ordinate_watts(960) 
