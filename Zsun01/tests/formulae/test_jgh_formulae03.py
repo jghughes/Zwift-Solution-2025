@@ -42,22 +42,28 @@ def test01():
 
 # runner
 if __name__ == "__main__":
-    from jgh_logging import setup_structlog 
-    from jgh_exceptions import AppErrorBase, AlertMessageError, describe_exception, log_event, log_exception
-    setup_structlog()
+    import logging
+    from jgh_exceptions import AlertMessageError
+    from jgh_logging import setup_json_logging, log_event
+    from storage_config import DIRPATH_LOGGING
+
+    setup_json_logging(DIRPATH_LOGGING)
+    logger = logging.getLogger()
+
     try:
         team_name = "scratchpad"
+
+        start_time = time.time()
         test01()
-    except AlertMessageError as alertError:
-        print(alertError.message)  
-    except AppErrorBase as app_err:
-        print("Error was caught. See log files for details.")
-        print(app_err.short_description())  
-        log_event(app_err)              
-    except Exception as unhandledEx:
-        print("Fatal exception occurred. See log files for details.")
-        print(describe_exception(unhandledEx)) 
-        # Note: Log files saved in folder called 'logs' in the root folder of your VS2022 project. 
-        # Folder not visible in VS2022 Solution Explorer. Use File Explorer. 
-        log_exception(unhandledEx)
+        end_time = time.time()
+
+        success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
+    except AlertMessageError as alert_err:
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
+        print(f"{alert_err.message}\n")
+    except Exception as ex:
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
+        print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
 

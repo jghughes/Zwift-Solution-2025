@@ -13,15 +13,11 @@ from storage_config import (
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     DIRPATH_RUBBISH_SCRATCHPAD
 )
-
 import time
 import logging
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING 
-
-
-
 
 # Tests
 def test09():
@@ -203,38 +199,6 @@ def test14():
     write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
-# def test15():
-#     """
-#     Test function that loads all ZwiftPower profile data, converts it to a
-#     pandas DataFrame, and saves the result to an Excel file.
-
-#     Unlike other test functions, this one focuses only on ZwiftPower data,
-#     not Zwift, ZwiftRacingApp, or power curve data.
-
-#     No arguments. No return value. Results are written to an Excel file.
-#     """
-
-#     # repository = RepositoryOfRiders()
-#     # repository.populate_repository(
-#     #     None,
-#     #     zwift_dir_path=DIRPATH_ZWIFT_FILES,
-#     #     zwiftracingapp_dir_path=DIRPATH_ZWIFTRACINGAPP_FILES,
-#     #     zwiftpower_dir_path=DIRPATH_ZWIFTPOWER,
-#     #     zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
-#     #     filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched=""
-#     # )
-
-#     dict_of_items = repository.get_dict_of_ZwiftPowerProfileItem_by_ids([])
-#     print(f"ZwiftPower 90-day power: {len(dict_of_items.items())}\n")
-#     items = list(dict_of_items.values())
-#     data = []
-#     for item in items:
-#         data.append(asdict(item))
-#     df = pd.DataFrame(data)
-#     output_filename = "sexy_spreadsheet_of_all_ZwiftPower_profiles.xlsx"
-#     write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_filename, df)
-#     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
-
 def test16():
     """
     Test function that loads all ZwiftPower best power curve data, converts
@@ -278,12 +242,15 @@ def test16():
 
 #test runner
 if __name__ == "__main__":
+    import logging
+    from jgh_exceptions import AlertMessageError
+    from jgh_logging import setup_json_logging, log_event
+    from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
     try:
-        #get ready
         repository = RepositoryOfRiders()
         repository.populate_repository(
             [],
@@ -292,8 +259,9 @@ if __name__ == "__main__":
             zwiftpower_90day_graph_watts_dir_path=DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
             snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath=""
         )
+
+        start_time = time.time()  
         print("Starting tests...\n")
-        # Comment/uncomment the lines below to run the tests you want. 
         # test09()
         # test11()
         # test12()
@@ -301,34 +269,14 @@ if __name__ == "__main__":
         # test14() 
         test16()
         print("\nTests complete.")
-
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
-
+        success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
-
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-
-

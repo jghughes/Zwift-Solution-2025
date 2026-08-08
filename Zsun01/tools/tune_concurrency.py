@@ -173,6 +173,6 @@ async def main() -> None:
 	print("    zwiftid_file_fetcher_async.py   →  download_and_save_many_files_to_hard_drive default")
 	print("=" * 60)
 
-
 if __name__ == "__main__":
 	asyncio.run(main())
+

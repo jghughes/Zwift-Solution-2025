@@ -61,7 +61,7 @@ def experiment_with_90_day_watts_mappings():
 
     all_rider_items_as_dict = read_rider_compute_dict_from_json(Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),FILENAME_RIDER_COMPUTE_DTO_JSON_DICT)
     print(f"loaded RiderItems for {len(all_rider_items_as_dict)} riders")
-    test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
+    test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
     print(f"loaded {len(test_IDs)} IDs for our little test")
     dict_of_zwiftpower_90day_watts_items = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),test_IDs)
     print(f"loaded zwiftpower_graph_watts files for {len(dict_of_zwiftpower_90day_watts_items)} testIDs")
@@ -76,41 +76,30 @@ def experiment_with_90_day_watts_mappings():
 
 #test runner
 if __name__ == "__main__":
+    import logging
+    from jgh_exceptions import AlertMessageError
+    from jgh_logging import setup_json_logging, log_event
+    from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
     try:
-        team_name = "scratchpad"
+        _team_name = "scratchpad"
         _output_filename = "extracted_input_power_graphs_for_testIDs.json"
+
+        start_time = time.time()
         experiment_with_90_day_watts_mappings()
-
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
-
+        success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds. All work executed without error."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
-
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
 
 

@@ -101,7 +101,7 @@ def run_curve_fitting_experiments():
         return
 
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, regression_filename_excel, regression_filename_json_generated_by_tool08, curve_fitting_filename_for_excel])
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, _regression_filename_excel, _regression_filename_json_generated_by_tool08, _curve_fitting_filename_for_excel])
     except Exception as err:
         print(err)
         return
@@ -212,7 +212,7 @@ def run_curve_fitting_experiments():
 
     print(f"\nTotal riders on ZwiftPower from DaveK: {total_count}  Insufficient data : {skipped_modelling_count}  Modelled count: {modelled_count}\n")
 
-    print(f"Riders with excellent TTT pull curve fits [r_squared > {minimum_required_r_squared_fit_for_one_hour_power_curve}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
+    print(f"Riders with excellent TTT pull curve fits [r_squared > {_minimum_required_r_squared_fit_for_one_hour_power_curve}] : {count_of_riders_with_high_fidelity_models} ({round(100.0*count_of_riders_with_high_fidelity_models/modelled_count)}%)")
 
     # for  zwiftIds_with_high_fidelity, write out the zwift_id, name, critical_power, and r_squared_cp. sorted by name
     zwiftIds_with_high_fidelity.sort(key=lambda x: x)
@@ -235,8 +235,8 @@ def run_curve_fitting_experiments():
     merged_df = pd.merge(df1, df2, left_on="zwift_id", right_on="zwift_id", suffixes=('_profile', '_power'))
 
     # write to excel
-    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), curve_fitting_filename_for_excel, merged_df)
-    print(f"\nSaved {len(merged_df)} power curve fitting results to: {DIRPATH_RUBBISH_SCRATCHPAD + curve_fitting_filename_for_excel}\n")
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), _curve_fitting_filename_for_excel, merged_df)
+    print(f"\nSaved {len(merged_df)} power curve fitting results to: {DIRPATH_RUBBISH_SCRATCHPAD + _curve_fitting_filename_for_excel}\n")
 
     # map zwiftIds_with_high_fidelity into a list of custom objects and save to json file for use for sophisicated machine learning to determine zFTP
 
@@ -290,56 +290,41 @@ def run_curve_fitting_experiments():
     riders = dict_of_riders_with_high_fidelity.values()
     df3 = pd.DataFrame([asdict(modelTrainingItem) for modelTrainingItem in riders])
 
-    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), regression_filename_excel, df3)
-    print(f"\nSaved {len(df3)} correlation data-set items to: {DIRPATH_RUBBISH_SCRATCHPAD}{regression_filename_excel}\n")
+    write_dataframe_as_xlsx_file(Path(DIRPATH_RUBBISH_SCRATCHPAD), _regression_filename_excel, df3)
+    print(f"\nSaved {len(df3)} correlation data-set items to: {DIRPATH_RUBBISH_SCRATCHPAD}{_regression_filename_excel}\n")
 
-    write_regression_modelling_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD),regression_filename_json_generated_by_tool08, dict_of_riders_with_high_fidelity)
+    write_regression_modelling_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD),_regression_filename_json_generated_by_tool08, dict_of_riders_with_high_fidelity)
 
     # runner
 
 #test runner
 if __name__ == "__main__":
+    import logging
+    from jgh_exceptions import AlertMessageError
+    from jgh_logging import setup_json_logging, log_event
+    from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
     try:
-
         _minimum_required_r_squared_fit_for_one_hour_power_curve = .90
-        # NB. this output json file is the input ingested by tool12.py - make sure the filenames match each other
-        regression_filename_excel = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
-        regression_filename_json_generated_by_tool08 = "dataset_for_linear_regression_investigations_using_sklearn.json"
-        curve_fitting_filename_for_excel = "power_curve_fitting_results_for_club_by_jgh.xlsx"
-        minimum_required_r_squared_fit_for_one_hour_power_curve = .90
+        _regression_filename_excel = "dataset_for_linear_regression_investigations_using_sklearn.xlsx"
+        _regression_filename_json_generated_by_tool08 = "dataset_for_linear_regression_investigations_using_sklearn.json"
+        _curve_fitting_filename_for_excel = "power_curve_fitting_results_for_club_by_jgh.xlsx"
+        _minimum_required_r_squared_fit_for_one_hour_power_curve = .90
+        # NB. this output json file above is the input ingested by tool12.py - make sure the filenames match each other
+
+        start_time = time.time()
         run_curve_fitting_experiments()
-
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
-
+        success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
-        print(f"{alert_err.message}\n")
-
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
+        print(f"\n{alert_err.message}\n")
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
-        print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-
-
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
+        print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")

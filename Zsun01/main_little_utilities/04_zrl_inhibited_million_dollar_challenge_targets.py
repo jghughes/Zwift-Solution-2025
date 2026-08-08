@@ -8,6 +8,7 @@ from typing import Dict, List
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae03 import order_paceline_by_desired_order_of_riders
 from jgh_formulae08 import show_table_of_standard_proxy_speeds_for_all_riders
+from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_pretty_count_of_bytes
 from repository_of_team_rosters import RepositoryOfTeamRosters
@@ -69,6 +70,7 @@ async def generate_team_targets() -> None:
         return
 
     try:
+        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
     except Exception as e:
         print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
@@ -96,42 +98,21 @@ if __name__ == "__main__":
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
     try:
+        throw_if_no_internet_connection()
 
         _team_name = "inhibited" 
-        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
 
+        start_time = time.time()
         asyncio.run(generate_team_targets())
-
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All work executed without error.\n")
-
+        success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
-        print(f"{alert_err.message}\n")
-
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
+        print(f"\n{alert_err.message}\n")
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
-        print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-
-
-
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
+        print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")

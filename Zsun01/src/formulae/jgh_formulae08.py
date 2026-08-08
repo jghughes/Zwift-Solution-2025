@@ -112,8 +112,7 @@ def show_table_of_standard_proxy_speeds_for_all_riders(riders: List[RiderCompute
     table = zip(names, zFTPs, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
     print(tabulate(table, headers=["Rider", "zFTP (w/kg)", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
 
-def log_workload_suffix_message() -> None:
-
+def show_workload_suffix_message() -> None:
     message_lines = [
         f"\nzFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",

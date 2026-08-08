@@ -41,7 +41,7 @@ from jgh_formulae08 import (
     solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search,
     generate_package_of_paceline_solutions,
     show_table_of_standard_proxy_speeds_for_all_riders,
-    log_workload_suffix_message
+    show_workload_suffix_message
 )
 from jgh_formulae09 import (
     # log_single_paceline_plan_as_pretty_table,
@@ -83,46 +83,37 @@ def load_css_style_sheet() -> str:
     with open(path, encoding="utf-8") as f:
         return f.read()
 
-PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css_style_sheet()
-
 def load_footnotes_html() -> str:
     path = Path(__file__).parent.parent / "src" / "html" / "footnotes.html"
     with open(path, encoding="utf-8") as f:
         return f.read()
 
-BRUTE_FOOTNOTES_HTML = load_footnotes_html()
-
-
 # HEAP POWERFUL
 async def generate_ttt_scenarios_with_brute() -> None:
     print("Tool starting")
 
+
+
     try:
         throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
-    except Exception as err:
-        print(err)
-        return
-
-    try:
         throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
-    except Exception as err:
-        print(err)
-        return
 
-    # ===========================
-    print(f"\ndownloading file from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
-    # ===========================
+        PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css_style_sheet()
+        BRUTE_FOOTNOTES_HTML = load_footnotes_html()
 
-    try:
+        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
+        _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
+
+        # ===========================
+        print(f"\nDownloading file from Azure\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
+        # ===========================
         azure_client = AzureStorageServiceClient()
 
         blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST)
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
-        # ===========================
         print(f"downloaded : {blob_size}")
-        # ===========================
-        blob_as_text = blob_as_bytes.decode('utf-8')
 
+        blob_as_text = blob_as_bytes.decode('utf-8')
         something = json.loads(blob_as_text)
         list_of_RiderDTO: List[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
         list_of_RiderItem: List[RiderComputeItem] = [
@@ -146,7 +137,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
-    log_workload_suffix_message()
+    show_workload_suffix_message()
 
     # ===========================
     print(f"\nTask #1: computing 1st scenario - 30_sec pull full team")
@@ -298,51 +289,32 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     print(f"\nDistributing paceline scenarios HTML document:\n Name : {html_file_and_blob_name}")
     url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc)
-    print(f"Uploaded to:\n URL : {url_of_uploaded_blob}")
-    print(f"Saved to:\n PATH : {saved_file_path}")
+    print(f" URL : {url_of_uploaded_blob}")
+    print(f" PATH : {saved_file_path}")
 
 if __name__ == "__main__":
     from jgh_logging import setup_json_logging, log_event
     from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
-
     try:
-        _team_name = "betel" 
-        # _team_name = "sirius" 
-        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
-        _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
+        _team_name = "sirius" # or "sirius" 
 
+        start_time = time.time()
         throw_if_no_internet_connection()
         asyncio.run(generate_ttt_scenarios_with_brute())
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All work executed without error.\n")
-
+        success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds. All tests executed without error."
+        log_event(logger,message=success_msg,level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
-
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
 
 

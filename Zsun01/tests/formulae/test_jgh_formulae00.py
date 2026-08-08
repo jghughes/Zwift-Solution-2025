@@ -37,7 +37,6 @@ def test00():
 
     print("\n")
 
-
 def test01():
     aero_values : list[float] = [AERO_POSITION_FACTOR_HOODS, AERO_POSITION_FACTOR_TT, AERO_POSITION_FACTOR_SUPERTUCK, AERO_POSITION_FACTOR_FULLTUCK]
     height_values : list[float] = [155.0, 165.0, 175.0, 185.0, 195.0, 205.0]
@@ -102,7 +101,6 @@ def test03():
     print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
     print("\n")
 
-
 def test04():
     rider_weight: float = 75.0  # kg
     height: float = 183
@@ -151,45 +149,31 @@ def test05():
 
 #test runner
 if __name__ == "__main__":
+    import logging
+    from jgh_exceptions import AlertMessageError
+    from jgh_logging import setup_json_logging, log_event
+    from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
-    start_time = time.time()
     try:
-
+        start_time = time.time()
         test01()
         test02()
         test03()
         # test04()
         # test05()
-
         end_time = time.time()
-        duration = end_time - start_time
 
-        log_event(
-            logger,
-            message=f"Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.",
-            level=logging.INFO
-        )
-        print(f"\nSuccess: Main execution completed successfully in {duration:.2f} seconds. All tests executed without error.\n")
-
+        success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds."
+        log_event(logger, message=success_msg, level=logging.INFO)
+        print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
-        log_event(
-            logger,
-            message=alert_err.message,
-            level=logging.INFO,
-            exception=alert_err
-        )
+        log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
-
     except Exception as ex:
-        log_event(
-            logger,
-            message=f"Unhandled Exception: {ex}",
-            level=logging.ERROR,
-            exception=ex  # Pass the original exception object
-        )
+        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
 
 

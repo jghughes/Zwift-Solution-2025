@@ -40,7 +40,7 @@ class RepositoryOfTeamRosters:
         }
     )
 
-    _team_rosters_as_dict: Dict[str, Dict[str, str]] = defaultdict(
+    _team_rosters_as_dict_of_dict: Dict[str, Dict[str, str]] = defaultdict(
         lambda: defaultdict(str),
         {
             "scratchpad": defaultdict(str, {
@@ -267,15 +267,15 @@ class RepositoryOfTeamRosters:
 
     @staticmethod
     def get_dict_of_teams_and_their_riders() -> Dict[str, Dict[str, str]]:
-        return RepositoryOfTeamRosters._team_rosters_as_dict
+        return RepositoryOfTeamRosters._team_rosters_as_dict_of_dict
 
     @staticmethod
     def get_IDs_of_riders_on_a_team(team_nickname: str) -> List[str]:
-        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict:
-            return list(RepositoryOfTeamRosters._team_rosters_as_dict[team_nickname].keys())
+        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict_of_dict:
+            return list(RepositoryOfTeamRosters._team_rosters_as_dict_of_dict[team_nickname].keys())
         else:
             raise ValueError(
-                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())}"
+                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict_of_dict.keys())}"
             )
 
     @staticmethod
@@ -289,16 +289,12 @@ class RepositoryOfTeamRosters:
 
     @staticmethod
     def get_rider_nick_name(team_nickname: str, zwift_id: str) -> str:
-        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict:
-            team_roster = RepositoryOfTeamRosters._team_rosters_as_dict[team_nickname]
+        if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict_of_dict:
+            team_roster = RepositoryOfTeamRosters._team_rosters_as_dict_of_dict[team_nickname]
             if zwift_id in team_roster:
                 return team_roster[zwift_id]
             else:
-                raise ValueError(
-                    f"Zwift ID '{zwift_id}' not found in team '{team_nickname}'. Available IDs: {list(team_roster.keys())}"
-                )
+                raise ValueError(f"Zwift ID '{zwift_id}' not found in team '{team_nickname}'. Available IDs: {list(team_roster.keys())}")
         else:
-            raise ValueError(
-                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict.keys())}"
-            )
+            raise ValueError(f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict_of_dict.keys())}")
 
