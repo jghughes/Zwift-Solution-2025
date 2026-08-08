@@ -27,8 +27,7 @@ DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default int
 # SINGLE_RIDER_ROUTE_NAME ="Telegraphe" 
 SINGLE_RIDER_ROUTE_NAME ="Galibier_valloire" 
 
-
-DEFAULT_PACELINE_SLOPE_PC: float = 0.5
+DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 1.0
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of tests - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. 
 

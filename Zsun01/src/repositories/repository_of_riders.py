@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Optional
 from paceline_modelling_items import CurveFittingResultItem
-from curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
+from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_file_reader_sync import (
     read_zwiftdto_files_to_item_dict_sync,
     read_zwiftracingappdto_files_to_item_dict_sync,

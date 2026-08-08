@@ -1,7 +1,7 @@
 import numpy as np
 from tabulate import tabulate
 
-from curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
+from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 
 import time

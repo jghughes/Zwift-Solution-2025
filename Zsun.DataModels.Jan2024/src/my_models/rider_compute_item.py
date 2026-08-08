@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from typing import Optional
 import numpy as np
-from constants import AERO_POSITION_FACTOR_DEFAULT, DEFAULT_PACELINE_SLOPE_PC
+from constants import AERO_POSITION_FACTOR_DEFAULT, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 import warnings
 
 from jgh_formulae01 import calculate_rider_kph_from_watts
@@ -190,19 +190,8 @@ class RiderComputeItem(FrozenZwiftIdBase):
         answer = one_hour[0]
         return answer
 
-    def get_proxy_5_minute_pull_watts(self) -> float:
-        # apply 20 minute watts
-        one_hour = decay_model_numpy(np.array([1200]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
-        answer = one_hour[0]
-        return answer
-
     def get_40_minute_curvefit_watts(self) -> float:
         one_hour = decay_model_numpy(np.array([2400]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
-        answer = one_hour[0]
-        return answer
-
-    def get_50_minute_curvefit_watts(self) -> float:
-        one_hour = decay_model_numpy(np.array([3000]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
         return answer
 

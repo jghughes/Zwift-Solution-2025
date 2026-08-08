@@ -129,7 +129,7 @@
     <Compile Include="src\formulae\cyclic_paceline.py" />
     <Compile Include="src\formulae\jgh_formulae04.py" />
     <Compile Include="src\formulae\jgh_formulae05.py" />
-    <Compile Include="src\formulae\curve_fitting.py">
+    <Compile Include="src\formulae\jgh_curve_fitting.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="main_tools\brute03_experiment_with_90_day_watts_mappings.py">

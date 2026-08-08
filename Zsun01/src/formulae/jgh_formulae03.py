@@ -172,16 +172,22 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
 
     return std_deviation_of_intensity_factors
 
-def arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
+def order_paceline_by_desired_order_of_riders(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+    """
+    Reorder the list of riders to match the desired order.
+    """
+    return _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders=riders)
+
+def _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+    sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
+    return sorted_riders
+
+def _arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
-def arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
-    return sorted_riders
-
-def arrange_riders_interleaved_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
+def _arrange_riders_by_1_minute_strength_interleaved(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
     """
     Arrange the riders in an optimal order based on their strength metric.
 
@@ -398,8 +404,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
 
     # Prepare rider lists
     input_list_of_riders = paceline_ingredients.riders_list
-    # riders_strongest_first = arrange_riders_by_1_minute_strength(input_list_of_riders) # order by strength decreasing
-    riders_strongest_first = arrange_riders_by_zwiftracingapp_zpFTP_strength(input_list_of_riders) # order by strength decreasing
+    riders_strongest_first = order_paceline_by_desired_order_of_riders(input_list_of_riders)
 
     # Error handling: Check for NaN or Inf in complete_sequences
     array_of_sequences_of_pull_periods = np.array(list_of_sequences_of_pull_periods, dtype=np.float64)

@@ -68,7 +68,7 @@ from constants import (
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
     PULL_DURATION_OPTIONS_SEC,
-    DEFAULT_PACELINE_SLOPE_PC
+    DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import (
@@ -102,32 +102,30 @@ def log_multiline(lines: list[str]) -> None:
     print("\n".join(lines))
 
 def show_table_of_standard_proxy_speeds_for_all_riders(riders: List[RiderComputeItem]) -> None:
-    print(f"\nILLUSTRATIVE RIDER CAPABILITIES : (gradient = {DEFAULT_PACELINE_SLOPE_PC}%) : Intensity Factor = 1.0\n")
+    print(f"\nILLUSTRATIVE RIDER CAPABILITIES : (gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}%) : Intensity Factor = 1.0\n")
     names = [rider.name for rider in riders]
-    proxy_standard_30sec_pull_speeds_dict = solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders, DEFAULT_PACELINE_SLOPE_PC)
+    zFTPs = [round(safe_divide(rider.velo_zwiftpower_zFTP_watts, rider.weight_kg), 1) for rider in riders]
+    proxy_standard_30sec_pull_speeds_dict = solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)
     proxy_standard_30sec_pull_speed_values = [round(proxy_standard_30sec_pull_speeds_dict[rider], 1) for rider in riders]
-    standard_solo_speeds_at_one_hour_watts__dict = solve_for_speed_at_one_hour_watts_for_all_riders(riders, DEFAULT_PACELINE_SLOPE_PC)
+    standard_solo_speeds_at_one_hour_watts__dict = solve_for_speed_at_one_hour_watts_for_all_riders(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)
     standard_solo_speeds_at_one_hour_values = [round(standard_solo_speeds_at_one_hour_watts__dict[rider], 1) for rider in riders]
-    table = zip(names, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
-    print(tabulate(table, headers=["Rider", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
+    table = zip(names, zFTPs, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
+    print(tabulate(table, headers=["Rider", "zFTP (w/kg)", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
 
-def log_workload_suffix_message(report : PackageOfPacelineComputationReportDisplayObject) -> None:
+def log_workload_suffix_message() -> None:
 
     message_lines = [
-        f"\nBrute report: did {format_number_with_comma_separators(report.total_compute_iterations_performed)} iterations to evaluate {format_number_with_comma_separators(report.total_pull_sequences_examined)} alternative plans in {format_pretty_duration_hms(report.computational_time)}.",
-        "Intensity Factor is Normalized Power/one-hour power. zFTP metrics are displayed, but play no role in computations.",
+        f"\nzFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
-        "",
-        "30 second pull capacity = 3.5 minute pull-curve ordinate",
+        "\n30 second pull capacity = 3.5 minute pull-curve ordinate",
         "1 minute pull capacity  =  5 minute pull-curve ordinate",
         "2 minute pull capacity  = 12 minute pull-curve ordinate",
         "3 minute pull capacity  = 15 minute pull-curve ordinate",
         "4 minute pull capacity  = 18 minute pull-curve ordinate",
-        "",
-        "Riders with superior pull capacity are prioritised for longer pulls.",
+        "\nRiders with superior pull capacity are prioritised for longer pulls.",
         "The speed of the paceline is constant and does not vary from one rider to the next.",
         "The pull capacity of the slowest puller governs the speed, leaving room for upside.",
-        "Based on data from Zwiftpower as at March/April 2025. Some ZSUN riders have more comprehensive data than others.\n\n",
+        "Based on data from Zwiftpower from DaveK. Some ZSUN riders have more comprehensive data than others.",
     ]
     log_multiline(message_lines)
 

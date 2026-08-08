@@ -158,7 +158,7 @@ def populate_title_for_pace_plan(plan_type_enum: PacelinePlanTypeEnum,
     plan_report_displayobject: PacelineComputationReportDisplayObject,
 ) -> None:
     caption_part_a, caption_part_b = DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN[plan_type_enum]
-    plan_report_displayobject.display_caption_left_aligned = f"{caption_part_a} {caption_part_b} : calculated speed = {format_number_1dp(plan_report_displayobject.calculated_average_speed_of_paceline_kph)}kph"
+    plan_report_displayobject.display_caption_left_aligned = f"{caption_part_a} {caption_part_b} : {format_number_1dp(plan_report_displayobject.calculated_average_speed_of_paceline_kph)}kph"
 
 def populate_compute_statistics_for_pace_plan(
     total_pull_sequences_examined : int,

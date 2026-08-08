@@ -51,7 +51,7 @@ from constants import (
     COEFFICIENT_Cd,
     COEFFICIENT_Crr, 
     AERO_POSITION_FACTOR_DEFAULT,
-    DEFAULT_PACELINE_SLOPE_PC,
+    DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
 )
 
 
@@ -84,7 +84,7 @@ def calculate_CdA(height_cm: float, aero_factor: float) -> float:
     return COEFFICIENT_Cd * effective_frontal_area
 
 
-def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
+def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Return required watts from speed (km/h), rider weight (kg), 
     rider height (cm), and slope (%); returns watts (W).
@@ -106,7 +106,7 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
     return power_w
 
 
-def calculate_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_PACELINE_SLOPE_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
+def calculate_velocity_from_power(power_watts: float, height_cm: float, total_mass_kg: float, slope_pc: float = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """
     Return equilibrium speed (km/h) for a given power output (W), rider
     height (cm), total mass (kg), and slope (%).

@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_PACELINE_SLOPE_PC
+from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 
 from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_display_objects import (
@@ -33,16 +33,15 @@ from paceline_display_objects import (
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae03 import (
-    arrange_riders_by_1_minute_strength,
-    arrange_riders_by_zwiftracingapp_zpFTP_strength,
-    arrange_riders_interleaved_by_1_minute_strength,
+    order_paceline_by_desired_order_of_riders,
     solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
     select_n_riders_at_the_top_of_the_list,
 )
 from jgh_formulae08 import (
     solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search,
     generate_package_of_paceline_solutions,
-    show_table_of_standard_proxy_speeds_for_all_riders
+    show_table_of_standard_proxy_speeds_for_all_riders,
+    log_workload_suffix_message
 )
 from jgh_formulae09 import (
     # log_single_paceline_plan_as_pretty_table,
@@ -120,7 +119,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
         blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST)
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
         # ===========================
-        print(f"\ndownloaded {blob_size}")
+        print(f"downloaded : {blob_size}")
         # ===========================
         blob_as_text = blob_as_bytes.decode('utf-8')
 
@@ -134,7 +133,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
             rider_dataclasses.zwift_id: rider_dataclasses
             for rider_dataclasses in list_of_RiderItem
         }    
-        print(f"\ncount of riders: {len(list_of_RiderDTO)}")
+        print(f"count of riders : {len(list_of_RiderDTO)}")
     except Exception as e:
         print(f"rider data not obtained.\n - Error message: {e}")
         return
@@ -145,21 +144,22 @@ async def generate_ttt_scenarios_with_brute() -> None:
         print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
+    log_workload_suffix_message()
 
     # ===========================
-    print(f"\nTask #1: computing 1st scenario - 30_sec pull full team...")
+    print(f"\nTask #1: computing 1st scenario - 30_sec pull full team")
     # ===========================
 
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list: list[float] = [30.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         max_exertion_intensity_factor   = _intensity_factor,
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC
+        slope_pc                        = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
         )
     report_30sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
     report_30sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_30sec_plan)
@@ -175,17 +175,17 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     # ===========================
-    print(f"\nTask #2: computing 2nd scenario - 60_sec pull full team")
+    print(f"Task #2: computing 2nd scenario - 60_sec pull full team")
     # ===========================
 
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list: list[float] = [60.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         max_exertion_intensity_factor   = _intensity_factor,
         sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = DEFAULT_PACELINE_SLOPE_PC,
+        slope_pc                        = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
         )
     report_60sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
     report_60sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_60sec_plan)
@@ -201,17 +201,16 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     # ===========================
-    print(f"\nTask #3 computing 3rd to 5th scenarios - full team")
+    print(f"Task #3: computing 3rd to 5th scenarios - full team")
     # ===========================
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
-    # riders = arrange_riders_interleaved_by_1_minute_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
+        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
 
@@ -231,19 +230,18 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_full_team_plan_display_object)
 
     # ===========================
-    print(f"\nTask #4: computing 6th scenario - strongest five riders")
+    print(f"Task #4: computing 6th scenario - strongest five riders")
     # ===========================
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
-    # riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
+        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
 
     package: Any = generate_package_of_paceline_solutions(ingredients)
@@ -253,19 +251,18 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_five_plan_display_object)
 
     # ===========================
-    print(f"\nTask #5: computing 7th scenario - strongest four riders")
+    print(f"Task #5: computing 7th scenario - strongest four riders")
     # ===========================
-    riders = arrange_riders_by_zwiftracingapp_zpFTP_strength(full_team_of_riders)
-    # riders = arrange_riders_by_1_minute_strength(full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_PACELINE_SLOPE_PC,
+        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
@@ -274,7 +271,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_four_plan_display_object)
 
     # ===========================
-    print(f"\nTask #6: publishing to html doc")
+    print(f"Task #6: publishing to html doc")
     # ===========================
 
     package_report_optimised_plans_displayobject = PackageOfPacelineComputationReportDisplayObject()
@@ -288,7 +285,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = report_fastest_strongest_five_plan_display_object
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = report_fastest_strongest_four_plan_display_object
 
-    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_PACELINE_SLOPE_PC}% : Intensity factor = {_intensity_factor}"
+    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}% : Intensity factor limit = {_intensity_factor}"
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
     package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
 
@@ -299,12 +296,10 @@ async def generate_ttt_scenarios_with_brute() -> None:
     summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, BRUTE_FOOTNOTES_HTML, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
     saved_file_path         = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
 
-    print(f"\ncommencing upload of blob {html_file_and_blob_name} to Azure\n")
+    print(f"\nDistributing paceline scenarios HTML document:\n Name : {html_file_and_blob_name}")
     url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc)
-    print(f"\npaceline scenarios uploaded to:\n - {url_of_uploaded_blob}")
-    print(f"\npaceline scenarios saved to:\n - {saved_file_path}\n")
-    print("\nwork complete.\n")
-    print("\nyou may close the app. thank you.\n")
+    print(f"Uploaded to:\n URL : {url_of_uploaded_blob}")
+    print(f"Saved to:\n PATH : {saved_file_path}")
 
 if __name__ == "__main__":
     from jgh_logging import setup_json_logging, log_event
@@ -315,8 +310,8 @@ if __name__ == "__main__":
     start_time = time.time()
 
     try:
-        # _team_name = "betel" 
-        _team_name = "sirius" 
+        _team_name = "betel" 
+        # _team_name = "sirius" 
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
 

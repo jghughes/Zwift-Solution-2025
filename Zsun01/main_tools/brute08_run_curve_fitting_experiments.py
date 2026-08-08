@@ -72,7 +72,7 @@ import numpy as np
 # import pandas as pd
 
 from paceline_modelling_items import CurveFittingResultItem
-from curve_fitting import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
+from jgh_curve_fitting import decay_model_numpy, do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 

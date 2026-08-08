@@ -2,9 +2,9 @@ import time
 from pathlib import Path
 from typing import List
 
-from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_PACELINE_SLOPE_PC
+from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 from jgh_formulae03 import (
-    arrange_riders_interleaved_by_1_minute_strength,
+    order_paceline_by_desired_order_of_riders,
     solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
 )
@@ -21,11 +21,11 @@ def test01():
     riderIDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(riderIDs, dict_of_all_riders, RiderComputeItem)
 
-    riders = arrange_riders_interleaved_by_1_minute_strength(riders) # an arbitrary choice of ordering as a test
+    riders = order_paceline_by_desired_order_of_riders(riders)
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
         riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_PACELINE_SLOPE_PC)] * len(riders),
+        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(team_name),
     )
