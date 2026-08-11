@@ -41,7 +41,6 @@
     <Folder Include="src\tests\zwiftid file import\" />
     <Folder Include="src\tests\working file read write\" />
     <Folder Include="src\tests\repository\" />
-    <Folder Include="src\tools\" />
     <Folder Include="src\working_file_read_write\" />
     <Folder Include="src\formulae\" />
     <Folder Include="src\paceline_display\" />
@@ -49,8 +48,6 @@
     <Folder Include="src\repositories\" />
     <Folder Include="src\main_production_pipeline\" />
     <Folder Include="src\" />
-    <Folder Include="src\html\" />
-    <Folder Include="src\css\" />
     <Folder Include="src\matplot\" />
   </ItemGroup>
   <ItemGroup>
@@ -59,8 +56,8 @@
     <Content Include="docs\information.txt">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="src\css\paceline_plan_summary.css" />
-    <Content Include="src\html\footnotes.html" />
+    <Content Include="src\paceline_display\paceline_plan_summary.css" />
+    <Content Include="src\paceline_display\footnotes.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
@@ -92,17 +89,12 @@
     <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_fetcher_async.py" />
     <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_reader_sync.py" />
     <Compile Include="constants.py" />
-    <Compile Include="src\tools\profile_write_vs_network.py" />
-    <Compile Include="src\tools\tune_concurrency.py" />
     <Compile Include="src\azure\jgh_azure_storage_accessor.py" />
     <Compile Include="src\azure\jgh_azure_storage_service_client.py" />
     <Compile Include="src\repositories\repository_of_connectionstrings.py" />
     <Compile Include="src\zwiftid_file_import\zwiftid_file_reader_sync.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae00.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="src\html\paceline_plan_captions.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\paceline_display\jgh_enums.py" />
