@@ -57,7 +57,6 @@ from paceline_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
 )
-# from html_text import BRUTE_FOOTNOTES_HTML
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_1dp, format_number_with_comma_separators

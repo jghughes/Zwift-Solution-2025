@@ -58,6 +58,7 @@ from working_file_read_write import read_rider_compute_dict_from_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_item import RiderComputeItem
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPowerFlattened90DayWattsDTO
+from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
 import time
 import logging
@@ -84,9 +85,9 @@ def validate_that_riders_are_on_team_in_repository(rider_IDs : list[str], team_n
     team_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     for rider in rider_IDs:
         if rider not in team_IDs:
-            raise Exception(f"Rider {rider} is not on the team '{team_name}'.")
+            raise Exception(f"You made a boo-boo. Rider {rider} is not on the team '{team_name}'.")
 
-def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> Dict[str, ZwiftPowerFlattened90DayWattsDTO]:
+def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
     team_IDs: List[str]= RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_IDs)
     print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
@@ -96,7 +97,7 @@ def get_rider_nick_name_from_zwiftID(team_name: str, zwiftID: str) -> str:
     nick_name = RepositoryOfTeamRosters.get_rider_nick_name(team_name,zwiftID)
     return nick_name
 
-def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90DayWattsDTO):
+def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90dayWattsItem):
 
     # model critical_power and w_prime
     x_y_ordinates_for_cp_w_prime = rider_flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
@@ -176,7 +177,7 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
 def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     list_of_zwift_IDs: List[str],
     list_of_rider_names: List[str],
-    list_of_flattened_watts_graphs: List[ZwiftPowerFlattened90DayWattsDTO]
+    list_of_flattened_watts_graphs: List[ZwiftPowerFlattened90dayWattsItem]
 ):
     """
     Plots fitted FTP and TTT pull power curves for multiple riders on the same

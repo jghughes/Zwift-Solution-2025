@@ -76,6 +76,9 @@ DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
     PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR:     "07_fastest_strongest_four_riders.html",
 }
 
+FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS = r"C:\Users\johng\source\repos\Zwift-Solution-2025\Zsun01\src\css\paceline_plan_summary.css"
+FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML =r"C:\Users\johng\source\repos\Zwift-Solution-2025\Zsun01\src\html\footnotes.html"
+
 def format_save_filename_for_document_of_single_paceline_plan(team_name: str, plan_type: PacelinePlanTypeEnum) -> str:
     created : str = format_timestamp_as_yyyy_mm_dd()  
     suffix = DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS.get(plan_type, "unknown_paceline_plan_type.html")

@@ -39,7 +39,7 @@ class EffortItem:
 class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
     """
     A data class representing a Zwift rider's 90-day best 
-    power data obtained from ZwiftfPower.  The object can be 
+    power data obtained from ZwiftPower.  The object can be 
     converted from ZwiftPowerGraphWattsDTO.
 
     Attributes:

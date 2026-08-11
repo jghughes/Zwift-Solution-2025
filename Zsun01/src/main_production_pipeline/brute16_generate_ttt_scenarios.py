@@ -55,6 +55,7 @@ from jgh_formulae09 import (
 from jgh_internet_helpers import throw_if_no_internet_connection
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
+from jgh_read_write import read_text_from_path
 from jgh_string import make_pretty_count_of_bytes
 
 from jgh_string import capitalize_first_letter
@@ -65,6 +66,8 @@ from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+    FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS,
+    FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
@@ -78,28 +81,12 @@ import time
 import logging
 from jgh_exceptions import AlertMessageError
 
-def load_css_style_sheet() -> str:
-    path = Path(__file__).parent.parent / "src" / "css" / "paceline_plan_summary.css"
-    with open(path, encoding="utf-8") as f:
-        return f.read()
-
-def load_footnotes_html() -> str:
-    path = Path(__file__).parent.parent / "src" / "html" / "footnotes.html"
-    with open(path, encoding="utf-8") as f:
-        return f.read()
-
 # HEAP POWERFUL
 async def generate_ttt_scenarios_with_brute() -> None:
     print("Tool starting")
-
-
-
     try:
         throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
         throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
-
-        PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = load_css_style_sheet()
-        BRUTE_FOOTNOTES_HTML = load_footnotes_html()
 
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
@@ -138,6 +125,8 @@ async def generate_ttt_scenarios_with_brute() -> None:
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
     show_workload_suffix_message()
+
+    BRUTE_FOOTNOTES_HTML = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML))
 
     # ===========================
     print(f"\nTask #1: computing 1st scenario - 30_sec pull full team")
@@ -282,6 +271,8 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     # following line is optional. commented out because we don't want to save each plan as a separate file.
     # export_package_of_paceline_plans_as_multiple_individual_html_documents(BRUTE_DIRPATH_HTML_DOCS_BY_DATE, _team_name, package_report_optimised_plans_displayobject)
+
+    PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS))
 
     html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(_team_name)}"
     summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, BRUTE_FOOTNOTES_HTML, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
