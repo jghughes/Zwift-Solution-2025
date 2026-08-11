@@ -46,19 +46,14 @@ from typing import List, Dict
 import matplotlib.pyplot as plt
 
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_units_ticks
-from scipy.optimize import curve_fit #ignore squiggly
-from sklearn.metrics import r2_score #ignore squiggly
 
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
-from zwiftpower_flattened_90_day_watts_item import ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
 from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from working_file_read_write import read_rider_compute_dict_from_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_item import RiderComputeItem
-from zwiftpower_flattened_90_day_watts_dto import ZwiftPowerFlattened90DayWattsDTO
-from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
+from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem, ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW
 
 import time
 import logging
@@ -184,7 +179,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     chart for side-by-side visual comparison. One colour per rider. Raw scatter
     data is omitted to keep the chart readable.
     """
-    # Use a colour cycle so each rider gets a distinct colour
+    # Use a colour cycle so each rider gets a distinct colour (by default, matplotlib uses a cycle of 10 colours))
     colour_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
     fig, ax = plt.subplots(figsize=(12, 7))
@@ -300,7 +295,7 @@ def do_work():
     dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
 
     # model a single rider
-    zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[1]  
+    zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[1]  # we want tom_bick for this example
     flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_rider_1]
     nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_rider_1)
     plot_curve_fit_chart_for_an_individual(zwiftID_rider_1,nick_name_rider_1, flattened_watts_rider_1)
