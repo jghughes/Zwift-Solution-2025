@@ -64,7 +64,7 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     given wattage and duration (seconds).
     """
     if not efforts:
-        return 0
+        return 0.0
 
     total_kilojoules = sum(item.kilojoules for item in efforts)
     total_duration = sum(item.duration for item in efforts)
@@ -130,7 +130,7 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
     """
 
     if not efforts:
-        return 0
+        return 0.0
 
     instantaneous_wattages: List[float] = []
     for item in efforts:
@@ -138,10 +138,10 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
 
     # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
     # Our pulls are 30, 60, and 120 seconds long, so we'll use a (arbitrary) 5-second rolling average
-    rolling_avg_power = calculate_rolling_averages(instantaneous_wattages, 5)
+    rolling_avg_power: List[float] = calculate_rolling_averages(instantaneous_wattages, 5)
 
     # Raise the smoothed power values to the fourth power
-    rolling_avg_power_4 = [p ** 4 for p in rolling_avg_power]
+    rolling_avg_power_4: List[float] = [p ** 4 for p in rolling_avg_power]
 
     # Calculate the average of these values
     mean_power_4 = safe_divide(sum(rolling_avg_power_4), len(rolling_avg_power_4))
@@ -209,16 +209,16 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
     result is not finite.
     """
 
-    array_of_rider_effort_intensity_factors = [
+    array_of_rider_effort_intensity_factors: List[float] = [
         contribution.intensity_factor
         for _, contribution in rider_contributions.items()
         if contribution.p1_duration != 0
     ]
     if not array_of_rider_effort_intensity_factors:
-        return 100  # arbitrarily big
+        return 100.0  # arbitrarily big
     std_deviation_of_intensity_factors = float(np.std(array_of_rider_effort_intensity_factors))
     if not np.isfinite(std_deviation_of_intensity_factors):
-        return 100  # arbitrarily big
+        return 100.0  # arbitrarily big
 
     return std_deviation_of_intensity_factors
 
@@ -229,11 +229,11 @@ def order_paceline_by_desired_order_of_riders(riders: List[RiderComputeItem]) ->
     return _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders=riders)
 
 def _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
+    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
     return sorted_riders
 
 def _arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
@@ -257,7 +257,7 @@ def _arrange_riders_by_1_minute_strength_interleaved(riders: List[RiderComputeIt
         List[RiderComputeItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
-    sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
@@ -327,8 +327,8 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
         return pull_period_sequences_being_pruned
 
     arr = pull_period_sequences_being_pruned
-    strengths = np.array([r.get_proxy_1_minute_wkg() for r in riders])
-    sorted_indices = np.argsort(strengths)
+    strengths: NDArray[np.float64] = np.array([r.get_proxy_1_minute_wkg() for r in riders])
+    sorted_indices: NDArray[np.intp] = np.argsort(strengths)
     weakest_idx = sorted_indices[0]
     second_weakest_idx = sorted_indices[1] if len(sorted_indices) > 1 else None
 

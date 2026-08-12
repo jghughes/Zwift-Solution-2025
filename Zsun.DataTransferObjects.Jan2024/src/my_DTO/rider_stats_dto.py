@@ -1,6 +1,5 @@
 from typing import List, Dict, Any
-from pydantic import BaseModel, RootModel
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
+from pydantic import BaseModel, RootModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
 	"row"									:	AliasChoices("row"),
@@ -146,7 +145,7 @@ class RiderStatsDTO(BaseModel):
 	timestamp								:	str		=	""
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")
-	def convert_int_to_str(cls, value : Any):
+	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
 		return value

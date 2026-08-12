@@ -82,7 +82,7 @@ def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
     exponent_ftp: float = float(popt[1])
 
     # Calculate the predicted y values based on the fitted parameters
-    ydata_pred = decay_model_numpy(xdata, coefficient_ftp, exponent_ftp)
+    ydata_pred: NDArray[np.float64] = decay_model_numpy(xdata, coefficient_ftp, exponent_ftp)
 
     # Calculate the R-squared value
     r2: float = r2_score(ydata, ydata_pred)

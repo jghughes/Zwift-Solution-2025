@@ -71,7 +71,7 @@ _EXT_TO_MIME = {
 }
 
 # Add reverse mapping: mime type -> extension (if not already present)
-_MIME_TO_EXT = {}
+_MIME_TO_EXT: dict[str, str] = {}
 for ext, mime in _EXT_TO_MIME.items():
     if mime not in _MIME_TO_EXT:
         _MIME_TO_EXT[mime] = ext

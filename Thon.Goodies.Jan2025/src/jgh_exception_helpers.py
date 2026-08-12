@@ -1,5 +1,4 @@
-from typing import  Dict, Any
-from typing import Any, Dict
+from typing import Dict, Any
 
 def flatten_dict(
     d: Dict[str, Any], 
@@ -51,8 +50,8 @@ def traverse_deepest_exception(exc: Exception) -> tuple[str, str]:
     Returns:
         tuple[str, str]: A tuple containing the exception message and its location as "filename:lineno".
     """ 
-    visited = set()
-    deepest = exc
+    visited: set[int] = set()
+    deepest: Exception | None = exc
     while deepest:
         if id(deepest) in visited:
             break

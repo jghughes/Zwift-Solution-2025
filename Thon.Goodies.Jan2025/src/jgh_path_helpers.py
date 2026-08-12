@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Optional, Tuple, List
+from typing import Callable, Optional, Tuple, List
 from pathlib import Path
 from urllib.parse import urlparse
 from jgh_exceptions import AlertMessageError
@@ -78,7 +78,7 @@ def is_valid_foldername(foldername: str) -> Tuple[bool, str]:
             return False, "Foldername contains invalid characters."
         if '/' in foldername or '\x00' in foldername:
             return False, "Foldername contains slash or null byte."
-        reserved = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
+        reserved: set[str] = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
         if foldername.upper() in reserved:
             return False, "Foldername is a reserved NTFS name."
         if foldername[-1] in {' ', '.'}:
@@ -95,7 +95,7 @@ def is_valid_ntfs_filename_format(filename: str) -> Tuple[bool, str]:
         return False, "NTFS: Filename cannot be empty."
     if re.search(r'[<>:"/\\|?*\x00-\x1F]', filename):
         return False, "NTFS: Filename contains invalid characters."
-    reserved = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
+    reserved: set[str] = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
     name, _ = os.path.splitext(filename)
     if name.upper() in reserved:
         return False, f"NTFS: Filename '{name}' is a reserved name."
@@ -144,7 +144,7 @@ def is_valid_filename(filename: str) -> Tuple[bool, str]:
         if re.search(r'[<>:"/\\|?*\x00-\x1F]', filename):
             return False, "Filename contains invalid characters."
         # Reserved NTFS names
-        reserved = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
+        reserved: set[str] = {'CON', 'PRN', 'AUX', 'NUL'} | {f'COM{i}' for i in range(1, 10)} | {f'LPT{i}' for i in range(1, 10)}
         name, _ = os.path.splitext(filename)
         if name.upper() in reserved:
             return False, f"Filename '{name}' is a reserved NTFS name."
@@ -306,7 +306,7 @@ def validate_file_exists(file_path: Path) -> Tuple[bool, str]:
 def validate_dirpath_format_and_existence(
     dirpath: Path,
     must_exist: bool = True,
-    on_error: Optional[callable] = None
+    on_error: Optional[Callable[[str], None]] = None
 ) -> Tuple[bool, str]:
     """
     Validate directory path format and existence. Returns (is_valid, message).

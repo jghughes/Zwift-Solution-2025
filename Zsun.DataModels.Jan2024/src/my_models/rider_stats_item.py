@@ -71,7 +71,7 @@ class RiderStatsItem(ZwiftIdBase):
 	route_intensity_factor_limit	: float = 0.0
 	route_sec					: float = 0.0
 	route_hh_mm_ss				: str = ""
-	route_watts					: float = 0
+	route_watts					: float = 0.0
 	route_wkg					: float = 0.0
 	route_kph					: float = 0.0
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ

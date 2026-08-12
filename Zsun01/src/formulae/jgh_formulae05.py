@@ -70,7 +70,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
 def log_rider_exertions(test_description: str, result: Dict[RiderComputeItem, List[RiderExertionItem]]) -> None:
     from tabulate import tabulate
     print(test_description)
-    table = []
+    table: list[list[object]] = []
     for rider, efforts in result.items():
         for effort in efforts:
             table.append([

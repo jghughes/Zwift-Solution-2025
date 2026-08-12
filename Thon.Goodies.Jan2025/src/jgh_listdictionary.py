@@ -383,7 +383,7 @@ class JghListDictionary(Generic[TKey, TValue]):
         list[TKey]
             A list of keys that have the value.
         """
-        keys_with_value = [
+        keys_with_value: list[TKey] = [
             key for key, values in self.backingstore_dict.items() if value in values
         ]
         return keys_with_value

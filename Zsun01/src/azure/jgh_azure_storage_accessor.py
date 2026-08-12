@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from azure.core.exceptions import (
     ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError,
@@ -55,13 +55,13 @@ class IAzureStorageAccessor(ABC):
     @abstractmethod
     async def upload_string_async(
         self, storage_account_connection_string: str, container_name: str, blob_name: str, blob_contents: str, create_container_if_not_exist: bool 
-    ) -> Any:
+    ) -> Optional[str]:
         pass
 
     @abstractmethod
     async def upload_bytes_async(
         self, storage_account_connection_string: str, container_name: str, blob_name: str, blob_contents: bytes, create_container_if_not_exist: bool
-    ) -> Any:
+    ) -> Optional[str]:
         pass
 
     @abstractmethod

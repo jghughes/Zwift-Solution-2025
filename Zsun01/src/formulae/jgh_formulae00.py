@@ -72,7 +72,7 @@ def calculate_frontal_area(height_cm: float, aero_factor: float = AERO_POSITION_
     Estimate frontal area from rider height (cm) and 
     aero factor (unitless); returns area (m^2).
     """
-    answer = aero_factor * (0.00155 * height_cm) 
+    answer: float = aero_factor * (0.00155 * height_cm) 
     return answer
 
 
@@ -80,7 +80,7 @@ def calculate_CdA(height_cm: float, aero_factor: float) -> float:
     """
     Estimate CdA from rider height (cm) and aero factor (unitless); returns CdA (m^2).
     """
-    effective_frontal_area = calculate_frontal_area(height_cm, aero_factor)
+    effective_frontal_area: float = calculate_frontal_area(height_cm, aero_factor)
     return COEFFICIENT_Cd * effective_frontal_area
 
 
@@ -93,12 +93,12 @@ def calculate_power_from_velocity(velocity_kph: float, height_cm: float, total_m
 
     velocity_mps: float = velocity_kph / 3.6  
 
-    CdA = calculate_CdA(height_cm, aero_factor)
+    CdA: float = calculate_CdA(height_cm, aero_factor)
     F_aero: float = 0.5 * COEFFICIENT_rho * CdA * velocity_mps ** 2
 
     F_total: float = F_aero + F_roll + F_gravity
 
-    power_w = F_total * velocity_mps
+    power_w: float = F_total * velocity_mps
 
     if (power_w <= 0.0):
         return 0.0

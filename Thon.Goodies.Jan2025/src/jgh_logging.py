@@ -44,7 +44,7 @@ class JsonFileHandler(logging.FileHandler):
         isoUtc = get_current_utc_iso8601_timestamp()
         return isoUtc
 
-    def formatException(self, exc_info) -> str:
+    def formatException(self, exc_info: tuple) -> str:
         import traceback
         return "".join(traceback.format_exception(*exc_info))
 

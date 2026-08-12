@@ -63,14 +63,14 @@ class ZwiftDTO(BaseModel):
 
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")
-	def convert_int_to_str(cls, value : Any):
+	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
 		return value
 
-	# Validator for string fields - get rid of emojis and other unwanted characters
+	# Validator for string fields
 	@field_validator("first_name", "last_name", mode="before")
-	def sanitise_string_field(cls, value: Any):
+	def sanitise_string_field(cls, value: Any) -> str:
 		if value is None:
 			return ""
 		return sanitise_string(value)

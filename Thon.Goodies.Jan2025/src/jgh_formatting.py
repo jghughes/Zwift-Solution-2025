@@ -1,7 +1,7 @@
 from typing import Union, Optional
 from datetime import datetime, timezone
 
-def truncate(f : float, n : int):
+def truncate(f : float, n : int) -> float:
     factor = 10 ** n
     return int(f * factor) / factor
 
@@ -65,7 +65,7 @@ def format_number_4dp(x: float) -> str:
     """
     return f"{x:.4f}"
 
-def format_number_2sig(x : Union[int, float]):
+def format_number_2sig(x : Union[int, float]) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 2 significant digits.
     
@@ -77,7 +77,7 @@ def format_number_2sig(x : Union[int, float]):
     """
     return f"{x:.2g}"
 
-def format_number_4sig(x : Union[int, float]):
+def format_number_4sig(x : Union[int, float]) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 4 significant digits.
     

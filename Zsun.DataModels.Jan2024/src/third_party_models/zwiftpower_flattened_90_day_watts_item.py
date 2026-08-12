@@ -175,7 +175,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
-        answer = {
+        answer: Dict[int, float] = {
             1: self.bp_1,
             2: self.bp_2,
             3: self.bp_3,
@@ -299,7 +299,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer = {
+        answer: Dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -428,7 +428,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer = {
+        answer: Dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -558,7 +558,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer = {
+        answer: Dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -680,7 +680,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             input_data (Dict[int, float]): A dictionary where keys are durations (in seconds)
             and values are the corresponding critical power values.
         """
-        mapping = {
+        mapping: Dict[int, str] = {
             1: "bp_1",
             2: "bp_2",
             3: "bp_3",

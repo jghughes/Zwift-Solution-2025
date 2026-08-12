@@ -4,7 +4,7 @@ COEFFICIENT_g: float = 9.81  # gravity (m/s^2)
 COEFFICIENT_rho: float = 1.225  # air density at sea level (kg/m^3)
 COEFFICIENT_Cd: float = 0.63  # typical for road cyclist - highly debateable - but factorised by the aero factors below
 COEFFICIENT_Crr: float = 0.004  # typical for road tires
-COEFFICIENT_bike_weight_kg = 8.0 # The standard weight of the bike in kilograms. This is a constant value used in calculations related to the total weight of the rider and bike combination. 
+COEFFICIENT_bike_weight_kg: float = 8.0 # The standard weight of the bike in kilograms.
 
 #The above coefficients are based on the physics of cycling and take into account various factors such as air resistance, rolling resistance, and gravitational forces. The values are typical for a road cyclist on flat terrain, and they are used in the calculations to estimate the power required to maintain a certain speed. See jgh_formulae00.py, test01() for details of the speeds measured by ZwiftInsider in August 2023 at 300W and 400W. He is 183cm, and 75kg. 
 
@@ -27,7 +27,7 @@ DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default int
 # SINGLE_RIDER_ROUTE_NAME ="Telegraphe" 
 SINGLE_RIDER_ROUTE_NAME ="Galibier_valloire" 
 
-DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 1.0
+DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 0.5
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of tests - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. 
 

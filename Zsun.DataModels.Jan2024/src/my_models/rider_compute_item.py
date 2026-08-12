@@ -80,7 +80,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
     @staticmethod
     def from_dataTransferObject(dto: Optional[RiderComputeDTO]) -> "RiderComputeItem":
         if dto is None:
-            return RiderComputeItem
+            return RiderComputeItem()
         return RiderComputeItem(
             zwift_id							= dto.zwift_id or "",
             name								= dto.name_racingapp or "",

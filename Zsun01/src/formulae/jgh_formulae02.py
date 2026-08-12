@@ -82,30 +82,30 @@ def _calculate_route_duration_at_constant_power(rider: RiderComputeItem, route: 
     candidate_distance_km : float =  sum(bucket.bucket_length_km for bucket in route.route_slope_buckets)
 
     if (candidate_distance_km < route.route_lead_in_km + route.route_length_km):
-        residual_distance = route.route_lead_in_km + route.route_length_km - candidate_distance_km
+        residual_distance: float = route.route_lead_in_km + route.route_length_km - candidate_distance_km
 
         #  DO a hack to deal with the fact that the route data is imperfect on https://veloviewer.com/segments but it the best we have.
         #  This code adds a 0% slope bucket with the residual distance if the total distance of the buckets is less than the total length of the route.
-        zero_slope_bucket = next((bucket for bucket in route.route_slope_buckets if bucket.bucket_slope_pc == 0.0), None)
+        zero_slope_bucket: SlopeBucketItem | None = next((bucket for bucket in route.route_slope_buckets if bucket.bucket_slope_pc == 0.0), None)
         if zero_slope_bucket:
             zero_slope_bucket.bucket_length_km += residual_distance
         else:
             route.route_slope_buckets.append(SlopeBucketItem(bucket_description="residual 0% bucket", bucket_length_km=residual_distance, bucket_slope_pc=0.0))
 
     for bucket in route.route_slope_buckets:
-        speed_kph = calculate_rider_kph_from_watts(power, rider.weight_kg, rider.height_cm, bucket.bucket_slope_pc, AERO_POSITION_FACTOR_DEFAULT)
-        
+        speed_kph: float = calculate_rider_kph_from_watts(power, rider.weight_kg, rider.height_cm, bucket.bucket_slope_pc, AERO_POSITION_FACTOR_DEFAULT)
+
         # Guard against zero or negative speeds breaking the duration math
         if speed_kph <= 0:
             bucket.calculated_bucket_watts = power
             bucket.calculated_bucket_speed_kph = 0.0
             bucket.calculated_bucket_duration_sec = float('inf')
             return route   # early-out: inf duration flags this route as infeasible to the caller
-    
-        speed_meters_per_second = speed_kph / 3.6
-        distance_meters = bucket.bucket_length_km * 1000.0
-        
-        segment_duration_sec = distance_meters / speed_meters_per_second
+
+        speed_meters_per_second: float = speed_kph / 3.6
+        distance_meters: float = bucket.bucket_length_km * 1000.0
+
+        segment_duration_sec: float = distance_meters / speed_meters_per_second
 
         bucket.calculated_bucket_watts = power
         bucket.calculated_bucket_speed_kph = speed_kph
@@ -201,13 +201,13 @@ def solve_for_route_duration_at_constant_90_day_best_using_binary_search(rider: 
    # 3. Populate final Route result with our solved maximum sustainable power boundary.
    #    We must use the LOWER bound, representing a power output the rider can actually achieve.
     for bucket in routeItem.route_slope_buckets:
-        speed_kph = calculate_rider_kph_from_watts(lower_bound_watts,rider.weight_kg, rider.height_cm, bucket.bucket_slope_pc, AERO_POSITION_FACTOR_DEFAULT)
+        speed_kph: float = calculate_rider_kph_from_watts(lower_bound_watts,rider.weight_kg, rider.height_cm, bucket.bucket_slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         bucket.calculated_bucket_watts = round(lower_bound_watts, 1)
         if speed_kph <= 0:
             bucket.calculated_bucket_speed_kph = 0.0
             bucket.calculated_bucket_duration_sec = float('inf')
         else:
-            duration_sec = (bucket.bucket_length_km * 1000.0) / (speed_kph / 3.6)
+            duration_sec: float = (bucket.bucket_length_km * 1000.0) / (speed_kph / 3.6)
             bucket.calculated_bucket_duration_sec = round(duration_sec, 1)
             bucket.calculated_bucket_speed_kph = round(speed_kph, 2)
 

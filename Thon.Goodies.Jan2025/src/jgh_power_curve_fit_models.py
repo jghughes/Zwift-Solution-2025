@@ -21,7 +21,7 @@ def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> ND
     if np.any(xdata < 1):
         raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
 
-    result = (a * xdata + b) / xdata
+    result: NDArray[np.float64] = (a * xdata + b) / xdata
 
     return result
 
@@ -51,7 +51,7 @@ def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray
     if np.any(xdata < 1):
         raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
 
-    result = a * (1 / (xdata ** b))
+    result: NDArray[np.float64] = a * (1 / (xdata ** b))
 
     return result
 

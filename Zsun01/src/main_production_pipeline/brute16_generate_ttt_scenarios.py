@@ -291,7 +291,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-        _team_name = "sirius" # or "sirius" 
+        _team_name = "betel" # or "sirius" 
 
         start_time = time.time()
         throw_if_no_internet_connection()

@@ -53,7 +53,7 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
         if not exertions:
             return 0, 0, 0, 0, 0,0,0,0
 
-        dict_wattages = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
+        dict_wattages: Dict[int, float] = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
 
         p1 = dict_wattages.get(1, 0)
         p2 = dict_wattages.get(2, 0)
@@ -73,7 +73,7 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
         p1_speed_kph = 0
         p1_duration : float = 0
 
-        dict_positions = {exertion.current_location_in_paceline: exertion for exertion in exertions}
+        dict_positions: Dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}
 
         pull_exertion = dict_positions.get(1, None)
 
@@ -123,7 +123,7 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
 
 def log_rider_contributions(test_description: str, result: Dict[RiderComputeItem, RiderContributionItem]) -> None:
     print(test_description)
-    table = []
+    table: list[list[object]] = []
     for rider, z in result.items():
         table.append([
             rider.name, 
