@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
-from zwiftid_file_reader_sync import (
+from zwiftid_named_file_reader import (
     read_zwiftdto_files_to_item_dict_sync, read_zwiftracingappdto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync
 )
@@ -74,7 +74,7 @@ def test06():
     )
     print(f"\nHard drive has {len(my_dict)} zwiftpower_graph_watts_files")
 
-#test runner
+#main runner
 if __name__ == "__main__":
     from jgh_logging import setup_json_logging, log_event
     from storage_config import DIRPATH_LOGGING

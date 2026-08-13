@@ -25,14 +25,14 @@ This script demonstrates:
 - Use of file and string utility functions for validation and display.
 """
 from pathlib import Path
-from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
+from zwiftid_named_file_reader import read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_string import make_short_displayname
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
 from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
-from working_file_read_write import (
+from custom_file_read_write import (
     read_rider_compute_dict_from_json,
     write_zwiftpower_90day_watts_dict_to_json,
 )
@@ -74,7 +74,7 @@ def experiment_with_90_day_watts_mappings():
 
     write_zwiftpower_90day_watts_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD), _output_filename, dict_of_zwiftpower_90day_watts_items)
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

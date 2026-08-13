@@ -154,7 +154,7 @@ async def test08():
         print(f"client.get_if_container_exists_async() failed:\n{ex}")
         raise
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

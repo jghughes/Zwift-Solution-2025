@@ -240,7 +240,7 @@ def test16():
     print(f"Test passed. Filtered DataFrame saved to {Path(DIRPATH_RUBBISH_SCRATCHPAD)}{output_filename}")
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

@@ -38,8 +38,8 @@ from storage_config import (
     DIRPATH_RUBBISH_SCRATCHPAD,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
-from zwiftid_file_reader_sync import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from working_file_read_write import write_zwiftpower_90day_watts_dict_to_json
+from zwiftid_named_file_reader import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
+from custom_file_read_write import write_zwiftpower_90day_watts_dict_to_json
 from repository_of_team_rosters import RepositoryOfTeamRosters
 
 import time
@@ -82,7 +82,7 @@ def run_curve_fitting_comparisons():
 
         print(f"ZwiftPowerFlattened90dayWattsItem ordinates for ZwiftID: {zwift_id}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

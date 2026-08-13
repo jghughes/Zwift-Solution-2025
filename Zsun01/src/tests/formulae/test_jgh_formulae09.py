@@ -9,7 +9,7 @@ from jgh_formulae09 import log_single_paceline_plan_as_pretty_table
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
-from working_file_read_write import read_rider_compute_dict_from_json
+from custom_file_read_write import read_rider_compute_dict_from_json
 from paceline_display_objects import PacelineComputationReportDisplayObject, RiderContributionDisplayObject
 from zwift_id_base import lookup_Items_by_ZwiftID
 
@@ -46,7 +46,7 @@ def test01() -> None:
 
     log_single_paceline_plan_as_pretty_table(report)
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

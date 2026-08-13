@@ -61,7 +61,7 @@ def test01():
     print(f"Route: {routeItem.route_name}, {routeItem.route_length_km} km, {routeItem.route_elevation_m} m, {route_av_gradient}%\nTime: {route_hh_mm_ss} at {route_kph:.2f} km/h for {power_watts}W ({route_wkg:.2f} W/kg)")
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

@@ -3,7 +3,7 @@ import time
 import logging
 from typing import List
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
-from zwiftid_file_fetcher_async import download_and_save_many_files_to_hard_drive
+from zwiftid_named_file_fetcher import download_and_save_many_files_to_hard_drive_async
 from jgh_exceptions import AlertMessageError
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_logging import setup_json_logging, log_event
@@ -23,9 +23,9 @@ async def test01():
     dest_folder = "fetch_files_async_tests" 
     max_concurrent = 100
 
-    await download_and_save_many_files_to_hard_drive(urls, dest_dir_path, dest_folder, max_concurrent)
+    await download_and_save_many_files_to_hard_drive_async(urls, dest_dir_path, dest_folder, max_concurrent)
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

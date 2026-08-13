@@ -3,7 +3,7 @@ from rider_compute_item import RiderComputeItem
 from pathlib import Path
 from typing import List
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
-from working_file_read_write import read_rider_compute_dict_from_json
+from custom_file_read_write import read_rider_compute_dict_from_json
 
 import time
 import logging
@@ -63,7 +63,7 @@ def test00():
     for row in matrix:
         print([rider.name for rider in row])
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

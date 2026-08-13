@@ -7,7 +7,7 @@ from jgh_formulae06 import log_rider_contributions, populate_rider_contributions
 from storage_config import DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT
 from rider_compute_item import RiderComputeItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
-from working_file_read_write import read_rider_compute_dict_from_json
+from custom_file_read_write import read_rider_compute_dict_from_json
 from zwift_id_base import lookup_Items_by_ZwiftID
 
 import time
@@ -38,7 +38,7 @@ def test01() -> None:
     log_rider_contributions(f"{len(riders)} riders @ {pull_speed}kph\n", rider_contributions)
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

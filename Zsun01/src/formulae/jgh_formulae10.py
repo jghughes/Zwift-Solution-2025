@@ -88,7 +88,7 @@ def main01():
 
     return
 
-#test runner
+#main runner
 if __name__ == "__main__":
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()

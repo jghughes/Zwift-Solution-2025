@@ -28,7 +28,7 @@ def main00():
     except Exception as ex:
         print(f"Error in main00(): {ex}")
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

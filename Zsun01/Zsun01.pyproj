@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\main_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\html;src\css;src\matplot;src\azure;tests;tests\azure;tests\formulae;tests\working file read write;tests\zwiftid file import;src\repositories;main_little_utilities;main_tools;src\working_file_read_write;src\zwiftid_file_import;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;main_production_pipeline;src\paceline_display;scratchpad</SearchPath>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\tests;src\azure_storage</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -35,16 +35,15 @@
     <Folder Include="src\main_tools\" />
     <Folder Include="src\main_little_utilities\" />
     <Folder Include="src\tests\" />
-    <Folder Include="src\zwiftid_file_import\" />
     <Folder Include="src\tests\azure\" />
     <Folder Include="src\tests\formulae\" />
     <Folder Include="src\tests\zwiftid file import\" />
     <Folder Include="src\tests\working file read write\" />
     <Folder Include="src\tests\repository\" />
-    <Folder Include="src\working_file_read_write\" />
+    <Folder Include="src\custom_file_io\" />
     <Folder Include="src\formulae\" />
     <Folder Include="src\paceline_display\" />
-    <Folder Include="src\azure\" />
+    <Folder Include="src\azure_storage\" />
     <Folder Include="src\repositories\" />
     <Folder Include="src\main_production_pipeline\" />
     <Folder Include="src\" />
@@ -69,7 +68,7 @@
     <Compile Include="src\formulae\jgh_formulae10.py" />
     <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
-    <Compile Include="src\zwiftid_file_import\zwiftid_file_fetcher_async.py" />
+    <Compile Include="src\custom_file_io\zwiftid_named_file_fetcher.py" />
     <Compile Include="src\tests\azure\test_jgh_azure_storage_accessor.py" />
     <Compile Include="src\tests\azure\test_jgh_azure_storage_service_client.py" />
     <Compile Include="src\tests\azure\test_jgh_connectionstring_repository.py" />
@@ -89,10 +88,10 @@
     <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_fetcher_async.py" />
     <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_reader_sync.py" />
     <Compile Include="constants.py" />
-    <Compile Include="src\azure\jgh_azure_storage_accessor.py" />
-    <Compile Include="src\azure\jgh_azure_storage_service_client.py" />
+    <Compile Include="src\azure_storage\jgh_azure_storage_accessor.py" />
+    <Compile Include="src\azure_storage\jgh_azure_storage_service_client.py" />
     <Compile Include="src\repositories\repository_of_connectionstrings.py" />
-    <Compile Include="src\zwiftid_file_import\zwiftid_file_reader_sync.py" />
+    <Compile Include="src\custom_file_io\zwiftid_named_file_reader.py" />
     <Compile Include="src\formulae\jgh_formulae01.py" />
     <Compile Include="src\formulae\jgh_formulae00.py">
       <SubType>Code</SubType>
@@ -110,7 +109,7 @@
     <Compile Include="src\matplot\matplot_utilities.py" />
     <Compile Include="src\main_production_pipeline\brute16_generate_ttt_scenarios.py" />
     <Compile Include="src\formulae\jgh_formulae06.py" />
-    <Compile Include="src\working_file_read_write\working_file_read_write.py" />
+    <Compile Include="src\custom_file_io\custom_file_read_write.py" />
     <Compile Include="src\formulae\jgh_formulae04.py" />
     <Compile Include="src\formulae\jgh_formulae05.py" />
     <Compile Include="src\formulae\jgh_curve_fitting.py">

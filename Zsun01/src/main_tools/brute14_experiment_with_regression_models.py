@@ -60,7 +60,7 @@ from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_i
 from jgh_power_curve_fit_models import decay_model_numpy
 from matplot_utilities import set_x_axis_units_ticks, set_y_axis_units_ticks
 from storage_config import DIRPATH_RUBBISH_SCRATCHPAD
-from working_file_read_write import read_regression_modelling_dict_from_json
+from custom_file_read_write import read_regression_modelling_dict_from_json
 from regression_modelling_item import RegressionModellingItem
 
 import time
@@ -658,7 +658,7 @@ def experiment_with_regression_models():
     model_08(dict_of_regression_modellingItem)
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

@@ -50,7 +50,7 @@ from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_uni
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
-from zwiftid_file_reader_sync import read_zwiftpower90daywattsdto_files_to_item_dict_sync
+from zwiftid_named_file_reader import read_zwiftpower90daywattsdto_files_to_item_dict_sync
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_item import RiderComputeItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem, ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW
@@ -252,7 +252,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.tight_layout()
     plt.show()
 
-def do_work():
+def do_all_the_plotting():
     # Catalogue of selectable riders and their Zwift IDs for modelling
     alex_shiver='2619046'
     anthony_dangelo='7712769' # no current data on zr.app
@@ -287,26 +287,26 @@ def do_work():
     tim_r ='5421258'
     tom_bick ='11741'
 
-    team_name = "sirius" 
-    zwiftIDs_of_riders_to_model : List[str] = [meridith_leubner, tom_bick, melissa_warwick, lisa_bick, coryc, john_h, david_evanetich] 
+    team_name = "scratchpad" 
+    zwiftIDs_of_riders_to_model : List[str] = [lynsey_s, john_h, david_evanetich] 
 
     validate_dirpaths_and_filenames();
     validate_that_riders_are_on_team_in_repository(zwiftIDs_of_riders_to_model, team_name)
     dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
 
     # model a single rider
-    zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[1]  # we want tom_bick for this example
+    zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[-1]  # our desired rider for this example
     flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_rider_1]
     nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_rider_1)
     plot_curve_fit_chart_for_an_individual(zwiftID_rider_1,nick_name_rider_1, flattened_watts_rider_1)
 
-    # model multiple riders on the same chart for side-by-side visual comparison
+    # model multiple riders on a shared chart for side-by-side visual comparison
     nick_names_of_riders_to_model = [get_rider_nick_name_from_zwiftID(team_name, zwiftID) for zwiftID in zwiftIDs_of_riders_to_model]
     flattened_rider_watts_of_riders_to_model = [dict_of_90day_best_graphs_for_team_watts[zwiftID] for zwiftID in zwiftIDs_of_riders_to_model]
     plot_comparative_chart_of_curve_fits_for_list_of_riders(zwiftIDs_of_riders_to_model, nick_names_of_riders_to_model, flattened_rider_watts_of_riders_to_model)
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError
@@ -318,7 +318,7 @@ if __name__ == "__main__":
 
     try:
         start_time = time.time()
-        do_work()
+        do_all_the_plotting()
         end_time = time.time()
 
         success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."

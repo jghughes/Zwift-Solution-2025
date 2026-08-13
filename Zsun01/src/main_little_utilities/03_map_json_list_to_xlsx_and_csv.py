@@ -2,7 +2,7 @@ from pathlib import Path
 
 from rider_stats_dto import RiderStatsDtoListModel
 
-from working_file_read_write import read_json_list_and_export_tabular
+from custom_file_read_write import read_json_list_and_export_tabular
 
 import time
 import logging
@@ -26,7 +26,7 @@ def main01():
     print(f"Exported: Excel and CSV in the same directory as the source JSON file: {dirpath_output}\n\n")
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     from jgh_logging import setup_json_logging, log_event
     from storage_config import DIRPATH_LOGGING

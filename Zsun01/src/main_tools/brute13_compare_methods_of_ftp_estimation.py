@@ -53,7 +53,7 @@ from jgh_power_curve_fit_models import solve_decay_model_for_x_numpy
 from jgh_read_write import write_dataframe_as_xlsx_file
 from storage_config import DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES
 from storage_config import DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_RUBBISH_SCRATCHPAD
-from working_file_read_write import *
+from custom_file_read_write import *
 from repository_of_riders import RepositoryOfRiders
 
 import time
@@ -142,7 +142,7 @@ def run_comparisons_of_ftp_estimates():
     print(f"\n{len(comparative_FTPs)} line items saved to: {DIRPATH_RUBBISH_SCRATCHPAD}/{output_filename}\n")
 
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

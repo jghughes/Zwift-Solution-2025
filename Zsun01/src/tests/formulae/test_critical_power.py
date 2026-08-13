@@ -126,7 +126,7 @@ def test_do_modelling_with_cp_w_prime_model():
     # Log the detailed result table
     print("\n" + tabulate(result_table, headers=headers, tablefmt="simple"))
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

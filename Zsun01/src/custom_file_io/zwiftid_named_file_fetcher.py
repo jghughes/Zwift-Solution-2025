@@ -15,7 +15,7 @@ logger = logging.getLogger()
 
 
 
-async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
+async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
     """
     Download a file from a URL and save it to the local hard drive.
 
@@ -186,7 +186,7 @@ async def _download_file_and_save_to_hard_drive(http_client: httpx.AsyncClient, 
             )
             return
 
-async def download_and_save_many_files_to_hard_drive(
+async def download_and_save_many_files_to_hard_drive_async(
     urls: List[str],
     dest_dir_path: str,
     dest_folder: Optional[str],
@@ -196,14 +196,14 @@ async def download_and_save_many_files_to_hard_drive(
     semaphore = asyncio.Semaphore(max_concurrent)
     if http_client is not None:
         tasks = [
-            _download_file_and_save_to_hard_drive(http_client, url, dest_dir_path, dest_folder, semaphore)
+            _download_file_and_save_to_hard_drive_async(http_client, url, dest_dir_path, dest_folder, semaphore)
             for url in urls
         ]
         await asyncio.gather(*tasks)
     else:
         async with httpx.AsyncClient() as owned_client:
             tasks = [
-                _download_file_and_save_to_hard_drive(owned_client, url, dest_dir_path, dest_folder, semaphore)
+                _download_file_and_save_to_hard_drive_async(owned_client, url, dest_dir_path, dest_folder, semaphore)
                 for url in urls
             ]
             await asyncio.gather(*tasks)

@@ -187,7 +187,7 @@ async def test07():
         print(f"_accessor.delete_blob_if_exists_async() method failed:\n{ex}")
         return
 
- #test runner
+ #main runner
 
 if __name__ == "__main__":
     import logging

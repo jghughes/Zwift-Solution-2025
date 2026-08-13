@@ -73,7 +73,7 @@ def test00() -> None:
     for rider, assignments in paceline_algebra.items():
         print(f"{rider} = {assignments}")
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

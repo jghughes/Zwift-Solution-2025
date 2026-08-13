@@ -147,7 +147,7 @@ def test05():
     print(tabulate(tabular_data = rows, headers=column_headers, tablefmt="rounded_outline"))
     print("\n")
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError

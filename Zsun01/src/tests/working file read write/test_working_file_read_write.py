@@ -9,8 +9,8 @@ from storage_config import (
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
 )
 from test_zwiftid_file_reader_sync import test04
-from working_file_read_write import read_rider_compute_dict_from_json
-from zwiftid_file_reader_sync import (
+from custom_file_read_write import read_rider_compute_dict_from_json
+from zwiftid_named_file_reader import (
     read_zwiftdto_files_to_item_dict_sync,
     read_zwiftracingappdto_files_to_item_dict_sync,
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
@@ -49,7 +49,7 @@ def test04():
     for zwift_id, item in dict_of_zwiftItem.items():
         print(f"Key: {zwift_id}, Zwift ID: {item.zwift_id}, Name: {item.last_name}, Achievement Level: {item.achievement_level}")
 
-#test runner
+#main runner
 if __name__ == "__main__":
     import logging
     from jgh_exceptions import AlertMessageError
