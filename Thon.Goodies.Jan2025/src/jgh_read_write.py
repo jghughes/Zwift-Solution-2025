@@ -1,10 +1,11 @@
 import json
 import csv
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from pathlib import Path
 import pandas as pd
 from jgh_path_helpers import throw_if_file_path_invalid_or_not_exists, throw_if_dirpath_invalid_or_not_exists, throw_if_file_path_ingredients_invalid_or_not_exists
+from jgh_string import cleanup_name_string, sanitise_string
 
 logger = logging.getLogger(__name__)
 
@@ -141,12 +142,38 @@ def read_csv(dirpath: Path, filename: str) -> List[Dict[str, Any]]:
     except Exception as err:
         raise IOError(f"Error reading CSV file {file_path}: {err}")
 
-def read_excel(dirpath: Path, filename: str) -> pd.DataFrame:
+def read_csv_to_dataframe(dirpath: Path, filename: str) -> pd.DataFrame:
+    """
+    Reads a CSV file and returns a pandas DataFrame.
+
+    Validates that the file path is absolute, exists, and is a file.
+    Raises ValueError if any check fails, and IOError if reading the file fails.
+    """
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath,
+        filename,
+        ".csv",
+        require_file_exists_for_read=True,
+        validate_dir_and_extension_only=False
+    )
+    file_path = Path(dirpath) / Path(filename)
+    try:
+        return pd.read_csv(file_path)
+    except Exception as err:
+        raise IOError(f"Error reading CSV file {file_path}: {err}")
+
+def read_excel(dirpath: Path, filename: str, sheet_name: Union[str, int] = 0) -> pd.DataFrame:
     """
     Reads an Excel (.xlsx) file and returns a pandas DataFrame.
 
     Validates that the file path is absolute, exists, and is a file.
     Raises ValueError if any check fails, and IOError if reading the file fails.
+
+    Args:
+        dirpath: Directory containing the file.
+        filename: Name of the .xlsx file.
+        sheet_name: Name (str) or zero-based index (int) of the worksheet to read.
+            Defaults to 0, i.e. the first worksheet in the workbook.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath,
@@ -157,9 +184,40 @@ def read_excel(dirpath: Path, filename: str) -> pd.DataFrame:
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        return pd.read_excel(file_path, engine="openpyxl")
+        return pd.read_excel(file_path, sheet_name=sheet_name, engine="openpyxl")
     except Exception as err:
         raise IOError(f"Error reading Excel file {file_path}: {err}")
+
+def clean_dataframe_text_column(df: pd.DataFrame, column_name: str, use_name_cleanup: bool = True) -> pd.DataFrame:
+    """
+    Cleans a text column in a DataFrame by removing emojis, invalid Unicode,
+    and other unwanted characters (e.g. from rider name fields).
+
+    Operates on a copy of the DataFrame; the original is left unmodified.
+
+    Args:
+        df: The DataFrame to clean.
+        column_name: The name of the column to clean. Must exist in df.
+        use_name_cleanup: If True (default), applies cleanup_name_string, which also
+            strips known team/club tag substrings (e.g. 'ZSUN', 'CC') in addition to
+            sanitising invalid Unicode and emoji. If False, applies only sanitise_string.
+
+    Returns:
+        A new DataFrame with the specified column cleaned.
+
+    Raises:
+        ValueError: If column_name is not present in df.
+    """
+    if column_name not in df.columns:
+        raise ValueError(f"Column '{column_name}' not found in DataFrame. Available columns: {list(df.columns)}")
+
+    cleaning_function = cleanup_name_string if use_name_cleanup else sanitise_string
+
+    cleaned_df = df.copy()
+    cleaned_df[column_name] = cleaned_df[column_name].apply(
+        lambda value: cleaning_function(value) if pd.notna(value) else value
+    )
+    return cleaned_df
 
 # ===========================
 # File Writing Utilities

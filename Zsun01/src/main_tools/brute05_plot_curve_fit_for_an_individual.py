@@ -76,17 +76,22 @@ def validate_dirpaths_and_filenames():
     ])
     throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
-def validate_that_riders_are_on_team_in_repository(rider_IDs : list[str], team_name : str):
-    team_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
-    for rider in rider_IDs:
-        if rider not in team_IDs:
-            raise Exception(f"You made a boo-boo. Rider {rider} is not on the team '{team_name}'.")
+def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_name : str):
+    team_member_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
+    for rider_ID in zwift_IDs:
+        if rider_ID not in team_member_IDs:
+            raise Exception(f"You made a boo-boo. Rider {rider_ID} is not on the team '{team_name}'.")
 
 def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    team_IDs: List[str]= RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
-    item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_IDs)
+    team_member_IDs: List[str]= RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
+    item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_member_IDs)
     print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
     return item_dict
+
+def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: List[str], dict_of_90day_best_graphs: Dict[str, ZwiftPowerFlattened90dayWattsItem]):
+    for rider_ID in zwift_IDs:
+        if rider_ID not in dict_of_90day_best_graphs.keys():
+            raise Exception(f"You made a boo-boo. Rider {rider_ID} is not in the dictionary of 90-day best graphs.")
 
 def get_rider_nick_name_from_zwiftID(team_name: str, zwiftID: str) -> str:
     nick_name = RepositoryOfTeamRosters.get_rider_nick_name(team_name,zwiftID)
@@ -252,59 +257,21 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.tight_layout()
     plt.show()
 
-def do_all_the_plotting():
-    # Catalogue of selectable riders and their Zwift IDs for modelling
-    alex_shiver='2619046'
-    anthony_dangelo='7712769' # no current data on zr.app
-    barry_b ='5490373'
-    bill_henson ='5726145'
-    brandi_steeve = "991817"
-    bryan_bumpas = "9011"
-    ceri_pritchard = '4204538'
-    chris_lockwood = "6944221" # no current data on zr.app
-    coryc = "5569057"
-    dave_k ='3147366'
-    david_evanetich='4945836'
-    dayton_danielson='172105'
-    giao_nguyen = "183277"
-    husky ='5134'
-    john_h ='1884456'
-    josh_n ='2508033'
-    ken_chappell='1111583' # no current data on zr.app
-    kent_johnson='618585'
-    lisa_bick = '846200'
-    lynsey_s ='383480'
-    mark_b ='5530045'
-    matt_steeve = "1024413"
-    melissa_warwick = "1657744"
-    meridith_leubner ="1707548"
-    richard_m ='1193' # no current data on zr.app
-    scott_m ='11526'
-    sean_o_reilly = "7160372" # no current data on zr.app
-    selena_shaik = "2682791"  # no current data on zr.app
-    steve_seiler = "6142432"
-    stewart_lalieu = "103825"
-    tim_r ='5421258'
-    tom_bick ='11741'
-
-    team_name = "scratchpad" 
-    zwiftIDs_of_riders_to_model : List[str] = [lynsey_s, john_h, david_evanetich] 
-
+def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: List[str], zwiftID_of_rider_to_plot_individually: str):
     validate_dirpaths_and_filenames();
     validate_that_riders_are_on_team_in_repository(zwiftIDs_of_riders_to_model, team_name)
     dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
+    validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwiftIDs_of_riders_to_model, dict_of_90day_best_graphs_for_team_watts)
 
     # model a single rider
-    zwiftID_rider_1 : str = zwiftIDs_of_riders_to_model[-1]  # our desired rider for this example
-    flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_rider_1]
-    nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_rider_1)
-    plot_curve_fit_chart_for_an_individual(zwiftID_rider_1,nick_name_rider_1, flattened_watts_rider_1)
+    flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_of_rider_to_plot_individually]
+    nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_of_rider_to_plot_individually)
+    plot_curve_fit_chart_for_an_individual(zwiftID_of_rider_to_plot_individually,nick_name_rider_1, flattened_watts_rider_1)
 
     # model multiple riders on a shared chart for side-by-side visual comparison
     nick_names_of_riders_to_model = [get_rider_nick_name_from_zwiftID(team_name, zwiftID) for zwiftID in zwiftIDs_of_riders_to_model]
     flattened_rider_watts_of_riders_to_model = [dict_of_90day_best_graphs_for_team_watts[zwiftID] for zwiftID in zwiftIDs_of_riders_to_model]
     plot_comparative_chart_of_curve_fits_for_list_of_riders(zwiftIDs_of_riders_to_model, nick_names_of_riders_to_model, flattened_rider_watts_of_riders_to_model)
-
 
 #main runner
 if __name__ == "__main__":
@@ -317,8 +284,46 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
+        # Catalogue of selectable riders and their Zwift IDs for modelling
+        alex_shiver='2619046'
+        anthony_dangelo='7712769' # no current data on zr.app
+        barry_b ='5490373'
+        bill_henson ='5726145'
+        brandi_steeve = "991817"
+        bryan_bumpas = "9011"
+        ceri_pritchard = '4204538'
+        chris_lockwood = "6944221" # no current data on zr.app
+        coryc = "5569057"
+        dave_k ='3147366'
+        david_evanetich='4945836'
+        dayton_danielson='172105'
+        giao_nguyen = "183277"
+        husky ='5134'
+        john_h ='1884456'
+        josh_n ='2508033'
+        ken_chappell='1111583' # no current data on zr.app
+        kent_johnson='618585'
+        lisa_bick = '846200'
+        lynsey_s ='383480'
+        mark_b ='5530045'
+        matt_steeve = "1024413"
+        melissa_warwick = "1657744"
+        meridith_leubner ="1707548"
+        richard_m ='1193' # no current data on zr.app
+        scott_m ='11526'
+        sean_o_reilly = "7160372" # no current data on zr.app
+        selena_shaik = "2682791"  # no current data on zr.app
+        steve_seiler = "6142432"
+        stewart_lalieu = "103825"
+        tim_r ='5421258'
+        tom_bick ='11741'
+
+        _team_name = "inhibited" 
+        _zwiftIDs_of_riders_to_model : List[str] = [alex_shiver, kent_johnson, matt_steeve, john_h, david_evanetich] 
+        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[2]  # the index of our desired rider for this example
+
         start_time = time.time()
-        do_all_the_plotting()
+        do_all_the_plotting(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)
         end_time = time.time()
 
         success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."
@@ -330,6 +335,5 @@ if __name__ == "__main__":
     except Exception as ex:
         log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
         print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")
-
 
 

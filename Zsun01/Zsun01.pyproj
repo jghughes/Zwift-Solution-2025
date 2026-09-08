@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\main_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
+    <StartupFile>src\main_little_utilities\06_extract_drs_and_zrl_votes_for_usa.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\tests;src\azure_storage</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="src\main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
     <Compile Include="src\main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
+    <Compile Include="src\main_little_utilities\06_extract_drs_and_zrl_votes_for_usa.py" />
     <Compile Include="src\main_production_pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="src\main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
