@@ -45,6 +45,8 @@ COLUMNS_TO_KEEP: List[str] = [
     "DRS 2026 | US East",
     "DRS 2026 | US West",
     "ZRL US Votes",
+    "Assigned DRS Team",
+    "Assigned ZRL Team",
 ]
 
 ABBREVIATED_COLUMN_HEADINGS: Dict[str, str] = {
@@ -58,6 +60,8 @@ ABBREVIATED_COLUMN_HEADINGS: Dict[str, str] = {
     "DRS 2026 | US East": "..e",
     "DRS 2026 | US West": "..w",
     "ZRL US Votes": "ZRL..US",
+    "Assigned DRS Team": "DRS Team",
+    "Assigned ZRL Team": "ZRL Team"
 }
 
 VOTE_COLUMNS: List[str] = ["DRS 2026 | US East", "DRS 2026 | US West", "ZRL US Votes"]
