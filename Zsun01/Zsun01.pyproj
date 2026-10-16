@@ -4,13 +4,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\main_little_utilities\08_extract_drs_and_zrl_votes_for_stu.py</StartupFile>
+    <StartupFile>src\main_tools\brute05_plot_curve_fit_for_an_individual.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\tests;src\azure_storage</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
     <RootNamespace>Zsun01</RootNamespace>
-    <InterpreterId>Global|PythonCore|3.12</InterpreterId>
     <TestFramework>unittest</TestFramework>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
@@ -26,10 +25,6 @@
     <DebugSymbols>true</DebugSymbols>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
-  <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.12" />
-    <InterpreterReference Include="Global|VisualStudio|anaconda3" />
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="docs\" />
     <Folder Include="src\main_tools\" />
