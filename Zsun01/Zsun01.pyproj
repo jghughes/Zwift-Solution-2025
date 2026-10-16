@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\main_tools\brute05_plot_curve_fit_for_an_individual.py</StartupFile>
+    <StartupFile>src\main_tools\brute07_run_curve_fitting_comparisons.py</StartupFile>
     <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\tests;src\azure_storage</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -29,12 +29,6 @@
     <Folder Include="docs\" />
     <Folder Include="src\main_tools\" />
     <Folder Include="src\main_little_utilities\" />
-    <Folder Include="src\tests\" />
-    <Folder Include="src\tests\azure\" />
-    <Folder Include="src\tests\formulae\" />
-    <Folder Include="src\tests\zwiftid file import\" />
-    <Folder Include="src\tests\working file read write\" />
-    <Folder Include="src\tests\repository\" />
     <Folder Include="src\custom_file_io\" />
     <Folder Include="src\formulae\" />
     <Folder Include="src\paceline_display\" />
@@ -56,34 +50,13 @@
   <ItemGroup>
     <Compile Include="src\main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
     <Compile Include="src\main_little_utilities\04_zrl_inhibited_million_dollar_challenge_targets.py" />
-    <Compile Include="src\main_little_utilities\08_extract_drs_and_zrl_votes_for_stu.py" />
-    <Compile Include="src\main_little_utilities\06_extract_drs_and_zrl_votes_for_chantale.py" />
     <Compile Include="src\main_production_pipeline\brute10_fetch_files_from_dk.py" />
-    <Compile Include="src\main_little_utilities\02_reconcile_club_list_and_zwiftpower_graph_list.py" />
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
     <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\custom_file_io\zwiftid_named_file_fetcher.py" />
-    <Compile Include="src\tests\azure\test_jgh_azure_storage_accessor.py" />
-    <Compile Include="src\tests\azure\test_jgh_azure_storage_service_client.py" />
-    <Compile Include="src\tests\azure\test_jgh_connectionstring_repository.py" />
-    <Compile Include="src\tests\formulae\test_critical_power.py" />
-    <Compile Include="src\tests\formulae\test_cyclic_matrix.py" />
-    <Compile Include="src\tests\formulae\test_cyclic_paceline.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae00.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae01.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae03.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae04.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae05.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae06.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae08.py" />
-    <Compile Include="src\tests\formulae\test_jgh_formulae09.py" />
-    <Compile Include="src\tests\repository\test_repository_of_riders.py" />
-    <Compile Include="src\tests\working file read write\test_working_file_read_write.py" />
-    <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_fetcher_async.py" />
-    <Compile Include="src\tests\zwiftid file import\test_zwiftid_file_reader_sync.py" />
     <Compile Include="constants.py" />
     <Compile Include="src\azure_storage\jgh_azure_storage_accessor.py" />
     <Compile Include="src\azure_storage\jgh_azure_storage_service_client.py" />
@@ -112,17 +85,11 @@
     <Compile Include="src\formulae\jgh_curve_fitting.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\main_tools\brute03_experiment_with_90_day_watts_mappings.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\main_tools\brute05_plot_curve_fit_for_an_individual.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\main_tools\brute07_run_curve_fitting_comparisons.py" />
-    <Compile Include="src\main_tools\brute08_run_curve_fitting_experiments.py" />
-    <Compile Include="src\main_tools\brute13_compare_methods_of_ftp_estimation.py" />
     <Compile Include="src\main_production_pipeline\brute11_generate_and_distribute_everything.py" />
-    <Compile Include="src\main_tools\brute14_experiment_with_regression_models.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

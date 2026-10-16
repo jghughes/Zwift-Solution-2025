@@ -1,45 +1,6 @@
 """
-This tool is for iterative development. It follows on from 
-Tool03, assuming that the methods and functions tested
-there all work correctly to generate a clean ZwiftPowerFlattened90dayWattsItem from
-ZwiftPower 90-day data from DaveK. The tool commences by repeating the steps
-of Tool03, which involves reading the raw ZwiftPower 90-day best power data.
-
-For a single rider, it uses machine learning software libraries
-to do curve fitting (sklearn and scipy) to model critical_power and
-w_prime, model the TTT-pull power curve, and model the one-hour power curve.
-It then uses matplotlib.pyplot to display its handiwork. We take a snippet
-of the plotted chart to visualise how their ZwiftPower 90-day
-data is translated into the power curves used by Brute.
-
-I used this tool iteratively to fine-tune the power curves for a small 
-subset of riders, including myself and DaveK. The art of finding the 
-ideal windows for datapoints for the three very-different
-inverse-exponential power curves is a bit of a black art. I did it
-by hand, using the chart produced by this tool hundreds of times! You can 
-see the windows I finally settled on in the static methods of the 
-ZwiftPowerFlattened90dayWattsItem where x-y data is exported for each of the three 
-windows. The quality of the fit is measured by the 
-r-squared value, which is logged to the console. The tool logs a 
-summary of the fitted parameters and displays the power-graph for a 
-specified rider for visual inspection.
-
-The script performs the following steps:
-- Repeats everything that Tool03 does - thus to obtain ZwiftPowerFlattened90dayWattsItem
-  for a small predefined subset of riders.
-- Selects a specific rider by Zwift ID for analysis.
-- Extracts power-duration data for three modeling zones: critical power
-  (CP & W'), TTT pull power, and one-hour (FTP) power.
-- Fits mathematical models to each zone using curve fitting techniques to
-  estimate physiological parameters such as critical power, anaerobic work
-  capacity, and power curve coefficients.
-- Instantiates a results object to store the fitted parameters and logs
-  summary statistics for each modeled zone.
-- Plots the measured and modeled power-duration curves for visual
-  inspection.
-
-This tool demonstrates data loading, machine learning for curve fitting,
-and visualization for cycling performance analysis using matplotlib.
+- Plots the fitted FTP and TTT-pull curves of several riders on one shared
+  chart for side-by-side comparison.
 """
 from pathlib import Path
 from typing import List, Dict
@@ -98,7 +59,22 @@ def get_rider_nick_name_from_zwiftID(team_name: str, zwiftID: str) -> str:
     return nick_name
 
 def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90dayWattsItem):
+    """
+    Fit and plot the power curves for a single rider.
 
+    Fits three models to the rider's flattened ZwiftPower 90-day data:
+    critical power and W' (anaerobic zone), the TTT-pull decay curve, and
+    the one-hour (FTP) decay curve. The fitted coefficients and exponents
+    are stored in a RiderComputeItem, and the proxy pull and one-hour
+    wattages are printed. A matplotlib chart then shows the raw data points
+    for the three zones with the fitted pull and one-hour curves
+    overlaid. The chart is shown in a blocking window.
+
+    Args:
+        zwiftID: The rider's Zwift ID.
+        rider_name: Rider's display name, used as the chart title.
+        rider_flattened_watts_graph: The rider's flattened 90-day best watts data.
+    """
     # model critical_power and w_prime
     x_y_ordinates_for_cp_w_prime = rider_flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
     critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  =    do_curve_fit_with_cp_w_prime_model(x_y_ordinates_for_cp_w_prime)
@@ -258,6 +234,25 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.show()
 
 def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: List[str], zwiftID_of_rider_to_plot_individually: str):
+    """
+    Run the whole workflow: validate, load, then plot.
+
+    Validates the directories and filenames, then checks that the riders are
+    on the team. It loads the team's 90-day best graphs and plots a detailed
+    curve-fit chart for one rider. It then plots a comparative chart of the
+    fitted curves for all of the riders to model.
+
+    Args:
+        team_name: Name of the team in RepositoryOfTeamRosters.
+        zwiftIDs_of_riders_to_model: Zwift IDs of riders for the comparative chart.
+        zwiftID_of_rider_to_plot_individually: Zwift ID of the rider for the
+            detailed individual chart. This rider must also be on the team and
+            have loaded data.
+
+    Raises:
+        Exception: If any rider is missing from the roster or the loaded data,
+            or if a required path or filename is invalid.
+    """
     validate_dirpaths_and_filenames();
     validate_that_riders_are_on_team_in_repository(zwiftIDs_of_riders_to_model, team_name)
     dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 

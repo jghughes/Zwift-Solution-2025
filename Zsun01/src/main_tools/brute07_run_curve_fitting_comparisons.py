@@ -63,6 +63,9 @@ def run_curve_fitting_comparisons():
         print(err)
         return
 
+    team_name = "scratchpad"
+    output_file_name = "zsunwatts_graphs_for_testIDs.json"
+
 
     test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
 
@@ -93,8 +96,6 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-        team_name = "scratchpad"
-        output_file_name = "zsunwatts_graphs_for_testIDs.json"
 
         start_time = time.time()
         run_curve_fitting_comparisons()
