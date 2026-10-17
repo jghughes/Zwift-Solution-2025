@@ -92,8 +92,8 @@ class RepositoryOfRiders:
 
         self._routeItem = routeItem
 
-        print(f"Repository to read raw data is populating itself. This will take up to a minute.")
-        print(f"\n1-3. Reading Zwift, ZwiftPower 90-day, and ZwiftRacingApp files in parallel.")
+        print("Repository to read raw data is populating itself. This will take up to a minute.")
+        print("\n1-3. Reading Zwift, ZwiftPower 90-day, and ZwiftRacingApp files in parallel.")
 
         def _read_zwift():
             return read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
@@ -112,11 +112,11 @@ class RepositoryOfRiders:
             self._dict_of_ZwiftPower90dayWattsItem  = future_zwiftpower.result()
             self._dict_of_ZwiftRacingAppItem        = future_racingapp.result()
 
-        print(f"\n4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
+        print("\n4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
         if snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath != "":
             self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = read_rider_stats_list_from_json_as_dict(Path(snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath))
         
-        print(f"\n5. Fitting curves to 90-day power watts datapoints.")
+        print("\n5. Fitting curves to 90-day power watts datapoints.")
 
         # now that we have read all the files that we could find, we need to determine the unique set of the union of zwiftIDs (dict keys) across all three datasets
         all_zwift_ids_as_set = set(self._dict_of_ZwiftItem.keys()).union(
@@ -126,11 +126,11 @@ class RepositoryOfRiders:
         all_zwift_ids = list(all_zwift_ids_as_set)
 
         self._computed_dict_of_curveFitItem = self._do_power_graph_curve_fitting(all_zwift_ids) #do first
-        print(f"\n6. Building RiderComputeItems.")
+        print("\n6. Building RiderComputeItems.")
         self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids) # do second
-        print(f"\n7. Building RiderStatsItems.")
+        print("\n7. Building RiderStatsItems.")
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids) # do third
-        print(f"\nRepository successfully populated.")
+        print("\nRepository successfully populated.")
    
         return True
 

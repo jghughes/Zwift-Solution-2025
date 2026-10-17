@@ -73,7 +73,7 @@ async def generate_team_targets() -> None:
         _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
     except Exception as e:
-        print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
+        print("Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 
     riders = order_paceline_by_desired_order_of_riders  (full_team_of_riders)
@@ -81,7 +81,7 @@ async def generate_team_targets() -> None:
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
 
     # ===========================
-    print(f"\nTask #1: computing Million Dollar Prize 16 MINUTE 90-day best...\n")
+    print("\nTask #1: computing Million Dollar Prize 16 MINUTE 90-day best...\n")
     # ===========================
 
     for r in riders:

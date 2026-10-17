@@ -129,7 +129,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     BRUTE_FOOTNOTES_HTML = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML))
 
     # ===========================
-    print(f"\nTask #1: computing 1st scenario - 30_sec pull full team")
+    print("\nTask #1: computing 1st scenario - 30_sec pull full team")
     # ===========================
 
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
@@ -155,7 +155,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     # ===========================
-    print(f"Task #2: computing 2nd scenario - 60_sec pull full team")
+    print("Task #2: computing 2nd scenario - 60_sec pull full team")
     # ===========================
 
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
@@ -181,7 +181,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     # ===========================
 
     # ===========================
-    print(f"Task #3: computing 3rd to 5th scenarios - full team")
+    print("Task #3: computing 3rd to 5th scenarios - full team")
     # ===========================
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
@@ -210,7 +210,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_full_team_plan_display_object)
 
     # ===========================
-    print(f"Task #4: computing 6th scenario - strongest five riders")
+    print("Task #4: computing 6th scenario - strongest five riders")
     # ===========================
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
@@ -231,7 +231,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_five_plan_display_object)
 
     # ===========================
-    print(f"Task #5: computing 7th scenario - strongest four riders")
+    print("Task #5: computing 7th scenario - strongest four riders")
     # ===========================
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
@@ -251,7 +251,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_four_plan_display_object)
 
     # ===========================
-    print(f"Task #6: publishing to html doc")
+    print("Task #6: publishing to html doc")
     # ===========================
 
     package_report_optimised_plans_displayobject = PackageOfPacelineComputationReportDisplayObject()

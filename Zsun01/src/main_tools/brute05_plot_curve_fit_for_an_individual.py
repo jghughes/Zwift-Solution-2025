@@ -317,8 +317,8 @@ if __name__ == "__main__":
 
 
         _team_name = "rangers" 
-        _zwiftIDs_of_riders_to_model : List[str] = [tony_chang, carrie_merrit, bill_henson ] 
-        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[2]  # the index of our desired rider for this example
+        _zwiftIDs_of_riders_to_model : List[str] = [tony_chang, carrie_merrit] 
+        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[0]  # the index of our desired rider for this example
 
         start_time = time.time()
         do_all_the_plotting(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)

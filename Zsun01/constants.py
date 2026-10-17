@@ -18,14 +18,17 @@ AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_HOODS # for Brute, this seem
 
 DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each TTT team has its own factor depending on the calibre of the team. see class RepositoryOfTeamRosters in Zsun01/src/data_repositories/repository_of_team_rosters.py for details. This is the default factor used in the unliely event that a team does not have a specific factor defined. 
 
-DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
+DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 0.9 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
 
 # SINGLE_RIDER_ROUTE_NAME ="Alpe_d_huez" 
 # SINGLE_RIDER_ROUTE_NAME ="Croix_de_fer" 
 # SINGLE_RIDER_ROUTE_NAME ="Madeleine" 
 # SINGLE_RIDER_ROUTE_NAME ="Glandon" 
 # SINGLE_RIDER_ROUTE_NAME ="Telegraphe" 
-SINGLE_RIDER_ROUTE_NAME ="Galibier_valloire" 
+# SINGLE_RIDER_ROUTE_NAME ="Galibier_valloire" 
+SINGLE_RIDER_ROUTE_NAME ="hilly_kom" 
+# SINGLE_RIDER_ROUTE_NAME ="radio_tower" 
+# SINGLE_RIDER_ROUTE_NAME ="epic_kom" 
 
 DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 0.5
 

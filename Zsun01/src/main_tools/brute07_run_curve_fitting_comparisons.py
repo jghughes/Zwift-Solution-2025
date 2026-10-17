@@ -1,31 +1,4 @@
-"""
-This helper tool is not used directly in the Brute production pipeline.
-It assists with iterative fine-tuning of curve parameters by providing
-sanity checks on modelled best-fit inverse-exponential curves. The tool
-applies fitted parameters to a small subset of familiar riders (e.g.,
-myself, DaveK, and other Betels) and prints their synthetic power-duration
-graphs in tabular form for visual inspection. This helps determine if the
-modeled curves are realistic compared to actual power data. The output is
-also saved to a JSON file for later reference.
 
-Recent updates:
-- Output directory and file name are now explicitly set in the script.
-- Logging configuration is loaded from an external JSON settings file.
-- Minor improvements to table formatting and data export.
-
-The script performs the following steps:
-- Configures logging for the application using a JSON settings file.
-- Retrieves a list of rider IDs (test_IDs) to process.
-- Loads Zwift profile data and ZwiftPower best power data for these
-  riders from specified input directories.
-- Writes the best power data for all riders to a JSON file in the
-  specified output directory.
-- For each rider, logs a formatted table of their power-duration data
-  (time vs. watts) using the tabulate library for clear presentation.
-
-This tool demonstrates data loading, aggregation, export, and formatted
-logging for cycling performance analysis using Python.
-"""
 from pathlib import Path
 
 from tabulate import tabulate
