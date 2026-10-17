@@ -57,7 +57,7 @@
     <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\custom_file_io\zwiftid_named_file_fetcher.py" />
-    <Compile Include="constants.py" />
+    <Compile Include="src\constants.py" />
     <Compile Include="src\azure_storage\jgh_azure_storage_accessor.py" />
     <Compile Include="src\azure_storage\jgh_azure_storage_service_client.py" />
     <Compile Include="src\repositories\repository_of_connectionstrings.py" />
@@ -72,7 +72,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
-    <Compile Include="storage_config.py" />
+    <Compile Include="src\storage_config.py" />
     <Compile Include="src\repositories\repository_of_team_rosters.py" />
     <Compile Include="docs\zwiftinsider_stuff.txt" />
     <Compile Include="src\repositories\repository_of_riders.py" />
