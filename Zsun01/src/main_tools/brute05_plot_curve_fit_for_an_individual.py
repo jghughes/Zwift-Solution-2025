@@ -290,6 +290,7 @@ if __name__ == "__main__":
         ceri_pritchard = '4204538'
         chris_lockwood = "6944221" # no current data on zr.app
         coryc = "5569057"
+        curtis_repen = "473087"
         dave_k ='3147366'
         david_evanetich='4945836'
         dayton_danielson='172105'
@@ -317,8 +318,8 @@ if __name__ == "__main__":
 
 
         _team_name = "rangers" 
-        _zwiftIDs_of_riders_to_model : List[str] = [tony_chang, carrie_merrit] 
-        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[0]  # the index of our desired rider for this example
+        _zwiftIDs_of_riders_to_model : List[str] = [tony_chang, carrie_merrit, curtis_repen] 
+        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[2]  # the index of our desired rider for this example
 
         start_time = time.time()
         do_all_the_plotting(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)

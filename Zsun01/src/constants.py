@@ -18,7 +18,7 @@ AERO_POSITION_FACTOR_DEFAULT = AERO_POSITION_FACTOR_HOODS # for Brute, this seem
 
 DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each TTT team has its own factor depending on the calibre of the team. see class RepositoryOfTeamRosters in Zsun01/src/data_repositories/repository_of_team_rosters.py for details. This is the default factor used in the unliely event that a team does not have a specific factor defined. 
 
-DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 0.9 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
+DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
 
 # SINGLE_RIDER_ROUTE_NAME ="Alpe_d_huez" 
 # SINGLE_RIDER_ROUTE_NAME ="Croix_de_fer" 
@@ -26,11 +26,12 @@ DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 0.9 # This is the default int
 # SINGLE_RIDER_ROUTE_NAME ="Glandon" 
 # SINGLE_RIDER_ROUTE_NAME ="Telegraphe" 
 # SINGLE_RIDER_ROUTE_NAME ="Galibier_valloire" 
-# SINGLE_RIDER_ROUTE_NAME ="hilly_kom" 
-SINGLE_RIDER_ROUTE_NAME ="radio_tower" 
+SINGLE_RIDER_ROUTE_NAME ="hilly_kom" 
+# SINGLE_RIDER_ROUTE_NAME ="radio_tower" 
 # SINGLE_RIDER_ROUTE_NAME ="epic_kom" 
+# SINGLE_RIDER_ROUTE_NAME ="fuego_flats_sprint_reverse" 
 
-DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 0.5
+DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 0.0
 
 POWER_CURVE_IN_PACELINE = np.array([400, 309, 277, 268, 261, 255, 250, 245], dtype=np.float64) # For all the details of the studies done by Zwift Insider see:- https://zwiftinsider.com/tt-drafting-pd41/ and https://zwiftinsider.com/road-bike-drafting-pd41/ These are summarised in docs/zwiftinsider_stuff.txt. The tests were done in August 2023, measuring Pack Dynamics 4.1. Tests were done in an isolated event on Watopias Tempus Fugit route because its the flattest on Zwift and has a timed section (Fuego Flats Reverse, 7.1km long) which could be used to measure the speeds of each test formation precisely. Zwift Insider did a pair of tests - pulling at 300W and 400W respectively. They produced near identical results in terms of percentage saving in the draft. The curve I chose is the TTT curve for pulling @400W for 46.47 kph. 
 

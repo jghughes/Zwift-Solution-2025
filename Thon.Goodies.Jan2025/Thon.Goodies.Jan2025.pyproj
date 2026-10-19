@@ -26,6 +26,7 @@
     <Compile Include="src\jgh_exceptions.py" />
     <Compile Include="src\jgh_exception_helpers.py" />
     <Compile Include="src\jgh_formatting.py" />
+    <Compile Include="src\jgh_html_rendering.py" />
     <Compile Include="src\jgh_internet_helpers.py" />
     <Compile Include="src\jgh_mime_type_map.py" />
     <Compile Include="src\jgh_number.py" />

@@ -4,8 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\main_production_pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
-    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\azure_storage;src\main_production_pipeline</SearchPath>
+    <StartupFile>src\main_production_pipeline\brute16_generate_ttt_scenarios.py</StartupFile>
+    <SearchPath>..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src;src\formulae;src\matplot;src\repositories;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;src\paceline_display;src\custom_file_io;src\main_little_utilities;src\main_tools;src\azure_storage;src\main_production_pipeline;src\paceline_display\templates</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun01</Name>
@@ -33,6 +33,7 @@
     <Folder Include="src\formulae\" />
     <Folder Include="src\paceline_display\" />
     <Folder Include="src\azure_storage\" />
+    <Folder Include="src\paceline_display\templates\" />
     <Folder Include="src\repositories\" />
     <Folder Include="src\main_production_pipeline\" />
     <Folder Include="src\" />
@@ -46,6 +47,8 @@
     </Content>
     <Content Include="src\paceline_display\paceline_plan_summary.css" />
     <Content Include="src\paceline_display\footnotes.html" />
+    <Content Include="src\paceline_display\templates\one_page_summary.html" />
+    <Content Include="src\paceline_display\templates\paceline_plan_fragment.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\main_little_utilities\03_map_json_list_to_xlsx_and_csv.py" />
@@ -54,6 +57,7 @@
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
     <Compile Include="src\formulae\jgh_formulae10.py" />
+    <Compile Include="src\paceline_display\paceline_html_renderer.py" />
     <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
     <Compile Include="src\custom_file_io\zwiftid_named_file_fetcher.py" />
@@ -68,9 +72,6 @@
     </Compile>
     <Compile Include="src\paceline_display\jgh_enums.py" />
     <Compile Include="src\formulae\jgh_formulae02.py" />
-    <Compile Include="src\formulae\jgh_formulae09.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="src\formulae\jgh_formulae08.py" />
     <Compile Include="src\storage_config.py" />
     <Compile Include="src\repositories\repository_of_team_rosters.py" />

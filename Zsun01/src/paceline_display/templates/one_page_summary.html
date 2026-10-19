@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+{{ css | safe }}
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+{% for fragment in plan_fragments %}
+    <section class="section-separator">
+{{ fragment | safe }}
+    </section>
+{% endfor %}
+    <div class="table-container">
+        <div class="footnote summary-footnote">{{ footnotes_html | safe }}</div>
+    </div>
+</body>
+</html>

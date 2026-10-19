@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 
 # (No third-party imports)
 from jgh_number import safe_divide
@@ -14,7 +14,12 @@ from jgh_formatting import format_number_2dp, round_to_nearest_10
 from jgh_number import safe_divide
 from rider_compute_item import RiderComputeItem
 
-# import statements found in __main__ block: None
+# from paceline_display_objects import (
+#     PacelineComputationReportDisplayObject,
+# )
+from jgh_enums import PacelinePlanTypeEnum
+from jgh_formatting import format_number_1dp, format_number_with_comma_separators
+from jgh_string import first_n_chars
 
 @dataclass
 class RiderContributionDisplayObject():
@@ -256,4 +261,33 @@ class PackageOfPacelineComputationReportDisplayObject:
             total_compute_iterations_performed = report.total_compute_iterations_performed,
             solutions                          = solutions,
         )
+
+DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN: Dict[PacelinePlanTypeEnum, Tuple[str, str]] = defaultdict(
+    lambda: ("", ""),
+    {
+        PacelinePlanTypeEnum.THIRTY_SEC_PULL:           ("Scenario #1:","THIRTY-SECOND PULLS"),
+        PacelinePlanTypeEnum.SIXTY_SEC_PULL:            ("Scenario #2:","ONE-MINUTE PULLS"),
+        PacelinePlanTypeEnum.BALANCED_INTENSITY:        ("Scenario #3:","MOST BALANCED INTENSITY"),
+        PacelinePlanTypeEnum.EVERYBODY_PULL_HARD:       ("Scenario #4:","HARD, EVERYBODY PULLS, NO-DROP"),
+        PacelinePlanTypeEnum.FASTEST:                   ("Scenario #5:","FASTEST (FULL-TEAM) "),
+        PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE:    ("Scenario #6:","FASTEST (STRONGEST-FIVE) "),
+        PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR:    ("Scenario #7:","FASTEST (STRONGEST-FOUR) "),
+    }
+)
+
+def populate_title_for_pace_plan(plan_type_enum: PacelinePlanTypeEnum,
+    plan_report_displayobject: PacelineComputationReportDisplayObject,
+) -> None:
+    caption_part_a, caption_part_b = DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN[plan_type_enum]
+    plan_report_displayobject.display_caption_left_aligned = f"{caption_part_a} {caption_part_b} : {format_number_1dp(plan_report_displayobject.calculated_average_speed_of_paceline_kph)}kph"
+
+def populate_compute_statistics_for_pace_plan(
+    total_pull_sequences_examined : int,
+    plan_report_displayobject: PacelineComputationReportDisplayObject,
+) -> None:
+
+    plan_report_displayobject.display_caption_right_aligned = f"[sigma={format_number_1dp(100*plan_report_displayobject.calculated_dispersion_of_intensity_of_effort)}%  variations={total_pull_sequences_examined}  compute={format_number_with_comma_separators(plan_report_displayobject.computational_time)}sec  ID={first_n_chars(plan_report_displayobject.guid,3)}]"
+
+
+
     

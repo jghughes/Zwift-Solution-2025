@@ -9,12 +9,7 @@ Key Features:
 - Computes paceline plans under various pull durations (e.g., 30s, 60s) and exertion constraints.
 - Generates advanced paceline solutions for full teams and reduced team sizes (e.g., strongest five or four riders).
 - Applies combinatorial optimization to identify balanced, fastest, and high-intensity pacing strategies.
-- Summarizes results in display objects and exports individual and consolidated HTML reports.
-- Supports automated upload of summary reports to Azure Blob Storage for sharing and review.
-- Provides detailed logging and error handling for robust batch execution.
-
-This tool is intended for cycling performance analysts and coaches seeking to optimize TTT strategies
-using data-driven, reproducible methods in Python.
+- Summarizes results in display objects and exports and uploads a consolidated HTML report.
 """
 import asyncio
 import json
@@ -28,8 +23,10 @@ from paceline_display_objects import (
     PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
-)
+    populate_title_for_pace_plan,
+    populate_compute_statistics_for_pace_plan,
 
+)
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae03 import (
@@ -43,20 +40,18 @@ from jgh_formulae08 import (
     show_table_of_standard_proxy_speeds_for_all_riders,
     show_workload_suffix_message
 )
-from jgh_formulae09 import (
-    # log_single_paceline_plan_as_pretty_table,
-    populate_title_for_pace_plan,
-    populate_compute_statistics_for_pace_plan,
-    # format_single_paceline_plan_as_html_document,
-    format_paceline_plans_as_one_page_html_doc,
-    save_html_document_to_hard_drive,
-    upload_text_to_blob_storage_in_azure,
-)
+# from jgh_formulae09 import (
+#     populate_title_for_pace_plan,
+#     populate_compute_statistics_for_pace_plan,
+# )
+from paceline_html_renderer import format_paceline_plans_as_one_page_html_doc 
+
 from jgh_internet_helpers import throw_if_no_internet_connection
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import read_text_from_path
+from jgh_read_write import read_text_from_path, write_text_with_html_file_extension
 from jgh_string import make_pretty_count_of_bytes
+
 
 from jgh_string import capitalize_first_letter
 from zwift_id_base import lookup_Items_by_ZwiftID
@@ -66,20 +61,42 @@ from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from storage_config import (
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
-    FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS,
-    FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
     AZURE_CONTAINERNAME_BRUTE,
     AZURE_CONTAINERNAME_ZSUN,
     AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
-    # format_save_filename_for_document_of_single_paceline_plan,
     make_filename_for_one_page_summary_html_doc,)
 
 import time
 import logging
 from jgh_exceptions import AlertMessageError
+
+
+def save_html_document_to_hard_drive(
+    dir_path: Path,
+    filename: str,
+    hml_doc: str,
+) -> Path:
+    write_text_with_html_file_extension(dir_path, filename, hml_doc)
+    file_path = Path(dir_path) / Path(filename)
+    return file_path
+
+async def upload_text_to_blob_storage_in_azure(
+    storage_account_name: str,
+    container_name: str,
+    blob_name: str,
+    text: str,
+) -> str| None:
+    azure_client = AzureStorageServiceClient()
+    url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
+        storage_account_name, container_name, blob_name, text, False,)
+    return url_of_uploaded_blob
+
+
+
+
 
 # HEAP POWERFUL
 async def generate_ttt_scenarios_with_brute() -> None:
@@ -126,7 +143,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
     show_workload_suffix_message()
 
-    BRUTE_FOOTNOTES_HTML = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML))
+    # BRUTE_FOOTNOTES_HTML = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML))
 
     # ===========================
     print("\nTask #1: computing 1st scenario - 30_sec pull full team")
@@ -269,13 +286,9 @@ async def generate_ttt_scenarios_with_brute() -> None:
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
     package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
 
-    # following line is optional. commented out because we don't want to save each plan as a separate file.
-    # export_package_of_paceline_plans_as_multiple_individual_html_documents(BRUTE_DIRPATH_HTML_DOCS_BY_DATE, _team_name, package_report_optimised_plans_displayobject)
-
-    PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET = read_text_from_path(Path(FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS))
-
     html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(_team_name)}"
-    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject, BRUTE_FOOTNOTES_HTML, css=PACELINE_PLAN_SUMMARY_CSS_STYLE_SHEET)
+
+    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject)
     saved_file_path         = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
 
     print(f"\nDistributing paceline scenarios HTML document:\n Name : {html_file_and_blob_name}")
@@ -291,7 +304,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-        _team_name = "betel" # or "sirius" 
+        _team_name = "sirius" 
 
         start_time = time.time()
         throw_if_no_internet_connection()

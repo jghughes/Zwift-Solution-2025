@@ -1,0 +1,13 @@
+{% if css %}
+<style>
+{{ css | safe }}
+</style>
+{% endif %}
+<div>
+    <div class="caption-flex">
+        <span class="caption-left">{{ caption_left }}</span>
+        <span class="caption-right">{{ caption_right }}</span>
+    </div>
+    {{ table_html | safe }}
+    {{ footnotes_html | safe }}
+</div>

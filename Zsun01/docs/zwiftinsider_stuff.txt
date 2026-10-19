@@ -10,7 +10,7 @@ ZwiftInsiderWattageMatrix = np.array([
     [198, 268]
 ])
 
-2. Road bikes https://zwiftinsider.com/road-bike-drafting-pd41/ done in Aug 2023
+2. Road bikes https://zwiftinsider.com/road-bike-drafting-pd41/ done in Aug 2023 on Fuego Flats Sprint Reverse Segment
 rider 183cm, 75kg
 1st column = 40.19kph, 2nd column = 44.53kph
 ZwiftInsiderWattageMatrix = np.array([
