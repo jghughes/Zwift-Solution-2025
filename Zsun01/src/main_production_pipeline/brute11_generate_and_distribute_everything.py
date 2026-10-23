@@ -51,8 +51,9 @@ from typing import Type, Dict, Any
 import time
 import pandas as pd
 from constants import SINGLE_RIDER_ROUTE_NAME
+from jgh_azure_storage_service_client import AzureStorageServiceClient
+
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
-from jgh_formulae09 import upload_text_to_blob_storage_in_azure
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_read_write import write_dataframe_as_csv_file, write_dataframe_as_xlsx_file, write_text_with_json_file_extension
@@ -101,6 +102,16 @@ import time
 import logging
 from jgh_exceptions import AlertMessageError
 
+async def upload_text_to_blob_storage_in_azure(
+    storage_account_name: str,
+    container_name: str,
+    blob_name: str,
+    text: str,
+) -> str| None:
+    azure_client = AzureStorageServiceClient()
+    url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
+        storage_account_name, container_name, blob_name, text, False,)
+    return url_of_uploaded_blob
 
 # HEAP POWERFUL TOOL
 async def generate_everything_and_save_and_upload():

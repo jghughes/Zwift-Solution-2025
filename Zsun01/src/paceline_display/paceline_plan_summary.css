@@ -59,9 +59,9 @@ h1 {
     margin: 32px 0;
 }
 
-    .section-separator:last-of-type {
-        margin-bottom: 0.25em;
-    }
+.section-separator:last-of-type {
+    margin-bottom: 0.25em;
+}
 
 .caption-flex {
     display: flex;
@@ -94,81 +94,81 @@ h1 {
     border: 1px solid var(--color-border);
 }
 
-    .rider-table caption {
-        caption-side: top;
-        font-family: var(--font-sans);
-        font-size: 1.05em;
-        font-weight: 700;
-        text-align: left;
-        letter-spacing: 0.01em;
-        margin-bottom: 0.5em;
-    }
+.rider-table caption {
+    caption-side: top;
+    font-family: var(--font-sans);
+    font-size: 1.05em;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.5em;
+}
 
-    .rider-table th,
-    .rider-table td {
-        padding: 6px;
-        white-space: nowrap;
-        border: 1px solid var(--color-border);
-    }
+.rider-table th,
+.rider-table td {
+    padding: 6px;
+    white-space: nowrap;
+    border: 1px solid var(--color-border);
+}
 
-    .rider-table th {
-        background-color: var(--color-header-bg);
-        font-weight: bold;
-        text-align: center;
-        border-bottom: 2px solid #444;
-        letter-spacing: 0.02em;
-    }
+.rider-table th {
+    background-color: var(--color-header-bg);
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #444;
+    letter-spacing: 0.02em;
+}
 
-        .rider-table th:nth-child(4) {
-            text-align: right;
-        }
+.rider-table th:nth-child(4) {
+    text-align: right;
+}
 
-        .rider-table th.left-header,
-        .rider-table td.left-header {
-            text-align: left;
-        }
+.rider-table th.left-header,
+.rider-table td.left-header {
+    text-align: left;
+}
 
-        /* Name columns use proportional font */
-        .rider-table th:nth-child(1),
-        .rider-table td:nth-child(1),
-        .rider-table th:nth-child(2),
-        .rider-table td:nth-child(2) {
-            font-family: var(--font-sans);
-            font-weight: 400;
-        }
+/* Name columns use proportional font */
+.rider-table th:nth-child(1),
+.rider-table td:nth-child(1),
+.rider-table th:nth-child(2),
+.rider-table td:nth-child(2) {
+    font-family: var(--font-sans);
+    font-weight: 400;
+}
 
-        /* Italic styling for specific column */
-        .rider-table th:nth-child(5),
-        .rider-table td:nth-child(5) {
-            font-style: italic;
-        }
+/* Italic styling for specific column */
+.rider-table th:nth-child(5),
+.rider-table td:nth-child(5) {
+    font-style: italic;
+}
 
-    /* Zebra striping */
-    .rider-table tr:nth-child(even) td {
-        background-color: var(--color-row-even);
-    }
+/* Zebra striping */
+.rider-table tr:nth-child(even) td {
+    background-color: var(--color-row-even);
+}
 
-    /* Row hover effect */
-    .rider-table tr:hover td {
-        background-color: var(--color-row-hover);
-    }
+/* Row hover effect */
+.rider-table tr:hover td {
+    background-color: var(--color-row-hover);
+}
 
-    /* Emphasized columns */
-    .rider-table td:nth-child(3),
-    .rider-table td:nth-child(9) {
-        text-align: right;
-        font-weight: bold;
-        background-color: var(--color-emphasis);
-    }
+/* Emphasized columns */
+.rider-table td:nth-child(3),
+.rider-table td:nth-child(9) {
+    text-align: right;
+    font-weight: bold;
+    background-color: var(--color-emphasis);
+}
 
-    /* Right-align numeric columns */
-    .rider-table td:nth-child(4) {
-        text-align: right;
-    }
+/* Right-align numeric columns */
+.rider-table td:nth-child(4) {
+    text-align: right;
+}
 
-    .rider-table td:nth-child(n+5):nth-child(-n+8) {
-        text-align: right;
-    }
+.rider-table td:nth-child(n+5):nth-child(-n+8) {
+    text-align: right;
+}
 
 /* =========================================================================
    FOOTNOTES
@@ -189,11 +189,11 @@ h1 {
     text-indent: -2em;
 }
 
-    .footnote-item:hover {
-        background-color: var(--color-row-hover);
-        transition: background 0.2s;
-        cursor: pointer;
-    }
+.footnote-item:hover {
+    background-color: var(--color-row-hover);
+    transition: background 0.2s;
+    cursor: pointer;
+}
 
 .footnote sup,
 .rider-table th sup {
@@ -235,15 +235,15 @@ h1 {
         font-size: 0.85em;
     }
 
-        .rider-table caption {
-            font-size: 0.9em;
-        }
+    .rider-table caption {
+        font-size: 0.9em;
+    }
 
-        .rider-table th,
-        .rider-table td {
-            padding: 4px 3px;
-            font-size: 0.85em;
-        }
+    .rider-table th,
+    .rider-table td {
+        padding: 4px 3px;
+        font-size: 0.85em;
+    }
 
     .footnote,
     .footnote-item,
@@ -277,16 +277,16 @@ h1 {
         font-size: 10pt !important;
     }
 
-        .rider-table th {
-            background: #eee !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+    .rider-table th {
+        background: #eee !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 
-        .rider-table tr:nth-child(even) td,
-        .rider-table tr:hover td {
-            background: none !important;
-        }
+    .rider-table tr:nth-child(even) td,
+    .rider-table tr:hover td {
+        background: none !important;
+    }
 
     .footnote-item:hover {
         background: none !important;

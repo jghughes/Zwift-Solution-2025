@@ -75,6 +75,73 @@ class RepositoryOfRoutes:
             ]
         ),
 
+        "three_sisters": RouteItem(
+            route_name          = "Three Sisters",
+            zwift_world_name    = "Watopia",
+            route_description   = "hilly KOM, Epic KOM, and Radio Tower KOM",
+            route_length_km     = 21.30,
+            route_elevation_m   = 769,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
+                SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.0, bucket_slope_pc=-1.0),
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.021, bucket_slope_pc=0.0),
+                SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.023, bucket_slope_pc=1.0),
+                SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.038, bucket_slope_pc=2.0),
+                SlopeBucketItem(bucket_description="plus 3% bucket", bucket_length_km=0.142, bucket_slope_pc=3.0),
+                SlopeBucketItem(bucket_description="plus 4% bucket", bucket_length_km=0.036, bucket_slope_pc=4.0),
+                SlopeBucketItem(bucket_description="plus 5% bucket", bucket_length_km=0.063, bucket_slope_pc=5.0),
+                SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=0.221, bucket_slope_pc=6.0),
+                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=0.256, bucket_slope_pc=7.0),
+                SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.100, bucket_slope_pc=8.0),
+                SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.0, bucket_slope_pc=9.0),
+
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=8.00, bucket_slope_pc=0.0),
+
+                SlopeBucketItem(bucket_description="minus 9% bucket", bucket_length_km=0.103, bucket_slope_pc=-9.0),
+                SlopeBucketItem(bucket_description="minus 8% bucket", bucket_length_km=0.123, bucket_slope_pc=-8.0),
+                SlopeBucketItem(bucket_description="minus 7% bucket", bucket_length_km=0.090, bucket_slope_pc=-7.0),
+                SlopeBucketItem(bucket_description="minus 6% bucket", bucket_length_km=0.049, bucket_slope_pc=-6.0),
+                SlopeBucketItem(bucket_description="minus 5% bucket", bucket_length_km=0.043, bucket_slope_pc=-5.0),
+                SlopeBucketItem(bucket_description="minus 4% bucket", bucket_length_km=0.114, bucket_slope_pc=-4.0),
+                SlopeBucketItem(bucket_description="minus 3% bucket", bucket_length_km=0.109, bucket_slope_pc=-3.0),
+                SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.090, bucket_slope_pc=-2.0),
+                SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.090, bucket_slope_pc=-1.0),
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.439, bucket_slope_pc=0.0),
+                SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.173, bucket_slope_pc=1.0),
+                SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.311, bucket_slope_pc=2.0),
+                SlopeBucketItem(bucket_description="plus 3% bucket", bucket_length_km=1.635, bucket_slope_pc=3.0),
+                SlopeBucketItem(bucket_description="plus 4% bucket", bucket_length_km=0.830, bucket_slope_pc=4.0),
+                SlopeBucketItem(bucket_description="plus 5% bucket", bucket_length_km=1.143, bucket_slope_pc=5.0),
+                SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=2.766, bucket_slope_pc=6.0),
+                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=1.099, bucket_slope_pc=7.0),
+                SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.207, bucket_slope_pc=8.0),
+                SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.0, bucket_slope_pc=9.0),
+
+                SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.0, bucket_slope_pc=-2.0),
+                SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.0, bucket_slope_pc=-1.0),
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.0, bucket_slope_pc=0.0),
+                SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.0, bucket_slope_pc=1.0),
+                SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.028, bucket_slope_pc=2.0),
+                SlopeBucketItem(bucket_description="plus 3% bucket", bucket_length_km=0.006, bucket_slope_pc=3.0),
+                SlopeBucketItem(bucket_description="plus 4% bucket", bucket_length_km=0.019, bucket_slope_pc=4.0),
+                SlopeBucketItem(bucket_description="plus 5% bucket", bucket_length_km=0.012, bucket_slope_pc=5.0),
+                SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=0.009, bucket_slope_pc=6.0),
+                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=0.015, bucket_slope_pc=7.0),
+                SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.014, bucket_slope_pc=8.0),
+                SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.013, bucket_slope_pc=9.0),
+                SlopeBucketItem(bucket_description="plus 10% bucket", bucket_length_km=0.025, bucket_slope_pc=10.0),
+                SlopeBucketItem(bucket_description="plus 11% bucket", bucket_length_km=0.031, bucket_slope_pc=11.0),
+                SlopeBucketItem(bucket_description="plus 12% bucket", bucket_length_km=0.109, bucket_slope_pc=12.0),
+                SlopeBucketItem(bucket_description="plus 13% bucket", bucket_length_km=0.159, bucket_slope_pc=13.0),
+                SlopeBucketItem(bucket_description="plus 14% bucket", bucket_length_km=0.428, bucket_slope_pc=14.0),
+                SlopeBucketItem(bucket_description="plus 15% bucket", bucket_length_km=0.194, bucket_slope_pc=15.0),
+                SlopeBucketItem(bucket_description="plus 16% bucket", bucket_length_km=0.079, bucket_slope_pc=16.0),
+
+            ]
+        ),
+
+
+
         "hilly_kom": RouteItem(
             route_name          = "Hilly KOM",
             zwift_world_name    = "Watopia",
@@ -93,6 +160,49 @@ class RepositoryOfRoutes:
                 SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=0.221, bucket_slope_pc=6.0),
                 SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=0.256, bucket_slope_pc=7.0),
                 SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.100, bucket_slope_pc=8.0),
+                SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.0, bucket_slope_pc=9.0),
+            ]
+        ),
+
+        "three_sisters_flat_section": RouteItem(
+            route_name          = "Three Sisters Flat Section",
+            zwift_world_name    = "Watopia",
+            route_description   = "Zwift",
+            route_length_km     = 8.00,
+            route_elevation_m   = 0.0,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=8.00, bucket_slope_pc=0.0),
+            ]
+        ),
+
+
+        "epic_kom": RouteItem(
+            route_name          = "Epic KOM",
+            zwift_world_name    = "Watopia",
+            route_description   = "ZWIFT",
+            route_length_km     = 9.4,
+            route_elevation_m   = 415,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
+                SlopeBucketItem(bucket_description="minus 9% bucket", bucket_length_km=0.103, bucket_slope_pc=-9.0),
+                SlopeBucketItem(bucket_description="minus 8% bucket", bucket_length_km=0.123, bucket_slope_pc=-8.0),
+                SlopeBucketItem(bucket_description="minus 7% bucket", bucket_length_km=0.090, bucket_slope_pc=-7.0),
+                SlopeBucketItem(bucket_description="minus 6% bucket", bucket_length_km=0.049, bucket_slope_pc=-6.0),
+                SlopeBucketItem(bucket_description="minus 5% bucket", bucket_length_km=0.043, bucket_slope_pc=-5.0),
+                SlopeBucketItem(bucket_description="minus 4% bucket", bucket_length_km=0.114, bucket_slope_pc=-4.0),
+                SlopeBucketItem(bucket_description="minus 3% bucket", bucket_length_km=0.109, bucket_slope_pc=-3.0),
+                SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.090, bucket_slope_pc=-2.0),
+                SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.090, bucket_slope_pc=-1.0),
+                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.439, bucket_slope_pc=0.0),
+                SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.173, bucket_slope_pc=1.0),
+                SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.311, bucket_slope_pc=2.0),
+                SlopeBucketItem(bucket_description="plus 3% bucket", bucket_length_km=1.635, bucket_slope_pc=3.0),
+                SlopeBucketItem(bucket_description="plus 4% bucket", bucket_length_km=0.830, bucket_slope_pc=4.0),
+                SlopeBucketItem(bucket_description="plus 5% bucket", bucket_length_km=1.143, bucket_slope_pc=5.0),
+                SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=2.766, bucket_slope_pc=6.0),
+                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=1.099, bucket_slope_pc=7.0),
+                SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.207, bucket_slope_pc=8.0),
                 SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.0, bucket_slope_pc=9.0),
             ]
         ),
@@ -124,36 +234,6 @@ class RepositoryOfRoutes:
                 SlopeBucketItem(bucket_description="plus 14% bucket", bucket_length_km=0.428, bucket_slope_pc=14.0),
                 SlopeBucketItem(bucket_description="plus 15% bucket", bucket_length_km=0.194, bucket_slope_pc=15.0),
                 SlopeBucketItem(bucket_description="plus 16% bucket", bucket_length_km=0.079, bucket_slope_pc=16.0),
-            ]
-        ),
-
-        "epic_kom": RouteItem(
-            route_name          = "Epic KOM",
-            zwift_world_name    = "Watopia",
-            route_description   = "ZWIFT",
-            route_length_km     = 9.4,
-            route_elevation_m   = 415,
-            route_lead_in_km    = 0.0,
-            route_slope_buckets = [
-                SlopeBucketItem(bucket_description="minus 9% bucket", bucket_length_km=0.103, bucket_slope_pc=-9.0),
-                SlopeBucketItem(bucket_description="minus 8% bucket", bucket_length_km=0.123, bucket_slope_pc=-8.0),
-                SlopeBucketItem(bucket_description="minus 7% bucket", bucket_length_km=0.090, bucket_slope_pc=-7.0),
-                SlopeBucketItem(bucket_description="minus 6% bucket", bucket_length_km=0.049, bucket_slope_pc=-6.0),
-                SlopeBucketItem(bucket_description="minus 5% bucket", bucket_length_km=0.043, bucket_slope_pc=-5.0),
-                SlopeBucketItem(bucket_description="minus 4% bucket", bucket_length_km=0.114, bucket_slope_pc=-4.0),
-                SlopeBucketItem(bucket_description="minus 3% bucket", bucket_length_km=0.109, bucket_slope_pc=-3.0),
-                SlopeBucketItem(bucket_description="minus 2% bucket", bucket_length_km=0.090, bucket_slope_pc=-2.0),
-                SlopeBucketItem(bucket_description="minus 1% bucket", bucket_length_km=0.090, bucket_slope_pc=-1.0),
-                SlopeBucketItem(bucket_description="level 0% bucket", bucket_length_km=0.439, bucket_slope_pc=0.0),
-                SlopeBucketItem(bucket_description="plus 1% bucket", bucket_length_km=0.173, bucket_slope_pc=1.0),
-                SlopeBucketItem(bucket_description="plus 2% bucket", bucket_length_km=0.311, bucket_slope_pc=2.0),
-                SlopeBucketItem(bucket_description="plus 3% bucket", bucket_length_km=1.635, bucket_slope_pc=3.0),
-                SlopeBucketItem(bucket_description="plus 4% bucket", bucket_length_km=0.830, bucket_slope_pc=4.0),
-                SlopeBucketItem(bucket_description="plus 5% bucket", bucket_length_km=1.143, bucket_slope_pc=5.0),
-                SlopeBucketItem(bucket_description="plus 6% bucket", bucket_length_km=2.766, bucket_slope_pc=6.0),
-                SlopeBucketItem(bucket_description="plus 7% bucket", bucket_length_km=1.099, bucket_slope_pc=7.0),
-                SlopeBucketItem(bucket_description="plus 8% bucket", bucket_length_km=0.207, bucket_slope_pc=8.0),
-                SlopeBucketItem(bucket_description="plus 9% bucket", bucket_length_km=0.0, bucket_slope_pc=9.0),
             ]
         ),
 
