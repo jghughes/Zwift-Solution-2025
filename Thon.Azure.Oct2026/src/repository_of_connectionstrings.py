@@ -1,7 +1,7 @@
 from typing import List
 from pathlib import Path
 from jgh_exceptions import AlertMessageError
-from storage_config import CONNECTION_STRING_FILENAME, CONNECTION_STRING_DIRPATH
+from secrets_filepath import CONNECTION_STRING_FILENAME, CONNECTION_STRING_DIRPATH
 from jgh_read_write import read_lines
 
 

@@ -22,9 +22,6 @@ _stuffByJghDirPathStem =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDave
 
 DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
 
-CONNECTION_STRING_FILENAME : str = "connection_strings.txt"
-CONNECTION_STRING_DIRPATH : str = f"{_stuffByJghDirPathStem}/connectionstrings/"
-
 DIRPATH_CLUB_MEMBERSHIP_LIST = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST}/"
 
 DIRPATH_ZWIFT_FILES = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_ZWIFT_FILES}/"
