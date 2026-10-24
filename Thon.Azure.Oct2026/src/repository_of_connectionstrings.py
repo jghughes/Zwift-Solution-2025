@@ -43,8 +43,8 @@ class ConnectionStringRepository:
 
     _cache_of_connection_strings: List[str] = []
 
-    @classmethod
-    def get_azure_storage_account_connection_strings_for_zsun(cls) -> List[str]:
+    @staticmethod
+    def _get_azure_storage_account_connection_strings_for_zsun() -> List[str]:
         return read_lines(Path(CONNECTION_STRING_DIRPATH), CONNECTION_STRING_FILENAME)
 
     @classmethod
@@ -61,7 +61,7 @@ class ConnectionStringRepository:
             AlertMessageError: If the account name is not found in the cached connection strings.
         """
         if not cls._cache_of_connection_strings:
-            cls._cache_of_connection_strings = cls.get_azure_storage_account_connection_strings_for_zsun()
+            cls._cache_of_connection_strings = cls._get_azure_storage_account_connection_strings_for_zsun()
         for conn_str in cls._cache_of_connection_strings:
             if f"AccountName={account_name};" in conn_str:
                 return conn_str
