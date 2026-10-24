@@ -219,6 +219,7 @@ class AzureStorageServiceClient():
         except AppErrorBase as ex:
             msg = f"{failure} {str(ex)} {make_wait_time_msg(start)}"
             raise AppErrorBase(message=msg) from ex
+
     async def delete_block_blob_if_exists_async(self, storage_account_name: str, container_name: str, blob_name: str) -> bool:
         failure = MethodFailed
         start = datetime.now()
@@ -272,7 +273,7 @@ class AzureStorageServiceClient():
         blob_name: str,
         bytes_to_upload: bytes,
         create_container_if_not_exist: bool,
-    ) -> str | None:
+    ) -> str:
         failure = MethodFailed
         start = datetime.now()
         try:
@@ -321,6 +322,7 @@ class AzureStorageServiceClient():
         except AppErrorBase as ex:
             msg = f"{failure} {str(ex)} {make_wait_time_msg(start)}"
             raise AppErrorBase(message=msg) from ex
+
     async def upload_string_to_block_blob_async(
         self,
         storage_account_name: str,
@@ -328,7 +330,7 @@ class AzureStorageServiceClient():
         blob_name: str,
         string_to_upload: str,
         create_container_if_not_exist: bool,
-    ) -> str | None:
+    ) -> str:
         failure = MethodFailed
         start = datetime.now()
         try:
@@ -377,6 +379,7 @@ class AzureStorageServiceClient():
         except AppErrorBase as ex:
             msg = f"{failure} {str(ex)} {make_wait_time_msg(start)}"
             raise AppErrorBase(message=msg) from ex
+
     async def download_block_blob_as_bytes_async(
         self,
         storage_account_name: str,

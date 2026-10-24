@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List
 
-from jgh_azure_storage_service_client import AzureStorageServiceClient
+from jgh_azure_storage_service_client_v2 import AzureStorageServiceClient
 from jgh_formulae03 import order_paceline_by_desired_order_of_riders
 from jgh_formulae08 import show_table_of_standard_proxy_speeds_for_all_riders
 from jgh_internet_helpers import throw_if_no_internet_connection

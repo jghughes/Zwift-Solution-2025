@@ -132,11 +132,14 @@ class AzureStorageAccessor():
         blob_name: str,
         blob_contents: str,
         create_container_if_not_exist: bool,
-    ) -> Optional[str]:
+    ) -> str:
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
             if create_container_if_not_exist:
-                await container_client.create_container()
+                try:
+                    await container_client.create_container()
+                except ResourceExistsError:
+                    pass  # Already exists is not an error
             blob_client = container_client.get_blob_client(blob_name)
             most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
             await blob_client.upload_blob(
@@ -154,11 +157,14 @@ class AzureStorageAccessor():
         blob_name: str,
         blob_contents: bytes,
         create_container_if_not_exist: bool,
-    ) -> Optional[str]:
+    ) -> str:
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
             if create_container_if_not_exist:
-                await container_client.create_container()
+                try:
+                    await container_client.create_container()
+                except ResourceExistsError:
+                    pass  # Already exists is not an error
             blob_client = container_client.get_blob_client(blob_name)
             most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
             await blob_client.upload_blob(

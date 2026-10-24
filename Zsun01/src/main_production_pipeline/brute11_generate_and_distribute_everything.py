@@ -51,7 +51,7 @@ from typing import Type, Dict, Any
 import time
 import pandas as pd
 from constants import SINGLE_RIDER_ROUTE_NAME
-from jgh_azure_storage_service_client import AzureStorageServiceClient
+from jgh_azure_storage_service_client_v2 import AzureStorageServiceClient
 
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
 from jgh_internet_helpers import throw_if_no_internet_connection
@@ -107,7 +107,7 @@ async def upload_text_to_blob_storage_in_azure(
     container_name: str,
     blob_name: str,
     text: str,
-) -> str| None:
+) -> str:
     azure_client = AzureStorageServiceClient()
     url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
         storage_account_name, container_name, blob_name, text, False,)
