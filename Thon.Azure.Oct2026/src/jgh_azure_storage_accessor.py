@@ -2,17 +2,17 @@ import functools
 from typing import Awaitable, Callable, List, Optional, ParamSpec, TypeVar
 
 from azure.core.exceptions import (
-    ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError,
+    AzureError, ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError,
     ServiceRequestError, ServiceResponseError
 )
-from azure.storage.blob import BlobProperties, ContentSettings
-from azure.storage.blob.aio import BlobServiceClient
+from azure.storage.blob import BlobProperties, ContentSettings, StorageErrorCode
+from azure.storage.blob.aio import BlobServiceClient, ContainerClient
 
 from jgh_mime_type_map import get_extension_from_name, get_mime_type
 from jgh_exceptions import (
-    map_azure_client_authentication_error, map_azure_http_response_error, map_azure_resource_exists_error,
-    map_azure_resource_not_found_error, map_azure_service_request_error, map_azure_service_response_error,
-    map_azure_value_type_error
+    map_azure_client_authentication_error, map_azure_http_response_error, map_azure_resource_error,
+    map_azure_resource_exists_error, map_azure_resource_not_found_error, map_azure_service_request_error,
+    map_azure_service_response_error, map_azure_value_type_error
 )
 
 P = ParamSpec("P")
@@ -24,7 +24,8 @@ def maps_azure_exceptions(failure: str) -> Callable[[Callable[P, Awaitable[T]]],
     Decorator for async methods. Translates Azure SDK exceptions into the application's own exceptions
     (see jgh_exceptions.py) so that Azure exception types never propagate to callers.
     Clause order matters: ClientAuthenticationError, ResourceNotFoundError and ResourceExistsError are
-    subclasses of HttpResponseError and must be matched first. Anything unrecognised propagates unchanged.
+    subclasses of HttpResponseError and must be matched first. Any other AzureError is mapped to the
+    generic AppErrorBase as a catch-all, so no Azure exception type ever escapes.
     """
     def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
         @functools.wraps(func)
@@ -43,15 +44,31 @@ def maps_azure_exceptions(failure: str) -> Callable[[Callable[P, Awaitable[T]]],
                 map_azure_resource_exists_error(ex, failure)
             except HttpResponseError as ex:
                 map_azure_http_response_error(ex, failure)
+            except AzureError as ex:
+                map_azure_resource_error(ex, failure)
             except (ValueError, TypeError) as ex:
                 map_azure_value_type_error(ex, failure)
         return wrapper
     return decorator
 
 
+async def _create_container_if_not_exists_async(container_client: ContainerClient) -> bool:
+    """
+    Creates the container. Returns False if it already existed. Only the ContainerAlreadyExists error is
+    swallowed: other 409 conflicts (e.g. ContainerBeingDeleted) are re-raised.
+    """
+    try:
+        await container_client.create_container()
+        return True
+    except ResourceExistsError as ex:
+        if getattr(ex, "error_code", None) == StorageErrorCode.CONTAINER_ALREADY_EXISTS:
+            return False
+        raise
+
+
 class AzureStorageAccessor():
 
-    @maps_azure_exceptions("Unable to determine if container_name exists.")
+    @maps_azure_exceptions("Unable to determine if container exists.")
     async def get_if_container_exists_async(self, storage_account_connection_string: str, container_name: str) -> bool:
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
@@ -59,12 +76,9 @@ class AzureStorageAccessor():
 
     @maps_azure_exceptions("Unable to create container.")
     async def create_container_async(self, storage_account_connection_string: str, container_name: str) -> bool:
-        try:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-                container_client = blob_service_client.get_container_client(container_name)
-                await container_client.create_container()
-                return True
-        except ResourceExistsError:
+        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            container_client = blob_service_client.get_container_client(container_name)
+            await _create_container_if_not_exists_async(container_client)
             return True  # Already exists is not an error
 
     @maps_azure_exceptions("Unable to list blobs.")
@@ -133,21 +147,13 @@ class AzureStorageAccessor():
         blob_contents: str,
         create_container_if_not_exist: bool,
     ) -> str:
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            container_client = blob_service_client.get_container_client(container_name)
-            if create_container_if_not_exist:
-                try:
-                    await container_client.create_container()
-                except ResourceExistsError:
-                    pass  # Already exists is not an error
-            blob_client = container_client.get_blob_client(blob_name)
-            most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
-            await blob_client.upload_blob(
-                blob_contents,
-                overwrite=True,
-                content_settings=ContentSettings(content_type=most_likely_mime_type_title)
-            )
-            return blob_client.url
+        return await self.upload_bytes_async(
+            storage_account_connection_string,
+            container_name,
+            blob_name,
+            blob_contents.encode("utf-8"),
+            create_container_if_not_exist
+        )
 
     @maps_azure_exceptions("Unable to upload.")
     async def upload_bytes_async(
@@ -161,10 +167,7 @@ class AzureStorageAccessor():
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
             if create_container_if_not_exist:
-                try:
-                    await container_client.create_container()
-                except ResourceExistsError:
-                    pass  # Already exists is not an error
+                await _create_container_if_not_exists_async(container_client)
             blob_client = container_client.get_blob_client(blob_name)
             most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
             await blob_client.upload_blob(
@@ -174,7 +177,7 @@ class AzureStorageAccessor():
             )
             return blob_client.url
 
-    @maps_azure_exceptions("Resource not found or unavailable.")
+    @maps_azure_exceptions("Unable to download blob.")
     async def download_async(
         self,
         storage_account_connection_string: str,

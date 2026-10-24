@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Awaitable, Callable, Dict, List, Optional, TypeVar
 
 from jgh_azure_storage_accessor import AzureStorageAccessor
-from jgh_exceptions import AlertMessageError, TimeoutError as AppTimeoutError
-from jgh_internet_helpers import throw_if_no_internet_connection
+from jgh_exceptions import AlertMessageError, AppTimeoutError, NetworkError
+from jgh_internet_helpers import warn_if_internet_not_connected
 from jgh_path_helpers import throw_if_any_parameter_is_invalid
 from jgh_string import CallTimedOut, MethodFailed, make_wait_time_msg
 from repository_of_connectionstrings import ConnectionStringRepository
@@ -14,15 +14,16 @@ T = TypeVar("T")
 
 class AzureStorageServiceClient():
 	"""
-	Thin service layer over AzureStorageAccessor. Each public method validates its arguments, checks
-	connectivity, resolves the connection string for the named storage account, and invokes the accessor
-	under a timeout.
+	Thin service layer over AzureStorageAccessor. Each public method validates its arguments, resolves the
+	connection string for the named storage account, and invokes the accessor under a timeout.
 
 	Error contract:
-	  - Invalid arguments, a missing connection string, or no internet raise AlertMessageError.
-	  - A call exceeding the timeout raises the application's TimeoutError (jgh_exceptions).
+	  - Invalid arguments or a missing connection string raise AlertMessageError.
+	  - If a call times out or fails with a NetworkError, connectivity is checked afterwards. If the machine
+		is offline, AlertMessageError ("no internet connection") is raised instead. There is no pre-flight check.
+	  application's AppTimeoutError (jgh_exceptions)
 	  - Everything else (AuthenticationError, NetworkError, NotFoundError, AlreadyExistsError,
-		ValidationError, ...) is raised by the accessor already translated into the application's own
+		AppValidationError, ...) is raised
 		exceptions and propagates here unchanged, with its details intact.
 	"""
 
@@ -148,19 +149,29 @@ class AzureStorageServiceClient():
 		accessor_call: Callable[[str], Awaitable[T]],
 	) -> T:
 		"""
-		Shared pipeline for every public method: validate, check connectivity, resolve the connection
-		string, then await the accessor call under the timeout. blob_name is validated only if provided.
+		Shared pipeline for every public method: validate, resolve the connection string, then await the
+		accessor call under the timeout. blob_name is validated only if provided. Connectivity is not checked
+		up front; it is diagnosed only after a timeout or NetworkError, to report an offline machine accurately.
 		"""
 		start = datetime.now()
 		throw_if_any_parameter_is_invalid(storage_account_name, container_name, blob_name)
-		# The connectivity check does blocking socket I/O, so keep it off the event loop.
-		await asyncio.to_thread(throw_if_no_internet_connection)
 		connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
 		try:
 			return await asyncio.wait_for(accessor_call(connection_string), timeout=self.__timeout_seconds)
 		except asyncio.TimeoutError as ex:
+			await self.__throw_if_offline_async(ex)
 			raise AppTimeoutError(
 				message=f"{MethodFailed} {CallTimedOut} {make_wait_time_msg(start)}",
 				timeout_seconds=self.__timeout_seconds,
 				inner_exception=ex,
 			) from ex
+		except NetworkError as ex:
+			await self.__throw_if_offline_async(ex)
+			raise
+
+	@staticmethod
+	async def __throw_if_offline_async(cause: Exception) -> None:
+		# The check does blocking socket I/O, so keep it off the event loop.
+		warning = await asyncio.to_thread(warn_if_internet_not_connected)
+		if warning:
+			raise AlertMessageError(warning) from cause

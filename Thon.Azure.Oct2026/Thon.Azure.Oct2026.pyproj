@@ -25,7 +25,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\jgh_azure_storage_accessor.py" />
-    <Compile Include="src\jgh_azure_storage_service_client.py" />
     <Compile Include="src\jgh_azure_storage_service_client_v2.py" />
     <Compile Include="src\repository_of_connectionstrings.py" />
     <Compile Include="src\secrets_filepath.py" />
