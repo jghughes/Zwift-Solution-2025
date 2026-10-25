@@ -73,7 +73,13 @@ class AzureStorageAccessor():
     @maps_azure_exceptions("Unable to determine if container exists.")
     async def get_if_container_exists_async(self, storage_account_connection_string: str, container_name: str) -> bool:
         """
-        Returns True if the container exists, False if it does not.
+        Returns True if the container exists, False if it does not. A missing container is a normal answer here,
+        not an error, so NotFoundError is never raised by this method.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        connection string or container name is malformed or empty, AuthenticationError if the credentials are
+        rejected, and NetworkError if the service is unreachable, times out or returns an unexpected HTTP error.
+        Any other Azure failure is raised as the generic AppErrorBase.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
@@ -82,7 +88,17 @@ class AzureStorageAccessor():
     @maps_azure_exceptions("Unable to create container.")
     async def create_container_async(self, storage_account_connection_string: str, container_name: str) -> bool:
         """
-        Returns True once the container exists, whether newly created or already present.
+        Returns True once the container exists, whether it was newly created or was already present. A container
+        that already exists is a normal outcome, so this method is idempotent and returns True rather than raising.
+        The return value therefore does not tell the caller which of the two happened.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        connection string or container name is malformed or empty, AuthenticationError if the credentials are
+        rejected, and NetworkError if the service is unreachable, times out, or rejects the request with an
+        unexpected HTTP error (for example 400 for a container name that breaks Azure's naming rules).
+        AlreadyExistsError is raised only for a conflict other than "container already exists", such as a
+        container that is still being deleted. In that case the caller should wait and retry.
+        Any other Azure failure is raised as the generic AppErrorBase.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
@@ -94,16 +110,44 @@ class AzureStorageAccessor():
         self,
         storage_account_connection_string: str,
         container_name: str,
-        blob_name_filter: Optional[str] = None
+        name_starts_with: Optional[str] = None,
+        name_contains: Optional[str] = None,
     ) -> List[BlobProperties]:
         """
-        Returns the BlobProperties of each blob whose name contains blob_name_filter. All blobs are returned if the filter is None, empty or "*".
+        Returns the BlobProperties of the blobs in a container, in lexicographic order of blob name.
+
+        Filters (both are case-sensitive, and when both are given a blob must satisfy both):
+
+        name_starts_with  -- SERVER-SIDE filter. Matches the start of the full blob name, including 
+                             any virtual folder path. Sentinels meaning "no prefix filter, consider every blob":
+                               None  -- the default; the filter is not supplied.
+                               ""    -- an empty prefix; every name starts with "", so it is treated as None.
+                               "*"   -- treated as None, NOT as a literal asterisk. Azure has no wildcard
+                                        support, so "*" is accepted only for compatibility with the old
+                                        "all blobs" convention. A blob name that really starts with "*"
+                                        cannot be selected with this parameter.
+                             Any other value is a literal prefix. No wildcards or regular expressions are interpreted.
+
+        name_contains     -- CLIENT-SIDE filter. Azure cannot search for a substring, so every blob that survives
+                             name_starts_with is fetched and then tested with `name_contains in blob.name`.
+                             Combine it with name_starts_with to reduce the number of blobs fetched.
+                             Sentinels meaning "no substring filter":
+                               None, "", "*"  -- exactly as for name_starts_with ("*" is not a literal here either).
+                             Any other value is a literal substring, matched anywhere in the full blob name.
+
+        Raises (translated by the decorator to the application's own exceptions) NotFoundError if the container
+        does not exist, AppValidationError if the connection string or container name is malformed or empty,
+        AuthenticationError if the credentials are rejected, and NetworkError if the service is unreachable,
+        times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
+        prefix = _normalise_filter(name_starts_with)
+        substring = _normalise_filter(name_contains)
+
         blobs: List[BlobProperties] = []
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             container_client = blob_service_client.get_container_client(container_name)
-            async for properties_of_blob in container_client.list_blobs():
-                if not blob_name_filter or blob_name_filter == "*" or blob_name_filter in properties_of_blob.name:
+            async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
+                if substring is None or substring in properties_of_blob.name:
                     blobs.append(properties_of_blob)
         return blobs
 
@@ -115,7 +159,14 @@ class AzureStorageAccessor():
         blob_name: str
     ) -> bool:
         """
-        Returns True if the blob exists, False if it does not.
+        Returns True if the blob exists, False if it does not. A missing blob is a normal answer here, not an error.
+        False is also returned if the container itself does not exist, because Azure reports both as "not found".
+        NotFoundError is therefore never raised by this method.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        connection string, container name or blob name is malformed or empty, AuthenticationError if the
+        credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
+        unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             blob_client = blob_service_client.get_blob_client(container_name, blob_name)
@@ -129,7 +180,15 @@ class AzureStorageAccessor():
         blob_name: str
     ) -> bool:
         """
-        Returns True if the blob (and its snapshots) was deleted, False if it was not found, including when the container is missing.
+        Returns True if the blob (and its snapshots) was deleted, False if it was not found. A missing blob is a
+        normal outcome, so this method is idempotent. False is also returned if the container itself does not
+        exist, because Azure reports both as "not found", so the caller cannot distinguish the two cases.
+        NotFoundError is therefore never raised by this method.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        connection string, container name or blob name is malformed or empty, AuthenticationError if the
+        credentials are rejected (or lack permission to delete), and NetworkError if the service is unreachable,
+        times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             blob_client = blob_service_client.get_blob_client(container_name, blob_name)
@@ -149,7 +208,25 @@ class AzureStorageAccessor():
         blob_name: str
     ) -> Optional[str]:
         """
-        Returns the blob's absolute URL, or None if the blob does not exist.
+        Returns the blob's absolute URL, or None if the blob does not exist. None is also returned if the
+        container itself does not exist, because Azure reports both as "not found". A missing blob is a normal
+        answer here, not an error, so NotFoundError is never raised by this method. The blob's existence is
+        checked in a separate round trip, so the URL means "the blob existed a moment ago", not a guarantee
+        that it still exists.
+
+        The URL is percent-encoded, so a blob named "my file.txt" is returned as ".../my%20file.txt". This is the
+        valid form and can be used directly in an HTTP request. Do not decode and re-encode it, and do not pass it
+        back in as a blob_name. Use urllib.parse.unquote only for display.
+
+        The URL carries no credentials if the connection string uses an account key, so the caller can open it
+        only if the blob is publicly readable. If the connection string uses a SAS token, the token is appended
+        to the URL as a query string. The URL is then a live credential and must not be logged, displayed or
+        shared more widely than the token's permissions and expiry justify.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        connection string, container name or blob name is malformed or empty, AuthenticationError if the
+        credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
+        unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             blob_client = blob_service_client.get_blob_client(container_name, blob_name)
@@ -168,7 +245,24 @@ class AzureStorageAccessor():
     ) -> str:
         """
         Returns the absolute URL of the uploaded blob. The string is stored UTF-8 encoded.
-        Overwrites an existing blob with the same name.
+        Overwrites an existing blob with the same name without warning, so AlreadyExistsError is never raised for
+        the blob. If create_container_if_not_exist is True, a missing container is created first, and a
+        container that already exists is not an error.
+
+        The returned URL is percent-encoded, so a blob named "my file.txt" is returned as ".../my%20file.txt". This
+        is the valid form for an HTTP request. Do not pass it back in as a blob_name. It carries no credentials with
+        an account-key connection string, but includes the SAS token as a query string if the connection string
+        uses one, in which case treat the URL as a secret.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if
+        blob_contents is not a str, or if the connection string, container name or blob name is malformed or
+        empty. NotFoundError is raised if the container does not exist and create_container_if_not_exist is
+        False. AuthenticationError is raised if the credentials are rejected, and NetworkError if the service is
+        unreachable, times out or returns an unexpected HTTP error. AlreadyExistsError is raised only if the
+        container must be created but a conflicting operation blocks it, such as the container still being
+        deleted. In that case the caller should wait and retry. Any other Azure failure is raised as the generic
+        AppErrorBase. The upload is not atomic across a failure. If an error is raised, the caller should not
+        assume that the blob was left unchanged.
         """
         if not isinstance(blob_contents, str):
             raise TypeError(f"blob_contents must be str, not {type(blob_contents).__name__}.")
@@ -191,8 +285,25 @@ class AzureStorageAccessor():
     ) -> str:
         """
         Returns the absolute URL of the uploaded blob. Its content type is inferred from the blob name's extension.
-        Overwrites an existing blob with the same name.
-        """
+        Overwrites an existing blob with the same name without warning, so AlreadyExistsError is never raised for
+        the blob. If create_container_if_not_exist is True, a missing container is created first, and a
+        container that already exists is not an error.
+
+        The returned URL is percent-encoded, so a blob named "my file.txt" is returned as ".../my%20file.txt". This
+        is the valid form for an HTTP request. Do not pass it back in as a blob_name. It carries no credentials with
+        an account-key connection string, but includes the SAS token as a query string if the connection string
+        uses one, in which case treat the URL as a secret.
+
+        Raises (translated by the decorator to the application's own exceptions) AppValidationError if
+        blob_contents is not bytes, bytearray or memoryview, or if the connection string, container name or blob
+        name is malformed or empty. NotFoundError is raised if the container does not exist and
+        create_container_if_not_exist is False. AuthenticationError is raised if the credentials are rejected,
+        and NetworkError if the service is unreachable, times out or returns an unexpected HTTP error.
+        AlreadyExistsError is raised only if the container must be created but a conflicting operation blocks it,
+        such as the container still being deleted. In that case the caller should wait and retry. Any other Azure
+        failure is raised as the generic AppErrorBase. If an error is raised, the caller should not assume that
+        the blob was left unchanged.
+        """        
         if not isinstance(blob_contents, (bytes, bytearray, memoryview)):
             raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
@@ -216,10 +327,24 @@ class AzureStorageAccessor():
         blob_name: str
     ) -> bytes:
         """
-        Returns the blob's full contents as bytes. Raises if the blob does not exist.
+        Returns the blob's full contents as bytes, read entirely into memory. This is unsuitable for very large
+        blobs. An empty blob returns b"".
+
+        Raises (translated by the decorator to the application's own exceptions) NotFoundError if the blob does
+        not exist, or if the container does not exist, because Azure reports both as "not found" and the caller
+        cannot distinguish them. AppValidationError is raised if the connection string, container name or blob
+        name is malformed or empty. AuthenticationError is raised if the credentials are rejected, and
+        NetworkError if the service is unreachable, times out or returns an unexpected HTTP error. Any other
+        Azure failure is raised as the generic AppErrorBase. A failure part-way through the transfer is also
+        raised, never returned as truncated data.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             blob_client = blob_service_client.get_blob_client(container_name, blob_name)
             downloader = await blob_client.download_blob()
             return await downloader.readall()
 
+def _normalise_filter(value: Optional[str]) -> Optional[str]:
+    """
+    Maps the 'no filter' sentinels (None, "" and "*") to None. Any other value is returned unchanged.
+    """
+    return None if value in (None, "", "*") else value
