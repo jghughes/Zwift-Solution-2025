@@ -69,6 +69,30 @@ async def _create_container_if_not_exists_async(container_client: ContainerClien
 
 
 class AzureStorageAccessor():
+    """
+    Async accessor over Azure Blob Storage. Every public method opens its own BlobServiceClient from the
+    connection string passed in, and closes it before returning.
+
+    Error contract (applies to every public method, so the method docstrings do not repeat it):
+      - Azure SDK exceptions never escape. They are translated by maps_azure_exceptions into the application's
+        own exceptions (jgh_exceptions.py).
+      - AuthenticationError means the credentials themselves were rejected: a wrong account key, an invalid or
+        expired SAS signature. HTTP 401, or an Azure error code of AuthenticationFailed or
+        InvalidAuthenticationInfo.
+      - Valid credentials that lack permission for the operation are NOT reported as AuthenticationError.
+        Azure answers with HTTP 403 (error codes such as AuthorizationPermissionMismatch or
+        AuthorizationFailure), the SDK raises a plain HttpResponseError, and it arrives as NetworkError with
+        http_status 403. Examples: a SAS token without the read, write, create, delete or list permission, an
+        RBAC identity without the needed role, or a storage firewall rule blocking the caller's IP address.
+        Callers who need to tell a permissions problem from a connectivity problem must check
+        NetworkError.http_status (or details["status_code"]) for 403. The message and details carry the Azure
+        error code.
+      - Other HTTP failures (for example a 400 for an invalid name) also arrive as NetworkError, with the
+        status in http_status. Unreachable or non-responding services arrive as NetworkError with no HTTP
+        status. Failures that fit none of the above arrive as the generic AppErrorBase.
+      - A missing blob or container is a normal answer for the get_if_*, delete_*_if_exists and
+        get_absolute_uri methods, and is an error (NotFoundError) for the list and download methods.
+    """
 
     @maps_azure_exceptions("Unable to determine if container exists.")
     async def get_if_container_exists_async(self, storage_account_connection_string: str, container_name: str) -> bool:
@@ -187,8 +211,9 @@ class AzureStorageAccessor():
 
         Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
         connection string, container name or blob name is malformed or empty, AuthenticationError if the
-        credentials are rejected (or lack permission to delete), and NetworkError if the service is unreachable,
-        times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
+        credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
+        unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase. See the class
+        docstring for how permission failures (HTTP 403) are reported.
         """
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
             blob_client = blob_service_client.get_blob_client(container_name, blob_name)
@@ -261,7 +286,7 @@ class AzureStorageAccessor():
         unreachable, times out or returns an unexpected HTTP error. AlreadyExistsError is raised only if the
         container must be created but a conflicting operation blocks it, such as the container still being
         deleted. In that case the caller should wait and retry. Any other Azure failure is raised as the generic
-        AppErrorBase. The upload is not atomic across a failure. If an error is raised, the caller should not
+        AppErrorBase. If an error is raised, the caller should not
         assume that the blob was left unchanged.
         """
         if not isinstance(blob_contents, str):
@@ -303,7 +328,7 @@ class AzureStorageAccessor():
         such as the container still being deleted. In that case the caller should wait and retry. Any other Azure
         failure is raised as the generic AppErrorBase. If an error is raised, the caller should not assume that
         the blob was left unchanged.
-        """        
+        """ 
         if not isinstance(blob_contents, (bytes, bytearray, memoryview)):
             raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
         async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
