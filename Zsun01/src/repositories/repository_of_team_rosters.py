@@ -36,7 +36,7 @@ class RepositoryOfTeamRosters:
             "dome": 1.05,
             "bojo": 1.0,
             "inhibited": 0.95,
-            "rangers": 1.0,
+            "rangers": 0.8,
             "rangers2026": 0.95,
         }
     )
@@ -259,15 +259,15 @@ class RepositoryOfTeamRosters:
                 "383480": "lynsey_segal",
             }),
             "rangers": defaultdict(str, {
-                "5726145": "bill_henson",
+                # "5726145": "bill_henson",
                 # "1363894": "bill_lomax",
-                "456545": "carrie_merrit",
-                "473087": "curtis_repen",
-                "4945836": "david_evanetich",
+                # "456545": "carrie_merrit",
+                # "473087": "curtis_repen",
+                # "4945836": "david_evanetich",
                 "1884456": "john_hughes",
-                 "2508033": "josh_neil",
-                "618585": "kent_johnson",
-                "7460730": "tony_chang",
+                 # "2508033": "josh_neil",
+                # "618585": "kent_johnson",
+                # "7460730": "tony_chang",
             }),
             "rangers2025": defaultdict(str, {
                 "991817": "brandi_steeve",

@@ -285,8 +285,8 @@ def solve_for_velocity_from_power_using_binary_search(power_watts: float, height
 
     # 2. Binary search
 
-    REQUIRED_PRECISION_OF_SPEED_KPH = 0.05
-    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 30
+    REQUIRED_PRECISION_OF_SPEED_KPH = 0.001
+    MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION = 100
 
     binary_search_iterations: int = 0
 

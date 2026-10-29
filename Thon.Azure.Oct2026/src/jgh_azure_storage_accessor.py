@@ -1,5 +1,4 @@
-import functools
-from typing import Any, Awaitable, Callable, Coroutine, List, Optional, ParamSpec, TypeVar
+from typing import Awaitable, Callable, List, Optional, TypeVar
 
 from azure.core.exceptions import (
     AzureError, ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError,
@@ -15,43 +14,38 @@ from jgh_exceptions import (
     map_azure_service_response_error, map_azure_value_type_error
 )
 
-P = ParamSpec("P")
 T = TypeVar("T")
 
 
-def maps_azure_exceptions(
-    failureMessage: str,
-) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Coroutine[Any, Any, T]]]:
+async def _execute_async(failure: str, operation: Callable[[], Awaitable[T]]) -> T:
     """
-    Decorator for async methods. Translates Azure SDK exceptions into the application's own exceptions
-    (see jgh_exceptions.py) so that Azure exception types never propagate to callers.
+    Runs the operation and translates Azure SDK exceptions into the application's own exceptions
+    (see jgh_exceptions.py) so that Azure exception types never propagate to callers. The failure message
+    is stamped on every translated exception.
+    Everything that can throw, including argument checks and construction of the Azure clients, must be
+    inside the operation so that it is caught here.
     Clause order matters: ClientAuthenticationError, ResourceNotFoundError and ResourceExistsError are
     subclasses of HttpResponseError and must be matched first. Any other AzureError is mapped to the
     generic AppErrorBase as a catch-all, so no Azure exception type ever escapes.
     """
-    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Coroutine[Any, Any, T]]:
-        @functools.wraps(func)
-        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            try:
-                return await func(*args, **kwargs)
-            except ClientAuthenticationError as ex:
-                map_azure_client_authentication_error(ex, failureMessage)
-            except ServiceRequestError as ex:
-                map_azure_service_request_error(ex, failureMessage)
-            except ServiceResponseError as ex:
-                map_azure_service_response_error(ex, failureMessage)
-            except ResourceNotFoundError as ex:
-                map_azure_resource_not_found_error(ex, failureMessage)
-            except ResourceExistsError as ex:
-                map_azure_resource_exists_error(ex, failureMessage)
-            except HttpResponseError as ex:
-                map_azure_http_response_error(ex, failureMessage)
-            except AzureError as ex:
-                map_azure_resource_error(ex, failureMessage)
-            except (ValueError, TypeError) as ex:
-                map_azure_value_type_error(ex, failureMessage)
-        return wrapper
-    return decorator
+    try:
+        return await operation()
+    except ClientAuthenticationError as ex:
+        map_azure_client_authentication_error(ex, failure)
+    except ServiceRequestError as ex:
+        map_azure_service_request_error(ex, failure)
+    except ServiceResponseError as ex:
+        map_azure_service_response_error(ex, failure)
+    except ResourceNotFoundError as ex:
+        map_azure_resource_not_found_error(ex, failure)
+    except ResourceExistsError as ex:
+        map_azure_resource_exists_error(ex, failure)
+    except HttpResponseError as ex:
+        map_azure_http_response_error(ex, failure)
+    except AzureError as ex:
+        map_azure_resource_error(ex, failure)
+    except (ValueError, TypeError) as ex:
+        map_azure_value_type_error(ex, failure)
 
 
 async def _create_container_if_not_exists_async(container_client: ContainerClient) -> bool:
@@ -68,13 +62,20 @@ async def _create_container_if_not_exists_async(container_client: ContainerClien
         raise
 
 
+def _normalise_filter(value: Optional[str]) -> Optional[str]:
+    """
+    Maps the 'no filter' sentinels (None, "" and "*") to None. Any other value is returned unchanged.
+    """
+    return None if value in (None, "", "*") else value
+
+
 class AzureStorageAccessor():
     """
     Async accessor over Azure Blob Storage. Every public method opens its own BlobServiceClient from the
     connection string passed in, and closes it before returning.
 
     Error contract (applies to every public method, so the method docstrings do not repeat it):
-      - Azure SDK exceptions never escape. They are translated by maps_azure_exceptions into the application's
+      - Azure SDK exceptions never escape. They are translated by _execute_async into the application's
         own exceptions (jgh_exceptions.py).
       - AuthenticationError means the credentials themselves were rejected: a wrong account key, an invalid or
         expired SAS signature. HTTP 401, or an Azure error code of AuthenticationFailed or
@@ -94,29 +95,30 @@ class AzureStorageAccessor():
         get_absolute_uri methods, and is an error (NotFoundError) for the list and download methods.
     """
 
-    @maps_azure_exceptions("Unable to determine if container exists.")
     async def get_if_container_exists_async(self, storage_account_connection_string: str, container_name: str) -> bool:
         """
         Returns True if the container exists, False if it does not. A missing container is a normal answer here,
         not an error, so NotFoundError is never raised by this method.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if the
         connection string or container name is malformed or empty, AuthenticationError if the credentials are
         rejected, and NetworkError if the service is unreachable, times out or returns an unexpected HTTP error.
         Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            container_client = blob_service_client.get_container_client(container_name)
-            return await container_client.exists()
+        async def operation() -> bool:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                container_client = blob_service_client.get_container_client(container_name)
+                return await container_client.exists()
 
-    @maps_azure_exceptions("Unable to create container.")
+        return await _execute_async("Unable to determine if container exists.", operation)
+
     async def create_container_async(self, storage_account_connection_string: str, container_name: str) -> bool:
         """
         Returns True once the container exists, whether it was newly created or was already present. A container
         that already exists is a normal outcome, so this method is idempotent and returns True rather than raising.
         The return value therefore does not tell the caller which of the two happened.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if the
         connection string or container name is malformed or empty, AuthenticationError if the credentials are
         rejected, and NetworkError if the service is unreachable, times out, or rejects the request with an
         unexpected HTTP error (for example 400 for a container name that breaks Azure's naming rules).
@@ -124,12 +126,14 @@ class AzureStorageAccessor():
         container that is still being deleted. In that case the caller should wait and retry.
         Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            container_client = blob_service_client.get_container_client(container_name)
-            await _create_container_if_not_exists_async(container_client)
-            return True  # Already exists is not an error
+        async def operation() -> bool:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                container_client = blob_service_client.get_container_client(container_name)
+                await _create_container_if_not_exists_async(container_client)
+                return True  # Already exists is not an error
 
-    @maps_azure_exceptions("Unable to list blobs.")
+        return await _execute_async("Unable to create container.", operation)
+
     async def list_blobs_in_container_async(
         self,
         storage_account_connection_string: str,
@@ -159,23 +163,25 @@ class AzureStorageAccessor():
                                None, "", "*"  -- exactly as for name_starts_with ("*" is not a literal here either).
                              Any other value is a literal substring, matched anywhere in the full blob name.
 
-        Raises (translated by the decorator to the application's own exceptions) NotFoundError if the container
+        Raises (translated by _execute_async to the application's own exceptions) NotFoundError if the container
         does not exist, AppValidationError if the connection string or container name is malformed or empty,
         AuthenticationError if the credentials are rejected, and NetworkError if the service is unreachable,
         times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
-        prefix = _normalise_filter(name_starts_with)
-        substring = _normalise_filter(name_contains)
+        async def operation() -> List[BlobProperties]:
+            prefix = _normalise_filter(name_starts_with)
+            substring = _normalise_filter(name_contains)
 
-        blobs: List[BlobProperties] = []
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            container_client = blob_service_client.get_container_client(container_name)
-            async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
-                if substring is None or substring in properties_of_blob.name:
-                    blobs.append(properties_of_blob)
-        return blobs
+            blobs: List[BlobProperties] = []
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                container_client = blob_service_client.get_container_client(container_name)
+                async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
+                    if substring is None or substring in properties_of_blob.name:
+                        blobs.append(properties_of_blob)
+            return blobs
 
-    @maps_azure_exceptions("Unable to determine if blob exists.")
+        return await _execute_async("Unable to list blobs.", operation)
+
     async def get_if_blob_exists_async(
         self,
         storage_account_connection_string: str,
@@ -187,16 +193,18 @@ class AzureStorageAccessor():
         False is also returned if the container itself does not exist, because Azure reports both as "not found".
         NotFoundError is therefore never raised by this method.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if the
         connection string, container name or blob name is malformed or empty, AuthenticationError if the
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            blob_client = blob_service_client.get_blob_client(container_name, blob_name)
-            return await blob_client.exists()
+        async def operation() -> bool:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+                return await blob_client.exists()
 
-    @maps_azure_exceptions("Unable to delete blob.")
+        return await _execute_async("Unable to determine if blob exists.", operation)
+
     async def delete_blob_if_exists_async(
         self,
         storage_account_connection_string: str,
@@ -209,23 +217,25 @@ class AzureStorageAccessor():
         exist, because Azure reports both as "not found", so the caller cannot distinguish the two cases.
         NotFoundError is therefore never raised by this method.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if the
         connection string, container name or blob name is malformed or empty, AuthenticationError if the
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase. See the class
         docstring for how permission failures (HTTP 403) are reported.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            blob_client = blob_service_client.get_blob_client(container_name, blob_name)
-            try:
-                await blob_client.delete_blob(delete_snapshots="include")
-                return True
-            except ResourceNotFoundError:
-                # A single round trip, and no race between an exists check and the delete.
-                # Note: a missing container also raises ResourceNotFoundError and is treated as "blob not present".
-                return False
+        async def operation() -> bool:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+                try:
+                    await blob_client.delete_blob(delete_snapshots="include")
+                    return True
+                except ResourceNotFoundError:
+                    # A single round trip, and no race between an exists check and the delete.
+                    # Note: a missing container also raises ResourceNotFoundError and is treated as "blob not present".
+                    return False
 
-    @maps_azure_exceptions("Unable to obtain uri of blob.")
+        return await _execute_async("Unable to delete blob.", operation)
+
     async def get_absolute_uri_of_blob_async(
         self,
         storage_account_connection_string: str,
@@ -248,18 +258,20 @@ class AzureStorageAccessor():
         to the URL as a query string. The URL is then a live credential and must not be logged, displayed or
         shared more widely than the token's permissions and expiry justify.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if the
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if the
         connection string, container name or blob name is malformed or empty, AuthenticationError if the
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            blob_client = blob_service_client.get_blob_client(container_name, blob_name)
-            if not await blob_client.exists():
-                return None
-            return blob_client.url
+        async def operation() -> Optional[str]:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+                if not await blob_client.exists():
+                    return None
+                return blob_client.url
 
-    @maps_azure_exceptions("Unable to upload.")
+        return await _execute_async("Unable to obtain uri of blob.", operation)
+
     async def upload_string_async(
         self,
         storage_account_connection_string: str,
@@ -279,7 +291,7 @@ class AzureStorageAccessor():
         an account-key connection string, but includes the SAS token as a query string if the connection string
         uses one, in which case treat the URL as a secret.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if
         blob_contents is not a str, or if the connection string, container name or blob name is malformed or
         empty. NotFoundError is raised if the container does not exist and create_container_if_not_exist is
         False. AuthenticationError is raised if the credentials are rejected, and NetworkError if the service is
@@ -289,17 +301,19 @@ class AzureStorageAccessor():
         AppErrorBase. If an error is raised, the caller should not
         assume that the blob was left unchanged.
         """
-        if not isinstance(blob_contents, str):
-            raise TypeError(f"blob_contents must be str, not {type(blob_contents).__name__}.")
-        return await self.upload_bytes_async(
-            storage_account_connection_string,
-            container_name,
-            blob_name,
-            blob_contents.encode("utf-8"),
-            create_container_if_not_exist
-        )
+        async def operation() -> str:
+            if not isinstance(blob_contents, str):
+                raise TypeError(f"blob_contents must be str, not {type(blob_contents).__name__}.")
+            return await self.upload_bytes_async(
+                storage_account_connection_string,
+                container_name,
+                blob_name,
+                blob_contents.encode("utf-8"),
+                create_container_if_not_exist
+            )
 
-    @maps_azure_exceptions("Unable to upload.")
+        return await _execute_async("Unable to upload.", operation)
+
     async def upload_bytes_async(
         self,
         storage_account_connection_string: str,
@@ -319,7 +333,7 @@ class AzureStorageAccessor():
         an account-key connection string, but includes the SAS token as a query string if the connection string
         uses one, in which case treat the URL as a secret.
 
-        Raises (translated by the decorator to the application's own exceptions) AppValidationError if
+        Raises (translated by _execute_async to the application's own exceptions) AppValidationError if
         blob_contents is not bytes, bytearray or memoryview, or if the connection string, container name or blob
         name is malformed or empty. NotFoundError is raised if the container does not exist and
         create_container_if_not_exist is False. AuthenticationError is raised if the credentials are rejected,
@@ -329,22 +343,24 @@ class AzureStorageAccessor():
         failure is raised as the generic AppErrorBase. If an error is raised, the caller should not assume that
         the blob was left unchanged.
         """ 
-        if not isinstance(blob_contents, (bytes, bytearray, memoryview)):
-            raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            container_client = blob_service_client.get_container_client(container_name)
-            if create_container_if_not_exist:
-                await _create_container_if_not_exists_async(container_client)
-            blob_client = container_client.get_blob_client(blob_name)
-            most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
-            await blob_client.upload_blob(
-                blob_contents,
-                overwrite=True,
-                content_settings=ContentSettings(content_type=most_likely_mime_type_title)
-            )
-            return blob_client.url
+        async def operation() -> str:
+            if not isinstance(blob_contents, (bytes, bytearray, memoryview)):
+                raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                container_client = blob_service_client.get_container_client(container_name)
+                if create_container_if_not_exist:
+                    await _create_container_if_not_exists_async(container_client)
+                blob_client = container_client.get_blob_client(blob_name)
+                most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
+                await blob_client.upload_blob(
+                    blob_contents,
+                    overwrite=True,
+                    content_settings=ContentSettings(content_type=most_likely_mime_type_title)
+                )
+                return blob_client.url
 
-    @maps_azure_exceptions("Unable to download blob.")
+        return await _execute_async("Unable to upload.", operation)
+
     async def download_async(
         self,
         storage_account_connection_string: str,
@@ -355,7 +371,7 @@ class AzureStorageAccessor():
         Returns the blob's full contents as bytes, read entirely into memory. This is unsuitable for very large
         blobs. An empty blob returns b"".
 
-        Raises (translated by the decorator to the application's own exceptions) NotFoundError if the blob does
+        Raises (translated by _execute_async to the application's own exceptions) NotFoundError if the blob does
         not exist, or if the container does not exist, because Azure reports both as "not found" and the caller
         cannot distinguish them. AppValidationError is raised if the connection string, container name or blob
         name is malformed or empty. AuthenticationError is raised if the credentials are rejected, and
@@ -363,13 +379,12 @@ class AzureStorageAccessor():
         Azure failure is raised as the generic AppErrorBase. A failure part-way through the transfer is also
         raised, never returned as truncated data.
         """
-        async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
-            blob_client = blob_service_client.get_blob_client(container_name, blob_name)
-            downloader = await blob_client.download_blob()
-            return await downloader.readall()
+        async def operation() -> bytes:
+            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+                downloader = await blob_client.download_blob()
+                return await downloader.readall()
 
-def _normalise_filter(value: Optional[str]) -> Optional[str]:
-    """
-    Maps the 'no filter' sentinels (None, "" and "*") to None. Any other value is returned unchanged.
-    """
-    return None if value in (None, "", "*") else value
+        return await _execute_async("Unable to download blob.", operation)
+
+

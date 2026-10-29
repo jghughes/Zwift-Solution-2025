@@ -150,6 +150,7 @@ class ZwiftRacingAppItem(ZwiftIdBase):
 	zp_FTP				: float		= 0.0		# ZwiftPower FTP
 	poweritem			: PowerItem	= field(default_factory=PowerItem)	# Power data
 	raceitem			: RaceItem	= field(default_factory=RaceItem)	# Race data
+	veloitem			: RaceItem	= field(default_factory=RaceItem)	# Race data
 
 	@staticmethod
 	def from_dataTransferObject(dto: Optional[ZwiftRacingAppDTO]) -> "ZwiftRacingAppItem":
@@ -167,6 +168,7 @@ class ZwiftRacingAppItem(ZwiftIdBase):
 			zp_FTP				= dto.zp_FTP			or 0.0,
 			poweritem			= PowerItem.from_dataTransferObject(dto.power_obj),
 			raceitem			= RaceItem.from_dataTransferObject(dto.race_obj),
+            veloitem            = RaceItem.from_dataTransferObject(dto.velo_obj)
 		)
 
 	@staticmethod
@@ -185,4 +187,5 @@ class ZwiftRacingAppItem(ZwiftIdBase):
 			zp_FTP				= item.zp_FTP,
 			power_obj			= PowerItem.to_dataTransferObject(item.poweritem),
 			race_obj			= RaceItem.to_dataTransferObject(item.raceitem),
+            velo_obj            = RaceItem.to_dataTransferObject(item.veloitem)
 		)

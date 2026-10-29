@@ -15,6 +15,7 @@ validation_alias_choices_map_ZwiftRacingAppDTO: dict[str, AliasChoices] = {
     "zp_FTP": AliasChoices("zp_FTP", "zpFTP"),
     "power_obj": AliasChoices("power_obj", "power"),
     "race_obj": AliasChoices("race_obj", "race"),
+    "velo_obj": AliasChoices("velo_obj", "velo"),
     "timestamp": AliasChoices("timestamp", "timestamp"),
     "status": AliasChoices("status", "status"),
 }
@@ -42,10 +43,10 @@ validation_alias_choices_map_RaceDTO: dict[str, AliasChoices] = {
 }
 validation_alias_choices_map_RatingScoreDTO: dict[str, AliasChoices] = {
     "velo_rating": AliasChoices("velo_rating", "rating"),
-    "mixed_things_obj": AliasChoices("mixed_things_obj", "mixed"),
+    "mixed_things_obj": AliasChoices("mixed_things_obj", "mixed", "open"),
 }
 validation_alias_choices_map_MixedDTO: dict[str, AliasChoices] = {
-    "velo_cat_name": AliasChoices("velo_cat_name", "category"),
+    "velo_cat_name": AliasChoices("velo_cat_name", "category", "name"),
     "velo_cat_num": AliasChoices("velo_cat_num", "number"),
 }
 
@@ -129,6 +130,7 @@ class ZwiftRacingAppDTO(BaseModel):
 	zp_FTP					:	Optional[float]		=	0.0		# ZwiftPower FTP (Functional Threshold Power)
 	power_obj				:	Optional[PowerDTO]	=	Field(default_factory=PowerDTO)		# Power data of the rider
 	race_obj				:	Optional[RaceDTO]	=	Field(default_factory=RaceDTO)		# Race data of the rider
+	velo_obj				:	Optional[RaceDTO]	=	Field(default_factory=RaceDTO)		# Velo2 data of the rider
 	timestamp				:	Optional[str]		=	""		# Date when the Zwift Racing App was last_name updated
 
 	# Validator for zwift_id to convert int to string

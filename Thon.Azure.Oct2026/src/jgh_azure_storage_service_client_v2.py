@@ -43,6 +43,41 @@ class AzureStorageServiceClient():
 		self.__storage_gateway = AzureStorageAccessor()
 		self.__timeout_seconds = timeout_seconds
 
+	async def _execute_async(
+		self,
+		storage_account_name: str,
+		container_name: str,
+		blob_name: Optional[str],
+		operation: Callable[[str], Awaitable[T]],
+	) -> T:
+		"""
+		Shared pipeline for every public method: validate, resolve the connection string, then await the
+		accessor call under the timeout. blob_name is validated only if provided. Connectivity is not checked
+		up front; it is diagnosed only after a timeout or NetworkError, to report an offline machine accurately.
+		"""
+		start = datetime.now()
+		throw_if_any_parameter_is_invalid(storage_account_name, container_name, blob_name)
+		connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
+		try:
+			return await asyncio.wait_for(operation(connection_string), timeout=self.__timeout_seconds)
+		except asyncio.TimeoutError as ex:
+			await self.__throw_if_offline_async(ex)
+			raise AppTimeoutError(
+				message=f"{MethodFailed} {CallTimedOut} {make_wait_time_msg(start)}",
+				timeout_seconds=self.__timeout_seconds,
+				inner_exception=ex,
+			) from ex
+		except NetworkError as ex:
+			await self.__throw_if_offline_async(ex)
+			raise
+
+	@staticmethod
+	async def __throw_if_offline_async(cause: Exception) -> None:
+		# The check does blocking socket I/O, so keep it off the event loop.
+		warning = await asyncio.to_thread(warn_if_internet_not_connected)
+		if warning:
+			raise AlertMessageError(warning) from cause
+
 	async def get_if_service_is_answering_async(self) -> bool:
 		"""Not applicable for this client, which uses no external service. Always returns True."""
 		return True
@@ -61,7 +96,7 @@ class AzureStorageServiceClient():
 		offline. AppTimeoutError is raised if the call times out while online. Failures reported by the accessor,
 		such as AuthenticationError or NetworkError, propagate unchanged.
 		"""
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, None,
 			lambda connection_string: self.__storage_gateway.get_if_container_exists_async(
 				connection_string, container_name
@@ -101,7 +136,7 @@ class AzureStorageServiceClient():
 		such as NotFoundError (the container does not exist), AuthenticationError or NetworkError, propagate
 		unchanged.
 		"""
-		list_of_blob_properties = await self.__execute_storage_operation_async(
+		list_of_blob_properties = await self._execute_async(
 			storage_account_name, container_name, None,
 			lambda connection_string: self.__storage_gateway.list_blobs_in_container_async(
 				connection_string,
@@ -124,7 +159,7 @@ class AzureStorageServiceClient():
 		raised if the call times out while online. Failures reported by the accessor, such as AuthenticationError
 		or NetworkError, propagate unchanged.
 		"""
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.get_if_blob_exists_async(
 				connection_string, container_name, blob_name
@@ -155,7 +190,7 @@ class AzureStorageServiceClient():
 		raised if the call times out while online. Failures reported by the accessor, such as AuthenticationError
 		or NetworkError, propagate unchanged.
 		"""
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.get_absolute_uri_of_blob_async(
 				connection_string, container_name, blob_name
@@ -183,7 +218,7 @@ class AzureStorageServiceClient():
 		If the call times out, whether the blob was deleted is unknown. Deletion is idempotent, so the caller
 		can safely retry.
 		"""
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.delete_blob_if_exists_async(
 				connection_string, container_name, blob_name
@@ -201,7 +236,7 @@ class AzureStorageServiceClient():
 		"""Uploads (overwriting) and returns the url of the blob."""
 		if not bytes_to_upload:
 			raise AlertMessageError("Error: bytes_to_upload must be non-empty bytes or bytearray.")
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.upload_bytes_async(
 				connection_string, container_name, blob_name, bytes_to_upload, create_container_if_not_exist
@@ -245,13 +280,9 @@ class AzureStorageServiceClient():
 		seconds. If the call times out or fails, the caller should not assume the blob was left unchanged.
 		Uploading is idempotent, so the caller can safely retry.
 		"""
-
-
-
-
 		if not string_to_upload:
 			raise AlertMessageError("Error: string_to_upload must be a non-empty string.")
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.upload_string_async(
 				connection_string, container_name, blob_name, string_to_upload, create_container_if_not_exist
@@ -283,44 +314,10 @@ class AzureStorageServiceClient():
 		A failure part-way through the transfer is raised, never returned as truncated data. Downloading is
 		read-only, so the caller can safely retry.
 		"""
-		return await self.__execute_storage_operation_async(
+		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
 			lambda connection_string: self.__storage_gateway.download_async(
 				connection_string, container_name, blob_name
 			),
 		)
 
-	async def __execute_storage_operation_async(
-		self,
-		storage_account_name: str,
-		container_name: str,
-		blob_name: Optional[str],
-		storage_operation: Callable[[str], Awaitable[T]],
-	) -> T:
-		"""
-		Shared pipeline for every public method: validate, resolve the connection string, then await the
-		accessor call under the timeout. blob_name is validated only if provided. Connectivity is not checked
-		up front; it is diagnosed only after a timeout or NetworkError, to report an offline machine accurately.
-		"""
-		start = datetime.now()
-		throw_if_any_parameter_is_invalid(storage_account_name, container_name, blob_name)
-		connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
-		try:
-			return await asyncio.wait_for(storage_operation(connection_string), timeout=self.__timeout_seconds)
-		except asyncio.TimeoutError as ex:
-			await self.__throw_if_offline_async(ex)
-			raise AppTimeoutError(
-				message=f"{MethodFailed} {CallTimedOut} {make_wait_time_msg(start)}",
-				timeout_seconds=self.__timeout_seconds,
-				inner_exception=ex,
-			) from ex
-		except NetworkError as ex:
-			await self.__throw_if_offline_async(ex)
-			raise
-
-	@staticmethod
-	async def __throw_if_offline_async(cause: Exception) -> None:
-		# The check does blocking socket I/O, so keep it off the event loop.
-		warning = await asyncio.to_thread(warn_if_internet_not_connected)
-		if warning:
-			raise AlertMessageError(warning) from cause
