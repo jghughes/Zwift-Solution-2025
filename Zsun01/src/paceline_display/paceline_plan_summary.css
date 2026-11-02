@@ -114,18 +114,20 @@ h1 {
 .rider-table th {
     background-color: var(--color-header-bg);
     font-weight: bold;
-    text-align: center;
     border-bottom: 2px solid #444;
     letter-spacing: 0.02em;
 }
 
-.rider-table th:nth-child(4) {
-    text-align: right;
+/* Column alignment: headers and cells share one rule so they always match.
+   Default is left (#, Name, Limit); columns 3-9 are right-aligned. */
+.rider-table th,
+.rider-table td {
+    text-align: left;
 }
 
-.rider-table th.left-header,
-.rider-table td.left-header {
-    text-align: left;
+.rider-table th:nth-child(n+3):nth-child(-n+9),
+.rider-table td:nth-child(n+3):nth-child(-n+9) {
+    text-align: right;
 }
 
 /* Name columns use proportional font */
@@ -156,18 +158,8 @@ h1 {
 /* Emphasized columns */
 .rider-table td:nth-child(3),
 .rider-table td:nth-child(9) {
-    text-align: right;
     font-weight: bold;
     background-color: var(--color-emphasis);
-}
-
-/* Right-align numeric columns */
-.rider-table td:nth-child(4) {
-    text-align: right;
-}
-
-.rider-table td:nth-child(n+5):nth-child(-n+8) {
-    text-align: right;
 }
 
 /* =========================================================================
