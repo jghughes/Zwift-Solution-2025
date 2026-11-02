@@ -74,7 +74,7 @@ import logging
 from jgh_exceptions import AlertMessageError
 
 
-def save_html_document_to_hard_drive(
+def _save_html_document_to_hard_drive(
     dir_path: Path,
     filename: str,
     hml_doc: str,
@@ -83,7 +83,7 @@ def save_html_document_to_hard_drive(
     file_path = Path(dir_path) / Path(filename)
     return file_path
 
-async def upload_text_to_blob_storage_in_azure(
+async def _upload_text_to_blob_storage_in_azure(
     storage_account_name: str,
     container_name: str,
     blob_name: str,
@@ -95,18 +95,15 @@ async def upload_text_to_blob_storage_in_azure(
     return url_of_uploaded_blob
 
 
-
-
-
 # HEAP POWERFUL
-async def generate_ttt_scenarios_with_brute() -> None:
+async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     print("Tool starting")
     try:
         throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
         throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
-        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
-        _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(_team_name)
+        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(codeNameOfTeam)
+        _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(codeNameOfTeam)
 
         # ===========================
         print(f"\nDownloading file from Azure\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
@@ -135,8 +132,9 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     try:
         full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
+        full_team_of_riders = RiderComputeItem.with_slots_assigned_to_repeated_riders(full_team_of_riders)
     except Exception as e:
-        print(f"Team '{_team_name}' not found:\n - Error message:\n - {e}")
+        print(f"Team '{codeNameOfTeam}' not found:\n - Error message:\n - {e}")
         return
 
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
@@ -165,7 +163,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     # ===========================
     # log_single_paceline_plan_as_pretty_table(report_30sec_plan_display_object)
-    # filename = format_save_filename_for_document_of_single_paceline_plan(_team_name, PacelinePlanTypeEnum.THIRTY_SEC_PULL)
+    # filename = format_save_filename_for_document_of_single_paceline_plan(codeNameOfTeam, PacelinePlanTypeEnum.THIRTY_SEC_PULL)
     # html_doc = format_single_paceline_plan_as_html_document(report_30sec_plan_display_object, BRUTE_FOOTNOTES_HTML, True)
     # saved_file_path = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), filename, html_doc)
     # print(f"\nPaceline plan saved to:\n{saved_file_path}\n")
@@ -191,7 +189,7 @@ async def generate_ttt_scenarios_with_brute() -> None:
 
     # ===========================
     # log_single_paceline_plan_as_pretty_table(report_60sec_plan_display_object)
-    # filename = format_save_filename_for_document_of_single_paceline_plan(_team_name, PacelinePlanTypeEnum.SIXTY_SEC_PULL)
+    # filename = format_save_filename_for_document_of_single_paceline_plan(codeNameOfTeam, PacelinePlanTypeEnum.SIXTY_SEC_PULL)
     # html_doc = format_single_paceline_plan_as_html_document(report_60sec_plan_display_object, BRUTE_FOOTNOTES_HTML, True)
     # saved_file_path = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), filename, html_doc)
     # print(f"\nPaceline plan saved to:\n{saved_file_path}\n")
@@ -282,17 +280,17 @@ async def generate_ttt_scenarios_with_brute() -> None:
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = report_fastest_strongest_five_plan_display_object
     package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = report_fastest_strongest_four_plan_display_object
 
-    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(_team_name)} : Constant gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}% : Intensity factor limit = {_intensity_factor}"
+    package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(codeNameOfTeam)} : Constant gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}% : Intensity factor limit = {_intensity_factor}"
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
     package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
 
-    html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(_team_name)}"
+    html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(codeNameOfTeam)}"
 
     summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject)
-    saved_file_path         = save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
+    saved_file_path         = _save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
 
     print(f"\nDistributing paceline scenarios HTML document:\n Name : {html_file_and_blob_name}")
-    url_of_uploaded_blob = await upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc)
+    url_of_uploaded_blob = await _upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc)
     print(f" URL : {url_of_uploaded_blob}")
     print(f" PATH : {saved_file_path}")
 
@@ -304,11 +302,11 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-        _team_name = "rangers" 
+        codeNameOfTeam = "test" 
 
         start_time = time.time()
         throw_if_no_internet_connection()
-        asyncio.run(generate_ttt_scenarios_with_brute())
+        asyncio.run(generate_ttt_scenarios_with_brute(codeNameOfTeam))
         end_time = time.time()
 
         success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds. All tests executed without error."

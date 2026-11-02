@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from typing import Optional
+from typing import List, Optional
 import numpy as np
 from constants import AERO_POSITION_FACTOR_DEFAULT, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 import warnings
@@ -42,6 +42,25 @@ class RiderComputeItem(FrozenZwiftIdBase):
     jgh_TTT_pull_curve_exponent		: float		= 0.0		# Exponent for pull modeling
     jgh_TTT_pull_curve_fit_r_squared: float		= 0.0		# R-squared value for the curve fit of the FTP data
     jgh_when_curves_fitted			: str		= ""		# Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
+    slot							: int		= 0			# Distinguishes repeat entries of the same rider filling more than one slot in a paceline. 0 for a rider's first entry
+
+    @staticmethod
+    def with_slots_assigned_to_repeated_riders(riders: List["RiderComputeItem"]) -> List["RiderComputeItem"]:
+        """
+        Returns the riders in the same order, with each repeat of a rider given a distinct slot 
+        (1, 2, ...) and a display name suffix, e.g. 'tony_chang (2)'. A rider's first entry is 
+        returned unchanged. This makes each repeat a distinct dictionary key.
+        """
+        entries_seen_per_zwift_id: dict[str, int] = {}
+        answer: List[RiderComputeItem] = []
+        for rider in riders:
+            slot = entries_seen_per_zwift_id.get(rider.zwift_id, 0)
+            entries_seen_per_zwift_id[rider.zwift_id] = slot + 1
+            if slot == 0:
+                answer.append(rider)
+            else:
+                answer.append(replace(rider, slot=slot, name=f"{rider.name} ({slot + 1})"))
+        return answer
 
     @staticmethod
     def to_dataTransferObject(item: Optional["RiderComputeItem"]) -> RiderComputeDTO:

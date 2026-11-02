@@ -423,12 +423,14 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
     if (num_riders == 0 or not list_of_available_pull_durations_sec):
         return np.empty((0, num_riders), dtype=np.float64)
 
-    # Error handling: fn to check for non-unique riders
+    # Error handling: fn to check for non-unique riders. Riders are compared by value, as they are dictionary keys downstream. 
+    # A rider legitimately filling more than one slot must have been given distinct slots beforehand 
+    # by RiderComputeItem.with_slots_assigned_to_repeated_riders
     def has_duplicates(riders_list: list[RiderComputeItem]) -> bool:
-        return len(riders_list) != len(set(id(rider) for rider in riders_list))
+        return len(riders_list) != len(set(riders_list))
 
     if has_duplicates(paceline_ingredients.riders_list):
-        raise ValueError("Duplicate riders found in paceline_ingredients.riders_list. Please eliminate the duplicates and try again.")
+        raise ValueError("Duplicate riders found in paceline_ingredients.riders_list. Repeated riders must be given distinct slots, see RiderComputeItem.with_slots_assigned_to_repeated_riders.")
 
     # Build up the universe of all sets of pulls, only including non-increasing sequences. 
     # This is done by building up the sets one pull at a time, and  

@@ -44,7 +44,7 @@ def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_n
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not on the team '{team_name}'.")
 
 def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    team_member_IDs: List[str]= RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
+    team_member_IDs: List[str]= RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
     item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_member_IDs)
     print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
     return item_dict

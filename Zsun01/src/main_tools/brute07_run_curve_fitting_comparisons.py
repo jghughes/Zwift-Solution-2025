@@ -40,7 +40,7 @@ def run_curve_fitting_comparisons():
     output_file_name = "zsunwatts_graphs_for_testIDs.json"
 
 
-    test_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
+    test_IDs = RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
 
     dict_of_zwift_profiles_for_test_IDs = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES), test_IDs) # merely need this to get the first_name and last_name names of the riders
 
