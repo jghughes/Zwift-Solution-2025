@@ -28,7 +28,7 @@ from paceline_display_objects import (
 
 )
 from jgh_enums import PacelinePlanTypeEnum
-from jgh_azure_storage_service_client_v2 import AzureStorageServiceClient
+from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae03 import (
     order_paceline_by_desired_order_of_riders,
     solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
@@ -91,7 +91,7 @@ async def upload_text_to_blob_storage_in_azure(
 ) -> str:
     azure_client = AzureStorageServiceClient()
     url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
-        storage_account_name, container_name, blob_name, text, False,)
+        storage_account_name, container_name, blob_name, text, True, False,)
     return url_of_uploaded_blob
 
 

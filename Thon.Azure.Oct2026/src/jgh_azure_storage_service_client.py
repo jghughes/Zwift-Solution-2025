@@ -57,9 +57,9 @@ class AzureStorageServiceClient():
 		"""
 		start = datetime.now()
 		throw_if_any_parameter_is_invalid(storage_account_name, container_name, blob_name)
-		connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
+		storage_account_connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
 		try:
-			return await asyncio.wait_for(operation(connection_string), timeout=self.__timeout_seconds)
+			return await asyncio.wait_for(operation(storage_account_connection_string), timeout=self.__timeout_seconds)
 		except asyncio.TimeoutError as ex:
 			await self.__throw_if_offline_async(ex)
 			raise AppTimeoutError(
@@ -98,8 +98,8 @@ class AzureStorageServiceClient():
 		"""
 		return await self._execute_async(
 			storage_account_name, container_name, None,
-			lambda connection_string: self.__storage_gateway.get_if_container_exists_async(
-				connection_string, container_name
+			lambda storage_account_connection_string: self.__storage_gateway.get_if_container_exists_async(
+				storage_account_connection_string, container_name
 			),
 		)
 
@@ -108,7 +108,7 @@ class AzureStorageServiceClient():
 		storage_account_name: str,
 		container_name: str,
 		name_starts_with: Optional[str] = None,
-		name_contains: Optional[str] = None,
+		name_contains: Optional[List[str]] = None,
 	) -> Dict[str, int]:
 		"""
 		Returns a dict of blob name to size in bytes for the blobs in the container, in lexicographic order of
@@ -122,10 +122,12 @@ class AzureStorageServiceClient():
 							 large containers. None, "" and "*" all mean "no prefix filter". "*" is not a
 							 wildcard and not a literal asterisk.
 
-		name_contains     -- CLIENT-SIDE filter. Azure cannot search for a substring, so every blob that survives
+		name_contains     -- CLIENT-SIDE filter, a list of substrings OR-ed together: a blob is kept if its name
+							 contains any item. Azure cannot search for a substring, so every blob that survives
 							 name_starts_with is fetched and then tested. Combine it with name_starts_with to
-							 reduce the number of blobs fetched. None, "" and "*" all mean "no substring filter".
-							 Any other value is a literal substring matched anywhere in the full blob name.
+							 reduce the number of blobs fetched. None or an empty list means "no substring
+							 filter". Items that are "", "*" or None are ignored. Any other item is a literal
+							 substring matched anywhere in the full blob name.
 
 		Calling with no filters lists the whole container, which can be slow and memory-hungry for a large one,
 		and must complete within the client's timeout.
@@ -138,8 +140,8 @@ class AzureStorageServiceClient():
 		"""
 		list_of_blob_properties = await self._execute_async(
 			storage_account_name, container_name, None,
-			lambda connection_string: self.__storage_gateway.list_blobs_in_container_async(
-				connection_string,
+			lambda storage_account_connection_string: self.__storage_gateway.list_blobs_in_container_async(
+				storage_account_connection_string,
 				container_name,
 				name_starts_with=name_starts_with,
 				name_contains=name_contains,
@@ -161,8 +163,8 @@ class AzureStorageServiceClient():
 		"""
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.get_if_blob_exists_async(
-				connection_string, container_name, blob_name
+			lambda storage_account_connection_string: self.__storage_gateway.get_if_blob_exists_async(
+				storage_account_connection_string, container_name, blob_name
 			),
 		)
 
@@ -192,8 +194,8 @@ class AzureStorageServiceClient():
 		"""
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.get_absolute_uri_of_blob_async(
-				connection_string, container_name, blob_name
+			lambda storage_account_connection_string: self.__storage_gateway.get_absolute_uri_of_blob_async(
+				storage_account_connection_string, container_name, blob_name
 			),
 		)
 
@@ -220,8 +222,8 @@ class AzureStorageServiceClient():
 		"""
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.delete_blob_if_exists_async(
-				connection_string, container_name, blob_name
+			lambda storage_account_connection_string: self.__storage_gateway.delete_blob_if_exists_async(
+				storage_account_connection_string, container_name, blob_name
 			),
 		)
 
@@ -231,15 +233,16 @@ class AzureStorageServiceClient():
 		container_name: str,
 		blob_name: str,
 		bytes_to_upload: bytes,
-		create_container_if_not_exist: bool,
+		overwrite: bool = False,
+		create_container_if_not_exist: bool = False,
 	) -> str:
 		"""Uploads (overwriting) and returns the url of the blob."""
 		if not bytes_to_upload:
 			raise AlertMessageError("Error: bytes_to_upload must be non-empty bytes or bytearray.")
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.upload_bytes_async(
-				connection_string, container_name, blob_name, bytes_to_upload, create_container_if_not_exist
+			lambda storage_account_connection_string: self.__storage_gateway.upload_bytes_async(
+				storage_account_connection_string, container_name, blob_name, bytes_to_upload, overwrite=overwrite, create_container_if_not_exist=create_container_if_not_exist
 			),
 		)
 
@@ -249,7 +252,8 @@ class AzureStorageServiceClient():
 		container_name: str,
 		blob_name: str,
 		string_to_upload: str,
-		create_container_if_not_exist: bool,
+		overwrite: bool = False,
+		create_container_if_not_exist: bool = False,
 	) -> str:
 		"""
 		Uploads the string, UTF-8 encoded, as a block blob and returns the blob's absolute URL. Overwrites an
@@ -284,8 +288,8 @@ class AzureStorageServiceClient():
 			raise AlertMessageError("Error: string_to_upload must be a non-empty string.")
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.upload_string_async(
-				connection_string, container_name, blob_name, string_to_upload, create_container_if_not_exist
+			lambda storage_account_connection_string: self.__storage_gateway.upload_string_async(
+				storage_account_connection_string, container_name, blob_name, string_to_upload, overwrite=overwrite, create_container_if_not_exist=create_container_if_not_exist
 			),
 		)
 
@@ -316,8 +320,8 @@ class AzureStorageServiceClient():
 		"""
 		return await self._execute_async(
 			storage_account_name, container_name, blob_name,
-			lambda connection_string: self.__storage_gateway.download_async(
-				connection_string, container_name, blob_name
+			lambda storage_account_connection_string: self.__storage_gateway.download_async(
+				storage_account_connection_string, container_name, blob_name
 			),
 		)
 

@@ -17,7 +17,7 @@ from jgh_exceptions import (
 T = TypeVar("T")
 
 
-async def _execute_async(failure: str, operation: Callable[[], Awaitable[T]]) -> T:
+async def _execute_async(failure_msg: str, operation: Callable[[], Awaitable[T]]) -> T:
     """
     Runs the operation and translates Azure SDK exceptions into the application's own exceptions
     (see jgh_exceptions.py) so that Azure exception types never propagate to callers. The failure message
@@ -31,21 +31,21 @@ async def _execute_async(failure: str, operation: Callable[[], Awaitable[T]]) ->
     try:
         return await operation()
     except ClientAuthenticationError as ex:
-        map_azure_client_authentication_error(ex, failure)
+        map_azure_client_authentication_error(ex, failure_msg)
     except ServiceRequestError as ex:
-        map_azure_service_request_error(ex, failure)
+        map_azure_service_request_error(ex, failure_msg)
     except ServiceResponseError as ex:
-        map_azure_service_response_error(ex, failure)
+        map_azure_service_response_error(ex, failure_msg)
     except ResourceNotFoundError as ex:
-        map_azure_resource_not_found_error(ex, failure)
+        map_azure_resource_not_found_error(ex, failure_msg)
     except ResourceExistsError as ex:
-        map_azure_resource_exists_error(ex, failure)
+        map_azure_resource_exists_error(ex, failure_msg)
     except HttpResponseError as ex:
-        map_azure_http_response_error(ex, failure)
+        map_azure_http_response_error(ex, failure_msg)
     except AzureError as ex:
-        map_azure_resource_error(ex, failure)
+        map_azure_resource_error(ex, failure_msg)
     except (ValueError, TypeError) as ex:
-        map_azure_value_type_error(ex, failure)
+        map_azure_value_type_error(ex, failure_msg)
 
 
 async def _create_container_if_not_exists_async(container_client: ContainerClient) -> bool:
@@ -69,9 +69,24 @@ def _normalise_filter(value: Optional[str]) -> Optional[str]:
     return None if value in (None, "", "*") else value
 
 
+def _normalise_filter_list(values: Optional[List[str]]) -> Optional[List[str]]:
+    """
+    Normalises a list of substring filters. Items that are 'no filter' sentinels (None, "" or "*") are
+    dropped and duplicates are eliminated, keeping the first occurrence and the original order. Returns None,
+    meaning 'no filter', if the list is None or no usable items remain; otherwise returns the remaining items
+    as a new list. A bare str is accepted and treated as a list of one item.
+    """
+    if values is None:
+        return None
+    if isinstance(values, str):
+        values = [values]
+    items = list(dict.fromkeys(item for item in map(_normalise_filter, values) if item is not None))
+    return items or None
+
+
 class AzureStorageAccessor():
     """
-    Async accessor over Azure Blob Storage. Every public method opens its own BlobServiceClient from the
+    Async accessor
     connection string passed in, and closes it before returning.
 
     Error contract (applies to every public method, so the method docstrings do not repeat it):
@@ -139,12 +154,13 @@ class AzureStorageAccessor():
         storage_account_connection_string: str,
         container_name: str,
         name_starts_with: Optional[str] = None,
-        name_contains: Optional[str] = None,
+        name_contains: Optional[List[str]] = None,
     ) -> List[BlobProperties]:
         """
         Returns the BlobProperties of the blobs in a container, in lexicographic order of blob name.
 
-        Filters (both are case-sensitive, and when both are given a blob must satisfy both):
+        Filters (both are case-sensitive, and when both are given a blob must satisfy both). Within name_contains,
+        the items are OR-ed: a blob is kept if its name contains at least one of them.
 
         name_starts_with  -- SERVER-SIDE filter. Matches the start of the full blob name, including 
                              any virtual folder path. Sentinels meaning "no prefix filter, consider every blob":
@@ -156,12 +172,16 @@ class AzureStorageAccessor():
                                         cannot be selected with this parameter.
                              Any other value is a literal prefix. No wildcards or regular expressions are interpreted.
 
-        name_contains     -- CLIENT-SIDE filter. Azure cannot search for a substring, so every blob that survives
-                             name_starts_with is fetched and then tested with `name_contains in blob.name`.
+        name_contains     -- CLIENT-SIDE filter, a list of substrings. Azure cannot search for a substring, so every
+                             blob that survives name_starts_with is fetched and then tested: the blob is kept if
+                             any item of the list is a substring of blob.name (OR).
                              Combine it with name_starts_with to reduce the number of blobs fetched.
                              Sentinels meaning "no substring filter":
-                               None, "", "*"  -- exactly as for name_starts_with ("*" is not a literal here either).
-                             Any other value is a literal substring, matched anywhere in the full blob name.
+                               None or an empty list  -- the filter is not applied.
+                               Items that are None, "" or "*" are ignored ("*" is not a literal here either). If
+                                        no other items remain, the filter is not applied.
+                             Any other item is a literal substring, matched anywhere in the full blob name.
+                             A bare str is accepted and treated as a list of one item.
 
         Raises (translated by _execute_async to the application's own exceptions) NotFoundError if the container
         does not exist, AppValidationError if the connection string or container name is malformed or empty,
@@ -170,13 +190,13 @@ class AzureStorageAccessor():
         """
         async def operation() -> List[BlobProperties]:
             prefix = _normalise_filter(name_starts_with)
-            substring = _normalise_filter(name_contains)
+            substrings = _normalise_filter_list(name_contains)
 
             blobs: List[BlobProperties] = []
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
-                    if substring is None or substring in properties_of_blob.name:
+                    if substrings is None or any(s in properties_of_blob.name for s in substrings):
                         blobs.append(properties_of_blob)
             return blobs
 
@@ -278,7 +298,8 @@ class AzureStorageAccessor():
         container_name: str,
         blob_name: str,
         blob_contents: str,
-        create_container_if_not_exist: bool,
+        overwrite: bool = False,
+        create_container_if_not_exist: bool = False,
     ) -> str:
         """
         Returns the absolute URL of the uploaded blob. The string is stored UTF-8 encoded.
@@ -309,7 +330,8 @@ class AzureStorageAccessor():
                 container_name,
                 blob_name,
                 blob_contents.encode("utf-8"),
-                create_container_if_not_exist
+                overwrite=overwrite,
+                create_container_if_not_exist=create_container_if_not_exist
             )
 
         return await _execute_async("Unable to upload.", operation)
@@ -320,7 +342,8 @@ class AzureStorageAccessor():
         container_name: str,
         blob_name: str,
         blob_contents: bytes,
-        create_container_if_not_exist: bool,
+        overwrite: bool = False,
+        create_container_if_not_exist: bool = False,
     ) -> str:
         """
         Returns the absolute URL of the uploaded blob. Its content type is inferred from the blob name's extension.
@@ -354,7 +377,7 @@ class AzureStorageAccessor():
                 most_likely_mime_type_title = get_mime_type(get_extension_from_name(blob_name))
                 await blob_client.upload_blob(
                     blob_contents,
-                    overwrite=True,
+                    overwrite=overwrite,
                     content_settings=ContentSettings(content_type=most_likely_mime_type_title)
                 )
                 return blob_client.url
