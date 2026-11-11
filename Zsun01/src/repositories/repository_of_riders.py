@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from paceline_modelling_items import CurveFittingResultItem
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_named_file_reader import (
@@ -10,13 +10,14 @@ from zwiftid_named_file_reader import (
     read_zwiftpower90daywattsdto_files_to_item_dict_sync,
 )
 from jgh_dictionary_helpers import filter_generic_dict_by_key
-from jgh_formulae10 import calculate_projected_accelerated_level_up
-from custom_file_read_write import read_rider_stats_list_from_json_as_dict
+from jgh_listdictionary import JghListDictionary
+from custom_file_read_write import read_teams_per_rider_from_event_result_files
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
 from repository_of_routes import RepositoryOfRoutes
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
+from rider_team_name_item import RiderTeamNameItem
 from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
 
@@ -29,7 +30,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched  :  Dict[str, RiderStatsItem] = field(default_factory=dict)
+    _dict_of_teamnames_per_rider        :   JghListDictionary[str, str] = field(default_factory=JghListDictionary)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
@@ -48,7 +49,7 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath : str,
+        folder_containing_generated_results_for_drs_events_dirpath : str,
         routeItem: RouteItem = None
     )->bool:
 
@@ -111,10 +112,6 @@ class RepositoryOfRiders:
             self._dict_of_ZwiftItem                 = future_zwift.result()
             self._dict_of_ZwiftPower90dayWattsItem  = future_zwiftpower.result()
             self._dict_of_ZwiftRacingAppItem        = future_racingapp.result()
-
-        print("\n4. Reading file with list of riders eligible for accelerated levelling up based on their achievement level and total experience points.")
-        if snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath != "":
-            self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched = read_rider_stats_list_from_json_as_dict(Path(snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched_filepath))
         
         print("\n5. Fitting curves to 90-day power watts datapoints.")
 
@@ -130,8 +127,15 @@ class RepositoryOfRiders:
         self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids) # do second
         print("\n7. Building RiderStatsItems.")
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids) # do third
+
+        if folder_containing_generated_results_for_drs_events_dirpath != "":
+            self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(Path(folder_containing_generated_results_for_drs_events_dirpath))
+            for zwift_id, team_names in self._dict_of_teamnames_per_rider.get_key_value_pairs():
+                if zwift_id in self._computed_dict_of_riderStatsItem:
+                    self._computed_dict_of_riderStatsItem[zwift_id].team_name = ", ".join(team_names)
+
         print("\nRepository successfully populated.")
-   
+
         return True
 
     # Getters for the repository    
@@ -218,7 +222,7 @@ class RepositoryOfRiders:
         that has both a Zwift profile and curve fit data. Riders missing either data source
         are skipped -- by definition a RiderComputeItem only exists for curve-fitted riders.
 
-        Construction of each item is delegated to build_RiderBruteItem in model_builders.py.
+        Construction of each item is delegated to build_RiderComputeItem in model_builders.py.
         ZwiftRacingApp data is passed through as Optional; riders without it receive default
         empty values inside the builder.
 
@@ -298,18 +302,11 @@ class RepositoryOfRiders:
             if zwiftItem is None:
                 continue  # skip this key/rider if no Zwift data
 
-            this_rider_on_launch_date = self._snapshot_of_dict_of_RiderStatsItem_when_accelerated_levelling_up_launched.get(key)
-            if this_rider_on_launch_date is not None and this_rider_on_launch_date.zwift_id == key:
-                projected_accelerated_level = calculate_projected_accelerated_level_up(this_rider_on_launch_date.achievement_level, this_rider_on_launch_date.rider_score)
-            else:
-                projected_accelerated_level = 0  # if rider not in the file with list of riders eligible for accelerated levelling up, we set projected_accelerated_level to 0
-
             answer[key] = build_RiderStatsItem(
                 zwiftItem,
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
-                projected_accelerated_level,
                 self._routeItem
             )
 

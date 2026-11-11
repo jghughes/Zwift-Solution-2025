@@ -18,11 +18,8 @@ class RiderStatsItem(ZwiftIdBase):
 	gender_code					:	str		=	""
 	cat_open					:	str		=	""
 	cat_women					:	str		=	""
+	team_names					:	str		=	""
 	achievement_level			:	int		=	0
-	total_distance_km           :	float	=	0.0
-	total_experience_points		:	int		=	0
-	rider_score					:	int		=	0
-	projected_accelerated_level:	int		=	0
 	zwift_racing_score			:	float	=	0.0
 	zwift_ftp_w					:	float	=	0.0
 	zwift_zftp_w				:	float	=	0.0
@@ -61,7 +58,6 @@ class RiderStatsItem(ZwiftIdBase):
 	w_30min						:	float	=	0.0
 	w_40min						:	float	=	0.0
 	w_60min_curvefit			:	float	=	0.0
-	# frontal_area_m2			:	float	=	0.0
 	route_name					: str = ""
 	route_zwift_world_name		: str = ""
 	route_description			: str = ""
@@ -91,10 +87,7 @@ class RiderStatsItem(ZwiftIdBase):
 			cat_open					= item.cat_open,
 			cat_women					= item.cat_women,
 			level						= item.achievement_level,
-			total_distance_km           = item.total_distance_km,
-			total_experience_points		= item.total_experience_points,
-			target_experience_points	= item.rider_score,
-			projected_accelerated_level	= item.projected_accelerated_level,
+			team_names					= item.team_names,
 			zwift_racing_score			= item.zwift_racing_score,
 			zwift_ftp_w					= int(item.zwift_ftp_w),
 			zwift_zftp_w				= int(item.zwift_zftp_w),
@@ -163,9 +156,7 @@ class RiderStatsItem(ZwiftIdBase):
 		item.cat_open					= dto.cat_open
 		item.cat_women					= dto.cat_women
 		item.achievement_level			= dto.level
-		item.total_experience_points    = dto.total_experience_points
-		item.rider_score                = dto.target_experience_points
-		item.projected_accelerated_level= dto.projected_accelerated_level
+		item.team_names					= dto.team_names
 		item.zwift_racing_score			= dto.zwift_racing_score
 		item.zwift_ftp_w				= dto.zwift_ftp_w
 		item.zwift_zftp_w				= dto.zwift_zftp_w

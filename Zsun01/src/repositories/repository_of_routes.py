@@ -63,10 +63,21 @@ class RepositoryOfRoutes:
                 SlopeBucketItem(bucket_description="plus 16% bucket", bucket_length_km=0.0, bucket_slope_pc=16.0),
             ]
         ),
+        "crepe_escape02": RouteItem(
+            route_name          = "Crepe Escape02",
+            zwift_world_name    = "Paris",
+            route_description   = "one lap",
+            route_length_km     = 13.9,
+            route_elevation_m   = 125,
+            route_lead_in_km    = 0.0,
+            route_slope_buckets = [
+                SlopeBucketItem(bucket_description="Montmartre KOM", bucket_length_km=1.2, bucket_slope_pc=4.2),
+            ]
+        ),
         "crepe_escape": RouteItem(
             route_name          = "Crepe Escape",
             zwift_world_name    = "Paris",
-            route_description   = "one lap",
+            route_description   = "one lap (per VeloViewer histogram)",
             route_length_km     = 13.9,
             route_elevation_m   = 125,
             route_lead_in_km    = 0.0,

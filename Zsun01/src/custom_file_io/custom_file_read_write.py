@@ -4,9 +4,9 @@ import json
 from collections import defaultdict
 
 import pandas as pd
-
+from jgh_listdictionary import JghListDictionary
 from jgh_path_helpers import throw_if_file_path_ingredients_invalid_or_not_exists
-from jgh_read_write import read_text, write_text_with_json_file_extension, write_dataframe_as_csv_file, write_dataframe_as_xlsx_file
+from jgh_read_write import list_filePaths_recursive, read_text, write_text_with_json_file_extension, write_dataframe_as_csv_file, write_dataframe_as_xlsx_file
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
 from rider_compute_item import RiderComputeItem
@@ -17,6 +17,10 @@ from rider_stats_dto import RiderStatsDtoListModel
 
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem 
+
+# from rider_team_name_dto import RiderTeamNameDTO
+from rider_team_name_dto import RiderTeamNameDtoListModel
+from rider_team_name_item import RiderTeamNameItem
 
 def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderComputeItem]:
     """
@@ -52,7 +56,7 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str,
         }
     )
 
-def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> List[RiderStatsItem]:
+def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(dirpath: Path, filename: str) -> List[RiderStatsItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderStatsItem domain objects.
 
@@ -78,20 +82,6 @@ def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> List[RiderS
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
-def read_rider_stats_list_from_json_as_dict(filepath: Path) -> Dict[str, RiderStatsItem]:
-
-    # parse filepath to get directory and filename
-    dirPath = filepath.parent
-    filename = filepath.name
-    rider_stats_items = read_rider_stats_list_from_json(dirPath, filename)
-
-    answer: Dict[str,RiderStatsItem] = {}
-
-    # store RiderStatsItems in a dictionary keyed by zwift_id
-    for item in rider_stats_items:
-        answer[item.zwift_id] = item
-
-    return answer
 
 def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """
@@ -222,6 +212,62 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
     myObj = RegressionModellingDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
+
+def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> List[RiderTeamNameItem]:
+    """
+    Reads a JSON file and deserializes its contents into a list of RiderTeamNameItem domain objects.
+
+    Args:
+        dirpath: Directory path containing the target file.
+        filename: Name of the JSON file (without extension).
+
+    Returns:
+        A list of RiderTeamNameItem instances populated from the JSON data.
+
+    Raises:
+        ValueError: If the directory or file path is invalid or the file does not exist.
+    """
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath,
+        filename,
+        ".json",
+        require_file_exists_for_read=True,
+        validate_dir_and_extension_only=False
+    )
+    text = read_text(dirpath, filename)
+    something = json.loads(text)
+    answer_as_dto = RiderTeamNameDtoListModel.model_validate(something, strict=True).root
+    answer_as_item = [RiderTeamNameItem.from_dataTransferObject(dto) for dto in answer_as_dto]
+    return answer_as_item
+
+def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictionary[str, str]:
+    """
+    Reads every JSON event-result file in a directory and builds a lookup of
+    the distinct team names associated with each rider across all events.
+
+    Args:
+        dirpath: Directory containing the event-result JSON files.
+
+    Returns:
+        A JghListDictionary mapping each rider's zwift_id to a list of the
+        distinct team names that rider appears under.
+
+    Raises:
+        ValueError: If the directory or any file path is invalid or a file does not exist.
+    """
+    file_paths: List[Path] = list_filePaths_recursive(dirpath, "*.json")
+
+    answer_as_list_dict: JghListDictionary[str, str] = JghListDictionary()
+
+    for file_path in file_paths:
+        file_name = file_path.name
+        rider_items = read_event_file_for_teams_for_riders(dirpath, file_name)
+        for item in rider_items:
+            answer_as_list_dict.append_value_to_list(item.zwift_id, item.team_name)
+
+    answer_as_list_dict.deduplicate_values_in_all_lists()
+
+    return answer_as_list_dict
 
 def read_json_list_and_export_tabular(
     input_dirpath: Path,

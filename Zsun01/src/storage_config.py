@@ -48,7 +48,7 @@ FILENAME_RIDER_STATS_DTO_JSON_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.js
 FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xlsx"
 FILENAME_RIDER_STATS_DTO_CSV_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.csv"
 
-FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED = r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\special\2026-05-03_rider_stats_dto_as_list_four_days_after_accelerated_levelling_up_introduced.json"
+DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER = r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated"
 
 AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
 AZURE_CONTAINERNAME_BRUTE = "brute"

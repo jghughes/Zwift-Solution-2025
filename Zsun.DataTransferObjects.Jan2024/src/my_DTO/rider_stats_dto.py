@@ -12,11 +12,12 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"gender_code"							:	AliasChoices("gender_code", "genderCode"),
 	"cat_open"								:	AliasChoices("cat_open", "catOpen"),
 	"cat_women"								:	AliasChoices("cat_women", "catWomen"),
-	"level"									:	AliasChoices("level", "level"),
-	"total_distance_km"						:	AliasChoices("total_distance_km", "totalDistanceKm"),
-	"total_experience_points"				:	AliasChoices("total_experience_points", "totalExperiencePoints"),
-	"target_experience_points"				:	AliasChoices("target_experience_points", "targetExperiencePoints"),
-	"projected_accelerated_level"			:	AliasChoices("projected_accelerated_level", "projectedAcceleratedLevel"),
+	"level"									:	AliasChoices("level"),
+	"team_names"							:	AliasChoices("team_names", "teamNames"),
+	# "total_distance_km"						:	AliasChoices("total_distance_km", "totalDistanceKm"),
+	# "total_experience_points"				:	AliasChoices("total_experience_points", "totalExperiencePoints"),
+	# "target_experience_points"				:	AliasChoices("target_experience_points", "targetExperiencePoints"),
+	# "projected_accelerated_level"			:	AliasChoices("projected_accelerated_level", "projectedAcceleratedLevel"),
 	"zwift_racing_score"					:	AliasChoices("zwift_racing_score", "zwiftRacingScore"),
 	"zwift_ftp_w"							:	AliasChoices("zwift_ftp_w", "zwiftWattsFTP"),
 	"zwift_zftp_w"							:	AliasChoices("zwift_zftp_w", "zwiftWattsZFTP"),
@@ -76,73 +77,70 @@ preferred_config_dict = configdictV1
 
 
 class RiderStatsDTO(BaseModel):
-	model_config							=	preferred_config_dict
-	row                                     :	int		=	0
-	zwift_id								:	str		=	""
-	full_name								:	str		=	""
-	zwift_country_code3						:	str		=	""
-	age_years								:	float	=	0.0
-	height_cm								:	float	=	0.0
-	weight_kg								:	float	=	0.0
-	gender_code								:	str		=	""
-	cat_open								:	str		=	""
-	cat_women								:	str		=	""
-	level									:	int		=	0
-	total_distance_km						:	float	=	0.0
-	total_experience_points					:	int		=	0
-	target_experience_points				:	int		=	0
-	projected_accelerated_level				:	int		=	0
-	zwift_racing_score						:	float	=	0.0
-	zwift_ftp_w								:	float	=	0.0
-	zwift_zftp_w							:	float	=	0.0
-	zwift_zftp_wkg							:	float	=	0.0
-	zwift_cat_label							:	str		=	""
-	velo_age_group							:	str		=	""
-	velo_cat_num_30_days					:	int		=	0
-	velo_cat_name_30_days					:	str		=	""
-	velo_rating_30_days						:	float	=	0.0
-	velo_cat_label							:	str		=	""
-	wkg_05sec								:	float	=	0.0
-	wkg_15sec								:	float	=	0.0
-	wkg_30sec								:	float	=	0.0
-	wkg_01min								:	float	=	0.0
-	wkg_02min								:	float	=	0.0
-	wkg_03min								:	float	=	0.0
-	wkg_05min								:	float	=	0.0
-	wkg_10min								:	float	=	0.0
-	wkg_12min								:	float	=	0.0
-	wkg_15min								:	float	=	0.0
-	wkg_20min								:	float	=	0.0
-	wkg_30min								:	float	=	0.0
-	wkg_40min								:	float	=	0.0
-	wkg_60min_curvefit						:	float	=	0.0
-	w_05sec									:	float	=	0.0
-	w_15sec									:	float	=	0.0
-	w_30sec									:	float	=	0.0
-	w_01min									:	float	=	0.0
-	w_02min									:	float	=	0.0
-	w_03min									:	float	=	0.0
-	w_05min									:	float	=	0.0
-	w_10min									:	float	=	0.0
-	w_12min									:	float	=	0.0
-	w_15min									:	float	=	0.0
-	w_20min									:	float	=	0.0
-	w_30min									:	float	=	0.0
-	w_40min									:	float	=	0.0
-	w_60min_curvefit						:	float	=	0.0
-	route_name								:	str		=	""
-	route_zwift_world_name					:	str		=	""
-	route_description						:	str		=	""
-	route_lead_in_km						:	float	=	0.0
-	route_length_km							:	float	=	0.0
-	route_elevation_m						:	float	=	0.0
-	route_intensity_factor_limit			:	float	=	0.0
-	route_sec								:	float	=	0.0
-	route_hh_mm_ss							:	str		=	""
-	route_watts								:	float	=	0.0
-	route_wkg								:	float	=	0.0
-	route_kph								:	float	=	0.0
-	timestamp								:	str		=	""
+	model_config = preferred_config_dict
+	row						:	int		=	0
+	zwift_id				:	str		=	""
+	full_name				:	str		=	""
+	zwift_country_code3		:	str		=	""
+	age_years				:	float	=	0.0
+	height_cm				:	float	=	0.0
+	weight_kg				:	float	=	0.0
+	gender_code				:	str		=	""
+	cat_open				:	str		=	""
+	cat_women				:	str		=	""
+	level					:	int		=	0
+	team_names				:	str		=	""
+	zwift_racing_score		:	float	=	0.0
+	zwift_ftp_w				:	float	=	0.0
+	zwift_zftp_w			:	float	=	0.0
+	zwift_zftp_wkg			:	float	=	0.0
+	zwift_cat_label			:	str		=	""
+	velo_age_group			:	str		=	""
+	velo_cat_num_30_days	:	int		=	0
+	velo_cat_name_30_days	:	str		=	""
+	velo_rating_30_days		:	float	=	0.0
+	velo_cat_label			:	str		=	""
+	wkg_05sec				:	float	=	0.0
+	wkg_15sec				:	float	=	0.0
+	wkg_30sec				:	float	=	0.0
+	wkg_01min				:	float	=	0.0
+	wkg_02min				:	float	=	0.0
+	wkg_03min				:	float	=	0.0
+	wkg_05min				:	float	=	0.0
+	wkg_10min				:	float	=	0.0
+	wkg_12min				:	float	=	0.0
+	wkg_15min				:	float	=	0.0
+	wkg_20min				:	float	=	0.0
+	wkg_30min				:	float	=	0.0
+	wkg_40min				:	float	=	0.0
+	wkg_60min_curvefit		:	float	=	0.0
+	w_05sec					:	float	=	0.0
+	w_15sec					:	float	=	0.0
+	w_30sec					:	float	=	0.0
+	w_01min					:	float	=	0.0
+	w_02min					:	float	=	0.0
+	w_03min					:	float	=	0.0
+	w_05min					:	float	=	0.0
+	w_10min					:	float	=	0.0
+	w_12min					:	float	=	0.0
+	w_15min					:	float	=	0.0
+	w_20min					:	float	=	0.0
+	w_30min					:	float	=	0.0
+	w_40min					:	float	=	0.0
+	w_60min_curvefit		:	float	=	0.0
+	route_name				:	str		=	""
+	route_zwift_world_name	:	str		=	""
+	route_description		:	str		=	""
+	route_lead_in_km		:	float	=	0.0
+	route_length_km			:	float	=	0.0
+	route_elevation_m		:	float	=	0.0
+	route_intensity_factor_limit	:	float	=	0.0
+	route_sec						:	float	=	0.0
+	route_hh_mm_ss					:	str		=	""
+	route_watts						:	float	=	0.0
+	route_wkg						:	float	=	0.0
+	route_kph						:	float	=	0.0
+	timestamp						:	str		=	""
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")
 	def convert_int_to_str(cls, value : Any) -> str:

@@ -22,7 +22,6 @@ DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT = 1.0 # each TTT team has its own factor
 
 DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS = 1.0 # This is the default intensity factor used for single-rider routes when no specific factor is defined. 1.0 means a 90-day best. 0.9 is practically achievable.
 
-SINGLE_RIDER_ROUTE_NAME ="crepe_escape" 
 
 DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC: float = 0.0
 

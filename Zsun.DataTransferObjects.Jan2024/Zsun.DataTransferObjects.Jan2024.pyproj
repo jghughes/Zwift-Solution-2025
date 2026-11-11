@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2768f708-e588-48e0-ba0c-c8950ab7e52b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\my_DTO\rider_compute_dto.py</StartupFile>
+    <StartupFile>src\my_DTO\rider_team_name_dto.py</StartupFile>
     <SearchPath>src;..\Thon.Goodies.Jan2025\src;src\my_DTO;src\third_party_DTO</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\my_DTO\regression_modelling_dto.py" />
+    <Compile Include="src\my_DTO\rider_team_name_dto.py" />
     <Compile Include="src\my_DTO\rider_stats_dto.py" />
     <Compile Include="src\my_DTO\route_dto.py" />
     <Compile Include="src\my_DTO\slope_bucket_dto.py" />

@@ -71,7 +71,7 @@ def calculate_projected_accelerated_level_up(start_level: int, start_rider_score
 import time
 import logging
 
-from jgh_formulae10 import calculate_projected_accelerated_level_up
+# from jgh_formulae10 import calculate_projected_accelerated_level_up
 
 from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event

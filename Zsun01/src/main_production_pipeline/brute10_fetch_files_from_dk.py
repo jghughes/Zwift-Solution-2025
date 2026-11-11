@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List
 import httpx
 from jgh_internet_helpers import throw_if_no_internet_connection
-from jgh_read_write import read_text, list_files_in_directory
+from jgh_read_write import read_text, list_filePaths_recursive
 from zwiftid_named_file_fetcher import download_and_save_many_files_to_hard_drive_async
 from jgh_string import  format_seconds_to_hh_mm_ss
 from storage_config import URL_OF_CLUB_MEMBERSHIP_LIST, URL_ROOT_FOR_ZWIFT_FILES, URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES, URL_ROOT_FOR_ZWIFTRACINGAPP_FILES
@@ -65,7 +65,7 @@ async def fetch_and_save_files(
     await download_and_save_many_files_to_hard_drive_async(list_of_fetch_urls, save_dirpath, None, concurrency, http_client)
     elapsed = time.time() - start_time
 
-    files_in_save_destination = list_files_in_directory(Path(save_dirpath), "*.json")
+    files_in_save_destination = list_filePaths_recursive(Path(save_dirpath), "*.json")
     print(f"I/O duration        : {format_seconds_to_hh_mm_ss(elapsed)}")
     print(f"files in save folder: {len(files_in_save_destination)}")
     print(f"save dirpath        : {save_dirpath}")

@@ -26,7 +26,7 @@ def parse_json(text: str) -> Any:
 # Directory Listing Utilities
 # ===========================
 
-def list_files_in_directory(dirpath: Path, pattern: str) -> List[Path]:
+def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> List[Path]:
     """
     List files in a directory matching a given wildcard pattern (e.g., "*.json").
 
@@ -35,7 +35,8 @@ def list_files_in_directory(dirpath: Path, pattern: str) -> List[Path]:
     """
     throw_if_dirpath_invalid_or_not_exists(dirpath)
     try:
-        return [f for f in dirpath.glob(pattern) if f.is_file()]
+        answer = [f for f in dirpath.glob(wildcard_pattern) if f.is_file()]
+        return answer
     except Exception as e:
         raise IOError(f"Error listing files in directory {dirpath}: {e}")
 

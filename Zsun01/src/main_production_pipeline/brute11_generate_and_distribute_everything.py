@@ -50,7 +50,6 @@ from pathlib import Path
 from typing import Type, Dict, Any
 import time
 import pandas as pd
-from constants import SINGLE_RIDER_ROUTE_NAME
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
@@ -77,7 +76,7 @@ from storage_config import (
     FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
     FILENAME_RIDER_STATS_DTO_CSV_LIST,
 
-    FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED,
+    DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
 
     AZURE_ACCOUNTNAME_ZSUN, 
     AZURE_CONTAINERNAME_ZSUN, 
@@ -114,7 +113,7 @@ async def upload_text_to_blob_storage_in_azure(
     return url_of_uploaded_blob
 
 # HEAP POWERFUL TOOL
-async def generate_everything_and_save_and_upload():
+async def generate_everything_and_save_and_upload(route_name : str):
     print("starting script\n")
     logger = logging.getLogger()
 
@@ -142,11 +141,11 @@ async def generate_everything_and_save_and_upload():
     print("dir_paths and filenames validated.")
     print("\nTHE MEAT: populate repository of riders.")
 
-    route: RouteItem = RepositoryOfRoutes.get_RouteItem(SINGLE_RIDER_ROUTE_NAME)
+    route: RouteItem = RepositoryOfRoutes.get_RouteItem(route_name)
 
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, FILEPATH_OF_SNAPSHOT_OF_DICT_OF_RIDERSTATSITEM_WHEN_ACCELERATED_LEVELLING_UP_LAUNCHED, route)
+    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER, route)
     elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
     print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders.")
@@ -342,8 +341,10 @@ if __name__ == "__main__":
     try:
         throw_if_no_internet_connection()
 
+        this_route_name ="crepe_escape02" 
+
         start_time = time.time()
-        asyncio.run(generate_everything_and_save_and_upload())
+        asyncio.run(generate_everything_and_save_and_upload(this_route_name))
         end_time = time.time()
 
         success_msg = f"Main execution completed successfully in {end_time - start_time:.2f} seconds."

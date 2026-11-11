@@ -18,7 +18,6 @@ BLOB_NAME_MAX_LENGTH = 1024
 # Format-only Validation Functions
 # =========================
 
-
 def is_valid_dirpath(dirpath: str) -> Tuple[bool, str]:
     try:
         path_obj = Path(dirpath)
@@ -37,34 +36,6 @@ def is_valid_dirpath(dirpath: str) -> Tuple[bool, str]:
         return True, "Dirpath format is valid."
     except Exception as e:
         return False, f"Exception during dirpath validation: {e}"
-
-
-
-
-
-
-# def is_valid_dirpath(dirpath: str) -> Tuple[bool, str]:
-#     """
-#     Returns (True, message) if dirpath is a valid absolute directory path format (does not check existence).
-#     Returns (False, message) if invalid.
-#     """
-#     try:
-#         path_obj = Path(dirpath)
-#         if not path_obj.is_absolute():
-#             return False, "Dirpath is not absolute."
-#         for i, part in enumerate(path_obj.parts):
-#             # Skip drive part for Windows (e.g., 'C:\\')
-#             if i == 0 and re.match(r'^[A-Za-z]:\\?$', part):
-#                 continue
-#             if part in ('', '.', '..'):
-#                 continue
-#             if re.search(r'[<>:"|?*\x00-\x1F]', part):
-#                 return False, f"Dirpath part '{part}' contains invalid characters."
-#             if '/' in part or '\\' in part:
-#                 return False, f"Dirpath part '{part}' contains slash or backslash."
-#         return True, "Dirpath format is valid."
-#     except Exception as e:
-#         return False, f"Exception during dirpath validation: {e}"
 
 def is_valid_foldername(foldername: str) -> Tuple[bool, str]:
     """
@@ -301,8 +272,6 @@ def validate_file_exists(file_path: Path) -> Tuple[bool, str]:
         return False, f"Error checking file existence: {e}"
     return True, "File exists and is a valid file."
 
-
-
 def validate_dirpath_format_and_existence(
     dirpath: Path,
     must_exist: bool = True,
@@ -351,32 +320,6 @@ def validate_dirpath_format_and_existence(
         return False, error_msg
     return True, "Directory exists and is a valid directory."
 
-
-
-
-
-
-
-
-# def validate_dirpath_format_and_existence(
-#     dirpath: Path,
-#     must_exist: bool = True
-# ) -> Tuple[bool, str]:
-#     """Validate directory path format and existence. Returns (is_valid, message)."""
-#     if not dirpath.is_absolute():
-#         return False, f"Dirpath must be an absolute path. Got: {dirpath}"
-#     try:
-#         if must_exist:
-#             if not dirpath.exists():
-#                 return False, f"Directory not found. Dirpath: {dirpath}"
-#             if not dirpath.is_dir():
-#                 return False, f"Path exists but is not a directory. Dirpath: {dirpath}"
-#     except Exception as e:
-#         return False, f"Error checking directory existence: {e}"
-#     return True, "Directory exists and is a valid directory."
-
-
-
 def validate_file_path_and_existence(
     dirpath: Path,
     filename_including_extension: str,
@@ -410,40 +353,6 @@ def validate_file_path_and_existence(
         if not valid_file:
             return False, f"Error: Read file does not exist. [{file_path}] Details: {file_msg}"
     return True, "File path, filename, extension, and existence (if required) are valid."
-
-
-
-
-# def validate_file_path_and_existence(
-#     dirpath: Path,
-#     filename_including_extension: str,
-#     mandatory_extension: str,
-#     require_file_exists_for_read: bool = False,
-#     validate_dir_and_extension_only: bool = False
-# ) -> Tuple[bool, str]:
-#     """Validate file path, filename, extension, and existence. Returns (is_valid, message)."""
-#     valid_dir, dir_msg = validate_dirpath_format_and_existence(dirpath, must_exist=True)
-#     if not valid_dir:
-#         return False, f"Directory validation failed: {dir_msg}"
-#     if mandatory_extension and (not mandatory_extension.startswith(".") or len(mandatory_extension) < 2):
-#         return False, f"Error: mandatory_extension must be a non-empty string starting with a dot. Got: [{mandatory_extension}]"
-#     if validate_dir_and_extension_only:
-#         return True, "Directory and extension format validated only."
-#     for validator in [is_valid_ntfs_filename_format, is_valid_unix_filename_format]:
-#         valid, error = validator(filename_including_extension)
-#         if not valid:
-#             return False, f"Error: {error} The filename is [{filename_including_extension}]"
-#     if mandatory_extension and not filename_including_extension.endswith(mandatory_extension):
-#         return False, (
-#             f"Error: Invalid filename format, or incorrect filename extension. "
-#             f"The filename is [{filename_including_extension}]"
-#         )
-#     file_path = dirpath / filename_including_extension
-#     if require_file_exists_for_read:
-#         valid_file, file_msg = validate_file_exists(file_path)
-#         if not valid_file:
-#             return False, f"Error: Read file does not exist. [{file_path}] Details: {file_msg}"
-#     return True, "File path, filename, extension, and existence (if required) are valid."
 
 # =========================
 # Exception-throwing Wrappers

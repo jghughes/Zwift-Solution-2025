@@ -95,7 +95,12 @@ class JghListDictionary(Generic[TKey, TValue]):
     number_of_values -> int:
         Retrieves the total number of values in the dictionary.
     """
-    backingstore_dict: defaultdict[TKey, list[TValue]] = defaultdict(list)
+
+    backingstore_dict: defaultdict[TKey, list[TValue]]
+
+    def __init__(self) -> None:
+        # Per-instance storage; a class-level dict would be shared by all instances.
+        self.backingstore_dict = defaultdict(list)
 
     def insert_key(self, key: TKey) -> bool:
         """
@@ -243,6 +248,27 @@ class JghListDictionary(Generic[TKey, TValue]):
                 keys_with_removed_value.append(key)
 
         return removed_count, keys_with_removed_value
+
+    def deduplicate_values_in_all_lists(self) -> None:
+        """
+        Removes duplicate values from every list in the dictionary.
+
+        For each key, the first occurrence of each value is kept and later
+        duplicates are removed, so the original order of values is preserved.
+        Duplicates are detected using equality (==), so values need not be hashable.
+        Keys are never added or removed, and lists are not shared across keys.
+        Duplicates are only eliminated within each list, not across different lists.
+
+        Returns:
+        --------
+        None
+        """
+        for key, values in self.backingstore_dict.items():
+            unique_values: list[TValue] = []
+            for value in values:
+                if value not in unique_values:
+                    unique_values.append(value)
+            self.backingstore_dict[key] = unique_values
 
     def clear_all_values_from_list(self, key: TKey) -> int:
         """
@@ -618,7 +644,7 @@ class JghListDictionary(Generic[TKey, TValue]):
                     key_value_pairs.append((key, value))
         return key_value_pairs
 
-    def get_key_value_pairs_from_everywhere(self) -> list[Tuple[TKey, TValue]]:
+    def get_key_value_pairs(self) -> list[Tuple[TKey, TValue]]:
         """
         Retrieves all key-value pairs in the dictionary. Handles multiple repeats
         in the same list and repeats across multiple lists by treating each

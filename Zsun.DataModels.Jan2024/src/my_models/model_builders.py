@@ -123,8 +123,7 @@ def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[Zw
 
 
 def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
-                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], projected_accelerated_level: int,
-                             routeItem: RouteItem) -> RiderStatsItem:
+                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], routeItem: RouteItem) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -184,10 +183,7 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[Zwif
         cat_open                    =   zwiftItem.competition_metrics.zwift_category_open,
         cat_women                   =   zwiftItem.competition_metrics.zwift_category_women,
         achievement_level           =   int(zwiftItem.achievement_level / 100.0),
-        total_distance_km           =   round((zwiftItem.total_distance_meters or 0.0) / 1_000.0, 1),
-        total_experience_points     =   zwiftItem.total_experience_points,
-        rider_score                 =   zwiftItem.target_experience_points,
-        projected_accelerated_level =   projected_accelerated_level,
+        team_names                  =   "",  
         zwift_racing_score          =   round(zwiftItem.competition_metrics.zwift_racing_score),
         zwift_ftp_w                 =   round(zwiftItem.ftp_on_zwift),
         zwift_zftp_w                =   round(zwiftracingappItem.zp_FTP),
