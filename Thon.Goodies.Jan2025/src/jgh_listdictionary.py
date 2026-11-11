@@ -479,11 +479,12 @@ class JghListDictionary(Generic[TKey, TValue]):
         Returns:
         --------
         list[TValue]
-            The list of values associated with the key.
+            A copy of the list of values associated with the key, or an empty list if the key
+            does not exist. Modifying the returned list does not affect the dictionary.
         """
         if key is None:
             raise ValueError("key cannot be None")
-        return self.backingstore_dict.get(key, [])
+        return list(self.backingstore_dict.get(key, []))
 
     def get_values_for_keys(self, key_selector: Callable[[TKey], bool]) -> list[TValue]:
         """
@@ -697,11 +698,11 @@ class JghListDictionary(Generic[TKey, TValue]):
         Returns:
         --------
         list[TValue]
-            The list of values associated with the key.
+            A copy of the list of values associated with the key, or an empty list if the key
+            does not exist. Modifying the returned list does not affect the dictionary; use
+            append_value_to_list to add values. Reading never adds a key.
         """
-        if key not in self.backingstore_dict:
-            self.backingstore_dict[key] = []
-        return self.backingstore_dict[key]
+        return list(self.backingstore_dict.get(key, []))
 
     def __setitem__(self, key: TKey, value: list[TValue]):
         """
@@ -712,9 +713,10 @@ class JghListDictionary(Generic[TKey, TValue]):
         key : TKey
             The key for which to set values.
         value : list[TValue]
-            The list of values to set.
+            The list of values to set. A copy is stored, so the dictionary never shares
+            a list with the caller or with another key.
         """
-        self.backingstore_dict[key] = value
+        self.backingstore_dict[key] = list(value)
 
  # example usage of the JghListDictionary class
 

@@ -124,8 +124,8 @@ def log_event(
     if level not in allowed_levels:
         raise ValueError(f"Invalid log level: {level}. Allowed levels: {allowed_levels}")
 
-    if extra_fields is None:
-        extra_fields = {}
+    # Work on a copy so the caller's dict is not modified.
+    extra_fields = dict(extra_fields) if extra_fields else {}
     for key, value in list(extra_fields.items()):
         if isinstance(value, (dict, list)):
             extra_fields[key] = str(value)

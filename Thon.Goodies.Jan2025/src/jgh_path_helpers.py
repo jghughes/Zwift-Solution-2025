@@ -10,7 +10,7 @@ from jgh_exceptions import AlertMessageError
 
 AZURE_CONTAINER_NAME_PATTERN = r"[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?"
 AZURE_BLOB_ENDPOINT_PATTERN = r"[a-z0-9\-]+\.blob_name\.core\.windows\.net"
-BLOB_NAME_INVALID_CHARS = ['\\', '?', '#', '%']
+BLOB_NAME_INVALID_CHARS = ('\\', '?', '#', '%')
 BLOB_NAME_MIN_LENGTH = 1
 BLOB_NAME_MAX_LENGTH = 1024
 
@@ -204,9 +204,6 @@ def validate_azure_storage_blob_name(blob_name: str) -> Tuple[bool, Optional[str
     """
     if not blob_name.strip():
         return False, "Error: blob_name parameter is empty or whitespace."
-    BLOB_NAME_INVALID_CHARS = ['\\', '?', '#', '%']
-    BLOB_NAME_MIN_LENGTH = 1
-    BLOB_NAME_MAX_LENGTH = 1024
     if not (BLOB_NAME_MIN_LENGTH <= len(blob_name) <= BLOB_NAME_MAX_LENGTH):
         return False, f"Error: blob_name must be between {BLOB_NAME_MIN_LENGTH} and {BLOB_NAME_MAX_LENGTH} characters."
     for c in BLOB_NAME_INVALID_CHARS:
