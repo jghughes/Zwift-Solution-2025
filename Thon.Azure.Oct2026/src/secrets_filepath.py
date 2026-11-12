@@ -1,4 +1,4 @@
-_stuffByJghDirPathStem =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
+_stuffByJghDirPathStem ="C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
 
 DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
 

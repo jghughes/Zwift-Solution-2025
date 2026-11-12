@@ -119,7 +119,7 @@ def read_many_files_named_by_zwiftId_to_dict_sync[T: HasZwiftID, DTO: BaseModel]
         )
         return {}
 
-    def _read_one(file_path: str):
+    def _read_one(file_path: str) -> tuple[str | None, T | None, str | None]:
         return read_file_named_by_zwiftId_to_tuple_sync(file_path, data_transfer_class, function_to_translate_from_dto_to_corresponding_item)
 
     with ThreadPoolExecutor() as executor:

@@ -9,10 +9,8 @@ from paceline_modelling_items import (
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_2dp, round_to_nearest_10
-from jgh_number import safe_divide
 from rider_compute_item import RiderComputeItem
 
-from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_number_1dp, format_number_with_comma_separators
 from jgh_string import first_n_chars
 
@@ -178,7 +176,7 @@ class RiderContributionDisplayObject:
             rider_contribution_display_object   = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
             answer[rider]                       = rider_contribution_display_object
         
-        index =1;
+        index =1
         for contribution_display_object in answer.values():
             contribution_display_object.index = index
             index += 1

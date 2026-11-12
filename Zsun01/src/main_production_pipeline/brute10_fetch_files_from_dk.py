@@ -42,7 +42,7 @@ async def fetch_and_save_files(
     list_of_fetch_urls: list[str],
     save_dirpath: str,
     concurrency: int = 20,
-    http_client=None,
+    http_client: httpx.AsyncClient | None = None,
 ) -> list[Path]:
     """
     Fetches files from the given URLs and saves them to the specified directory.

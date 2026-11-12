@@ -22,7 +22,7 @@ from jgh_formatting import get_current_utc_iso8601_timestamp
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
-def validate_dirpaths_and_filenames():
+def validate_dirpaths_and_filenames() -> None:
     """
     Prepare the environment for plotting curve fits for an individual rider.
     This function checks the validity of required directories and filenames.
@@ -36,7 +36,7 @@ def validate_dirpaths_and_filenames():
     ])
     throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
-def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_name : str):
+def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_name : str) -> None:
     team_member_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     for rider_ID in zwift_IDs:
         if rider_ID not in team_member_IDs:
@@ -48,16 +48,16 @@ def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> dict[str, Z
     print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
     return item_dict
 
-def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: list[str], dict_of_90day_best_graphs: dict[str, ZwiftPowerFlattened90dayWattsItem]):
+def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: list[str], dict_of_90day_best_graphs: dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
     for rider_ID in zwift_IDs:
-        if rider_ID not in dict_of_90day_best_graphs.keys():
+        if rider_ID not in dict_of_90day_best_graphs:
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not in the dictionary of 90-day best graphs.")
 
 def get_rider_nick_name_from_zwiftID(team_name: str, zwiftID: str) -> str:
     nick_name = RepositoryOfTeamRosters.get_rider_nick_name(team_name,zwiftID)
     return nick_name
 
-def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90dayWattsItem):
+def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90dayWattsItem) -> None:
     """
     Fit and plot the power curves for a single rider.
 
@@ -115,7 +115,6 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
     xdata_ftp = list(x_y_ordinates_for_FTP_60min.keys())
     ydata_ftp = list(x_y_ordinates_for_FTP_60min.values())
 
-    ydata_pred_cp = [value[1] for value in answer_cp.values()]
     ydata_pred_pull = [value[1] for value in answer_pull.values()]
     ydata_pred_ftp = [value[1] for value in answer_60min.values()]
 
@@ -153,7 +152,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     list_of_zwift_IDs: list[str],
     list_of_rider_names: list[str],
     list_of_flattened_watts_graphs: list[ZwiftPowerFlattened90dayWattsItem]
-):
+) -> None:
     """
     Plots fitted FTP and TTT pull power curves for multiple riders on the same
     chart for side-by-side visual comparison. One colour per rider. Raw scatter
@@ -168,7 +167,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     all_y: list[float] = []
 
     for idx, (zwift_id, rider_name, flattened_watts_graph) in enumerate(
-        zip(list_of_zwift_IDs, list_of_rider_names, list_of_flattened_watts_graphs)
+        zip(list_of_zwift_IDs, list_of_rider_names, list_of_flattened_watts_graphs, strict=False)
     ):
         colour = colour_cycle[idx % len(colour_cycle)]
 
@@ -232,7 +231,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.tight_layout()
     plt.show()
 
-def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str):
+def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str) -> None:
     """
     Run the whole workflow: validate, load, then plot.
 
@@ -252,7 +251,7 @@ def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str],
         Exception: If any rider is missing from the roster or the loaded data,
             or if a required path or filename is invalid.
     """
-    validate_dirpaths_and_filenames();
+    validate_dirpaths_and_filenames()
     validate_that_riders_are_on_team_in_repository(zwiftIDs_of_riders_to_model, team_name)
     dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
     validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwiftIDs_of_riders_to_model, dict_of_90day_best_graphs_for_team_watts)

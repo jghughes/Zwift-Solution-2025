@@ -214,10 +214,11 @@ def clean_dataframe_text_column(df: pd.DataFrame, column_name: str, use_name_cle
 
     cleaning_function = cleanup_name_string if use_name_cleanup else sanitise_string
 
+    def clean_value(value: Any) -> Any:
+        return cleaning_function(value) if pd.notna(value) else value
+
     cleaned_df = df.copy()
-    cleaned_df[column_name] = cleaned_df[column_name].apply(
-        lambda value: cleaning_function(value) if pd.notna(value) else value
-    )
+    cleaned_df[column_name] = cleaned_df[column_name].apply(clean_value)
     return cleaned_df
 
 # ===========================
@@ -356,7 +357,7 @@ def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.Dat
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        dataframe.to_excel(file_path, index=False, engine="openpyxl")  # type: ignore
+        dataframe.to_excel(file_path, index=False, engine="openpyxl")
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing Excel file {file_path}: {err}")

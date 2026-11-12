@@ -2,6 +2,7 @@ import logging
 import os
 import json
 from typing import Any
+from types import TracebackType
 from jgh_formatting import get_current_utc_iso8601_timestamp
 
 class JsonFileHandler(logging.FileHandler):
@@ -9,8 +10,8 @@ class JsonFileHandler(logging.FileHandler):
     Custom logging handler that writes each log record as a flat JSON object.
     Thread-safe: uses a persistent lock for all writes.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, filename: str, mode: str = "a", encoding: str | None = None, delay: bool = False) -> None:
+        super().__init__(filename, mode=mode, encoding=encoding, delay=delay)
         import threading
         self._stream_lock = threading.Lock()
 
@@ -40,11 +41,10 @@ class JsonFileHandler(logging.FileHandler):
             self.flush()
 
     def formatTime(self, record: logging.LogRecord) -> str:
-        from datetime import datetime, timezone
         isoUtc = get_current_utc_iso8601_timestamp()
         return isoUtc
 
-    def formatException(self, exc_info: tuple) -> str:
+    def formatException(self, exc_info: tuple[type[BaseException] | None, BaseException | None, TracebackType | None]) -> str:
         import traceback
         return "".join(traceback.format_exception(*exc_info))
 

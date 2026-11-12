@@ -74,7 +74,7 @@ def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExerti
 
         dict_positions: dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}
 
-        pull_exertion = dict_positions.get(1, None)
+        pull_exertion = dict_positions.get(1)
 
         if pull_exertion is None:
             return 0, 0

@@ -7,9 +7,8 @@ from jgh_number import safe_divide
 
 from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
 from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, AERO_POSITION_FACTOR_DEFAULT, POWER_CURVE_IN_PACELINE
-from jgh_formatting import truncate
 from jgh_formulae01 import calculate_rider_kph_from_watts, calculate_rider_watts_from_kph
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_standard_1_minute_pull_watts, solve_for_speed_at_standard_2_minute_pull_watts, solve_for_speed_at_standard_3_minute_pull_watts, solve_for_speed_at_standard_4_minute_pull_watts, solve_for_speed_at_one_hour_watts
+from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_one_hour_watts
 # from jgh_power_curve_fit_models import decay_model_numpy
 # from jgh_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem
@@ -32,7 +31,7 @@ def calculate_drag_ratio_in_paceline(position_in_paceline: int) -> float:
         numerator = POWER_CURVE_IN_PACELINE[position_in_paceline - 1]
     else:
         numerator = POWER_CURVE_IN_PACELINE[max_index]  # Use last available value
-    return numerator / denominator
+    return float(numerator / denominator)
 
 def calculate_power_riding_in_the_paceline(rider : RiderComputeItem, speed: float, position: int, slope_pc: float = 0.0) -> float:
     """
@@ -146,7 +145,7 @@ def calculate_overall_normalized_watts(efforts: list[RiderExertionItem]) -> floa
     mean_power_4 = safe_divide(sum(rolling_avg_power_4), len(rolling_avg_power_4))
 
     # Take the fourth root of the average
-    normalized_watts = mean_power_4 ** 0.25
+    normalized_watts = float(mean_power_4 ** 0.25)
 
     return normalized_watts
 
@@ -259,21 +258,10 @@ def _arrange_riders_by_1_minute_strength_interleaved(riders: list[RiderComputeIt
     sorted_riders: list[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
 
-    # Step 2: Create an empty list to hold the optimal order
-    n = len(sorted_riders)
-    optimal_order: list[RiderComputeItem] = [None] * n  # type: ignore
-
-    # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
-    front_idx = 0
-    for i in range(0, n, 2):
-        optimal_order[front_idx] = sorted_riders[i]
-        front_idx += 1
-
-    # Step 4: Fill back, 2nd last_name, ... (even positions from end) with 2nd, 4th, 6th, ... in reverse
-    back_idx = n - 1
-    for i in range(1, n, 2):
-        optimal_order[back_idx] = sorted_riders[i]
-        back_idx -= 1
+    # Step 2: Odd positions (1st, 3rd, 5th, ...) fill from the front; even positions (2nd, 4th, 6th, ...) fill from the back
+    front_riders = sorted_riders[0::2]
+    back_riders = sorted_riders[1::2]
+    optimal_order: list[RiderComputeItem] = front_riders + back_riders[::-1]
 
     return optimal_order
 
@@ -442,7 +430,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
             for pull_duration in list_of_available_pull_durations_sec:
                 if single_sequence_of_pull_durations_being_built and pull_duration > single_sequence_of_pull_durations_being_built[-1]:
                     continue # enforce non-increasing constraint
-                extended_seq = single_sequence_of_pull_durations_being_built + [pull_duration]
+                extended_seq = [*single_sequence_of_pull_durations_being_built, pull_duration]
                 extended_sequences.append(extended_seq)
         list_of_sequences_of_pull_periods_being_built = extended_sequences
 
@@ -464,7 +452,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
 
     # If the order is already the same, return as is (no-op)
     riders_are_already_ordered_by_strength = all(
-        ordered_rider is original_rider for ordered_rider, original_rider in zip(riders_strongest_first, input_list_of_riders)
+        ordered_rider is original_rider for ordered_rider, original_rider in zip(riders_strongest_first, input_list_of_riders, strict=False)
     )
     if riders_are_already_ordered_by_strength:
         return array_of_sequences_of_pull_periods

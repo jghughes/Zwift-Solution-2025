@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 from pydantic import BaseModel, RootModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -14,10 +14,6 @@ validation_alias_choices_map: dict[str, AliasChoices] = {
 	"cat_women"								:	AliasChoices("cat_women", "catWomen"),
 	"level"									:	AliasChoices("level"),
 	"team_names"							:	AliasChoices("team_names", "teamNames"),
-	# "total_distance_km"						:	AliasChoices("total_distance_km", "totalDistanceKm"),
-	# "total_experience_points"				:	AliasChoices("total_experience_points", "totalExperiencePoints"),
-	# "target_experience_points"				:	AliasChoices("target_experience_points", "targetExperiencePoints"),
-	# "projected_accelerated_level"			:	AliasChoices("projected_accelerated_level", "projectedAcceleratedLevel"),
 	"zwift_racing_score"					:	AliasChoices("zwift_racing_score", "zwiftRacingScore"),
 	"zwift_ftp_w"							:	AliasChoices("zwift_ftp_w", "zwiftWattsFTP"),
 	"zwift_zftp_w"							:	AliasChoices("zwift_zftp_w", "zwiftWattsZFTP"),
@@ -146,7 +142,7 @@ class RiderStatsDTO(BaseModel):
 	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
-		return value
+		return cast(str, value)
 
 class RiderStatsDtoDictModel(RootModel[dict[str, RiderStatsDTO]]):
     pass

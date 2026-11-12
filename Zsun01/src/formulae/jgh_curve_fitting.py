@@ -1,8 +1,8 @@
 
 import numpy as np
 from numpy.typing import NDArray
-from scipy.optimize import curve_fit  # type: ignore
-from sklearn.metrics import mean_squared_error, r2_score  # type: ignore
+from scipy.optimize import curve_fit
+from sklearn.metrics import mean_squared_error, r2_score
 
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 

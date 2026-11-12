@@ -1,5 +1,5 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
-from typing import Any
+from typing import Any, cast
 from jgh_string import sanitise_string
 
 
@@ -60,7 +60,7 @@ class ZwiftDTO(BaseModel):
 	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
-		return value
+		return cast(str, value)
 
 	# Validator for string fields
 	@field_validator("first_name", "last_name", mode="before")

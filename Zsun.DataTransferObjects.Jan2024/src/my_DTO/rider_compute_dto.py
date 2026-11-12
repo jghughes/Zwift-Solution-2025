@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 from pydantic import BaseModel, RootModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -77,7 +77,7 @@ class RiderComputeDTO(BaseModel):
 	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
-		return value
+		return cast(str, value)
 
 class RiderComputeDtoDictModel(RootModel[dict[str, RiderComputeDTO]]):
     pass

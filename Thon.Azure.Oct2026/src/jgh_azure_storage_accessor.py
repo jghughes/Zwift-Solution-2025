@@ -66,7 +66,7 @@ def _normalise_filter(value: str | None) -> str | None:
     return None if value in (None, "", "*") else value
 
 
-def _normalise_filter_list(values: list[str] | None) -> list[str] | None:
+def _normalise_filter_list(values: list[str] | str | None) -> list[str] | None:
     """
     Normalises a list of substring filters. Items that are 'no filter' sentinels (None, "" or "*") are
     dropped and duplicates are eliminated, keeping the first occurrence and the original order. Returns None,
@@ -120,7 +120,8 @@ class AzureStorageAccessor:
         async def operation() -> bool:
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
-                return await container_client.exists()
+                container_exists: bool = await container_client.exists()
+                return container_exists
 
         return await _execute_async("Unable to determine if container exists.", operation)
 
@@ -218,7 +219,8 @@ class AzureStorageAccessor:
         async def operation() -> bool:
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
-                return await blob_client.exists()
+                blob_exists: bool = await blob_client.exists()
+                return blob_exists
 
         return await _execute_async("Unable to determine if blob exists.", operation)
 
@@ -285,7 +287,8 @@ class AzureStorageAccessor:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 if not await blob_client.exists():
                     return None
-                return blob_client.url
+                blob_uri: str = blob_client.url
+                return blob_uri
 
         return await _execute_async("Unable to obtain uri of blob.", operation)
 
@@ -377,7 +380,8 @@ class AzureStorageAccessor:
                     overwrite=overwrite,
                     content_settings=ContentSettings(content_type=most_likely_mime_type_title)
                 )
-                return blob_client.url
+                uploaded_blob_uri: str = blob_client.url
+                return uploaded_blob_uri
 
         return await _execute_async("Unable to upload.", operation)
 
@@ -403,7 +407,8 @@ class AzureStorageAccessor:
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 downloader = await blob_client.download_blob()
-                return await downloader.readall()
+                blob_bytes: bytes = await downloader.readall()
+                return blob_bytes
 
         return await _execute_async("Unable to download blob.", operation)
 

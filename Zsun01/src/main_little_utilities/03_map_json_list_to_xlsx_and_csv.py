@@ -12,7 +12,7 @@ from storage_config import DIRPATH_LOGGING
 
 
 #tests
-def main01():
+def main01() -> None:
 
     dirpath_input : Path = Path(r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\special")
     filename : str = r"2026-05-03_rider_stats_dto_as_list_four_days_after_accelerated_levelling_up_introduced.json"

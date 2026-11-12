@@ -7,7 +7,8 @@ from jgh_number import safe_divide
 
 from jgh_formulae01 import calculate_rider_kph_from_watts
 from rider_compute_item import RiderComputeItem
-from route_item import RouteItem, SlopeBucketItem
+from route_item import RouteItem
+from slope_bucket_item import SlopeBucketItem
 
 
 # All of the following functions are called during parallel processing. Logging forbidden

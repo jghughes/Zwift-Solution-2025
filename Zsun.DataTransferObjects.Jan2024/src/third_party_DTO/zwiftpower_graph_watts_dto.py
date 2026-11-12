@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
 
 validation_alias_choices_map_ZwiftPowerGraphWattsDTO: dict[str, AliasChoices] = {
@@ -37,6 +37,6 @@ class ZwiftPowerGraphWattsDTO(BaseModel):
 	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
-		return value
+		return cast(str, value)
 
 

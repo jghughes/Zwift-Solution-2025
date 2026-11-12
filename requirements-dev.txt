@@ -1,0 +1,9 @@
+-r requirements.txt
+
+mypy==1.14.1
+ruff==0.8.4
+pytest==8.3.3
+
+pandas-stubs==3.1.0.261029
+types-aiofiles==25.1.0.20261107
+types-tabulate==0.10.0.20261006

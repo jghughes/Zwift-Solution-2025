@@ -97,7 +97,6 @@ from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
 from route_item import RouteItem
 from repository_of_routes import RepositoryOfRoutes
 
-import time
 import logging
 from jgh_exceptions import AlertMessageError
 
@@ -113,7 +112,7 @@ async def upload_text_to_blob_storage_in_azure(
     return url_of_uploaded_blob
 
 # HEAP POWERFUL TOOL
-async def generate_everything_and_save_and_upload(route_name : str):
+async def generate_everything_and_save_and_upload(route_name : str) -> None:
     print("starting script\n")
     logger = logging.getLogger()
 
@@ -231,7 +230,7 @@ async def export_and_upload_dtos(
     json_list_blobname: str,
     csv_list_blobname : str,
     logger: logging.Logger,
-):
+) -> None:
     """
     Expects `dto_by_key` to be an insertion-ordered dict mapping id -> DTO (pydantic model).
     Serializes DTOs to two JSON formats (dict & list), writes an Excel file, and uploads

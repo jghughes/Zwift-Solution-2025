@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 
 def truncate(f : float, n : int) -> float:
-    factor = 10 ** n
+    factor = 10.0 ** n
     return int(f * factor) / factor
 
 def round_to_nearest_10(x: float) -> int:
@@ -101,10 +101,8 @@ def format_number_with_comma_separators(x: int | float) -> str:
     """
     if isinstance(x, int):
         return f"{x:,}"
-    elif isinstance(x, float):
-        return f"{x:,.2f}".rstrip('0').rstrip('.') if '.' in f"{x:,.2f}" else f"{x:,.2f}"
     else:
-        return str(x)
+        return f"{x:,.2f}".rstrip('0').rstrip('.') if '.' in f"{x:,.2f}" else f"{x:,.2f}"
 
 def format_number_0dp_padded1(x: int | float) -> str:
     """

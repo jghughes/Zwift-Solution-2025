@@ -1,4 +1,3 @@
-from tkinter import SINGLE
 
 import numpy as np
 

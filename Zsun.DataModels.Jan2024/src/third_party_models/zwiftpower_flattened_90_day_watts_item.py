@@ -163,7 +163,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             2520, 2640, 2760, 2880, 3000, 3120, 3240, 3360, 3480, 3600, 3900, 4200, 
             4500, 4800, 5100, 5400, 5700, 6000, 6300, 6600, 7200
         ]
-        return answer;
+        return answer
 
 
     def export_all_x_y_ordinates(self) -> dict[int, float]:

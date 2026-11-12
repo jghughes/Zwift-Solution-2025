@@ -21,7 +21,7 @@ from jgh_exceptions import AlertMessageError
 from jgh_logging import setup_json_logging, log_event
 from storage_config import DIRPATH_LOGGING
 
-def run_curve_fitting_comparisons():
+def run_curve_fitting_comparisons() -> None:
 
 
     try:

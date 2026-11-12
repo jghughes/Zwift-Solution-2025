@@ -13,10 +13,8 @@ from jgh_listdictionary import JghListDictionary
 from custom_file_read_write import read_teams_per_rider_from_event_result_files
 from zwift_item import ZwiftItem
 from zwiftracingapp_item import ZwiftRacingAppItem
-from repository_of_routes import RepositoryOfRoutes
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
-from rider_team_name_item import RiderTeamNameItem
 from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
 
@@ -95,13 +93,13 @@ class RepositoryOfRiders:
         print("Repository to read raw data is populating itself. This will take up to a minute.")
         print("\n1-3. Reading Zwift, ZwiftPower 90-day, and ZwiftRacingApp files in parallel.")
 
-        def _read_zwift():
+        def _read_zwift() -> dict[str, ZwiftItem]:
             return read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
 
-        def _read_zwiftpower():
+        def _read_zwiftpower() -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
             return read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path), file_names)
 
-        def _read_zwiftracingapp():
+        def _read_zwiftracingapp() -> dict[str, ZwiftRacingAppItem]:
             return read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path), file_names)
 
         with ThreadPoolExecutor(max_workers=3) as executor:

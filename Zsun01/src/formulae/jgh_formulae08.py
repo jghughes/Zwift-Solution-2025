@@ -59,10 +59,6 @@ from paceline_modelling_items import (
     RiderContributionItem,
     WorthyCandidateSolutionItem,
 )
-from paceline_display_objects import (
-    PacelinePlanTypeEnum,
-    PackageOfPacelineComputationReportDisplayObject,
-)
 from constants import (
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
@@ -71,9 +67,7 @@ from constants import (
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import (
-    format_number_1dp,
     format_number_with_comma_separators,
-    format_pretty_duration_hms,
     truncate,
 )
 from jgh_formulae03 import (
@@ -108,12 +102,12 @@ def show_table_of_standard_proxy_speeds_for_all_riders(riders: list[RiderCompute
     proxy_standard_30sec_pull_speed_values: list[float] = [round(proxy_standard_30sec_pull_speeds_dict[rider], 1) for rider in riders]
     standard_solo_speeds_at_one_hour_watts__dict = solve_for_speed_at_one_hour_watts_for_all_riders(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)
     standard_solo_speeds_at_one_hour_values: list[float] = [round(standard_solo_speeds_at_one_hour_watts__dict[rider], 1) for rider in riders]
-    table = zip(names, zFTPs, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
+    table = zip(names, zFTPs, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values, strict=False)
     print(tabulate(table, headers=["Rider", "zFTP (w/kg)", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
 
 def show_workload_suffix_message() -> None:
     message_lines = [
-        f"\nzFTP metrics are displayed, but play no role in computations.",
+        "\nzFTP metrics are displayed, but play no role in computations.",
         "Pull capacities are obtained from individual 90-day best power graphs on ZwiftPower.",
         "\n30 second pull capacity = 3.5 minute pull-curve ordinate",
         "1 minute pull capacity  =  5 minute pull-curve ordinate",
@@ -500,10 +494,7 @@ def is_valid_solution(this_solution: PacelineComputationReportItem) -> bool:
         return False
 
     dispersion = this_solution.calculated_dispersion_of_intensity_of_effort
-    if not np.isfinite(dispersion) or dispersion == 100:
-        return False
-
-    return True
+    return bool(np.isfinite(dispersion) and dispersion != 100)
 
 def raise_error_if_any_solutions_missingV2(
     balanced_intensity_candidate: WorthyCandidateSolutionItem,

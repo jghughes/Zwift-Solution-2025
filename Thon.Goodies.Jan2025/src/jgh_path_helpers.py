@@ -166,11 +166,14 @@ def warn_if_blob_name_is_invalid(blob_name: str) -> str|None:
     if any(c in blob_name for c in BLOB_NAME_INVALID_CHARS):
         return "Error: blob_name contains invalid characters."
     filename = os.path.basename(blob_name)
-    if not  is_valid_ntfs_filename_format(filename):
+    valid_ntfs, _ = is_valid_ntfs_filename_format(filename)
+    if not valid_ntfs:
         return "Error: blob_name is not a valid NTFS filename."
-    if not is_valid_unix_filename_format(filename):
+    valid_unix, _ = is_valid_unix_filename_format(filename)
+    if not valid_unix:
         return "Error: blob_name is not a valid Unix filename."
-    if not has_file_extension(filename):
+    has_extension, _ = has_file_extension(filename)
+    if not has_extension:
         return "Error: blob_name must include a file extension."
     return None
 
@@ -216,7 +219,8 @@ def validate_azure_storage_blob_name(blob_name: str) -> tuple[bool, str | None]:
     valid_unix, unix_error = is_valid_unix_filename_format(filename)
     if not valid_unix:
         return False, f"Error: {unix_error} The blob_name is [{filename}]"
-    if not  has_file_extension(filename):
+    has_extension, _ = has_file_extension(filename)
+    if not has_extension:
         return False, f"Error: blob_name must include a file extension. The blob_name is [{filename}]"
     return True, None
 
@@ -240,8 +244,6 @@ def validate_azure_storage_account_name(account_name: str) -> tuple[bool, str | 
     Pattern and error reporting matches  is_valid_ntfs_filename_format().
     """
     AZURE_ACCOUNT_NAME_PATTERN = r"^[a-z0-9]{3,24}$"
-    if not isinstance(account_name, str):
-        return False, "Error: account_name must be a string."
     account_name = account_name.strip()
     if not account_name:
         return False, "Error: account_name parameter is empty or whitespace."
@@ -278,12 +280,7 @@ def validate_dirpath_format_and_existence(
     Validate directory path format and existence. Returns (is_valid, message).
     If validation fails and on_error is provided, calls on_error(message).
     """
-    # Type check and conversion
-    if isinstance(dirpath, str):
-        dirpath_str = dirpath
-        dirpath = Path(dirpath)
-    else:
-        dirpath_str = str(dirpath)
+    dirpath_str = str(dirpath)
 
     valid_format, format_msg = is_valid_dirpath(dirpath_str)
     if not valid_format:
@@ -325,9 +322,6 @@ def validate_file_path_and_existence(
     validate_dir_and_extension_only: bool = False
 ) -> tuple[bool, str]:
     """Validate file path, filename, extension, and existence. Returns (is_valid, message)."""
-    # Type check and conversion for dirpath
-    if isinstance(dirpath, str):
-        dirpath = Path(dirpath)
     valid_dir, dir_msg = validate_dirpath_format_and_existence(dirpath, must_exist=True)
     if not valid_dir:
         return False, f"Directory validation failed: {dir_msg}"
@@ -553,12 +547,11 @@ def find_all_file_paths_in_folder(
     valid_dir, dir_msg = validate_dirpath_format_and_existence(dirpath, must_exist=True)
     if not valid_dir:
         return None, f"Directory validation failed: {dir_msg}"
-    if mandatory_extension:
-        if not mandatory_extension.startswith(".") or len(mandatory_extension) < 2:
-            return None, (
-                f"Error: mandatory_extension must be a non-empty string starting with a dot. "
-                f"Got: [{mandatory_extension}]"
-            )
+    if mandatory_extension and (not mandatory_extension.startswith(".") or len(mandatory_extension) < 2):
+        return None, (
+            f"Error: mandatory_extension must be a non-empty string starting with a dot. "
+            f"Got: [{mandatory_extension}]"
+        )
     valid_filenames: list[str] = []
     if filenames_without_extension is not None:
         for fname in filenames_without_extension:

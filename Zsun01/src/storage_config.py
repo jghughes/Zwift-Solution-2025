@@ -16,8 +16,8 @@ FOLDER_NAME_ZWIFTRACINGAPP_FILES = "zwiftracing-app-files"
 
 FILENAME_OF_CLUB_MEMBERSHIP_LIST = "active_members.json" # always ensure that this is identical to the filename portion of URL_OF_CLUB_MEMBERSHIP_LIST
 
-DIRPATH_FROM_DAVEK_ROOT =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/live_data/"
-_stuffByJghDirPathStem =f"C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
+DIRPATH_FROM_DAVEK_ROOT ="C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK/live_data/"
+_stuffByJghDirPathStem ="C:/Users/johng/holding_pen/StuffForZsun/!StuffFromDaveK_byJgh/"
 
 DIRPATH_LOGGING = f"{_stuffByJghDirPathStem}/LOGGING/"
 

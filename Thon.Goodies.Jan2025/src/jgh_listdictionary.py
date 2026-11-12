@@ -700,7 +700,7 @@ class JghListDictionary[TKey, TValue]:
         """
         return list(self.backingstore_dict.get(key, []))
 
-    def __setitem__(self, key: TKey, value: list[TValue]):
+    def __setitem__(self, key: TKey, value: list[TValue]) -> None:
         """
         Sets the list of values for the given key.
 

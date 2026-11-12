@@ -1,7 +1,7 @@
 from dataclasses import dataclass, replace
 
 import numpy as np
-from constants import AERO_POSITION_FACTOR_DEFAULT, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+from constants import AERO_POSITION_FACTOR_DEFAULT
 import warnings
 
 from jgh_formulae01 import calculate_rider_kph_from_watts
@@ -179,44 +179,44 @@ class RiderComputeItem(FrozenZwiftIdBase):
         pull_short = decay_model_numpy(np.array([210]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([210]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_short[0], one_hour[0])
-        return answer
+        return float(answer)
 
     def get_proxy_1_minute_pull_watts(self) -> float:
         # apply 5 minute watts
         pull_medium = decay_model_numpy(np.array([300]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([300]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_medium[0], one_hour[0])
-        return answer
+        return float(answer)
 
     def get_proxy_2_minute_pull_watts(self) -> float:
         # # apply 12 minute watts
         pull_long = decay_model_numpy(np.array([720]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([720]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
-        return answer
+        return float(answer)
 
     def get_proxy_3_minute_pull_watts(self) -> float:
         # apply 15 minute watts
         pull_long = decay_model_numpy(np.array([900]), self.jgh_TTT_pull_curve_coefficient, self.jgh_TTT_pull_curve_exponent)
         one_hour = decay_model_numpy(np.array([900]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = max(pull_long[0], one_hour[0])
-        return answer
+        return float(answer)
 
     def get_proxy_4_minute_pull_watts(self) -> float:
         # apply 18 minute watts
         one_hour = decay_model_numpy(np.array([1080]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
-        return answer
+        return float(answer)
 
     def get_40_minute_curvefit_watts(self) -> float:
         one_hour = decay_model_numpy(np.array([2400]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer = one_hour[0]
-        return answer
+        return float(answer)
 
     def get_1_hour_curvefit_watts(self) -> float:
         ftp = decay_model_numpy(np.array([3_600]), self.jgh_60_min_curve_coefficient, self.jgh_60_min_curve_exponent)
         answer =  ftp[0]
-        return answer
+        return float(answer)
 
     def get_1_hour_curvefit_wkg(self) -> float:
         if self.weight_kg == 0:
@@ -229,7 +229,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         try:
             kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_proxy_30sec_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_proxy_30sec_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0", stacklevel=2)
             kph = 0.0
         return kph
 
@@ -239,7 +239,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         try:
             kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_proxy_1_minute_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_proxy_1_minute_pull_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0", stacklevel=2)
             kph = 0.0
         return kph
 
@@ -248,7 +248,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         try:
             kph = calculate_rider_kph_from_watts(watts, self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_40_minute_curve_fit_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_40_minute_curve_fit_kph for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0", stacklevel=2)
             kph = 0.0
         return kph
 
@@ -256,7 +256,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         try:
             speed_kmh: float = calculate_rider_kph_from_watts(self.get_1_hour_curvefit_watts(), self.weight_kg, self.height_cm, slope_pc, AERO_POSITION_FACTOR_DEFAULT)
         except RuntimeError as e:
-            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0")
+            warnings.warn(f"Error computing get_1_hour_distance_km_on_slope for rider {self.zwift_id} {self.name}: calculate_rider_kph_from_watts failed to converge: {e}. defaulting to 0.0", stacklevel=2)
             speed_kmh = 0.0
 
         return speed_kmh
@@ -280,7 +280,7 @@ class RiderComputeItem(FrozenZwiftIdBase):
         else: 
             answer = one_hour_curve[0]
 
-        return answer
+        return float(answer)
 
     def get_when_curvefit_done(self) -> str:
         return self.jgh_when_curves_fitted

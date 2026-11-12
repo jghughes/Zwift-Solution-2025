@@ -200,9 +200,8 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
     if riderStatsItem.cat_open == "":
         riderStatsItem.cat_open = "?"
         riderStatsItem.cat_women = "?"
-    if riderStatsItem.cat_women == "":
-        if riderStatsItem.gender_code != "m":
-            riderStatsItem.cat_women = "?"
+    if riderStatsItem.cat_women == "" and riderStatsItem.gender_code != "m":
+        riderStatsItem.cat_women = "?"
 
     cat_combo_text = (
         riderStatsItem.cat_open

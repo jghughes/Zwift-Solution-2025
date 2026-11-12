@@ -171,7 +171,7 @@ def cleanup_name_string(name_to_clean: str | None) -> str:
             sanitized_value = sanitized_value.replace(char, "")
 
         return sanitise_string(sanitized_value)
-    except Exception as e:
+    except Exception:
         return sanitized_value
 
 def sanitise_string(input: str | None) -> str:

@@ -4,24 +4,24 @@ import json
 from jgh_exception_helpers import flatten_dict
 
 __all__ = [
-    "AppErrorBase",
-    "HttpAppErrorBase",
     "AlertMessageError",
-    "AppSystemError",
     "AlreadyExistsError",
-    "AuthenticationError",
-    "NetworkError",
-    "NotFoundError",
+    "AppErrorBase",
+    "AppSystemError",
     "AppTimeoutError",
     "AppValidationError",
-    "map_azure_resource_error",
-    "map_azure_value_type_error",
+    "AuthenticationError",
+    "HttpAppErrorBase",
+    "NetworkError",
+    "NotFoundError",
     "map_azure_client_authentication_error",
     "map_azure_http_response_error",
+    "map_azure_resource_error",
     "map_azure_resource_exists_error",
     "map_azure_resource_not_found_error",
     "map_azure_service_request_error",
     "map_azure_service_response_error",
+    "map_azure_value_type_error",
 ]
 
 
@@ -134,7 +134,7 @@ def map_azure_resource_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise AppErrorBase(
-        message=f"AzureMessage: {str(ex)}",
+        message=f"AzureMessage: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex
     ) from ex
@@ -143,7 +143,7 @@ def map_azure_value_type_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise AppValidationError(
-        message=f"{failure} {str(ex)}",
+        message=f"{failure} {ex!s}",
         details={"failure": str(failure)},
         inner_exception=ex
     ) from ex
@@ -152,7 +152,7 @@ def map_azure_client_authentication_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise AuthenticationError(
-        message=f"AzureMessage: {str(ex)}",
+        message=f"AzureMessage: {ex!s}",
         details={"failure": str(failure)},
         inner_exception=ex,
         http_status=401
@@ -162,7 +162,7 @@ def map_azure_http_response_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise NetworkError(
-        message=f"AzureMessage: {str(ex)}",
+        message=f"AzureMessage: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex,
         http_status=_status_or_default(ex, 500)
@@ -172,7 +172,7 @@ def map_azure_resource_exists_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise AlreadyExistsError(
-        message=f"Resource already exists: {str(ex)}",
+        message=f"Resource already exists: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex,
         http_status=409
@@ -182,7 +182,7 @@ def map_azure_resource_not_found_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise NotFoundError(
-        message=f"Resource not found: {str(ex)}",
+        message=f"Resource not found: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex,
         http_status=404
@@ -192,7 +192,7 @@ def map_azure_service_request_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise NetworkError(
-        message=f"Network/Connectivity error: {str(ex)}",
+        message=f"Network/Connectivity error: {ex!s}",
         details={"failure": str(failure)},
         inner_exception=ex
     ) from ex
@@ -201,7 +201,7 @@ def map_azure_service_response_error(
     ex: Exception, failure: str
 ) -> NoReturn:
     raise NetworkError(
-        message=f"Azure server-side error: {str(ex)}",
+        message=f"Azure server-side error: {ex!s}",
         details={"failure": str(failure)},
         inner_exception=ex
     ) from ex

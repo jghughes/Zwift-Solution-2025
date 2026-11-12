@@ -20,7 +20,6 @@ from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_SLOPE_FOR_ALL_PACELINE_
 
 from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
 from paceline_display_objects import (
-    PacelinePlanTypeEnum,
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
     populate_title_for_pace_plan,
@@ -49,7 +48,7 @@ from paceline_html_renderer import format_paceline_plans_as_one_page_html_doc
 from jgh_internet_helpers import throw_if_no_internet_connection
 
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import read_text_from_path, write_text_with_html_file_extension
+from jgh_read_write import write_text_with_html_file_extension
 from jgh_string import make_pretty_count_of_bytes
 
 

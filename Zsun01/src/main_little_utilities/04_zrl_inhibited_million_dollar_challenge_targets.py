@@ -71,7 +71,7 @@ async def generate_team_targets() -> None:
     try:
         _riderIDs: list[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
         full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
-    except Exception as e:
+    except Exception:
         print("Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 

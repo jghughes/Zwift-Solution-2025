@@ -1,7 +1,12 @@
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
 from types import UnionType
-from typing import Union, Any, get_origin, get_args
+from typing import Union, Any, cast, get_origin, get_args
 from jgh_string import sanitise_string
+
+
+def _is_optional_float_annotation(field_type: Any) -> bool:
+    origin: object = get_origin(field_type)
+    return origin in (Union, UnionType) and float in get_args(field_type) and type(None) in get_args(field_type)
 
 
 validation_alias_choices_map_ZwiftRacingAppDTO: dict[str, AliasChoices] = {
@@ -105,7 +110,7 @@ class PowerDTO(BaseModel):
         *[
             field
             for field, field_type in __annotations__.items()
-            if get_origin(field_type) in (Union, UnionType) and float in get_args(field_type) and type(None) in get_args(field_type)
+            if _is_optional_float_annotation(field_type)
         ],
     )
     def validate_float_fields(cls, value : Any) -> float | None:
@@ -139,7 +144,7 @@ class ZwiftRacingAppDTO(BaseModel):
 	def convert_int_to_str(cls, value : Any) -> str:
 		if isinstance(value, int):
 			return str(value)
-		return value
+		return cast(str, value)
 
 	# Validator for string fields - get rid of
 	@field_validator("full_name", mode="before")
