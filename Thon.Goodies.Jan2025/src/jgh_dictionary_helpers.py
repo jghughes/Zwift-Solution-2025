@@ -1,8 +1,6 @@
-from typing import Dict, Optional, TypeVar
+from typing import Dict
 
-T = TypeVar("T")
-
-def filter_generic_dict_by_key(source_dict: Dict[str, T], keys_to_filter_by: Optional[list[str]]) -> Dict[str, T]:
+def filter_generic_dict_by_key[T](source_dict: Dict[str, T], keys_to_filter_by: list[str] | None) -> Dict[str, T]:
         """
         Returns a dictionary containing only the items from `source_dict` whose keys are present in `keys_to_filter_by`.
 
@@ -11,7 +9,7 @@ def filter_generic_dict_by_key(source_dict: Dict[str, T], keys_to_filter_by: Opt
 
         Args:
             source_dict (Dict[str, T]): The source dictionary to filter.
-            keys_to_filter_by (Optional[list[str]]): List of keys to include in the result. If None or empty, include all.
+            keys_to_filter_by (list[str] | None) List of keys to include in the result. If None or empty, include all.
 
         Returns:
             Dict[str, T]: A dictionary containing only the requested items.

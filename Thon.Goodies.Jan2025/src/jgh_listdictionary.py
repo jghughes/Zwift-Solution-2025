@@ -1,12 +1,8 @@
 # Standard library imports
-from typing import TypeVar, Generic
 from collections import defaultdict
 from typing import Callable, Tuple
 
-TKey = TypeVar('TKey')
-TValue = TypeVar('TValue')
-
-class JghListDictionary(Generic[TKey, TValue]):
+class JghListDictionary[TKey, TValue]:
     """
     A generic dictionary-like class that maps keys to lists of values.
 
