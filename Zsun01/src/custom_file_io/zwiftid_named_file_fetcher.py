@@ -26,7 +26,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
         http_client: An async HTTP client for making requests.
         url: The URL of the file to download.
         dest_dir_path: The base directory path where the file will be saved.
-        dest_folder: Optional subfolder name within dest_dir_path. If None or empty,
+        dest_folder: Subfolder name within dest_dir_path. May be None or empty, in which case
             files are saved directly to dest_dir_path.
         semaphore: Asyncio semaphore to limit concurrent downloads.
 

@@ -12,12 +12,12 @@ def flatten_dict(
     This is useful for serializing or logging complex, nested data structures.
 
     Args:
-        d (Dict[str, Any]): The dictionary to flatten.
+        d (dict[str, Any]): The dictionary to flatten.
         parent_key (str, optional): The base key to prepend to each key. Defaults to ''.
         sep (str, optional): Separator to use between concatenated keys. Defaults to '.'.
 
     Returns:
-        Dict[str, Any]: A flat dictionary with compound keys representing the original nested structure.
+        dict[str, Any]: A flat dictionary with compound keys representing the original nested structure.
 
     Example:
         >>> flatten_dict({'a': {'b': 1, 'c': 2}, 'd': 3})

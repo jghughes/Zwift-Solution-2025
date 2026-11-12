@@ -46,10 +46,10 @@ def populate_rider_exertions(rider_work_assignments: dict[RiderComputeItem, list
     
     Args:
         speed (float): The speed of the paceline.
-        rider_work_assignments (Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]): The dictionary of rider workunits.
+        rider_work_assignments (dict[RiderComputeItem, list[RiderWorkAssignmentItem]]): The dictionary of rider workunits.
 
     Returns:
-        Dict[RiderComputeItem, List[RiderExertionItem]]: A dictionary of Zwift riders with
+        dict[RiderComputeItem, list[RiderExertionItem]]: A dictionary of Zwift riders with
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage, slope). Each rider has a list of dict_of_rider_exertions
     """

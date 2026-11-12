@@ -49,13 +49,13 @@ async def fetch_and_save_files(
     Prints summary information and returns the list of discovered files.
 
     Args:
-        list_of_fetch_urls (List[str]): List of file URLs to download.
+        list_of_fetch_urls (list[str]): List of file URLs to download.
         save_dirpath (str): Directory path to save the files.
         save_folder_name (str): Name of the folder for display/logging purposes.
         concurrency (int, optional): Number of concurrent downloads. Defaults to 5.
 
     Returns:
-        List[Path]: List of Path objects for the discovered files.
+        list[Path]: List of Path objects for the discovered files.
     """
     start_time = time.time()
 

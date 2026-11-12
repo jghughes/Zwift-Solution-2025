@@ -151,7 +151,7 @@ def populate_rider_contributions_in_a_single_paceline_solution_complying_with_ex
     Returns:
         Tuple containing:
             - overall_av_speed_of_paceline (float): The computed average speed of the paceline (kph).
-            - dict_of_rider_contributions (Dict[RiderComputeItem, RiderContributionItem]):
+            - dict_of_rider_contributions (dict[RiderComputeItem, RiderContributionItem]):
                 Mapping of each rider to their computed RiderContributionItem, including effort metrics and constraint violations.
     """
     dict_of_rider_work_assignments = populate_rider_work_assignments(riders, standard_pull_periods_seconds, pull_speeds_kph, slope)
@@ -198,9 +198,9 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
 
     Args:
         paceline_ingredients (PacelineIngredientsItem): All inputs for the computation:
-            - riders_list (List[RiderComputeItem]): The riders in the paceline.
-            - sequence_of_pull_periods_sec (List[float]): Pull duration (seconds) for each rider.
-            - pull_speeds_kph (List[float]): Only pull_speeds_kph[0] is consumed, as the
+            - riders_list (list[RiderComputeItem]): The riders in the paceline.
+            - sequence_of_pull_periods_sec (list[float]): Pull duration (seconds) for each rider.
+            - pull_speeds_kph (list[float]): Only pull_speeds_kph[0] is consumed, as the
               starting lower bound for the speed search.  Remaining elements are ignored.
             - slope_pc (float): Road slope as a percentage (e.g. 5.0 for 5 %). Defaults to 0.0.
             - max_exertion_intensity_factor (float): The ceiling intensity factor
@@ -221,7 +221,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
             - calculated_dispersion_of_intensity_of_effort (float): Spread of intensity
               factors across riders at the converged speed.  999 if
               algorithm_ran_to_completion is False.
-            - rider_contributions (Dict[RiderComputeItem, RiderContributionItem]): Each
+            - rider_contributions (dict[RiderComputeItem, RiderContributionItem]): Each
               rider's detailed effort metrics and constraint-violation status at the
               converged speed.
 
@@ -327,7 +327,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
             A 2D numpy array where each row is a candidate pull period schedule (list of pull durations in seconds).
 
     Returns:
-        List[PacelineComputationReportItem]:
+        list[PacelineComputationReportItem]:
             A list of computation reports, one for each successfully evaluated alternative.
             Each report contains the number of compute iterations performed and the computed rider contributions.
 
@@ -386,7 +386,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
             A 2D numpy array where each row is a candidate pull period schedule (list of pull durations in seconds).
 
     Returns:
-        List[PacelineComputationReportItem]:
+        list[PacelineComputationReportItem]:
             A list of computation reports, one for each successfully evaluated alternative.
             Each report contains the number of compute iterations performed and the computed rider contributions.
 
@@ -454,7 +454,7 @@ def generate_paceline_solutions_using_serial_and_parallel_algorithms(
             A 2D numpy array where each row is a candidate pull period schedule (list of pull durations in seconds).
 
     Returns:
-        List[PacelineComputationReportItem]: 
+        list[PacelineComputationReportItem]:
             A list of computation reports, one for each successfully evaluated alternative. Each report contains 
             the number of compute iterations performed and the computed rider contributions.
 

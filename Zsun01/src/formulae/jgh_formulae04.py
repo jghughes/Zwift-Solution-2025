@@ -53,13 +53,13 @@ def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_duratio
     by the duarion and speed of the prevailing leader at that point in time.
 
     Args:
-        riders (List[RiderComputeItem]): The list of Zwift riders from head to tail.
-        pull_durations (List[float]): The list of pull durations from head to tail.
-        pull_speeds_kph (List[float]): The list of pull speeds from head to tail.
+        riders (list[RiderComputeItem]): The list of Zwift riders from head to tail.
+        pull_durations (list[float]): The list of pull durations from head to tail.
+        pull_speeds_kph (list[float]): The list of pull speeds from head to tail.
         slope_pc (float): The slope of the course in percentage.
 
     Returns:
-        Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
+        dict[RiderComputeItem, list[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
             with their list of respective assignments, being how fast they must go for 
             how long in which position. 
     """

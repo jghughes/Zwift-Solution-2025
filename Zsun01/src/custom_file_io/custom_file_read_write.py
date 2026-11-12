@@ -82,7 +82,6 @@ def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_js
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
-
 def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects.
@@ -284,7 +283,7 @@ def read_json_list_and_export_tabular(
     Args:
         input_dirpath:   Directory containing the source JSON file.
         input_filename:  Filename of the JSON list file (with extension).
-        list_model_class:  A Pydantic list-root model class whose .root is List[DTO].
+        list_model_class:  A Pydantic list-root model class whose .root is list[DTO].
         output_dirpath:  Directory where the CSV and XLSX files will be written.
 
     Returns:

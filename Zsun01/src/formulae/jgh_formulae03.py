@@ -82,13 +82,13 @@ def calculate_rolling_averages(numbers: list[float], window_size: int) -> list[f
     without complex optimizations.
 
     Args:
-        numbers (List[float]): The list of numbers for which the rolling average 
+        numbers (list[float]): The list of numbers for which the rolling average 
         is to be calculated.
         window_size (int): The size of the rolling window, i.e., the number of 
         consecutive numbers to include in each average calculation.
 
     Returns:
-        List[float]: The list of rolling average numbers. Each value in the 
+        list[float]: The list of rolling average numbers. Each value in the 
         returned list represents the average of a subset of the input numbers, 
         with the subset size determined by the window size. The length of the 
         returned list will be `len(numbers) - window_size + 1`.
@@ -253,7 +253,7 @@ def _arrange_riders_by_1_minute_strength_interleaved(riders: list[RiderComputeIt
     - This pattern continues until all riders are placed.
 
     Returns:
-        List[RiderComputeItem]: The list of riders arranged in the optimal interleaved order.
+        list[RiderComputeItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
     sorted_riders: list[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
@@ -309,7 +309,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
         pull_period_sequences_being_pruned (NDArray[np.float_]):
             2D NumPy array of extended_seq paceline pull pull_duration sequences, where each row is a sequence of pull periods (seconds)
             for each rider.
-        riders (List[RiderComputeItem]):
+        riders (list[RiderComputeItem]):
             List of rider objects, used to determine rider strength order for filtering.
 
     Returns:
@@ -375,7 +375,7 @@ def generate_all_paceline_rotation_sequences_in_the_total_solution_space(num_rid
 
     Args:
         num_riders (int): Number of riders in the paceline.
-        list_of_allowable_pull_durations_sec (List[float]): Allowed pull durations (in seconds).
+        list_of_allowable_pull_durations_sec (list[float]): Allowed pull durations (in seconds).
 
     Returns:
         NDArray[np.float64]: All possible paceline pull pull_duration sequences as a 2D NumPy array.
@@ -403,7 +403,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
         paceline_ingredients (PacelineIngredientsItem): 
             An object containing:
                 - riders_list: List of RiderComputeItem, the riders in the paceline.
-                - sequence_of_pull_periods_sec: List[float], allowed pull durations (in seconds).
+                - sequence_of_pull_periods_sec: list[float], allowed pull durations (in seconds).
 
     Returns:
         NDArray[np.float64]: 2D NumPy array of valid paceline pull duration sequences.

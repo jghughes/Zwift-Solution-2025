@@ -7,11 +7,11 @@ def filter_generic_dict_by_key[T](source_dict: dict[str, T], keys_to_filter_by: 
         If a key in `keys_to_filter_by` does not exist in `source_dict`, it is skipped.
 
         Args:
-            source_dict (Dict[str, T]): The source dictionary to filter.
+            source_dict (dict[str, T]): The source dictionary to filter.
             keys_to_filter_by (list[str] | None) List of keys to include in the result. If None or empty, include all.
 
         Returns:
-            Dict[str, T]: A dictionary containing only the requested items.
+            dict[str, T]: A dictionary containing only the requested items.
         """
 
         # If keys_to_filter_by is None or empty, return a shallow copy of the entire source_dict.

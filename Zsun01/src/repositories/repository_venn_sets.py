@@ -34,16 +34,16 @@ def create_union_of_sets_as_dataframe(
     and in the sample lists.
 
     Args:
-        dict_of_ZwiftItem (Dict[str, ZwiftItem]):
+        dict_of_ZwiftItem (dict[str, ZwiftItem]):
             Dictionary of ZwiftItems keyed by zwift_id.
-        dict_of_ZwiftRacingAppItem (Dict[str, ZwiftRacingAppItem]):
+        dict_of_ZwiftRacingAppItem (dict[str, ZwiftRacingAppItem]):
             Dictionary of ZwiftRacingAppItems keyed by zwift_id.
-        dict_of_ZwiftPower90dayWattsItem (Dict[str, ZwiftPowerFlattened90dayWattsItem]):
+        dict_of_ZwiftPower90dayWattsItem (dict[str, ZwiftPowerFlattened90dayWattsItem]):
             Dictionary of ZwiftPowerFlattened90dayWattsItems keyed by zwift_id.
         sample1 (list[str]):
-            Optional list of Zwift IDs to include in the union and mark membership.
+            List of Zwift IDs to include in the union and mark membership. May be empty.
         sample2 (list[str]):
-            Optional second list of Zwift IDs to include in the union and mark membership.
+            Second list of Zwift IDs to include in the union and mark membership. May be empty.
 
     Returns:
         pd.DataFrame: DataFrame with columns for Zwift ID, sample membership, and dataset membership.
@@ -98,11 +98,11 @@ def create_intersection_of_sets_as_dataframe(
     datasets, optionally further filtered by sample1 and sample2.
 
     Args:
-        dict_of_ZwiftItem (Dict[str, ZwiftItem]):
+        dict_of_ZwiftItem (dict[str, ZwiftItem]):
             Dictionary of ZwiftItems keyed by zwift_id.
-        dict_of_ZwiftRacingAppItem (Dict[str, ZwiftRacingAppItem]):
+        dict_of_ZwiftRacingAppItem (dict[str, ZwiftRacingAppItem]):
             Dictionary of ZwiftRacingAppItems keyed by zwift_id.
-        dict_of_ZwiftPower90dayWattsItem (Dict[str, ZwiftPowerFlattened90dayWattsItem]):
+        dict_of_ZwiftPower90dayWattsItem (dict[str, ZwiftPowerFlattened90dayWattsItem]):
             Dictionary of ZwiftPowerFlattened90dayWattsItems keyed by zwift_id.
         sample1 (list[str]):
             If non-empty, the intersection is further filtered to only include IDs in this list.
@@ -165,11 +165,11 @@ def create_union_of_sets_filtered_by_membership_as_dataframe(
     Each filter parameter accepts "y", "n", or "y_or_n" (meaning no filter applied for that source).
 
     Args:
-        dict_of_ZwiftItem (Dict[str, ZwiftItem]):
+        dict_of_ZwiftItem (dict[str, ZwiftItem]):
             Dictionary of ZwiftItems keyed by zwift_id.
-        dict_of_ZwiftRacingAppItem (Dict[str, ZwiftRacingAppItem]):
+        dict_of_ZwiftRacingAppItem (dict[str, ZwiftRacingAppItem]):
             Dictionary of ZwiftRacingAppItems keyed by zwift_id.
-        dict_of_ZwiftPower90dayWattsItem (Dict[str, ZwiftPowerFlattened90dayWattsItem]):
+        dict_of_ZwiftPower90dayWattsItem (dict[str, ZwiftPowerFlattened90dayWattsItem]):
             Dictionary of ZwiftPowerFlattened90dayWattsItems keyed by zwift_id.
         zwift (str):
             Membership filter for Zwift data. Must be "y", "n", or "y_or_n".

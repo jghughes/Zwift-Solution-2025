@@ -3,7 +3,6 @@ import json
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import TypeVar
 from collections.abc import Callable
 from jgh_exceptions import AlertMessageError
 from jgh_path_helpers import find_all_file_paths_in_folder, throw_if_dirpath_invalid_or_not_exists
@@ -24,10 +23,7 @@ setup_json_logging(DIRPATH_LOGGING)
 logger = logging.getLogger()
 
 
-T = TypeVar("T", bound=HasZwiftID)
-DTO = TypeVar("DTO", bound=BaseModel)
-
-def read_file_named_by_zwiftId_to_tuple_sync(
+def read_file_named_by_zwiftId_to_tuple_sync[T: HasZwiftID, DTO: BaseModel](
     file_path: str,
     data_transfer_class: type[DTO],
     function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T]
@@ -38,14 +34,14 @@ def read_file_named_by_zwiftId_to_tuple_sync(
 
     Args:
         file_path (str): Path to the JSON file. The filename (without extension) must be the Zwift ID.
-        data_transfer_class (Type[DTO]): DTO class type for validation/deserialization.
+        data_transfer_class (type[DTO]): DTO class type for validation/deserialization.
         function_to_translate_from_dto_to_corresponding_item (Callable[[DTO], T]): Function to convert DTO to domain item.
 
     Returns:
         tuple:
-            zwift_id (Optional[str]): Zwift ID extracted from filename, or None if error.
-            item (Optional[T]): The constructed domain item with zwift_id set, or None if error.
-            error_message (Optional[str]): Error message if reading or validation fails, otherwise None.
+            zwift_id (str | None): Zwift ID extracted from filename, or None if error.
+            item (T | None): The constructed domain item with zwift_id set, or None if error.
+            error_message (str | None): Error message if reading or validation fails, otherwise None.
 
     Notes:
         - If reading or validation fails, zwift_id and item are None and error_message contains details.
@@ -72,7 +68,7 @@ def read_file_named_by_zwiftId_to_tuple_sync(
     item.zwift_id = filename_fragment
     return filename_fragment, item, None
 
-def read_many_files_named_by_zwiftId_to_dict_sync(
+def read_many_files_named_by_zwiftId_to_dict_sync[T: HasZwiftID, DTO: BaseModel](
     dirpath: Path,
     specified_zwiftIDs: list[str] | None,
     data_transfer_class: type[DTO],
@@ -86,9 +82,9 @@ def read_many_files_named_by_zwiftId_to_dict_sync(
 
     Args:
         dirpath (Path): Directory containing the JSON files.
-        specified_zwiftIDs (Optional[list[str]]): List of Zwift IDs to filter files, or None to include all.
-        data_transfer_class (Type[DTO]): DTO class type for validation/deserialization.
-        corresponding_item_class (Type[T]): Domain item class type.
+        specified_zwiftIDs (list[str] | None): List of Zwift IDs to filter files, or None to include all.
+        data_transfer_class (type[DTO]): DTO class type for validation/deserialization.
+        corresponding_item_class (type[T]): Domain item class type.
         function_to_translate_from_dto_to_corresponding_item (Callable[[DTO], T]): Function to convert DTO to domain item.
 
     Returns:

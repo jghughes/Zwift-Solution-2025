@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, TypeVar
+from typing import Protocol
 from collections.abc import Mapping
 
 class HasZwiftID(Protocol):
@@ -13,8 +13,7 @@ class ZwiftIdBase(HasZwiftID):
 class FrozenZwiftIdBase(HasZwiftID):
     zwift_id: str = ""
 
-T = TypeVar("T", bound=HasZwiftID)
-def lookup_Items_by_ZwiftID(
+def lookup_Items_by_ZwiftID[T : HasZwiftID](
     list_of_zwiftID: list[str],
     mapping_of_ZwiftIdBaseItem: Mapping[str, T],
     item_type: type[T]

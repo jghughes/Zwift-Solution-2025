@@ -26,12 +26,12 @@ class ConnectionStringRepository:
             connection strings.
         CONNECTION_STRING_DIRPATH (str): The directory path where the
             connection strings file is stored.
-        _cache_of_connection_strings (List[str]): Internal cache of
+        _cache_of_connection_strings (list[str]): Internal cache of
             connection strings.
 
     Methods:
         get_azure_storage_account_connection_strings_for_zsun()
-            -> List[str]: Returns all Azure Storage account connection
+            -> list[str]: Returns all Azure Storage account connection
             strings from the file.
 
         get_azure_storage_account_connection_string(account_name: str)

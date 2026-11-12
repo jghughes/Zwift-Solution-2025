@@ -1,4 +1,3 @@
-from typing import TypeVar
 from collections.abc import Awaitable, Callable
 
 from azure.core.exceptions import (
@@ -15,10 +14,7 @@ from jgh_exceptions import (
     map_azure_service_response_error, map_azure_value_type_error
 )
 
-T = TypeVar("T")
-
-
-async def _execute_async(failure_msg: str, operation: Callable[[], Awaitable[T]]) -> T:
+async def _execute_async[T](failure_msg: str, operation: Callable[[], Awaitable[T]]) -> T:
     """
     Runs the operation and translates Azure SDK exceptions into the application's own exceptions
     (see jgh_exceptions.py) so that Azure exception types never propagate to callers. The failure message

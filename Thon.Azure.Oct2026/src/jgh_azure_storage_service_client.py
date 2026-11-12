@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-from typing import TypeVar
 from collections.abc import Awaitable, Callable
 
 from jgh_azure_storage_accessor import AzureStorageAccessor
@@ -9,9 +8,6 @@ from jgh_internet_helpers import warn_if_internet_not_connected
 from jgh_path_helpers import throw_if_any_parameter_is_invalid
 from jgh_string import CallTimedOut, MethodFailed, make_wait_time_msg
 from repository_of_connectionstrings import ConnectionStringRepository
-
-T = TypeVar("T")
-
 
 class AzureStorageServiceClient:
 	"""
@@ -44,7 +40,7 @@ class AzureStorageServiceClient:
 		self.__storage_gateway = AzureStorageAccessor()
 		self.__timeout_seconds = timeout_seconds
 
-	async def _execute_async(
+	async def _execute_async[T](
 		self,
 		storage_account_name: str,
 		container_name: str,

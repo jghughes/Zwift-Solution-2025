@@ -30,14 +30,14 @@ class JghListDictionary[TKey, TValue]:
     remove_value_from_list(key: TKey, value: TValue) -> int:
         Removes all occurrences of the value from the list associated with the given key.
 
-    remove_value_from_all_lists(value: TValue) -> Tuple[int, list[TKey]]:
+    remove_value_from_all_lists(value: TValue) -> tuple[int, list[TKey]]:
         Removes the given value from all lists in the dictionary and returns the count of removed occurrences
         and the list of keys from which the value was removed.
 
     clear_all_values_from_list(key: TKey) -> int:
         Clears all values associated with the given key and returns the count of removed occurrences.
 
-    clear_everything_everywhere() -> Tuple[int, int]:
+    clear_everything_everywhere() -> tuple[int, int]:
         Clears all the entries in the dictionary and returns a tuple of the original number of keys
         and the original total number of values prior to removal.
 
@@ -77,10 +77,10 @@ class JghListDictionary[TKey, TValue]:
     get_selected_values_from_all(value_selector: Callable[[TValue], bool]) -> list[TValue]:
         Retrieves all values that match the given selector.
 
-    get_key_value_pairs_containing_selected_values(value_selector: Callable[[TValue], bool]) -> list[Tuple[TKey, TValue]]:
+    get_key_value_pairs_containing_selected_values(value_selector: Callable[[TValue], bool]) -> list[tuple[TKey, TValue]]:
         Retrieves all key-value pairs where the values match the given condition.
 
-    get_key_value_pairs_from_everywhere() -> list[Tuple[TKey, TValue]]:
+    get_key_value_pairs_from_everywhere() -> list[tuple[TKey, TValue]]:
         Retrieves all key-value pairs in the dictionary.
 
     Properties:
@@ -225,7 +225,7 @@ class JghListDictionary[TKey, TValue]:
 
         Returns:
         --------
-        Tuple[int, list[TKey]]
+        tuple[int, list[TKey]]
             A tuple containing the total number of occurrences of the value that were removed
             and the list of keys from which the value was removed.
         """
@@ -298,7 +298,7 @@ class JghListDictionary[TKey, TValue]:
 
         Returns:
         --------
-        Tuple[int, int]
+        tuple[int, int]
             A tuple containing the original number of keys and the original total
             number of values.
         """
@@ -631,7 +631,7 @@ class JghListDictionary[TKey, TValue]:
 
         Returns:
         --------
-        list[Tuple[TKey, TValue]]
+        list[tuple[TKey, TValue]]
             A list of key-value pairs where the values match the given condition.
         """
         key_value_pairs: list[tuple[TKey, TValue]] = []
@@ -649,7 +649,7 @@ class JghListDictionary[TKey, TValue]:
 
         Returns:
         --------
-        list[Tuple[TKey, TValue]]
+        list[tuple[TKey, TValue]]
             A list of all key-value pairs in the dictionary.
         """
         key_value_pairs: list[tuple[TKey, TValue]] = []

@@ -13,10 +13,10 @@ def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: dict[int, float]) -> tupl
     cp_watts is the critical power, and w' is the anaerobic work capacity.
 
     Args:
-        raw_xy_data_cp (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
+        raw_xy_data_cp (dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
 
     Returns:
-        Tuple[float, float, float, Dict[int, Tuple[float, float]]]: The values of cp_watts and w', the R-squared value,
+        tuple[float, float, float, dict[int, tuple[float, float]]]: The values of cp_watts and w', the R-squared value,
         and a dictionary combining the original data and predicted values.
     """
     # Convert keys and values of raw_xy_data_cp to NumPy arrays
@@ -57,10 +57,10 @@ def do_curve_fit_with_decay_model(raw_xy_data_cp: dict[int, float]) -> tuple[flo
     Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
 
     Args:
-        raw_xy_data_cp (Dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
+        raw_xy_data_cp (dict[int, float]): Dictionary where keys are durations (seconds) and values are power (watts).
 
     Returns:
-        Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]: The values of coefficient_ftp and exponent_ftp, the R-squared value,
+        tuple[float, float, float, float, dict[int, tuple[float, float]]]: The values of coefficient_ftp and exponent_ftp, the R-squared value,
         the RMSE, and coefficient_ftp dictionary combining the original data and predicted values.
     """
     # Remove all elements from the dict raw_xy_data_cp where either the key is zero or the value is zero

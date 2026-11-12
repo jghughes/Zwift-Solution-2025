@@ -56,7 +56,7 @@ class ZwiftDTO(BaseModel):
 	weight_grams				:	float | None					=	0	# Weight in grams
 	ftp_on_zwift				:	float | None					=	0	# This is not zFTP, it is FTP
 	achievement_level			:	int | None					=	0	# Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
-	# total_distance_meters		:	Optional[float]					=	0	# Total distance ridden in meters
+	# total_distance_meters		:	float | None					=	0	# Total distance ridden in meters
 	# total_experience_points		:	int								=	0
 	# target_experience_points	:	int								=	0	# Experience points needed to reach the accelerated achievement level
 	competition_metrics			:	CompetitionMetricsDTO | None	=	Field(default_factory=CompetitionMetricsDTO)

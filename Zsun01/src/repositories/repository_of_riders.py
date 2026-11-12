@@ -72,7 +72,7 @@ class RepositoryOfRiders:
         result in default empty values being used for the affected rider.
 
         Args:
-            file_names (Optional[list[str]]):
+            file_names (list[str] | None):
                 Candidate list of Zwift IDs to process. Each entry is expected to match both a
                 filename on disk and a Zwift ID. If None, all files found in the directories are read.
             zwift_dir_path (str):
@@ -81,7 +81,7 @@ class RepositoryOfRiders:
                 Directory path containing ZwiftRacingApp profile files.
             zwiftpower_90day_graph_watts_dir_path (str):
                 Directory path containing ZwiftPower 90-day best-power graph files.
-            filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched (Optional[str]):
+            filepath_snapshot_of__RiderStatsItems_when_accelerated_levelling_up_launched (str | None):
                 Full file path to the JSON snapshot of RiderStatsItems captured at the launch date
                 of the accelerated levelling-up scheme. Used to compute projected_accelerated_level
                 for eligible riders.
@@ -222,16 +222,16 @@ class RepositoryOfRiders:
         are skipped -- by definition a RiderComputeItem only exists for curve-fitted riders.
 
         Construction of each item is delegated to build_RiderComputeItem in model_builders.py.
-        ZwiftRacingApp data is passed through as Optional; riders without it receive default
+        ZwiftRacingApp data is passed through as-is and may be None; riders without it receive default
         empty values inside the builder.
 
         Args:
-            zwift_ids (Optional[list[str]]):
+            zwift_ids (list[str] | None):
                 Candidate list of Zwift IDs to process. If None, an empty list is used
                 and no items are produced.
 
         Returns:
-            Dict[str, RiderComputeItem]: Dictionary of RiderComputeItems keyed by zwift_id.
+            dict[str, RiderComputeItem]: Dictionary of RiderComputeItems keyed by zwift_id.
             Only riders with both a ZwiftItem and a CurveFittingResultItem are included.
         """
 
@@ -270,7 +270,7 @@ class RepositoryOfRiders:
         minimum required data source for a RiderStatsItem.
 
         ZwiftRacingApp data, RiderComputeItem data, and ZwiftPower 90-day watts data are all
-        passed through as Optional; riders missing any of these receive default empty values
+        passed through as-is and may be None; riders missing any of these receive default empty values
         inside the builder. Construction of each item is delegated to build_RiderStatsItem
         in model_builders.py.
 
@@ -279,12 +279,12 @@ class RepositoryOfRiders:
         repository state and not available inside the builder.
 
         Args:
-            zwift_ids (Optional[list[str]]):
+            zwift_ids (list[str] | None):
                 Candidate list of Zwift IDs to process. If None, an empty list is used
                 and no items are produced.
 
         Returns:
-            Dict[str, RiderStatsItem]: Dictionary of RiderStatsItems keyed by zwift_id.
+            dict[str, RiderStatsItem]: Dictionary of RiderStatsItems keyed by zwift_id.
             Only riders with a ZwiftItem are included.
         """
 

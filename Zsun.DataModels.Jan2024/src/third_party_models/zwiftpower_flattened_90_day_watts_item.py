@@ -172,7 +172,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
-            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+            dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
         answer: dict[int, float] = {
             1: self.bp_1,
@@ -295,7 +295,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
-            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+            dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
         answer: dict[int, float] = {
@@ -424,7 +424,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
-            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+            dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
         answer: dict[int, float] = {
@@ -554,7 +554,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         corresponding to the attribute name and the value is the attribute's value.
 
         Returns:
-            Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
+            dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
         answer: dict[int, float] = {
@@ -676,7 +676,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         update the attribute's value with the value from input_data.
 
         Args:
-            input_data (Dict[int, float]): A dictionary where keys are durations (in seconds)
+            input_data (dict[int, float]): A dictionary where keys are durations (in seconds)
             and values are the corresponding critical power values.
         """
         mapping: dict[int, str] = {

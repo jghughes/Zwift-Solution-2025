@@ -74,13 +74,13 @@ def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacing
     This is the sole place in the codebase where a RiderComputeItem is instantiated.
     zwiftItem and jghcurveItem are required -- callers must not pass None for either.
     By definition, a RiderComputeItem only exists for riders who have curve fit data.
-    zwiftracingappItem is accepted as Optional; if None it is replaced with a default
+    zwiftracingappItem may be None, in which case it is replaced with a default
     empty instance so that the rest of the function can operate unconditionally.
 
     Args:
         zwiftItem (ZwiftItem):
             Core Zwift profile data. Required -- callers must not pass None.
-        zwiftracingappItem (Optional[ZwiftRacingAppItem]):
+        zwiftracingappItem (ZwiftRacingAppItem | None):
             ZwiftRacingApp profile data. If None, a default ZwiftRacingAppItem() is used.
             Some racers will not have ZwiftRacingApp data.
         jghcurveItem (CurveFittingResultItem):
@@ -127,7 +127,7 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
     This is the sole place in the codebase where a RiderStatsItem is instantiated.
-    All four data sources are accepted as Optional; any that are None are silently
+    All four data sources may be passed as None; any that are None are silently
     replaced with a default empty instance so that the rest of the function can
     operate unconditionally on non-None values.
 
@@ -140,13 +140,13 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
     Args:
         zwiftItem (ZwiftItem):
             Core Zwift profile data. Required -- callers must not pass None.
-        zwiftracingappItem (Optional[ZwiftRacingAppItem]):
+        zwiftracingappItem (ZwiftRacingAppItem | None):
             ZwiftRacingApp profile data. If None, a default ZwiftRacingAppItem() is used.
             Many riders will not have ZwiftRacingApp data.
-        jghRiderComputeItem (Optional[RiderComputeItem]):
+        jghRiderComputeItem (RiderComputeItem | None):
             Curve-fitted power data. If None, a default RiderComputeItem() is used.
             Many riders lack this because they have no ZwiftPower 90-day watts data.
-        watts_90_day_item (Optional[ZwiftPowerFlattened90dayWattsItem]):
+        watts_90_day_item (ZwiftPowerFlattened90dayWattsItem | None):
             ZwiftPower 90-day best-power data. If None, a default ZwiftPowerFlattened90dayWattsItem() is used.
             Many riders will not have this data.
         projected_accelerated_level (int):

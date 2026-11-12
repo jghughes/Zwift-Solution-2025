@@ -6,10 +6,10 @@ class RepositoryOfTeamRosters:
     Static repository for managing Zwift team rosters, rider information, and team exertion intensity factors.
 
     Attributes:
-        _team_rosters_as_dict_of_list (Dict[str, List[Tuple[str, str]]]): 
+        _team_rosters_as_dict_of_list (dict[str, list[tuple[str, str]]]):
             Maps team nicknames to ordered lists of (Zwift ID, nickname) tuples. A rider 
             may appear more than once in a roster, filling more than one slot.
-        _team_exertion_intensity_factors_as_dict (Dict[str, float]): 
+        _team_exertion_intensity_factors_as_dict (dict[str, float]):
             Maps team nicknames to their exertion intensity factor.
 
     Methods:

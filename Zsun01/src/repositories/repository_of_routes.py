@@ -7,7 +7,7 @@ class RepositoryOfRoutes:
     Static repository of hardcoded Zwift RouteItems, keyed by route name.
 
     Attributes:
-        _routes_as_dict (Dict[str, RouteItem]):
+        _routes_as_dict (dict[str, RouteItem]):
             Maps route names to their corresponding RouteItem.
 
     Methods:
