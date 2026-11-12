@@ -11,6 +11,7 @@ Key Features:
 - Applies combinatorial optimization to identify balanced, fastest, and high-intensity pacing strategies.
 - Summarizes results in display objects and exports and uploads a consolidated HTML report.
 """
+
 import asyncio
 import json
 import logging
@@ -75,6 +76,7 @@ def _save_html_document_to_hard_drive(
     file_path = Path(dir_path) / Path(filename)
     return file_path
 
+
 async def _upload_text_to_blob_storage_in_azure(
     storage_account_name: str,
     container_name: str,
@@ -83,7 +85,13 @@ async def _upload_text_to_blob_storage_in_azure(
 ) -> str:
     azure_client = AzureStorageServiceClient()
     url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
-        storage_account_name, container_name, blob_name, text, True, False,)
+        storage_account_name,
+        container_name,
+        blob_name,
+        text,
+        True,
+        False,
+    )
     return url_of_uploaded_blob
 
 
@@ -91,39 +99,46 @@ async def _upload_text_to_blob_storage_in_azure(
 async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     print("Tool starting")
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
+        throw_if_any_dirpath_invalid_or_not_exists(
+            [Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)]
+        )
         throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
         _riderIDs: list[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(codeNameOfTeam)
         _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(codeNameOfTeam)
 
         # ===========================
-        print(f"\nDownloading file from Azure\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
+        print(
+            f"\nDownloading file from Azure\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}"
+        )
         # ===========================
         azure_client = AzureStorageServiceClient()
 
-        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST)
+        blob_as_bytes: bytes = await azure_client.download_block_blob_as_bytes_async(
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST
+        )
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
         print(f"downloaded : {blob_size}")
 
-        blob_as_text = blob_as_bytes.decode('utf-8')
+        blob_as_text = blob_as_bytes.decode("utf-8")
         something = json.loads(blob_as_text)
         list_of_RiderDTO: list[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
         list_of_RiderItem: list[RiderComputeItem] = [
-            RiderComputeItem.from_dataTransferObject(rider_compute_dto)
-            for rider_compute_dto in list_of_RiderDTO]
+            RiderComputeItem.from_dataTransferObject(rider_compute_dto) for rider_compute_dto in list_of_RiderDTO
+        ]
 
         dict_of_RiderItem: dict[str, RiderComputeItem] = {
-            rider_dataclasses.zwift_id: rider_dataclasses
-            for rider_dataclasses in list_of_RiderItem
-        }    
+            rider_dataclasses.zwift_id: rider_dataclasses for rider_dataclasses in list_of_RiderItem
+        }
         print(f"count of riders : {len(list_of_RiderDTO)}")
     except Exception as e:
         print(f"rider data not obtained.\n - Error message: {e}")
         return
 
     try:
-        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
+        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(
+            _riderIDs, dict_of_RiderItem, RiderComputeItem
+        )
         full_team_of_riders = RiderComputeItem.with_slots_assigned_to_repeated_riders(full_team_of_riders)
     except Exception as e:
         print(f"Team '{codeNameOfTeam}' not found:\n - Error message:\n - {e}")
@@ -142,14 +157,25 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list: list[float] = [30.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
-        riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
-        max_exertion_intensity_factor   = _intensity_factor,
-        sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+        riders_list=riders,
+        pull_speeds_kph=[
+            solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(
+                riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+            )
+        ]
+        * len(riders),
+        max_exertion_intensity_factor=_intensity_factor,
+        sequence_of_pull_periods_sec=pull_periods_sec_as_list,
+        slope_pc=DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+    )
+    report_30sec_plan: PacelineComputationReportItem = (
+        solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(
+            paceline_ingredients
         )
-    report_30sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
-    report_30sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_30sec_plan)
+    )
+    report_30sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(
+        report_30sec_plan
+    )
     populate_title_for_pace_plan(PacelinePlanTypeEnum.THIRTY_SEC_PULL, report_30sec_plan_display_object)
     populate_compute_statistics_for_pace_plan(1, report_30sec_plan_display_object)
 
@@ -168,14 +194,25 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list = [60.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
-        riders_list                     = riders,
-        pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
-        max_exertion_intensity_factor   = _intensity_factor,
-        sequence_of_pull_periods_sec    = pull_periods_sec_as_list,
-        slope_pc                        = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+        riders_list=riders,
+        pull_speeds_kph=[
+            solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(
+                riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+            )
+        ]
+        * len(riders),
+        max_exertion_intensity_factor=_intensity_factor,
+        sequence_of_pull_periods_sec=pull_periods_sec_as_list,
+        slope_pc=DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+    )
+    report_60sec_plan: PacelineComputationReportItem = (
+        solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(
+            paceline_ingredients
         )
-    report_60sec_plan : PacelineComputationReportItem = solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search(paceline_ingredients)
-    report_60sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_60sec_plan)
+    )
+    report_60sec_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(
+        report_60sec_plan
+    )
     populate_title_for_pace_plan(PacelinePlanTypeEnum.SIXTY_SEC_PULL, report_60sec_plan_display_object)
     populate_compute_statistics_for_pace_plan(1, report_60sec_plan_display_object)
 
@@ -193,28 +230,47 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
-        riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
-        sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+        riders_list=riders,
+        pull_speeds_kph=[
+            solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(
+                riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+            )
+        ]
+        * len(riders),
+        sequence_of_pull_periods_sec=pull_periods_sec_as_list,
+        max_exertion_intensity_factor=_intensity_factor,
+        slope_pc=DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
     package: Any = generate_package_of_paceline_solutions(ingredients)
 
     report_balanced_intensity_plan = package.dict_of_solutions[PacelinePlanTypeEnum.BALANCED_INTENSITY]
-    report_balanced_intensity_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_balanced_intensity_plan)
+    report_balanced_intensity_plan_display_object = (
+        PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_balanced_intensity_plan)
+    )
     populate_title_for_pace_plan(PacelinePlanTypeEnum.BALANCED_INTENSITY, report_balanced_intensity_plan_display_object)
-    populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_balanced_intensity_plan_display_object)
+    populate_compute_statistics_for_pace_plan(
+        package.total_pull_sequences_examined, report_balanced_intensity_plan_display_object
+    )
 
     report_everybody_pull_hard_plan = package.dict_of_solutions[PacelinePlanTypeEnum.EVERYBODY_PULL_HARD]
-    report_everybody_pull_hard_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_everybody_pull_hard_plan)
-    populate_title_for_pace_plan(PacelinePlanTypeEnum.EVERYBODY_PULL_HARD, report_everybody_pull_hard_plan_display_object)
-    populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_everybody_pull_hard_plan_display_object)
+    report_everybody_pull_hard_plan_display_object = (
+        PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_everybody_pull_hard_plan)
+    )
+    populate_title_for_pace_plan(
+        PacelinePlanTypeEnum.EVERYBODY_PULL_HARD, report_everybody_pull_hard_plan_display_object
+    )
+    populate_compute_statistics_for_pace_plan(
+        package.total_pull_sequences_examined, report_everybody_pull_hard_plan_display_object
+    )
 
     report_fastest_full_team_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
-    report_fastest_full_team_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_full_team_plan)
-    populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST,report_fastest_full_team_plan_display_object)
-    populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_full_team_plan_display_object)
+    report_fastest_full_team_plan_display_object = (
+        PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_full_team_plan)
+    )
+    populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST, report_fastest_full_team_plan_display_object)
+    populate_compute_statistics_for_pace_plan(
+        package.total_pull_sequences_examined, report_fastest_full_team_plan_display_object
+    )
 
     # ===========================
     print("Task #4: computing 6th scenario - strongest five riders")
@@ -224,18 +280,29 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients = PacelineIngredientsItem(
-        riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
-        sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+        riders_list=riders,
+        pull_speeds_kph=[
+            solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(
+                riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+            )
+        ]
+        * len(riders),
+        sequence_of_pull_periods_sec=pull_periods_sec_as_list,
+        max_exertion_intensity_factor=_intensity_factor,
+        slope_pc=DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
 
     package = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_five_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
-    report_fastest_strongest_five_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_five_plan)
-    populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE,report_fastest_strongest_five_plan_display_object)
-    populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_five_plan_display_object)
+    report_fastest_strongest_five_plan_display_object = (
+        PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_five_plan)
+    )
+    populate_title_for_pace_plan(
+        PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE, report_fastest_strongest_five_plan_display_object
+    )
+    populate_compute_statistics_for_pace_plan(
+        package.total_pull_sequences_examined, report_fastest_strongest_five_plan_display_object
+    )
 
     # ===========================
     print("Task #5: computing 7th scenario - strongest four riders")
@@ -245,17 +312,28 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
     ingredients = PacelineIngredientsItem(
-        riders_list                  = riders,
-        pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
-        sequence_of_pull_periods_sec = pull_periods_sec_as_list,
-        max_exertion_intensity_factor= _intensity_factor,
-        slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+        riders_list=riders,
+        pull_speeds_kph=[
+            solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(
+                riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
+            )
+        ]
+        * len(riders),
+        sequence_of_pull_periods_sec=pull_periods_sec_as_list,
+        max_exertion_intensity_factor=_intensity_factor,
+        slope_pc=DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
     package = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
-    report_fastest_strongest_four_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_four_plan)
-    populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR,report_fastest_strongest_four_plan_display_object)
-    populate_compute_statistics_for_pace_plan(package.total_pull_sequences_examined, report_fastest_strongest_four_plan_display_object)
+    report_fastest_strongest_four_plan_display_object = (
+        PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_four_plan)
+    )
+    populate_title_for_pace_plan(
+        PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR, report_fastest_strongest_four_plan_display_object
+    )
+    populate_compute_statistics_for_pace_plan(
+        package.total_pull_sequences_examined, report_fastest_strongest_four_plan_display_object
+    )
 
     # ===========================
     print("Task #6: publishing to html doc")
@@ -264,27 +342,48 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     package_report_optimised_plans_displayobject = PackageOfPacelineComputationReportDisplayObject()
 
     # gather all the display objects into the dict of solution display objects
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.THIRTY_SEC_PULL]        = report_30sec_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.SIXTY_SEC_PULL]         = report_60sec_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.BALANCED_INTENSITY]     = report_balanced_intensity_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.EVERYBODY_PULL_HARD]    = report_everybody_pull_hard_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST]                = report_fastest_full_team_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = report_fastest_strongest_five_plan_display_object
-    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = report_fastest_strongest_four_plan_display_object
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.THIRTY_SEC_PULL] = (
+        report_30sec_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.SIXTY_SEC_PULL] = (
+        report_60sec_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.BALANCED_INTENSITY] = (
+        report_balanced_intensity_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.EVERYBODY_PULL_HARD] = (
+        report_everybody_pull_hard_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST] = (
+        report_fastest_full_team_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE] = (
+        report_fastest_strongest_five_plan_display_object
+    )
+    package_report_optimised_plans_displayobject.solutions[PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR] = (
+        report_fastest_strongest_four_plan_display_object
+    )
 
     package_report_optimised_plans_displayobject.caption = f"TTT scenarios for {capitalize_first_letter(codeNameOfTeam)} : Constant gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}% : Intensity factor limit = {_intensity_factor}"
     package_report_optimised_plans_displayobject.total_pull_sequences_examined = 999  # dummy value. not currently used
-    package_report_optimised_plans_displayobject.total_compute_iterations_performed = 99999  # dummy value. not currently used
+    package_report_optimised_plans_displayobject.total_compute_iterations_performed = (
+        99999  # dummy value. not currently used
+    )
 
     html_file_and_blob_name = f"{make_filename_for_one_page_summary_html_doc(codeNameOfTeam)}"
 
-    summary_html_doc        = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject)
-    saved_file_path         = _save_html_document_to_hard_drive(Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc) 
+    summary_html_doc = format_paceline_plans_as_one_page_html_doc(package_report_optimised_plans_displayobject)
+    saved_file_path = _save_html_document_to_hard_drive(
+        Path(DIRPATH_BRUTE_TTT_DOCS), html_file_and_blob_name, summary_html_doc
+    )
 
     print(f"\nDistributing paceline scenarios HTML document:\n Name : {html_file_and_blob_name}")
-    url_of_uploaded_blob = await _upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc)
+    url_of_uploaded_blob = await _upload_text_to_blob_storage_in_azure(
+        AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_BRUTE, html_file_and_blob_name, summary_html_doc
+    )
     print(f" URL : {url_of_uploaded_blob}")
     print(f" PATH : {saved_file_path}")
+
 
 if __name__ == "__main__":
     from jgh_logging import log_event, setup_json_logging
@@ -294,7 +393,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-        codeNameOfTeam = "test" 
+        codeNameOfTeam = "test"
 
         start_time = time.time()
         throw_if_no_internet_connection()
@@ -302,15 +401,13 @@ if __name__ == "__main__":
         end_time = time.time()
 
         success_msg = f"Success: Main execution completed successfully in {end_time - start_time:.2f} seconds. All tests executed without error."
-        log_event(logger,message=success_msg,level=logging.INFO)
+        log_event(logger, message=success_msg, level=logging.INFO)
         print(f"\n{success_msg}\n")
     except AlertMessageError as alert_err:
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-
-
-

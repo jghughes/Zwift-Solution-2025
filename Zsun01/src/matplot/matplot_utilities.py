@@ -28,6 +28,7 @@ def set_x_axis_units_ticks(ax: Axes, max_units: int, interval_units: int = 50) -
     tick_positions = range(0, max_units + 1, interval_units)  # Tick positions at intervals
     ax.set_xticks(tick_positions)
 
+
 def set_y_axis_units_ticks(ax: Axes, max_units: int, interval_units: int = 50) -> None:
     """
     Sets y-axis ticks at specified intervals.
@@ -39,4 +40,3 @@ def set_y_axis_units_ticks(ax: Axes, max_units: int, interval_units: int = 50) -
     """
     tick_positions = range(0, max_units + 1, interval_units)  # Tick positions at intervals
     ax.set_yticks(tick_positions)
-

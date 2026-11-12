@@ -5,23 +5,23 @@ from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field,
 from jgh_string import sanitise_string
 
 validation_alias_choices_map_ZwiftDTO: dict[str, AliasChoices] = {
-	"zwift_id"					:	AliasChoices("zwift_id", "id"),
-	"first_name"				:	AliasChoices("first_name", "firstName"),
-	"last_name"					:	AliasChoices("last_name", "lastName"),
-	"country_code3"				:	AliasChoices("country_code3", "countryAlpha3"),
-	"is_male"					:	AliasChoices("is_male", "male"),
-	"age_years"					:	AliasChoices("age_years", "age"),
-	"height_mm"					:	AliasChoices("height_mm", "height"),
-	"weight_grams"				:	AliasChoices("weight_grams", "weight"),
-	"ftp_on_zwift"				:	AliasChoices("ftp_on_zwift", "ftp"),
-	"achievement_level"			:	AliasChoices("achievement_level", "achievementLevel"),
-	"competition_metrics"		:	AliasChoices("competition_metrics", "competitionMetrics"),
+    "zwift_id": AliasChoices("zwift_id", "id"),
+    "first_name": AliasChoices("first_name", "firstName"),
+    "last_name": AliasChoices("last_name", "lastName"),
+    "country_code3": AliasChoices("country_code3", "countryAlpha3"),
+    "is_male": AliasChoices("is_male", "male"),
+    "age_years": AliasChoices("age_years", "age"),
+    "height_mm": AliasChoices("height_mm", "height"),
+    "weight_grams": AliasChoices("weight_grams", "weight"),
+    "ftp_on_zwift": AliasChoices("ftp_on_zwift", "ftp"),
+    "achievement_level": AliasChoices("achievement_level", "achievementLevel"),
+    "competition_metrics": AliasChoices("competition_metrics", "competitionMetrics"),
 }
 
 validation_alias_choices_map_CompetitionMetricsDTO: dict[str, AliasChoices] = {
-	"zwift_racing_score"		:	AliasChoices("zwift_racing_score", "racingScore"),
-	"zwift_category_open"		:	AliasChoices("zwift_category_open", "category"),
-	"zwift_category_women"		:	AliasChoices("zwift_category_women", "categoryWomen"),
+    "zwift_racing_score": AliasChoices("zwift_racing_score", "racingScore"),
+    "zwift_category_open": AliasChoices("zwift_category_open", "category"),
+    "zwift_category_women": AliasChoices("zwift_category_women", "categoryWomen"),
 }
 
 validation_alias_choices_map_consolidated: dict[str, AliasChoices] = {
@@ -30,42 +30,49 @@ validation_alias_choices_map_consolidated: dict[str, AliasChoices] = {
 }
 
 
-configdictV1 = ConfigDict(alias_generator=AliasGenerator(
-    alias=None,
-    validation_alias=lambda field_name: validation_alias_choices_map_consolidated.get(field_name, field_name)))
+configdictV1 = ConfigDict(
+    alias_generator=AliasGenerator(
+        alias=None,
+        validation_alias=lambda field_name: validation_alias_choices_map_consolidated.get(field_name, field_name),
+    )
+)
 
 preferred_config_dict = configdictV1
 
+
 class CompetitionMetricsDTO(BaseModel):
-	model_config = preferred_config_dict
-	zwift_racing_score		: float | None	= 0.0
-	zwift_category_open		: str | None		= ""
-	zwift_category_women	: str | None		= ""
+    model_config = preferred_config_dict
+    zwift_racing_score: float | None = 0.0
+    zwift_category_open: str | None = ""
+    zwift_category_women: str | None = ""
+
 
 class ZwiftDTO(BaseModel):
-	model_config	=	preferred_config_dict
-	zwift_id					:	str								=	""	# Zwift ID of the rider
-	first_name					:	str | None					=	""	# First name of the rider
-	last_name					:	str | None					=	""	# Last name of the rider
-	country_code3				:	str | None					=	""	# eg USA, GBR, AUS
-	is_male						:	bool | None					=	True	# Gender of the rider (True for male, False for female)
-	age_years					:	float | None					=	0	# Age of the rider
-	height_mm					:	float | None					=	0	# Height in millimeters
-	weight_grams				:	float | None					=	0	# Weight in grams
-	ftp_on_zwift				:	float | None					=	0	# This is not zFTP, it is FTP
-	achievement_level			:	int | None					=	0	# Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
-	competition_metrics			:	CompetitionMetricsDTO | None	=	Field(default_factory=CompetitionMetricsDTO)
+    model_config = preferred_config_dict
+    zwift_id: str = ""  # Zwift ID of the rider
+    first_name: str | None = ""  # First name of the rider
+    last_name: str | None = ""  # Last name of the rider
+    country_code3: str | None = ""  # eg USA, GBR, AUS
+    is_male: bool | None = True  # Gender of the rider (True for male, False for female)
+    age_years: float | None = 0  # Age of the rider
+    height_mm: float | None = 0  # Height in millimeters
+    weight_grams: float | None = 0  # Weight in grams
+    ftp_on_zwift: float | None = 0  # This is not zFTP, it is FTP
+    achievement_level: int | None = (
+        0  # Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
+    )
+    competition_metrics: CompetitionMetricsDTO | None = Field(default_factory=CompetitionMetricsDTO)
 
-	# Validator for zwift_id to convert int to string
-	@field_validator("zwift_id", mode="before")
-	def convert_int_to_str(cls, value : Any) -> str:
-		if isinstance(value, int):
-			return str(value)
-		return cast(str, value)
+    # Validator for zwift_id to convert int to string
+    @field_validator("zwift_id", mode="before")
+    def convert_int_to_str(cls, value: Any) -> str:
+        if isinstance(value, int):
+            return str(value)
+        return cast(str, value)
 
-	# Validator for string fields
-	@field_validator("first_name", "last_name", mode="before")
-	def sanitise_string_field(cls, value: Any) -> str:
-		if value is None:
-			return ""
-		return sanitise_string(value)
+    # Validator for string fields
+    @field_validator("first_name", "last_name", mode="before")
+    def sanitise_string_field(cls, value: Any) -> str:
+        if value is None:
+            return ""
+        return sanitise_string(value)

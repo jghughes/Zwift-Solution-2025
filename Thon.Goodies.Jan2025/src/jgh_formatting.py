@@ -1,9 +1,10 @@
 from datetime import UTC, datetime
 
 
-def truncate(f : float, n : int) -> float:
-    factor = 10.0 ** n
+def truncate(f: float, n: int) -> float:
+    factor = 10.0**n
     return int(f * factor) / factor
+
 
 def round_to_nearest_10(x: float) -> int:
     """
@@ -17,93 +18,101 @@ def round_to_nearest_10(x: float) -> int:
     """
     return int(round(x / 10.0) * 10)
 
+
 def format_number_1dp(x: float) -> str:
     """
     Format a float to one decimal place, always showing the decimal digit (including trailing zero).
-    
+
     Args:
         x (float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '12.0', '3.5', '0.0'.
     """
     return f"{x:.1f}"
 
+
 def format_number_2dp(x: float) -> str:
     """
     Format a float to two decimal places, always showing the decimal digit (including trailing zero).
-    
+
     Args:
         x (float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '12.00', '3.56', '0.01'.
     """
     return f"{x:.2f}"
 
+
 def format_number_3dp(x: float) -> str:
     """
     Format a float to two decimal places, always showing the decimal digit (including trailing zero).
-    
+
     Args:
         x (float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '12.00', '3.56', '0.01'.
     """
     return f"{x:.3f}"
 
+
 def format_number_4dp(x: float) -> str:
     """
     Format a float to two decimal places, always showing the decimal digit (including trailing zero).
-    
+
     Args:
         x (float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '12.0000', '3.5600', '0.0100'.
     """
     return f"{x:.4f}"
 
-def format_number_2sig(x : int | float) -> str:
+
+def format_number_2sig(x: int | float) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 2 significant digits.
-    
+
     Args:
         x (int or float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '1.2e+03' or '12'.
     """
     return f"{x:.2g}"
 
-def format_number_4sig(x : int | float) -> str:
+
+def format_number_4sig(x: int | float) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 4 significant digits.
-    
+
     Args:
         x (int or float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '1.234e+03' or '1234'.
     """
     return f"{x:.4g}"
 
+
 def format_number_with_comma_separators(x: int | float) -> str:
     """
     Format a number with thousands separators and up to 2 decimal places.
     For floats, trailing zeros and decimal points are removed if unnecessary.
-    
+
     Args:
         x (int or float): The number to format.
-    
+
     Returns:
         str: The formatted string, e.g., '1,234' or '1,234.56'.
     """
     if isinstance(x, int):
         return f"{x:,}"
     else:
-        return f"{x:,.2f}".rstrip('0').rstrip('.') if '.' in f"{x:,.2f}" else f"{x:,.2f}"
+        return f"{x:,.2f}".rstrip("0").rstrip(".") if "." in f"{x:,.2f}" else f"{x:,.2f}"
+
 
 def format_number_0dp_padded1(x: int | float) -> str:
     """
@@ -121,6 +130,7 @@ def format_number_0dp_padded1(x: int | float) -> str:
     rounded = int(round(x))
     return f"{rounded:01d}"
 
+
 def format_number_0dp_padded2(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
@@ -136,6 +146,7 @@ def format_number_0dp_padded2(x: int | float) -> str:
     """
     rounded = int(round(x))
     return f"{rounded:02d}"
+
 
 def format_number_0dp_padded3(x: int | float) -> str:
     """
@@ -154,8 +165,6 @@ def format_number_0dp_padded3(x: int | float) -> str:
     return f"{rounded:03d}"
 
 
-
-
 def format_number_0dp_padded4(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
@@ -171,7 +180,6 @@ def format_number_0dp_padded4(x: int | float) -> str:
     """
     rounded = int(round(x))
     return f"{rounded:04d}"
-
 
 
 def format_pretty_duration_hms(seconds: float) -> str:
@@ -200,6 +208,7 @@ def format_timestamp_as_yyyy_mm_dd(ts: float | None = None) -> str:
     """
     dt = datetime.fromtimestamp(ts) if ts is not None else datetime.now()
     return dt.strftime("%Y-%m-%d")
+
 
 def get_current_utc_iso8601_timestamp() -> str:
     """

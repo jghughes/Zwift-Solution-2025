@@ -5,13 +5,13 @@ PIPELINE. It builds on all the previous tools.
 Each time a batch of raw data is received from DaveK, run this generate_everything_and_save_and_upload
 to generate a master JSON dictionary file of all actively racing club
 members, with all relevant data aggregated in a RiderComputeItem for each
-rider. A batch of raw data consists of several thousand files. 
+rider. A batch of raw data consists of several thousand files.
 The master JSON dictionary file for July 2025 data contains 431 riders.
 
 Copy the JSON file manually into the data folder in Zsun01,
 carefully following the naming convention there and updating
 filenames.py accordingly. Older JSON files remain in the data folder
-for posterity. 
+for posterity.
 
 This tool aggregates, models, and exports comprehensive rider data for
 all eligible club members using multiple data sources and power curve
@@ -45,6 +45,7 @@ Important note about ordering and responsibilities:
 This tool demonstrates large-scale data integration, model application,
 and dataset preparation for club-level cycling analytics and reporting.
 """
+
 import asyncio
 import logging
 import time
@@ -107,31 +108,32 @@ async def upload_text_to_blob_storage_in_azure(
 ) -> str:
     azure_client = AzureStorageServiceClient()
     url_of_uploaded_blob = await azure_client.upload_string_to_block_blob_async(
-        storage_account_name, container_name, blob_name, text, True, False)
+        storage_account_name, container_name, blob_name, text, True, False
+    )
     return url_of_uploaded_blob
 
+
 # HEAP POWERFUL TOOL
-async def generate_everything_and_save_and_upload(route_name : str) -> None:
+async def generate_everything_and_save_and_upload(route_name: str) -> None:
     print("starting script\n")
     logger = logging.getLogger()
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([
-            Path(DIRPATH_ZWIFT_FILES),
-            Path(DIRPATH_ZWIFTRACINGAPP_FILES),
-            # Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
-            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
-            Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT)]
+        throw_if_any_dirpath_invalid_or_not_exists(
+            [
+                Path(DIRPATH_ZWIFT_FILES),
+                Path(DIRPATH_ZWIFTRACINGAPP_FILES),
+                # Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
+                Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
+                Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),
+            ]
         )
     except Exception as err:
         logger.error(f"Directory validation error: {err}", exc_info=True)
         print(err)
         return
     try:
-        throw_if_any_filename_invalid([
-            FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
-            FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST]
-        )
+        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST])
     except Exception as err:
         logger.error(f"Filename validation error: {err}", exc_info=True)
         print(err)
@@ -143,10 +145,19 @@ async def generate_everything_and_save_and_upload(route_name : str) -> None:
 
     start_time = time.time()
     rider_repository: RepositoryOfRiders = RepositoryOfRiders()
-    rider_repository.populate_repository(None, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER, route)
+    rider_repository.populate_repository(
+        None,
+        DIRPATH_ZWIFT_FILES,
+        DIRPATH_ZWIFTRACINGAPP_FILES,
+        DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+        DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
+        route,
+    )
     elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
-    print(f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders.")
+    print(
+        f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders."
+    )
 
     print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")
 
@@ -159,7 +170,6 @@ async def generate_everything_and_save_and_upload(route_name : str) -> None:
     dto_dict_rb = {k: RiderComputeItem.to_dataTransferObject(v) for k, v in sorted_items_rb}
     for row_num, (_, item) in enumerate(dto_dict_rb.items(), start=1):
         item.row = row_num
-
 
     def _safe_zwift_zftp_wkg(value_obj: RiderStatsItem) -> float:
         try:
@@ -202,19 +212,20 @@ async def generate_everything_and_save_and_upload(route_name : str) -> None:
             dto_by_key=dto_dict_rs,
             dict_model_cls=RiderStatsDtoDictModel,
             list_model_cls=RiderStatsDtoListModel,
-            output_dir          =DIRPATH_RIDER_STATS_DTO,
-            json_dict_filename  =FILENAME_RIDER_STATS_DTO_JSON_DICT,
-            json_list_filename  =FILENAME_RIDER_STATS_DTO_JSON_LIST,
-            excel_list_filename =FILENAME_RIDER_STATS_DTO_XLSX_LIST,
-            csv_list_filename   =FILENAME_RIDER_STATS_DTO_CSV_LIST,
-            json_dict_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-            json_list_blobname  =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
-            csv_list_blobname   =AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
+            output_dir=DIRPATH_RIDER_STATS_DTO,
+            json_dict_filename=FILENAME_RIDER_STATS_DTO_JSON_DICT,
+            json_list_filename=FILENAME_RIDER_STATS_DTO_JSON_LIST,
+            excel_list_filename=FILENAME_RIDER_STATS_DTO_XLSX_LIST,
+            csv_list_filename=FILENAME_RIDER_STATS_DTO_CSV_LIST,
+            json_dict_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+            json_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+            csv_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
             logger=logger,
         ),
     )
 
     print("\nwork complete. consult the log files for details.\nyou may close the app. thank you.")
+
 
 async def export_and_upload_dtos(
     dto_by_key: dict[str, Any],
@@ -224,10 +235,10 @@ async def export_and_upload_dtos(
     json_dict_filename: str,
     json_list_filename: str,
     excel_list_filename: str,
-    csv_list_filename : str,
+    csv_list_filename: str,
     json_dict_blobname: str,
     json_list_blobname: str,
-    csv_list_blobname : str,
+    csv_list_blobname: str,
     logger: logging.Logger,
 ) -> None:
     """
@@ -273,7 +284,7 @@ async def export_and_upload_dtos(
     dto_list_dataframe_column_order = list(dto_list[0].model_fields.keys())
     dto_list_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
     dto_list_as_dataframe = pd.DataFrame(dto_list_dataframe_rows, columns=dto_list_dataframe_column_order)
-    dto_list_as_csv = dto_list_as_dataframe.to_csv(index=False)  
+    dto_list_as_csv = dto_list_as_dataframe.to_csv(index=False)
 
     try:
         # Write Excel file for list format (dict-root doesn't lend itself to tabular format)
@@ -304,19 +315,29 @@ async def export_and_upload_dtos(
 
         # All five uploads are independent — fire them concurrently.
         upload_results = await asyncio.gather(
-            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json),
-            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_list_blobname, dto_list_json),
-            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob_name, dto_dict_json),
-            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_name, dto_list_json),
-            upload_text_to_blob_storage_in_azure(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_as_csv_name, dto_list_as_csv),
+            upload_text_to_blob_storage_in_azure(
+                AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_dict_blobname, dto_dict_json
+            ),
+            upload_text_to_blob_storage_in_azure(
+                AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, json_list_blobname, dto_list_json
+            ),
+            upload_text_to_blob_storage_in_azure(
+                AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_dict_blob_name, dto_dict_json
+            ),
+            upload_text_to_blob_storage_in_azure(
+                AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_name, dto_list_json
+            ),
+            upload_text_to_blob_storage_in_azure(
+                AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN_BACK, archived_list_blob_as_csv_name, dto_list_as_csv
+            ),
         )
 
         upload_log = [
-            (upload_results[0], len(dto_dict_json.encode('utf-8'))),
-            (upload_results[1], len(dto_list_json.encode('utf-8'))),
-            (upload_results[2], len(dto_dict_json.encode('utf-8'))),
-            (upload_results[3], len(dto_list_json.encode('utf-8'))),
-            (upload_results[4], len(dto_list_as_csv.encode('utf-8'))),
+            (upload_results[0], len(dto_dict_json.encode("utf-8"))),
+            (upload_results[1], len(dto_list_json.encode("utf-8"))),
+            (upload_results[2], len(dto_dict_json.encode("utf-8"))),
+            (upload_results[3], len(dto_list_json.encode("utf-8"))),
+            (upload_results[4], len(dto_list_as_csv.encode("utf-8"))),
         ]
         for url, size in upload_log:
             msg = f"Uploaded blob: {url} ({make_pretty_count_of_bytes(size)})"
@@ -328,7 +349,7 @@ async def export_and_upload_dtos(
         raise
 
 
-#runner
+# runner
 if __name__ == "__main__":
     from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
@@ -339,7 +360,7 @@ if __name__ == "__main__":
     try:
         throw_if_no_internet_connection()
 
-        this_route_name ="crepe_escape02" 
+        this_route_name = "crepe_escape02"
 
         start_time = time.time()
         asyncio.run(generate_everything_and_save_and_upload(this_route_name))
@@ -352,5 +373,7 @@ if __name__ == "__main__":
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")

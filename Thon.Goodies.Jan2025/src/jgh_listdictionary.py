@@ -209,9 +209,7 @@ class JghListDictionary[TKey, TValue]:
                 return 0
             case _:
                 original_length = len(self.backingstore_dict[key])
-                self.backingstore_dict[key] = [
-                    v for v in self.backingstore_dict[key] if v != value
-                ]
+                self.backingstore_dict[key] = [v for v in self.backingstore_dict[key] if v != value]
                 return original_length - len(self.backingstore_dict[key])
 
     def remove_value_from_all_lists(self, value: TValue) -> tuple[int, list[TKey]]:
@@ -406,14 +404,10 @@ class JghListDictionary[TKey, TValue]:
         list[TKey]
             A list of keys that have the value.
         """
-        keys_with_value: list[TKey] = [
-            key for key, values in self.backingstore_dict.items() if value in values
-        ]
+        keys_with_value: list[TKey] = [key for key, values in self.backingstore_dict.items() if value in values]
         return keys_with_value
 
-    def get_keys_containing_selected_values(
-        self, value_selector: Callable[[TValue], bool]
-    ) -> list[TKey]:
+    def get_keys_containing_selected_values(self, value_selector: Callable[[TValue], bool]) -> list[TKey]:
         """
         Retrieves all keys that have values matching the given condition.
 
@@ -438,9 +432,7 @@ class JghListDictionary[TKey, TValue]:
             A list of keys that have matching values.
         """
         keys_with_matching_values = [
-            key
-            for key, values in self.backingstore_dict.items()
-            if any(value_selector(value) for value in values)
+            key for key, values in self.backingstore_dict.items() if any(value_selector(value) for value in values)
         ]
         return keys_with_matching_values
 
@@ -540,9 +532,7 @@ class JghListDictionary[TKey, TValue]:
         """
         return [value for values in self.backingstore_dict.values() for value in values]
 
-    def get_selected_values_from_key(
-        self, key: TKey, value_selector: Callable[[TValue], bool]
-    ) -> list[TValue]:
+    def get_selected_values_from_key(self, key: TKey, value_selector: Callable[[TValue], bool]) -> list[TValue]:
         """
         Retrieves all values associated with the given key that match the given selector.
 
@@ -570,9 +560,7 @@ class JghListDictionary[TKey, TValue]:
                 selected_values.append(value)
         return selected_values
 
-    def get_selected_values_from_all(
-        self, value_selector: Callable[[TValue], bool]
-    ) -> list[TValue]:
+    def get_selected_values_from_all(self, value_selector: Callable[[TValue], bool]) -> list[TValue]:
         """
         Retrieves all values that match the given selector.
 
@@ -715,5 +703,5 @@ class JghListDictionary[TKey, TValue]:
         """
         self.backingstore_dict[key] = list(value)
 
- # example usage of the JghListDictionary class
 
+# example usage of the JghListDictionary class

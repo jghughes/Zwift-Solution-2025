@@ -2,6 +2,7 @@
 - Plots the fitted FTP and TTT-pull curves of several riders on one shared
   chart for side-by-side comparison.
 """
+
 import logging
 import time
 from pathlib import Path
@@ -37,35 +38,50 @@ def validate_dirpaths_and_filenames() -> None:
     Raises:
         Exception: If any required directory or filename is invalid or does not exist.
     """
-    throw_if_any_dirpath_invalid_or_not_exists([
-        Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),
-        Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
-        Path(DIRPATH_RUBBISH_SCRATCHPAD)
-    ])
+    throw_if_any_dirpath_invalid_or_not_exists(
+        [
+            Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),
+            Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
+            Path(DIRPATH_RUBBISH_SCRATCHPAD),
+        ]
+    )
     throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
-def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_name : str) -> None:
+
+def validate_that_riders_are_on_team_in_repository(zwift_IDs: list[str], team_name: str) -> None:
     team_member_IDs = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_name)
     for rider_ID in zwift_IDs:
         if rider_ID not in team_member_IDs:
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not on the team '{team_name}'.")
 
+
 def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    team_member_IDs: list[str]= RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
-    item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_member_IDs)
-    print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
+    team_member_IDs: list[str] = RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
+    item_dict = read_zwiftpower90daywattsdto_files_to_item_dict_sync(
+        Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_member_IDs
+    )
+    print(
+        f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n"
+    )
     return item_dict
 
-def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: list[str], dict_of_90day_best_graphs: dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
+
+def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(
+    zwift_IDs: list[str], dict_of_90day_best_graphs: dict[str, ZwiftPowerFlattened90dayWattsItem]
+) -> None:
     for rider_ID in zwift_IDs:
         if rider_ID not in dict_of_90day_best_graphs:
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not in the dictionary of 90-day best graphs.")
 
+
 def get_rider_nick_name_from_zwiftID(team_name: str, zwiftID: str) -> str:
-    nick_name = RepositoryOfTeamRosters.get_rider_nick_name(team_name,zwiftID)
+    nick_name = RepositoryOfTeamRosters.get_rider_nick_name(team_name, zwiftID)
     return nick_name
 
-def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider_flattened_watts_graph : ZwiftPowerFlattened90dayWattsItem) -> None:
+
+def plot_curve_fit_chart_for_an_individual(
+    zwiftID: str, rider_name: str, rider_flattened_watts_graph: ZwiftPowerFlattened90dayWattsItem
+) -> None:
     """
     Fit and plot the power curves for a single rider.
 
@@ -84,15 +100,21 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
     """
     # model critical_power and w_prime
     x_y_ordinates_for_cp_w_prime = rider_flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
-    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp  =    do_curve_fit_with_cp_w_prime_model(x_y_ordinates_for_cp_w_prime)
+    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp = do_curve_fit_with_cp_w_prime_model(
+        x_y_ordinates_for_cp_w_prime
+    )
 
     # model pull power curve
     x_y_ordinates_for_pulling = rider_flattened_watts_graph.export_x_y_ordinates_for_pull_zone_modelling()
-    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = do_curve_fit_with_decay_model(x_y_ordinates_for_pulling)
+    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = do_curve_fit_with_decay_model(
+        x_y_ordinates_for_pulling
+    )
 
     # model ftp curve (one hour power)
     x_y_ordinates_for_FTP_60min = rider_flattened_watts_graph.export_x_y_ordinates_for_one_hour_zone_modelling()
-    coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
+    coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = do_curve_fit_with_decay_model(
+        x_y_ordinates_for_FTP_60min
+    )
 
     print("\nModelling completed. Thank you.\n")
 
@@ -133,17 +155,17 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
 
     # plot scatter chart of raw data
     plt.figure(figsize=(10, 6))
-    plt.scatter(xdata_cp, ydata_cp, color='grey', label='anaerobic power zone')
-    plt.scatter(xdata_pull, ydata_pull, color='orange', label='TTT pull power curve fit')
-    plt.scatter(xdata_ftp, ydata_ftp, color='black', label='one hour power curve fit')
+    plt.scatter(xdata_cp, ydata_cp, color="grey", label="anaerobic power zone")
+    plt.scatter(xdata_pull, ydata_pull, color="orange", label="TTT pull power curve fit")
+    plt.scatter(xdata_ftp, ydata_ftp, color="black", label="one hour power curve fit")
 
-    #plot fitted curves
-    plt.plot(xdata_pull, ydata_pred_pull, color='blue', label=summary_pull)
-    plt.plot(xdata_ftp, ydata_pred_ftp, color='green', label=summary_ftp)
-    plt.xlabel('Duration (minutes)')
-    plt.ylabel(f'ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best graph (Watts)')
+    # plot fitted curves
+    plt.plot(xdata_pull, ydata_pred_pull, color="blue", label=summary_pull)
+    plt.plot(xdata_ftp, ydata_pred_ftp, color="green", label=summary_ftp)
+    plt.xlabel("Duration (minutes)")
+    plt.ylabel(f"ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best graph (Watts)")
 
-    plt.title(f'{rider_name}')
+    plt.title(f"{rider_name}")
 
     # Set the x-axis and y-axis limits
     plt.xlim(0, lim_x)
@@ -156,10 +178,11 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
     plt.legend()
     plt.show()
 
+
 def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     list_of_zwift_IDs: list[str],
     list_of_rider_names: list[str],
-    list_of_flattened_watts_graphs: list[ZwiftPowerFlattened90dayWattsItem]
+    list_of_flattened_watts_graphs: list[ZwiftPowerFlattened90dayWattsItem],
 ) -> None:
     """
     Plots fitted FTP and TTT pull power curves for multiple riders on the same
@@ -167,7 +190,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     data is omitted to keep the chart readable.
     """
     # Use a colour cycle so each rider gets a distinct colour (by default, matplotlib uses a cycle of 10 colours))
-    colour_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    colour_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
     fig, ax = plt.subplots(figsize=(12, 7))
 
@@ -180,13 +203,13 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
         colour = colour_cycle[idx % len(colour_cycle)]
 
         # --- fit curves ---
-        x_y_cp      = flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
-        x_y_pull    = flattened_watts_graph.export_x_y_ordinates_for_pull_zone_modelling()
-        x_y_ftp     = flattened_watts_graph.export_x_y_ordinates_for_one_hour_zone_modelling()
+        x_y_cp = flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
+        x_y_pull = flattened_watts_graph.export_x_y_ordinates_for_pull_zone_modelling()
+        x_y_ftp = flattened_watts_graph.export_x_y_ordinates_for_one_hour_zone_modelling()
 
-        _, _, _, _, answer_cp   = do_curve_fit_with_cp_w_prime_model(x_y_cp)
+        _, _, _, _, answer_cp = do_curve_fit_with_cp_w_prime_model(x_y_cp)
         coefficient_pull, exponent_pull, _, _, answer_pull = do_curve_fit_with_decay_model(x_y_pull)
-        coefficient_ftp,  exponent_ftp,  _, _, answer_ftp  = do_curve_fit_with_decay_model(x_y_ftp)
+        coefficient_ftp, exponent_ftp, _, _, answer_ftp = do_curve_fit_with_decay_model(x_y_ftp)
 
         # --- build a RiderComputeItem just for the summary labels ---
         rider_item = RiderComputeItem(
@@ -199,23 +222,25 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
             jgh_when_curves_fitted=get_current_utc_iso8601_timestamp(),
         )
 
-        summary_ftp  = (f"{rider_name} | 1 hr = {round(rider_item.get_1_hour_curvefit_watts())} W")
-        summary_pull = (f"{rider_name} | pull 30-60-120-240 s = "
-                        f"{round(rider_item.get_proxy_30sec_pull_watts())} - "
-                        f"{round(rider_item.get_proxy_1_minute_pull_watts())} - "
-                        f"{round(rider_item.get_proxy_2_minute_pull_watts())} - "
-                        f"{round(rider_item.get_proxy_4_minute_pull_watts())} W")
+        summary_ftp = f"{rider_name} | 1 hr = {round(rider_item.get_1_hour_curvefit_watts())} W"
+        summary_pull = (
+            f"{rider_name} | pull 30-60-120-240 s = "
+            f"{round(rider_item.get_proxy_30sec_pull_watts())} - "
+            f"{round(rider_item.get_proxy_1_minute_pull_watts())} - "
+            f"{round(rider_item.get_proxy_2_minute_pull_watts())} - "
+            f"{round(rider_item.get_proxy_4_minute_pull_watts())} W"
+        )
 
         # --- extract predicted y-values ---
         xdata_pull = list(x_y_pull.keys())
-        xdata_ftp  = list(x_y_ftp.keys())
+        xdata_ftp = list(x_y_ftp.keys())
 
         ydata_pred_pull = [v[1] for v in answer_pull.values()]
-        ydata_pred_ftp  = [v[1] for v in answer_ftp.values()]
+        ydata_pred_ftp = [v[1] for v in answer_ftp.values()]
 
         # --- plot fitted curves only (solid = FTP, dashed = pull) ---
-        ax.plot(xdata_ftp,  ydata_pred_ftp,  color=colour, linestyle='-',  linewidth=2,   label=summary_ftp)
-        ax.plot(xdata_pull, ydata_pred_pull,  color=colour, linestyle='--', linewidth=1.5, label=summary_pull)
+        ax.plot(xdata_ftp, ydata_pred_ftp, color=colour, linestyle="-", linewidth=2, label=summary_ftp)
+        ax.plot(xdata_pull, ydata_pred_pull, color=colour, linestyle="--", linewidth=1.5, label=summary_pull)
 
         # track overall axis extents
         all_x.extend(xdata_pull + xdata_ftp)
@@ -230,16 +255,19 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     set_x_axis_seconds_in_minute_ticks(ax, int(max_x))
     set_y_axis_units_ticks(ax, int(max_y))
 
-    ax.set_xlabel('Duration (minutes)')
-    ax.set_ylabel(f'ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best graph (Watts)')
-    ax.set_title('Comparative Curve Fits')
+    ax.set_xlabel("Duration (minutes)")
+    ax.set_ylabel(f"ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best graph (Watts)")
+    ax.set_title("Comparative Curve Fits")
     plt.grid(True, alpha=0.3)
-    ax.legend(fontsize=8, loc='upper right')
+    ax.legend(fontsize=8, loc="upper right")
 
     plt.tight_layout()
     plt.show()
 
-def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str) -> None:
+
+def do_all_the_plotting(
+    team_name: str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str
+) -> None:
     """
     Run the whole workflow: validate, load, then plot.
 
@@ -261,20 +289,31 @@ def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str],
     """
     validate_dirpaths_and_filenames()
     validate_that_riders_are_on_team_in_repository(zwiftIDs_of_riders_to_model, team_name)
-    dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name) 
-    validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwiftIDs_of_riders_to_model, dict_of_90day_best_graphs_for_team_watts)
+    dict_of_90day_best_graphs_for_team_watts = load_dict_of_90day_best_graphs_for_team_watts(team_name)
+    validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(
+        zwiftIDs_of_riders_to_model, dict_of_90day_best_graphs_for_team_watts
+    )
 
     # model a single rider
-    flattened_watts_rider_1  = dict_of_90day_best_graphs_for_team_watts[zwiftID_of_rider_to_plot_individually]
+    flattened_watts_rider_1 = dict_of_90day_best_graphs_for_team_watts[zwiftID_of_rider_to_plot_individually]
     nick_name_rider_1 = get_rider_nick_name_from_zwiftID(team_name, zwiftID_of_rider_to_plot_individually)
-    plot_curve_fit_chart_for_an_individual(zwiftID_of_rider_to_plot_individually,nick_name_rider_1, flattened_watts_rider_1)
+    plot_curve_fit_chart_for_an_individual(
+        zwiftID_of_rider_to_plot_individually, nick_name_rider_1, flattened_watts_rider_1
+    )
 
     # model multiple riders on a shared chart for side-by-side visual comparison
-    nick_names_of_riders_to_model = [get_rider_nick_name_from_zwiftID(team_name, zwiftID) for zwiftID in zwiftIDs_of_riders_to_model]
-    flattened_rider_watts_of_riders_to_model = [dict_of_90day_best_graphs_for_team_watts[zwiftID] for zwiftID in zwiftIDs_of_riders_to_model]
-    plot_comparative_chart_of_curve_fits_for_list_of_riders(zwiftIDs_of_riders_to_model, nick_names_of_riders_to_model, flattened_rider_watts_of_riders_to_model)
+    nick_names_of_riders_to_model = [
+        get_rider_nick_name_from_zwiftID(team_name, zwiftID) for zwiftID in zwiftIDs_of_riders_to_model
+    ]
+    flattened_rider_watts_of_riders_to_model = [
+        dict_of_90day_best_graphs_for_team_watts[zwiftID] for zwiftID in zwiftIDs_of_riders_to_model
+    ]
+    plot_comparative_chart_of_curve_fits_for_list_of_riders(
+        zwiftIDs_of_riders_to_model, nick_names_of_riders_to_model, flattened_rider_watts_of_riders_to_model
+    )
 
-#main runner
+
+# main runner
 if __name__ == "__main__":
     import logging
 
@@ -287,46 +326,47 @@ if __name__ == "__main__":
 
     try:
         # Catalogue of selectable riders and their Zwift IDs for modelling
-        alex_shiver='2619046'
-        anthony_dangelo='7712769' # no current data on zr.app
-        barry_b ='5490373'
-        bill_henson ='5726145'
+        alex_shiver = "2619046"
+        anthony_dangelo = "7712769"  # no current data on zr.app
+        barry_b = "5490373"
+        bill_henson = "5726145"
         brandi_steeve = "991817"
         bryan_bumpas = "9011"
         carrie_merrit = "456545"
-        ceri_pritchard = '4204538'
-        chris_lockwood = "6944221" # no current data on zr.app
+        ceri_pritchard = "4204538"
+        chris_lockwood = "6944221"  # no current data on zr.app
         coryc = "5569057"
         curtis_repen = "473087"
-        dave_k ='3147366'
-        david_evanetich='4945836'
-        dayton_danielson='172105'
+        dave_k = "3147366"
+        david_evanetich = "4945836"
+        dayton_danielson = "172105"
         giao_nguyen = "183277"
-        husky ='5134'
-        john_h ='1884456'
-        josh_n ='2508033'
-        ken_chappell='1111583' # no current data on zr.app
-        kent_johnson='618585'
-        lisa_bick = '846200'
-        lynsey_s ='383480'
-        mark_b ='5530045'
+        husky = "5134"
+        john_h = "1884456"
+        josh_n = "2508033"
+        ken_chappell = "1111583"  # no current data on zr.app
+        kent_johnson = "618585"
+        lisa_bick = "846200"
+        lynsey_s = "383480"
+        mark_b = "5530045"
         matt_steeve = "1024413"
         melissa_warwick = "1657744"
-        meridith_leubner ="1707548"
-        richard_m ='1193' # no current data on zr.app
-        scott_m ='11526'
-        sean_o_reilly = "7160372" # no current data on zr.app
+        meridith_leubner = "1707548"
+        richard_m = "1193"  # no current data on zr.app
+        scott_m = "11526"
+        sean_o_reilly = "7160372"  # no current data on zr.app
         selena_shaik = "2682791"  # no current data on zr.app
         steve_seiler = "6142432"
         stewart_lalieu = "103825"
-        tim_r ='5421258'
-        tom_bick ='11741'
-        tony_chang ='7460730'
+        tim_r = "5421258"
+        tom_bick = "11741"
+        tony_chang = "7460730"
 
-
-        _team_name = "rangers" 
-        _zwiftIDs_of_riders_to_model : list[str] = [tony_chang, carrie_merrit, curtis_repen] 
-        _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[2]  # the index of our desired rider for this example
+        _team_name = "rangers"
+        _zwiftIDs_of_riders_to_model: list[str] = [tony_chang, carrie_merrit, curtis_repen]
+        _zwiftID_of_rider_to_plot_individually: str = _zwiftIDs_of_riders_to_model[
+            2
+        ]  # the index of our desired rider for this example
 
         start_time = time.time()
         do_all_the_plotting(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)
@@ -339,7 +379,7 @@ if __name__ == "__main__":
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"\n{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")
-
-

@@ -12,9 +12,11 @@ class JsonFileHandler(logging.FileHandler):
     Custom logging handler that writes each log record as a flat JSON object.
     Thread-safe: uses a persistent lock for all writes.
     """
+
     def __init__(self, filename: str, mode: str = "a", encoding: str | None = None, delay: bool = False) -> None:
         super().__init__(filename, mode=mode, encoding=encoding, delay=delay)
         import threading
+
         self._stream_lock = threading.Lock()
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -22,7 +24,7 @@ class JsonFileHandler(logging.FileHandler):
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "name": record.name,  # Changed from 'logger' to 'name'
-            "message": record.getMessage()
+            "message": record.getMessage(),
         }
         # Add exception info if present
         if record.exc_info:
@@ -30,9 +32,24 @@ class JsonFileHandler(logging.FileHandler):
         # Add extra fields (flat only)
         for key, value in record.__dict__.items():
             if key not in log_entry and key not in (
-                "msg", "args", "exc_info", "exc_text", "levelno", "pathname", "filename",
-                "module", "funcName", "lineno", "created", "msecs", "relativeCreated",
-                "thread", "threadName", "processName", "process", "logger"  # Exclude 'logger'
+                "msg",
+                "args",
+                "exc_info",
+                "exc_text",
+                "levelno",
+                "pathname",
+                "filename",
+                "module",
+                "funcName",
+                "lineno",
+                "created",
+                "msecs",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "processName",
+                "process",
+                "logger",  # Exclude 'logger'
             ):
                 if not isinstance(value, dict | list):
                     log_entry[key] = value
@@ -46,9 +63,13 @@ class JsonFileHandler(logging.FileHandler):
         isoUtc = get_current_utc_iso8601_timestamp()
         return isoUtc
 
-    def formatException(self, exc_info: tuple[type[BaseException] | None, BaseException | None, TracebackType | None]) -> str:
+    def formatException(
+        self, exc_info: tuple[type[BaseException] | None, BaseException | None, TracebackType | None]
+    ) -> str:
         import traceback
+
         return "".join(traceback.format_exception(*exc_info))
+
 
 def setup_json_logging(log_directory: str) -> None:
     """
@@ -90,13 +111,14 @@ def setup_json_logging(log_directory: str) -> None:
     root_logger.addHandler(info_handler)
     root_logger.addHandler(events_handler)
 
+
 def log_event(
     logger: logging.Logger,
     *,
     message: str,
     level: int,
     exception: Exception | None = None,
-    extra_fields: dict[str, Any] | None = None
+    extra_fields: dict[str, Any] | None = None,
 ) -> None:
     """
     Log an event with required keyword-only message and level (must be a Python logging constant), plus optional exception and extra fields.
@@ -116,13 +138,7 @@ def log_event(
         log_event(logger, message="Error message", level=logging.ERROR)
         log_event(logger, message="Critical message", level=logging.CRITICAL)
     """
-    allowed_levels = {
-        logging.DEBUG,
-        logging.INFO,
-        logging.WARNING,
-        logging.ERROR,
-        logging.CRITICAL
-    }
+    allowed_levels = {logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL}
     if level not in allowed_levels:
         raise ValueError(f"Invalid log level: {level}. Allowed levels: {allowed_levels}")
 

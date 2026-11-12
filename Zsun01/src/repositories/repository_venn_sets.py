@@ -9,13 +9,13 @@ from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWatts
 from zwiftracingapp_item import ZwiftRacingAppItem
 
 # Column name constants shared across all diagnostic functions
-COL_ZWIFT_ID                   = "zwift_id"
-COL_IN_SAMPLE1                 = "in_sample1"
-COL_IN_SAMPLE2                 = "in_sample2"
-COL_IN_ZWIFT                   = "zwift"
-COL_IN_ZWIFTPOWER              = "zwiftpower"
+COL_ZWIFT_ID = "zwift_id"
+COL_IN_SAMPLE1 = "in_sample1"
+COL_IN_SAMPLE2 = "in_sample2"
+COL_IN_ZWIFT = "zwift"
+COL_IN_ZWIFTPOWER = "zwiftpower"
 COL_IN_ZWIFTPOWER_WATTS_GRAPHS = "zwiftpower_90_day_watts"
-COL_IN_ZWIFTRACINGAPP          = "zwiftracingapp"
+COL_IN_ZWIFTRACINGAPP = "zwiftracingapp"
 
 
 def create_union_of_sets_as_dataframe(
@@ -52,11 +52,11 @@ def create_union_of_sets_as_dataframe(
     answer: list[tuple[str, str, str, str, str, str]] = []
 
     superset_of_zwiftID = (
-        set(sample1) |
-        set(sample2) |
-        set(dict_of_ZwiftItem.keys()) |
-        set(dict_of_ZwiftRacingAppItem.keys()) |
-        set(dict_of_ZwiftPower90dayWattsItem.keys())
+        set(sample1)
+        | set(sample2)
+        | set(dict_of_ZwiftItem.keys())
+        | set(dict_of_ZwiftRacingAppItem.keys())
+        | set(dict_of_ZwiftPower90dayWattsItem.keys())
     )
 
     print(f"Total unique Zwift IDs in union: {len(superset_of_zwiftID)}")
@@ -74,15 +74,18 @@ def create_union_of_sets_as_dataframe(
 
     answer.sort(key=lambda x: x[0])
 
-    return pd.DataFrame(answer, columns=[
-        COL_ZWIFT_ID,
-        COL_IN_SAMPLE1,
-        COL_IN_SAMPLE2,
-        COL_IN_ZWIFT,
-        COL_IN_ZWIFTRACINGAPP,
-        COL_IN_ZWIFTPOWER,
-        COL_IN_ZWIFTPOWER_WATTS_GRAPHS,
-    ])
+    return pd.DataFrame(
+        answer,
+        columns=[
+            COL_ZWIFT_ID,
+            COL_IN_SAMPLE1,
+            COL_IN_SAMPLE2,
+            COL_IN_ZWIFT,
+            COL_IN_ZWIFTRACINGAPP,
+            COL_IN_ZWIFTPOWER,
+            COL_IN_ZWIFTPOWER_WATTS_GRAPHS,
+        ],
+    )
 
 
 def create_intersection_of_sets_as_dataframe(
@@ -114,9 +117,9 @@ def create_intersection_of_sets_as_dataframe(
     """
 
     intersection = (
-        set(dict_of_ZwiftItem.keys()) &
-        set(dict_of_ZwiftRacingAppItem.keys()) &
-        set(dict_of_ZwiftPower90dayWattsItem.keys())
+        set(dict_of_ZwiftItem.keys())
+        & set(dict_of_ZwiftRacingAppItem.keys())
+        & set(dict_of_ZwiftPower90dayWattsItem.keys())
     )
 
     if sample1:
@@ -138,15 +141,18 @@ def create_intersection_of_sets_as_dataframe(
 
     answer.sort(key=lambda x: x[0])
 
-    return pd.DataFrame(answer, columns=[
-        COL_ZWIFT_ID,
-        COL_IN_SAMPLE1,
-        COL_IN_SAMPLE2,
-        "in_zwift_profiles",
-        "in_zwiftracingapp_profiles",
-        "in_zwiftpower_profiles",
-        "in_zwiftpower_90daybest_graphs",
-    ])
+    return pd.DataFrame(
+        answer,
+        columns=[
+            COL_ZWIFT_ID,
+            COL_IN_SAMPLE1,
+            COL_IN_SAMPLE2,
+            "in_zwift_profiles",
+            "in_zwiftracingapp_profiles",
+            "in_zwiftpower_profiles",
+            "in_zwiftpower_90daybest_graphs",
+        ],
+    )
 
 
 def create_union_of_sets_filtered_by_membership_as_dataframe(
@@ -211,8 +217,8 @@ def create_union_of_sets_filtered_by_membership_as_dataframe(
         return True
 
     template = {
-        COL_IN_ZWIFT          : zwift,
-        COL_IN_ZWIFTRACINGAPP : racingapp,
+        COL_IN_ZWIFT: zwift,
+        COL_IN_ZWIFTRACINGAPP: racingapp,
         COL_IN_ZWIFTPOWER_WATTS_GRAPHS: zwiftpower_90day_cp,
     }
 
@@ -241,7 +247,11 @@ def create_union_of_sets_filtered_by_membership_as_list(
     zwiftpower_90day_cp: str,
 ) -> list[str]:
     df = create_union_of_sets_filtered_by_membership_as_dataframe(
-        dict_of_ZwiftItem, dict_of_ZwiftRacingAppItem, dict_of_ZwiftPower90dayWattsItem,
-        zwift, racingapp, zwiftpower_90day_cp
+        dict_of_ZwiftItem,
+        dict_of_ZwiftRacingAppItem,
+        dict_of_ZwiftPower90dayWattsItem,
+        zwift,
+        racingapp,
+        zwiftpower_90day_cp,
     )
     return df[COL_ZWIFT_ID].tolist()

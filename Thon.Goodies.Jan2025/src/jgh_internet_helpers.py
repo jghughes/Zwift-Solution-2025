@@ -8,7 +8,7 @@ INTERNET_CHECK_TIMEOUT = 3
 import socket
 
 
-def warn_if_internet_not_connected() -> str|None:
+def warn_if_internet_not_connected() -> str | None:
     """
     Checks for internet connectivity.
     Returns an warning message string if not connected, or None if all is good.
@@ -19,6 +19,7 @@ def warn_if_internet_not_connected() -> str|None:
     except OSError:
         return "Error: No internet connection."
 
+
 def throw_if_no_internet_connection() -> None:
     """
     Checks for internet connectivity and raises an exception if not connected.
@@ -27,4 +28,3 @@ def throw_if_no_internet_connection() -> None:
     warning = warn_if_internet_not_connected()
     if warning:
         raise AlertMessageError(warning)
-

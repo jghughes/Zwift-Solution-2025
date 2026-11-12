@@ -6,18 +6,19 @@ from typing import Protocol
 class HasZwiftID(Protocol):
     zwift_id: str
 
+
 @dataclass(eq=True)
 class ZwiftIdBase(HasZwiftID):
     zwift_id: str = ""
+
 
 @dataclass(eq=True, frozen=True)
 class FrozenZwiftIdBase(HasZwiftID):
     zwift_id: str = ""
 
-def lookup_Items_by_ZwiftID[T : HasZwiftID](
-    list_of_zwiftID: list[str],
-    mapping_of_ZwiftIdBaseItem: Mapping[str, T],
-    item_type: type[T]
+
+def lookup_Items_by_ZwiftID[T: HasZwiftID](
+    list_of_zwiftID: list[str], mapping_of_ZwiftIdBaseItem: Mapping[str, T], item_type: type[T]
 ) -> list[T]:
     """
     Returns a list of items of concrete type T (subclass of ZwiftIdBase) whose zwift_id is in list_of_zwiftID.

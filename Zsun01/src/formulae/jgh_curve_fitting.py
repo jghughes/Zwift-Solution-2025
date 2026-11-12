@@ -1,4 +1,3 @@
-
 import numpy as np
 from numpy.typing import NDArray
 from scipy.optimize import curve_fit
@@ -7,7 +6,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 
 
-def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: dict[int, float]) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
+def do_curve_fit_with_cp_w_prime_model(
+    raw_xy_data_cp: dict[int, float],
+) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
     Estimate cp_watts and w' using the formula xdata * y = cp_watts * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
@@ -43,17 +44,17 @@ def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: dict[int, float]) -> tupl
     r2: float = r2_score(ydata, ydata_pred)
 
     # # Calculate the root mean square error (RMSE)
-    rmse_cp : float = np.sqrt(mean_squared_error(ydata, ydata_pred)) 
-
+    rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
     # Recombine the original data and predicted values into a dictionary
-    result: dict[int, tuple[float, float]] = {
-        int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
-    }
+    result: dict[int, tuple[float, float]] = {int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))}
 
     return cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
 
-def do_curve_fit_with_decay_model(raw_xy_data_cp: dict[int, float]) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
+
+def do_curve_fit_with_decay_model(
+    raw_xy_data_cp: dict[int, float],
+) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
     """
     Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
 
@@ -91,9 +92,6 @@ def do_curve_fit_with_decay_model(raw_xy_data_cp: dict[int, float]) -> tuple[flo
     rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
     # Recombine the original xdata,y data and predicted y_data values into coefficient_ftp dictionary
-    result: dict[int, tuple[float, float]] = {
-        int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
-    }
+    result: dict[int, tuple[float, float]] = {int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))}
 
     return coefficient_ftp, exponent_ftp, r2, rmse_cp, result
-

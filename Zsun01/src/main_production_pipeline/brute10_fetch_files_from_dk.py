@@ -24,29 +24,43 @@ from zwiftid_named_file_fetcher import download_and_save_many_files_to_hard_driv
 
 # HEAP POWERFUL TOOL
 async def go_fetch_thousands_of_files_from_dk_V2() -> None:
-    print("\nfetch single file from daveK of active members on discord (he uses this list to scrape files from Zwift, ZwiftPower, and ZwiftRacingApp websites\n")
-    urls_for_dummy_array_of_one_file = [URL_OF_CLUB_MEMBERSHIP_LIST]
-    _ = await fetch_and_save_files(
-        urls_for_dummy_array_of_one_file,
-        DIRPATH_CLUB_MEMBERSHIP_LIST,
-        concurrency=1
+    print(
+        "\nfetch single file from daveK of active members on discord (he uses this list to scrape files from Zwift, ZwiftPower, and ZwiftRacingApp websites\n"
     )
-    json_array_of_zwiftId = read_text( Path(DIRPATH_CLUB_MEMBERSHIP_LIST), FILENAME_OF_CLUB_MEMBERSHIP_LIST)
+    urls_for_dummy_array_of_one_file = [URL_OF_CLUB_MEMBERSHIP_LIST]
+    _ = await fetch_and_save_files(urls_for_dummy_array_of_one_file, DIRPATH_CLUB_MEMBERSHIP_LIST, concurrency=1)
+    json_array_of_zwiftId = read_text(Path(DIRPATH_CLUB_MEMBERSHIP_LIST), FILENAME_OF_CLUB_MEMBERSHIP_LIST)
     array_of_cobbled_together_zwiftId: list[str] = json.loads(json_array_of_zwiftId)
-    print(f"\nzwiftIds of active members: {len(array_of_cobbled_together_zwiftId)} (we use these zwiftIDs to look for Zwift, ZwiftPower90Day, and ZwiftRacingApp files on daveK server)")
+    print(
+        f"\nzwiftIds of active members: {len(array_of_cobbled_together_zwiftId)} (we use these zwiftIDs to look for Zwift, ZwiftPower90Day, and ZwiftRacingApp files on daveK server)"
+    )
 
-    urls_for_zwift_files: list[str] = [f"{URL_ROOT_FOR_ZWIFT_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    urls_for_zwiftpower_90_day_best_files: list[str] = [f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
-    urls_for_racing_app_files: list[str] = [f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId]
+    urls_for_zwift_files: list[str] = [
+        f"{URL_ROOT_FOR_ZWIFT_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+    ]
+    urls_for_zwiftpower_90_day_best_files: list[str] = [
+        f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+    ]
+    urls_for_racing_app_files: list[str] = [
+        f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+    ]
 
     limits = httpx.Limits(max_connections=60, max_keepalive_connections=30)
     async with httpx.AsyncClient(limits=limits) as shared_client:
         print("\nsearch for Zwift, ZwiftPower90Day, and ZwiftRacingApp files concurrently")
         await asyncio.gather(
             fetch_and_save_files(urls_for_zwift_files, DIRPATH_ZWIFT_FILES, concurrency=20, http_client=shared_client),
-            fetch_and_save_files(urls_for_zwiftpower_90_day_best_files, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, concurrency=20, http_client=shared_client),
-            fetch_and_save_files(urls_for_racing_app_files, DIRPATH_ZWIFTRACINGAPP_FILES, concurrency=20, http_client=shared_client),
+            fetch_and_save_files(
+                urls_for_zwiftpower_90_day_best_files,
+                DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+                concurrency=20,
+                http_client=shared_client,
+            ),
+            fetch_and_save_files(
+                urls_for_racing_app_files, DIRPATH_ZWIFTRACINGAPP_FILES, concurrency=20, http_client=shared_client
+            ),
         )
+
 
 async def fetch_and_save_files(
     list_of_fetch_urls: list[str],
@@ -71,7 +85,9 @@ async def fetch_and_save_files(
 
     throw_if_no_internet_connection()
 
-    await download_and_save_many_files_to_hard_drive_async(list_of_fetch_urls, save_dirpath, None, concurrency, http_client)
+    await download_and_save_many_files_to_hard_drive_async(
+        list_of_fetch_urls, save_dirpath, None, concurrency, http_client
+    )
     elapsed = time.time() - start_time
 
     files_in_save_destination = list_filePaths_recursive(Path(save_dirpath), "*.json")
@@ -82,7 +98,7 @@ async def fetch_and_save_files(
     return files_in_save_destination
 
 
-#main runner
+# main runner
 if __name__ == "__main__":
     import logging
 
@@ -107,8 +123,7 @@ if __name__ == "__main__":
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex)  # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"Unhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n")
-
-
-

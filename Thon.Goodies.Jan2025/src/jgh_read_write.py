@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 # Parsing Utilities
 # ===========================
 
+
 def parse_json(text: str) -> Any:
     """
     Deserializes a JSON string into a Python object.
@@ -28,9 +29,11 @@ def parse_json(text: str) -> Any:
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to decode JSON: {e}")
 
+
 # ===========================
 # Directory Listing Utilities
 # ===========================
+
 
 def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> list[Path]:
     """
@@ -46,9 +49,11 @@ def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> list[Path]
     except Exception as e:
         raise OSError(f"Error listing files in directory {dirpath}: {e}")
 
+
 # ===========================
 # File Reading Utilities
 # ===========================
+
 
 def read_text_from_path(filepath: Path) -> str:
     """
@@ -64,6 +69,7 @@ def read_text_from_path(filepath: Path) -> str:
     except Exception as err:
         raise OSError(f"Error reading file {filepath}: {err}")
 
+
 def read_text(dirpath: Path, filename: str) -> str:
     """
     Reads the content of a file as text.
@@ -76,7 +82,7 @@ def read_text(dirpath: Path, filename: str) -> str:
         filename,
         Path(filename).suffix,
         require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        validate_dir_and_extension_only=False,
     )
     file_path = Path(dirpath) / Path(filename)
     try:
@@ -84,6 +90,7 @@ def read_text(dirpath: Path, filename: str) -> str:
             return my_file.read()
     except Exception as err:
         raise OSError(f"Error reading file {file_path}: {err}")
+
 
 def read_lines(dirpath: Path, filename: str) -> list[str]:
     """
@@ -97,7 +104,7 @@ def read_lines(dirpath: Path, filename: str) -> list[str]:
         filename,
         Path(filename).suffix,
         require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        validate_dir_and_extension_only=False,
     )
     file_path = Path(dirpath) / Path(filename)
     try:
@@ -105,6 +112,7 @@ def read_lines(dirpath: Path, filename: str) -> list[str]:
             return my_file.readlines()
     except Exception as err:
         raise OSError(f"Error reading file {file_path}: {err}")
+
 
 def read_html(dirpath: Path, filename: str) -> str:
     """
@@ -114,11 +122,7 @@ def read_html(dirpath: Path, filename: str) -> str:
     Raises ValueError if any check fails, and IOError if reading the file fails.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".html",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".html", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
@@ -126,6 +130,7 @@ def read_html(dirpath: Path, filename: str) -> str:
             return html_file.read()
     except Exception as err:
         raise OSError(f"Error reading HTML file {file_path}: {err}")
+
 
 def read_csv(dirpath: Path, filename: str) -> list[dict[str, Any]]:
     """
@@ -135,11 +140,7 @@ def read_csv(dirpath: Path, filename: str) -> list[dict[str, Any]]:
     Raises ValueError if any check fails, and IOError if reading the file fails.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".csv",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".csv", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
@@ -149,6 +150,7 @@ def read_csv(dirpath: Path, filename: str) -> list[dict[str, Any]]:
     except Exception as err:
         raise OSError(f"Error reading CSV file {file_path}: {err}")
 
+
 def read_csv_to_dataframe(dirpath: Path, filename: str) -> pd.DataFrame:
     """
     Reads a CSV file and returns a pandas DataFrame.
@@ -157,17 +159,14 @@ def read_csv_to_dataframe(dirpath: Path, filename: str) -> pd.DataFrame:
     Raises ValueError if any check fails, and IOError if reading the file fails.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".csv",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".csv", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
         return pd.read_csv(file_path)
     except Exception as err:
         raise OSError(f"Error reading CSV file {file_path}: {err}")
+
 
 def read_excel(dirpath: Path, filename: str, sheet_name: str | int = 0) -> pd.DataFrame:
     """
@@ -183,17 +182,14 @@ def read_excel(dirpath: Path, filename: str, sheet_name: str | int = 0) -> pd.Da
             Defaults to 0, i.e. the first worksheet in the workbook.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".xlsx",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".xlsx", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
         return pd.read_excel(file_path, sheet_name=sheet_name, engine="openpyxl")
     except Exception as err:
         raise OSError(f"Error reading Excel file {file_path}: {err}")
+
 
 def clean_dataframe_text_column(df: pd.DataFrame, column_name: str, use_name_cleanup: bool = True) -> pd.DataFrame:
     """
@@ -227,9 +223,11 @@ def clean_dataframe_text_column(df: pd.DataFrame, column_name: str, use_name_cle
     cleaned_df[column_name] = cleaned_df[column_name].apply(clean_value)
     return cleaned_df
 
+
 # ===========================
 # File Writing Utilities
 # ===========================
+
 
 def write_text_with_txt_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -240,19 +238,16 @@ def write_text_with_txt_file_extension(dirpath: Path, filename: str, text: str) 
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".txt",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".txt", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        with file_path.open('w', encoding='utf-8') as text_file:
+        with file_path.open("w", encoding="utf-8") as text_file:
             text_file.write(text)
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing file {file_path}: {err}")
+
 
 def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: list[str]) -> str:
     """
@@ -263,19 +258,16 @@ def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: lis
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".txt",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".txt", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        with file_path.open('w', encoding='utf-8') as text_file:
+        with file_path.open("w", encoding="utf-8") as text_file:
             text_file.writelines(lines)
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing file {file_path}: {err}")
+
 
 def write_text_with_json_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -286,19 +278,16 @@ def write_text_with_json_file_extension(dirpath: Path, filename: str, text: str)
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        with file_path.open('w', encoding='utf-8') as json_file:
+        with file_path.open("w", encoding="utf-8") as json_file:
             json_file.write(text)
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing file {file_path}: {err}")
+
 
 def write_text_with_csv_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -309,19 +298,16 @@ def write_text_with_csv_file_extension(dirpath: Path, filename: str, text: str) 
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".csv",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".csv", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        with file_path.open('w', encoding='utf-8') as json_file:
+        with file_path.open("w", encoding="utf-8") as json_file:
             json_file.write(text)
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing file {file_path}: {err}")
+
 
 def write_text_with_html_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -332,19 +318,16 @@ def write_text_with_html_file_extension(dirpath: Path, filename: str, text: str)
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".html",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".html", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
-        with file_path.open('w', encoding='utf-8') as html_file:
+        with file_path.open("w", encoding="utf-8") as html_file:
             html_file.write(text)
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing file {file_path}: {err}")
+
 
 def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
     """
@@ -355,11 +338,7 @@ def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.Dat
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".xlsx",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".xlsx", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:
@@ -367,6 +346,7 @@ def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.Dat
         return str(file_path)
     except Exception as err:
         raise OSError(f"Error writing Excel file {file_path}: {err}")
+
 
 def write_dataframe_as_csv_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
     """
@@ -377,11 +357,7 @@ def write_dataframe_as_csv_file(dirpath: Path, filename: str, dataframe: pd.Data
     Returns the string path to the written file.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".csv",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".csv", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     file_path = Path(dirpath) / Path(filename)
     try:

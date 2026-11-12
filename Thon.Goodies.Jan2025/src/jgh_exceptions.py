@@ -30,6 +30,7 @@ __all__ = [
 # and third-party names (e.g. pydantic.ValidationError).
 # eq=False keeps identity-based __eq__/__hash__ so exceptions stay hashable.
 
+
 # --- Base classes ---
 @dataclass(eq=False)
 class AppErrorBase(Exception):
@@ -42,6 +43,7 @@ class AppErrorBase(Exception):
     Used for logging, reporting, and structured error management.
     Does NOT inject stack trace or context; logging helpers handle that.
     """
+
     message: str = ""
     details: dict[str, Any] = field(default_factory=dict)
     inner_exception: Exception | None = None
@@ -70,9 +72,11 @@ class AppErrorBase(Exception):
     def __str__(self) -> str:
         return self.as_json()
 
+
 @dataclass(eq=False)
 class HttpAppErrorBase(AppErrorBase):
     http_status: int = 500
+
 
 # --- AppError group ---
 @dataclass(eq=False)
@@ -80,9 +84,11 @@ class AlertMessageError(AppErrorBase):
     def __str__(self) -> str:
         return self.message
 
+
 @dataclass(eq=False)
 class AppSystemError(AppErrorBase):
     pass
+
 
 # --- HttpAppError group ---
 @dataclass(eq=False)
@@ -90,25 +96,30 @@ class AlreadyExistsError(HttpAppErrorBase):
     http_status: int = 409
     resource_name: str = ""
 
+
 @dataclass(eq=False)
 class AuthenticationError(HttpAppErrorBase):
     http_status: int = 401
     user_id: str = ""
     action: str = ""
 
+
 @dataclass(eq=False)
 class NetworkError(HttpAppErrorBase):
     url: str = ""
+
 
 @dataclass(eq=False)
 class NotFoundError(HttpAppErrorBase):
     http_status: int = 404
     resource_name: str = ""
 
+
 @dataclass(eq=False)
 class AppTimeoutError(HttpAppErrorBase):
     operation: str = ""
     timeout_seconds: float | None = None
+
 
 @dataclass(eq=False)
 class AppValidationError(HttpAppErrorBase):
@@ -118,92 +129,66 @@ class AppValidationError(HttpAppErrorBase):
 
 # --- Azure helpers ---
 def _status_or_default(ex: Exception, default: int) -> int:
-    status_code = getattr(ex, 'status_code', None)
+    status_code = getattr(ex, "status_code", None)
     return status_code if isinstance(status_code, int) else default
+
 
 def _azure_details(ex: Exception, failure: str) -> dict[str, Any]:
     details: dict[str, Any] = {"failure": str(failure)}
-    error_code = getattr(ex, 'error_code', None)
-    status_code = getattr(ex, 'status_code', None)
+    error_code = getattr(ex, "error_code", None)
+    status_code = getattr(ex, "status_code", None)
     if error_code is not None:
         details["azure_error_code"] = str(error_code)
     if status_code is not None:
         details["status_code"] = str(status_code)
     return details
 
-def map_azure_resource_error(
-    ex: Exception, failure: str
-) -> NoReturn:
-    raise AppErrorBase(
-        message=f"AzureMessage: {ex!s}",
-        details=_azure_details(ex, failure),
-        inner_exception=ex
-    ) from ex
 
-def map_azure_value_type_error(
-    ex: Exception, failure: str
-) -> NoReturn:
-    raise AppValidationError(
-        message=f"{failure} {ex!s}",
-        details={"failure": str(failure)},
-        inner_exception=ex
-    ) from ex
+def map_azure_resource_error(ex: Exception, failure: str) -> NoReturn:
+    raise AppErrorBase(message=f"AzureMessage: {ex!s}", details=_azure_details(ex, failure), inner_exception=ex) from ex
 
-def map_azure_client_authentication_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_value_type_error(ex: Exception, failure: str) -> NoReturn:
+    raise AppValidationError(message=f"{failure} {ex!s}", details={"failure": str(failure)}, inner_exception=ex) from ex
+
+
+def map_azure_client_authentication_error(ex: Exception, failure: str) -> NoReturn:
     raise AuthenticationError(
-        message=f"AzureMessage: {ex!s}",
-        details={"failure": str(failure)},
-        inner_exception=ex,
-        http_status=401
+        message=f"AzureMessage: {ex!s}", details={"failure": str(failure)}, inner_exception=ex, http_status=401
     ) from ex
 
-def map_azure_http_response_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_http_response_error(ex: Exception, failure: str) -> NoReturn:
     raise NetworkError(
         message=f"AzureMessage: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex,
-        http_status=_status_or_default(ex, 500)
+        http_status=_status_or_default(ex, 500),
     ) from ex
 
-def map_azure_resource_exists_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_resource_exists_error(ex: Exception, failure: str) -> NoReturn:
     raise AlreadyExistsError(
         message=f"Resource already exists: {ex!s}",
         details=_azure_details(ex, failure),
         inner_exception=ex,
-        http_status=409
+        http_status=409,
     ) from ex
 
-def map_azure_resource_not_found_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_resource_not_found_error(ex: Exception, failure: str) -> NoReturn:
     raise NotFoundError(
-        message=f"Resource not found: {ex!s}",
-        details=_azure_details(ex, failure),
-        inner_exception=ex,
-        http_status=404
+        message=f"Resource not found: {ex!s}", details=_azure_details(ex, failure), inner_exception=ex, http_status=404
     ) from ex
 
-def map_azure_service_request_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_service_request_error(ex: Exception, failure: str) -> NoReturn:
     raise NetworkError(
-        message=f"Network/Connectivity error: {ex!s}",
-        details={"failure": str(failure)},
-        inner_exception=ex
+        message=f"Network/Connectivity error: {ex!s}", details={"failure": str(failure)}, inner_exception=ex
     ) from ex
 
-def map_azure_service_response_error(
-    ex: Exception, failure: str
-) -> NoReturn:
+
+def map_azure_service_response_error(ex: Exception, failure: str) -> NoReturn:
     raise NetworkError(
-        message=f"Azure server-side error: {ex!s}",
-        details={"failure": str(failure)},
-        inner_exception=ex
+        message=f"Azure server-side error: {ex!s}", details={"failure": str(failure)}, inner_exception=ex
     ) from ex
-

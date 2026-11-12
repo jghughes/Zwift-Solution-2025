@@ -42,15 +42,17 @@ from rider_compute_item import RiderComputeItem
 
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_durations: list[float], pull_speeds_kph: list[float], slope_pc: float = 0.0) -> dict[RiderComputeItem, list[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(
+    riders: list[RiderComputeItem], pull_durations: list[float], pull_speeds_kph: list[float], slope_pc: float = 0.0
+) -> dict[RiderComputeItem, list[RiderWorkAssignmentItem]]:
     """
-    Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
-    Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
+    Generates a mapping for a team of riders in a Team Time Trial race to their workloads.
+    Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn
     at the head (a pull) and then rotating to the tail sequentially. The sequence
-    of pulls is according to pull_durations and pull_speeds_kph lists. Each rider has as many 
-    workunits as there are positions/riders in the circulating paceline. Each workunit 
-    is an instance of RiderWorkAssignmentItem according to position of the rider 
-    in the paceline, and his duration and speed in that position as dictated 
+    of pulls is according to pull_durations and pull_speeds_kph lists. Each rider has as many
+    workunits as there are positions/riders in the circulating paceline. Each workunit
+    is an instance of RiderWorkAssignmentItem according to position of the rider
+    in the paceline, and his duration and speed in that position as dictated
     by the duarion and speed of the prevailing leader at that point in time.
 
     Args:
@@ -60,9 +62,9 @@ def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_duratio
         slope_pc (float): The slope of the course in percentage.
 
     Returns:
-        dict[RiderComputeItem, list[RiderWorkAssignmentItem]]: A dictionary of Zwift riders 
-            with their list of respective assignments, being how fast they must go for 
-            how long in which position. 
+        dict[RiderComputeItem, list[RiderWorkAssignmentItem]]: A dictionary of Zwift riders
+            with their list of respective assignments, being how fast they must go for
+            how long in which position.
     """
     n = len(riders)
 
@@ -70,7 +72,7 @@ def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_duratio
         return defaultdict(list)
 
     if len(pull_durations) == 0 or len(pull_speeds_kph) == 0:
-        dd : dict[RiderComputeItem, list[RiderWorkAssignmentItem]] = defaultdict(list)
+        dd: dict[RiderComputeItem, list[RiderWorkAssignmentItem]] = defaultdict(list)
         for rider in riders:
             dd[rider] = [RiderWorkAssignmentItem()]
         return dd
@@ -81,8 +83,8 @@ def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_duratio
     for k in range(1, n + 1):
         workunits: list[RiderWorkAssignmentItem] = []
         for j in range(n):
-            # The formula ensures that each rider's position is calculated in a way that 
-            # they rotate through the pace line in a cyclical manner. The modulo operation 
+            # The formula ensures that each rider's position is calculated in a way that
+            # they rotate through the pace line in a cyclical manner. The modulo operation
             # handles the wrap-around, and the addition of 1 converts the result to a 1-based index.
             position = (k + n - j - 1) % n + 1
             if j < min_length:
@@ -95,27 +97,17 @@ def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_duratio
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-def log_rider_work_assignments(test_description: str, result: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]) -> None:
+
+def log_rider_work_assignments(
+    test_description: str, result: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]
+) -> None:
     from tabulate import tabulate
 
     table: list[list[object]] = []
 
     for rider, assignments in result.items():
         for assignment in assignments:
-            table.append([
-                rider.name, 
-                assignment.position, 
-                assignment.duration, 
-                assignment.speed,
-                assignment.slope_pc
-            ])
+            table.append([rider.name, assignment.position, assignment.duration, assignment.speed, assignment.slope_pc])
 
-    headers = [
-        "Rider", 
-        "Position", 
-        "Duration (sec)", 
-        "Speed (kph)",
-        "Slope"
-    ]
-    print(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
-
+    headers = ["Rider", "Position", "Duration (sec)", "Speed (kph)", "Slope"]
+    print(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain", disable_numparse=True))

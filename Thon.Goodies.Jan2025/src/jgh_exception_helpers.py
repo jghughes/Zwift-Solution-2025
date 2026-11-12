@@ -1,11 +1,7 @@
 from typing import Any
 
 
-def flatten_dict(
-    d: dict[str, Any], 
-    parent_key: str = '', 
-    sep: str = '.'
-) -> dict[str, Any]:
+def flatten_dict(d: dict[str, Any], parent_key: str = "", sep: str = ".") -> dict[str, Any]:
     """
     Recursively flattens a nested dictionary into a single-level dictionary.
 
@@ -33,6 +29,7 @@ def flatten_dict(
             items[new_key] = v
     return items
 
+
 def traverse_deepest_exception(exc: Exception) -> tuple[str, str]:
     """
     Traverses an exception chain to find the deepest (most nested) exception.
@@ -50,7 +47,7 @@ def traverse_deepest_exception(exc: Exception) -> tuple[str, str]:
 
     Returns:
         tuple[str, str]: A tuple containing the exception message and its location as "filename:lineno".
-    """ 
+    """
     visited: set[int] = set()
     deepest: BaseException | None = exc
     while deepest:
@@ -78,7 +75,7 @@ def traverse_deepest_exception(exc: Exception) -> tuple[str, str]:
         location = "Unknown"
     return message, location
 
+
 def describe_exception(exc: Exception) -> str:
     message, location = traverse_deepest_exception(exc)
     return f"Message: {message} Location: {location}"
-

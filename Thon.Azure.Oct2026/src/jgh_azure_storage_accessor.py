@@ -128,8 +128,11 @@ class AzureStorageAccessor:
         rejected, and NetworkError if the service is unreachable, times out or returns an unexpected HTTP error.
         Any other Azure failure is raised as the generic AppErrorBase.
         """
+
         async def operation() -> bool:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 container_exists: bool = await container_client.exists()
                 return container_exists
@@ -150,8 +153,11 @@ class AzureStorageAccessor:
         container that is still being deleted. In that case the caller should wait and retry.
         Any other Azure failure is raised as the generic AppErrorBase.
         """
+
         async def operation() -> bool:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 await _create_container_if_not_exists_async(container_client)
                 return True  # Already exists is not an error
@@ -171,7 +177,7 @@ class AzureStorageAccessor:
         Filters (both are case-sensitive, and when both are given a blob must satisfy both). Within name_contains,
         the items are OR-ed: a blob is kept if its name contains at least one of them.
 
-        name_starts_with  -- SERVER-SIDE filter. Matches the start of the full blob name, including 
+        name_starts_with  -- SERVER-SIDE filter. Matches the start of the full blob name, including
                              any virtual folder path. Sentinels meaning "no prefix filter, consider every blob":
                                None  -- the default; the filter is not supplied.
                                ""    -- an empty prefix; every name starts with "", so it is treated as None.
@@ -197,12 +203,15 @@ class AzureStorageAccessor:
         AuthenticationError if the credentials are rejected, and NetworkError if the service is unreachable,
         times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
+
         async def operation() -> list[BlobProperties]:
             prefix = _normalise_filter(name_starts_with)
             substrings = _normalise_filter_list(name_contains)
 
             blobs: list[BlobProperties] = []
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
                     if substrings is None or any(s in properties_of_blob.name for s in substrings):
@@ -212,10 +221,7 @@ class AzureStorageAccessor:
         return await _execute_async("Unable to list blobs.", operation)
 
     async def get_if_blob_exists_async(
-        self,
-        storage_account_connection_string: str,
-        container_name: str,
-        blob_name: str
+        self, storage_account_connection_string: str, container_name: str, blob_name: str
     ) -> bool:
         """
         Returns True if the blob exists, False if it does not. A missing blob is a normal answer here, not an error.
@@ -227,8 +233,11 @@ class AzureStorageAccessor:
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
+
         async def operation() -> bool:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 blob_exists: bool = await blob_client.exists()
                 return blob_exists
@@ -236,10 +245,7 @@ class AzureStorageAccessor:
         return await _execute_async("Unable to determine if blob exists.", operation)
 
     async def delete_blob_if_exists_async(
-        self,
-        storage_account_connection_string: str,
-        container_name: str,
-        blob_name: str
+        self, storage_account_connection_string: str, container_name: str, blob_name: str
     ) -> bool:
         """
         Returns True if the blob (and its snapshots) was deleted, False if it was not found. A missing blob is a
@@ -253,8 +259,11 @@ class AzureStorageAccessor:
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase. See the class
         docstring for how permission failures (HTTP 403) are reported.
         """
+
         async def operation() -> bool:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 try:
                     await blob_client.delete_blob(delete_snapshots="include")
@@ -267,10 +276,7 @@ class AzureStorageAccessor:
         return await _execute_async("Unable to delete blob.", operation)
 
     async def get_absolute_uri_of_blob_async(
-        self,
-        storage_account_connection_string: str,
-        container_name: str,
-        blob_name: str
+        self, storage_account_connection_string: str, container_name: str, blob_name: str
     ) -> str | None:
         """
         Returns the blob's absolute URL, or None if the blob does not exist. None is also returned if the
@@ -293,8 +299,11 @@ class AzureStorageAccessor:
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
+
         async def operation() -> str | None:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 if not await blob_client.exists():
                     return None
@@ -333,6 +342,7 @@ class AzureStorageAccessor:
         AppErrorBase. If an error is raised, the caller should not
         assume that the blob was left unchanged.
         """
+
         async def operation() -> str:
             if not isinstance(blob_contents, str):
                 raise TypeError(f"blob_contents must be str, not {type(blob_contents).__name__}.")
@@ -342,7 +352,7 @@ class AzureStorageAccessor:
                 blob_name,
                 blob_contents.encode("utf-8"),
                 overwrite=overwrite,
-                create_container_if_not_exist=create_container_if_not_exist
+                create_container_if_not_exist=create_container_if_not_exist,
             )
 
         return await _execute_async("Unable to upload.", operation)
@@ -376,11 +386,16 @@ class AzureStorageAccessor:
         such as the container still being deleted. In that case the caller should wait and retry. Any other Azure
         failure is raised as the generic AppErrorBase. If an error is raised, the caller should not assume that
         the blob was left unchanged.
-        """ 
+        """
+
         async def operation() -> str:
             if not isinstance(blob_contents, bytes | bytearray | memoryview):
-                raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+                raise TypeError(
+                    f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}."
+                )
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 if create_container_if_not_exist:
                     await _create_container_if_not_exists_async(container_client)
@@ -389,7 +404,7 @@ class AzureStorageAccessor:
                 await blob_client.upload_blob(
                     blob_contents,
                     overwrite=overwrite,
-                    content_settings=ContentSettings(content_type=most_likely_mime_type_title)
+                    content_settings=ContentSettings(content_type=most_likely_mime_type_title),
                 )
                 uploaded_blob_uri: str = blob_client.url
                 return uploaded_blob_uri
@@ -397,10 +412,7 @@ class AzureStorageAccessor:
         return await _execute_async("Unable to upload.", operation)
 
     async def download_async(
-        self,
-        storage_account_connection_string: str,
-        container_name: str,
-        blob_name: str
+        self, storage_account_connection_string: str, container_name: str, blob_name: str
     ) -> bytes:
         """
         Returns the blob's full contents as bytes, read entirely into memory. This is unsuitable for very large
@@ -414,13 +426,14 @@ class AzureStorageAccessor:
         Azure failure is raised as the generic AppErrorBase. A failure part-way through the transfer is also
         raised, never returned as truncated data.
         """
+
         async def operation() -> bytes:
-            async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
+            async with BlobServiceClient.from_connection_string(
+                storage_account_connection_string
+            ) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 downloader = await blob_client.download_blob()
                 blob_bytes: bytes = await downloader.readall()
                 return blob_bytes
 
         return await _execute_async("Unable to download blob.", operation)
-
-

@@ -27,7 +27,7 @@ logger = logging.getLogger()
 def read_file_named_by_zwiftId_to_tuple_sync[T: HasZwiftID, DTO: BaseModel](
     file_path: str,
     data_transfer_class: type[DTO],
-    function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T]
+    function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T],
 ) -> tuple[str | None, T | None, str | None]:
     """
     Reads a JSON file whose filename (without extension) is a Zwift ID, validates and deserializes it into a DTO,
@@ -69,12 +69,13 @@ def read_file_named_by_zwiftId_to_tuple_sync[T: HasZwiftID, DTO: BaseModel](
     item.zwift_id = filename_fragment
     return filename_fragment, item, None
 
+
 def read_many_files_named_by_zwiftId_to_dict_sync[T: HasZwiftID, DTO: BaseModel](
     dirpath: Path,
     specified_zwiftIDs: list[str] | None,
     data_transfer_class: type[DTO],
     corresponding_item_class: type[T],
-    function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T]
+    function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T],
 ) -> dict[str, T]:
     """
     Reads JSON files from a directory where each filename (without extension) represents a Zwift ID.
@@ -106,68 +107,65 @@ def read_many_files_named_by_zwiftId_to_dict_sync[T: HasZwiftID, DTO: BaseModel]
     file_paths, message = find_all_file_paths_in_folder(dirpath, specified_zwiftIDs, ".json")
 
     if file_paths is None:
-        log_event(
-            logger,
-            message=f"File discovery failed: {message}",
-            level=logging.ERROR
-        )
+        log_event(logger, message=f"File discovery failed: {message}", level=logging.ERROR)
         raise AlertMessageError(message=f"File discovery failed: {message}")
     elif not file_paths:
         log_event(
-            logger,
-            message=f"No JSON files found in directory: {dirpath}. Details: {message}",
-            level=logging.ERROR
+            logger, message=f"No JSON files found in directory: {dirpath}. Details: {message}", level=logging.ERROR
         )
         return {}
 
     def _read_one(file_path: str) -> tuple[str | None, T | None, str | None]:
-        return read_file_named_by_zwiftId_to_tuple_sync(file_path, data_transfer_class, function_to_translate_from_dto_to_corresponding_item)
+        return read_file_named_by_zwiftId_to_tuple_sync(
+            file_path, data_transfer_class, function_to_translate_from_dto_to_corresponding_item
+        )
 
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(_read_one, fp): fp for fp in file_paths}
         for future in as_completed(futures):
             zwift_id, item, error = future.result()
             if error is not None:
-                log_event(
-                    logger,
-                    message=error,
-                    level=logging.ERROR
-                )
+                log_event(logger, message=error, level=logging.ERROR)
             elif zwift_id and item:
                 answer[zwift_id] = item
 
     log_event(
         logger,
         message=f"Imported {len(answer)} profiles from {len(file_paths)} files. Skipped {len(file_paths) - len(answer)} bad files.",
-        level=logging.INFO
+        level=logging.INFO,
     )
     return answer
 
-def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftItem]:
-    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
-                                                         specified_zwiftIDs, 
-                                                         ZwiftDTO, 
-                                                         ZwiftItem, 
-                                                         ZwiftItem.from_dataTransferObject)
 
-    #zeroise the height of each zwift item, at stewart's temporary request
+def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftItem]:
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(
+        dirpath, specified_zwiftIDs, ZwiftDTO, ZwiftItem, ZwiftItem.from_dataTransferObject
+    )
+
+    # zeroise the height of each zwift item, at stewart's temporary request
     # for item in answer.values():
     #     item.height_mm = 0.0
 
     return answer
 
-def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftRacingAppItem]:
-    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
-                                                         specified_zwiftIDs, 
-                                                         ZwiftRacingAppDTO, 
-                                                         ZwiftRacingAppItem, 
-                                                         ZwiftRacingAppItem.from_dataTransferObject)
+
+def read_zwiftracingappdto_files_to_item_dict_sync(
+    dirpath: Path, specified_zwiftIDs: list[str] | None
+) -> dict[str, ZwiftRacingAppItem]:
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(
+        dirpath, specified_zwiftIDs, ZwiftRacingAppDTO, ZwiftRacingAppItem, ZwiftRacingAppItem.from_dataTransferObject
+    )
     return answer
 
-def read_zwiftpower90daywattsdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
-                                                         specified_zwiftIDs, 
-                                                         ZwiftPowerGraphWattsDTO, 
-                                                         ZwiftPowerFlattened90dayWattsItem, 
-                                                         ZwiftPowerFlattened90dayWattsItem.from_ZwiftPowerWattsDTO)
+
+def read_zwiftpower90daywattsdto_files_to_item_dict_sync(
+    dirpath: Path, specified_zwiftIDs: list[str] | None
+) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
+    answer = read_many_files_named_by_zwiftId_to_dict_sync(
+        dirpath,
+        specified_zwiftIDs,
+        ZwiftPowerGraphWattsDTO,
+        ZwiftPowerFlattened90dayWattsItem,
+        ZwiftPowerFlattened90dayWattsItem.from_ZwiftPowerWattsDTO,
+    )
     return answer

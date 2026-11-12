@@ -25,14 +25,15 @@ def cp_w_prime_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> ND
 
     return result
 
+
 def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray[np.float64]:
     """
     Computes a decay function using the formula: a * (1 / (xdata ** b)).
 
-    This function models an inverse exponential decay relationship between duration 
-    and power outut, where `a` is the scaling coefficient and `b` is the exponent 
+    This function models an inverse exponential decay relationship between duration
+    and power outut, where `a` is the scaling coefficient and `b` is the exponent
     controlling the rate of decay. The input array `xdata` must not contain values
-    less than 1 to avoid invalid computations.xdata are measured in seconds. 
+    less than 1 to avoid invalid computations.xdata are measured in seconds.
     ydata are measured in watts.
 
     Args:
@@ -46,15 +47,15 @@ def decay_model_numpy(xdata: NDArray[np.float64], a: float, b: float) -> NDArray
 
     Raises:
         ValueError: If any value in `xdata` is less than 1, as this would lead to invalid computations.
-          """
+    """
 
     if np.any(xdata < 1):
         raise ValueError("Jgh error message: input xdata must not contain values less than 1.")
 
-    result: NDArray[np.float64] = a * (1 / (xdata ** b))
+    result: NDArray[np.float64] = a * (1 / (xdata**b))
 
     return result
 
-def solve_decay_model_for_x_numpy(a : float, b : float, ydata: NDArray[np.float64]) -> NDArray[np.float64]:
-    return (a / ydata) ** (1 / b)
 
+def solve_decay_model_for_x_numpy(a: float, b: float, ydata: NDArray[np.float64]) -> NDArray[np.float64]:
+    return (a / ydata) ** (1 / b)

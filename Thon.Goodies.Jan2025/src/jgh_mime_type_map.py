@@ -11,6 +11,7 @@ Functions:
 
 All lookups are case-insensitive. If a mapping is not found, sensible defaults or exceptions are used.
 """
+
 import logging
 import os
 
@@ -27,7 +28,6 @@ _EXT_TO_MIME = {
     ".webp": "image/webp",
     ".svg": "image/svg+xml",
     ".ico": "image/x-icon",
-
     # Documents
     ".pdf": "application/pdf",
     ".doc": "application/msword",
@@ -43,20 +43,17 @@ _EXT_TO_MIME = {
     ".xml": "application/xml",
     ".html": "text/html",
     ".htm": "text/html",
-
     # Archives
     ".zip": "application/zip",
     ".tar": "application/x-tar",
     ".gz": "application/gzip",
     ".rar": "application/x-rar-compressed",
     ".7z": "application/x-7z-compressed",
-
     # Audio
     ".mp3": "audio/mpeg",
     ".wav": "audio/wav",
     ".ogg": "audio/ogg",
     ".m4a": "audio/mp4",
-
     # Video
     ".mp4": "video/mp4",
     ".mov": "video/quicktime",
@@ -64,7 +61,6 @@ _EXT_TO_MIME = {
     ".wmv": "video/x-ms-wmv",
     ".webm": "video/webm",
     ".mkv": "video/x-matroska",
-
     # Code/Text
     ".js": "application/javascript",
     ".css": "text/css",
@@ -77,8 +73,9 @@ for ext, mime in _EXT_TO_MIME.items():
     if mime not in _MIME_TO_EXT:
         _MIME_TO_EXT[mime] = ext
 
+
 def get_mime_type(extension: str) -> str:
-   """
+    """
     Returns the MIME type for a given file extension.
 
     Parameters:
@@ -93,9 +90,10 @@ def get_mime_type(extension: str) -> str:
         >>> get_mime_type('unknownext')
         'application/octet-stream'
     """
-   if not extension.startswith("."):
+    if not extension.startswith("."):
         extension = "." + extension
-   return _EXT_TO_MIME.get(extension.lower(), "application/octet-stream")
+    return _EXT_TO_MIME.get(extension.lower(), "application/octet-stream")
+
 
 def get_extension(mime_type: str, throw_error_if_not_found: bool = True) -> str:
     """
@@ -125,6 +123,7 @@ def get_extension(mime_type: str, throw_error_if_not_found: bool = True) -> str:
         return ""
     return ext
 
+
 def get_extension_from_name(name: str) -> str:
     """
     Extracts and returns the file extension from a filename.
@@ -145,4 +144,3 @@ def get_extension_from_name(name: str) -> str:
     """
 
     return os.path.splitext(name)[1]
-

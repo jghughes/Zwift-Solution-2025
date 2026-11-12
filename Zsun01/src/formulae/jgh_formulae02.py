@@ -11,9 +11,7 @@ from slope_bucket_item import SlopeBucketItem
 # All of the following functions are called during parallel processing. Logging forbidden
 
 
-def solve_for_speed_at_standard_30sec_pull_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_standard_30sec_pull_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their 30-second pull power output (watts).
     """
@@ -27,9 +25,7 @@ def solve_for_speed_at_standard_30sec_pull_watts(
     return speed_kph
 
 
-def solve_for_speed_at_standard_1_minute_pull_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_standard_1_minute_pull_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their 1-minute pull power output (watts).
     """
@@ -43,9 +39,7 @@ def solve_for_speed_at_standard_1_minute_pull_watts(
     return speed_kph
 
 
-def solve_for_speed_at_standard_2_minute_pull_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_standard_2_minute_pull_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their 2-minute pull power output (watts).
     """
@@ -59,9 +53,7 @@ def solve_for_speed_at_standard_2_minute_pull_watts(
     return speed_kph
 
 
-def solve_for_speed_at_standard_3_minute_pull_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_standard_3_minute_pull_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their 3-minute pull power output (watts).
     """
@@ -75,9 +67,7 @@ def solve_for_speed_at_standard_3_minute_pull_watts(
     return speed_kph
 
 
-def solve_for_speed_at_standard_4_minute_pull_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_standard_4_minute_pull_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their 4-minute pull power output (watts).
     """
@@ -91,9 +81,7 @@ def solve_for_speed_at_standard_4_minute_pull_watts(
     return speed_kph
 
 
-def solve_for_speed_at_n_second_watts(
-    rider: RiderComputeItem, seconds: float, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_n_second_watts(rider: RiderComputeItem, seconds: float, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their power output (watts)
     for a specific duration in seconds.
@@ -108,9 +96,7 @@ def solve_for_speed_at_n_second_watts(
     return speed_kph
 
 
-def solve_for_speed_at_one_hour_watts(
-    rider: RiderComputeItem, slope_pc: float = 0.0
-) -> float:
+def solve_for_speed_at_one_hour_watts(rider: RiderComputeItem, slope_pc: float = 0.0) -> float:
     """
     Calculate the speed (km/h) for a rider given their one-hour power output (watts).
     """
@@ -124,9 +110,7 @@ def solve_for_speed_at_one_hour_watts(
     return speed_kph
 
 
-def _calculate_route_duration_at_constant_power(
-    rider: RiderComputeItem, route: RouteItem, power: float
-) -> RouteItem:
+def _calculate_route_duration_at_constant_power(rider: RiderComputeItem, route: RouteItem, power: float) -> RouteItem:
     """
     Calculate the total duration (in seconds) to ride a route at a
     constant mandated power.
@@ -143,23 +127,15 @@ def _calculate_route_duration_at_constant_power(
     # before doing anything else, we need to do a hack. if the total distance of the buckets is less than the total length of the route
     # (which it ordinarily well be), add the residual distance to the 0% slope bucket - creating a 0% bucket if there isn't one
 
-    candidate_distance_km: float = sum(
-        bucket.bucket_length_km for bucket in route.route_slope_buckets
-    )
+    candidate_distance_km: float = sum(bucket.bucket_length_km for bucket in route.route_slope_buckets)
 
     if candidate_distance_km < route.route_lead_in_km + route.route_length_km:
-        residual_distance: float = (
-            route.route_lead_in_km + route.route_length_km - candidate_distance_km
-        )
+        residual_distance: float = route.route_lead_in_km + route.route_length_km - candidate_distance_km
 
         #  DO a hack to deal with the fact that the route data is imperfect on https://veloviewer.com/segments but it the best we have.
         #  This code adds a 0% slope bucket with the residual distance if the total distance of the buckets is less than the total length of the route.
         zero_slope_bucket: SlopeBucketItem | None = next(
-            (
-                bucket
-                for bucket in route.route_slope_buckets
-                if bucket.bucket_slope_pc == 0.0
-            ),
+            (bucket for bucket in route.route_slope_buckets if bucket.bucket_slope_pc == 0.0),
             None,
         )
         if zero_slope_bucket:
@@ -230,10 +206,7 @@ def solve_for_route_duration_at_constant_90_day_best_using_binary_search(
     if not routeItem.route_slope_buckets:
         return routeItem
 
-    if (
-        rider.jgh_60_min_curve_coefficient <= 0.0
-        or rider.jgh_60_min_curve_exponent <= 0.0
-    ):
+    if rider.jgh_60_min_curve_coefficient <= 0.0 or rider.jgh_60_min_curve_exponent <= 0.0:
         return routeItem
 
     # Get ready
@@ -243,26 +216,18 @@ def solve_for_route_duration_at_constant_90_day_best_using_binary_search(
     # 1. Find Safe Upper Bound for binary-search
 
     CHUNK_OF_WATTS_PER_ITERATION = 20.0  # arbitrary
-    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = (
-        40  # 800 W conservative
-    )
+    SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND = 40  # 800 W conservative
 
     for _ in range(SUFFICIENT_ITERATIONS_TO_GUARANTEE_FINDING_A_SAFE_UPPER_BOUND):
         # Note: This mutates routeItem in-place.
-        simulated_route = _calculate_route_duration_at_constant_power(
-            rider, routeItem, upper_bound_watts
-        )
+        simulated_route = _calculate_route_duration_at_constant_power(rider, routeItem, upper_bound_watts)
 
         # Did the rider stall (velocity <= 0) because gravity beat their power?
-        if any(
-            bucket.calculated_bucket_duration_sec == float("inf")
-            for bucket in simulated_route.route_slope_buckets
-        ):
+        if any(bucket.calculated_bucket_duration_sec == float("inf") for bucket in simulated_route.route_slope_buckets):
             pass  # Stalled! The test power is simply too low. Loop must continue to increase watts.
         else:
             simulated_total_duration_sec = sum(
-                bucket.calculated_bucket_duration_sec
-                for bucket in simulated_route.route_slope_buckets
+                bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets
             )
             best_90_day_power_for_duration = float(
                 decay_model_numpy(
@@ -290,25 +255,18 @@ def solve_for_route_duration_at_constant_90_day_best_using_binary_search(
 
     while (
         (upper_bound_watts - lower_bound_watts) > REQUIRED_PRECISION_OF_WATTS
-        and binary_search_iterations
-        < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION
+        and binary_search_iterations < MAX_PERMITTED_ITERATIONS_TO_ACHIEVE_REQUIRED_PRECISION
     ):
         mid_point_watts = safe_divide((lower_bound_watts + upper_bound_watts), 2)
-        simulated_route = _calculate_route_duration_at_constant_power(
-            rider, routeItem, mid_point_watts
-        )
+        simulated_route = _calculate_route_duration_at_constant_power(rider, routeItem, mid_point_watts)
 
         # Did the rider stall on this attempt?
-        if any(
-            bucket.calculated_bucket_duration_sec == float("inf")
-            for bucket in simulated_route.route_slope_buckets
-        ):
+        if any(bucket.calculated_bucket_duration_sec == float("inf") for bucket in simulated_route.route_slope_buckets):
             # Power is too low to overcome gravity. Raise the lower bound to search higher.
             lower_bound_watts = mid_point_watts
         else:
             simulated_total_duration_sec = sum(
-                bucket.calculated_bucket_duration_sec
-                for bucket in simulated_route.route_slope_buckets
+                bucket.calculated_bucket_duration_sec for bucket in simulated_route.route_slope_buckets
             )
             best_90_day_power_for_duration = float(
                 decay_model_numpy(
@@ -317,9 +275,7 @@ def solve_for_route_duration_at_constant_90_day_best_using_binary_search(
                     rider.jgh_60_min_curve_exponent,
                 )[0]
             )
-            target_power_for_duration = (
-                best_90_day_power_for_duration * intensity_factor
-            )
+            target_power_for_duration = best_90_day_power_for_duration * intensity_factor
             if mid_point_watts > target_power_for_duration:
                 upper_bound_watts = mid_point_watts
             else:

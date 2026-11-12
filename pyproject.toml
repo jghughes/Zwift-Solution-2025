@@ -33,7 +33,7 @@ select = [
 # Repo-wide deferrals only for rules with hundreds of hits. Everything else is scoped per file below
 # so that new code is still checked. Remove entries as the code is cleaned up.
 ignore = [
-    "E501",   # line length (370 hits); revisit once `ruff format` has been applied
+    "E501",   # line length: `ruff format` handles code; 113 long strings/comments remain that it cannot wrap
 ]
 
 [tool.ruff.lint.per-file-ignores]

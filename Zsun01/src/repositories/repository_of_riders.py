@@ -24,33 +24,31 @@ from zwiftracingapp_item import ZwiftRacingAppItem
 
 @dataclass
 class RepositoryOfRiders:
+    _dict_of_ZwiftItem: dict[str, ZwiftItem] = field(default_factory=dict)
+    _dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
+    _dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
+    _dict_of_teamnames_per_rider: JghListDictionary[str, str] = field(default_factory=JghListDictionary)
 
-    _dict_of_ZwiftItem                  :   dict[str, ZwiftItem] = field(default_factory=dict)
-    _dict_of_ZwiftRacingAppItem         :   dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
-    _dict_of_ZwiftPower90dayWattsItem   :   dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_teamnames_per_rider        :   JghListDictionary[str, str] = field(default_factory=JghListDictionary)
+    _eligible_IDs: list[str] = field(default_factory=list)
+    _computed_dict_of_curveFitItem: dict[str, CurveFittingResultItem] = field(default_factory=dict)
+    _computed_dict_of_riderComputeItem: dict[str, RiderComputeItem] = field(default_factory=dict)
+    _computed_dict_of_riderStatsItem: dict[str, RiderStatsItem] = field(default_factory=dict)
 
-    _eligible_IDs                       :  list[str] = field(default_factory=list)
-    _computed_dict_of_curveFitItem      :  dict[str, CurveFittingResultItem] = field(default_factory=dict)
-    _computed_dict_of_riderComputeItem  :  dict[str, RiderComputeItem] = field(default_factory=dict)
-    _computed_dict_of_riderStatsItem    :  dict[str, RiderStatsItem] = field(default_factory=dict)
+    _singleSegment: SlopeBucketItem = field(default_factory=SlopeBucketItem)
 
-    _singleSegment           : SlopeBucketItem = field(default_factory = SlopeBucketItem)
-
-    _routeItem                : RouteItem | None = field(default_factory = RouteItem) 
+    _routeItem: RouteItem | None = field(default_factory=RouteItem)
 
     # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
 
     def populate_repository(
         self,
-        file_names: list[str] | None, # filenames are zwiftIDs. some of the files might or might not exist
+        file_names: list[str] | None,  # filenames are zwiftIDs. some of the files might or might not exist
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        folder_containing_generated_results_for_drs_events_dirpath : str,
-        routeItem: RouteItem | None = None
-    )->bool:
-
+        folder_containing_generated_results_for_drs_events_dirpath: str,
+        routeItem: RouteItem | None = None,
+    ) -> bool:
         """
         Loads rider data from all three data sources, performs curve fitting, and computes rider
         statistics. This is the single entry point for populating the repository and must be called
@@ -98,36 +96,39 @@ class RepositoryOfRiders:
             return read_zwiftdto_files_to_item_dict_sync(Path(zwift_dir_path), file_names)
 
         def _read_zwiftpower() -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
-            return read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(zwiftpower_90day_graph_watts_dir_path), file_names)
+            return read_zwiftpower90daywattsdto_files_to_item_dict_sync(
+                Path(zwiftpower_90day_graph_watts_dir_path), file_names
+            )
 
         def _read_zwiftracingapp() -> dict[str, ZwiftRacingAppItem]:
             return read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path), file_names)
 
         with ThreadPoolExecutor(max_workers=3) as executor:
-            future_zwift        = executor.submit(_read_zwift)
-            future_zwiftpower   = executor.submit(_read_zwiftpower)
-            future_racingapp    = executor.submit(_read_zwiftracingapp)
-            self._dict_of_ZwiftItem                 = future_zwift.result()
-            self._dict_of_ZwiftPower90dayWattsItem  = future_zwiftpower.result()
-            self._dict_of_ZwiftRacingAppItem        = future_racingapp.result()
-        
+            future_zwift = executor.submit(_read_zwift)
+            future_zwiftpower = executor.submit(_read_zwiftpower)
+            future_racingapp = executor.submit(_read_zwiftracingapp)
+            self._dict_of_ZwiftItem = future_zwift.result()
+            self._dict_of_ZwiftPower90dayWattsItem = future_zwiftpower.result()
+            self._dict_of_ZwiftRacingAppItem = future_racingapp.result()
+
         print("\n5. Fitting curves to 90-day power watts datapoints.")
 
         # now that we have read all the files that we could find, we need to determine the unique set of the union of zwiftIDs (dict keys) across all three datasets
         all_zwift_ids_as_set = set(self._dict_of_ZwiftItem.keys()).union(
-            self._dict_of_ZwiftPower90dayWattsItem.keys(),
-            self._dict_of_ZwiftRacingAppItem.keys()
+            self._dict_of_ZwiftPower90dayWattsItem.keys(), self._dict_of_ZwiftRacingAppItem.keys()
         )
         all_zwift_ids = list(all_zwift_ids_as_set)
 
-        self._computed_dict_of_curveFitItem = self._do_power_graph_curve_fitting(all_zwift_ids) #do first
+        self._computed_dict_of_curveFitItem = self._do_power_graph_curve_fitting(all_zwift_ids)  # do first
         print("\n6. Building RiderComputeItems.")
-        self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids) # do second
+        self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids)  # do second
         print("\n7. Building RiderStatsItems.")
-        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids) # do third
+        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do third
 
         if folder_containing_generated_results_for_drs_events_dirpath != "":
-            self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(Path(folder_containing_generated_results_for_drs_events_dirpath))
+            self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(
+                Path(folder_containing_generated_results_for_drs_events_dirpath)
+            )
             for zwift_id, team_names in self._dict_of_teamnames_per_rider.get_key_value_pairs():
                 if zwift_id in self._computed_dict_of_riderStatsItem:
                     self._computed_dict_of_riderStatsItem[zwift_id].team_names = ", ".join(team_names)
@@ -136,8 +137,7 @@ class RepositoryOfRiders:
 
         return True
 
-    # Getters for the repository    
-
+    # Getters for the repository
 
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids)
@@ -145,7 +145,9 @@ class RepositoryOfRiders:
     def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftRacingAppItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftRacingAppItem, zwift_ids)
 
-    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
+    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(
+        self, zwift_ids: list[str] | None
+    ) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
 
     def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderComputeItem]:
@@ -157,7 +159,6 @@ class RepositoryOfRiders:
     # ...the heavy lifting: building the repository
 
     def _do_power_graph_curve_fitting(self, zwift_ids: list[str] | None) -> dict[str, CurveFittingResultItem]:
-
         min_coordinates = 5
         skipped_count = 0
         answer: dict[str, CurveFittingResultItem] = {}
@@ -172,7 +173,6 @@ class RepositoryOfRiders:
         dict_of_90dayWattsItem = self.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwift_ids)
 
         for zwift_id, item in dict_of_90dayWattsItem.items():
-
             item.zwift_id = zwift_id
 
             ordinates = item.export_all_x_y_ordinates()
@@ -186,19 +186,25 @@ class RepositoryOfRiders:
                 # print(f"Repository message: ZwiftID={item.zwift_id} has empty data. Skipped.")
                 skipped_count += 1
                 continue
-        
+
             raw_xy_data_one_hour = item.export_x_y_ordinates_for_one_hour_zone_modelling()
             raw_xy_data_pull = item.export_x_y_ordinates_for_pull_zone_modelling()
             raw_xy_data_cp = item.export_x_y_ordinates_for_cp_w_prime_modelling()
 
-            if len(raw_xy_data_cp) < 5 or len(raw_xy_data_pull) < min_coordinates or len(raw_xy_data_one_hour) < min_coordinates:
+            if (
+                len(raw_xy_data_cp) < 5
+                or len(raw_xy_data_pull) < min_coordinates
+                or len(raw_xy_data_one_hour) < min_coordinates
+            ):
                 # print(f"Repository message: ZwiftID={item.zwift_id} is too sparse for reliable modelling. Skipped")
                 skipped_count += 1
                 continue
 
-            coefficient_one_hour, exponent_one_hour, r_squared_one_hour, _, _ = do_curve_fit_with_decay_model(raw_xy_data_one_hour)
-            coefficient_pull, exponent_pull, r_squared_pull, _, _             = do_curve_fit_with_decay_model(raw_xy_data_pull)
-            critical_power, anaerobic_work_capacity, _, _, _                  = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
+            coefficient_one_hour, exponent_one_hour, r_squared_one_hour, _, _ = do_curve_fit_with_decay_model(
+                raw_xy_data_one_hour
+            )
+            coefficient_pull, exponent_pull, r_squared_pull, _, _ = do_curve_fit_with_decay_model(raw_xy_data_pull)
+            critical_power, anaerobic_work_capacity, _, _, _ = do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp)
 
             answer[zwift_id] = build_CurveFittingResultItem(
                 zwift_id,
@@ -211,7 +217,9 @@ class RepositoryOfRiders:
                 critical_power,
                 anaerobic_work_capacity,
             )
-        print(f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_90dayWattsItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
+        print(
+            f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_90dayWattsItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}."
+        )
         return answer
 
     def _make_dict_of_RiderComputeItem(self, zwift_ids: list[str] | None) -> dict[str, RiderComputeItem]:
@@ -234,7 +242,6 @@ class RepositoryOfRiders:
             Only riders with both a ZwiftItem and a CurveFittingResultItem are included.
         """
 
-
         answer: dict[str, RiderComputeItem] = {}
 
         if zwift_ids is None:
@@ -243,7 +250,6 @@ class RepositoryOfRiders:
         print(f"Repository message: computing rider brute items for {len(zwift_ids)} candidates.")
 
         for key in zwift_ids:
-
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
                 continue  # skip this rider if no Zwift data
@@ -295,7 +301,6 @@ class RepositoryOfRiders:
         print(f"Repository message: computing rider stats items for {len(zwift_ids)} riders.")
 
         for key in zwift_ids:
-
             zwiftItem = self._dict_of_ZwiftItem.get(key)
             if zwiftItem is None:
                 continue  # skip this key/rider if no Zwift data
@@ -305,10 +310,9 @@ class RepositoryOfRiders:
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
-                self._routeItem
+                self._routeItem,
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")
 
         return answer
-

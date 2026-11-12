@@ -13,6 +13,7 @@ Example:
     renderer = HtmlTemplateRenderer(Path("templates"))
     html = renderer.render("page.html", PageModel(title="Hello", body_html="<p>Hi</p>"))
 """
+
 from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
 from pathlib import Path

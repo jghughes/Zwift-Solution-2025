@@ -9,4 +9,3 @@ class PacelinePlanTypeEnum(Enum):
     FASTEST = "fastest"
     FASTEST_STRONGEST_FIVE = "last_five"
     FASTEST_STRONGEST_FOUR = "last_four"
-

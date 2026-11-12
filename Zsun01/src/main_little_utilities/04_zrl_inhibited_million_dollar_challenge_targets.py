@@ -30,7 +30,9 @@ async def generate_team_targets() -> None:
     print("Tool starting")
 
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
+        throw_if_any_dirpath_invalid_or_not_exists(
+            [Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)]
+        )
     except Exception as err:
         print(err)
         return
@@ -42,29 +44,32 @@ async def generate_team_targets() -> None:
         return
 
     # ===========================
-    print(f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}")
+    print(
+        f"\ndownloading riderDTO from Azure Blob Storage\n   Account: {AZURE_ACCOUNTNAME_ZSUN}\n   Container: {AZURE_CONTAINERNAME_ZSUN}\n   Blob: {AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST}"
+    )
     # ===========================
 
     try:
         azure_client = AzureStorageServiceClient()
 
-        blob_as_bytes : bytes = await azure_client.download_block_blob_as_bytes_async(AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST)
+        blob_as_bytes: bytes = await azure_client.download_block_blob_as_bytes_async(
+            AZURE_ACCOUNTNAME_ZSUN, AZURE_CONTAINERNAME_ZSUN, AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST
+        )
         blob_size = make_pretty_count_of_bytes(len(blob_as_bytes))
         # ===========================
         print(f"\ndownloaded {blob_size}")
         # ===========================
-        blob_as_text = blob_as_bytes.decode('utf-8')
+        blob_as_text = blob_as_bytes.decode("utf-8")
 
         something = json.loads(blob_as_text)
         list_of_RiderDTO: list[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
         list_of_RiderItem: list[RiderComputeItem] = [
-            RiderComputeItem.from_dataTransferObject(rider_compute_dto)
-            for rider_compute_dto in list_of_RiderDTO]
+            RiderComputeItem.from_dataTransferObject(rider_compute_dto) for rider_compute_dto in list_of_RiderDTO
+        ]
 
         dict_of_RiderItem: dict[str, RiderComputeItem] = {
-            rider_dataclasses.zwift_id: rider_dataclasses
-            for rider_dataclasses in list_of_RiderItem
-        }    
+            rider_dataclasses.zwift_id: rider_dataclasses for rider_dataclasses in list_of_RiderItem
+        }
         print(f"\ncount of riders: {len(list_of_RiderDTO)}")
     except Exception as e:
         print(f"rider data not obtained.\n - Error message: {e}")
@@ -72,12 +77,14 @@ async def generate_team_targets() -> None:
 
     try:
         _riderIDs: list[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
-        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
+        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(
+            _riderIDs, dict_of_RiderItem, RiderComputeItem
+        )
     except Exception:
         print("Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return
 
-    riders = order_paceline_by_desired_order_of_riders  (full_team_of_riders)
+    riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
 
     show_table_of_standard_proxy_speeds_for_all_riders(riders)
 
@@ -86,23 +93,25 @@ async def generate_team_targets() -> None:
     # ===========================
 
     for r in riders:
-        watts  = r.get_n_second_curvefit_y_ordinate_watts(960) 
+        watts = r.get_n_second_curvefit_y_ordinate_watts(960)
         wkg = watts / r.weight_kg if r.weight_kg > 0 else 0.0
         print(f" - {r.name:20} {r.velo_cat_name_30_days:10} {watts:3.0f}w {wkg:4.1f}w/kg")
 
     print("\nwork complete.\n")
     print("\nyou may close the app. thank you.\n")
 
+
 if __name__ == "__main__":
     from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
+
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()
 
     try:
         throw_if_no_internet_connection()
 
-        _team_name = "inhibited" 
+        _team_name = "inhibited"
 
         start_time = time.time()
         asyncio.run(generate_team_targets())
@@ -115,5 +124,7 @@ if __name__ == "__main__":
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"\n{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")

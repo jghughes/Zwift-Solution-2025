@@ -68,54 +68,56 @@ validation_alias_choices_map_consolidated: dict[str, AliasChoices] = {
 }
 
 configdictV1 = ConfigDict(
-        alias_generator=AliasGenerator(
-            alias=None,
-            validation_alias=lambda field_name: validation_alias_choices_map_consolidated.get(field_name, field_name)))
+    alias_generator=AliasGenerator(
+        alias=None,
+        validation_alias=lambda field_name: validation_alias_choices_map_consolidated.get(field_name, field_name),
+    )
+)
 
 preferred_config_dict = configdictV1
 
+
 class MixedThingsDTO(BaseModel):
-    model_config  = preferred_config_dict
+    model_config = preferred_config_dict
     velo_cat_name: str | None = ""
     velo_cat_num: int | None = 0
 
+
 class RatingScoreDTO(BaseModel):
-    model_config  = preferred_config_dict
-    velo_rating         : float | None           = 0.0 
-    mixed_things_obj    : MixedThingsDTO | None  = Field(default_factory=MixedThingsDTO)
+    model_config = preferred_config_dict
+    velo_rating: float | None = 0.0
+    mixed_things_obj: MixedThingsDTO | None = Field(default_factory=MixedThingsDTO)
+
 
 class RaceDTO(BaseModel):
-    model_config  = preferred_config_dict
-    racing_score_max30_obj    : RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
-    racing_score_max90_obj    : RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
+    model_config = preferred_config_dict
+    racing_score_max30_obj: RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
+    racing_score_max90_obj: RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
+
 
 class PowerDTO(BaseModel):
-    model_config  = preferred_config_dict
-    wkg_5s          : float | None = 0.0
-    wkg_15s         : float | None = 0.0
-    wkg_30s         : float | None = 0.0
-    wkg_60s         : float | None = 0.0
-    wkg_120s        : float | None = 0.0
-    wkg_300s        : float | None = 0.0
-    wkg_1200s       : float | None = 0.0
-    w_5s            : float | None = 0.0
-    w_15s           : float | None = 0.0
-    w_30s           : float | None = 0.0
-    w_60s           : float | None = 0.0
-    w_120s          : float | None = 0.0
-    w_300s          : float | None = 0.0
-    w_1200s         : float | None = 0.0
-    w_CP            : float | None = 0.0  # Critical Power
-    kJ_AWC           : float | None = 0.0  # Anaerobic Work Capacity
+    model_config = preferred_config_dict
+    wkg_5s: float | None = 0.0
+    wkg_15s: float | None = 0.0
+    wkg_30s: float | None = 0.0
+    wkg_60s: float | None = 0.0
+    wkg_120s: float | None = 0.0
+    wkg_300s: float | None = 0.0
+    wkg_1200s: float | None = 0.0
+    w_5s: float | None = 0.0
+    w_15s: float | None = 0.0
+    w_30s: float | None = 0.0
+    w_60s: float | None = 0.0
+    w_120s: float | None = 0.0
+    w_300s: float | None = 0.0
+    w_1200s: float | None = 0.0
+    w_CP: float | None = 0.0  # Critical Power
+    kJ_AWC: float | None = 0.0  # Anaerobic Work Capacity
 
     @field_validator(
-        *[
-            field
-            for field, field_type in __annotations__.items()
-            if _is_optional_float_annotation(field_type)
-        ],
+        *[field for field, field_type in __annotations__.items() if _is_optional_float_annotation(field_type)],
     )
-    def validate_float_fields(cls, value : Any) -> float | None:
+    def validate_float_fields(cls, value: Any) -> float | None:
         if value is None:
             return None
         try:
@@ -125,32 +127,33 @@ class PowerDTO(BaseModel):
             # Return None for non-float values
             return None
 
+
 class ZwiftRacingAppDTO(BaseModel):
-	model_config			=	preferred_config_dict
-	zwift_id				:	str					=	""		# Zwift ID of the rider
-	full_name				:	str | None		=	""		# Name of the rider
-	gender_code				:	str | None		=	""		# Gender of the rider "M" or "F"
-	country_code2			:	str | None		=	""		# Country of the rider
-	age_group				:	str | None		=	""		# Age category of the rider eg 50+
-	height_cm				:	float | None		=	0.0		# Height of the rider in centimeters
-	weight_kg				:	float | None		=	0.0		# Weight of the rider in kilograms
-	zp_race_category		:	str | None		=	""		# ZwiftPower category, such as C or D
-	zp_FTP					:	float | None		=	0.0		# ZwiftPower FTP (Functional Threshold Power)
-	power_obj				:	PowerDTO | None	=	Field(default_factory=PowerDTO)		# Power data of the rider
-	race_obj				:	RaceDTO | None	=	Field(default_factory=RaceDTO)		# Race data of the rider
-	velo_obj				:	RaceDTO | None	=	Field(default_factory=RaceDTO)		# Velo2 data of the rider
-	timestamp				:	str | None		=	""		# Date when the Zwift Racing App was last_name updated
+    model_config = preferred_config_dict
+    zwift_id: str = ""  # Zwift ID of the rider
+    full_name: str | None = ""  # Name of the rider
+    gender_code: str | None = ""  # Gender of the rider "M" or "F"
+    country_code2: str | None = ""  # Country of the rider
+    age_group: str | None = ""  # Age category of the rider eg 50+
+    height_cm: float | None = 0.0  # Height of the rider in centimeters
+    weight_kg: float | None = 0.0  # Weight of the rider in kilograms
+    zp_race_category: str | None = ""  # ZwiftPower category, such as C or D
+    zp_FTP: float | None = 0.0  # ZwiftPower FTP (Functional Threshold Power)
+    power_obj: PowerDTO | None = Field(default_factory=PowerDTO)  # Power data of the rider
+    race_obj: RaceDTO | None = Field(default_factory=RaceDTO)  # Race data of the rider
+    velo_obj: RaceDTO | None = Field(default_factory=RaceDTO)  # Velo2 data of the rider
+    timestamp: str | None = ""  # Date when the Zwift Racing App was last_name updated
 
-	# Validator for zwift_id to convert int to string
-	@field_validator("zwift_id", mode="before")
-	def convert_int_to_str(cls, value : Any) -> str:
-		if isinstance(value, int):
-			return str(value)
-		return cast(str, value)
+    # Validator for zwift_id to convert int to string
+    @field_validator("zwift_id", mode="before")
+    def convert_int_to_str(cls, value: Any) -> str:
+        if isinstance(value, int):
+            return str(value)
+        return cast(str, value)
 
-	# Validator for string fields - get rid of
-	@field_validator("full_name", mode="before")
-	def sanitise_string_field(cls, value : Any) -> str:
-		if value is None:
-			return ""
-		return sanitise_string(value)
+    # Validator for string fields - get rid of
+    @field_validator("full_name", mode="before")
+    def sanitise_string_field(cls, value: Any) -> str:
+        if value is None:
+            return ""
+        return sanitise_string(value)

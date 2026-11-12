@@ -48,13 +48,18 @@ from rider_compute_item import RiderComputeItem
 
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExertionItem]], max_exertion_intensity_factor : float ) -> dict[RiderComputeItem, RiderContributionItem]:
-
-    def extract_watts_sequentially(exertions: list[RiderExertionItem]) -> tuple[float, float, float, float, float, float, float, float]:
+def populate_rider_contributions(
+    riders: dict[RiderComputeItem, list[RiderExertionItem]], max_exertion_intensity_factor: float
+) -> dict[RiderComputeItem, RiderContributionItem]:
+    def extract_watts_sequentially(
+        exertions: list[RiderExertionItem],
+    ) -> tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
-            return 0, 0, 0, 0, 0,0,0,0
+            return 0, 0, 0, 0, 0, 0, 0, 0
 
-        dict_wattages: dict[int, float] = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
+        dict_wattages: dict[int, float] = {
+            exertion.current_location_in_paceline: exertion.wattage for exertion in exertions
+        }
 
         p1 = dict_wattages.get(1, 0)
         p2 = dict_wattages.get(2, 0)
@@ -71,10 +76,12 @@ def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExerti
         if not exertions:
             return 0, 0
 
-        p1_speed_kph : float = 0.0
-        p1_duration : float = 0
+        p1_speed_kph: float = 0.0
+        p1_duration: float = 0
 
-        dict_positions: dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}
+        dict_positions: dict[int, RiderExertionItem] = {
+            exertion.current_location_in_paceline: exertion for exertion in exertions
+        }
 
         pull_exertion = dict_positions.get(1)
 
@@ -85,27 +92,29 @@ def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExerti
         p1_duration = pull_exertion.duration
 
         return p1_speed_kph, p1_duration
- 
-    answer : dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)
+
+    answer: dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
         p1_speed_kph, p1_duration = extract_pull_metrics(exertions)
         rider_contribution = RiderContributionItem(
-            speed_kph           = p1_speed_kph,
-            p1_duration         = p1_duration,
-            p1_w                = p1w,
-            p2_w                = p2w,
-            p3_w                = p3w,
-            p4_w                = p4w,
-            p5_w                = p5w,
-            p6_w                = p6w,
-            p7_w                = p7w,
-            p8_w                = p8w,
-            average_watts       = calculate_overall_average_watts(exertions),
-            normalized_watts    = calculate_overall_normalized_watts(exertions),
+            speed_kph=p1_speed_kph,
+            p1_duration=p1_duration,
+            p1_w=p1w,
+            p2_w=p2w,
+            p3_w=p3w,
+            p4_w=p4w,
+            p5_w=p5w,
+            p6_w=p6w,
+            p7_w=p7w,
+            p8_w=p8w,
+            average_watts=calculate_overall_average_watts(exertions),
+            normalized_watts=calculate_overall_normalized_watts(exertions),
         )
-        rider_contribution.intensity_factor = safe_divide(rider_contribution.normalized_watts,rider.get_1_hour_curvefit_watts())
+        rider_contribution.intensity_factor = safe_divide(
+            rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts()
+        )
 
         if rider_contribution.p1_duration != 0.0:
             msg = ""
@@ -126,33 +135,22 @@ def log_rider_contributions(test_description: str, result: dict[RiderComputeItem
     print(test_description)
     table: list[list[object]] = []
     for rider, z in result.items():
-        table.append([
-            rider.name, 
-            z.p1_duration,
-            round(z.p1_w), 
-            round(z.p2_w), 
-            round(z.p3_w), 
-            round(z.p4_w), 
-            round(z.p5_w), 
-            # round(z.p6_w), 
-            # round(z.p7_w), 
-            # round(z.p8_w), 
-            round(z.average_watts), 
-            round(z.normalized_watts), 
-            z.effort_constraint_violation_reason
-        ])
-    headers = [
-        "name", 
-        "p1_sec", 
-        "p1_w", 
-        "p2", 
-        "p3", 
-        "p4", 
-        "p5", 
-        "ave_w", 
-        "NP_w", 
-        "limit"
-    ]
+        table.append(
+            [
+                rider.name,
+                z.p1_duration,
+                round(z.p1_w),
+                round(z.p2_w),
+                round(z.p3_w),
+                round(z.p4_w),
+                round(z.p5_w),
+                # round(z.p6_w),
+                # round(z.p7_w),
+                # round(z.p8_w),
+                round(z.average_watts),
+                round(z.normalized_watts),
+                z.effort_constraint_violation_reason,
+            ]
+        )
+    headers = ["name", "p1_sec", "p1_w", "p2", "p3", "p4", "p5", "ave_w", "NP_w", "limit"]
     print(tabulate(table, headers=headers, tablefmt="simple", disable_numparse=True))
-
-

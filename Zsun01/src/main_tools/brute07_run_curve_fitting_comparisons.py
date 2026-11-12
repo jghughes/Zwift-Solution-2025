@@ -1,4 +1,3 @@
-
 import logging
 import time
 from pathlib import Path
@@ -25,10 +24,14 @@ from zwiftid_named_file_reader import (
 
 
 def run_curve_fitting_comparisons() -> None:
-
-
     try:
-        throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), Path(DIRPATH_RUBBISH_SCRATCHPAD)])
+        throw_if_any_dirpath_invalid_or_not_exists(
+            [
+                Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),
+                Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
+                Path(DIRPATH_RUBBISH_SCRATCHPAD),
+            ]
+        )
     except Exception as err:
         print(err)
         return
@@ -42,26 +45,41 @@ def run_curve_fitting_comparisons() -> None:
     team_name = "scratchpad"
     output_file_name = "zsunwatts_graphs_for_testIDs.json"
 
-
     test_IDs = RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
 
-    dict_of_zwift_profiles_for_test_IDs = read_zwiftdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFT_FILES), test_IDs) # merely need this to get the first_name and last_name names of the riders
+    dict_of_zwift_profiles_for_test_IDs = read_zwiftdto_files_to_item_dict_sync(
+        Path(DIRPATH_ZWIFT_FILES), test_IDs
+    )  # merely need this to get the first_name and last_name names of the riders
 
-    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), test_IDs) 
+    dict_of_zsunwatts_graphs_for_testIDs = read_zwiftpower90daywattsdto_files_to_item_dict_sync(
+        Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), test_IDs
+    )
 
-    write_zwiftpower_90day_watts_dict_to_json(Path(DIRPATH_RUBBISH_SCRATCHPAD), output_file_name, dict_of_zsunwatts_graphs_for_testIDs)
+    write_zwiftpower_90day_watts_dict_to_json(
+        Path(DIRPATH_RUBBISH_SCRATCHPAD), output_file_name, dict_of_zsunwatts_graphs_for_testIDs
+    )
 
     # log all the x and y data for all riders in pretty tables
 
     for zwift_id, ZwiftPowerFlattened90dayWattsItem in dict_of_zsunwatts_graphs_for_testIDs.items():
-        name = dict_of_zwift_profiles_for_test_IDs[zwift_id].first_name + " " + dict_of_zwift_profiles_for_test_IDs[zwift_id].last_name
-        x_y_ordinates = ZwiftPowerFlattened90dayWattsItem.export_all_x_y_ordinates()  # Export critical power data as a dictionary
+        name = (
+            dict_of_zwift_profiles_for_test_IDs[zwift_id].first_name
+            + " "
+            + dict_of_zwift_profiles_for_test_IDs[zwift_id].last_name
+        )
+        x_y_ordinates = (
+            ZwiftPowerFlattened90dayWattsItem.export_all_x_y_ordinates()
+        )  # Export critical power data as a dictionary
         table_data = [[x, y] for x, y in x_y_ordinates.items()]  # Convert dictionary to a list of [x, y] pairs
         table_headers = ["Time (x) [seconds]", "Power (y) [watts]"]  # Define table headers
 
-        print(f"ZwiftPowerFlattened90dayWattsItem ordinates for ZwiftID: {zwift_id}  Name: {name}\n" + tabulate(table_data, headers=table_headers, tablefmt="simple"))
+        print(
+            f"ZwiftPowerFlattened90dayWattsItem ordinates for ZwiftID: {zwift_id}  Name: {name}\n"
+            + tabulate(table_data, headers=table_headers, tablefmt="simple")
+        )
 
-#main runner
+
+# main runner
 if __name__ == "__main__":
     import logging
 
@@ -73,7 +91,6 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     try:
-
         start_time = time.time()
         run_curve_fitting_comparisons()
         end_time = time.time()
@@ -85,8 +102,7 @@ if __name__ == "__main__":
         log_event(logger, message=alert_err.message, level=logging.INFO, exception=alert_err)
         print(f"\n{alert_err.message}\n")
     except Exception as ex:
-        log_event(logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex) # Pass the original exception object
+        log_event(
+            logger, message=f"Unhandled Exception: {ex}", level=logging.ERROR, exception=ex
+        )  # Pass the original exception object
         print(f"\nUnhandled Exception: {ex}\n\nPlease check the logs for details.\n\nDirpath: {DIRPATH_LOGGING}\n\n")
-
-
-

@@ -9,7 +9,7 @@ class RepositoryOfTeamRosters:
 
     Attributes:
         _team_rosters_as_dict_of_list (dict[str, list[tuple[str, str]]]):
-            Maps team nicknames to ordered lists of (Zwift ID, nickname) tuples. A rider 
+            Maps team nicknames to ordered lists of (Zwift ID, nickname) tuples. A rider
             may appear more than once in a roster, filling more than one slot.
         _team_exertion_intensity_factors_as_dict (dict[str, float]):
             Maps team nicknames to their exertion intensity factor.
@@ -42,7 +42,7 @@ class RepositoryOfTeamRosters:
             "inhibited": 0.95,
             "rangers": 0.8,
             "rangers2026": 0.95,
-        }
+        },
     )
 
     _team_rosters_as_dict_of_list: dict[str, list[tuple[str, str]]] = defaultdict(
@@ -83,42 +83,41 @@ class RepositoryOfTeamRosters:
                 # ("5421258", "tim_reid"),
                 # ("11741", "tom_bick"),
                 ("7460730", "tony_chang"),
-
             ],
             "test": [
                 # ("5490373", "barry_beck"),
                 # ("991817", "brandi_steeve"),
                 # ("9011", "bryan_bumpas"),
-            #     ("163795", "colin_fetter"),
-            #     ("5569057", "cory_cook"),
-            #     ("3147366", "dave_konicek"),
-            #     ("4945836", "david_evanetich"),
-            #     ("523861", "gary_putlock"),
-            #     ("183277", "giao_nguyen"),
-            #     ("5134", "husky_crone"),
+                #     ("163795", "colin_fetter"),
+                #     ("5569057", "cory_cook"),
+                #     ("3147366", "dave_konicek"),
+                #     ("4945836", "david_evanetich"),
+                #     ("523861", "gary_putlock"),
+                #     ("183277", "giao_nguyen"),
+                #     ("5134", "husky_crone"),
                 ("1884456", "john_hughes"),
                 # ("1884456", "john_hughes"),
                 # ("1884456", "john_hughes"),
-            #     ("2508033", "josh_neil"),
-            #     ("2803600", "larry_mccamon"),
-            #     ("383480", "lynsey_segal"),
-            #     ("5530045", "mark_brzezinski"),
-            #     ("1024413", "matt_steeve"),
-            #     ("2902662", "matthew_wongkee"),
-            #     ("1657744", "melissa_warwick"),
-            #     ("1707548", "meridith_leubner"),
-            #     ("3142395", "rachel_laponsey"),
-            #     ("1193", "richard_mann"),
-            #     ("4284467", "richard_yamin"),
-            #     ("5524007", "robo_hop"),
-            #     ("384442", "roland_segal"),
-            #     ("6033853", "sarah_madden"),
-            #     ("11526", "scott_mcveigh"),
-            #     ("1956", "scott_yarosh"),
-            #     ("2682791", "selena_shaikh"),
-            #     ("6142432", "steve_seiler"),
-            #     ("5421258", "tim_reid"),
-            #     ("11741", "tom_bick"),
+                #     ("2508033", "josh_neil"),
+                #     ("2803600", "larry_mccamon"),
+                #     ("383480", "lynsey_segal"),
+                #     ("5530045", "mark_brzezinski"),
+                #     ("1024413", "matt_steeve"),
+                #     ("2902662", "matthew_wongkee"),
+                #     ("1657744", "melissa_warwick"),
+                #     ("1707548", "meridith_leubner"),
+                #     ("3142395", "rachel_laponsey"),
+                #     ("1193", "richard_mann"),
+                #     ("4284467", "richard_yamin"),
+                #     ("5524007", "robo_hop"),
+                #     ("384442", "roland_segal"),
+                #     ("6033853", "sarah_madden"),
+                #     ("11526", "scott_mcveigh"),
+                #     ("1956", "scott_yarosh"),
+                #     ("2682791", "selena_shaikh"),
+                #     ("6142432", "steve_seiler"),
+                #     ("5421258", "tim_reid"),
+                #     ("11741", "tom_bick"),
             ],
             "sirius": [
                 ("5490373", "barry_beck"),
@@ -205,8 +204,6 @@ class RepositoryOfTeamRosters:
                 # ("11526", "scott_mcveigh"),
                 # ("85925", "steve_lehman"),
                 # ("6142432", "steve_seiler"),
-
-
             ],
             "dome": [
                 ("5490373", "barry_beck"),
@@ -270,7 +267,7 @@ class RepositoryOfTeamRosters:
                 # ("473087", "curtis_repen"),
                 # ("4945836", "david_evanetich"),
                 ("1884456", "john_hughes"),
-                 # ("2508033", "josh_neil"),
+                # ("2508033", "josh_neil"),
                 # ("618585", "kent_johnson"),
                 # ("7460730", "tony_chang"),
             ],
@@ -281,7 +278,7 @@ class RepositoryOfTeamRosters:
                 ("1884456", "john_hughes"),
                 ("846200", "lisa_bick"),
             ],
-        }
+        },
     )
 
     @staticmethod
@@ -319,7 +316,10 @@ class RepositoryOfTeamRosters:
             for roster_zwift_id, nick_name in team_roster:
                 if roster_zwift_id == zwift_id:
                     return nick_name
-            raise ValueError(f"Zwift ID '{zwift_id}' not found in team '{team_nickname}'. Available IDs: {[i for i, _ in team_roster]}")
+            raise ValueError(
+                f"Zwift ID '{zwift_id}' not found in team '{team_nickname}'. Available IDs: {[i for i, _ in team_roster]}"
+            )
         else:
-            raise ValueError(f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict_of_list.keys())}")
-
+            raise ValueError(
+                f"Team '{team_nickname}' not found. Available teams: {list(RepositoryOfTeamRosters._team_rosters_as_dict_of_list.keys())}"
+            )

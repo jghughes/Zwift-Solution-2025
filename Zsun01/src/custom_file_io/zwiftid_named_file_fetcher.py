@@ -13,8 +13,9 @@ setup_json_logging(DIRPATH_LOGGING)
 logger = logging.getLogger()
 
 
-
-async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: str | None, semaphore: asyncio.Semaphore) -> None:
+async def _download_file_and_save_to_hard_drive_async(
+    http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: str | None, semaphore: asyncio.Semaphore
+) -> None:
     """
     Download a file from a URL and save it to the local hard drive.
 
@@ -55,33 +56,18 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
     # Validate inputs
     valid_url, url_msg = is_valid_url(url)
     if not valid_url:
-        log_event(
-            logger,
-            message=url_msg,
-            level=logging.ERROR,
-            extra_fields={"field_name": "url"}
-        )
+        log_event(logger, message=url_msg, level=logging.ERROR, extra_fields={"field_name": "url"})
         return
     valid_dirpath, dirpath_msg = is_valid_dirpath(dest_dir_path)
     if not valid_dirpath:
-        log_event(
-            logger,
-            message=dirpath_msg,
-            level=logging.ERROR,
-            extra_fields={"field_name": "dest_dir_path"}
-        )
+        log_event(logger, message=dirpath_msg, level=logging.ERROR, extra_fields={"field_name": "dest_dir_path"})
         return
 
     # Treat None or "" as "no folder"
     if dest_folder:
         valid_foldername, foldername_msg = is_valid_foldername(dest_folder)
         if not valid_foldername:
-            log_event(
-                logger,
-                message=foldername_msg,
-                level=logging.ERROR,
-                extra_fields={"field_name": "dest_folder"}
-            )
+            log_event(logger, message=foldername_msg, level=logging.ERROR, extra_fields={"field_name": "dest_folder"})
             return
         dest_folder_path = os.path.join(dest_dir_path, dest_folder)
     else:
@@ -94,7 +80,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
         try:
             response = await http_client.get(url, timeout=30)
             response.raise_for_status()
-            async with aiofiles.open(dest_path, 'wb') as f:
+            async with aiofiles.open(dest_path, "wb") as f:
                 await f.write(response.content)
             file_size_bytes = os.path.getsize(dest_path)
             log_event(
@@ -106,8 +92,8 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                     "dest_path": dest_path,
                     "filename": filename,
                     "dest_folder": dest_folder_path,
-                    "file_size_bytes": file_size_bytes
-                }
+                    "file_size_bytes": file_size_bytes,
+                },
             )
         except httpx.TimeoutException as e:
             log_event(
@@ -115,10 +101,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                 message=f"Timeout while downloading: {url}",
                 level=logging.ERROR,
                 exception=e,
-                extra_fields={
-                    "operation": "download_file",
-                    "timeout_seconds": 30
-                }
+                extra_fields={"operation": "download_file", "timeout_seconds": 30},
             )
             return
         except httpx.HTTPStatusError as e:
@@ -129,10 +112,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                     message=f"File not found (404) for: {url}",
                     level=logging.ERROR,
                     exception=e,
-                    extra_fields={
-                        "resource_name": url,
-                        "http_status": status_code
-                    }
+                    extra_fields={"resource_name": url, "http_status": status_code},
                 )
             else:
                 log_event(
@@ -140,26 +120,19 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                     message=f"HTTP error {status_code} for: {url}",
                     level=logging.ERROR,
                     exception=e,
-                    extra_fields={
-                        "exception_type": "HTTPStatusError",
-                        "http_status": status_code
-                    }
+                    extra_fields={"exception_type": "HTTPStatusError", "http_status": status_code},
                 )
             return
         except httpx.RequestError as e:
             error_response = getattr(e, "response", None)
             status_code_or_blank: int | str = error_response.status_code if error_response is not None else ""
 
-
             log_event(
                 logger,
                 message=f"Network error for {url}: {e}",
                 level=logging.ERROR,
                 exception=e,
-                extra_fields={
-                    "url": url,
-                    "status_code": status_code_or_blank
-                }
+                extra_fields={"url": url, "status_code": status_code_or_blank},
             )
             return
         except ValueError as e:
@@ -168,9 +141,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                 message=f"Validation error for {url}: {e}",
                 level=logging.ERROR,
                 exception=e,
-                extra_fields={
-                    "field_name": "url"
-                }
+                extra_fields={"field_name": "url"},
             )
             return
         except Exception as e:
@@ -179,11 +150,10 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                 message=f"Unhandled exception while downloading {url}: {e}",
                 level=logging.ERROR,
                 exception=e,
-                extra_fields={
-                    "url": url
-                }
+                extra_fields={"url": url},
             )
             return
+
 
 async def download_and_save_many_files_to_hard_drive_async(
     urls: list[str],
@@ -206,4 +176,3 @@ async def download_and_save_many_files_to_hard_drive_async(
                 for url in urls
             ]
             await asyncio.gather(*tasks)
-

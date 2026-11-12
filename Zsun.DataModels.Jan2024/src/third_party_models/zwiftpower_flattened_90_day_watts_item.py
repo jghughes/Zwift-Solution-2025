@@ -5,146 +5,147 @@ from zwift_id_base import ZwiftIdBase
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_graph_watts_dto import EffortDTO, ZwiftPowerGraphWattsDTO
 
-# Note: don't think of moving this domain object into Zsun.DataModels.Jan2024 because it is 
-# very specific to the way we are modeling the 90-day best power data from ZwiftPower. 
+# Note: don't think of moving this domain object into Zsun.DataModels.Jan2024 because it is
+# very specific to the way we are modeling the 90-day best power data from ZwiftPower.
 # It is not a general-purpose domain object that could be used in other contexts.
 
-ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW = "90days" # or "30days"
+ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW = "90days"  # or "30days"
 
 
 @dataclass
 class EffortItem:
-    x_ordinate_seconds  : int = 0      # x-coordinate (must be int for dict key)
-    y_ordinate_watts    : float = 0.0  # y-coordinate
+    x_ordinate_seconds: int = 0  # x-coordinate (must be int for dict key)
+    y_ordinate_watts: float = 0.0  # y-coordinate
 
     @staticmethod
     def from_dataTransferObject(dto: EffortDTO | None) -> "EffortItem":
         if dto is None:
             return EffortItem()
         return EffortItem(
-            x_ordinate_seconds  = dto.x_ordinate_seconds or 0,
-            y_ordinate_watts    = float(dto.y_ordinate_watts or 0),  # Cast y_ordinate_watts to float
-    )
+            x_ordinate_seconds=dto.x_ordinate_seconds or 0,
+            y_ordinate_watts=float(dto.y_ordinate_watts or 0),  # Cast y_ordinate_watts to float
+        )
 
     @staticmethod
     def to_dataTransferObject(item: "EffortItem | None") -> EffortDTO:
         if item is None:
             return EffortDTO()
         return EffortDTO(
-            x_ordinate_seconds  = item.x_ordinate_seconds,
-            y_ordinate_watts    = int(item.y_ordinate_watts),  # Cast y_ordinate_watts back to int
-    )
+            x_ordinate_seconds=item.x_ordinate_seconds,
+            y_ordinate_watts=int(item.y_ordinate_watts),  # Cast y_ordinate_watts back to int
+        )
+
 
 @dataclass
 class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
     """
-    A data class representing a Zwift rider's 90-day best 
-    power data obtained from ZwiftPower.  The object can be 
+    A data class representing a Zwift rider's 90-day best
+    power data obtained from ZwiftPower.  The object can be
     converted from ZwiftPowerGraphWattsDTO.
 
     Attributes:
         bp_*      : float  90-day best power values for various durations in seconds.
     """
 
-    bp_1      : float = 0.0
-    bp_2      : float = 0.0
-    bp_3      : float = 0.0
-    bp_4      : float = 0.0
-    bp_5      : float = 0.0
-    bp_6      : float = 0.0
-    bp_7      : float = 0.0
-    bp_8      : float = 0.0
-    bp_9      : float = 0.0
-    bp_10     : float = 0.0
-    bp_11     : float = 0.0
-    bp_12     : float = 0.0
-    bp_13     : float = 0.0
-    bp_14     : float = 0.0
-    bp_15     : float = 0.0
-    bp_16     : float = 0.0
-    bp_17     : float = 0.0
-    bp_18     : float = 0.0
-    bp_19     : float = 0.0
-    bp_20     : float = 0.0
-    bp_21     : float = 0.0
-    bp_22     : float = 0.0
-    bp_23     : float = 0.0
-    bp_24     : float = 0.0
-    bp_25     : float = 0.0
-    bp_26     : float = 0.0
-    bp_27     : float = 0.0
-    bp_28     : float = 0.0
-    bp_29     : float = 0.0
-    bp_30     : float = 0.0
-    bp_35     : float = 0.0
-    bp_40     : float = 0.0
-    bp_45     : float = 0.0
-    bp_50     : float = 0.0
-    bp_55     : float = 0.0
-    bp_60     : float = 0.0
-    bp_70     : float = 0.0
-    bp_80     : float = 0.0
-    bp_90     : float = 0.0
-    bp_100    : float = 0.0
-    bp_110    : float = 0.0
-    bp_120    : float = 0.0
-    bp_150    : float = 0.0
-    bp_180    : float = 0.0
-    bp_210    : float = 0.0
-    bp_240    : float = 0.0
-    bp_270    : float = 0.0
-    bp_300    : float = 0.0
-    bp_330    : float = 0.0
-    bp_360    : float = 0.0
-    bp_390    : float = 0.0
-    bp_420    : float = 0.0
-    bp_450    : float = 0.0
-    bp_480    : float = 0.0
-    bp_510    : float = 0.0
-    bp_540    : float = 0.0
-    bp_570    : float = 0.0
-    bp_600    : float = 0.0
-    bp_660    : float = 0.0
-    bp_720    : float = 0.0
-    bp_780    : float = 0.0
-    bp_840    : float = 0.0
-    bp_900    : float = 0.0
-    bp_960    : float = 0.0
-    bp_1020   : float = 0.0
-    bp_1080   : float = 0.0
-    bp_1140   : float = 0.0
-    bp_1200   : float = 0.0
-    bp_1320   : float = 0.0
-    bp_1440   : float = 0.0
-    bp_1560   : float = 0.0
-    bp_1680   : float = 0.0
-    bp_1800   : float = 0.0
-    bp_1920   : float = 0.0
-    bp_2040   : float = 0.0
-    bp_2160   : float = 0.0
-    bp_2280   : float = 0.0
-    bp_2400   : float = 0.0
-    bp_2520   : float = 0.0
-    bp_2640   : float = 0.0
-    bp_2760   : float = 0.0
-    bp_2880   : float = 0.0
-    bp_3000   : float = 0.0
-    bp_3120   : float = 0.0
-    bp_3240   : float = 0.0
-    bp_3360   : float = 0.0
-    bp_3480   : float = 0.0
-    bp_3600   : float = 0.0
-    bp_3900   : float = 0.0
-    bp_4200   : float = 0.0
-    bp_4500   : float = 0.0
-    bp_4800   : float = 0.0
-    bp_5100   : float = 0.0
-    bp_5400   : float = 0.0
-    bp_5700   : float = 0.0
-    bp_6000   : float = 0.0
-    bp_6300   : float = 0.0
-    bp_6600   : float = 0.0
-    bp_7200   : float = 0.0
+    bp_1: float = 0.0
+    bp_2: float = 0.0
+    bp_3: float = 0.0
+    bp_4: float = 0.0
+    bp_5: float = 0.0
+    bp_6: float = 0.0
+    bp_7: float = 0.0
+    bp_8: float = 0.0
+    bp_9: float = 0.0
+    bp_10: float = 0.0
+    bp_11: float = 0.0
+    bp_12: float = 0.0
+    bp_13: float = 0.0
+    bp_14: float = 0.0
+    bp_15: float = 0.0
+    bp_16: float = 0.0
+    bp_17: float = 0.0
+    bp_18: float = 0.0
+    bp_19: float = 0.0
+    bp_20: float = 0.0
+    bp_21: float = 0.0
+    bp_22: float = 0.0
+    bp_23: float = 0.0
+    bp_24: float = 0.0
+    bp_25: float = 0.0
+    bp_26: float = 0.0
+    bp_27: float = 0.0
+    bp_28: float = 0.0
+    bp_29: float = 0.0
+    bp_30: float = 0.0
+    bp_35: float = 0.0
+    bp_40: float = 0.0
+    bp_45: float = 0.0
+    bp_50: float = 0.0
+    bp_55: float = 0.0
+    bp_60: float = 0.0
+    bp_70: float = 0.0
+    bp_80: float = 0.0
+    bp_90: float = 0.0
+    bp_100: float = 0.0
+    bp_110: float = 0.0
+    bp_120: float = 0.0
+    bp_150: float = 0.0
+    bp_180: float = 0.0
+    bp_210: float = 0.0
+    bp_240: float = 0.0
+    bp_270: float = 0.0
+    bp_300: float = 0.0
+    bp_330: float = 0.0
+    bp_360: float = 0.0
+    bp_390: float = 0.0
+    bp_420: float = 0.0
+    bp_450: float = 0.0
+    bp_480: float = 0.0
+    bp_510: float = 0.0
+    bp_540: float = 0.0
+    bp_570: float = 0.0
+    bp_600: float = 0.0
+    bp_660: float = 0.0
+    bp_720: float = 0.0
+    bp_780: float = 0.0
+    bp_840: float = 0.0
+    bp_900: float = 0.0
+    bp_960: float = 0.0
+    bp_1020: float = 0.0
+    bp_1080: float = 0.0
+    bp_1140: float = 0.0
+    bp_1200: float = 0.0
+    bp_1320: float = 0.0
+    bp_1440: float = 0.0
+    bp_1560: float = 0.0
+    bp_1680: float = 0.0
+    bp_1800: float = 0.0
+    bp_1920: float = 0.0
+    bp_2040: float = 0.0
+    bp_2160: float = 0.0
+    bp_2280: float = 0.0
+    bp_2400: float = 0.0
+    bp_2520: float = 0.0
+    bp_2640: float = 0.0
+    bp_2760: float = 0.0
+    bp_2880: float = 0.0
+    bp_3000: float = 0.0
+    bp_3120: float = 0.0
+    bp_3240: float = 0.0
+    bp_3360: float = 0.0
+    bp_3480: float = 0.0
+    bp_3600: float = 0.0
+    bp_3900: float = 0.0
+    bp_4200: float = 0.0
+    bp_4500: float = 0.0
+    bp_4800: float = 0.0
+    bp_5100: float = 0.0
+    bp_5400: float = 0.0
+    bp_5700: float = 0.0
+    bp_6000: float = 0.0
+    bp_6300: float = 0.0
+    bp_6600: float = 0.0
+    bp_7200: float = 0.0
 
     @classmethod
     def export_all_x_ordinates(cls) -> list[int]:
@@ -156,16 +157,107 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             [int]: A list of x_ordinate_seconds ordinates (time intervals in seconds).
         """
         answer: list[int] = [
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
-            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 40, 45, 50, 55, 60, 70, 80, 
-            90, 100, 110, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 
-            450, 480, 510, 540, 570, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 
-            1140, 1200, 1320, 1440, 1560, 1680, 1800, 1920, 2040, 2160, 2280, 2400, 
-            2520, 2640, 2760, 2880, 3000, 3120, 3240, 3360, 3480, 3600, 3900, 4200, 
-            4500, 4800, 5100, 5400, 5700, 6000, 6300, 6600, 7200
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            35,
+            40,
+            45,
+            50,
+            55,
+            60,
+            70,
+            80,
+            90,
+            100,
+            110,
+            120,
+            150,
+            180,
+            210,
+            240,
+            270,
+            300,
+            330,
+            360,
+            390,
+            420,
+            450,
+            480,
+            510,
+            540,
+            570,
+            600,
+            660,
+            720,
+            780,
+            840,
+            900,
+            960,
+            1020,
+            1080,
+            1140,
+            1200,
+            1320,
+            1440,
+            1560,
+            1680,
+            1800,
+            1920,
+            2040,
+            2160,
+            2280,
+            2400,
+            2520,
+            2640,
+            2760,
+            2880,
+            3000,
+            3120,
+            3240,
+            3360,
+            3480,
+            3600,
+            3900,
+            4200,
+            4500,
+            4800,
+            5100,
+            5400,
+            5700,
+            6000,
+            6300,
+            6600,
+            7200,
         ]
         return answer
-
 
     def export_all_x_y_ordinates(self) -> dict[int, float]:
         """
@@ -286,7 +378,6 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
 
         return answer
 
-
     def export_x_y_ordinates_for_cp_w_prime_modelling(self) -> dict[int, float]:
         """
         Zwift doesn't explicitly use CP, although they do have zMap which generally
@@ -313,7 +404,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             11: self.bp_11,
             12: self.bp_12,
             13: self.bp_13,
-            14: self.bp_14, # new limit
+            14: self.bp_14,  # new limit
             15: self.bp_15,
             16: self.bp_16,
             17: self.bp_17,
@@ -343,7 +434,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             110: self.bp_110,
             120: self.bp_120,
             150: self.bp_150,
-            180: self.bp_180,# new new new limit
+            180: self.bp_180,  # new new new limit
             # 210: self.bp_210,
             # 240: self.bp_240,
             # 270: self.bp_270,
@@ -410,14 +501,13 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
 
         return answer
 
-
     def export_x_y_ordinates_for_pull_zone_modelling(self) -> dict[int, float]:
         """
-        Is this case we will do a model to individually determine the 
-        peak limit for pulling. The TTT calculator uses 1.3x FTP.  
-        On most people's 90_day best curves from ZwiftPower, a notch is clearly visible 
-        where some sort of peak stability exists in the 5-10 minute range. This might or 
-        might not bear some resemblance to Zwifts' zMap 
+        Is this case we will do a model to individually determine the
+        peak limit for pulling. The TTT calculator uses 1.3x FTP.
+        On most people's 90_day best curves from ZwiftPower, a notch is clearly visible
+        where some sort of peak stability exists in the 5-10 minute range. This might or
+        might not bear some resemblance to Zwifts' zMap
 
         Dated : Easter Monday, April 21st 2025
 
@@ -471,7 +561,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             # 100: self.bp_100,
             # 110: self.bp_110, # old limit
             120: self.bp_120,
-            150: self.bp_150, #new limit
+            150: self.bp_150,  # new limit
             180: self.bp_180,
             210: self.bp_210,
             240: self.bp_240,
@@ -486,7 +576,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             # 510: self.bp_510,
             # 540: self.bp_540,
             # 570: self.bp_570,
-            # 600: self.bp_600, #new new limit 
+            # 600: self.bp_600, #new new limit
             # 660: self.bp_660,
             # 720: self.bp_720,
             # 780: self.bp_780,
@@ -539,15 +629,14 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
 
         return answer
 
-
     def export_x_y_ordinates_for_one_hour_zone_modelling(self) -> dict[int, float]:
         """
 
         Zwift doesn't use FTP per se. They use black magic to come up with zFTP.
-        zFTP is normally somewhere between P_30 minutes and P_40 minutes. 
+        zFTP is normally somewhere between P_30 minutes and P_40 minutes.
         zFTP is used as a criterion for race categories.In this case we will
         do a more accurate model to individually determine what FTP is meant to be,
-        namely true Functional Threshold Power for P_60 minutes. 
+        namely true Functional Threshold Power for P_60 minutes.
 
         Dated : Easter Monday, April 21st 2025
 
@@ -614,8 +703,8 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             450: self.bp_450,
             480: self.bp_480,
             510: self.bp_510,
-            540: self.bp_540, 
-            570: self.bp_570,# previous cut off here
+            540: self.bp_540,
+            570: self.bp_570,  # previous cut off here
             600: self.bp_600,
             660: self.bp_660,
             720: self.bp_720,
@@ -636,7 +725,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             2040: self.bp_2040,
             2160: self.bp_2160,
             2280: self.bp_2280,
-            2400: self.bp_2400, # previously here
+            2400: self.bp_2400,  # previously here
             # 2520: self.bp_2520,
             # 2640: self.bp_2640,
             # 2760: self.bp_2760,
@@ -668,7 +757,6 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             answer = dict(sorted(answer.items(), key=lambda item: item[0]))
 
         return answer
-
 
     def import_x_y_ordinates(self, input_data: dict[int, float]) -> None:
         """
@@ -790,254 +878,254 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
     def populate_riderStatsItem_with_90dayWattsItem(
         rider_stats_item: RiderStatsItem,
         zwiftpower_watts_90_day_item: "ZwiftPowerFlattened90dayWattsItem",
-        weight_kg: float
+        weight_kg: float,
     ) -> RiderStatsItem:
         # Arbitrary cut-off to avoid division by zero or unrealistic weight values
         valid_weight = weight_kg and weight_kg > 10
 
         # ZwiftPower attributes (wkg)
-        rider_stats_item.wkg_05sec   = zwiftpower_watts_90_day_item.bp_5   / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_15sec   = zwiftpower_watts_90_day_item.bp_15  / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_30sec   = zwiftpower_watts_90_day_item.bp_30  / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_01min   = zwiftpower_watts_90_day_item.bp_60  / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_02min   = zwiftpower_watts_90_day_item.bp_120 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_03min   = zwiftpower_watts_90_day_item.bp_180 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_05min   = zwiftpower_watts_90_day_item.bp_300 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_10min   = zwiftpower_watts_90_day_item.bp_600 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_12min   = zwiftpower_watts_90_day_item.bp_720 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_15min   = zwiftpower_watts_90_day_item.bp_900 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_20min   = zwiftpower_watts_90_day_item.bp_1200 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_30min   = zwiftpower_watts_90_day_item.bp_1800 / weight_kg if valid_weight else 0.0
-        rider_stats_item.wkg_40min   = zwiftpower_watts_90_day_item.bp_2400 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_05sec = zwiftpower_watts_90_day_item.bp_5 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_15sec = zwiftpower_watts_90_day_item.bp_15 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_30sec = zwiftpower_watts_90_day_item.bp_30 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_01min = zwiftpower_watts_90_day_item.bp_60 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_02min = zwiftpower_watts_90_day_item.bp_120 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_03min = zwiftpower_watts_90_day_item.bp_180 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_05min = zwiftpower_watts_90_day_item.bp_300 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_10min = zwiftpower_watts_90_day_item.bp_600 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_12min = zwiftpower_watts_90_day_item.bp_720 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_15min = zwiftpower_watts_90_day_item.bp_900 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_20min = zwiftpower_watts_90_day_item.bp_1200 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_30min = zwiftpower_watts_90_day_item.bp_1800 / weight_kg if valid_weight else 0.0
+        rider_stats_item.wkg_40min = zwiftpower_watts_90_day_item.bp_2400 / weight_kg if valid_weight else 0.0
 
         # ZwiftPower attributes (w)
-        rider_stats_item.w_05sec     = zwiftpower_watts_90_day_item.bp_5
-        rider_stats_item.w_15sec     = zwiftpower_watts_90_day_item.bp_15
-        rider_stats_item.w_30sec     = zwiftpower_watts_90_day_item.bp_30
-        rider_stats_item.w_01min     = zwiftpower_watts_90_day_item.bp_60
-        rider_stats_item.w_02min     = zwiftpower_watts_90_day_item.bp_120
-        rider_stats_item.w_03min     = zwiftpower_watts_90_day_item.bp_180
-        rider_stats_item.w_05min     = zwiftpower_watts_90_day_item.bp_300
-        rider_stats_item.w_10min     = zwiftpower_watts_90_day_item.bp_600
-        rider_stats_item.w_12min     = zwiftpower_watts_90_day_item.bp_720
-        rider_stats_item.w_15min     = zwiftpower_watts_90_day_item.bp_900
-        rider_stats_item.w_20min     = zwiftpower_watts_90_day_item.bp_1200
-        rider_stats_item.w_30min     = zwiftpower_watts_90_day_item.bp_1800
-        rider_stats_item.w_40min     = zwiftpower_watts_90_day_item.bp_2400
+        rider_stats_item.w_05sec = zwiftpower_watts_90_day_item.bp_5
+        rider_stats_item.w_15sec = zwiftpower_watts_90_day_item.bp_15
+        rider_stats_item.w_30sec = zwiftpower_watts_90_day_item.bp_30
+        rider_stats_item.w_01min = zwiftpower_watts_90_day_item.bp_60
+        rider_stats_item.w_02min = zwiftpower_watts_90_day_item.bp_120
+        rider_stats_item.w_03min = zwiftpower_watts_90_day_item.bp_180
+        rider_stats_item.w_05min = zwiftpower_watts_90_day_item.bp_300
+        rider_stats_item.w_10min = zwiftpower_watts_90_day_item.bp_600
+        rider_stats_item.w_12min = zwiftpower_watts_90_day_item.bp_720
+        rider_stats_item.w_15min = zwiftpower_watts_90_day_item.bp_900
+        rider_stats_item.w_20min = zwiftpower_watts_90_day_item.bp_1200
+        rider_stats_item.w_30min = zwiftpower_watts_90_day_item.bp_1800
+        rider_stats_item.w_40min = zwiftpower_watts_90_day_item.bp_2400
 
         return rider_stats_item
 
     @staticmethod
     def to_dataTransferObject(item: "ZwiftPowerFlattened90dayWattsItem") -> ZwiftPowerFlattened90DayWattsDTO:
         return ZwiftPowerFlattened90DayWattsDTO(
-            zwift_id        = item.zwift_id,
-            bp_1           = item.bp_1,
-            bp_2           = item.bp_2,
-            bp_3           = item.bp_3,
-            bp_4           = item.bp_4,
-            bp_5           = item.bp_5,
-            bp_6           = item.bp_6,
-            bp_7           = item.bp_7,
-            bp_8           = item.bp_8,
-            bp_9           = item.bp_9,
-            bp_10          = item.bp_10,
-            bp_11          = item.bp_11,
-            bp_12          = item.bp_12,
-            bp_13          = item.bp_13,
-            bp_14          = item.bp_14,
-            bp_15          = item.bp_15,
-            bp_16          = item.bp_16,
-            bp_17          = item.bp_17,
-            bp_18          = item.bp_18,
-            bp_19          = item.bp_19,
-            bp_20          = item.bp_20,
-            bp_21          = item.bp_21,
-            bp_22          = item.bp_22,
-            bp_23          = item.bp_23,
-            bp_24          = item.bp_24,
-            bp_25          = item.bp_25,
-            bp_26          = item.bp_26,
-            bp_27          = item.bp_27,
-            bp_28          = item.bp_28,
-            bp_29          = item.bp_29,
-            bp_30          = item.bp_30,
-            bp_35          = item.bp_35,
-            bp_40          = item.bp_40,
-            bp_45          = item.bp_45,
-            bp_50          = item.bp_50,
-            bp_55          = item.bp_55,
-            bp_60          = item.bp_60,
-            bp_70          = item.bp_70,
-            bp_80          = item.bp_80,
-            bp_90          = item.bp_90,
-            bp_100         = item.bp_100,
-            bp_110         = item.bp_110,
-            bp_120         = item.bp_120,
-            bp_150         = item.bp_150,
-            bp_180         = item.bp_180,
-            bp_210         = item.bp_210,
-            bp_240         = item.bp_240,
-            bp_270         = item.bp_270,
-            bp_300         = item.bp_300,
-            bp_330         = item.bp_330,
-            bp_360         = item.bp_360,
-            bp_390         = item.bp_390,
-            bp_420         = item.bp_420,
-            bp_450         = item.bp_450,
-            bp_480         = item.bp_480,
-            bp_510         = item.bp_510,
-            bp_540         = item.bp_540,
-            bp_570         = item.bp_570,
-            bp_600         = item.bp_600,
-            bp_660         = item.bp_660,
-            bp_720         = item.bp_720,
-            bp_780         = item.bp_780,
-            bp_840         = item.bp_840,
-            bp_900         = item.bp_900,
-            bp_960         = item.bp_960,
-            bp_1020        = item.bp_1020,
-            bp_1080        = item.bp_1080,
-            bp_1140        = item.bp_1140,
-            bp_1200        = item.bp_1200,
-            bp_1320        = item.bp_1320,
-            bp_1440        = item.bp_1440,
-            bp_1560        = item.bp_1560,
-            bp_1680        = item.bp_1680,
-            bp_1800        = item.bp_1800,
-            bp_1920        = item.bp_1920,
-            bp_2040        = item.bp_2040,
-            bp_2160        = item.bp_2160,
-            bp_2280        = item.bp_2280,
-            bp_2400        = item.bp_2400,
-            bp_2520        = item.bp_2520,
-            bp_2640        = item.bp_2640,
-            bp_2760        = item.bp_2760,
-            bp_2880        = item.bp_2880,
-            bp_3000        = item.bp_3000,
-            bp_3120        = item.bp_3120,
-            bp_3240        = item.bp_3240,
-            bp_3360        = item.bp_3360,
-            bp_3480        = item.bp_3480,
-            bp_3600        = item.bp_3600,
-            bp_3900        = item.bp_3900,
-            bp_4200        = item.bp_4200,
-            bp_4500        = item.bp_4500,
-            bp_4800        = item.bp_4800,
-            bp_5100        = item.bp_5100,
-            bp_5400        = item.bp_5400,
-            bp_5700        = item.bp_5700,
-            bp_6000        = item.bp_6000,
-            bp_6300        = item.bp_6300,
-            bp_6600        = item.bp_6600,
-            bp_7200        = item.bp_7200,
-            )
+            zwift_id=item.zwift_id,
+            bp_1=item.bp_1,
+            bp_2=item.bp_2,
+            bp_3=item.bp_3,
+            bp_4=item.bp_4,
+            bp_5=item.bp_5,
+            bp_6=item.bp_6,
+            bp_7=item.bp_7,
+            bp_8=item.bp_8,
+            bp_9=item.bp_9,
+            bp_10=item.bp_10,
+            bp_11=item.bp_11,
+            bp_12=item.bp_12,
+            bp_13=item.bp_13,
+            bp_14=item.bp_14,
+            bp_15=item.bp_15,
+            bp_16=item.bp_16,
+            bp_17=item.bp_17,
+            bp_18=item.bp_18,
+            bp_19=item.bp_19,
+            bp_20=item.bp_20,
+            bp_21=item.bp_21,
+            bp_22=item.bp_22,
+            bp_23=item.bp_23,
+            bp_24=item.bp_24,
+            bp_25=item.bp_25,
+            bp_26=item.bp_26,
+            bp_27=item.bp_27,
+            bp_28=item.bp_28,
+            bp_29=item.bp_29,
+            bp_30=item.bp_30,
+            bp_35=item.bp_35,
+            bp_40=item.bp_40,
+            bp_45=item.bp_45,
+            bp_50=item.bp_50,
+            bp_55=item.bp_55,
+            bp_60=item.bp_60,
+            bp_70=item.bp_70,
+            bp_80=item.bp_80,
+            bp_90=item.bp_90,
+            bp_100=item.bp_100,
+            bp_110=item.bp_110,
+            bp_120=item.bp_120,
+            bp_150=item.bp_150,
+            bp_180=item.bp_180,
+            bp_210=item.bp_210,
+            bp_240=item.bp_240,
+            bp_270=item.bp_270,
+            bp_300=item.bp_300,
+            bp_330=item.bp_330,
+            bp_360=item.bp_360,
+            bp_390=item.bp_390,
+            bp_420=item.bp_420,
+            bp_450=item.bp_450,
+            bp_480=item.bp_480,
+            bp_510=item.bp_510,
+            bp_540=item.bp_540,
+            bp_570=item.bp_570,
+            bp_600=item.bp_600,
+            bp_660=item.bp_660,
+            bp_720=item.bp_720,
+            bp_780=item.bp_780,
+            bp_840=item.bp_840,
+            bp_900=item.bp_900,
+            bp_960=item.bp_960,
+            bp_1020=item.bp_1020,
+            bp_1080=item.bp_1080,
+            bp_1140=item.bp_1140,
+            bp_1200=item.bp_1200,
+            bp_1320=item.bp_1320,
+            bp_1440=item.bp_1440,
+            bp_1560=item.bp_1560,
+            bp_1680=item.bp_1680,
+            bp_1800=item.bp_1800,
+            bp_1920=item.bp_1920,
+            bp_2040=item.bp_2040,
+            bp_2160=item.bp_2160,
+            bp_2280=item.bp_2280,
+            bp_2400=item.bp_2400,
+            bp_2520=item.bp_2520,
+            bp_2640=item.bp_2640,
+            bp_2760=item.bp_2760,
+            bp_2880=item.bp_2880,
+            bp_3000=item.bp_3000,
+            bp_3120=item.bp_3120,
+            bp_3240=item.bp_3240,
+            bp_3360=item.bp_3360,
+            bp_3480=item.bp_3480,
+            bp_3600=item.bp_3600,
+            bp_3900=item.bp_3900,
+            bp_4200=item.bp_4200,
+            bp_4500=item.bp_4500,
+            bp_4800=item.bp_4800,
+            bp_5100=item.bp_5100,
+            bp_5400=item.bp_5400,
+            bp_5700=item.bp_5700,
+            bp_6000=item.bp_6000,
+            bp_6300=item.bp_6300,
+            bp_6600=item.bp_6600,
+            bp_7200=item.bp_7200,
+        )
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftPowerFlattened90DayWattsDTO | None) -> "ZwiftPowerFlattened90dayWattsItem":
         if dto is None:
             return ZwiftPowerFlattened90dayWattsItem()
         return ZwiftPowerFlattened90dayWattsItem(
-            zwift_id        = dto.zwift_id or "",
-            bp_1           = dto.bp_1 or 0.0,
-            bp_2           = dto.bp_2 or 0.0,
-            bp_3           = dto.bp_3 or 0.0,
-            bp_4           = dto.bp_4 or 0.0,
-            bp_5           = dto.bp_5 or 0.0,
-            bp_6           = dto.bp_6 or 0.0,
-            bp_7           = dto.bp_7 or 0.0,
-            bp_8           = dto.bp_8 or 0.0,
-            bp_9           = dto.bp_9 or 0.0,
-            bp_10          = dto.bp_10 or 0.0,
-            bp_11          = dto.bp_11 or 0.0,
-            bp_12          = dto.bp_12 or 0.0,
-            bp_13          = dto.bp_13 or 0.0,
-            bp_14          = dto.bp_14 or 0.0,
-            bp_15          = dto.bp_15 or 0.0,
-            bp_16          = dto.bp_16 or 0.0,
-            bp_17          = dto.bp_17 or 0.0,
-            bp_18          = dto.bp_18 or 0.0,
-            bp_19          = dto.bp_19 or 0.0,
-            bp_20          = dto.bp_20 or 0.0,
-            bp_21          = dto.bp_21 or 0.0,
-            bp_22          = dto.bp_22 or 0.0,
-            bp_23          = dto.bp_23 or 0.0,
-            bp_24          = dto.bp_24 or 0.0,
-            bp_25          = dto.bp_25 or 0.0,
-            bp_26          = dto.bp_26 or 0.0,
-            bp_27          = dto.bp_27 or 0.0,
-            bp_28          = dto.bp_28 or 0.0,
-            bp_29          = dto.bp_29 or 0.0,
-            bp_30          = dto.bp_30 or 0.0,
-            bp_35          = dto.bp_35 or 0.0,
-            bp_40          = dto.bp_40 or 0.0,
-            bp_45          = dto.bp_45 or 0.0,
-            bp_50          = dto.bp_50 or 0.0,
-            bp_55          = dto.bp_55 or 0.0,
-            bp_60          = dto.bp_60 or 0.0,
-            bp_70          = dto.bp_70 or 0.0,
-            bp_80          = dto.bp_80 or 0.0,
-            bp_90          = dto.bp_90 or 0.0,
-            bp_100         = dto.bp_100 or 0.0,
-            bp_110         = dto.bp_110 or 0.0,
-            bp_120         = dto.bp_120 or 0.0,
-            bp_150         = dto.bp_150 or 0.0,
-            bp_180         = dto.bp_180 or 0.0,
-            bp_210         = dto.bp_210 or 0.0,
-            bp_240         = dto.bp_240 or 0.0,
-            bp_270         = dto.bp_270 or 0.0,
-            bp_300         = dto.bp_300 or 0.0,
-            bp_330         = dto.bp_330 or 0.0,
-            bp_360         = dto.bp_360 or 0.0,
-            bp_390         = dto.bp_390 or 0.0,
-            bp_420         = dto.bp_420 or 0.0,
-            bp_450         = dto.bp_450 or 0.0,
-            bp_480         = dto.bp_480 or 0.0,
-            bp_510         = dto.bp_510 or 0.0,
-            bp_540         = dto.bp_540 or 0.0,
-            bp_570         = dto.bp_570 or 0.0,
-            bp_600         = dto.bp_600 or 0.0,
-            bp_660         = dto.bp_660 or 0.0,
-            bp_720         = dto.bp_720 or 0.0,
-            bp_780         = dto.bp_780 or 0.0,
-            bp_840         = dto.bp_840 or 0.0,
-            bp_900         = dto.bp_900 or 0.0,
-            bp_960         = dto.bp_960 or 0.0,
-            bp_1020        = dto.bp_1020 or 0.0,
-            bp_1080        = dto.bp_1080 or 0.0,
-            bp_1140        = dto.bp_1140 or 0.0,
-            bp_1200        = dto.bp_1200 or 0.0,
-            bp_1320        = dto.bp_1320 or 0.0,
-            bp_1440        = dto.bp_1440 or 0.0,
-            bp_1560        = dto.bp_1560 or 0.0,
-            bp_1680        = dto.bp_1680 or 0.0,
-            bp_1800        = dto.bp_1800 or 0.0,
-            bp_1920        = dto.bp_1920 or 0.0,
-            bp_2040        = dto.bp_2040 or 0.0,
-            bp_2160        = dto.bp_2160 or 0.0,
-            bp_2280        = dto.bp_2280 or 0.0,
-            bp_2400        = dto.bp_2400 or 0.0,
-            bp_2520        = dto.bp_2520 or 0.0,
-            bp_2640        = dto.bp_2640 or 0.0,
-            bp_2760        = dto.bp_2760 or 0.0,
-            bp_2880        = dto.bp_2880 or 0.0,
-            bp_3000        = dto.bp_3000 or 0.0,
-            bp_3120        = dto.bp_3120 or 0.0,
-            bp_3240        = dto.bp_3240 or 0.0,
-            bp_3360        = dto.bp_3360 or 0.0,
-            bp_3480        = dto.bp_3480 or 0.0,
-            bp_3600        = dto.bp_3600 or 0.0,
-            bp_3900        = dto.bp_3900 or 0.0,
-            bp_4200        = dto.bp_4200 or 0.0,
-            bp_4500        = dto.bp_4500 or 0.0,
-            bp_4800        = dto.bp_4800 or 0.0,
-            bp_5100        = dto.bp_5100 or 0.0,
-            bp_5400        = dto.bp_5400 or 0.0,
-            bp_5700        = dto.bp_5700 or 0.0,
-            bp_6000        = dto.bp_6000 or 0.0,
-            bp_6300        = dto.bp_6300 or 0.0,
-            bp_6600        = dto.bp_6600 or 0.0,
-            bp_7200        = dto.bp_7200 or 0.0,
-    )
+            zwift_id=dto.zwift_id or "",
+            bp_1=dto.bp_1 or 0.0,
+            bp_2=dto.bp_2 or 0.0,
+            bp_3=dto.bp_3 or 0.0,
+            bp_4=dto.bp_4 or 0.0,
+            bp_5=dto.bp_5 or 0.0,
+            bp_6=dto.bp_6 or 0.0,
+            bp_7=dto.bp_7 or 0.0,
+            bp_8=dto.bp_8 or 0.0,
+            bp_9=dto.bp_9 or 0.0,
+            bp_10=dto.bp_10 or 0.0,
+            bp_11=dto.bp_11 or 0.0,
+            bp_12=dto.bp_12 or 0.0,
+            bp_13=dto.bp_13 or 0.0,
+            bp_14=dto.bp_14 or 0.0,
+            bp_15=dto.bp_15 or 0.0,
+            bp_16=dto.bp_16 or 0.0,
+            bp_17=dto.bp_17 or 0.0,
+            bp_18=dto.bp_18 or 0.0,
+            bp_19=dto.bp_19 or 0.0,
+            bp_20=dto.bp_20 or 0.0,
+            bp_21=dto.bp_21 or 0.0,
+            bp_22=dto.bp_22 or 0.0,
+            bp_23=dto.bp_23 or 0.0,
+            bp_24=dto.bp_24 or 0.0,
+            bp_25=dto.bp_25 or 0.0,
+            bp_26=dto.bp_26 or 0.0,
+            bp_27=dto.bp_27 or 0.0,
+            bp_28=dto.bp_28 or 0.0,
+            bp_29=dto.bp_29 or 0.0,
+            bp_30=dto.bp_30 or 0.0,
+            bp_35=dto.bp_35 or 0.0,
+            bp_40=dto.bp_40 or 0.0,
+            bp_45=dto.bp_45 or 0.0,
+            bp_50=dto.bp_50 or 0.0,
+            bp_55=dto.bp_55 or 0.0,
+            bp_60=dto.bp_60 or 0.0,
+            bp_70=dto.bp_70 or 0.0,
+            bp_80=dto.bp_80 or 0.0,
+            bp_90=dto.bp_90 or 0.0,
+            bp_100=dto.bp_100 or 0.0,
+            bp_110=dto.bp_110 or 0.0,
+            bp_120=dto.bp_120 or 0.0,
+            bp_150=dto.bp_150 or 0.0,
+            bp_180=dto.bp_180 or 0.0,
+            bp_210=dto.bp_210 or 0.0,
+            bp_240=dto.bp_240 or 0.0,
+            bp_270=dto.bp_270 or 0.0,
+            bp_300=dto.bp_300 or 0.0,
+            bp_330=dto.bp_330 or 0.0,
+            bp_360=dto.bp_360 or 0.0,
+            bp_390=dto.bp_390 or 0.0,
+            bp_420=dto.bp_420 or 0.0,
+            bp_450=dto.bp_450 or 0.0,
+            bp_480=dto.bp_480 or 0.0,
+            bp_510=dto.bp_510 or 0.0,
+            bp_540=dto.bp_540 or 0.0,
+            bp_570=dto.bp_570 or 0.0,
+            bp_600=dto.bp_600 or 0.0,
+            bp_660=dto.bp_660 or 0.0,
+            bp_720=dto.bp_720 or 0.0,
+            bp_780=dto.bp_780 or 0.0,
+            bp_840=dto.bp_840 or 0.0,
+            bp_900=dto.bp_900 or 0.0,
+            bp_960=dto.bp_960 or 0.0,
+            bp_1020=dto.bp_1020 or 0.0,
+            bp_1080=dto.bp_1080 or 0.0,
+            bp_1140=dto.bp_1140 or 0.0,
+            bp_1200=dto.bp_1200 or 0.0,
+            bp_1320=dto.bp_1320 or 0.0,
+            bp_1440=dto.bp_1440 or 0.0,
+            bp_1560=dto.bp_1560 or 0.0,
+            bp_1680=dto.bp_1680 or 0.0,
+            bp_1800=dto.bp_1800 or 0.0,
+            bp_1920=dto.bp_1920 or 0.0,
+            bp_2040=dto.bp_2040 or 0.0,
+            bp_2160=dto.bp_2160 or 0.0,
+            bp_2280=dto.bp_2280 or 0.0,
+            bp_2400=dto.bp_2400 or 0.0,
+            bp_2520=dto.bp_2520 or 0.0,
+            bp_2640=dto.bp_2640 or 0.0,
+            bp_2760=dto.bp_2760 or 0.0,
+            bp_2880=dto.bp_2880 or 0.0,
+            bp_3000=dto.bp_3000 or 0.0,
+            bp_3120=dto.bp_3120 or 0.0,
+            bp_3240=dto.bp_3240 or 0.0,
+            bp_3360=dto.bp_3360 or 0.0,
+            bp_3480=dto.bp_3480 or 0.0,
+            bp_3600=dto.bp_3600 or 0.0,
+            bp_3900=dto.bp_3900 or 0.0,
+            bp_4200=dto.bp_4200 or 0.0,
+            bp_4500=dto.bp_4500 or 0.0,
+            bp_4800=dto.bp_4800 or 0.0,
+            bp_5100=dto.bp_5100 or 0.0,
+            bp_5400=dto.bp_5400 or 0.0,
+            bp_5700=dto.bp_5700 or 0.0,
+            bp_6000=dto.bp_6000 or 0.0,
+            bp_6300=dto.bp_6300 or 0.0,
+            bp_6600=dto.bp_6600 or 0.0,
+            bp_7200=dto.bp_7200 or 0.0,
+        )
 
     @staticmethod
     def from_ZwiftPowerWattsDTO(dto: ZwiftPowerGraphWattsDTO | None) -> "ZwiftPowerFlattened90dayWattsItem":
@@ -1048,7 +1136,11 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
 
         effortItems = [EffortItem.from_dataTransferObject(effort) for effort in xx]
 
-        bestpower_ordinates = {effort.x_ordinate_seconds: float(effort.y_ordinate_watts) for effort in effortItems if effort.x_ordinate_seconds and effort.y_ordinate_watts}
+        bestpower_ordinates = {
+            effort.x_ordinate_seconds: float(effort.y_ordinate_watts)
+            for effort in effortItems
+            if effort.x_ordinate_seconds and effort.y_ordinate_watts
+        }
 
         flattened = ZwiftPowerFlattened90dayWattsItem()
 
@@ -1057,4 +1149,3 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         flattened.import_x_y_ordinates(bestpower_ordinates)
 
         return flattened
-

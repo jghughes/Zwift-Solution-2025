@@ -39,7 +39,7 @@ class ConnectionStringRepository:
             -> str: Returns the connection string for a specific Azure
             Storage account. Raises AlertMessageError if the
             account is not found.
-    """    
+    """
 
     _cache_of_connection_strings: list[str] = []
 
@@ -50,8 +50,8 @@ class ConnectionStringRepository:
     @classmethod
     def get_azure_storage_account_connection_string(cls, account_name: str) -> str:
         """
-        Retrieves the connection string for a specific Azure Storage account. You must 
-        copy these from the Azure portal and store them in a .txt file. Preferably, use 
+        Retrieves the connection string for a specific Azure Storage account. You must
+        copy these from the Azure portal and store them in a .txt file. Preferably, use
         the secondary keys.
         Args:
             account_name (str): The name of the Azure Storage account.
@@ -66,6 +66,3 @@ class ConnectionStringRepository:
             if f"AccountName={account_name};" in conn_str:
                 return conn_str
         raise AlertMessageError(f"Connection string for Azure account '{account_name}' not found.")
-
-
-

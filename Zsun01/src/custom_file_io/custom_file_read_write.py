@@ -45,24 +45,19 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str,
     """
 
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
     answer = RiderComputeDtoDictModel.model_validate(something, strict=True).root
     return defaultdict(
-        RiderComputeItem,
-        {
-            key: RiderComputeItem.from_dataTransferObject(dto)
-            for key, dto in answer.items()
-        }
+        RiderComputeItem, {key: RiderComputeItem.from_dataTransferObject(dto) for key, dto in answer.items()}
     )
 
-def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(dirpath: Path, filename: str) -> list[RiderStatsItem]:
+
+def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(
+    dirpath: Path, filename: str
+) -> list[RiderStatsItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderStatsItem domain objects.
 
@@ -77,18 +72,17 @@ def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_js
         ValueError: If the directory or file path is invalid or the file does not exist.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
-def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
+
+def read_zwiftpower_90day_watts_dict_from_json(
+    dirpath: Path, filename: str
+) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects.
 
@@ -105,22 +99,16 @@ def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> 
     """
 
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
     answer = ZwiftPower90DayWattsDTODictModel.model_validate(something, strict=True).root
     return defaultdict(
         ZwiftPowerFlattened90dayWattsItem,
-        {
-            key: ZwiftPowerFlattened90dayWattsItem.from_dataTransferObject(dto)
-            for key, dto in answer.items()
-        }
+        {key: ZwiftPowerFlattened90dayWattsItem.from_dataTransferObject(dto) for key, dto in answer.items()},
     )
+
 
 def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> dict[str, RegressionModellingItem]:
     """
@@ -139,24 +127,20 @@ def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> di
     """
 
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
     answer = RegressionModellingDTODictModel.model_validate(something, strict=True).root
     return defaultdict(
         RegressionModellingItem,
-        {
-            key: RegressionModellingItem.from_dataTransferObject(dto)
-            for key, dto in answer.items()
-        }
+        {key: RegressionModellingItem.from_dataTransferObject(dto) for key, dto in answer.items()},
     )
 
-def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data: dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
+
+def write_zwiftpower_90day_watts_dict_to_json(
+    dirpath: Path, filename: str, data: dict[str, ZwiftPowerFlattened90dayWattsItem]
+) -> None:
     """
     Serializes and writes a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects to a JSON file.
 
@@ -173,21 +157,19 @@ def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data
     """
 
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     dataAsDictDTO: dict[str, ZwiftPowerFlattened90DayWattsDTO] = {
-        rider_id: ZwiftPowerFlattened90dayWattsItem.to_dataTransferObject(item)
-        for rider_id, item in data.items()
+        rider_id: ZwiftPowerFlattened90dayWattsItem.to_dataTransferObject(item) for rider_id, item in data.items()
     }
     myObj = ZwiftPower90DayWattsDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
 
-def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: dict[str, RegressionModellingItem]) -> None:
+
+def write_regression_modelling_dict_to_json(
+    dirpath: Path, filename: str, data: dict[str, RegressionModellingItem]
+) -> None:
     """
     Serializes and writes a dictionary of RegressionModellingItem domain objects to a JSON file.
 
@@ -204,19 +186,15 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
     """
 
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=False,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=False, validate_dir_and_extension_only=False
     )
     dataAsDictDTO: dict[str, RegressionModellingDTO] = {
-        rider_id: RegressionModellingItem.to_dataTransferObject(item)
-        for rider_id, item in data.items()
+        rider_id: RegressionModellingItem.to_dataTransferObject(item) for rider_id, item in data.items()
     }
     myObj = RegressionModellingDTODictModel(dataAsDictDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
+
 
 def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[RiderTeamNameItem]:
     """
@@ -233,17 +211,14 @@ def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[R
         ValueError: If the directory or file path is invalid or the file does not exist.
     """
     throw_if_file_path_ingredients_invalid_or_not_exists(
-        dirpath,
-        filename,
-        ".json",
-        require_file_exists_for_read=True,
-        validate_dir_and_extension_only=False
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
     answer_as_dto = RiderTeamNameDtoListModel.model_validate(something, strict=True).root
     answer_as_item = [RiderTeamNameItem.from_dataTransferObject(dto) for dto in answer_as_dto]
     return answer_as_item
+
 
 def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictionary[str, str]:
     """
@@ -273,6 +248,7 @@ def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictio
     answer_as_list_dict.deduplicate_values_in_all_lists()
 
     return answer_as_list_dict
+
 
 def read_json_list_and_export_tabular(
     input_dirpath: Path,

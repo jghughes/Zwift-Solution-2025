@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass, field
 
 from zwift_dto import CompetitionMetricsDTO, ZwiftDTO
@@ -7,18 +6,18 @@ from zwift_id_base import ZwiftIdBase
 
 @dataclass
 class CompetitionMetricsItem:
-    zwift_racing_score      : float = 0.0  # Racing score of the rider
-    zwift_category_open     : str   = ""   # Racing zwift_category_open of the rider
-    zwift_category_women    : str   = ""   # Racing zwift_category_open for women
+    zwift_racing_score: float = 0.0  # Racing score of the rider
+    zwift_category_open: str = ""  # Racing zwift_category_open of the rider
+    zwift_category_women: str = ""  # Racing zwift_category_open for women
 
     @staticmethod
     def from_dataTransferObject(dto: CompetitionMetricsDTO | None) -> "CompetitionMetricsItem":
         if dto is None:
             return CompetitionMetricsItem()
         return CompetitionMetricsItem(
-            zwift_racing_score      =   dto.zwift_racing_score or 0.0,
-            zwift_category_open     =   dto.zwift_category_open or "",
-            zwift_category_women    =   dto.zwift_category_women or "",
+            zwift_racing_score=dto.zwift_racing_score or 0.0,
+            zwift_category_open=dto.zwift_category_open or "",
+            zwift_category_women=dto.zwift_category_women or "",
         )
 
     @staticmethod
@@ -26,26 +25,27 @@ class CompetitionMetricsItem:
         if item is None:
             return CompetitionMetricsDTO()
         return CompetitionMetricsDTO(
-            zwift_racing_score      =   item.zwift_racing_score,
-            zwift_category_open     =   item.zwift_category_open,
-            zwift_category_women    =   item.zwift_category_women,
+            zwift_racing_score=item.zwift_racing_score,
+            zwift_category_open=item.zwift_category_open,
+            zwift_category_women=item.zwift_category_women,
         )
+
 
 @dataclass
 class ZwiftItem(ZwiftIdBase):
-    first_name              : str  = ""
-    last_name               : str  = ""
-    country_code3           : str  = ""
-    is_male                 : bool = False
-    age_years               : float = 0.0
-    height_mm               : float = 0.0
-    weight_grams            : float = 0.0
-    ftp_on_zwift            : float = 0.0
-    achievement_level       : int   = 0 
+    first_name: str = ""
+    last_name: str = ""
+    country_code3: str = ""
+    is_male: bool = False
+    age_years: float = 0.0
+    height_mm: float = 0.0
+    weight_grams: float = 0.0
+    ftp_on_zwift: float = 0.0
+    achievement_level: int = 0
     # total_distance_meters   : float = 0.0
     # total_experience_points	: int	=	0
     # target_experience_points: int	=	0
-    competition_metrics     : CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
+    competition_metrics: CompetitionMetricsItem = field(default_factory=CompetitionMetricsItem)
 
     @staticmethod
     def from_dataTransferObject(dto: ZwiftDTO | None) -> "ZwiftItem":
@@ -53,20 +53,20 @@ class ZwiftItem(ZwiftIdBase):
             return ZwiftItem()
 
         return ZwiftItem(
-            zwift_id            = dto.zwift_id or "",
-            first_name          = dto.first_name or "",
-            last_name           = dto.last_name or "",
-            country_code3       = dto.country_code3 or "",
-            is_male             = dto.is_male if dto.is_male is not None else False,
-            age_years           = dto.age_years or 0.0,
-            height_mm           = dto.height_mm or 0.0,
-            weight_grams        = dto.weight_grams or 0.0,
-            ftp_on_zwift        = dto.ftp_on_zwift or 0.0,
-            achievement_level   = dto.achievement_level or 0,
+            zwift_id=dto.zwift_id or "",
+            first_name=dto.first_name or "",
+            last_name=dto.last_name or "",
+            country_code3=dto.country_code3 or "",
+            is_male=dto.is_male if dto.is_male is not None else False,
+            age_years=dto.age_years or 0.0,
+            height_mm=dto.height_mm or 0.0,
+            weight_grams=dto.weight_grams or 0.0,
+            ftp_on_zwift=dto.ftp_on_zwift or 0.0,
+            achievement_level=dto.achievement_level or 0,
             # total_distance_meters       = dto.total_distance_meters or 0.0,
             # total_experience_points	    = dto.total_experience_points or 0,
             # target_experience_points	= dto.target_experience_points or 0,
-            competition_metrics         = CompetitionMetricsItem.from_dataTransferObject(dto.competition_metrics),
+            competition_metrics=CompetitionMetricsItem.from_dataTransferObject(dto.competition_metrics),
         )
 
     @staticmethod
@@ -74,18 +74,18 @@ class ZwiftItem(ZwiftIdBase):
         if item is None:
             return ZwiftDTO()
         return ZwiftDTO(
-            zwift_id            = item.zwift_id,
-            first_name          = item.first_name,
-            last_name           = item.last_name,
-            country_code3       = item.country_code3,
-            is_male             = item.is_male,
-            age_years           = item.age_years,
-            height_mm           = item.height_mm,
-            weight_grams        = item.weight_grams,
-            ftp_on_zwift        = item.ftp_on_zwift,
-            achievement_level   = item.achievement_level,
+            zwift_id=item.zwift_id,
+            first_name=item.first_name,
+            last_name=item.last_name,
+            country_code3=item.country_code3,
+            is_male=item.is_male,
+            age_years=item.age_years,
+            height_mm=item.height_mm,
+            weight_grams=item.weight_grams,
+            ftp_on_zwift=item.ftp_on_zwift,
+            achievement_level=item.achievement_level,
             # total_distance_meters       = item.total_distance_meters,
             # total_experience_points	    = item.total_experience_points,
             # target_experience_points	= item.target_experience_points,
-            competition_metrics         = CompetitionMetricsItem.to_dataTransferObject(item.competition_metrics),
+            competition_metrics=CompetitionMetricsItem.to_dataTransferObject(item.competition_metrics),
         )

@@ -42,54 +42,62 @@ from rider_compute_item import RiderComputeItem
 
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_exertions(rider_work_assignments: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]) -> dict[RiderComputeItem, list[RiderExertionItem]]:
+def populate_rider_exertions(
+    rider_work_assignments: dict[RiderComputeItem, list[RiderWorkAssignmentItem]],
+) -> dict[RiderComputeItem, list[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
-    
+
     Args:
         speed (float): The speed of the paceline.
         rider_work_assignments (dict[RiderComputeItem, list[RiderWorkAssignmentItem]]): The dictionary of rider workunits.
 
     Returns:
         dict[RiderComputeItem, list[RiderExertionItem]]: A dictionary of Zwift riders with
-            their list of respective efforts including wattage. The Tuple representing 
+            their list of respective efforts including wattage. The Tuple representing
             a single workload is (position, speed, duration, wattage, slope). Each rider has a list of dict_of_rider_exertions
     """
     rider_workloads: dict[RiderComputeItem, list[RiderExertionItem]] = defaultdict(list)
-    
+
     for rider, dict_of_rider_work_assignments in rider_work_assignments.items():
         dict_of_rider_exertions: list[RiderExertionItem] = []
         for assignment in dict_of_rider_work_assignments:
-            wattage = calculate_power_riding_in_the_paceline(rider, assignment.speed, assignment.position, assignment.slope_pc)
-            kilojoules = wattage * assignment.duration / 1_000  # Convert to kilojoules 
+            wattage = calculate_power_riding_in_the_paceline(
+                rider, assignment.speed, assignment.position, assignment.slope_pc
+            )
+            kilojoules = wattage * assignment.duration / 1_000  # Convert to kilojoules
 
-            dict_of_rider_exertions.append(RiderExertionItem(current_location_in_paceline=assignment.position, speed_kph=assignment.speed, duration=assignment.duration, wattage=wattage, kilojoules=kilojoules))
+            dict_of_rider_exertions.append(
+                RiderExertionItem(
+                    current_location_in_paceline=assignment.position,
+                    speed_kph=assignment.speed,
+                    duration=assignment.duration,
+                    wattage=wattage,
+                    kilojoules=kilojoules,
+                )
+            )
         rider_workloads[rider] = dict_of_rider_exertions
-    
+
     return rider_workloads
+
 
 def log_rider_exertions(test_description: str, result: dict[RiderComputeItem, list[RiderExertionItem]]) -> None:
     from tabulate import tabulate
+
     print(test_description)
     table: list[list[object]] = []
     for rider, efforts in result.items():
         for effort in efforts:
-            table.append([
-                rider.name, 
-                effort.current_location_in_paceline, 
-                round(effort.speed_kph, 1), 
-                round(effort.duration), 
-                round(effort.wattage, 0), 
-                round(effort.kilojoules, 0)
-            ])
+            table.append(
+                [
+                    rider.name,
+                    effort.current_location_in_paceline,
+                    round(effort.speed_kph, 1),
+                    round(effort.duration),
+                    round(effort.wattage, 0),
+                    round(effort.kilojoules, 0),
+                ]
+            )
 
-    headers = [
-        "rider", 
-        "location", 
-        "kph", 
-        "seconds", 
-        "watts", 
-        "kJ"
-    ]
-    print("\n" + tabulate(table, headers=headers, tablefmt="plain",disable_numparse=True))
-
+    headers = ["rider", "location", "kph", "seconds", "watts", "kJ"]
+    print("\n" + tabulate(table, headers=headers, tablefmt="plain", disable_numparse=True))

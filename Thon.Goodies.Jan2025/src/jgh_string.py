@@ -9,6 +9,7 @@ MethodFailed = "Method failed to complete."
 # Basic String Utilities
 # ============================================================
 
+
 def capitalize_first_letter(text: str | None) -> str:
     """
     Returns the input string with the first_name letter capitalized.
@@ -17,6 +18,7 @@ def capitalize_first_letter(text: str | None) -> str:
     if not text:
         return ""
     return text[0].upper() + text[1:]
+
 
 def first_n_chars(text: str | None, n: int) -> str:
     """
@@ -32,12 +34,14 @@ def first_n_chars(text: str | None, n: int) -> str:
 # String Concatenation Helpers
 # ============================================================
 
+
 def concat(*array_of_texts: str) -> str:
     """
     Concatenates a variable length array of texts.
     Skips texts that are null or whitespace.
     """
     return concat_with_separator("", *array_of_texts)
+
 
 def concat_with_separator(separator: str, *array_of_texts: str) -> str:
     """
@@ -49,6 +53,7 @@ def concat_with_separator(separator: str, *array_of_texts: str) -> str:
         return ""
     return separator.join(list_of_texts)
 
+
 def concat_as_sentences(*array_of_texts: str) -> str:
     """
     Concatenates texts with a space between each.
@@ -56,12 +61,14 @@ def concat_as_sentences(*array_of_texts: str) -> str:
     """
     return concat_with_separator(" ", *array_of_texts)
 
+
 def concat_as_lines(*array_of_texts: str) -> str:
     """
     Concatenates texts with each on a new line.
     Skips texts that are null or whitespace.
     """
     return concat_with_separator("\n", *array_of_texts)
+
 
 def concat_as_paragraphs(*array_of_texts: str) -> str:
     """
@@ -74,6 +81,7 @@ def concat_as_paragraphs(*array_of_texts: str) -> str:
 # ============================================================
 # Formatting and Messaging Helpers
 # ============================================================
+
 
 def format_seconds_to_hh_mm_ss(elapsed_time: float) -> str:
     """
@@ -93,6 +101,7 @@ def format_seconds_to_hh_mm_ss(elapsed_time: float) -> str:
         seconds = elapsed_time % 60
         return f"{hours} hr {minutes} min {seconds:.0f} sec"
 
+
 def make_pretty_count_of_bytes(numberOfBytes: int) -> str:
     """
     Returns a human-readable string representing the size in bytes, KB, or MB.
@@ -106,6 +115,7 @@ def make_pretty_count_of_bytes(numberOfBytes: int) -> str:
         mb = numberOfBytes / (1024 * 1024)
         return f"{mb:.2f} MB"
 
+
 def make_wait_time_msg(start_timestamp: datetime) -> str:
     """
     Returns a pretty message describing the wait time since start_timestamp.
@@ -113,11 +123,13 @@ def make_wait_time_msg(start_timestamp: datetime) -> str:
     elapsed_seconds = (datetime.now() - start_timestamp).total_seconds()
     return f"Wait time was {elapsed_seconds:.1f} seconds."
 
+
 import unicodedata
 
 # ============================================================
 # Custom for Brute
 # ============================================================
+
 
 def make_short_displayname(old_name: str) -> str:
     """
@@ -155,16 +167,92 @@ def make_short_displayname(old_name: str) -> str:
 
     return new_name
 
-def cleanup_name_string(name_to_clean: str | None) -> str:
 
+def cleanup_name_string(name_to_clean: str | None) -> str:
     sanitized_value = sanitise_string(name_to_clean)
 
     try:
         # Remove specific unwanted characters - this is a kludge - who knows what others out there lurk
         unwanted_characters: list[str] = sorted(
-            ['ZSUN', 'ZSUNR', 'ZSUNstruck', 'JOINcc', 'WCCZSUNR', 'ZSunR', 'ZSUNr', 'ZSUNShine', 'HERD LITTLE PENGUINS', 'ZSUNRAtomic', 'ZSUNR Betelgeuse', 'ZSuNR', '(NCC)', 'CC Solaris Racing pb Suncoast Vet', 'Evo Renegades', 'Red Dwarfs', 'Harlow Tri Club', 'ZSUNR Neptune', 'ZNeptune', 'USMES', '5W4T', '12 Weeks Postpartum', 'TeamZF', 'ZSUNR COWS', 'zsunr','CC', 'coalition', 'SISU', 'ZSUNR Pegasus', 'MTCCSA', 'EVOLVE', 'OTR', 'Njinga CC', 'NZBRO', 'CrushPod', 'AsselinOptimum', 'wcc','HERD', 'DIRT', 'COPZ', 'BEAT', 'Optimum', 'USMeS', 'RAD', 'NZBRO', 'Synergy', 'Artemis RacingVCRCCPatapsco Bikes', 'AGTB', '6AM', 'BOB', 'Polaris', 'GXY', 'DRAFT', 'ZSUNR MERCURY', 'ZSUNR Centaurus', 'LGBTQzZLDRF4CTeamIncorrigible', 'CarpeDiemRacing', 'ZSUNR Pulsars', 'Velocity', 'TEAM VARLO', 'TZR FB', 'Sea Dragons', 'ZsunR', 'Velos', 'HABFRRCLOWAT','COALITION', 'Zsunr', 'Roadrunners', 'ODZ', 'SZUNR', ' TFC', 'USAC 550844', 'RK Rhinos', '(ZSUNR)', 'CC'],
+            [
+                "ZSUN",
+                "ZSUNR",
+                "ZSUNstruck",
+                "JOINcc",
+                "WCCZSUNR",
+                "ZSunR",
+                "ZSUNr",
+                "ZSUNShine",
+                "HERD LITTLE PENGUINS",
+                "ZSUNRAtomic",
+                "ZSUNR Betelgeuse",
+                "ZSuNR",
+                "(NCC)",
+                "CC Solaris Racing pb Suncoast Vet",
+                "Evo Renegades",
+                "Red Dwarfs",
+                "Harlow Tri Club",
+                "ZSUNR Neptune",
+                "ZNeptune",
+                "USMES",
+                "5W4T",
+                "12 Weeks Postpartum",
+                "TeamZF",
+                "ZSUNR COWS",
+                "zsunr",
+                "CC",
+                "coalition",
+                "SISU",
+                "ZSUNR Pegasus",
+                "MTCCSA",
+                "EVOLVE",
+                "OTR",
+                "Njinga CC",
+                "NZBRO",
+                "CrushPod",
+                "AsselinOptimum",
+                "wcc",
+                "HERD",
+                "DIRT",
+                "COPZ",
+                "BEAT",
+                "Optimum",
+                "USMeS",
+                "RAD",
+                "NZBRO",
+                "Synergy",
+                "Artemis RacingVCRCCPatapsco Bikes",
+                "AGTB",
+                "6AM",
+                "BOB",
+                "Polaris",
+                "GXY",
+                "DRAFT",
+                "ZSUNR MERCURY",
+                "ZSUNR Centaurus",
+                "LGBTQzZLDRF4CTeamIncorrigible",
+                "CarpeDiemRacing",
+                "ZSUNR Pulsars",
+                "Velocity",
+                "TEAM VARLO",
+                "TZR FB",
+                "Sea Dragons",
+                "ZsunR",
+                "Velos",
+                "HABFRRCLOWAT",
+                "COALITION",
+                "Zsunr",
+                "Roadrunners",
+                "ODZ",
+                "SZUNR",
+                " TFC",
+                "USAC 550844",
+                "RK Rhinos",
+                "(ZSUNR)",
+                "CC",
+            ],
             key=len,
-            reverse=True
+            reverse=True,
         )
 
         for char in unwanted_characters:
@@ -173,6 +261,7 @@ def cleanup_name_string(name_to_clean: str | None) -> str:
         return sanitise_string(sanitized_value)
     except Exception:
         return sanitized_value
+
 
 def sanitise_string(input: str | None) -> str:
     """
@@ -189,21 +278,23 @@ def sanitise_string(input: str | None) -> str:
         return ""
     try:
         # Remove invalid Unicode characters (e.g., ?)
-        sanitized_value = input.replace("\uFFFD", "")
+        sanitized_value = input.replace("\ufffd", "")
         # Remove invalid surrogate pairs or other invalid characters
         sanitized_value = sanitized_value.encode("utf-8", errors="ignore").decode("utf-8")
         # Remove unwanted Unicode characters (e.g., emoji, symbols)
-        sanitized_value = ''.join(
-            char for char in sanitized_value
-            if unicodedata.category(char)[0] not in {'C', 'S', 'P', 'M'}  # Remove control, symbol, punctuation, and mark characters
+        sanitized_value = "".join(
+            char
+            for char in sanitized_value
+            if unicodedata.category(char)[0]
+            not in {"C", "S", "P", "M"}  # Remove control, symbol, punctuation, and mark characters
         )
         # Remove specific unwanted characters - this is a kludge - who knows what others out there lurk in European name fields
-        unwanted_characters = ['\u0144', '\u1559', '\u21c0', '\u2038', '\u21bc', '\u2036', '\u1557']
+        unwanted_characters = ["\u0144", "\u1559", "\u21c0", "\u2038", "\u21bc", "\u2036", "\u1557"]
 
         for char in unwanted_characters:
             sanitized_value = sanitized_value.replace(char, "")
         # Reduce multiple spaces (including tabs and newlines) to a single space
-        sanitized_value = re.sub(r'\s+', ' ', sanitized_value)
+        sanitized_value = re.sub(r"\s+", " ", sanitized_value)
         # Strip leading and trailing spaces
         return sanitized_value.strip()
     except Exception as e:

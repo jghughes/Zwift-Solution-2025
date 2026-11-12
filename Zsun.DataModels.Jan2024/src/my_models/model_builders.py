@@ -21,7 +21,12 @@ from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWatts
 from zwiftracingapp_item import ZwiftRacingAppItem
 
 
-def build_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,
+def build_CurveFittingResultItem(
+    zwift_id: str,
+    coefficient_one_hour: float,
+    exponent_one_hour: float,
+    r_squared_one_hour: float,
+    coefficient_pull_curve: float,
     exponent_pull_curve: float,
     r_squared_pull_best_fit: float,
     critical_power: float,
@@ -60,20 +65,24 @@ def build_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exp
     """
 
     return CurveFittingResultItem(
-        zwift_id                    = zwift_id,
-        sixty_min_curve_coefficient = coefficient_one_hour,
-        sixty_min_curve_exponent    = exponent_one_hour,
-        sixty_min_curve_r_squared   = r_squared_one_hour,
-        TTT_pull_curve_coefficient  = coefficient_pull_curve,
-        TTT_pull_curve_exponent     = exponent_pull_curve,
-        TTT_pull_curve_r_squared    = r_squared_pull_best_fit,
-        CP                          = round(critical_power),
-        AWC                         = round((anaerobic_work_capacity / 1_000.0), 1),
-        when_curves_fitted          = get_current_utc_iso8601_timestamp(),
+        zwift_id=zwift_id,
+        sixty_min_curve_coefficient=coefficient_one_hour,
+        sixty_min_curve_exponent=exponent_one_hour,
+        sixty_min_curve_r_squared=r_squared_one_hour,
+        TTT_pull_curve_coefficient=coefficient_pull_curve,
+        TTT_pull_curve_exponent=exponent_pull_curve,
+        TTT_pull_curve_r_squared=r_squared_pull_best_fit,
+        CP=round(critical_power),
+        AWC=round((anaerobic_work_capacity / 1_000.0), 1),
+        when_curves_fitted=get_current_utc_iso8601_timestamp(),
     )
 
 
-def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAppItem | None, jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
+def build_RiderComputeItem(
+    zwiftItem: ZwiftItem,
+    zwiftracingappItem: ZwiftRacingAppItem | None,
+    jghcurveItem: CurveFittingResultItem,
+) -> RiderComputeItem:
     """
     Constructs and returns a fully populated RiderComputeItem for a single rider.
 
@@ -97,38 +106,45 @@ def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacing
     """
 
     if zwiftracingappItem is None:
-        zwiftracingappItem = ZwiftRacingAppItem()  # proceed with default values, not deemed critical. some racers will not have zwiftracingapp data
+        zwiftracingappItem = (
+            ZwiftRacingAppItem()
+        )  # proceed with default values, not deemed critical. some racers will not have zwiftracingapp data
 
     name = zwiftracingappItem.full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
 
     return RiderComputeItem(
-        zwift_id                         = zwiftItem.zwift_id,
-        name                             = cleanup_name_string(name),
-        weight_kg                        = round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
-        zwift_country_code3              = zwiftItem.country_code3,
-        height_cm                        = round((zwiftItem.height_mm or 0.0) / 10.0),
-        gender                           = "m" if zwiftItem.is_male else "f",
-        age_years                        = zwiftItem.age_years,
-        age_group                        = zwiftracingappItem.age_group,
-        zwift_FTP_watts                  = round(zwiftItem.ftp_on_zwift),
-        velo_zwiftpower_zFTP_watts       = round(zwiftracingappItem.zp_FTP),
-        zwift_racing_score               = round(zwiftItem.competition_metrics.zwift_racing_score),
-        zwift_cat_open                   = zwiftItem.competition_metrics.zwift_category_open,
-        zwift_cat_women                  = zwiftItem.competition_metrics.zwift_category_women,
-        velo_rating_30_days              = round(zwiftracingappItem.veloitem.racing_score_max30_obj.velo_rating),
-        velo_cat_num_30_days             = zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
-        velo_cat_name_30_days            = zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
-        jgh_60_min_curve_coefficient     = jghcurveItem.sixty_min_curve_coefficient,
-        jgh_60_min_curve_exponent        = jghcurveItem.sixty_min_curve_exponent,
-        jgh_TTT_pull_curve_coefficient   = jghcurveItem.TTT_pull_curve_coefficient,
-        jgh_TTT_pull_curve_exponent      = jghcurveItem.TTT_pull_curve_exponent,
-        jgh_TTT_pull_curve_fit_r_squared = jghcurveItem.sixty_min_curve_r_squared,
-        jgh_when_curves_fitted           = jghcurveItem.when_curves_fitted,
+        zwift_id=zwiftItem.zwift_id,
+        name=cleanup_name_string(name),
+        weight_kg=round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1),
+        zwift_country_code3=zwiftItem.country_code3,
+        height_cm=round((zwiftItem.height_mm or 0.0) / 10.0),
+        gender="m" if zwiftItem.is_male else "f",
+        age_years=zwiftItem.age_years,
+        age_group=zwiftracingappItem.age_group,
+        zwift_FTP_watts=round(zwiftItem.ftp_on_zwift),
+        velo_zwiftpower_zFTP_watts=round(zwiftracingappItem.zp_FTP),
+        zwift_racing_score=round(zwiftItem.competition_metrics.zwift_racing_score),
+        zwift_cat_open=zwiftItem.competition_metrics.zwift_category_open,
+        zwift_cat_women=zwiftItem.competition_metrics.zwift_category_women,
+        velo_rating_30_days=round(zwiftracingappItem.veloitem.racing_score_max30_obj.velo_rating),
+        velo_cat_num_30_days=zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+        velo_cat_name_30_days=zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+        jgh_60_min_curve_coefficient=jghcurveItem.sixty_min_curve_coefficient,
+        jgh_60_min_curve_exponent=jghcurveItem.sixty_min_curve_exponent,
+        jgh_TTT_pull_curve_coefficient=jghcurveItem.TTT_pull_curve_coefficient,
+        jgh_TTT_pull_curve_exponent=jghcurveItem.TTT_pull_curve_exponent,
+        jgh_TTT_pull_curve_fit_r_squared=jghcurveItem.sixty_min_curve_r_squared,
+        jgh_when_curves_fitted=jghcurveItem.when_curves_fitted,
     )
 
 
-def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAppItem | None, jghRiderComputeItem: RiderComputeItem | None, 
-                             watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None, routeItem: RouteItem | None) -> RiderStatsItem:
+def build_RiderStatsItem(
+    zwiftItem: ZwiftItem,
+    zwiftracingappItem: ZwiftRacingAppItem | None,
+    jghRiderComputeItem: RiderComputeItem | None,
+    watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None,
+    routeItem: RouteItem | None,
+) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 
@@ -160,45 +176,49 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
             Set to 0 if the rider was not present in the launch-date snapshot file.
         routeItem (RouteItem):
             The route item used to calculate route-specific statistics, if any.
-    
+
     Returns:
         RiderStatsItem: A fully populated rider statistics item.
     """
 
     if zwiftracingappItem is None:
-        zwiftracingappItem = ZwiftRacingAppItem()  # proceed with default values, not deemed critical. many/most riders will not have zwiftracingapp data
+        zwiftracingappItem = (
+            ZwiftRacingAppItem()
+        )  # proceed with default values, not deemed critical. many/most riders will not have zwiftracingapp data
 
     if jghRiderComputeItem is None:
         jghRiderComputeItem = RiderComputeItem()  # proceed with empty values, not deemed critical for rider stats. many riders will not have riderCompute items because they are not curve fitted because they lack zwiftpower90daywatts data
 
     if watts_90_day_item is None:
-        watts_90_day_item = ZwiftPowerFlattened90dayWattsItem()  # proceed with default values, not deemed critical. many riders will not have zwiftpower 90-day watts data
+        watts_90_day_item = (
+            ZwiftPowerFlattened90dayWattsItem()
+        )  # proceed with default values, not deemed critical. many riders will not have zwiftpower 90-day watts data
 
     name = zwiftracingappItem.full_name or f"{zwiftItem.first_name} {zwiftItem.last_name}"
     weight_kg = round((zwiftItem.weight_grams or 0.0) / 1_000.0, 1)
 
     riderStatsItem = RiderStatsItem(
-        zwift_id                    =   zwiftItem.zwift_id,
-        name                        =   cleanup_name_string(name),
-        zwift_country_code3         =   zwiftItem.country_code3,
-        age                         =   zwiftItem.age_years,
-        height_cm                   =   round((zwiftItem.height_mm or 0.0) / 10.0),
-        weight_kg                   =   weight_kg,
-        gender_code                 =   "m" if zwiftItem.is_male else "f",
-        cat_open                    =   zwiftItem.competition_metrics.zwift_category_open,
-        cat_women                   =   zwiftItem.competition_metrics.zwift_category_women,
-        achievement_level           =   int(zwiftItem.achievement_level / 100.0),
-        team_names                  =   "",  
-        zwift_racing_score          =   round(zwiftItem.competition_metrics.zwift_racing_score),
-        zwift_ftp_w                 =   round(zwiftItem.ftp_on_zwift),
-        zwift_zftp_w                =   round(zwiftracingappItem.zp_FTP),
-        velo_age_group              =   zwiftracingappItem.age_group,
-        velo_cat_num_30_days        =   zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
-        velo_cat_name_30_days       =   zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
-        velo_rating_30_days         =   round(zwiftracingappItem.veloitem.racing_score_max30_obj.velo_rating, 0),
-        wkg_60min_curvefit          =   round(jghRiderComputeItem.get_1_hour_curvefit_wkg(), 2),
-        w_60min_curvefit            =   round(jghRiderComputeItem.get_1_hour_curvefit_watts(), 2),
-        timestamp                   =   get_current_utc_iso8601_timestamp(),
+        zwift_id=zwiftItem.zwift_id,
+        name=cleanup_name_string(name),
+        zwift_country_code3=zwiftItem.country_code3,
+        age=zwiftItem.age_years,
+        height_cm=round((zwiftItem.height_mm or 0.0) / 10.0),
+        weight_kg=weight_kg,
+        gender_code="m" if zwiftItem.is_male else "f",
+        cat_open=zwiftItem.competition_metrics.zwift_category_open,
+        cat_women=zwiftItem.competition_metrics.zwift_category_women,
+        achievement_level=int(zwiftItem.achievement_level / 100.0),
+        team_names="",
+        zwift_racing_score=round(zwiftItem.competition_metrics.zwift_racing_score),
+        zwift_ftp_w=round(zwiftItem.ftp_on_zwift),
+        zwift_zftp_w=round(zwiftracingappItem.zp_FTP),
+        velo_age_group=zwiftracingappItem.age_group,
+        velo_cat_num_30_days=zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_num,
+        velo_cat_name_30_days=zwiftracingappItem.veloitem.racing_score_max30_obj.mixed_things_obj.velo_cat_name,
+        velo_rating_30_days=round(zwiftracingappItem.veloitem.racing_score_max30_obj.velo_rating, 0),
+        wkg_60min_curvefit=round(jghRiderComputeItem.get_1_hour_curvefit_wkg(), 2),
+        w_60min_curvefit=round(jghRiderComputeItem.get_1_hour_curvefit_watts(), 2),
+        timestamp=get_current_utc_iso8601_timestamp(),
     )
 
     riderStatsItem.zwift_zftp_wkg = safe_divide(zwiftracingappItem.zp_FTP, riderStatsItem.weight_kg)
@@ -215,12 +235,12 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
         else riderStatsItem.cat_open + "/" + riderStatsItem.cat_women
     )
 
-    zftp_wkg_text           = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg, 2))}wkg"
+    zftp_wkg_text = f"{format_number_2dp(round(riderStatsItem.zwift_zftp_wkg, 2))}wkg"
     zwift_racing_score_text = f"{format_number_0dp_padded3(riderStatsItem.zwift_racing_score)}zrs"
     riderStatsItem.zwift_cat_label = f"{zftp_wkg_text} - {zwift_racing_score_text} - {cat_combo_text}"
 
     velo_cat_num_text = format_number_0dp_padded1(riderStatsItem.velo_cat_num_30_days)
-    velo_rating_text  = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
+    velo_rating_text = format_number_0dp_padded4(riderStatsItem.velo_rating_30_days)
 
     riderStatsItem.velo_cat_label = (
         "# none"
@@ -228,13 +248,21 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
         else f"{velo_rating_text} {riderStatsItem.velo_cat_name_30_days} - {velo_cat_num_text}"
     )
 
-    riderStatsItem = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(riderStatsItem, watts_90_day_item, weight_kg)
+    riderStatsItem = ZwiftPowerFlattened90dayWattsItem.populate_riderStatsItem_with_90dayWattsItem(
+        riderStatsItem, watts_90_day_item, weight_kg
+    )
 
-    if (routeItem is not None and jghRiderComputeItem.jgh_60_min_curve_coefficient > 0 and jghRiderComputeItem.jgh_60_min_curve_exponent > 0):
+    if (
+        routeItem is not None
+        and jghRiderComputeItem.jgh_60_min_curve_coefficient > 0
+        and jghRiderComputeItem.jgh_60_min_curve_exponent > 0
+    ):
         # print(f"Lead-in length={routeItem.route_lead_in_km}km")
         riderStatsItem = RouteItem.populate_riderStatsItem_with_routeItem(routeItem, riderStatsItem)
         # the solver mutates the buckets in place, so give each rider a private copy of the shared route
-        routeItem = solve_for_route_duration_at_constant_90_day_best_using_binary_search(jghRiderComputeItem, copy.deepcopy(routeItem), DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS)
+        routeItem = solve_for_route_duration_at_constant_90_day_best_using_binary_search(
+            jghRiderComputeItem, copy.deepcopy(routeItem), DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
+        )
         route_time_sec = sum(bucket.calculated_bucket_duration_sec for bucket in routeItem.route_slope_buckets)
         if not math.isfinite(route_time_sec):
             riderStatsItem.route_sec = 0.0
@@ -242,8 +270,17 @@ def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAp
         else:
             riderStatsItem.route_sec = round(route_time_sec, 1)
             riderStatsItem.route_hh_mm_ss = format_seconds_to_hh_mm_ss(route_time_sec)
-        riderStatsItem.route_watts = round((routeItem.route_slope_buckets[0].calculated_bucket_watts if len(routeItem.route_slope_buckets) > 0 else 0.0), 1)
+        riderStatsItem.route_watts = round(
+            (
+                routeItem.route_slope_buckets[0].calculated_bucket_watts
+                if len(routeItem.route_slope_buckets) > 0
+                else 0.0
+            ),
+            1,
+        )
         riderStatsItem.route_wkg = round(safe_divide(riderStatsItem.route_watts, riderStatsItem.weight_kg), 2)
-        riderStatsItem.route_kph = round(safe_divide(routeItem.route_lead_in_km + routeItem.route_length_km, route_time_sec/3600.0), 1)
-    
+        riderStatsItem.route_kph = round(
+            safe_divide(routeItem.route_lead_in_km + routeItem.route_length_km, route_time_sec / 3600.0), 1
+        )
+
     return riderStatsItem
