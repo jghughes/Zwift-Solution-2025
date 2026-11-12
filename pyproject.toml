@@ -27,7 +27,6 @@ src = [
 [tool.ruff.lint]
 select = [
     "E", "F", "I", "UP", "B", "SIM", "RUF",
-    # Rule families with zero violations today; enabled so they stay that way.
     "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "PGH", "PIE", "PLE", "PLW", "PT", "RSE", "S", "TID",
 ]
 # Repo-wide deferrals only for rules with hundreds of hits. Everything else is scoped per file below
