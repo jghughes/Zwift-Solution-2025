@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 from jgh_exceptions import AlertMessageError
 from jgh_read_write import read_lines
@@ -41,7 +42,7 @@ class ConnectionStringRepository:
             account is not found.
     """
 
-    _cache_of_connection_strings: list[str] = []
+    _cache_of_connection_strings: ClassVar[list[str]] = []
 
     @staticmethod
     def _get_azure_storage_account_connection_strings_for_zsun() -> list[str]:

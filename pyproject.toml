@@ -29,29 +29,10 @@ select = [
     "E", "F", "I", "UP", "B", "SIM", "RUF",
     "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "PGH", "PIE", "PLE", "PLW", "PT", "RSE", "S", "TID",
 ]
-# Repo-wide deferrals only for rules with hundreds of hits. Everything else is scoped per file below
-# so that new code is still checked. Remove entries as the code is cleaned up.
+# Repo-wide deferral only for a rule with hundreds of hits. Remove it as the code is cleaned up.
 ignore = [
     "E501",   # line length: `ruff format` handles code; 113 long strings/comments remain that it cannot wrap
 ]
-
-[tool.ruff.lint.per-file-ignores]
-# E101: mixed tabs/spaces
-"Thon.Azure.Oct2026/src/jgh_azure_storage_service_client.py" = ["E101"]
-"Zsun.DataModels.Jan2024/src/my_models/rider_compute_item.py" = ["E101"]
-# E402: imports not at top of file
-"Thon.Goodies.Jan2025/src/jgh_internet_helpers.py" = ["E402"]
-"Thon.Goodies.Jan2025/src/jgh_string.py" = ["E402", "B904"]
-# B904: raise without `from` inside except
-"Thon.Goodies.Jan2025/src/jgh_read_write.py" = ["B904"]
-# F403/F405: star import from zwiftracingapp_dto
-"Zsun.DataModels.Jan2024/src/third_party_models/zwiftracingapp_item.py" = ["F403", "F405"]
-# RUF002: en dash in docstrings
-"Zsun01/src/formulae/jgh_formulae00.py" = ["RUF002"]
-# RUF012: mutable class defaults
-"Thon.Azure.Oct2026/src/repository_of_connectionstrings.py" = ["RUF012"]
-"Zsun01/src/repositories/repository_of_routes.py" = ["RUF012"]
-"Zsun01/src/repositories/repository_of_team_rosters.py" = ["RUF012"]
 
 # known-first-party is not needed: every first-party module folder is already listed in "src" above.
 

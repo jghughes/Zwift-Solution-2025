@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from zwift_id_base import ZwiftIdBase
-from zwiftracingapp_dto import *
+from zwiftracingapp_dto import MixedThingsDTO, PowerDTO, RaceDTO, RatingScoreDTO, ZwiftRacingAppDTO
 
 
 @dataclass

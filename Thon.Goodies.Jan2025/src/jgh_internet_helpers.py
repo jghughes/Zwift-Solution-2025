@@ -1,3 +1,5 @@
+import socket
+
 from jgh_exceptions import AlertMessageError
 
 # =========================
@@ -5,7 +7,6 @@ from jgh_exceptions import AlertMessageError
 # =========================
 INTERNET_CHECK_HOST = ("8.8.8.8", 53)
 INTERNET_CHECK_TIMEOUT = 3
-import socket
 
 
 def warn_if_internet_not_connected() -> str | None:

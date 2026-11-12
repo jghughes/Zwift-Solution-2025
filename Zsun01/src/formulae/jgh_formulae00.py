@@ -250,12 +250,12 @@ def solve_for_velocity_from_power_using_binary_search(
 
     Algorithm
     ---------
-    Phase 1 – Upper bound scan:
+    Phase 1 - Upper bound scan:
         Start at 0 kph and step upward in fixed increments until
         calculate_power_from_velocity() first exceeds power_watts.
         That step becomes the upper bound for the binary search.
 
-    Phase 2 – Binary search:
+    Phase 2 - Binary search:
         Bisect [lower_bound_kph, upper_bound_kph] until the interval
         width is within REQUIRED_PRECISION_OF_SPEED_KPH.
 

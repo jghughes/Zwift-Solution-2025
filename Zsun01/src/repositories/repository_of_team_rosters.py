@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import ClassVar
 
 from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
 
@@ -25,7 +26,7 @@ class RepositoryOfTeamRosters:
             Returns the exertion intensity factor for the specified team.
     """
 
-    _team_exertion_intensity_factors_as_dict: dict[str, float] = defaultdict(
+    _team_exertion_intensity_factors_as_dict: ClassVar[dict[str, float]] = defaultdict(
         lambda: DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT,
         {
             "everybody": 1.0,
@@ -45,7 +46,7 @@ class RepositoryOfTeamRosters:
         },
     )
 
-    _team_rosters_as_dict_of_list: dict[str, list[tuple[str, str]]] = defaultdict(
+    _team_rosters_as_dict_of_list: ClassVar[dict[str, list[tuple[str, str]]]] = defaultdict(
         list,
         {
             "scratchpad": [

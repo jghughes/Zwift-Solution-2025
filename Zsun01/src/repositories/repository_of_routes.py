@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from route_item import RouteItem
 from slope_bucket_item import SlopeBucketItem
 
@@ -17,7 +19,7 @@ class RepositoryOfRoutes:
             Returns the RouteItem for the given route name, or raises ValueError if not found.
     """
 
-    _routes_as_dict: dict[str, RouteItem] = {
+    _routes_as_dict: ClassVar[dict[str, RouteItem]] = {
         "Template": RouteItem(
             route_name="name",
             zwift_world_name="world",

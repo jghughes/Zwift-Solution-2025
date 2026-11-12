@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from datetime import UTC, datetime
 
 CallTimedOut = "Call timed out. Please try again later."
@@ -124,8 +125,6 @@ def make_wait_time_msg(start_timestamp: datetime) -> str:
     elapsed_seconds = (datetime.now(UTC) - start_timestamp).total_seconds()
     return f"Wait time was {elapsed_seconds:.1f} seconds."
 
-
-import unicodedata
 
 # ============================================================
 # Custom for Brute
@@ -299,4 +298,4 @@ def sanitise_string(input: str | None) -> str:
         # Strip leading and trailing spaces
         return sanitized_value.strip()
     except Exception as e:
-        raise ValueError(f"Error sanitizing string '{input}'. Details: {e}")
+        raise ValueError(f"Error sanitizing string '{input}'. Details: {e}") from e
