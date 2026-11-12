@@ -1,7 +1,6 @@
 # Diagnostic utilities for RepositoryOfRiders.
 # Not used in the production pipeline. Intended for testing, exploration, and data quality checks.
 
-from typing import Dict
 
 import pandas as pd
 
@@ -21,9 +20,9 @@ COL_IN_ZWIFTRACINGAPP          = "zwiftracingapp"
 
 
 def create_union_of_sets_as_dataframe(
-    dict_of_ZwiftItem: Dict[str, ZwiftItem],
-    dict_of_ZwiftRacingAppItem: Dict[str, ZwiftRacingAppItem],
-    dict_of_ZwiftPower90dayWattsItem: Dict[str, ZwiftPowerFlattened90dayWattsItem],
+    dict_of_ZwiftItem: dict[str, ZwiftItem],
+    dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem],
+    dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem],
     sample1: list[str],
     sample2: list[str],
 ) -> pd.DataFrame:
@@ -88,9 +87,9 @@ def create_union_of_sets_as_dataframe(
 
 
 def create_intersection_of_sets_as_dataframe(
-    dict_of_ZwiftItem: Dict[str, ZwiftItem],
-    dict_of_ZwiftRacingAppItem: Dict[str, ZwiftRacingAppItem],
-    dict_of_ZwiftPower90dayWattsItem: Dict[str, ZwiftPowerFlattened90dayWattsItem],
+    dict_of_ZwiftItem: dict[str, ZwiftItem],
+    dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem],
+    dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem],
     sample1: list[str],
     sample2: list[str],
 ) -> pd.DataFrame:
@@ -152,9 +151,9 @@ def create_intersection_of_sets_as_dataframe(
 
 
 def create_union_of_sets_filtered_by_membership_as_dataframe(
-    dict_of_ZwiftItem: Dict[str, ZwiftItem],
-    dict_of_ZwiftRacingAppItem: Dict[str, ZwiftRacingAppItem],
-    dict_of_ZwiftPower90dayWattsItem: Dict[str, ZwiftPowerFlattened90dayWattsItem],
+    dict_of_ZwiftItem: dict[str, ZwiftItem],
+    dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem],
+    dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem],
     zwift: str,
     racingapp: str,
     zwiftpower_90day_cp: str,
@@ -222,9 +221,9 @@ def create_union_of_sets_filtered_by_membership_as_dataframe(
 
 
 def create_intersection_of_sets_as_list(
-    dict_of_ZwiftItem: Dict[str, ZwiftItem],
-    dict_of_ZwiftRacingAppItem: Dict[str, ZwiftRacingAppItem],
-    dict_of_ZwiftPower90dayWattsItem: Dict[str, ZwiftPowerFlattened90dayWattsItem],
+    dict_of_ZwiftItem: dict[str, ZwiftItem],
+    dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem],
+    dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem],
     sample1: list[str],
     sample2: list[str],
 ) -> list[str]:
@@ -235,9 +234,9 @@ def create_intersection_of_sets_as_list(
 
 
 def create_union_of_sets_filtered_by_membership_as_list(
-    dict_of_ZwiftItem: Dict[str, ZwiftItem],
-    dict_of_ZwiftRacingAppItem: Dict[str, ZwiftRacingAppItem],
-    dict_of_ZwiftPower90dayWattsItem: Dict[str, ZwiftPowerFlattened90dayWattsItem],
+    dict_of_ZwiftItem: dict[str, ZwiftItem],
+    dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem],
+    dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem],
     zwift: str,
     racingapp: str,
     zwiftpower_90day_cp: str,

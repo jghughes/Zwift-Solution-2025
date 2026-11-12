@@ -39,7 +39,6 @@ Example Usage:
 
 from collections import defaultdict
 from tabulate import tabulate
-from typing import Dict, List, Tuple
 
 from paceline_modelling_items import RiderContributionItem, RiderExertionItem
 from jgh_formulae03 import calculate_overall_average_watts, calculate_overall_normalized_watts
@@ -47,13 +46,13 @@ from jgh_number import safe_divide
 from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExertionItem]], max_exertion_intensity_factor : float ) -> Dict[RiderComputeItem, RiderContributionItem]:
+def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExertionItem]], max_exertion_intensity_factor : float ) -> dict[RiderComputeItem, RiderContributionItem]:
 
-    def extract_watts_sequentially(exertions: List[RiderExertionItem]) -> Tuple[float, float, float, float, float, float, float, float]:
+    def extract_watts_sequentially(exertions: list[RiderExertionItem]) -> tuple[float, float, float, float, float, float, float, float]:
         if not exertions:
             return 0, 0, 0, 0, 0,0,0,0
 
-        dict_wattages: Dict[int, float] = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
+        dict_wattages: dict[int, float] = {exertion.current_location_in_paceline: exertion.wattage for exertion in exertions}
 
         p1 = dict_wattages.get(1, 0)
         p2 = dict_wattages.get(2, 0)
@@ -66,14 +65,14 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
 
         return p1, p2, p3, p4, p5, p6, p7, p8
 
-    def extract_pull_metrics(exertions: List[RiderExertionItem]) -> Tuple[float, float]:
+    def extract_pull_metrics(exertions: list[RiderExertionItem]) -> tuple[float, float]:
         if not exertions:
             return 0, 0
 
         p1_speed_kph = 0
         p1_duration : float = 0
 
-        dict_positions: Dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}
+        dict_positions: dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}
 
         pull_exertion = dict_positions.get(1, None)
 
@@ -85,7 +84,7 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
 
         return p1_speed_kph, p1_duration
  
-    answer : Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)
+    answer : dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)
 
     for rider, exertions in riders.items():
         p1w, p2w, p3w, p4w, p5w, p6w, p7w, p8w = extract_watts_sequentially(exertions)
@@ -121,7 +120,7 @@ def populate_rider_contributions(riders: Dict[RiderComputeItem, List[RiderExerti
     return answer
 
 
-def log_rider_contributions(test_description: str, result: Dict[RiderComputeItem, RiderContributionItem]) -> None:
+def log_rider_contributions(test_description: str, result: dict[RiderComputeItem, RiderContributionItem]) -> None:
     print(test_description)
     table: list[list[object]] = []
     for rider, z in result.items():

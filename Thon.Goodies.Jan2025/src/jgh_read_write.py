@@ -1,7 +1,7 @@
 import json
 import csv
 import logging
-from typing import List, Dict, Any, Union
+from typing import Any
 from pathlib import Path
 import pandas as pd
 from jgh_path_helpers import throw_if_file_path_invalid_or_not_exists, throw_if_dirpath_invalid_or_not_exists, throw_if_file_path_ingredients_invalid_or_not_exists
@@ -26,7 +26,7 @@ def parse_json(text: str) -> Any:
 # Directory Listing Utilities
 # ===========================
 
-def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> List[Path]:
+def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> list[Path]:
     """
     List files in a directory matching a given wildcard pattern (e.g., "*.json").
 
@@ -38,7 +38,7 @@ def list_filePaths_recursive(dirpath: Path, wildcard_pattern: str) -> List[Path]
         answer = [f for f in dirpath.glob(wildcard_pattern) if f.is_file()]
         return answer
     except Exception as e:
-        raise IOError(f"Error listing files in directory {dirpath}: {e}")
+        raise OSError(f"Error listing files in directory {dirpath}: {e}")
 
 # ===========================
 # File Reading Utilities
@@ -56,7 +56,7 @@ def read_text_from_path(filepath: Path) -> str:
         with filepath.open("r", encoding="utf-8") as my_file:
             return my_file.read()
     except Exception as err:
-        raise IOError(f"Error reading file {filepath}: {err}")
+        raise OSError(f"Error reading file {filepath}: {err}")
 
 def read_text(dirpath: Path, filename: str) -> str:
     """
@@ -77,9 +77,9 @@ def read_text(dirpath: Path, filename: str) -> str:
         with file_path.open("r", encoding="utf-8") as my_file:
             return my_file.read()
     except Exception as err:
-        raise IOError(f"Error reading file {file_path}: {err}")
+        raise OSError(f"Error reading file {file_path}: {err}")
 
-def read_lines(dirpath: Path, filename: str) -> List[str]:
+def read_lines(dirpath: Path, filename: str) -> list[str]:
     """
     Reads the content of a file as a list of lines.
 
@@ -98,7 +98,7 @@ def read_lines(dirpath: Path, filename: str) -> List[str]:
         with file_path.open("r", encoding="utf-8") as my_file:
             return my_file.readlines()
     except Exception as err:
-        raise IOError(f"Error reading file {file_path}: {err}")
+        raise OSError(f"Error reading file {file_path}: {err}")
 
 def read_html(dirpath: Path, filename: str) -> str:
     """
@@ -119,9 +119,9 @@ def read_html(dirpath: Path, filename: str) -> str:
         with file_path.open("r", encoding="utf-8") as html_file:
             return html_file.read()
     except Exception as err:
-        raise IOError(f"Error reading HTML file {file_path}: {err}")
+        raise OSError(f"Error reading HTML file {file_path}: {err}")
 
-def read_csv(dirpath: Path, filename: str) -> List[Dict[str, Any]]:
+def read_csv(dirpath: Path, filename: str) -> list[dict[str, Any]]:
     """
     Reads a CSV file and returns a list of dictionaries.
 
@@ -141,7 +141,7 @@ def read_csv(dirpath: Path, filename: str) -> List[Dict[str, Any]]:
             reader = csv.DictReader(csv_file)
             return [dict(row) for row in reader]
     except Exception as err:
-        raise IOError(f"Error reading CSV file {file_path}: {err}")
+        raise OSError(f"Error reading CSV file {file_path}: {err}")
 
 def read_csv_to_dataframe(dirpath: Path, filename: str) -> pd.DataFrame:
     """
@@ -161,9 +161,9 @@ def read_csv_to_dataframe(dirpath: Path, filename: str) -> pd.DataFrame:
     try:
         return pd.read_csv(file_path)
     except Exception as err:
-        raise IOError(f"Error reading CSV file {file_path}: {err}")
+        raise OSError(f"Error reading CSV file {file_path}: {err}")
 
-def read_excel(dirpath: Path, filename: str, sheet_name: Union[str, int] = 0) -> pd.DataFrame:
+def read_excel(dirpath: Path, filename: str, sheet_name: str | int = 0) -> pd.DataFrame:
     """
     Reads an Excel (.xlsx) file and returns a pandas DataFrame.
 
@@ -187,7 +187,7 @@ def read_excel(dirpath: Path, filename: str, sheet_name: Union[str, int] = 0) ->
     try:
         return pd.read_excel(file_path, sheet_name=sheet_name, engine="openpyxl")
     except Exception as err:
-        raise IOError(f"Error reading Excel file {file_path}: {err}")
+        raise OSError(f"Error reading Excel file {file_path}: {err}")
 
 def clean_dataframe_text_column(df: pd.DataFrame, column_name: str, use_name_cleanup: bool = True) -> pd.DataFrame:
     """
@@ -245,9 +245,9 @@ def write_text_with_txt_file_extension(dirpath: Path, filename: str, text: str) 
             text_file.write(text)
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing file {file_path}: {err}")
+        raise OSError(f"Error writing file {file_path}: {err}")
 
-def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: List[str]) -> str:
+def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: list[str]) -> str:
     """
     Writes a list of text lines to a file.
 
@@ -268,7 +268,7 @@ def write_lines_with_txt_file_extension(dirpath: Path, filename: str, lines: Lis
             text_file.writelines(lines)
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing file {file_path}: {err}")
+        raise OSError(f"Error writing file {file_path}: {err}")
 
 def write_text_with_json_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -291,7 +291,7 @@ def write_text_with_json_file_extension(dirpath: Path, filename: str, text: str)
             json_file.write(text)
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing file {file_path}: {err}")
+        raise OSError(f"Error writing file {file_path}: {err}")
 
 def write_text_with_csv_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -314,7 +314,7 @@ def write_text_with_csv_file_extension(dirpath: Path, filename: str, text: str) 
             json_file.write(text)
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing file {file_path}: {err}")
+        raise OSError(f"Error writing file {file_path}: {err}")
 
 def write_text_with_html_file_extension(dirpath: Path, filename: str, text: str) -> str:
     """
@@ -337,7 +337,7 @@ def write_text_with_html_file_extension(dirpath: Path, filename: str, text: str)
             html_file.write(text)
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing file {file_path}: {err}")
+        raise OSError(f"Error writing file {file_path}: {err}")
 
 def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
     """
@@ -359,7 +359,7 @@ def write_dataframe_as_xlsx_file(dirpath: Path, filename: str, dataframe: pd.Dat
         dataframe.to_excel(file_path, index=False, engine="openpyxl")  # type: ignore
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing Excel file {file_path}: {err}")
+        raise OSError(f"Error writing Excel file {file_path}: {err}")
 
 def write_dataframe_as_csv_file(dirpath: Path, filename: str, dataframe: pd.DataFrame) -> str:
     """
@@ -381,4 +381,4 @@ def write_dataframe_as_csv_file(dirpath: Path, filename: str, dataframe: pd.Data
         dataframe.to_csv(file_path, index=False, encoding="utf-8")
         return str(file_path)
     except Exception as err:
-        raise IOError(f"Error writing CSV file {file_path}: {err}")
+        raise OSError(f"Error writing CSV file {file_path}: {err}")

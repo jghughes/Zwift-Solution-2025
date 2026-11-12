@@ -1,6 +1,6 @@
 # Standard library imports
 from collections import defaultdict
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 class JghListDictionary[TKey, TValue]:
     """
@@ -213,7 +213,7 @@ class JghListDictionary[TKey, TValue]:
                 ]
                 return original_length - len(self.backingstore_dict[key])
 
-    def remove_value_from_all_lists(self, value: TValue) -> Tuple[int, list[TKey]]:
+    def remove_value_from_all_lists(self, value: TValue) -> tuple[int, list[TKey]]:
         """
         Removes the given value from all lists in the dictionary and returns the count of removed occurrences
         and the list of keys from which the value was removed.
@@ -291,7 +291,7 @@ class JghListDictionary[TKey, TValue]:
         self.backingstore_dict[key] = []
         return original_count
 
-    def clear_everything_everywhere(self) -> Tuple[int, int]:
+    def clear_everything_everywhere(self) -> tuple[int, int]:
         """
         Clears all the entries in the dictionary and returns a tuple of the original
         number of keys and the original total number of values prior to removal.
@@ -610,7 +610,7 @@ class JghListDictionary[TKey, TValue]:
 
     def get_key_value_pairs_containing_selected_values(
         self, value_selector: Callable[[TValue], bool]
-    ) -> list[Tuple[TKey, TValue]]:
+    ) -> list[tuple[TKey, TValue]]:
         """
         Retrieves all key-value pairs where the values match the given condition.
 
@@ -634,14 +634,14 @@ class JghListDictionary[TKey, TValue]:
         list[Tuple[TKey, TValue]]
             A list of key-value pairs where the values match the given condition.
         """
-        key_value_pairs: list[Tuple[TKey, TValue]] = []
+        key_value_pairs: list[tuple[TKey, TValue]] = []
         for key, values in self.backingstore_dict.items():
             for value in values:
                 if value_selector(value):
                     key_value_pairs.append((key, value))
         return key_value_pairs
 
-    def get_key_value_pairs(self) -> list[Tuple[TKey, TValue]]:
+    def get_key_value_pairs(self) -> list[tuple[TKey, TValue]]:
         """
         Retrieves all key-value pairs in the dictionary. Handles multiple repeats
         in the same list and repeats across multiple lists by treating each
@@ -652,7 +652,7 @@ class JghListDictionary[TKey, TValue]:
         list[Tuple[TKey, TValue]]
             A list of all key-value pairs in the dictionary.
         """
-        key_value_pairs: list[Tuple[TKey, TValue]] = []
+        key_value_pairs: list[tuple[TKey, TValue]] = []
         for key, values in self.backingstore_dict.items():
             for value in values:
                 key_value_pairs.append((key, value))

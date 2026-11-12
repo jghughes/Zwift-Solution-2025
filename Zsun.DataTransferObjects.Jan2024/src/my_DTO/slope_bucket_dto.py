@@ -1,4 +1,3 @@
-from typing import Dict, List
 from pydantic import BaseModel, RootModel
 
 # this class belongs to me, so I don't need the paraphenalia 
@@ -13,9 +12,9 @@ class SlopeBucketDTO(BaseModel):
     calculated_bucket_speed_kph    : float = 0.0
     calculated_bucket_duration_sec : float = 0.0
 
-class SlopeBucketDTODictModel(RootModel[Dict[str, SlopeBucketDTO]]):
+class SlopeBucketDTODictModel(RootModel[dict[str, SlopeBucketDTO]]):
     pass
 
-class SlopeBucketDTOListModel(RootModel[List[SlopeBucketDTO]]):
+class SlopeBucketDTOListModel(RootModel[list[SlopeBucketDTO]]):
     pass
 

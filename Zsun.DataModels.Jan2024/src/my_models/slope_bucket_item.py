@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 from slope_bucket_dto import SlopeBucketDTO
 
@@ -27,7 +26,7 @@ class SlopeBucketItem:
         )
 
     @staticmethod
-    def from_dataTransferObjectList(dto_list: List[SlopeBucketDTO]) -> List["SlopeBucketItem"]:
+    def from_dataTransferObjectList(dto_list: list[SlopeBucketDTO]) -> list["SlopeBucketItem"]:
         return [SlopeBucketItem.from_dataTransferObject(dto) for dto in dto_list]
 
     @staticmethod
@@ -43,7 +42,7 @@ class SlopeBucketItem:
         )
 
     @staticmethod
-    def to_dataTransferObjectList(item_list: List["SlopeBucketItem"]) -> List[SlopeBucketDTO]:
+    def to_dataTransferObjectList(item_list: list["SlopeBucketItem"]) -> list[SlopeBucketDTO]:
         return [SlopeBucketItem.to_dataTransferObject(item) for item in item_list]
 
 

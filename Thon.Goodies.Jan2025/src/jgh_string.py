@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import datetime
 import re
 
@@ -10,7 +9,7 @@ MethodFailed = "Method failed to complete."
 # Basic String Utilities
 # ============================================================
 
-def capitalize_first_letter(text: Optional[str]) -> str:
+def capitalize_first_letter(text: str | None) -> str:
     """
     Returns the input string with the first_name letter capitalized.
     Handles None or empty string gracefully.
@@ -19,7 +18,7 @@ def capitalize_first_letter(text: Optional[str]) -> str:
         return ""
     return text[0].upper() + text[1:]
 
-def first_n_chars(text: Optional[str], n: int) -> str:
+def first_n_chars(text: str | None, n: int) -> str:
     """
     Returns the first_name n characters of the input string.
     Handles cases where text is None or shorter than n characters.

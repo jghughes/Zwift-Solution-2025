@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 # from jgh_formulae00 import calculate_frontal_area
 from zwift_id_base import ZwiftIdBase
-from typing import Optional
 from rider_stats_dto import RiderStatsDTO
 
 # this domain model is instantiated in model_builders.py
@@ -73,7 +72,7 @@ class RiderStatsItem(ZwiftIdBase):
 	timestamp					:	str		=	"" # Timestamp indicating when the models were fitted, must be ISO 8601 format YYYY-MM-DDTHH:mm:ss.sssZ
 
 	@staticmethod
-	def to_dataTransferObject(item: Optional["RiderStatsItem"]) -> RiderStatsDTO:
+	def to_dataTransferObject(item: "RiderStatsItem | None") -> RiderStatsDTO:
 		if item is None:
 			return RiderStatsDTO()
 		return RiderStatsDTO(
@@ -142,7 +141,7 @@ class RiderStatsItem(ZwiftIdBase):
 		)
 
 	@staticmethod
-	def from_dataTransferObject(dto: Optional[RiderStatsDTO]) -> "RiderStatsItem":
+	def from_dataTransferObject(dto: RiderStatsDTO | None) -> "RiderStatsItem":
 		if dto is None:
 			return RiderStatsItem()
 		item = RiderStatsItem()

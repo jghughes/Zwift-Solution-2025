@@ -36,13 +36,12 @@ Example Usage:
 """
 
 from collections import defaultdict
-from typing import Dict, List
 
 from paceline_modelling_items import RiderWorkAssignmentItem
 from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_durations: List[float], pull_speeds_kph: List[float], slope_pc: float = 0.0) -> Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]:
+def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_durations: list[float], pull_speeds_kph: list[float], slope_pc: float = 0.0) -> dict[RiderComputeItem, list[RiderWorkAssignmentItem]]:
     """
     Generates a mapping for a team of riders in a Team Time Trial race to their workloads. 
     Riders circulate in a cyclical pattern in a paceline, with each rider taking a turn 
@@ -70,16 +69,16 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
         return defaultdict(list)
 
     if len(pull_durations) == 0 or len(pull_speeds_kph) == 0:
-        dd : Dict[RiderComputeItem, List[RiderWorkAssignmentItem]] = defaultdict(list)
+        dd : dict[RiderComputeItem, list[RiderWorkAssignmentItem]] = defaultdict(list)
         for rider in riders:
             dd[rider] = [RiderWorkAssignmentItem()]
         return dd
 
     min_length = min(len(pull_durations), len(pull_speeds_kph))
 
-    rider_workunits: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]] = defaultdict(list)
+    rider_workunits: dict[RiderComputeItem, list[RiderWorkAssignmentItem]] = defaultdict(list)
     for k in range(1, n + 1):
-        workunits: List[RiderWorkAssignmentItem] = []
+        workunits: list[RiderWorkAssignmentItem] = []
         for j in range(n):
             # The formula ensures that each rider's position is calculated in a way that 
             # they rotate through the pace line in a cyclical manner. The modulo operation 
@@ -95,7 +94,7 @@ def populate_rider_work_assignments(riders: List[RiderComputeItem], pull_duratio
         rider_workunits[riders[k - 1]] = workunits
     return rider_workunits
 
-def log_rider_work_assignments(test_description: str, result: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]) -> None:
+def log_rider_work_assignments(test_description: str, result: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]) -> None:
     from tabulate import tabulate
 
     table: list[list[object]] = []

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, NoReturn
+from typing import Any, NoReturn
 import json
 from jgh_exception_helpers import flatten_dict
 
@@ -42,16 +42,16 @@ class AppErrorBase(Exception):
     Does NOT inject stack trace or context; logging helpers handle that.
     """
     message: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
-    inner_exception: Optional[Exception] = None
+    details: dict[str, Any] = field(default_factory=dict)
+    inner_exception: Exception | None = None
 
     def __post_init__(self) -> None:
         super().__init__(self.message)
         if self.details:
             self.details = flatten_dict(self.details)
 
-    def toDict(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
+    def toDict(self) -> dict[str, Any]:
+        result: dict[str, Any] = {}
         for k, v in self.__dict__.items():
             if v not in ("", {}, None, [], ()):
                 if k == "inner_exception" and isinstance(v, Exception):
@@ -107,7 +107,7 @@ class NotFoundError(HttpAppErrorBase):
 @dataclass(eq=False)
 class AppTimeoutError(HttpAppErrorBase):
     operation: str = ""
-    timeout_seconds: Optional[float] = None
+    timeout_seconds: float | None = None
 
 @dataclass(eq=False)
 class AppValidationError(HttpAppErrorBase):
@@ -120,8 +120,8 @@ def _status_or_default(ex: Exception, default: int) -> int:
     status_code = getattr(ex, 'status_code', None)
     return status_code if isinstance(status_code, int) else default
 
-def _azure_details(ex: Exception, failure: str) -> Dict[str, Any]:
-    details: Dict[str, Any] = {"failure": str(failure)}
+def _azure_details(ex: Exception, failure: str) -> dict[str, Any]:
+    details: dict[str, Any] = {"failure": str(failure)}
     error_code = getattr(ex, 'error_code', None)
     status_code = getattr(ex, 'status_code', None)
     if error_code is not None:

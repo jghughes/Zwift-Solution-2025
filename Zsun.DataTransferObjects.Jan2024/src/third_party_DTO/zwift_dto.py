@@ -1,5 +1,5 @@
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
-from typing import Optional, Any
+from typing import Any
 from jgh_string import sanitise_string
 
 
@@ -40,26 +40,26 @@ preferred_config_dict = configdictV1
 
 class CompetitionMetricsDTO(BaseModel):
 	model_config = preferred_config_dict
-	zwift_racing_score		: Optional[float]	= 0.0
-	zwift_category_open		: Optional[str]		= ""
-	zwift_category_women	: Optional[str]		= ""
+	zwift_racing_score		: float | None	= 0.0
+	zwift_category_open		: str | None		= ""
+	zwift_category_women	: str | None		= ""
 
 class ZwiftDTO(BaseModel):
 	model_config	=	preferred_config_dict
 	zwift_id					:	str								=	""	# Zwift ID of the rider
-	first_name					:	Optional[str]					=	""	# First name of the rider
-	last_name					:	Optional[str]					=	""	# Last name of the rider
-	country_code3				:	Optional[str]					=	""	# eg USA, GBR, AUS
-	is_male						:	Optional[bool]					=	True	# Gender of the rider (True for male, False for female)
-	age_years					:	Optional[float]					=	0	# Age of the rider
-	height_mm					:	Optional[float]					=	0	# Height in millimeters
-	weight_grams				:	Optional[float]					=	0	# Weight in grams
-	ftp_on_zwift				:	Optional[float]					=	0	# This is not zFTP, it is FTP
-	achievement_level			:	Optional[int]					=	0	# Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
+	first_name					:	str | None					=	""	# First name of the rider
+	last_name					:	str | None					=	""	# Last name of the rider
+	country_code3				:	str | None					=	""	# eg USA, GBR, AUS
+	is_male						:	bool | None					=	True	# Gender of the rider (True for male, False for female)
+	age_years					:	float | None					=	0	# Age of the rider
+	height_mm					:	float | None					=	0	# Height in millimeters
+	weight_grams				:	float | None					=	0	# Weight in grams
+	ftp_on_zwift				:	float | None					=	0	# This is not zFTP, it is FTP
+	achievement_level			:	int | None					=	0	# Zwift achievement level. Note: what we think of as level 100, has two extra places in the Zwift json i.e. 100 == 10_000. so will need to divide by 100 and round down eventually to get the level we are familiar with.
 	# total_distance_meters		:	Optional[float]					=	0	# Total distance ridden in meters
 	# total_experience_points		:	int								=	0
 	# target_experience_points	:	int								=	0	# Experience points needed to reach the accelerated achievement level
-	competition_metrics			:	Optional[CompetitionMetricsDTO]	=	Field(default_factory=CompetitionMetricsDTO)
+	competition_metrics			:	CompetitionMetricsDTO | None	=	Field(default_factory=CompetitionMetricsDTO)
 
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")

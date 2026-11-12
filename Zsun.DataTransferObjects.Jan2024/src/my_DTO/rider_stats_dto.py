@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import Any
 from pydantic import BaseModel, RootModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
@@ -148,8 +148,8 @@ class RiderStatsDTO(BaseModel):
 			return str(value)
 		return value
 
-class RiderStatsDtoDictModel(RootModel[Dict[str, RiderStatsDTO]]):
+class RiderStatsDtoDictModel(RootModel[dict[str, RiderStatsDTO]]):
     pass
 
-class RiderStatsDtoListModel(RootModel[List[RiderStatsDTO]]):
+class RiderStatsDtoListModel(RootModel[list[RiderStatsDTO]]):
     pass

@@ -1,4 +1,5 @@
-from typing import Awaitable, Callable, List, Optional, TypeVar
+from typing import TypeVar
+from collections.abc import Awaitable, Callable
 
 from azure.core.exceptions import (
     AzureError, ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError,
@@ -62,14 +63,14 @@ async def _create_container_if_not_exists_async(container_client: ContainerClien
         raise
 
 
-def _normalise_filter(value: Optional[str]) -> Optional[str]:
+def _normalise_filter(value: str | None) -> str | None:
     """
     Maps the 'no filter' sentinels (None, "" and "*") to None. Any other value is returned unchanged.
     """
     return None if value in (None, "", "*") else value
 
 
-def _normalise_filter_list(values: Optional[List[str]]) -> Optional[List[str]]:
+def _normalise_filter_list(values: list[str] | None) -> list[str] | None:
     """
     Normalises a list of substring filters. Items that are 'no filter' sentinels (None, "" or "*") are
     dropped and duplicates are eliminated, keeping the first occurrence and the original order. Returns None,
@@ -84,7 +85,7 @@ def _normalise_filter_list(values: Optional[List[str]]) -> Optional[List[str]]:
     return items or None
 
 
-class AzureStorageAccessor():
+class AzureStorageAccessor:
     """
     Async accessor
     connection string passed in, and closes it before returning.
@@ -153,9 +154,9 @@ class AzureStorageAccessor():
         self,
         storage_account_connection_string: str,
         container_name: str,
-        name_starts_with: Optional[str] = None,
-        name_contains: Optional[List[str]] = None,
-    ) -> List[BlobProperties]:
+        name_starts_with: str | None = None,
+        name_contains: list[str] | None = None,
+    ) -> list[BlobProperties]:
         """
         Returns the BlobProperties of the blobs in a container, in lexicographic order of blob name.
 
@@ -188,11 +189,11 @@ class AzureStorageAccessor():
         AuthenticationError if the credentials are rejected, and NetworkError if the service is unreachable,
         times out or returns an unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async def operation() -> List[BlobProperties]:
+        async def operation() -> list[BlobProperties]:
             prefix = _normalise_filter(name_starts_with)
             substrings = _normalise_filter_list(name_contains)
 
-            blobs: List[BlobProperties] = []
+            blobs: list[BlobProperties] = []
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
                 async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
@@ -261,7 +262,7 @@ class AzureStorageAccessor():
         storage_account_connection_string: str,
         container_name: str,
         blob_name: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Returns the blob's absolute URL, or None if the blob does not exist. None is also returned if the
         container itself does not exist, because Azure reports both as "not found". A missing blob is a normal
@@ -283,7 +284,7 @@ class AzureStorageAccessor():
         credentials are rejected, and NetworkError if the service is unreachable, times out or returns an
         unexpected HTTP error. Any other Azure failure is raised as the generic AppErrorBase.
         """
-        async def operation() -> Optional[str]:
+        async def operation() -> str | None:
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 blob_client = blob_service_client.get_blob_client(container_name, blob_name)
                 if not await blob_client.exists():
@@ -367,7 +368,7 @@ class AzureStorageAccessor():
         the blob was left unchanged.
         """ 
         async def operation() -> str:
-            if not isinstance(blob_contents, (bytes, bytearray, memoryview)):
+            if not isinstance(blob_contents, bytes | bytearray | memoryview):
                 raise TypeError(f"blob_contents must be bytes, bytearray or memoryview, not {type(blob_contents).__name__}.")
             async with BlobServiceClient.from_connection_string(storage_account_connection_string) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)

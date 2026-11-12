@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Protocol, TypeVar, List, Mapping, Type
+from typing import Protocol, TypeVar
+from collections.abc import Mapping
 
 class HasZwiftID(Protocol):
     zwift_id: str
@@ -14,15 +15,15 @@ class FrozenZwiftIdBase(HasZwiftID):
 
 T = TypeVar("T", bound=HasZwiftID)
 def lookup_Items_by_ZwiftID(
-    list_of_zwiftID: List[str],
+    list_of_zwiftID: list[str],
     mapping_of_ZwiftIdBaseItem: Mapping[str, T],
-    item_type: Type[T]
-) -> List[T]:
+    item_type: type[T]
+) -> list[T]:
     """
     Returns a list of items of concrete type T (subclass of ZwiftIdBase) whose zwift_id is in list_of_zwiftID.
     Skips missing IDs and logs duplicates.
     """
-    items: List[T] = []
+    items: list[T] = []
     for zwift_id in list_of_zwiftID:
         if zwift_id in mapping_of_ZwiftIdBaseItem:
             item = mapping_of_ZwiftIdBaseItem[zwift_id]

@@ -47,7 +47,7 @@ and dataset preparation for club-level cycling analytics and reporting.
 """
 import asyncio
 from pathlib import Path
-from typing import Type, Dict, Any
+from typing import Any
 import time
 import pandas as pd
 from jgh_azure_storage_service_client import AzureStorageServiceClient
@@ -219,9 +219,9 @@ async def generate_everything_and_save_and_upload(route_name : str):
     print("\nwork complete. consult the log files for details.\nyou may close the app. thank you.")
 
 async def export_and_upload_dtos(
-    dto_by_key: Dict[str, Any],
-    dict_model_cls: Type[Any],
-    list_model_cls: Type[Any],
+    dto_by_key: dict[str, Any],
+    dict_model_cls: type[Any],
+    list_model_cls: type[Any],
     output_dir: str,
     json_dict_filename: str,
     json_list_filename: str,

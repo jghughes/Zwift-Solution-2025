@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
-from typing import Awaitable, Callable, Dict, List, Optional, TypeVar
+from typing import TypeVar
+from collections.abc import Awaitable, Callable
 
 from jgh_azure_storage_accessor import AzureStorageAccessor
 from jgh_exceptions import AlertMessageError, AppTimeoutError, NetworkError
@@ -12,7 +13,7 @@ from repository_of_connectionstrings import ConnectionStringRepository
 T = TypeVar("T")
 
 
-class AzureStorageServiceClient():
+class AzureStorageServiceClient:
 	"""
 	Thin service layer over AzureStorageAccessor. Each public method validates its arguments, resolves the
 	connection string for the named storage account, and invokes the accessor under a timeout.
@@ -47,7 +48,7 @@ class AzureStorageServiceClient():
 		self,
 		storage_account_name: str,
 		container_name: str,
-		blob_name: Optional[str],
+		blob_name: str | None,
 		operation: Callable[[str], Awaitable[T]],
 	) -> T:
 		"""
@@ -60,7 +61,7 @@ class AzureStorageServiceClient():
 		storage_account_connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(storage_account_name)
 		try:
 			return await asyncio.wait_for(operation(storage_account_connection_string), timeout=self.__timeout_seconds)
-		except asyncio.TimeoutError as ex:
+		except TimeoutError as ex:
 			await self.__throw_if_offline_async(ex)
 			raise AppTimeoutError(
 				message=f"{MethodFailed} {CallTimedOut} {make_wait_time_msg(start)}",
@@ -82,7 +83,7 @@ class AzureStorageServiceClient():
 		"""Not applicable for this client, which uses no external service. Always returns True."""
 		return True
 
-	async def get_service_endpoints_info_async(self) -> List[str]:
+	async def get_service_endpoints_info_async(self) -> list[str]:
 		"""Not applicable for this client, which uses no external service. Always returns an empty list."""
 		return []
 
@@ -107,9 +108,9 @@ class AzureStorageServiceClient():
 		self,
 		storage_account_name: str,
 		container_name: str,
-		name_starts_with: Optional[str] = None,
-		name_contains: Optional[List[str]] = None,
-	) -> Dict[str, int]:
+		name_starts_with: str | None = None,
+		name_contains: list[str] | None = None,
+	) -> dict[str, int]:
 		"""
 		Returns a dict of blob name to size in bytes for the blobs in the container, in lexicographic order of
 		blob name. The dict is empty if no blob matches the filters, which is a normal answer, not an error.
@@ -170,7 +171,7 @@ class AzureStorageServiceClient():
 
 	async def get_absolute_uri_of_blob_async(
 		self, storage_account_name: str, container_name: str, blob_name: str
-	) -> Optional[str]:
+	) -> str | None:
 		"""
 		Returns the blob's absolute URL, or None if the blob does not exist. None is also returned if the
 		container itself does not exist, because Azure reports both as "not found". A missing blob is a normal

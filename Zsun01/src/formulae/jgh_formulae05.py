@@ -35,13 +35,12 @@ Example Usage:
 """
 
 from collections import defaultdict
-from typing import Dict, List
 from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
 from jgh_formulae03 import calculate_power_riding_in_the_paceline
 from rider_compute_item import RiderComputeItem
 
 # This function called during parallel processing. Logging forbidden
-def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List[RiderWorkAssignmentItem]]) -> Dict[RiderComputeItem, List[RiderExertionItem]]:
+def populate_rider_exertions(rider_work_assignments: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]) -> dict[RiderComputeItem, list[RiderExertionItem]]:
     """
     Projects the rider_work_assignments dict to a new dict of rider_workloads with additional wattage calculation.
     
@@ -54,10 +53,10 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
             their list of respective efforts including wattage. The Tuple representing 
             a single workload is (position, speed, duration, wattage, slope). Each rider has a list of dict_of_rider_exertions
     """
-    rider_workloads: Dict[RiderComputeItem, List[RiderExertionItem]] = defaultdict(list)
+    rider_workloads: dict[RiderComputeItem, list[RiderExertionItem]] = defaultdict(list)
     
     for rider, dict_of_rider_work_assignments in rider_work_assignments.items():
-        dict_of_rider_exertions: List[RiderExertionItem] = []
+        dict_of_rider_exertions: list[RiderExertionItem] = []
         for assignment in dict_of_rider_work_assignments:
             wattage = calculate_power_riding_in_the_paceline(rider, assignment.speed, assignment.position, assignment.slope_pc)
             kilojoules = wattage * assignment.duration / 1_000  # Convert to kilojoules 
@@ -67,7 +66,7 @@ def populate_rider_exertions(rider_work_assignments: Dict[RiderComputeItem, List
     
     return rider_workloads
 
-def log_rider_exertions(test_description: str, result: Dict[RiderComputeItem, List[RiderExertionItem]]) -> None:
+def log_rider_exertions(test_description: str, result: dict[RiderComputeItem, list[RiderExertionItem]]) -> None:
     from tabulate import tabulate
     print(test_description)
     table: list[list[object]] = []

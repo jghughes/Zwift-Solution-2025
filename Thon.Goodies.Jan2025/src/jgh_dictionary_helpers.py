@@ -1,6 +1,5 @@
-from typing import Dict
 
-def filter_generic_dict_by_key[T](source_dict: Dict[str, T], keys_to_filter_by: list[str] | None) -> Dict[str, T]:
+def filter_generic_dict_by_key[T](source_dict: dict[str, T], keys_to_filter_by: list[str] | None) -> dict[str, T]:
         """
         Returns a dictionary containing only the items from `source_dict` whose keys are present in `keys_to_filter_by`.
 

@@ -3,7 +3,6 @@
   chart for side-by-side comparison.
 """
 from pathlib import Path
-from typing import List, Dict
 import matplotlib.pyplot as plt
 
 from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_units_ticks
@@ -43,13 +42,13 @@ def validate_that_riders_are_on_team_in_repository(zwift_IDs : list[str], team_n
         if rider_ID not in team_member_IDs:
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not on the team '{team_name}'.")
 
-def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
-    team_member_IDs: List[str]= RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
+def load_dict_of_90day_best_graphs_for_team_watts(team_name: str) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
+    team_member_IDs: list[str]= RepositoryOfTeamRosters.get_unique_IDs_of_riders_on_a_team(team_name)
     item_dict =  read_zwiftpower90daywattsdto_files_to_item_dict_sync(Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES), team_member_IDs)
     print(f"\nRead {len(item_dict)} ZwiftPower {ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW}-best power graph files for team {team_name}.\n")
     return item_dict
 
-def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: List[str], dict_of_90day_best_graphs: Dict[str, ZwiftPowerFlattened90dayWattsItem]):
+def validate_that_riders_are_in_dict_of_90day_best_graphs_for_team_watts(zwift_IDs: list[str], dict_of_90day_best_graphs: dict[str, ZwiftPowerFlattened90dayWattsItem]):
     for rider_ID in zwift_IDs:
         if rider_ID not in dict_of_90day_best_graphs.keys():
             raise Exception(f"You made a boo-boo. Rider {rider_ID} is not in the dictionary of 90-day best graphs.")
@@ -151,9 +150,9 @@ def plot_curve_fit_chart_for_an_individual(zwiftID: str, rider_name : str, rider
     plt.show()
 
 def plot_comparative_chart_of_curve_fits_for_list_of_riders(
-    list_of_zwift_IDs: List[str],
-    list_of_rider_names: List[str],
-    list_of_flattened_watts_graphs: List[ZwiftPowerFlattened90dayWattsItem]
+    list_of_zwift_IDs: list[str],
+    list_of_rider_names: list[str],
+    list_of_flattened_watts_graphs: list[ZwiftPowerFlattened90dayWattsItem]
 ):
     """
     Plots fitted FTP and TTT pull power curves for multiple riders on the same
@@ -165,8 +164,8 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
 
     fig, ax = plt.subplots(figsize=(12, 7))
 
-    all_x: List[float] = []
-    all_y: List[float] = []
+    all_x: list[float] = []
+    all_y: list[float] = []
 
     for idx, (zwift_id, rider_name, flattened_watts_graph) in enumerate(
         zip(list_of_zwift_IDs, list_of_rider_names, list_of_flattened_watts_graphs)
@@ -233,7 +232,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.tight_layout()
     plt.show()
 
-def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: List[str], zwiftID_of_rider_to_plot_individually: str):
+def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str):
     """
     Run the whole workflow: validate, load, then plot.
 
@@ -318,7 +317,7 @@ if __name__ == "__main__":
 
 
         _team_name = "rangers" 
-        _zwiftIDs_of_riders_to_model : List[str] = [tony_chang, carrie_merrit, curtis_repen] 
+        _zwiftIDs_of_riders_to_model : list[str] = [tony_chang, carrie_merrit, curtis_repen] 
         _zwiftID_of_rider_to_plot_individually : str = _zwiftIDs_of_riders_to_model[2]  # the index of our desired rider for this example
 
         start_time = time.time()

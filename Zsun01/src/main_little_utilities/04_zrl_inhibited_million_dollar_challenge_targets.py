@@ -3,7 +3,6 @@ import json
 import time
 import logging
 from pathlib import Path
-from typing import Dict, List
 
 from jgh_azure_storage_service_client import AzureStorageServiceClient
 from jgh_formulae03 import order_paceline_by_desired_order_of_riders
@@ -55,12 +54,12 @@ async def generate_team_targets() -> None:
         blob_as_text = blob_as_bytes.decode('utf-8')
 
         something = json.loads(blob_as_text)
-        list_of_RiderDTO: List[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
-        list_of_RiderItem: List[RiderComputeItem] = [
+        list_of_RiderDTO: list[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
+        list_of_RiderItem: list[RiderComputeItem] = [
             RiderComputeItem.from_dataTransferObject(rider_compute_dto)
             for rider_compute_dto in list_of_RiderDTO]
 
-        dict_of_RiderItem: Dict[str, RiderComputeItem] = {
+        dict_of_RiderItem: dict[str, RiderComputeItem] = {
             rider_dataclasses.zwift_id: rider_dataclasses
             for rider_dataclasses in list_of_RiderItem
         }    
@@ -70,8 +69,8 @@ async def generate_team_targets() -> None:
         return
 
     try:
-        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
-        full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
+        _riderIDs: list[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(_team_name)
+        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
     except Exception as e:
         print("Team '{_team_name}' not found:\n - Error message:\n - {e}")
         return

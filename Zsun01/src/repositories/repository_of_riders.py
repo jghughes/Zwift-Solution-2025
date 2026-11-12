@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Dict, Optional, List
 from paceline_modelling_items import CurveFittingResultItem
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from zwiftid_named_file_reader import (
@@ -27,15 +26,15 @@ from model_builders import build_RiderComputeItem, build_RiderStatsItem, build_C
 @dataclass
 class RepositoryOfRiders:
 
-    _dict_of_ZwiftItem                  :   Dict[str, ZwiftItem] = field(default_factory=dict)
-    _dict_of_ZwiftRacingAppItem         :   Dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
-    _dict_of_ZwiftPower90dayWattsItem   :   Dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
+    _dict_of_ZwiftItem                  :   dict[str, ZwiftItem] = field(default_factory=dict)
+    _dict_of_ZwiftRacingAppItem         :   dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
+    _dict_of_ZwiftPower90dayWattsItem   :   dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
     _dict_of_teamnames_per_rider        :   JghListDictionary[str, str] = field(default_factory=JghListDictionary)
 
     _eligible_IDs                       :  list[str] = field(default_factory=list)
-    _computed_dict_of_curveFitItem      :  Dict[str, CurveFittingResultItem] = field(default_factory=dict)
-    _computed_dict_of_riderComputeItem  :  Dict[str, RiderComputeItem] = field(default_factory=dict)
-    _computed_dict_of_riderStatsItem    :  Dict[str, RiderStatsItem] = field(default_factory=dict)
+    _computed_dict_of_curveFitItem      :  dict[str, CurveFittingResultItem] = field(default_factory=dict)
+    _computed_dict_of_riderComputeItem  :  dict[str, RiderComputeItem] = field(default_factory=dict)
+    _computed_dict_of_riderStatsItem    :  dict[str, RiderStatsItem] = field(default_factory=dict)
 
     _singleSegment           : SlopeBucketItem = field(default_factory = SlopeBucketItem)
 
@@ -45,7 +44,7 @@ class RepositoryOfRiders:
 
     def populate_repository(
         self,
-        file_names: Optional[list[str]], # filenames are zwiftIDs. some of the files might or might not exist
+        file_names: list[str] | None, # filenames are zwiftIDs. some of the files might or might not exist
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
@@ -141,28 +140,28 @@ class RepositoryOfRiders:
     # Getters for the repository    
 
 
-    def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftItem]:
+    def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids)
 
-    def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
+    def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftRacingAppItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftRacingAppItem, zwift_ids)
 
-    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+    def get_dict_of_ZwiftPower90dayWattsItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
         return filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
 
-    def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+    def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderComputeItem]:
         return filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids)
 
-    def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+    def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderStatsItem]:
         return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
 
     # ...the heavy lifting: building the repository
 
-    def _do_power_graph_curve_fitting(self, zwift_ids: Optional[list[str]]) -> Dict[str, CurveFittingResultItem]:
+    def _do_power_graph_curve_fitting(self, zwift_ids: list[str] | None) -> dict[str, CurveFittingResultItem]:
 
         min_coordinates = 5
         skipped_count = 0
-        answer: Dict[str, CurveFittingResultItem] = {}
+        answer: dict[str, CurveFittingResultItem] = {}
 
         if zwift_ids is None:
             zwift_ids = []
@@ -216,7 +215,7 @@ class RepositoryOfRiders:
         print(f"Repository message: curve fitting completed. Total riders processed: {len(dict_of_90dayWattsItem)}. Riders skipped due to insufficient data: {skipped_count}. Riders with curve fits: {len(answer)}.")
         return answer
 
-    def _make_dict_of_RiderComputeItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderComputeItem]:
+    def _make_dict_of_RiderComputeItem(self, zwift_ids: list[str] | None) -> dict[str, RiderComputeItem]:
         """
         Iterates over the candidate Zwift IDs and builds a RiderComputeItem for each rider
         that has both a Zwift profile and curve fit data. Riders missing either data source
@@ -237,7 +236,7 @@ class RepositoryOfRiders:
         """
 
 
-        answer: Dict[str, RiderComputeItem] = {}
+        answer: dict[str, RiderComputeItem] = {}
 
         if zwift_ids is None:
             zwift_ids = []
@@ -264,7 +263,7 @@ class RepositoryOfRiders:
 
         return answer
 
-    def _make_dict_of_RiderStatsItem(self, zwift_ids: Optional[list[str]]) -> Dict[str, RiderStatsItem]:
+    def _make_dict_of_RiderStatsItem(self, zwift_ids: list[str] | None) -> dict[str, RiderStatsItem]:
         """
         Iterates over the candidate Zwift IDs and builds a RiderStatsItem for each rider
         that has a Zwift profile. Riders without a Zwift profile are skipped -- it is the
@@ -289,7 +288,7 @@ class RepositoryOfRiders:
             Only riders with a ZwiftItem are included.
         """
 
-        answer: Dict[str, RiderStatsItem] = {}
+        answer: dict[str, RiderStatsItem] = {}
 
         if zwift_ids is None:
             zwift_ids = []

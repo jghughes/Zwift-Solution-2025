@@ -1,16 +1,15 @@
-from typing import Optional
 from dataclasses import dataclass, field
 from zwift_id_base import ZwiftIdBase
 
 from zwiftracingapp_dto import *
 
 @dataclass
-class MixedThingsItem():
+class MixedThingsItem:
     velo_cat_name   : str = ""
     velo_cat_num    : int = 0
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[MixedThingsDTO]) -> "MixedThingsItem":
+    def from_dataTransferObject(dto: MixedThingsDTO | None) -> "MixedThingsItem":
         if dto is None:
             return MixedThingsItem()
         return MixedThingsItem(
@@ -18,7 +17,7 @@ class MixedThingsItem():
             velo_cat_num    = dto.velo_cat_num or 0,
         )
     @staticmethod
-    def to_dataTransferObject(item: Optional['MixedThingsItem']) -> MixedThingsDTO:
+    def to_dataTransferObject(item: 'MixedThingsItem | None') -> MixedThingsDTO:
         if item is None:
             return MixedThingsDTO()
         return MixedThingsDTO(
@@ -32,7 +31,7 @@ class RacingScoreItem:
     mixed_things_obj    : MixedThingsItem   = field(default_factory=MixedThingsItem)
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[RatingScoreDTO]) -> "RacingScoreItem":
+    def from_dataTransferObject(dto: RatingScoreDTO | None) -> "RacingScoreItem":
         if dto is None:
             return RacingScoreItem()
         return RacingScoreItem(
@@ -41,7 +40,7 @@ class RacingScoreItem:
             )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional['RacingScoreItem']) -> RatingScoreDTO:
+    def to_dataTransferObject(item: 'RacingScoreItem | None') -> RatingScoreDTO:
         if item is None:
             return RatingScoreDTO()
         return RatingScoreDTO(
@@ -56,7 +55,7 @@ class RaceItem:
 
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[RaceDTO]) -> "RaceItem":
+    def from_dataTransferObject(dto: RaceDTO | None) -> "RaceItem":
         if dto is None:
             return RaceItem()
         return RaceItem(
@@ -65,7 +64,7 @@ class RaceItem:
     )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["RaceItem"]) -> RaceDTO:
+    def to_dataTransferObject(item: "RaceItem | None") -> RaceDTO:
         if item is None:
             return RaceDTO()
         return RaceDTO(
@@ -93,7 +92,7 @@ class PowerItem:
     kJ_AWC           : float = 0.0  # Anaerobic Work Capacity
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[PowerDTO]) -> "PowerItem":
+    def from_dataTransferObject(dto: PowerDTO | None) -> "PowerItem":
         if dto is None:
             return PowerItem()
         return PowerItem(
@@ -116,7 +115,7 @@ class PowerItem:
     )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["PowerItem"]) -> PowerDTO:
+    def to_dataTransferObject(item: "PowerItem | None") -> PowerDTO:
         if item is None:
             return PowerDTO()
         return PowerDTO(
@@ -153,7 +152,7 @@ class ZwiftRacingAppItem(ZwiftIdBase):
 	veloitem			: RaceItem	= field(default_factory=RaceItem)	# Race data
 
 	@staticmethod
-	def from_dataTransferObject(dto: Optional[ZwiftRacingAppDTO]) -> "ZwiftRacingAppItem":
+	def from_dataTransferObject(dto: ZwiftRacingAppDTO | None) -> "ZwiftRacingAppItem":
 		if dto is None:
 			return ZwiftRacingAppItem()
 		return ZwiftRacingAppItem(
@@ -172,7 +171,7 @@ class ZwiftRacingAppItem(ZwiftIdBase):
 		)
 
 	@staticmethod
-	def to_dataTransferObject(item: Optional["ZwiftRacingAppItem"]) -> ZwiftRacingAppDTO:
+	def to_dataTransferObject(item: "ZwiftRacingAppItem | None") -> ZwiftRacingAppDTO:
 		if item is None:
 			return ZwiftRacingAppDTO()
 		return ZwiftRacingAppDTO(

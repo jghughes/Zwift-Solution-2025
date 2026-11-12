@@ -1,4 +1,3 @@
-from typing import Dict
 
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd
@@ -63,7 +62,7 @@ AZURE_BLOBNAME_RIDER_STATS_DTO_DICT = FILENAME_RIDER_STATS_DTO_JSON_DICT
 AZURE_BLOBNAME_RIDER_STATS_DTO_LIST = FILENAME_RIDER_STATS_DTO_JSON_LIST
 AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV = FILENAME_RIDER_STATS_DTO_CSV_LIST
 
-DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : Dict[PacelinePlanTypeEnum, str] = {
+DICT_OF_SAVE_FILE_NAMES_FOR_PACELINE_PLANS : dict[PacelinePlanTypeEnum, str] = {
     PacelinePlanTypeEnum.THIRTY_SEC_PULL:    "01_no_drop_thirty_second_pulls.html",
     PacelinePlanTypeEnum.SIXTY_SEC_PULL:     "02_no_drop_one_minute_pulls.html",
     PacelinePlanTypeEnum.BALANCED_INTENSITY: "03_no_drop_most_balanced_intensity.html",

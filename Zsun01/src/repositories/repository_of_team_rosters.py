@@ -1,4 +1,3 @@
-from typing import  List, Dict, Tuple
 from collections import defaultdict
 from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
 
@@ -24,7 +23,7 @@ class RepositoryOfTeamRosters:
             Returns the exertion intensity factor for the specified team.
     """
 
-    _team_exertion_intensity_factors_as_dict: Dict[str, float] = defaultdict(
+    _team_exertion_intensity_factors_as_dict: dict[str, float] = defaultdict(
         lambda: DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT,
         {
             "everybody": 1.0,
@@ -44,7 +43,7 @@ class RepositoryOfTeamRosters:
         }
     )
 
-    _team_rosters_as_dict_of_list: Dict[str, List[Tuple[str, str]]] = defaultdict(
+    _team_rosters_as_dict_of_list: dict[str, list[tuple[str, str]]] = defaultdict(
         list,
         {
             "scratchpad": [
@@ -284,11 +283,11 @@ class RepositoryOfTeamRosters:
     )
 
     @staticmethod
-    def get_dict_of_teams_and_their_riders() -> Dict[str, List[Tuple[str, str]]]:
+    def get_dict_of_teams_and_their_riders() -> dict[str, list[tuple[str, str]]]:
         return RepositoryOfTeamRosters._team_rosters_as_dict_of_list
 
     @staticmethod
-    def get_IDs_of_riders_on_a_team(team_nickname: str) -> List[str]:
+    def get_IDs_of_riders_on_a_team(team_nickname: str) -> list[str]:
         """Zwift IDs in roster order, one per slot. A rider filling two slots appears twice."""
         if team_nickname in RepositoryOfTeamRosters._team_rosters_as_dict_of_list:
             return [zwift_id for zwift_id, _ in RepositoryOfTeamRosters._team_rosters_as_dict_of_list[team_nickname]]
@@ -298,7 +297,7 @@ class RepositoryOfTeamRosters:
             )
 
     @staticmethod
-    def get_unique_IDs_of_riders_on_a_team(team_nickname: str) -> List[str]:
+    def get_unique_IDs_of_riders_on_a_team(team_nickname: str) -> list[str]:
         """Distinct Zwift IDs in order of first appearance on the roster."""
         return list(dict.fromkeys(RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(team_nickname)))
 

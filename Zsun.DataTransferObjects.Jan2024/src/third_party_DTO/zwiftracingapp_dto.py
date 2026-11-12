@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
-from typing import Optional, Union, Any, get_origin, get_args
+from types import UnionType
+from typing import Union, Any, get_origin, get_args
 from jgh_string import sanitise_string
 
 
@@ -68,46 +69,46 @@ preferred_config_dict = configdictV1
 
 class MixedThingsDTO(BaseModel):
     model_config  = preferred_config_dict
-    velo_cat_name: Optional[str] = ""
-    velo_cat_num: Optional[int] = 0
+    velo_cat_name: str | None = ""
+    velo_cat_num: int | None = 0
 
 class RatingScoreDTO(BaseModel):
     model_config  = preferred_config_dict
-    velo_rating         : Optional[float]           = 0.0 
-    mixed_things_obj    : Optional[MixedThingsDTO]  = Field(default_factory=MixedThingsDTO)
+    velo_rating         : float | None           = 0.0 
+    mixed_things_obj    : MixedThingsDTO | None  = Field(default_factory=MixedThingsDTO)
 
 class RaceDTO(BaseModel):
     model_config  = preferred_config_dict
-    racing_score_max30_obj    : Optional[RatingScoreDTO] = Field(default_factory=RatingScoreDTO)
-    racing_score_max90_obj    : Optional[RatingScoreDTO] = Field(default_factory=RatingScoreDTO)
+    racing_score_max30_obj    : RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
+    racing_score_max90_obj    : RatingScoreDTO | None = Field(default_factory=RatingScoreDTO)
 
 class PowerDTO(BaseModel):
     model_config  = preferred_config_dict
-    wkg_5s          : Optional[float] = 0.0
-    wkg_15s         : Optional[float] = 0.0
-    wkg_30s         : Optional[float] = 0.0
-    wkg_60s         : Optional[float] = 0.0
-    wkg_120s        : Optional[float] = 0.0
-    wkg_300s        : Optional[float] = 0.0
-    wkg_1200s       : Optional[float] = 0.0
-    w_5s            : Optional[float] = 0.0
-    w_15s           : Optional[float] = 0.0
-    w_30s           : Optional[float] = 0.0
-    w_60s           : Optional[float] = 0.0
-    w_120s          : Optional[float] = 0.0
-    w_300s          : Optional[float] = 0.0
-    w_1200s         : Optional[float] = 0.0
-    w_CP            : Optional[float] = 0.0  # Critical Power
-    kJ_AWC           : Optional[float] = 0.0  # Anaerobic Work Capacity
+    wkg_5s          : float | None = 0.0
+    wkg_15s         : float | None = 0.0
+    wkg_30s         : float | None = 0.0
+    wkg_60s         : float | None = 0.0
+    wkg_120s        : float | None = 0.0
+    wkg_300s        : float | None = 0.0
+    wkg_1200s       : float | None = 0.0
+    w_5s            : float | None = 0.0
+    w_15s           : float | None = 0.0
+    w_30s           : float | None = 0.0
+    w_60s           : float | None = 0.0
+    w_120s          : float | None = 0.0
+    w_300s          : float | None = 0.0
+    w_1200s         : float | None = 0.0
+    w_CP            : float | None = 0.0  # Critical Power
+    kJ_AWC           : float | None = 0.0  # Anaerobic Work Capacity
 
     @field_validator(
         *[
             field
             for field, field_type in __annotations__.items()
-            if get_origin(field_type) is Union and float in get_args(field_type) and type(None) in get_args(field_type)
+            if get_origin(field_type) in (Union, UnionType) and float in get_args(field_type) and type(None) in get_args(field_type)
         ],
     )
-    def validate_float_fields(cls, value : Any) -> Optional[float]:
+    def validate_float_fields(cls, value : Any) -> float | None:
         if value is None:
             return None
         try:
@@ -120,18 +121,18 @@ class PowerDTO(BaseModel):
 class ZwiftRacingAppDTO(BaseModel):
 	model_config			=	preferred_config_dict
 	zwift_id				:	str					=	""		# Zwift ID of the rider
-	full_name				:	Optional[str]		=	""		# Name of the rider
-	gender_code				:	Optional[str]		=	""		# Gender of the rider "M" or "F"
-	country_code2			:	Optional[str]		=	""		# Country of the rider
-	age_group				:	Optional[str]		=	""		# Age category of the rider eg 50+
-	height_cm				:	Optional[float]		=	0.0		# Height of the rider in centimeters
-	weight_kg				:	Optional[float]		=	0.0		# Weight of the rider in kilograms
-	zp_race_category		:	Optional[str]		=	""		# ZwiftPower category, such as C or D
-	zp_FTP					:	Optional[float]		=	0.0		# ZwiftPower FTP (Functional Threshold Power)
-	power_obj				:	Optional[PowerDTO]	=	Field(default_factory=PowerDTO)		# Power data of the rider
-	race_obj				:	Optional[RaceDTO]	=	Field(default_factory=RaceDTO)		# Race data of the rider
-	velo_obj				:	Optional[RaceDTO]	=	Field(default_factory=RaceDTO)		# Velo2 data of the rider
-	timestamp				:	Optional[str]		=	""		# Date when the Zwift Racing App was last_name updated
+	full_name				:	str | None		=	""		# Name of the rider
+	gender_code				:	str | None		=	""		# Gender of the rider "M" or "F"
+	country_code2			:	str | None		=	""		# Country of the rider
+	age_group				:	str | None		=	""		# Age category of the rider eg 50+
+	height_cm				:	float | None		=	0.0		# Height of the rider in centimeters
+	weight_kg				:	float | None		=	0.0		# Weight of the rider in kilograms
+	zp_race_category		:	str | None		=	""		# ZwiftPower category, such as C or D
+	zp_FTP					:	float | None		=	0.0		# ZwiftPower FTP (Functional Threshold Power)
+	power_obj				:	PowerDTO | None	=	Field(default_factory=PowerDTO)		# Power data of the rider
+	race_obj				:	RaceDTO | None	=	Field(default_factory=RaceDTO)		# Race data of the rider
+	velo_obj				:	RaceDTO | None	=	Field(default_factory=RaceDTO)		# Velo2 data of the rider
+	timestamp				:	str | None		=	""		# Date when the Zwift Racing App was last_name updated
 
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")

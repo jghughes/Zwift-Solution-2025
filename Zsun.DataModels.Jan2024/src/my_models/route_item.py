@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import List
 from slope_bucket_item import SlopeBucketItem
 from route_dto import RouteDTO
 from rider_stats_item import RiderStatsItem
@@ -12,7 +11,7 @@ class RouteItem:
     route_lead_in_km            : float = 0.0
     route_length_km             : float = 0.0
     route_elevation_m           : float = 0.0
-    route_slope_buckets         : List[SlopeBucketItem] = field(default_factory=list)
+    route_slope_buckets         : list[SlopeBucketItem] = field(default_factory=list)
 
     @staticmethod
     def from_dataTransferObject(dto: RouteDTO) -> "RouteItem":
@@ -27,7 +26,7 @@ class RouteItem:
         )
 
     @staticmethod
-    def from_dataTransferObjectList(dto_list: List[RouteDTO]) -> List["RouteItem"]:
+    def from_dataTransferObjectList(dto_list: list[RouteDTO]) -> list["RouteItem"]:
         return [RouteItem.from_dataTransferObject(dto) for dto in dto_list]
 
     @staticmethod
@@ -43,7 +42,7 @@ class RouteItem:
         )
 
     @staticmethod
-    def to_dataTransferObjectList(item_list: List["RouteItem"]) -> List[RouteDTO]:
+    def to_dataTransferObjectList(item_list: list["RouteItem"]) -> list[RouteDTO]:
         return [RouteItem.to_dataTransferObject(item) for item in item_list]
 
     @staticmethod

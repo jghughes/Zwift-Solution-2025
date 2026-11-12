@@ -1,4 +1,3 @@
-from typing import List, Dict
 from route_item import RouteItem
 from slope_bucket_item import SlopeBucketItem
 
@@ -18,7 +17,7 @@ class RepositoryOfRoutes:
             Returns the RouteItem for the given route name, or raises ValueError if not found.
     """
 
-    _routes_as_dict: Dict[str, RouteItem] = {
+    _routes_as_dict: dict[str, RouteItem] = {
 
         "Template": RouteItem(
             route_name          = "name",
@@ -641,7 +640,7 @@ class RepositoryOfRoutes:
     }
 
     @staticmethod
-    def get_RouteItems_as_dict() -> Dict[str, RouteItem]:
+    def get_RouteItems_as_dict() -> dict[str, RouteItem]:
         return RepositoryOfRoutes._routes_as_dict
 
     @staticmethod

@@ -1,4 +1,3 @@
-from typing import Optional
 import copy
 import math
 from constants import DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
@@ -68,7 +67,7 @@ def build_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exp
     )
 
 
-def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
+def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAppItem | None, jghcurveItem: CurveFittingResultItem,) -> RiderComputeItem:
     """
     Constructs and returns a fully populated RiderComputeItem for a single rider.
 
@@ -122,8 +121,8 @@ def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[Zw
     )
 
 
-def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: Optional[ZwiftRacingAppItem], jghRiderComputeItem: Optional[RiderComputeItem], 
-                             watts_90_day_item: Optional[ZwiftPowerFlattened90dayWattsItem], routeItem: RouteItem) -> RiderStatsItem:
+def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAppItem | None, jghRiderComputeItem: RiderComputeItem | None, 
+                             watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None, routeItem: RouteItem) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 

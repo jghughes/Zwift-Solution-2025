@@ -1,6 +1,5 @@
 import asyncio
 import os
-from typing import List, Optional
 
 import aiofiles
 import httpx
@@ -15,7 +14,7 @@ logger = logging.getLogger()
 
 
 
-async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: Optional[str], semaphore: asyncio.Semaphore) -> None:
+async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncClient, url: str, dest_dir_path: str, dest_folder: str | None, semaphore: asyncio.Semaphore) -> None:
     """
     Download a file from a URL and save it to the local hard drive.
 
@@ -187,11 +186,11 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
             return
 
 async def download_and_save_many_files_to_hard_drive_async(
-    urls: List[str],
+    urls: list[str],
     dest_dir_path: str,
-    dest_folder: Optional[str],
+    dest_folder: str | None,
     max_concurrent: int = 20,
-    http_client: Optional[httpx.AsyncClient] = None,
+    http_client: httpx.AsyncClient | None = None,
 ) -> None:
     semaphore = asyncio.Semaphore(max_concurrent)
     if http_client is not None:

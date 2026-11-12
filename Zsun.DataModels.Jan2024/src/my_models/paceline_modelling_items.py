@@ -1,7 +1,6 @@
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 # (No third-party imports)
 
@@ -37,7 +36,7 @@ class RiderExertionItem:
     kilojoules                   : float = 0.0   
 
 @dataclass
-class RiderContributionItem():
+class RiderContributionItem:
     speed_kph             : float = 0.0 
     p1_duration           : float = 0.0 
     p1_w                  : float = 0.0 
@@ -55,9 +54,9 @@ class RiderContributionItem():
 
 @dataclass
 class PacelineIngredientsItem:
-    riders_list                  : List[RiderComputeItem]      = field(default_factory=list)
-    sequence_of_pull_periods_sec : List[float]          = field(default_factory=list)
-    pull_speeds_kph              : List[float]          = field(default_factory=list)
+    riders_list                  : list[RiderComputeItem]      = field(default_factory=list)
+    sequence_of_pull_periods_sec : list[float]          = field(default_factory=list)
+    pull_speeds_kph              : list[float]          = field(default_factory=list)
     slope_pc                     : float                = 0.0 
     max_exertion_intensity_factor: float                = 0.95 # Default to 95% of one hour power, can be overridden by caller
 
@@ -70,18 +69,18 @@ class PacelineComputationReportItem:
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    rider_contributions                          : Dict[RiderComputeItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
+    rider_contributions                          : dict[RiderComputeItem, RiderContributionItem] = field(default_factory=lambda: defaultdict(RiderContributionItem))
 
 @dataclass
 class PackageOfPacelineComputationReportItem:
     guid                                  : str = field(default_factory=lambda: str(uuid.uuid4()))
     total_pull_sequences_examined         : int   = 0
     total_compute_iterations_performed    : int   = 0
-    dict_of_solutions                     : Dict[PacelinePlanTypeEnum, PacelineComputationReportItem] = field(default_factory=lambda: defaultdict(PacelineComputationReportItem))
+    dict_of_solutions                     : dict[PacelinePlanTypeEnum, PacelineComputationReportItem] = field(default_factory=lambda: defaultdict(PacelineComputationReportItem))
 
 @dataclass
 class WorthyCandidateSolutionItem:
     tag        : str                                  = ""
     speed_kph  : float                                = float('-inf')
     dispersion : float                                = float('inf')
-    solution   : Optional[PacelineComputationReportItem]  = None
+    solution   : PacelineComputationReportItem | None  = None

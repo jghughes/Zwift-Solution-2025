@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, Any
+from typing import Any
 from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
 
 validation_alias_choices_map_ZwiftPowerGraphWattsDTO: dict[str, AliasChoices] = {
@@ -30,7 +30,7 @@ class EffortDTO(BaseModel):
 class ZwiftPowerGraphWattsDTO(BaseModel):
 	model_config	=	preferred_config_dict
 	zwift_id : str = ""  
-	efforts_obj : Optional[Dict[str, List[EffortDTO]]] = Field(default_factory=dict)  # Efforts dictionary
+	efforts_obj : dict[str, list[EffortDTO]] | None = Field(default_factory=dict)  # Efforts dictionary
 
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")

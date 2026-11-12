@@ -48,7 +48,6 @@ import time
 from collections import defaultdict
 from copy import deepcopy
 from tabulate import tabulate
-from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
@@ -101,14 +100,14 @@ from rider_compute_item import RiderComputeItem
 def log_multiline(lines: list[str]) -> None:
     print("\n".join(lines))
 
-def show_table_of_standard_proxy_speeds_for_all_riders(riders: List[RiderComputeItem]) -> None:
+def show_table_of_standard_proxy_speeds_for_all_riders(riders: list[RiderComputeItem]) -> None:
     print(f"\nILLUSTRATIVE RIDER CAPABILITIES : (gradient = {DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC}%) : Intensity Factor = 1.0\n")
-    names: List[str] = [rider.name for rider in riders]
-    zFTPs: List[float] = [round(safe_divide(rider.velo_zwiftpower_zFTP_watts, rider.weight_kg), 1) for rider in riders]
+    names: list[str] = [rider.name for rider in riders]
+    zFTPs: list[float] = [round(safe_divide(rider.velo_zwiftpower_zFTP_watts, rider.weight_kg), 1) for rider in riders]
     proxy_standard_30sec_pull_speeds_dict = solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)
-    proxy_standard_30sec_pull_speed_values: List[float] = [round(proxy_standard_30sec_pull_speeds_dict[rider], 1) for rider in riders]
+    proxy_standard_30sec_pull_speed_values: list[float] = [round(proxy_standard_30sec_pull_speeds_dict[rider], 1) for rider in riders]
     standard_solo_speeds_at_one_hour_watts__dict = solve_for_speed_at_one_hour_watts_for_all_riders(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)
-    standard_solo_speeds_at_one_hour_values: List[float] = [round(standard_solo_speeds_at_one_hour_watts__dict[rider], 1) for rider in riders]
+    standard_solo_speeds_at_one_hour_values: list[float] = [round(standard_solo_speeds_at_one_hour_watts__dict[rider], 1) for rider in riders]
     table = zip(names, zFTPs, proxy_standard_30sec_pull_speed_values, standard_solo_speeds_at_one_hour_values)
     print(tabulate(table, headers=["Rider", "zFTP (w/kg)", "30sec Pull (kph)", "1 Hour Solo (kph)"]))
 
@@ -129,12 +128,12 @@ def show_workload_suffix_message() -> None:
     log_multiline(message_lines)
 
 def populate_rider_contributions_in_a_single_paceline_solution_complying_with_exertion_constraints(
-    riders:                        List[RiderComputeItem],
-    standard_pull_periods_seconds: List[float],
-    pull_speeds_kph:               List[float],
+    riders:                        list[RiderComputeItem],
+    standard_pull_periods_seconds: list[float],
+    pull_speeds_kph:               list[float],
     slope:                         float,
     max_exertion_intensity_factor: float
-) -> Tuple[float, Dict[RiderComputeItem, RiderContributionItem]]:
+) -> tuple[float, dict[RiderComputeItem, RiderContributionItem]]:
     """
     Computes the contributions of each rider in a single paceline solution.
 
@@ -234,7 +233,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
 
     # get ready
     riders = paceline_ingredients.riders_list
-    standard_pull_periods_seconds: List[float] = list(paceline_ingredients.sequence_of_pull_periods_sec)
+    standard_pull_periods_seconds: list[float] = list(paceline_ingredients.sequence_of_pull_periods_sec)
     lowest_conceivable_kph = truncate(paceline_ingredients.pull_speeds_kph[0],3) #This line sets the starting lower bound for the paceline speed search, using the first provided speed (formatted to three decimal places), ensuring the algorithm begins with a valid, precise, and user-supplied minimum speed
     # print (f"DEBUG: lowest conceivable speed for the paceline is {lowest_conceivable_kph}kph")
     max_exertion_intensity_factor = paceline_ingredients.max_exertion_intensity_factor
@@ -245,7 +244,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
     upper_bound_scan_iterations: int = 0 
     binary_search_iterations: int = 0
 
-    dict_of_rider_contributions: Dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
+    dict_of_rider_contributions: dict[RiderComputeItem, RiderContributionItem] = defaultdict(RiderContributionItem)  # part of the answer
 
     # 1. Find Safe Upper Bound for binary-search.
 
@@ -311,7 +310,7 @@ def solve_for_a_single_paceline_solution_complying_with_exertion_constraints_usi
 def generate_paceline_solutions_using_serial_processing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: NDArray[np.float64]
-) -> List[PacelineComputationReportItem]:
+) -> list[PacelineComputationReportItem]:
     """
     Computes paceline solutions for a set of candidate pull period sequences using serial (single-threaded) processing.
 
@@ -344,7 +343,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
         slope_pc                        = paceline_ingredients.slope_pc,
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-    paceline_computation_reports: List[PacelineComputationReportItem] = []
+    paceline_computation_reports: list[PacelineComputationReportItem] = []
 
     for sequence in paceline_rotation_sequence_alternatives:
         try:
@@ -370,7 +369,7 @@ def generate_paceline_solutions_using_serial_processing_algorithm(
 def generate_paceline_solutions_using_parallel_workstealing_algorithm(
     paceline_ingredients: PacelineIngredientsItem,
     paceline_rotation_sequence_alternatives: NDArray[np.float64]
-) -> List[PacelineComputationReportItem]:
+) -> list[PacelineComputationReportItem]:
     """
     Computes paceline solutions for multiple candidate pull period sequences using parallel processing with a work-stealing process pool.
 
@@ -403,13 +402,13 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
         slope_pc                        = paceline_ingredients.slope_pc,   
         max_exertion_intensity_factor   = paceline_ingredients.max_exertion_intensity_factor)
 
-    list_of_instructions: List[PacelineIngredientsItem] = []    
+    list_of_instructions: list[PacelineIngredientsItem] = []    
     
     for sequence in paceline_rotation_sequence_alternatives:
         paceline_ingredients.sequence_of_pull_periods_sec = list(sequence)
         list_of_instructions.append(deepcopy(paceline_ingredients))
 
-    paceline_computation_reports: List[PacelineComputationReportItem] = []
+    paceline_computation_reports: list[PacelineComputationReportItem] = []
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         future_to_params = {
@@ -438,7 +437,7 @@ def generate_paceline_solutions_using_parallel_workstealing_algorithm(
 def generate_paceline_solutions_using_serial_and_parallel_algorithms(
     paceline_ingredients: PacelineIngredientsItem,
     rotation_sequences: NDArray[np.float64]
-) -> List[PacelineComputationReportItem]:
+) -> list[PacelineComputationReportItem]:
     """
     Computes paceline solutions for a set of candidate pull period sequences using either serial or parallel processing, 
     automatically selecting the most efficient strategy based on the number of alternatives.
@@ -536,7 +535,7 @@ def is_zero_dispersion_permissible_for_simple_solution(this_solution: PacelineCo
       - If there are multiple riders, zero dispersion is only allowed if all pull durations
         and all pull watts are identical.
     """
-    rider_contributions: List[RiderContributionItem] = list(this_solution.rider_contributions.values())
+    rider_contributions: list[RiderContributionItem] = list(this_solution.rider_contributions.values())
     num_riders = len(rider_contributions)
     if num_riders <= 1:
         return True

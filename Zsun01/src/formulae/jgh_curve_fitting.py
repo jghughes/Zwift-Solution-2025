@@ -1,4 +1,3 @@
-from typing import Dict, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
@@ -7,7 +6,7 @@ from sklearn.metrics import mean_squared_error, r2_score  # type: ignore
 
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 
-def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
+def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: dict[int, float]) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.
     Estimate cp_watts and w' using the formula xdata * y = cp_watts * xdata + w'. x_axis is time in seconds and y_axis is power in watts.
@@ -47,13 +46,13 @@ def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: Dict[int, float]) -> Tupl
 
 
     # Recombine the original data and predicted values into a dictionary
-    result: Dict[int, Tuple[float, float]] = {
+    result: dict[int, tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 
     return cp_watts, anaerobic_work_capacity, r2, rmse_cp, result
 
-def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[float, float, float, float, Dict[int, Tuple[float, float]]]:
+def do_curve_fit_with_decay_model(raw_xy_data_cp: dict[int, float]) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
     """
     Perform modeling using an inverse model y = coefficient_ftp * xdata^exponent_ftp, where exponent_ftp is typically negative (decay function).
 
@@ -91,7 +90,7 @@ def do_curve_fit_with_decay_model(raw_xy_data_cp: Dict[int, float]) -> Tuple[flo
     rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
 
     # Recombine the original xdata,y data and predicted y_data values into coefficient_ftp dictionary
-    result: Dict[int, Tuple[float, float]] = {
+    result: dict[int, tuple[float, float]] = {
         int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))
     }
 

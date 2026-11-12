@@ -15,7 +15,8 @@ Example:
 """
 from dataclasses import fields, is_dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
+from collections.abc import Mapping
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 

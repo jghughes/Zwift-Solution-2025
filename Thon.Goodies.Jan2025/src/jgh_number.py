@@ -1,7 +1,6 @@
-from typing import Union
 import math
 
-def safe_divide(numerator: Union[int, float], denominator: Union[int, float]) -> float:
+def safe_divide(numerator: int | float, denominator: int | float) -> float:
     """
     Safely divides numerator by denominator. Returns 0.0 if denominator is zero,
     NaN, infinite, or not a valid number.

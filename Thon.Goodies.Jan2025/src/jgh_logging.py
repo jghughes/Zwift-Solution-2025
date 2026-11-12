@@ -1,7 +1,7 @@
 import logging
 import os
 import json
-from typing import Optional, Dict, Any
+from typing import Any
 from jgh_formatting import get_current_utc_iso8601_timestamp
 
 class JsonFileHandler(logging.FileHandler):
@@ -15,7 +15,7 @@ class JsonFileHandler(logging.FileHandler):
         self._stream_lock = threading.Lock()
 
     def emit(self, record: logging.LogRecord) -> None:
-        log_entry: Dict[str, Any] = {
+        log_entry: dict[str, Any] = {
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "name": record.name,  # Changed from 'logger' to 'name'
@@ -31,7 +31,7 @@ class JsonFileHandler(logging.FileHandler):
                 "module", "funcName", "lineno", "created", "msecs", "relativeCreated",
                 "thread", "threadName", "processName", "process", "logger"  # Exclude 'logger'
             ):
-                if not isinstance(value, (dict, list)):
+                if not isinstance(value, dict | list):
                     log_entry[key] = value
                 else:
                     log_entry[key] = str(value)
@@ -93,8 +93,8 @@ def log_event(
     *,
     message: str,
     level: int,
-    exception: Optional[Exception] = None,
-    extra_fields: Optional[Dict[str, Any]] = None
+    exception: Exception | None = None,
+    extra_fields: dict[str, Any] | None = None
 ) -> None:
     """
     Log an event with required keyword-only message and level (must be a Python logging constant), plus optional exception and extra fields.
@@ -127,7 +127,7 @@ def log_event(
     # Work on a copy so the caller's dict is not modified.
     extra_fields = dict(extra_fields) if extra_fields else {}
     for key, value in list(extra_fields.items()):
-        if isinstance(value, (dict, list)):
+        if isinstance(value, dict | list):
             extra_fields[key] = str(value)
     if exception is not None:
         # Pass exc_info=True to ensure stack trace is included

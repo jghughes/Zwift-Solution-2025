@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Callable, Optional, Tuple, List
+from collections.abc import Callable
 from pathlib import Path
 from urllib.parse import urlparse
 from jgh_exceptions import AlertMessageError
@@ -18,7 +18,7 @@ BLOB_NAME_MAX_LENGTH = 1024
 # Format-only Validation Functions
 # =========================
 
-def is_valid_dirpath(dirpath: str) -> Tuple[bool, str]:
+def is_valid_dirpath(dirpath: str) -> tuple[bool, str]:
     try:
         path_obj = Path(dirpath)
         if not path_obj.is_absolute():
@@ -37,7 +37,7 @@ def is_valid_dirpath(dirpath: str) -> Tuple[bool, str]:
     except Exception as e:
         return False, f"Exception during dirpath validation: {e}"
 
-def is_valid_foldername(foldername: str) -> Tuple[bool, str]:
+def is_valid_foldername(foldername: str) -> tuple[bool, str]:
     """
     Returns (True, message) if foldername is a valid folder name (does not check existence).
     Returns (False, message) if invalid.
@@ -60,7 +60,7 @@ def is_valid_foldername(foldername: str) -> Tuple[bool, str]:
     except Exception as e:
         return False, f"Exception during foldername validation: {e}"
 
-def is_valid_ntfs_filename_format(filename: str) -> Tuple[bool, str]:
+def is_valid_ntfs_filename_format(filename: str) -> tuple[bool, str]:
     """Validate NTFS filename format. Returns (is_valid, message)."""
     if not filename:
         return False, "NTFS: Filename cannot be empty."
@@ -76,7 +76,7 @@ def is_valid_ntfs_filename_format(filename: str) -> Tuple[bool, str]:
         return False, "NTFS: Filename exceeds 255 characters."
     return True, "NTFS: Filename is valid."
 
-def is_valid_unix_filename_format(filename: str) -> Tuple[bool, str]:
+def is_valid_unix_filename_format(filename: str) -> tuple[bool, str]:
     """Validate Unix filename format. Returns (is_valid, message)."""
     if not filename:
         return False, "Unix: Filename cannot be empty."
@@ -91,7 +91,7 @@ def is_valid_unix_filename_format(filename: str) -> Tuple[bool, str]:
         return False, f"Unix: Error encoding filename to UTF-8: {e}"
     return True, "Unix: Filename is valid."
 
-def has_file_extension(filename: str) -> Tuple[bool, str]:
+def has_file_extension(filename: str) -> tuple[bool, str]:
     """Check if filename has an extension. Returns (has_extension, message)."""
     if not filename:
         return False, "Filename is not a non-empty string."
@@ -103,7 +103,7 @@ def has_file_extension(filename: str) -> Tuple[bool, str]:
     except Exception as e:
         return False, f"Error checking file extension: {e}"
 
-def is_valid_filename(filename: str) -> Tuple[bool, str]:
+def is_valid_filename(filename: str) -> tuple[bool, str]:
     """
     Returns (True, message) if filename is valid, (False, error message) if not.
     Only checks format, not existence.
@@ -132,7 +132,7 @@ def is_valid_filename(filename: str) -> Tuple[bool, str]:
     except Exception as e:
         return False, f"Exception during filename validation: {e}"
 
-def is_valid_url(url: str) -> Tuple[bool, str]:
+def is_valid_url(url: str) -> tuple[bool, str]:
     """
     Returns (True, message) if url is valid, (False, error message) if not.
     Only checks format, not existence or reachability.
@@ -196,7 +196,7 @@ def warn_if_account_name_is_invalid(account_name: str) -> str|None:
         return "Error: account_name is not valid per Azure naming rules."
     return None
 
-def validate_azure_storage_blob_name(blob_name: str) -> Tuple[bool, Optional[str]]:
+def validate_azure_storage_blob_name(blob_name: str) -> tuple[bool, str | None]:
     """
     Validates the blob_name for Azure Blob Storage.
     Returns (True, None) if valid, or (False, error_message) if invalid.
@@ -220,7 +220,7 @@ def validate_azure_storage_blob_name(blob_name: str) -> Tuple[bool, Optional[str
         return False, f"Error: blob_name must include a file extension. The blob_name is [{filename}]"
     return True, None
 
-def validate_azure_storage_container_name(container_name: str) -> Tuple[bool, Optional[str]]:
+def validate_azure_storage_container_name(container_name: str) -> tuple[bool, str | None]:
     """
     Validates the Azure Blob Storage container_name.
     Returns (True, None) if valid, or (False, error_message) if invalid.
@@ -233,7 +233,7 @@ def validate_azure_storage_container_name(container_name: str) -> Tuple[bool, Op
         return False, "Error: container_name is not valid per Azure naming rules."
     return True, None
 
-def validate_azure_storage_account_name(account_name: str) -> Tuple[bool, Optional[str]]:
+def validate_azure_storage_account_name(account_name: str) -> tuple[bool, str | None]:
     """
     Validates the Azure Blob Storage storage_account_name.
     Returns (True, None) if valid, or (False, error_message) if invalid.
@@ -256,7 +256,7 @@ def validate_azure_storage_account_name(account_name: str) -> Tuple[bool, Option
 # Existence-checking Validation Functions
 # =========================
 
-def validate_file_exists(file_path: Path) -> Tuple[bool, str]:
+def validate_file_exists(file_path: Path) -> tuple[bool, str]:
     """Check if file exists and is a file. Returns (exists, message)."""
     if not file_path.is_absolute():
         return False, f"File path must be absolute. Got: {file_path}"
@@ -272,8 +272,8 @@ def validate_file_exists(file_path: Path) -> Tuple[bool, str]:
 def validate_dirpath_format_and_existence(
     dirpath: Path,
     must_exist: bool = True,
-    on_error: Optional[Callable[[str], None]] = None
-) -> Tuple[bool, str]:
+    on_error: Callable[[str], None] | None = None
+) -> tuple[bool, str]:
     """
     Validate directory path format and existence. Returns (is_valid, message).
     If validation fails and on_error is provided, calls on_error(message).
@@ -323,7 +323,7 @@ def validate_file_path_and_existence(
     mandatory_extension: str,
     require_file_exists_for_read: bool = False,
     validate_dir_and_extension_only: bool = False
-) -> Tuple[bool, str]:
+) -> tuple[bool, str]:
     """Validate file path, filename, extension, and existence. Returns (is_valid, message)."""
     # Type check and conversion for dirpath
     if isinstance(dirpath, str):
@@ -395,7 +395,7 @@ def throw_if_dirpath_invalid_or_not_exists(
         raise ValueError(f"Directory path validation failed: {message}")
 
 def throw_if_any_dirpath_invalid_or_not_exists(
-    dirpaths: List[Path],
+    dirpaths: list[Path],
     must_exist: bool = True
 ) -> None:
     """
@@ -407,7 +407,7 @@ def throw_if_any_dirpath_invalid_or_not_exists(
         raise ValueError(errors)
 
 def throw_if_any_filename_invalid(
-    filenames: List[str]
+    filenames: list[str]
 ) -> None:
     """
     Validates a list of filenames.
@@ -450,7 +450,7 @@ def throw_if_account_name_is_invalid(account_name: str) -> None:
 def throw_if_any_parameter_is_invalid(
     account_name: str,
     container_name: str,
-    blob_name: Optional[str] = None
+    blob_name: str | None = None
 ) -> None:
     """
     Validates required Azure Storage parameters.
@@ -474,7 +474,7 @@ def throw_if_any_parameter_is_invalid(
 # =========================
 
 def collect_dirpath_errors(
-    dirpaths: List[Path],
+    dirpaths: list[Path],
     must_exist: bool = True
 ) -> str:
     """
@@ -482,7 +482,7 @@ def collect_dirpath_errors(
     Collects all errors and returns them as a single concatenated string.
     If no errors, returns an empty string.
     """
-    errors: List[str] = []
+    errors: list[str] = []
     for dirpath in dirpaths:
         try:
             throw_if_dirpath_invalid_or_not_exists(dirpath, must_exist=must_exist)
@@ -491,14 +491,14 @@ def collect_dirpath_errors(
     return "\n".join(errors)
 
 def collect_filename_errors(
-    filenames: List[str]
+    filenames: list[str]
 ) -> str:
     """
     Validates a list of filenames using is_valid_ntfs_filename_format and is_valid_unix_filename_format.
     Collects all errors and returns them as a single concatenated string.
     If no errors, returns an empty string.
     """
-    errors: List[str] = []
+    errors: list[str] = []
     for filename in filenames:
         valid_ntfs, ntfs_msg = is_valid_ntfs_filename_format(filename)
         valid_unix, unix_msg = is_valid_unix_filename_format(filename)
@@ -529,7 +529,7 @@ def find_file_path_if_valid_and_exists(
     filename_including_extension: str,
     mandatory_extension: str,
     must_exist: bool
-) -> Tuple[Optional[str], str]:
+) -> tuple[str | None, str]:
     """Get file path if valid and exists. Returns (filepath or None, message)."""
     valid_dir, dir_msg = validate_dirpath_format_and_existence(dirpath, must_exist=True)
     if not valid_dir:
@@ -546,9 +546,9 @@ def find_file_path_if_valid_and_exists(
 
 def find_all_file_paths_in_folder(
     dirpath: Path,
-    filenames_without_extension: Optional[List[str]],
-    mandatory_extension: Optional[str] = None
-) -> Tuple[Optional[List[str]], str]:
+    filenames_without_extension: list[str] | None,
+    mandatory_extension: str | None = None
+) -> tuple[list[str] | None, str]:
     """Get existing file paths in folder. Returns (list of filepaths or None, message)."""
     valid_dir, dir_msg = validate_dirpath_format_and_existence(dirpath, must_exist=True)
     if not valid_dir:
@@ -559,7 +559,7 @@ def find_all_file_paths_in_folder(
                 f"Error: mandatory_extension must be a non-empty string starting with a dot. "
                 f"Got: [{mandatory_extension}]"
             )
-    valid_filenames: List[str] = []
+    valid_filenames: list[str] = []
     if filenames_without_extension is not None:
         for fname in filenames_without_extension:
             valid_ntfs, _ = is_valid_ntfs_filename_format(fname)

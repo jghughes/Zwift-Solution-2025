@@ -1,6 +1,5 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Union, Tuple
 
 from jgh_number import safe_divide
 from paceline_modelling_items import (
@@ -18,7 +17,7 @@ from jgh_formatting import format_number_1dp, format_number_with_comma_separator
 from jgh_string import first_n_chars
 
 @dataclass
-class RiderContributionDisplayObject():
+class RiderContributionDisplayObject:
     index                                  : int   = 0
     name                                   : str   = ""
     pretty_concatenated_racing_cat_descriptor : str   = ""
@@ -131,7 +130,7 @@ class RiderContributionDisplayObject():
 
 
     @staticmethod
-    def from_RiderContributionItem(rider : RiderComputeItem, contribution: Optional[RiderContributionItem]) -> "RiderContributionDisplayObject":
+    def from_RiderContributionItem(rider : RiderComputeItem, contribution: RiderContributionItem | None) -> "RiderContributionDisplayObject":
         if contribution is None:
             return RiderContributionDisplayObject()
         return RiderContributionDisplayObject(
@@ -169,11 +168,11 @@ class RiderContributionDisplayObject():
 
 
     @staticmethod
-    def from_RiderContributionItems(riders: Dict[RiderComputeItem, RiderContributionItem]) -> Dict[RiderComputeItem, "RiderContributionDisplayObject"]:
+    def from_RiderContributionItems(riders: dict[RiderComputeItem, RiderContributionItem]) -> dict[RiderComputeItem, "RiderContributionDisplayObject"]:
         if not riders:
             return {}
 
-        answer: Dict[RiderComputeItem, RiderContributionDisplayObject] = defaultdict(RiderContributionDisplayObject)
+        answer: dict[RiderComputeItem, RiderContributionDisplayObject] = defaultdict(RiderContributionDisplayObject)
 
         for rider, item in riders.items():
             rider_contribution_display_object   = RiderContributionDisplayObject.from_RiderContributionItem(rider, item)
@@ -197,14 +196,14 @@ class PacelineComputationReportDisplayObject:
     exertion_intensity_constraint_used          : float = 0.95 # Default to 95% of one hour power, can be overridden by caller
     calculated_average_speed_of_paceline_kph    : float = 0.0
     calculated_dispersion_of_intensity_of_effort : float = 0.0
-    rider_contributions_display_objects          : Dict[RiderComputeItem, RiderContributionDisplayObject] = field(default_factory=lambda: defaultdict(RiderContributionDisplayObject))
+    rider_contributions_display_objects          : dict[RiderComputeItem, RiderContributionDisplayObject] = field(default_factory=lambda: defaultdict(RiderContributionDisplayObject))
 
     @staticmethod
-    def from_PacelineComputationReportItem(report: Union[PacelineComputationReportItem, None]) -> "PacelineComputationReportDisplayObject":
+    def from_PacelineComputationReportItem(report: PacelineComputationReportItem | None) -> "PacelineComputationReportDisplayObject":
         if report is None:
             return PacelineComputationReportDisplayObject()
 
-        rider_contributions_display_objects : Dict[RiderComputeItem, RiderContributionDisplayObject]  = RiderContributionDisplayObject.from_RiderContributionItems(report.rider_contributions) if report.rider_contributions else defaultdict(RiderContributionDisplayObject)
+        rider_contributions_display_objects : dict[RiderComputeItem, RiderContributionDisplayObject]  = RiderContributionDisplayObject.from_RiderContributionItems(report.rider_contributions) if report.rider_contributions else defaultdict(RiderContributionDisplayObject)
         
         answer = PacelineComputationReportDisplayObject(
             guid                                        = report.guid,
@@ -219,10 +218,10 @@ class PacelineComputationReportDisplayObject:
         return answer
 
     @staticmethod
-    def from_PacelineComputationReportItems(reports: Union[List[PacelineComputationReportItem], None]) -> List["PacelineComputationReportDisplayObject"]:
+    def from_PacelineComputationReportItems(reports: list[PacelineComputationReportItem] | None) -> list["PacelineComputationReportDisplayObject"]:
         if not reports:
             return []
-        answer: List[PacelineComputationReportDisplayObject] = []
+        answer: list[PacelineComputationReportDisplayObject] = []
         for report in reports:
             answer.append(PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report))
 
@@ -233,11 +232,11 @@ class PackageOfPacelineComputationReportDisplayObject:
     caption                            : str = ""
     total_pull_sequences_examined      : int = 0
     total_compute_iterations_performed : int = 0
-    solutions                          : Dict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
+    solutions                          : dict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject] = field(default_factory=lambda: defaultdict(PacelineComputationReportDisplayObject))
 
     @staticmethod
     def from_PackageOfPacelineComputationReportItem(
-        report: Union['PackageOfPacelineComputationReportItem', None]
+        report: 'PackageOfPacelineComputationReportItem | None'
     ) -> "PackageOfPacelineComputationReportDisplayObject":
         """
         Factory method to create a display object for all paceline solutions from a computation report item.
@@ -246,7 +245,7 @@ class PackageOfPacelineComputationReportDisplayObject:
         if report is None:
             return PackageOfPacelineComputationReportDisplayObject()
 
-        solutions : Dict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
+        solutions : dict[PacelinePlanTypeEnum, PacelineComputationReportDisplayObject]  = defaultdict(PacelineComputationReportDisplayObject)
 
         for plan_type in PacelinePlanTypeEnum:
             solution_item           = report.dict_of_solutions.get(plan_type)
@@ -258,7 +257,7 @@ class PackageOfPacelineComputationReportDisplayObject:
             solutions                          = solutions,
         )
 
-DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN: Dict[PacelinePlanTypeEnum, Tuple[str, str]] = defaultdict(
+DICT_OF_CAPTION_PARTS_FOREACH_PACELINE_PLAN: dict[PacelinePlanTypeEnum, tuple[str, str]] = defaultdict(
     lambda: ("", ""),
     {
         PacelinePlanTypeEnum.THIRTY_SEC_PULL:           ("Scenario #1:","THIRTY-SECOND PULLS"),

@@ -1,5 +1,4 @@
-from typing import Union, Optional
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 def truncate(f : float, n : int) -> float:
     factor = 10 ** n
@@ -65,7 +64,7 @@ def format_number_4dp(x: float) -> str:
     """
     return f"{x:.4f}"
 
-def format_number_2sig(x : Union[int, float]) -> str:
+def format_number_2sig(x : int | float) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 2 significant digits.
     
@@ -77,7 +76,7 @@ def format_number_2sig(x : Union[int, float]) -> str:
     """
     return f"{x:.2g}"
 
-def format_number_4sig(x : Union[int, float]) -> str:
+def format_number_4sig(x : int | float) -> str:
     """
     Format a number in compact scientific or fixed-point notation with 4 significant digits.
     
@@ -89,7 +88,7 @@ def format_number_4sig(x : Union[int, float]) -> str:
     """
     return f"{x:.4g}"
 
-def format_number_with_comma_separators(x: Union[int, float]) -> str:
+def format_number_with_comma_separators(x: int | float) -> str:
     """
     Format a number with thousands separators and up to 2 decimal places.
     For floats, trailing zeros and decimal points are removed if unnecessary.
@@ -107,7 +106,7 @@ def format_number_with_comma_separators(x: Union[int, float]) -> str:
     else:
         return str(x)
 
-def format_number_0dp_padded1(x: Union[int, float]) -> str:
+def format_number_0dp_padded1(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
     padded with leading zeros so the result is at least 2 characters long.
@@ -123,7 +122,7 @@ def format_number_0dp_padded1(x: Union[int, float]) -> str:
     rounded = int(round(x))
     return f"{rounded:01d}"
 
-def format_number_0dp_padded2(x: Union[int, float]) -> str:
+def format_number_0dp_padded2(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
     padded with leading zeros so the result is at least 2 characters long.
@@ -139,7 +138,7 @@ def format_number_0dp_padded2(x: Union[int, float]) -> str:
     rounded = int(round(x))
     return f"{rounded:02d}"
 
-def format_number_0dp_padded3(x: Union[int, float]) -> str:
+def format_number_0dp_padded3(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
     padded with leading zeros so the result is at least 3 characters long.
@@ -158,7 +157,7 @@ def format_number_0dp_padded3(x: Union[int, float]) -> str:
 
 
 
-def format_number_0dp_padded4(x: Union[int, float]) -> str:
+def format_number_0dp_padded4(x: int | float) -> str:
     """
     Round a float to zero decimal places (nearest integer) and return a string
     padded with leading zeros so the result is at least 4 characters long.
@@ -189,7 +188,7 @@ def format_pretty_duration_hms(seconds: float) -> str:
         return f"{sec_str} seconds"
 
 
-def format_timestamp_as_yyyy_mm_dd(ts: Optional[float] = None) -> str:
+def format_timestamp_as_yyyy_mm_dd(ts: float | None = None) -> str:
     """
     Format a timestamp (seconds since epoch) as 'YYYY-MM-DD'.
     If no timestamp is provided, use the current time.
@@ -209,6 +208,6 @@ def get_current_utc_iso8601_timestamp() -> str:
     Returns:
         str: The formatted ISO 8601 string, e.g., '2025-08-15T12:34:56.789Z'.
     """
-    dt = datetime.now(timezone.utc)
+    dt = datetime.now(UTC)
     ms = int(dt.microsecond / 1000)
     return dt.strftime(f"%Y-%m-%dT%H:%M:%S.{ms:03d}Z")

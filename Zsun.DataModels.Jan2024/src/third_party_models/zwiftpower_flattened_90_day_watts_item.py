@@ -1,4 +1,3 @@
-from typing import Dict, Optional
 from dataclasses import dataclass
 from zwift_id_base import ZwiftIdBase
 from rider_stats_item import RiderStatsItem
@@ -18,7 +17,7 @@ class EffortItem:
     y_ordinate_watts    : float = 0.0  # y-coordinate
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[EffortDTO]) -> "EffortItem":
+    def from_dataTransferObject(dto: EffortDTO | None) -> "EffortItem":
         if dto is None:
             return EffortItem()
         return EffortItem(
@@ -27,7 +26,7 @@ class EffortItem:
     )
 
     @staticmethod
-    def to_dataTransferObject(item: Optional["EffortItem"]) -> EffortDTO:
+    def to_dataTransferObject(item: "EffortItem | None") -> EffortDTO:
         if item is None:
             return EffortDTO()
         return EffortDTO(
@@ -167,7 +166,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         return answer;
 
 
-    def export_all_x_y_ordinates(self) -> Dict[int, float]:
+    def export_all_x_y_ordinates(self) -> dict[int, float]:
         """
         Map each attribute to a dictionary entry where the key is the number of seconds
         corresponding to the attribute name and the value is the attribute's value.
@@ -175,7 +174,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         Returns:
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
-        answer: Dict[int, float] = {
+        answer: dict[int, float] = {
             1: self.bp_1,
             2: self.bp_2,
             3: self.bp_3,
@@ -287,7 +286,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         return answer
 
 
-    def export_x_y_ordinates_for_cp_w_prime_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_cp_w_prime_modelling(self) -> dict[int, float]:
         """
         Zwift doesn't explicitly use CP, although they do have zMap which generally
         appears to be around P_5 minutes. zMap is used as a criterion for race categories.
@@ -299,7 +298,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer: Dict[int, float] = {
+        answer: dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -411,7 +410,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         return answer
 
 
-    def export_x_y_ordinates_for_pull_zone_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_pull_zone_modelling(self) -> dict[int, float]:
         """
         Is this case we will do a model to individually determine the 
         peak limit for pulling. The TTT calculator uses 1.3x FTP.  
@@ -428,7 +427,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer: Dict[int, float] = {
+        answer: dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -540,7 +539,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         return answer
 
 
-    def export_x_y_ordinates_for_one_hour_zone_modelling(self) -> Dict[int, float]:
+    def export_x_y_ordinates_for_one_hour_zone_modelling(self) -> dict[int, float]:
         """
 
         Zwift doesn't use FTP per se. They use black magic to come up with zFTP.
@@ -558,7 +557,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             Dict[int, float]: A dictionary mapping attribute names to (int, float) values.
         """
 
-        answer: Dict[int, float] = {
+        answer: dict[int, float] = {
             # 1: self.bp_1,
             # 2: self.bp_2,
             # 3: self.bp_3,
@@ -670,7 +669,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
         return answer
 
 
-    def import_x_y_ordinates(self, input_data: Dict[int, float]) -> None:
+    def import_x_y_ordinates(self, input_data: dict[int, float]) -> None:
         """
         Update the attributes of the instance based on the input_data dictionary.
         For each key in input_data, if the key corresponds to an attribute in self,
@@ -680,7 +679,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             input_data (Dict[int, float]): A dictionary where keys are durations (in seconds)
             and values are the corresponding critical power values.
         """
-        mapping: Dict[int, str] = {
+        mapping: dict[int, str] = {
             1: "bp_1",
             2: "bp_2",
             3: "bp_3",
@@ -933,7 +932,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
             )
 
     @staticmethod
-    def from_dataTransferObject(dto: Optional[ZwiftPowerFlattened90DayWattsDTO]) -> "ZwiftPowerFlattened90dayWattsItem":
+    def from_dataTransferObject(dto: ZwiftPowerFlattened90DayWattsDTO | None) -> "ZwiftPowerFlattened90dayWattsItem":
         if dto is None:
             return ZwiftPowerFlattened90dayWattsItem()
         return ZwiftPowerFlattened90dayWattsItem(
@@ -1040,7 +1039,7 @@ class ZwiftPowerFlattened90dayWattsItem(ZwiftIdBase):
     )
 
     @staticmethod
-    def from_ZwiftPowerWattsDTO(dto: Optional[ZwiftPowerGraphWattsDTO]) -> "ZwiftPowerFlattened90dayWattsItem":
+    def from_ZwiftPowerWattsDTO(dto: ZwiftPowerGraphWattsDTO | None) -> "ZwiftPowerFlattened90dayWattsItem":
         if dto is None:
             return ZwiftPowerFlattened90dayWattsItem()
 

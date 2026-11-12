@@ -1,7 +1,6 @@
 
 from dataclasses import dataclass
 from zwift_id_base import ZwiftIdBase
-from typing import Optional
 from rider_team_name_dto import RiderTeamNameDTO
 
 # this domain model is instantiated in model_builders.py
@@ -12,7 +11,7 @@ class RiderTeamNameItem(ZwiftIdBase):
 	team_name		:	str		=	""
 
 	@staticmethod
-	def to_dataTransferObject(item: Optional["RiderTeamNameItem"]) -> RiderTeamNameDTO:
+	def to_dataTransferObject(item: "RiderTeamNameItem | None") -> RiderTeamNameDTO:
 		if item is None:
 			return RiderTeamNameDTO()
 		return RiderTeamNameDTO(
@@ -22,7 +21,7 @@ class RiderTeamNameItem(ZwiftIdBase):
 		)
 
 	@staticmethod
-	def from_dataTransferObject(dto: Optional[RiderTeamNameDTO]) -> "RiderTeamNameItem":
+	def from_dataTransferObject(dto: RiderTeamNameDTO | None) -> "RiderTeamNameItem":
 		if dto is None:
 			return RiderTeamNameItem()
 		item = RiderTeamNameItem()

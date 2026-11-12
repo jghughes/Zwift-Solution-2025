@@ -9,9 +9,8 @@ This module only prepares the data (the models below) and calls the generic
 HtmlTemplateRenderer from jgh_html_rendering. It does no file saving or uploading.
 """
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, cache
 from pathlib import Path
-from typing import List
 
 import pandas as pd
 
@@ -31,7 +30,7 @@ TEMPLATE_DIRPATH = Path(__file__).parent / "templates"
 TEMPLATE_NAME_ONE_PAGE_SUMMARY = "one_page_summary.html"
 TEMPLATE_NAME_PLAN_FRAGMENT = "paceline_plan_fragment.html"
 
-DISPLAY_ORDER_OF_PACELINE_PLANS: List[PacelinePlanTypeEnum] = [
+DISPLAY_ORDER_OF_PACELINE_PLANS: list[PacelinePlanTypeEnum] = [
 	PacelinePlanTypeEnum.THIRTY_SEC_PULL,
 	PacelinePlanTypeEnum.SIXTY_SEC_PULL,
 	PacelinePlanTypeEnum.BALANCED_INTENSITY,
@@ -41,7 +40,7 @@ DISPLAY_ORDER_OF_PACELINE_PLANS: List[PacelinePlanTypeEnum] = [
 	PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR,
 ]
 
-RIDER_TABLE_COLUMN_HEADERS: List[str] = [
+RIDER_TABLE_COLUMN_HEADERS: list[str] = [
 	"#",
 	"Name<sup>1,2</sup>",
 	"Race Cat",
@@ -73,7 +72,7 @@ class OnePageSummaryModel:
 	title: str
 	css: str
 	footnotes_html: str
-	plan_fragments: List[str]
+	plan_fragments: list[str]
 
 
 # ===========================
@@ -85,13 +84,13 @@ def _get_renderer() -> HtmlTemplateRenderer:
 	return HtmlTemplateRenderer(TEMPLATE_DIRPATH)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _read_asset_text(filepath: str) -> str:
 	return read_text_from_path(Path(filepath))
 
 
 def _make_rider_table_html(plan_report: PacelineComputationReportDisplayObject) -> str:
-	rows_of_data: List[List[object]] = [
+	rows_of_data: list[list[object]] = [
 		[
 			z.index,
 			rider.name,

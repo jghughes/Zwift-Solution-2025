@@ -1,4 +1,3 @@
-from typing import List, Dict
 from pydantic import BaseModel, RootModel
 
 # this class belongs to me, and at the time of writing it is not exported/imported,
@@ -107,8 +106,8 @@ class ZwiftPowerFlattened90DayWattsDTO(BaseModel):
     bp_7200 : float = 0.0
 
 
-class ZwiftPower90DayWattsDTODictModel(RootModel[Dict[str, ZwiftPowerFlattened90DayWattsDTO]]):
+class ZwiftPower90DayWattsDTODictModel(RootModel[dict[str, ZwiftPowerFlattened90DayWattsDTO]]):
     pass
 
-class ZwiftPower90DayWattsDTOListModel(RootModel[List[ZwiftPowerFlattened90DayWattsDTO]]):
+class ZwiftPower90DayWattsDTOListModel(RootModel[list[ZwiftPowerFlattened90DayWattsDTO]]):
     pass

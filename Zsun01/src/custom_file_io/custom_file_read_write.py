@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Any, Type
+from typing import Any
 import json
 from collections import defaultdict
 
@@ -22,7 +22,7 @@ from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWatts
 from rider_team_name_dto import RiderTeamNameDtoListModel
 from rider_team_name_item import RiderTeamNameItem
 
-def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RiderComputeItem]:
+def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str, RiderComputeItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of RiderComputeItem domain objects.
 
@@ -56,7 +56,7 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> Dict[str,
         }
     )
 
-def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(dirpath: Path, filename: str) -> List[RiderStatsItem]:
+def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(dirpath: Path, filename: str) -> list[RiderStatsItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderStatsItem domain objects.
 
@@ -83,7 +83,7 @@ def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_js
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
 
 
-def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects.
 
@@ -117,7 +117,7 @@ def read_zwiftpower_90day_watts_dict_from_json(dirpath: Path, filename: str) -> 
         }
     )
 
-def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> Dict[str, RegressionModellingItem]:
+def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> dict[str, RegressionModellingItem]:
     """
     Reads a JSON file and deserializes its contents into a dictionary of RegressionModellingItem domain objects.
 
@@ -151,7 +151,7 @@ def read_regression_modelling_dict_from_json(dirpath: Path, filename: str) -> Di
         }
     )
 
-def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data: Dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
+def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data: dict[str, ZwiftPowerFlattened90dayWattsItem]) -> None:
     """
     Serializes and writes a dictionary of ZwiftPowerFlattened90dayWattsItem domain objects to a JSON file.
 
@@ -174,7 +174,7 @@ def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data
         require_file_exists_for_read=False,
         validate_dir_and_extension_only=False
     )
-    dataAsDictDTO: Dict[str, ZwiftPowerFlattened90DayWattsDTO] = {
+    dataAsDictDTO: dict[str, ZwiftPowerFlattened90DayWattsDTO] = {
         rider_id: ZwiftPowerFlattened90dayWattsItem.to_dataTransferObject(item)
         for rider_id, item in data.items()
     }
@@ -182,7 +182,7 @@ def write_zwiftpower_90day_watts_dict_to_json(dirpath: Path, filename: str, data
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
 
-def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: Dict[str, RegressionModellingItem]) -> None:
+def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: dict[str, RegressionModellingItem]) -> None:
     """
     Serializes and writes a dictionary of RegressionModellingItem domain objects to a JSON file.
 
@@ -205,7 +205,7 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
         require_file_exists_for_read=False,
         validate_dir_and_extension_only=False
     )
-    dataAsDictDTO: Dict[str, RegressionModellingDTO] = {
+    dataAsDictDTO: dict[str, RegressionModellingDTO] = {
         rider_id: RegressionModellingItem.to_dataTransferObject(item)
         for rider_id, item in data.items()
     }
@@ -213,7 +213,7 @@ def write_regression_modelling_dict_to_json(dirpath: Path, filename: str, data: 
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
 
-def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> List[RiderTeamNameItem]:
+def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[RiderTeamNameItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderTeamNameItem domain objects.
 
@@ -255,7 +255,7 @@ def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictio
     Raises:
         ValueError: If the directory or any file path is invalid or a file does not exist.
     """
-    file_paths: List[Path] = list_filePaths_recursive(dirpath, "*.json")
+    file_paths: list[Path] = list_filePaths_recursive(dirpath, "*.json")
 
     answer_as_list_dict: JghListDictionary[str, str] = JghListDictionary()
 
@@ -272,7 +272,7 @@ def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictio
 def read_json_list_and_export_tabular(
     input_dirpath: Path,
     input_filename: str,
-    list_model_class: Type[Any],
+    list_model_class: type[Any],
     output_dirpath: Path,
 ) -> pd.DataFrame:
     """

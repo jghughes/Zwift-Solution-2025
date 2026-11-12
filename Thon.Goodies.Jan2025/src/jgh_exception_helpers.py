@@ -1,10 +1,10 @@
-from typing import Dict, Any
+from typing import Any
 
 def flatten_dict(
-    d: Dict[str, Any], 
+    d: dict[str, Any], 
     parent_key: str = '', 
     sep: str = '.'
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Recursively flattens a nested dictionary into a single-level dictionary.
 
@@ -23,7 +23,7 @@ def flatten_dict(
         >>> flatten_dict({'a': {'b': 1, 'c': 2}, 'd': 3})
         {'a.b': 1, 'a.c': 2, 'd': 3}
     """
-    items: Dict[str, Any] = {}
+    items: dict[str, Any] = {}
     for k, v in d.items():
         new_key = f"{parent_key}{sep}{k}" if parent_key else k
         if isinstance(v, dict):

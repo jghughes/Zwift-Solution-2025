@@ -3,7 +3,8 @@ import json
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Callable, Dict, Optional, Type, TypeVar
+from typing import TypeVar
+from collections.abc import Callable
 from jgh_exceptions import AlertMessageError
 from jgh_path_helpers import find_all_file_paths_in_folder, throw_if_dirpath_invalid_or_not_exists
 from jgh_read_write import read_text_from_path
@@ -28,9 +29,9 @@ DTO = TypeVar("DTO", bound=BaseModel)
 
 def read_file_named_by_zwiftId_to_tuple_sync(
     file_path: str,
-    data_transfer_class: Type[DTO],
+    data_transfer_class: type[DTO],
     function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T]
-) -> tuple[Optional[str], Optional[T], Optional[str]]:
+) -> tuple[str | None, T | None, str | None]:
     """
     Reads a JSON file whose filename (without extension) is a Zwift ID, validates and deserializes it into a DTO,
     then converts it to a domain item. The Zwift ID is extracted from the filename and assigned to the resulting item.
@@ -73,9 +74,9 @@ def read_file_named_by_zwiftId_to_tuple_sync(
 
 def read_many_files_named_by_zwiftId_to_dict_sync(
     dirpath: Path,
-    specified_zwiftIDs: Optional[list[str]],
-    data_transfer_class: Type[DTO],
-    corresponding_item_class: Type[T],
+    specified_zwiftIDs: list[str] | None,
+    data_transfer_class: type[DTO],
+    corresponding_item_class: type[T],
     function_to_translate_from_dto_to_corresponding_item: Callable[[DTO], T]
 ) -> dict[str, T]:
     """
@@ -145,7 +146,7 @@ def read_many_files_named_by_zwiftId_to_dict_sync(
     )
     return answer
 
-def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftItem]:
+def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftItem]:
     answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftDTO, 
@@ -158,7 +159,7 @@ def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Opt
 
     return answer
 
-def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftRacingAppItem]:
+def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftRacingAppItem]:
     answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftRacingAppDTO, 
@@ -166,7 +167,7 @@ def read_zwiftracingappdto_files_to_item_dict_sync(dirpath: Path, specified_zwif
                                                          ZwiftRacingAppItem.from_dataTransferObject)
     return answer
 
-def read_zwiftpower90daywattsdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: Optional[list[str]]) -> Dict[str, ZwiftPowerFlattened90dayWattsItem]:
+def read_zwiftpower90daywattsdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: list[str] | None) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
     answer = read_many_files_named_by_zwiftId_to_dict_sync(dirpath, 
                                                          specified_zwiftIDs, 
                                                          ZwiftPowerGraphWattsDTO, 

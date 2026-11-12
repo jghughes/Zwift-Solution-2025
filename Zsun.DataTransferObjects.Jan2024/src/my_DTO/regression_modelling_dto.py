@@ -1,4 +1,3 @@
-from typing import Dict, List
 from pydantic import BaseModel, RootModel
 
 # this class belongs to me, so I don't need the paraphenalia 
@@ -35,9 +34,9 @@ class RegressionModellingDTO(BaseModel):
     jgh_60_min_curve_coefficient    : float         = 0.0
     jgh_60_min_curve_exponent       : float         = 0.0
 
-class RegressionModellingDTODictModel(RootModel[Dict[str, RegressionModellingDTO]]):
+class RegressionModellingDTODictModel(RootModel[dict[str, RegressionModellingDTO]]):
     pass
 
-class RegressionModellingDTOListModel(RootModel[List[RegressionModellingDTO]]):
+class RegressionModellingDTOListModel(RootModel[list[RegressionModellingDTO]]):
     pass
 

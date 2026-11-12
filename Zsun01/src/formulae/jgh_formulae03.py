@@ -1,5 +1,4 @@
 
-from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
@@ -58,7 +57,7 @@ def solve_for_speed_riding_in_the_paceline(rider : RiderComputeItem, power: floa
         
     return speed_kph
 
-def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
+def calculate_overall_average_watts(efforts: list[RiderExertionItem]) -> float:
     """
     Calculate average wattage (watts) from a list of rider efforts with
     given wattage and duration (seconds).
@@ -71,7 +70,7 @@ def calculate_overall_average_watts(efforts: List[RiderExertionItem]) -> float:
     average_watts = safe_divide(1_000 * total_kilojoules, total_duration)
     return average_watts
 
-def calculate_rolling_averages(numbers: List[float], window_size: int) -> List[float]:
+def calculate_rolling_averages(numbers: list[float], window_size: int) -> list[float]:
     """
     Calculate the rolling average of the given numbers with the specified window size.
 
@@ -114,14 +113,14 @@ def calculate_rolling_averages(numbers: List[float], window_size: int) -> List[f
     if not numbers or window_size <= 0:
         return []
 
-    rolling_averages: List[float] = []
+    rolling_averages: list[float] = []
     for i in range(len(numbers) - window_size + 1):
         window = numbers[i:i + window_size]
         rolling_averages.append(sum(window) / window_size)
 
     return rolling_averages
 
-def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> float:
+def calculate_overall_normalized_watts(efforts: list[RiderExertionItem]) -> float:
     """
     Calculate normalized power (watts) for a list of efforts accounting
     for variability in power output. Creates instantaneous wattages for
@@ -132,16 +131,16 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
     if not efforts:
         return 0.0
 
-    instantaneous_wattages: List[float] = []
+    instantaneous_wattages: list[float] = []
     for item in efforts:
         instantaneous_wattages.extend([item.wattage] * int(item.duration))
 
     # Calculate rolling average power - TrainingPeaks uses a 30-second rolling average
     # Our pulls are 30, 60, and 120 seconds long, so we'll use a (arbitrary) 5-second rolling average
-    rolling_avg_power: List[float] = calculate_rolling_averages(instantaneous_wattages, 5)
+    rolling_avg_power: list[float] = calculate_rolling_averages(instantaneous_wattages, 5)
 
     # Raise the smoothed power values to the fourth power
-    rolling_avg_power_4: List[float] = [p ** 4 for p in rolling_avg_power]
+    rolling_avg_power_4: list[float] = [p ** 4 for p in rolling_avg_power]
 
     # Calculate the average of these values
     mean_power_4 = safe_divide(sum(rolling_avg_power_4), len(rolling_avg_power_4))
@@ -151,7 +150,7 @@ def calculate_overall_normalized_watts(efforts: List[RiderExertionItem]) -> floa
 
     return normalized_watts
 
-def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderComputeItem, List[RiderExertionItem]]) -> float:
+def calculate_overall_average_speed_of_paceline_kph(exertions: dict[RiderComputeItem, list[RiderExertionItem]]) -> float:
     """
     Calculate average paceline speed (km/h) as total distance covered
     divided by total duration (seconds) from rider exertions.
@@ -172,7 +171,7 @@ def calculate_overall_average_speed_of_paceline_kph(exertions: Dict[RiderCompute
 
     return average_speed_kph
 
-def solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> float:
+def solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders: list[RiderComputeItem], slope_pc: float = 0.0) -> float:
     return 1.0  # arbitrarily small 1 kph to ensure the binary search algorithm starts at a safe lower bound speed.
 
 def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderComputeItem, rider_contribution: RiderContributionItem) -> float:
@@ -182,19 +181,19 @@ def calculate_overall_intensity_factor_of_rider_contribution(rider: RiderCompute
     """
     return  safe_divide(rider_contribution.normalized_watts, rider.get_1_hour_curvefit_watts())
 
-def solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Dict[RiderComputeItem, float]:
-    speeds: Dict[RiderComputeItem, float] = {}
+def solve_for_proxy_standard_30sec_pull_speed_for_all_riders(riders: list[RiderComputeItem], slope_pc: float = 0.0) -> dict[RiderComputeItem, float]:
+    speeds: dict[RiderComputeItem, float] = {}
     for rider in riders:
         speeds[rider] = solve_for_speed_at_standard_30sec_pull_watts(rider, slope_pc)
     return speeds
 
-def solve_for_speed_at_one_hour_watts_for_all_riders(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> Dict[RiderComputeItem, float]:
-    speeds: Dict[RiderComputeItem, float] = {}
+def solve_for_speed_at_one_hour_watts_for_all_riders(riders: list[RiderComputeItem], slope_pc: float = 0.0) -> dict[RiderComputeItem, float]:
+    speeds: dict[RiderComputeItem, float] = {}
     for rider in riders:
         speeds[rider] = solve_for_speed_at_one_hour_watts(rider, slope_pc)
     return speeds
 
-def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderComputeItem, RiderContributionItem]) -> float:
+def calculate_dispersion_of_intensity_of_effort(rider_contributions: dict[RiderComputeItem, RiderContributionItem]) -> float:
     """
     Calculate the dispersion (standard deviation) of 
     intensity factors among all riders who performed a pull.
@@ -209,7 +208,7 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
     result is not finite.
     """
 
-    array_of_rider_effort_intensity_factors: List[float] = [
+    array_of_rider_effort_intensity_factors: list[float] = [
         contribution.intensity_factor
         for _, contribution in rider_contributions.items()
         if contribution.p1_duration != 0
@@ -222,22 +221,22 @@ def calculate_dispersion_of_intensity_of_effort(rider_contributions: Dict[RiderC
 
     return std_deviation_of_intensity_factors
 
-def order_paceline_by_desired_order_of_riders(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
+def order_paceline_by_desired_order_of_riders(riders: list[RiderComputeItem]) -> list[RiderComputeItem]:
     """
     Reorder the list of riders to match the desired order.
     """
     return _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders=riders)
 
-def _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: List[RiderComputeItem]) -> List[RiderComputeItem]:
-    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
+def _arrange_riders_by_zwiftracingapp_zpFTP_strength(riders: list[RiderComputeItem]) -> list[RiderComputeItem]:
+    sorted_riders: list[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_zwiftracingapp_zpFTP_wkg(), reverse=True)
     return sorted_riders
 
-def _arrange_riders_by_1_minute_strength(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
-    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+def _arrange_riders_by_1_minute_strength(riders: list[RiderComputeItem], slope_pc: float = 0.0) -> list[RiderComputeItem]:
+    sorted_riders: list[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
     return sorted_riders
 
-def _arrange_riders_by_1_minute_strength_interleaved(riders: List[RiderComputeItem], slope_pc: float = 0.0) -> List[RiderComputeItem]:
+def _arrange_riders_by_1_minute_strength_interleaved(riders: list[RiderComputeItem], slope_pc: float = 0.0) -> list[RiderComputeItem]:
     """
     Arrange the riders in an optimal order based on their strength metric.
 
@@ -257,12 +256,12 @@ def _arrange_riders_by_1_minute_strength_interleaved(riders: List[RiderComputeIt
         List[RiderComputeItem]: The list of riders arranged in the optimal interleaved order.
     """
     # Step 1: Calculate the strength of each rider and sort them in descending order
-    sorted_riders: List[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
+    sorted_riders: list[RiderComputeItem] = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_wkg(), reverse=True)
     # sorted_riders = sorted(riders, key=lambda rider: rider.get_proxy_1_minute_pull_kph(slope_pc), reverse=True)
 
     # Step 2: Create an empty list to hold the optimal order
     n = len(sorted_riders)
-    optimal_order: List[RiderComputeItem] = [None] * n  # type: ignore
+    optimal_order: list[RiderComputeItem] = [None] * n  # type: ignore
 
     # Step 3: Fill front, 2nd, 3rd, ... (odd positions) with 1st, 3rd, 5th, ...
     front_idx = 0
@@ -278,11 +277,11 @@ def _arrange_riders_by_1_minute_strength_interleaved(riders: List[RiderComputeIt
 
     return optimal_order
 
-def select_n_riders_at_the_top_of_the_list(riders: List[RiderComputeItem], n : int) -> List[RiderComputeItem]:
+def select_n_riders_at_the_top_of_the_list(riders: list[RiderComputeItem], n : int) -> list[RiderComputeItem]:
     if not riders:
         return []
 
-    topmost_riders: List[RiderComputeItem] = []
+    topmost_riders: list[RiderComputeItem] = []
 
     if len(riders) <= n:
         return riders
@@ -293,7 +292,7 @@ def select_n_riders_at_the_top_of_the_list(riders: List[RiderComputeItem], n : i
     return topmost_riders
 
 def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_sequences_being_pruned: NDArray[np.float64],
-    riders: List[RiderComputeItem]
+    riders: list[RiderComputeItem]
 ) -> NDArray[np.float64]:
     """
     Efficiently prunes a large set of paceline pull pull_duration sequences (pull pull_duration assignments) using empirical rules
@@ -360,7 +359,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(pull_period_
 
     return arr
 
-def generate_all_paceline_rotation_sequences_in_the_total_solution_space(num_riders: int, list_of_allowable_pull_durations_sec: List[float]
+def generate_all_paceline_rotation_sequences_in_the_total_solution_space(num_riders: int, list_of_allowable_pull_durations_sec: list[float]
 ) -> NDArray[np.float64]:
     """
     Generate all possible assignments of pull periods to a paceline as a NumPy array.
@@ -436,9 +435,9 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
     # This is done by building up the sets one pull at a time, and  
     # adding pulls one by one that are less than or equal to the last pull in the growing set. 
     # This ensures that the final sequence of pulls in a set is non-increasing.
-    list_of_sequences_of_pull_periods_being_built: List[List[float]] = [[]]
+    list_of_sequences_of_pull_periods_being_built: list[list[float]] = [[]]
     for _ in range(num_riders):
-        extended_sequences: List[List[float]] = []
+        extended_sequences: list[list[float]] = []
         for single_sequence_of_pull_durations_being_built in list_of_sequences_of_pull_periods_being_built:
             for pull_duration in list_of_available_pull_durations_sec:
                 if single_sequence_of_pull_durations_being_built and pull_duration > single_sequence_of_pull_durations_being_built[-1]:
@@ -448,7 +447,7 @@ def generate_all_suitable_paceline_rotation_sequences_in_the_solution_space(pace
         list_of_sequences_of_pull_periods_being_built = extended_sequences
 
     # --- transition: all sequences are now fully formed ---
-    list_of_sequences_of_pull_periods: List[List[float]] = list_of_sequences_of_pull_periods_being_built
+    list_of_sequences_of_pull_periods: list[list[float]] = list_of_sequences_of_pull_periods_being_built
 
     # Error handling: Check for empty sets
     if not list_of_sequences_of_pull_periods:

@@ -1,4 +1,3 @@
-from typing import Dict, List
 from pydantic import BaseModel, RootModel, Field
 from slope_bucket_dto import SlopeBucketDTO
 
@@ -13,11 +12,11 @@ class RouteDTO(BaseModel):
     route_elevation_m       : float = 0.0
     route_lead_in_km       : float = 0.0
     # imposed_intensity_factor : float = 0.0
-    route_slope_buckets: List[SlopeBucketDTO] = Field(default_factory=list)
+    route_slope_buckets: list[SlopeBucketDTO] = Field(default_factory=list)
 
-class RouteDTODictModel(RootModel[Dict[str, RouteDTO]]):
+class RouteDTODictModel(RootModel[dict[str, RouteDTO]]):
     pass
 
-class RouteDTOListModel(RootModel[List[RouteDTO]]):
+class RouteDTOListModel(RootModel[list[RouteDTO]]):
     pass
 

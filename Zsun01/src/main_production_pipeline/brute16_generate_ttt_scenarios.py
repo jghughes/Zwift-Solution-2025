@@ -14,7 +14,7 @@ Key Features:
 import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 
@@ -102,7 +102,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
         throw_if_any_dirpath_invalid_or_not_exists([Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT), Path(DIRPATH_BRUTE_TTT_DOCS)])
         throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT])
 
-        _riderIDs: List[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(codeNameOfTeam)
+        _riderIDs: list[str] = RepositoryOfTeamRosters.get_IDs_of_riders_on_a_team(codeNameOfTeam)
         _intensity_factor = RepositoryOfTeamRosters.get_exertion_intensity_factor_for_team(codeNameOfTeam)
 
         # ===========================
@@ -116,12 +116,12 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
 
         blob_as_text = blob_as_bytes.decode('utf-8')
         something = json.loads(blob_as_text)
-        list_of_RiderDTO: List[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
-        list_of_RiderItem: List[RiderComputeItem] = [
+        list_of_RiderDTO: list[RiderComputeDTO] = RiderComputeDtoListModel.model_validate(something, strict=True).root
+        list_of_RiderItem: list[RiderComputeItem] = [
             RiderComputeItem.from_dataTransferObject(rider_compute_dto)
             for rider_compute_dto in list_of_RiderDTO]
 
-        dict_of_RiderItem: Dict[str, RiderComputeItem] = {
+        dict_of_RiderItem: dict[str, RiderComputeItem] = {
             rider_dataclasses.zwift_id: rider_dataclasses
             for rider_dataclasses in list_of_RiderItem
         }    
@@ -131,7 +131,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
         return
 
     try:
-        full_team_of_riders: List[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
+        full_team_of_riders: list[RiderComputeItem] = lookup_Items_by_ZwiftID(_riderIDs, dict_of_RiderItem, RiderComputeItem)
         full_team_of_riders = RiderComputeItem.with_slots_assigned_to_repeated_riders(full_team_of_riders)
     except Exception as e:
         print(f"Team '{codeNameOfTeam}' not found:\n - Error message:\n - {e}")
