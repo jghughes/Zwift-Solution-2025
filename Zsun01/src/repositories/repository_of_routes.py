@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import ClassVar
 
 from route_item import RouteItem
@@ -14,9 +15,9 @@ class RepositoryOfRoutes:
 
     Methods:
         get_RouteItems_as_dict():
-            Returns the dictionary of all routes.
+            Returns a deep copy of the dictionary of all routes.
         get_RouteItem(name_as_key):
-            Returns the RouteItem for the given route name, or raises ValueError if not found.
+            Returns a deep copy of the RouteItem for the given route name, or raises ValueError if not found.
     """
 
     _routes_as_dict: ClassVar[dict[str, RouteItem]] = {
@@ -611,12 +612,12 @@ class RepositoryOfRoutes:
 
     @staticmethod
     def get_RouteItems_as_dict() -> dict[str, RouteItem]:
-        return RepositoryOfRoutes._routes_as_dict
+        return deepcopy(RepositoryOfRoutes._routes_as_dict)
 
     @staticmethod
     def get_RouteItem(name_as_key: str) -> RouteItem:
         if name_as_key in RepositoryOfRoutes._routes_as_dict:
-            return RepositoryOfRoutes._routes_as_dict[name_as_key]
+            return deepcopy(RepositoryOfRoutes._routes_as_dict[name_as_key])
         else:
             raise ValueError(
                 f"Route '{name_as_key}' not found. Available routes: {list(RepositoryOfRoutes._routes_as_dict.keys())}"

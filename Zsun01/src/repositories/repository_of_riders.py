@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -137,24 +138,27 @@ class RepositoryOfRiders:
 
         return True
 
-    # Getters for the repository
+    # Getters for the repository. Each returns a deep copy so that callers cannot mutate repository state.
 
     def get_dict_of_ZwiftItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftItem]:
-        return filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids)
+        return deepcopy(filter_generic_dict_by_key(self._dict_of_ZwiftItem, zwift_ids))
 
     def get_dict_of_ZwiftRacingAppItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, ZwiftRacingAppItem]:
-        return filter_generic_dict_by_key(self._dict_of_ZwiftRacingAppItem, zwift_ids)
+        return deepcopy(filter_generic_dict_by_key(self._dict_of_ZwiftRacingAppItem, zwift_ids))
 
     def get_dict_of_ZwiftPower90dayWattsItem_by_ids(
         self, zwift_ids: list[str] | None
     ) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:
-        return filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
+        return deepcopy(filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids))
 
     def get_dict_of_RiderComputeItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderComputeItem]:
-        return filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids)
+        return deepcopy(filter_generic_dict_by_key(self._computed_dict_of_riderComputeItem, zwift_ids))
 
     def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderStatsItem]:
-        return filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids)
+        return deepcopy(filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids))
+
+    def get_count_of_RiderComputeItems(self) -> int:
+        return len(self._computed_dict_of_riderComputeItem)
 
     # ...the heavy lifting: building the repository
 
@@ -170,7 +174,8 @@ class RepositoryOfRiders:
 
         # by definition we only do curve fitting on those zwift_ids that have ZwiftPower90dayWattsItem data
 
-        dict_of_90dayWattsItem = self.get_dict_of_ZwiftPower90dayWattsItem_by_ids(zwift_ids)
+        # operates on the live items on purpose: zwift_id is written back onto each stored item below
+        dict_of_90dayWattsItem = filter_generic_dict_by_key(self._dict_of_ZwiftPower90dayWattsItem, zwift_ids)
 
         for zwift_id, item in dict_of_90dayWattsItem.items():
             item.zwift_id = zwift_id

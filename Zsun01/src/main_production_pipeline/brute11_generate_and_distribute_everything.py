@@ -155,9 +155,7 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
     )
     elapsed = time.time() - start_time
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
-    print(
-        f"ended up with {len(rider_repository.get_dict_of_RiderComputeItem_by_ids(None))} curve fitted computed riders."
-    )
+    print(f"ended up with {rider_repository.get_count_of_RiderComputeItems()} curve fitted computed riders.")
 
     print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")
 

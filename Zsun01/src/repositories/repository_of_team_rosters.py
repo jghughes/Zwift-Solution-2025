@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import deepcopy
 from typing import ClassVar
 
 from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
@@ -17,7 +18,7 @@ class RepositoryOfTeamRosters:
 
     Methods:
         get_dict_of_teams_and_their_riders():
-            Returns the dictionary of all teams and their riders.
+            Returns a deep copy of the dictionary of all teams and their riders.
         get_IDs_of_riders_on_a_team(team_nickname):
             Returns a list of Zwift IDs for the slots on the specified team, repeats included.
         get_unique_IDs_of_riders_on_a_team(team_nickname):
@@ -284,7 +285,7 @@ class RepositoryOfTeamRosters:
 
     @staticmethod
     def get_dict_of_teams_and_their_riders() -> dict[str, list[tuple[str, str]]]:
-        return RepositoryOfTeamRosters._team_rosters_as_dict_of_list
+        return deepcopy(dict(RepositoryOfTeamRosters._team_rosters_as_dict_of_list))
 
     @staticmethod
     def get_IDs_of_riders_on_a_team(team_nickname: str) -> list[str]:
