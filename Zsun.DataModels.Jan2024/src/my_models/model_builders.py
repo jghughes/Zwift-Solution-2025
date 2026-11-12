@@ -122,7 +122,7 @@ def build_RiderComputeItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacing
 
 
 def build_RiderStatsItem(zwiftItem: ZwiftItem, zwiftracingappItem: ZwiftRacingAppItem | None, jghRiderComputeItem: RiderComputeItem | None, 
-                             watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None, routeItem: RouteItem) -> RiderStatsItem:
+                             watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None, routeItem: RouteItem | None) -> RiderStatsItem:
     """
     Constructs and returns a fully populated RiderStatsItem for a single rider.
 

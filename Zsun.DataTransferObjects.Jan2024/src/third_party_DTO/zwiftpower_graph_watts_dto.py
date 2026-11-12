@@ -30,7 +30,7 @@ class EffortDTO(BaseModel):
 class ZwiftPowerGraphWattsDTO(BaseModel):
 	model_config	=	preferred_config_dict
 	zwift_id : str = ""  
-	efforts_obj : dict[str, list[EffortDTO]] | None = Field(default_factory=dict)  # Efforts dictionary
+	efforts_obj : dict[str, list[EffortDTO]] | None = Field(default_factory=lambda: {})  # Efforts dictionary
 
 	# Validator for zwift_id to convert int to string
 	@field_validator("zwift_id", mode="before")

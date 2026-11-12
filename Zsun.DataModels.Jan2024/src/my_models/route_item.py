@@ -48,7 +48,7 @@ class RouteItem:
     @staticmethod
     def populate_riderStatsItem_with_routeItem(route_item: "RouteItem", rider_stats_item: RiderStatsItem) -> RiderStatsItem:
         rider_stats_item.route_name         = route_item.route_name
-        rider_stats_item.zwift_world_name   = route_item.zwift_world_name
+        rider_stats_item.route_zwift_world_name = route_item.zwift_world_name
         rider_stats_item.route_description  = route_item.route_description
         rider_stats_item.route_lead_in_km   = route_item.route_lead_in_km
         rider_stats_item.route_length_km    = route_item.route_length_km

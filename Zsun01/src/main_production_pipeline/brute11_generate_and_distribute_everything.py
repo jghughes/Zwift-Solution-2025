@@ -180,8 +180,8 @@ async def generate_everything_and_save_and_upload(route_name : str):
     )
 
     dto_dict_rs = {k: RiderStatsItem.to_dataTransferObject(v) for k, v in sorted_items_rs}
-    for row_num, (_, item) in enumerate(dto_dict_rs.items(), start=1):
-        item.row = row_num
+    for row_num, (_, rs_item) in enumerate(dto_dict_rs.items(), start=1):
+        rs_item.row = row_num
 
     # Tasks #1 and #2 write to independent directories and blobs — run concurrently.
     print("\nTask #1 and Task #2: distributing RiderComputeItem and RiderStatsItem records concurrently")

@@ -51,7 +51,7 @@ def traverse_deepest_exception(exc: Exception) -> tuple[str, str]:
         tuple[str, str]: A tuple containing the exception message and its location as "filename:lineno".
     """ 
     visited: set[int] = set()
-    deepest: Exception | None = exc
+    deepest: BaseException | None = exc
     while deepest:
         if id(deepest) in visited:
             break

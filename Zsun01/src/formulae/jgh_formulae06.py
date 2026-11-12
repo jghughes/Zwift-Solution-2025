@@ -69,7 +69,7 @@ def populate_rider_contributions(riders: dict[RiderComputeItem, list[RiderExerti
         if not exertions:
             return 0, 0
 
-        p1_speed_kph = 0
+        p1_speed_kph : float = 0.0
         p1_duration : float = 0
 
         dict_positions: dict[int, RiderExertionItem] = {exertion.current_location_in_paceline: exertion for exertion in exertions}

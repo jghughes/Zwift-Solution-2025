@@ -425,7 +425,7 @@ def throw_if_blob_name_is_invalid(blob_name: str) -> None:
     """
     warning = warn_if_blob_name_is_invalid(blob_name)
     if warning:
-        raise AlertMessageError(message=warning, error_type=LogEventType.ALERT_MESSAGE)
+        raise AlertMessageError(message=warning)
 
 def throw_if_container_name_is_invalid(container_name: str) -> None:
     """
@@ -435,7 +435,7 @@ def throw_if_container_name_is_invalid(container_name: str) -> None:
     """
     warning = warn_if_container_name_is_invalid(container_name)
     if warning:
-        raise AlertMessageError(message=warning, error_type=LogEventType.ALERT_MESSAGE)
+        raise AlertMessageError(message=warning)
 
 def throw_if_account_name_is_invalid(account_name: str) -> None:
     """
@@ -445,7 +445,7 @@ def throw_if_account_name_is_invalid(account_name: str) -> None:
     """
     warning = warn_if_account_name_is_invalid(account_name)
     if warning:
-        raise AlertMessageError(message=warning, error_type=LogEventType.ALERT_MESSAGE)
+        raise AlertMessageError(message=warning)
 
 def throw_if_any_parameter_is_invalid(
     account_name: str,

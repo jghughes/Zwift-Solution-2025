@@ -174,7 +174,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     # ===========================
 
     riders = order_paceline_by_desired_order_of_riders(full_team_of_riders)
-    pull_periods_sec_as_list: list[float] = [60.0] * len(riders)
+    pull_periods_sec_as_list = [60.0] * len(riders)
     paceline_ingredients = PacelineIngredientsItem(
         riders_list                     = riders,
         pull_speeds_kph                 = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
@@ -231,7 +231,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 5)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
-    ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
+    ingredients = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
@@ -239,7 +239,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
         slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
 
-    package: Any = generate_package_of_paceline_solutions(ingredients)
+    package = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_five_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
     report_fastest_strongest_five_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_five_plan)
     populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST_STRONGEST_FIVE,report_fastest_strongest_five_plan_display_object)
@@ -252,14 +252,14 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     riders = select_n_riders_at_the_top_of_the_list(riders, 4)
 
     pull_periods_sec_as_list = PULL_DURATION_OPTIONS_SEC
-    ingredients: PacelineIngredientsItem = PacelineIngredientsItem(
+    ingredients = PacelineIngredientsItem(
         riders_list                  = riders,
         pull_speeds_kph              = [solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph(riders, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC)] * len(riders),
         sequence_of_pull_periods_sec = pull_periods_sec_as_list,
         max_exertion_intensity_factor= _intensity_factor,
         slope_pc                     = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
     )
-    package: Any = generate_package_of_paceline_solutions(ingredients)
+    package = generate_package_of_paceline_solutions(ingredients)
     report_fastest_strongest_four_plan = package.dict_of_solutions[PacelinePlanTypeEnum.FASTEST]
     report_fastest_strongest_four_plan_display_object = PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report_fastest_strongest_four_plan)
     populate_title_for_pace_plan(PacelinePlanTypeEnum.FASTEST_STRONGEST_FOUR,report_fastest_strongest_four_plan_display_object)

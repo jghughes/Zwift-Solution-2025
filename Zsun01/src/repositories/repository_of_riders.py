@@ -38,7 +38,7 @@ class RepositoryOfRiders:
 
     _singleSegment           : SlopeBucketItem = field(default_factory = SlopeBucketItem)
 
-    _routeItem                : RouteItem = field(default_factory = RouteItem) 
+    _routeItem                : RouteItem | None = field(default_factory = RouteItem) 
 
     # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
 
@@ -49,7 +49,7 @@ class RepositoryOfRiders:
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
         folder_containing_generated_results_for_drs_events_dirpath : str,
-        routeItem: RouteItem = None
+        routeItem: RouteItem | None = None
     )->bool:
 
         """
@@ -131,7 +131,7 @@ class RepositoryOfRiders:
             self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(Path(folder_containing_generated_results_for_drs_events_dirpath))
             for zwift_id, team_names in self._dict_of_teamnames_per_rider.get_key_value_pairs():
                 if zwift_id in self._computed_dict_of_riderStatsItem:
-                    self._computed_dict_of_riderStatsItem[zwift_id].team_name = ", ".join(team_names)
+                    self._computed_dict_of_riderStatsItem[zwift_id].team_names = ", ".join(team_names)
 
         print("\nRepository successfully populated.")
 

@@ -10,7 +10,7 @@ def set_x_axis_seconds_in_minute_ticks(ax: Axes, max_seconds: int, interval_seco
         interval_seconds (int): The interval between ticks in seconds (default is 300).
     """
     tick_positions = range(0, max_seconds + 1, interval_seconds)  # Tick positions at intervals
-    tick_labels = [int(pos / 60) for pos in tick_positions]  # Convert seconds to minutes for labels
+    tick_labels = [str(int(pos / 60)) for pos in tick_positions]  # Convert seconds to minutes for labels
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels)
 

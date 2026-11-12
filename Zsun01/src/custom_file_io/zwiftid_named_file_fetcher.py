@@ -147,8 +147,8 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                 )
             return
         except httpx.RequestError as e:
-            response = getattr(e, "response", None)
-            status_code = response.status_code if response is not None else ""
+            error_response = getattr(e, "response", None)
+            status_code_or_blank: int | str = error_response.status_code if error_response is not None else ""
 
 
             log_event(
@@ -158,7 +158,7 @@ async def _download_file_and_save_to_hard_drive_async(http_client: httpx.AsyncCl
                 exception=e,
                 extra_fields={
                     "url": url,
-                    "status_code": status_code
+                    "status_code": status_code_or_blank
                 }
             )
             return
