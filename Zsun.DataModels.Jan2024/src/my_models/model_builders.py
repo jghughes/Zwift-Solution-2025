@@ -1,18 +1,24 @@
 import copy
 import math
+
 from constants import DEFAULT_INTENSITY_FACTOR_FOR_ROUTES_AND_SEGMENTS
-from jgh_formatting import get_current_utc_iso8601_timestamp, format_number_2dp, format_number_0dp_padded1, format_number_0dp_padded3, format_number_0dp_padded4
+from jgh_formatting import (
+    format_number_0dp_padded1,
+    format_number_0dp_padded3,
+    format_number_0dp_padded4,
+    format_number_2dp,
+    get_current_utc_iso8601_timestamp,
+)
 from jgh_formulae02 import solve_for_route_duration_at_constant_90_day_best_using_binary_search
 from jgh_number import safe_divide
 from jgh_string import cleanup_name_string, format_seconds_to_hh_mm_ss
 from paceline_modelling_items import CurveFittingResultItem
-from zwift_item import ZwiftItem
-from zwiftracingapp_item import ZwiftRacingAppItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
-from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 from route_item import RouteItem
-
+from zwift_item import ZwiftItem
+from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
+from zwiftracingapp_item import ZwiftRacingAppItem
 
 
 def build_CurveFittingResultItem(zwift_id: str, coefficient_one_hour: float, exponent_one_hour: float, r_squared_one_hour: float, coefficient_pull_curve: float,

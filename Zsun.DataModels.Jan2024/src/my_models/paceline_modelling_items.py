@@ -3,9 +3,9 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 # (No third-party imports)
-
 from jgh_enums import PacelinePlanTypeEnum
 from rider_compute_item import RiderComputeItem
+
 
 @dataclass
 class CurveFittingResultItem:

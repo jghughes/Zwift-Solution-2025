@@ -1,9 +1,11 @@
+import json
 import logging
 import os
-import json
-from typing import Any
 from types import TracebackType
+from typing import Any
+
 from jgh_formatting import get_current_utc_iso8601_timestamp
+
 
 class JsonFileHandler(logging.FileHandler):
     """

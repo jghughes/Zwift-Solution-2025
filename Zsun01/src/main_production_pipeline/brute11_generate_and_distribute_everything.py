@@ -46,59 +46,58 @@ This tool demonstrates large-scale data integration, model application,
 and dataset preparation for club-level cycling analytics and reporting.
 """
 import asyncio
+import logging
+import time
 from pathlib import Path
 from typing import Any
-import time
-import pandas as pd
-from jgh_azure_storage_service_client import AzureStorageServiceClient
 
-from jgh_formatting import format_timestamp_as_yyyy_mm_dd 
+import pandas as pd
+
+from jgh_azure_storage_service_client import AzureStorageServiceClient
+from jgh_exceptions import AlertMessageError
+from jgh_formatting import format_timestamp_as_yyyy_mm_dd
 from jgh_internet_helpers import throw_if_no_internet_connection
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import write_dataframe_as_csv_file, write_dataframe_as_xlsx_file, write_text_with_json_file_extension
-from jgh_string import make_pretty_count_of_bytes, format_seconds_to_hh_mm_ss
+from jgh_read_write import (
+    write_dataframe_as_csv_file,
+    write_dataframe_as_xlsx_file,
+    write_text_with_json_file_extension,
+)
+from jgh_string import format_seconds_to_hh_mm_ss, make_pretty_count_of_bytes
+from repository_of_riders import RepositoryOfRiders
+from repository_of_routes import RepositoryOfRoutes
+from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
+from rider_compute_item import RiderComputeItem
+from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
+from rider_stats_item import RiderStatsItem
+from route_item import RouteItem
 from storage_config import (
+    AZURE_ACCOUNTNAME_ZSUN,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
+    AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
+    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
+    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
+    AZURE_CONTAINERNAME_ZSUN,
     AZURE_CONTAINERNAME_ZSUN_BACK,
-    DIRPATH_ZWIFT_FILES, 
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, 
-    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_RIDER_COMPUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
-    )
-from storage_config import (
-    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, 
-    FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
-    FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST, 
-    FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
-
-    FILENAME_RIDER_STATS_DTO_JSON_DICT, 
-    FILENAME_RIDER_STATS_DTO_JSON_LIST,
-    FILENAME_RIDER_STATS_DTO_XLSX_LIST, 
-    FILENAME_RIDER_STATS_DTO_CSV_LIST,
-
     DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
+    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
+    DIRPATH_ZWIFT_FILES,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    DIRPATH_ZWIFTRACINGAPP_FILES,
+    FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
+    FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST,
+    FILENAME_RIDER_STATS_DTO_CSV_LIST,
+    FILENAME_RIDER_STATS_DTO_JSON_DICT,
+    FILENAME_RIDER_STATS_DTO_JSON_LIST,
+    FILENAME_RIDER_STATS_DTO_XLSX_LIST,
+)
 
-    AZURE_ACCOUNTNAME_ZSUN, 
-    AZURE_CONTAINERNAME_ZSUN, 
-
-    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
-    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
-
-    AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
-    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST, 
-    AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
-    )
-from repository_of_riders import RepositoryOfRiders
-from rider_compute_item import RiderComputeItem
-from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
-from rider_stats_item import RiderStatsItem
-from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
-from route_item import RouteItem
-from repository_of_routes import RepositoryOfRoutes
-
-import logging
-from jgh_exceptions import AlertMessageError
 
 async def upload_text_to_blob_storage_in_azure(
     storage_account_name: str,
@@ -331,7 +330,7 @@ async def export_and_upload_dtos(
 
 #runner
 if __name__ == "__main__":
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

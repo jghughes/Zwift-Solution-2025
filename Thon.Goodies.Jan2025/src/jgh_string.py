@@ -1,5 +1,5 @@
-from datetime import datetime
 import re
+from datetime import datetime
 
 CallTimedOut = "Call timed out. Please try again later."
 MethodFailed = "Method failed to complete."

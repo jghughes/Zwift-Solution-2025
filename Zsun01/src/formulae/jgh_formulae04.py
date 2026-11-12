@@ -40,6 +40,7 @@ from collections import defaultdict
 from paceline_modelling_items import RiderWorkAssignmentItem
 from rider_compute_item import RiderComputeItem
 
+
 # This function called during parallel processing. Logging forbidden
 def populate_rider_work_assignments(riders: list[RiderComputeItem], pull_durations: list[float], pull_speeds_kph: list[float], slope_pc: float = 0.0) -> dict[RiderComputeItem, list[RiderWorkAssignmentItem]]:
     """

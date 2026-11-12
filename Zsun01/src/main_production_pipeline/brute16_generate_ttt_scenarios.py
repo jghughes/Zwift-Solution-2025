@@ -13,64 +13,57 @@ Key Features:
 """
 import asyncio
 import json
+import logging
+import time
 from pathlib import Path
 from typing import Any
 
-from constants import PULL_DURATION_OPTIONS_SEC, DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
-
-from paceline_modelling_items import PacelineIngredientsItem, PacelineComputationReportItem
+from constants import DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC, PULL_DURATION_OPTIONS_SEC
+from jgh_azure_storage_service_client import AzureStorageServiceClient
+from jgh_enums import PacelinePlanTypeEnum
+from jgh_exceptions import AlertMessageError
+from jgh_formulae03 import (
+    order_paceline_by_desired_order_of_riders,
+    select_n_riders_at_the_top_of_the_list,
+    solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
+)
+from jgh_formulae08 import (
+    generate_package_of_paceline_solutions,
+    show_table_of_standard_proxy_speeds_for_all_riders,
+    show_workload_suffix_message,
+    solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search,
+)
+from jgh_internet_helpers import throw_if_no_internet_connection
+from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
+from jgh_read_write import write_text_with_html_file_extension
+from jgh_string import capitalize_first_letter, make_pretty_count_of_bytes
 from paceline_display_objects import (
     PacelineComputationReportDisplayObject,
     PackageOfPacelineComputationReportDisplayObject,
-    populate_title_for_pace_plan,
     populate_compute_statistics_for_pace_plan,
+    populate_title_for_pace_plan,
+)
 
-)
-from jgh_enums import PacelinePlanTypeEnum
-from jgh_azure_storage_service_client import AzureStorageServiceClient
-from jgh_formulae03 import (
-    order_paceline_by_desired_order_of_riders,
-    solve_for_safe_lower_bound_speed_to_kick_off_binary_search_algorithm_kph,
-    select_n_riders_at_the_top_of_the_list,
-)
-from jgh_formulae08 import (
-    solve_for_a_single_paceline_solution_complying_with_exertion_constraints_using_binary_search,
-    generate_package_of_paceline_solutions,
-    show_table_of_standard_proxy_speeds_for_all_riders,
-    show_workload_suffix_message
-)
 # from jgh_formulae09 import (
 #     populate_title_for_pace_plan,
 #     populate_compute_statistics_for_pace_plan,
 # )
-from paceline_html_renderer import format_paceline_plans_as_one_page_html_doc 
-
-from jgh_internet_helpers import throw_if_no_internet_connection
-
-from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from jgh_read_write import write_text_with_html_file_extension
-from jgh_string import make_pretty_count_of_bytes
-
-
-from jgh_string import capitalize_first_letter
-from zwift_id_base import lookup_Items_by_ZwiftID
-
+from paceline_html_renderer import format_paceline_plans_as_one_page_html_doc
+from paceline_modelling_items import PacelineComputationReportItem, PacelineIngredientsItem
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from storage_config import (
-    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
-    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
-    DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
     AZURE_CONTAINERNAME_BRUTE,
     AZURE_CONTAINERNAME_ZSUN,
-    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
-    make_filename_for_one_page_summary_html_doc,)
-
-import time
-import logging
-from jgh_exceptions import AlertMessageError
+    DIRPATH_BRUTE_TTT_DOCS,
+    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+    make_filename_for_one_page_summary_html_doc,
+)
+from zwift_id_base import lookup_Items_by_ZwiftID
 
 
 def _save_html_document_to_hard_drive(
@@ -294,7 +287,7 @@ async def generate_ttt_scenarios_with_brute(codeNameOfTeam: str) -> None:
     print(f" PATH : {saved_file_path}")
 
 if __name__ == "__main__":
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

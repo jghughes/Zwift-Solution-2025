@@ -1,10 +1,11 @@
 import asyncio
 import json
-import time
 import logging
+import time
 from pathlib import Path
 
 from jgh_azure_storage_service_client import AzureStorageServiceClient
+from jgh_exceptions import AlertMessageError
 from jgh_formulae03 import order_paceline_by_desired_order_of_riders
 from jgh_formulae08 import show_table_of_standard_proxy_speeds_for_all_riders
 from jgh_internet_helpers import throw_if_no_internet_connection
@@ -13,15 +14,16 @@ from jgh_string import make_pretty_count_of_bytes
 from repository_of_team_rosters import RepositoryOfTeamRosters
 from rider_compute_dto import RiderComputeDTO, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
-from jgh_exceptions import AlertMessageError
-from zwift_id_base import lookup_Items_by_ZwiftID
 from storage_config import (
-    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
-    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
-    DIRPATH_BRUTE_TTT_DOCS,
     AZURE_ACCOUNTNAME_ZSUN,
+    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
     AZURE_CONTAINERNAME_ZSUN,
-    AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,)
+    DIRPATH_BRUTE_TTT_DOCS,
+    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+)
+from zwift_id_base import lookup_Items_by_ZwiftID
+
 
 # HEAP POWERFUL
 async def generate_team_targets() -> None:
@@ -92,7 +94,7 @@ async def generate_team_targets() -> None:
     print("\nyou may close the app. thank you.\n")
 
 if __name__ == "__main__":
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
     setup_json_logging(DIRPATH_LOGGING)
     logger = logging.getLogger()

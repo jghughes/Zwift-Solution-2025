@@ -1,15 +1,14 @@
+import warnings
 from dataclasses import dataclass, replace
 
 import numpy as np
-from constants import AERO_POSITION_FACTOR_DEFAULT
-import warnings
 
+from constants import AERO_POSITION_FACTOR_DEFAULT
 from jgh_formulae01 import calculate_rider_kph_from_watts
 from jgh_number import safe_divide
-from rider_compute_dto import RiderComputeDTO   
-from zwift_id_base import FrozenZwiftIdBase
-
 from jgh_power_curve_fit_models import decay_model_numpy
+from rider_compute_dto import RiderComputeDTO
+from zwift_id_base import FrozenZwiftIdBase
 
 # this domain model is instantiated in model_builders.py
 

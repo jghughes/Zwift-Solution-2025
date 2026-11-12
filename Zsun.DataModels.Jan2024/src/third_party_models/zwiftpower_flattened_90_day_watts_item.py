@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from zwift_id_base import ZwiftIdBase
+
 from rider_stats_item import RiderStatsItem
-from zwiftpower_graph_watts_dto import ZwiftPowerGraphWattsDTO, EffortDTO
+from zwift_id_base import ZwiftIdBase
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPowerFlattened90DayWattsDTO
+from zwiftpower_graph_watts_dto import EffortDTO, ZwiftPowerGraphWattsDTO
 
 # Note: don't think of moving this domain object into Zsun.DataModels.Jan2024 because it is 
 # very specific to the way we are modeling the 90-day best power data from ZwiftPower. 

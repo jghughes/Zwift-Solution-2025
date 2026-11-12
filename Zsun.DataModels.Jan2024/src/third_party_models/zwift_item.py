@@ -1,9 +1,9 @@
 
 from dataclasses import dataclass, field
 
+from zwift_dto import CompetitionMetricsDTO, ZwiftDTO
 from zwift_id_base import ZwiftIdBase
 
-from zwift_dto import ZwiftDTO, CompetitionMetricsDTO
 
 @dataclass
 class CompetitionMetricsItem:

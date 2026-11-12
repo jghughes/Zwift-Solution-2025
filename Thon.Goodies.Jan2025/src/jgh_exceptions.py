@@ -1,6 +1,7 @@
+import json
 from dataclasses import dataclass, field
 from typing import Any, NoReturn
-import json
+
 from jgh_exception_helpers import flatten_dict
 
 __all__ = [

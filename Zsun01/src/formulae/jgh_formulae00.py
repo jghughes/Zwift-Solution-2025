@@ -46,16 +46,14 @@ literature. The physics is well-established and widely accepted.
 import math
 import warnings
 
-
 from constants import (
-    COEFFICIENT_g, 
-    COEFFICIENT_rho,
-    COEFFICIENT_Cd,
-    COEFFICIENT_Crr, 
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+    COEFFICIENT_Cd,
+    COEFFICIENT_Crr,
+    COEFFICIENT_g,
+    COEFFICIENT_rho,
 )
-
 
 
 def calculate_rolling_resistance_and_gravity_force(total_mass_kg: float, slope_pc: float) -> tuple[float, float]:

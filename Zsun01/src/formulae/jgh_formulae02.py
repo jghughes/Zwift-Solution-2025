@@ -1,15 +1,12 @@
 import numpy as np
+
 from constants import AERO_POSITION_FACTOR_DEFAULT
-
-from jgh_power_curve_fit_models import decay_model_numpy
-from jgh_number import safe_divide
-
-
 from jgh_formulae01 import calculate_rider_kph_from_watts
+from jgh_number import safe_divide
+from jgh_power_curve_fit_models import decay_model_numpy
 from rider_compute_item import RiderComputeItem
 from route_item import RouteItem
 from slope_bucket_item import SlopeBucketItem
-
 
 # All of the following functions are called during parallel processing. Logging forbidden
 

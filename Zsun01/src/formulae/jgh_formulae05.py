@@ -35,9 +35,11 @@ Example Usage:
 """
 
 from collections import defaultdict
-from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
+
 from jgh_formulae03 import calculate_power_riding_in_the_paceline
+from paceline_modelling_items import RiderExertionItem, RiderWorkAssignmentItem
 from rider_compute_item import RiderComputeItem
+
 
 # This function called during parallel processing. Logging forbidden
 def populate_rider_exertions(rider_work_assignments: dict[RiderComputeItem, list[RiderWorkAssignmentItem]]) -> dict[RiderComputeItem, list[RiderExertionItem]]:

@@ -1,7 +1,8 @@
 from pathlib import Path
+
 from jgh_exceptions import AlertMessageError
-from secrets_filepath import CONNECTION_STRING_FILENAME, CONNECTION_STRING_DIRPATH
 from jgh_read_write import read_lines
+from secrets_filepath import CONNECTION_STRING_DIRPATH, CONNECTION_STRING_FILENAME
 
 
 class ConnectionStringRepository:

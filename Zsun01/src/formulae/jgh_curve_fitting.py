@@ -6,6 +6,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 from jgh_power_curve_fit_models import cp_w_prime_model_numpy, decay_model_numpy
 
+
 def do_curve_fit_with_cp_w_prime_model(raw_xy_data_cp: dict[int, float]) -> tuple[float, float, float, float, dict[int, tuple[float, float]]]:
     """
     Estimate critical power and anaerobic work capacity from duration and power data.

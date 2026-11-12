@@ -1,25 +1,28 @@
 
+import logging
+import time
 from pathlib import Path
 
 from tabulate import tabulate
 
+from custom_file_read_write import write_zwiftpower_90day_watts_dict_to_json
+from jgh_exceptions import AlertMessageError
+from jgh_logging import log_event, setup_json_logging
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
+from repository_of_team_rosters import RepositoryOfTeamRosters
 from storage_config import (
-    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
-    DIRPATH_ZWIFT_FILES,
-    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    DIRPATH_LOGGING,
     DIRPATH_RUBBISH_SCRATCHPAD,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
+    DIRPATH_ZWIFT_FILES,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
 )
-from zwiftid_named_file_reader import read_zwiftdto_files_to_item_dict_sync, read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from custom_file_read_write import write_zwiftpower_90day_watts_dict_to_json
-from repository_of_team_rosters import RepositoryOfTeamRosters
+from zwiftid_named_file_reader import (
+    read_zwiftdto_files_to_item_dict_sync,
+    read_zwiftpower90daywattsdto_files_to_item_dict_sync,
+)
 
-import time
-import logging
-from jgh_exceptions import AlertMessageError
-from jgh_logging import setup_json_logging, log_event
-from storage_config import DIRPATH_LOGGING
 
 def run_curve_fitting_comparisons() -> None:
 
@@ -61,8 +64,9 @@ def run_curve_fitting_comparisons() -> None:
 #main runner
 if __name__ == "__main__":
     import logging
+
     from jgh_exceptions import AlertMessageError
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

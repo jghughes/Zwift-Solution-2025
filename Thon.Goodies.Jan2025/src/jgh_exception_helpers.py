@@ -1,5 +1,6 @@
 from typing import Any
 
+
 def flatten_dict(
     d: dict[str, Any], 
     parent_key: str = '', 

@@ -2,15 +2,25 @@ import asyncio
 import json
 import time
 from pathlib import Path
-import httpx
-from jgh_internet_helpers import throw_if_no_internet_connection
-from jgh_read_write import read_text, list_filePaths_recursive
-from zwiftid_named_file_fetcher import download_and_save_many_files_to_hard_drive_async
-from jgh_string import  format_seconds_to_hh_mm_ss
-from storage_config import URL_OF_CLUB_MEMBERSHIP_LIST, URL_ROOT_FOR_ZWIFT_FILES, URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES, URL_ROOT_FOR_ZWIFTRACINGAPP_FILES
 
-from storage_config import FILENAME_OF_CLUB_MEMBERSHIP_LIST
-from storage_config import DIRPATH_CLUB_MEMBERSHIP_LIST, DIRPATH_ZWIFT_FILES, DIRPATH_ZWIFTRACINGAPP_FILES, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES
+import httpx
+
+from jgh_internet_helpers import throw_if_no_internet_connection
+from jgh_read_write import list_filePaths_recursive, read_text
+from jgh_string import format_seconds_to_hh_mm_ss
+from storage_config import (
+    DIRPATH_CLUB_MEMBERSHIP_LIST,
+    DIRPATH_ZWIFT_FILES,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    DIRPATH_ZWIFTRACINGAPP_FILES,
+    FILENAME_OF_CLUB_MEMBERSHIP_LIST,
+    URL_OF_CLUB_MEMBERSHIP_LIST,
+    URL_ROOT_FOR_ZWIFT_FILES,
+    URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES,
+    URL_ROOT_FOR_ZWIFTRACINGAPP_FILES,
+)
+from zwiftid_named_file_fetcher import download_and_save_many_files_to_hard_drive_async
+
 
 # HEAP POWERFUL TOOL
 async def go_fetch_thousands_of_files_from_dk_V2() -> None:
@@ -75,8 +85,9 @@ async def fetch_and_save_files(
 #main runner
 if __name__ == "__main__":
     import logging
+
     from jgh_exceptions import AlertMessageError
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

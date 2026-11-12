@@ -1,4 +1,5 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+
 
 def truncate(f : float, n : int) -> float:
     factor = 10.0 ** n

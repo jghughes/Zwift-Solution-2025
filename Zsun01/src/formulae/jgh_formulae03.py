@@ -2,13 +2,17 @@
 
 import numpy as np
 from numpy.typing import NDArray
-from jgh_number import safe_divide
 
-
-from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
-from constants import ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL, AERO_POSITION_FACTOR_DEFAULT, POWER_CURVE_IN_PACELINE
+from constants import (
+    AERO_POSITION_FACTOR_DEFAULT,
+    POWER_CURVE_IN_PACELINE,
+    ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
+)
 from jgh_formulae01 import calculate_rider_kph_from_watts, calculate_rider_watts_from_kph
-from jgh_formulae02 import solve_for_speed_at_standard_30sec_pull_watts, solve_for_speed_at_one_hour_watts
+from jgh_formulae02 import solve_for_speed_at_one_hour_watts, solve_for_speed_at_standard_30sec_pull_watts
+from jgh_number import safe_divide
+from paceline_modelling_items import PacelineIngredientsItem, RiderContributionItem, RiderExertionItem
+
 # from jgh_power_curve_fit_models import decay_model_numpy
 # from jgh_rolling_average import calculate_rolling_averages
 from rider_compute_item import RiderComputeItem

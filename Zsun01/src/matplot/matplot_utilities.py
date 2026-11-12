@@ -1,5 +1,6 @@
 from matplotlib.axes import Axes
 
+
 def set_x_axis_seconds_in_minute_ticks(ax: Axes, max_seconds: int, interval_seconds: int = 300) -> None:
     """
     Sets x-axis ticks at specified intervals and labels them in minutes.

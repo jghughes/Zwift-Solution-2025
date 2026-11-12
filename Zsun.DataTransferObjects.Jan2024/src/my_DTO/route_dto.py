@@ -1,4 +1,5 @@
-from pydantic import BaseModel, RootModel, Field
+from pydantic import BaseModel, Field, RootModel
+
 from slope_bucket_dto import SlopeBucketDTO
 
 # this class belongs to me, so I don't need the paraphenalia 

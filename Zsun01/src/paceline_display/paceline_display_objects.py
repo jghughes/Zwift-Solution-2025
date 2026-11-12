@@ -1,18 +1,22 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 
+from jgh_enums import PacelinePlanTypeEnum
+from jgh_formatting import (
+    format_number_1dp,
+    format_number_2dp,
+    format_number_with_comma_separators,
+    round_to_nearest_10,
+)
 from jgh_number import safe_divide
+from jgh_string import first_n_chars
 from paceline_modelling_items import (
-    PackageOfPacelineComputationReportItem,
     PacelineComputationReportItem,
+    PackageOfPacelineComputationReportItem,
     RiderContributionItem,
 )
-from jgh_enums import PacelinePlanTypeEnum
-from jgh_formatting import format_number_2dp, round_to_nearest_10
 from rider_compute_item import RiderComputeItem
 
-from jgh_formatting import format_number_1dp, format_number_with_comma_separators
-from jgh_string import first_n_chars
 
 @dataclass
 class RiderContributionDisplayObject:

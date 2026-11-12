@@ -1,7 +1,8 @@
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
 from typing import Any, cast
-from jgh_string import sanitise_string
 
+from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field, field_validator
+
+from jgh_string import sanitise_string
 
 validation_alias_choices_map_ZwiftDTO: dict[str, AliasChoices] = {
 	"zwift_id"					:	AliasChoices("zwift_id", "id"),

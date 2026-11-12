@@ -1,26 +1,32 @@
-from pathlib import Path
-from typing import Any
 import json
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
+
 from jgh_listdictionary import JghListDictionary
 from jgh_path_helpers import throw_if_file_path_ingredients_invalid_or_not_exists
-from jgh_read_write import list_filePaths_recursive, read_text, write_text_with_json_file_extension, write_dataframe_as_csv_file, write_dataframe_as_xlsx_file
+from jgh_read_write import (
+    list_filePaths_recursive,
+    read_text,
+    write_dataframe_as_csv_file,
+    write_dataframe_as_xlsx_file,
+    write_text_with_json_file_extension,
+)
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
-from rider_compute_item import RiderComputeItem
 from rider_compute_dto import RiderComputeDtoDictModel
-from rider_stats_item import RiderStatsItem
+from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDtoListModel
-
-
-from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
-from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem 
+from rider_stats_item import RiderStatsItem
 
 # from rider_team_name_dto import RiderTeamNameDTO
 from rider_team_name_dto import RiderTeamNameDtoListModel
 from rider_team_name_item import RiderTeamNameItem
+from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
+from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
+
 
 def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str, RiderComputeItem]:
     """

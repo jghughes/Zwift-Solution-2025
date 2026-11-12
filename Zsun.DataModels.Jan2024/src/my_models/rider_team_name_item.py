@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass
-from zwift_id_base import ZwiftIdBase
+
 from rider_team_name_dto import RiderTeamNameDTO
+from zwift_id_base import ZwiftIdBase
 
 # this domain model is instantiated in model_builders.py
 

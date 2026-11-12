@@ -1,9 +1,10 @@
 
 from dataclasses import dataclass
 
+from rider_stats_dto import RiderStatsDTO
+
 # from jgh_formulae00 import calculate_frontal_area
 from zwift_id_base import ZwiftIdBase
-from rider_stats_dto import RiderStatsDTO
 
 # this domain model is instantiated in model_builders.py
 

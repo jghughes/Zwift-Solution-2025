@@ -9,21 +9,21 @@ This module only prepares the data (the models below) and calls the generic
 HtmlTemplateRenderer from jgh_html_rendering. It does no file saving or uploading.
 """
 from dataclasses import dataclass
-from functools import lru_cache, cache
+from functools import cache, lru_cache
 from pathlib import Path
 
 import pandas as pd
 
+from jgh_enums import PacelinePlanTypeEnum
 from jgh_html_rendering import HtmlTemplateRenderer
 from jgh_read_write import read_text_from_path
-from jgh_enums import PacelinePlanTypeEnum
 from paceline_display_objects import (
 	PacelineComputationReportDisplayObject,
 	PackageOfPacelineComputationReportDisplayObject,
 )
 from storage_config import (
-	FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS,
 	FILEPATH_OF_PACELINE_PLAN_FOOTNOTES_HTML,
+	FILEPATH_OF_PACELINE_PLAN_SUMMARY_CSS,
 )
 
 TEMPLATE_DIRPATH = Path(__file__).parent / "templates"

@@ -1,13 +1,11 @@
+import logging
+import time
 from pathlib import Path
 
-from rider_stats_dto import RiderStatsDtoListModel
-
 from custom_file_read_write import read_json_list_and_export_tabular
-
-import time
-import logging
 from jgh_exceptions import AlertMessageError
-from jgh_logging import setup_json_logging, log_event
+from jgh_logging import log_event, setup_json_logging
+from rider_stats_dto import RiderStatsDtoListModel
 from storage_config import DIRPATH_LOGGING
 
 
@@ -28,7 +26,7 @@ def main01() -> None:
 
 #main runner
 if __name__ == "__main__":
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

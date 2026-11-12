@@ -1,25 +1,26 @@
-from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
 from pathlib import Path
-from paceline_modelling_items import CurveFittingResultItem
+
+from custom_file_read_write import read_teams_per_rider_from_event_result_files
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
-from zwiftid_named_file_reader import (
-    read_zwiftdto_files_to_item_dict_sync,
-    read_zwiftracingappdto_files_to_item_dict_sync,
-    read_zwiftpower90daywattsdto_files_to_item_dict_sync,
-)
 from jgh_dictionary_helpers import filter_generic_dict_by_key
 from jgh_listdictionary import JghListDictionary
-from custom_file_read_write import read_teams_per_rider_from_event_result_files
-from zwift_item import ZwiftItem
-from zwiftracingapp_item import ZwiftRacingAppItem
+from model_builders import build_CurveFittingResultItem, build_RiderComputeItem, build_RiderStatsItem
+from paceline_modelling_items import CurveFittingResultItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
-from slope_bucket_item import SlopeBucketItem
 from route_item import RouteItem
-
+from slope_bucket_item import SlopeBucketItem
+from zwift_item import ZwiftItem
+from zwiftid_named_file_reader import (
+    read_zwiftdto_files_to_item_dict_sync,
+    read_zwiftpower90daywattsdto_files_to_item_dict_sync,
+    read_zwiftracingappdto_files_to_item_dict_sync,
+)
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-from model_builders import build_RiderComputeItem, build_RiderStatsItem, build_CurveFittingResultItem
+from zwiftracingapp_item import ZwiftRacingAppItem
+
 
 @dataclass
 class RepositoryOfRiders:

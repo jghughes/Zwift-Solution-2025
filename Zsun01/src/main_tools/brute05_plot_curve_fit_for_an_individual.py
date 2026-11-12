@@ -2,25 +2,33 @@
 - Plots the fitted FTP and TTT-pull curves of several riders on one shared
   chart for side-by-side comparison.
 """
+import logging
+import time
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 
-from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_units_ticks
-
-from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model 
-from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
-from storage_config import FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES, DIRPATH_RUBBISH_SCRATCHPAD, DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT
-from zwiftid_named_file_reader import read_zwiftpower90daywattsdto_files_to_item_dict_sync
-from repository_of_team_rosters import RepositoryOfTeamRosters
-from rider_compute_item import RiderComputeItem
-from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem, ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW
-
-import time
-import logging
+from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_exceptions import AlertMessageError
 from jgh_formatting import get_current_utc_iso8601_timestamp
-from jgh_logging import setup_json_logging, log_event
-from storage_config import DIRPATH_LOGGING
+from jgh_logging import log_event, setup_json_logging
+from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
+from matplot_utilities import set_x_axis_seconds_in_minute_ticks, set_y_axis_units_ticks
+from repository_of_team_rosters import RepositoryOfTeamRosters
+from rider_compute_item import RiderComputeItem
+from storage_config import (
+    DIRPATH_LOGGING,
+    DIRPATH_RUBBISH_SCRATCHPAD,
+    DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
+    DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+)
+from zwiftid_named_file_reader import read_zwiftpower90daywattsdto_files_to_item_dict_sync
+from zwiftpower_flattened_90_day_watts_item import (
+    ZWIFTPOWER_GRAPH_90_OR_30_DAY_WINDOW,
+    ZwiftPowerFlattened90dayWattsItem,
+)
+
 
 def validate_dirpaths_and_filenames() -> None:
     """
@@ -269,8 +277,9 @@ def do_all_the_plotting(team_name : str, zwiftIDs_of_riders_to_model: list[str],
 #main runner
 if __name__ == "__main__":
     import logging
+
     from jgh_exceptions import AlertMessageError
-    from jgh_logging import setup_json_logging, log_event
+    from jgh_logging import log_event, setup_json_logging
     from storage_config import DIRPATH_LOGGING
 
     setup_json_logging(DIRPATH_LOGGING)

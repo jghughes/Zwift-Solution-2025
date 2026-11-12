@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from zwift_id_base import ZwiftIdBase
+
 from regression_modelling_dto import RegressionModellingDTO
+from zwift_id_base import ZwiftIdBase
+
 
 @dataclass
 class RegressionModellingItem(ZwiftIdBase):

@@ -1,5 +1,6 @@
 from typing import Any, cast
-from pydantic import BaseModel, RootModel, AliasChoices, ConfigDict, AliasGenerator, field_validator
+
+from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, RootModel, field_validator
 
 validation_alias_choices_map: dict[str, AliasChoices] = {
 	"row"									:	AliasChoices("row"),

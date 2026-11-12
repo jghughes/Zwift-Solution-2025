@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from zwift_id_base import ZwiftIdBase
 
+from zwift_id_base import ZwiftIdBase
 from zwiftracingapp_dto import *
+
 
 @dataclass
 class MixedThingsItem:

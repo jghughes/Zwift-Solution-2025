@@ -1,5 +1,6 @@
 from typing import Any, cast
-from pydantic import BaseModel, AliasChoices, ConfigDict, AliasGenerator, Field, field_validator
+
+from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field, field_validator
 
 validation_alias_choices_map_ZwiftPowerGraphWattsDTO: dict[str, AliasChoices] = {
 	"zwift_id"		: AliasChoices("zwift_id", "zwift_id"),

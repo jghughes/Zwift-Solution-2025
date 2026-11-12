@@ -1,5 +1,6 @@
 import math
 
+
 def safe_divide(numerator: int | float, denominator: int | float) -> float:
     """
     Safely divides numerator by denominator. Returns 0.0 if denominator is zero,

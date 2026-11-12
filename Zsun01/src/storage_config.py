@@ -2,7 +2,6 @@
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import format_timestamp_as_yyyy_mm_dd
 
-
 URL_OF_CLUB_MEMBERSHIP_LIST = "https://data.zsunr.com/riders/json/active_members.json"
 URL_ROOT_FOR_ZWIFT_FILES = "https://data.zsunr.com/riders/json/zwift/"
 URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES = "https://data.zsunr.com/riders/json/zwiftpower/power-graph-watts/"

@@ -41,29 +41,21 @@ Author: GitHub Copilot
 Date: August 25, 2025
 """
 
-import os
-
 import concurrent.futures
+import os
 import time
 from collections import defaultdict
 from copy import deepcopy
-from tabulate import tabulate
 
 import numpy as np
 from numpy.typing import NDArray
+from tabulate import tabulate
 
-from paceline_modelling_items import (
-    PacelineComputationReportItem,
-    PacelineIngredientsItem,
-    PackageOfPacelineComputationReportItem,
-    RiderContributionItem,
-    WorthyCandidateSolutionItem,
-)
 from constants import (
+    DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+    PULL_DURATION_OPTIONS_SEC,
     ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL,
     SERIAL_TO_PARALLEL_PROCESSING_THRESHOLD,
-    PULL_DURATION_OPTIONS_SEC,
-    DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC
 )
 from jgh_enums import PacelinePlanTypeEnum
 from jgh_formatting import (
@@ -79,12 +71,19 @@ from jgh_formulae03 import (
     # solve_for_upper_bound_paceline_speed_at_one_hour_watts,
     generate_all_suitable_paceline_rotation_sequences_in_the_solution_space,
     solve_for_proxy_standard_30sec_pull_speed_for_all_riders,
-    solve_for_speed_at_one_hour_watts_for_all_riders
+    solve_for_speed_at_one_hour_watts_for_all_riders,
 )
 from jgh_formulae04 import populate_rider_work_assignments
 from jgh_formulae05 import populate_rider_exertions
 from jgh_formulae06 import populate_rider_contributions
 from jgh_number import safe_divide
+from paceline_modelling_items import (
+    PacelineComputationReportItem,
+    PacelineIngredientsItem,
+    PackageOfPacelineComputationReportItem,
+    RiderContributionItem,
+    WorthyCandidateSolutionItem,
+)
 from rider_compute_item import RiderComputeItem
 
 # CRUCIAL WARNING. AT NO STAGE USE LOGGING STATEMENTS DIRECTLY OR INDIRECTLY INSIDE ANY CODE CALLED WITHIN THE ProcessPoolExecutor. 

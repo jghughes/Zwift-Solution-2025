@@ -1,9 +1,10 @@
 from constants import (
-    COEFFICIENT_bike_weight_kg,
     AERO_POSITION_FACTOR_DEFAULT,
     DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC,
+    COEFFICIENT_bike_weight_kg,
 )
-from jgh_formulae00 import calculate_velocity_from_power, calculate_power_from_velocity
+from jgh_formulae00 import calculate_power_from_velocity, calculate_velocity_from_power
+
 
 def calculate_rider_watts_from_kph(speed_kph: float, rider_weight: float, rider_height: float, slope_pc: float = DEFAULT_SLOPE_FOR_ALL_PACELINE_CALCULATIONS_PC, aero_factor: float = AERO_POSITION_FACTOR_DEFAULT) -> float:
     """ 

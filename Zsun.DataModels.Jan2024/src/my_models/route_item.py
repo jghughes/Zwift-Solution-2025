@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
-from slope_bucket_item import SlopeBucketItem
-from route_dto import RouteDTO
+
 from rider_stats_item import RiderStatsItem
+from route_dto import RouteDTO
+from slope_bucket_item import SlopeBucketItem
+
 
 @dataclass()
 class RouteItem:

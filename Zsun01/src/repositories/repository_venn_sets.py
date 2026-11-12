@@ -5,9 +5,8 @@
 import pandas as pd
 
 from zwift_item import ZwiftItem
-from zwiftracingapp_item import ZwiftRacingAppItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
-
+from zwiftracingapp_item import ZwiftRacingAppItem
 
 # Column name constants shared across all diagnostic functions
 COL_ZWIFT_ID                   = "zwift_id"

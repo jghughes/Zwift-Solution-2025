@@ -1,5 +1,7 @@
 from collections import defaultdict
+
 from constants import DEFAULT_EXERTION_INTENSITY_FACTOR_LIMIT
+
 
 class RepositoryOfTeamRosters:
     """

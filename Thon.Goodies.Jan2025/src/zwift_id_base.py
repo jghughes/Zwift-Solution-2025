@@ -1,6 +1,7 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol
-from collections.abc import Mapping
+
 
 class HasZwiftID(Protocol):
     zwift_id: str

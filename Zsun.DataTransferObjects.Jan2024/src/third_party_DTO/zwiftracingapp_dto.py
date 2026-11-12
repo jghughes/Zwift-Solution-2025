@@ -1,6 +1,8 @@
-from pydantic import BaseModel, field_validator, AliasChoices, ConfigDict, AliasGenerator, Field
 from types import UnionType
-from typing import Union, Any, cast, get_origin, get_args
+from typing import Any, Union, cast, get_args, get_origin
+
+from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field, field_validator
+
 from jgh_string import sanitise_string
 
 
