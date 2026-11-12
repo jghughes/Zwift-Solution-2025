@@ -316,6 +316,14 @@ paket-files/
 __pycache__/
 *.pyc
 
+# Python tooling caches, virtual environments and local environment files
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.venv/
+venv/
+.env
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config

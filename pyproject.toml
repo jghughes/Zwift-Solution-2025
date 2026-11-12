@@ -1,45 +1,61 @@
+# The "src" list for ruff and "mypy_path" for mypy below are deliberately identical: every folder that
+# holds importable modules (there are no __init__.py packages). Keep them in sync with each other
+# and with the SearchPath entries in the .pyproj files when a source folder is added or renamed.
+
 [tool.ruff]
 target-version = "py312"
 line-length = 120
 src = [
-	"Thon.Azure.Oct2026/src",
-	"Thon.Goodies.Jan2025/src",
-	"Zsun.DataModels.Jan2024/src/my_models",
-	"Zsun.DataModels.Jan2024/src/third_party_models",
-	"Zsun.DataTransferObjects.Jan2024/src/my_DTO",
-	"Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
-	"Zsun01/src",
-	"Zsun01/src/custom_file_io",
-	"Zsun01/src/formulae",
-	"Zsun01/src/main_little_utilities",
-	"Zsun01/src/main_production_pipeline",
-	"Zsun01/src/main_tools",
-	"Zsun01/src/matplot",
-	"Zsun01/src/paceline_display",
-	"Zsun01/src/repositories",
+    "Thon.Azure.Oct2026/src",
+    "Thon.Goodies.Jan2025/src",
+    "Zsun.DataModels.Jan2024/src/my_models",
+    "Zsun.DataModels.Jan2024/src/third_party_models",
+    "Zsun.DataTransferObjects.Jan2024/src/my_DTO",
+    "Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
+    "Zsun01/src",
+    "Zsun01/src/custom_file_io",
+    "Zsun01/src/formulae",
+    "Zsun01/src/main_little_utilities",
+    "Zsun01/src/main_production_pipeline",
+    "Zsun01/src/main_tools",
+    "Zsun01/src/matplot",
+    "Zsun01/src/paceline_display",
+    "Zsun01/src/repositories",
 ]
-extend-exclude = [".vs", ".mypy_cache", ".ruff_cache"]
+# Ruff already skips .mypy_cache, .ruff_cache and .pytest_cache by default and honours .gitignore (.vs/).
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-# Existing violations deferred so the baseline is green; remove entries as the code is cleaned up.
+select = [
+    "E", "F", "I", "UP", "B", "SIM", "RUF",
+    # Rule families with zero violations today; enabled so they stay that way.
+    "ASYNC", "C4", "FURB", "ICN", "LOG", "PGH", "PLE", "PT", "RSE", "TID",
+]
+# Repo-wide deferrals only for rules with hundreds of hits. Everything else is scoped per file below
+# so that new code is still checked. Remove entries as the code is cleaned up.
 ignore = [
-    "E501",   # line length; revisit once `ruff format` has been applied
-    "E101",   # mixed tabs/spaces
-    "E402",   # imports not at top of file
-    "F403",   # star imports
-    "F405",   # names from star imports
-    "B904",   # raise without `from` inside except
-    "RUF002", # ambiguous unicode in docstrings
-    "RUF012", # mutable class defaults
-    "I001",   # unsorted imports; run `ruff check --select I --fix` as a separate commit
+    "E501",   # line length (370 hits); revisit once `ruff format` has been applied
+    "I001",   # unsorted imports (67 files); run `ruff check --select I --fix` as a separate commit
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = [
-	"constants",
-	"storage_config",
-]
+[tool.ruff.lint.per-file-ignores]
+# E101: mixed tabs/spaces
+"Thon.Azure.Oct2026/src/jgh_azure_storage_service_client.py" = ["E101"]
+"Zsun.DataModels.Jan2024/src/my_models/rider_compute_item.py" = ["E101"]
+# E402: imports not at top of file
+"Thon.Goodies.Jan2025/src/jgh_internet_helpers.py" = ["E402"]
+"Thon.Goodies.Jan2025/src/jgh_string.py" = ["E402", "B904"]
+# B904: raise without `from` inside except
+"Thon.Goodies.Jan2025/src/jgh_read_write.py" = ["B904"]
+# F403/F405: star import from zwiftracingapp_dto
+"Zsun.DataModels.Jan2024/src/third_party_models/zwiftracingapp_item.py" = ["F403", "F405"]
+# RUF002: en dash in docstrings
+"Zsun01/src/formulae/jgh_formulae00.py" = ["RUF002"]
+# RUF012: mutable class defaults
+"Thon.Azure.Oct2026/src/repository_of_connectionstrings.py" = ["RUF012"]
+"Zsun01/src/repositories/repository_of_routes.py" = ["RUF012"]
+"Zsun01/src/repositories/repository_of_team_rosters.py" = ["RUF012"]
+
+# known-first-party is not needed: every first-party module folder is already listed in "src" above.
 
 [tool.mypy]
 python_version = "3.12"
@@ -47,43 +63,35 @@ strict = true
 plugins = ["pydantic.mypy"]
 # $MYPY_CONFIG_FILE_DIR keeps the paths valid when mypy is launched from any working directory.
 mypy_path = [
-	"$MYPY_CONFIG_FILE_DIR/Thon.Azure.Oct2026/src",
-	"$MYPY_CONFIG_FILE_DIR/Thon.Goodies.Jan2025/src",
-	"$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/my_models",
-	"$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/third_party_models",
-	"$MYPY_CONFIG_FILE_DIR/Zsun.DataTransferObjects.Jan2024/src/my_DTO",
-	"$MYPY_CONFIG_FILE_DIR/Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/custom_file_io",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/formulae",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_little_utilities",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_production_pipeline",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_tools",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/matplot",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/paceline_display",
-	"$MYPY_CONFIG_FILE_DIR/Zsun01/src/repositories",
+    "$MYPY_CONFIG_FILE_DIR/Thon.Azure.Oct2026/src",
+    "$MYPY_CONFIG_FILE_DIR/Thon.Goodies.Jan2025/src",
+    "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/my_models",
+    "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/third_party_models",
+    "$MYPY_CONFIG_FILE_DIR/Zsun.DataTransferObjects.Jan2024/src/my_DTO",
+    "$MYPY_CONFIG_FILE_DIR/Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/custom_file_io",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/formulae",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_little_utilities",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_production_pipeline",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/main_tools",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/matplot",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/paceline_display",
+    "$MYPY_CONFIG_FILE_DIR/Zsun01/src/repositories",
 ]
-exclude = [
-	'(^|/)\.vs/',
-	'(^|/)\.mypy_cache/',
-	'(^|/)\.ruff_cache/',
-	'(^|/)\.pytest_cache/',
-	'(^|/)__pycache__/',
-]
+# No "exclude" needed: mypy already skips dot-directories (.vs, .mypy_cache, .ruff_cache, .pytest_cache) and __pycache__.
 warn_unreachable = true
 local_partial_types = true
 disallow_any_unimported = true
 enable_error_code = [
-	"ignore-without-code",
-	"redundant-expr",
-	"truthy-bool",
-	"truthy-iterable",
-	"possibly-undefined",
-	"unused-awaitable",
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+    "truthy-iterable",
+    "possibly-undefined",
+    "unused-awaitable",
 ]
-show_error_codes = true
 show_column_numbers = true
-pretty = false
 
 # scipy and scikit-learn ship no type information; treat them as Any in one place
 # instead of scattering "# type: ignore[import-untyped]" through the code.
