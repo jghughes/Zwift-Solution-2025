@@ -2,6 +2,8 @@
 # Not used in the production pipeline. Intended for testing, exploration, and data quality checks.
 
 
+from typing import Any
+
 import pandas as pd
 
 from zwift_item import ZwiftItem
@@ -208,7 +210,7 @@ def create_union_of_sets_filtered_by_membership_as_dataframe(
         dict_of_ZwiftItem, dict_of_ZwiftRacingAppItem, dict_of_ZwiftPower90dayWattsItem, [], []
     )
 
-    def matches_template(row: pd.Series, template: dict[str, str]) -> bool:
+    def matches_template(row: "pd.Series[Any]", template: dict[str, str]) -> bool:
         for col, value in template.items():
             if value == "y_or_n":
                 continue

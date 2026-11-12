@@ -1,0 +1,7 @@
+# Mechanical ruff changes; GitHub honours this file automatically.
+# Locally: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Sort imports with ruff (I001)
+37b3e645a08826505897406e4d91ea4b1ce0f9be
+# Apply ruff format repo-wide
+e9836860590774bc0fe3babe25ed65cf4ce3f671
