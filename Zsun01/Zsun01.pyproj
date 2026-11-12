@@ -55,7 +55,6 @@
     <Compile Include="src\main_production_pipeline\brute10_fetch_files_from_dk.py" />
     <Compile Include="src\paceline_display\paceline_display_objects.py" />
     <Compile Include="src\formulae\jgh_formulae03.py" />
-    <Compile Include="src\formulae\jgh_formulae10 - temp.py" />
     <Compile Include="src\paceline_display\paceline_html_renderer.py" />
     <Compile Include="src\repositories\repository_of_routes.py" />
     <Compile Include="src\repositories\repository_venn_sets.py" />
