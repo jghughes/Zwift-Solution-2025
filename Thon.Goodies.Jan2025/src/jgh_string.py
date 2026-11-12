@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 
 CallTimedOut = "Call timed out. Please try again later."
 MethodFailed = "Method failed to complete."
@@ -119,8 +119,9 @@ def make_pretty_count_of_bytes(numberOfBytes: int) -> str:
 def make_wait_time_msg(start_timestamp: datetime) -> str:
     """
     Returns a pretty message describing the wait time since start_timestamp.
+    start_timestamp must be timezone-aware, e.g. datetime.now(UTC).
     """
-    elapsed_seconds = (datetime.now() - start_timestamp).total_seconds()
+    elapsed_seconds = (datetime.now(UTC) - start_timestamp).total_seconds()
     return f"Wait time was {elapsed_seconds:.1f} seconds."
 
 

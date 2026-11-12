@@ -5,7 +5,7 @@ This module knows nothing about any particular application. The caller owns the
 templates and the folder they live in, supplies a model (a dataclass or a mapping)
 whose fields are the template variables, and gets back a string.
 
-Autoescape is on by default. Values are HTML-escaped unless the template marks them
+Autoescape is always on for .html, .htm and .xml templates. Values are HTML-escaped unless the template marks them
 as already-safe HTML, e.g. {{ table_html | safe }}. Use `| safe` for pre-rendered HTML,
 CSS and similar trusted fragments only.
 
@@ -37,14 +37,13 @@ class HtmlTemplateRenderer:
         self,
         template_dirpath: Path,
         *,
-        autoescape: bool = True,
         trim_blocks: bool = True,
         lstrip_blocks: bool = True,
     ) -> None:
         throw_if_dirpath_invalid_or_not_exists(template_dirpath)
         self._environment = Environment(
             loader=FileSystemLoader(str(template_dirpath)),
-            autoescape=select_autoescape(["html", "htm", "xml"]) if autoescape else False,
+            autoescape=select_autoescape(["html", "htm", "xml"]),
             trim_blocks=trim_blocks,
             lstrip_blocks=lstrip_blocks,
             undefined=StrictUndefined,

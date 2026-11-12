@@ -148,8 +148,8 @@ def plot_curve_fit_chart_for_an_individual(
     ydata_pred_pull = [value[1] for value in answer_pull.values()]
     ydata_pred_ftp = [value[1] for value in answer_60min.values()]
 
-    max_x = max(max(xdata_cp), max(xdata_pull), max(xdata_ftp))
-    max_y = max(max(ydata_cp), max(ydata_pull), max(ydata_ftp))
+    max_x = max(*xdata_cp, *xdata_pull, *xdata_ftp)
+    max_y = max(*ydata_cp, *ydata_pull, *ydata_ftp)
     lim_x = max_x * 1.05
     lim_y = max_y * 1.05
 

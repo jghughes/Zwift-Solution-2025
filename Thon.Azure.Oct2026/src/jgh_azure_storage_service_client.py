@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import Awaitable, Callable
-from datetime import datetime
+from datetime import UTC, datetime
 
 from jgh_azure_storage_accessor import AzureStorageAccessor
 from jgh_exceptions import AlertMessageError, AppTimeoutError, NetworkError
@@ -53,7 +53,7 @@ class AzureStorageServiceClient:
         accessor call under the timeout. blob_name is validated only if provided. Connectivity is not checked
         up front; it is diagnosed only after a timeout or NetworkError, to report an offline machine accurately.
         """
-        start = datetime.now()
+        start = datetime.now(UTC)
         throw_if_any_parameter_is_invalid(storage_account_name, container_name, blob_name)
         storage_account_connection_string = ConnectionStringRepository.get_azure_storage_account_connection_string(
             storage_account_name

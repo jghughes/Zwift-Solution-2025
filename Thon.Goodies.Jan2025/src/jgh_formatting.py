@@ -206,7 +206,8 @@ def format_timestamp_as_yyyy_mm_dd(ts: float | None = None) -> str:
     Returns:
         str: The formatted date string, e.g., '2025-08-15'.
     """
-    dt = datetime.fromtimestamp(ts) if ts is not None else datetime.now()
+    # astimezone() converts to the machine's local zone, so the date is the local calendar date as before.
+    dt = (datetime.fromtimestamp(ts, UTC) if ts is not None else datetime.now(UTC)).astimezone()
     return dt.strftime("%Y-%m-%d")
 
 
