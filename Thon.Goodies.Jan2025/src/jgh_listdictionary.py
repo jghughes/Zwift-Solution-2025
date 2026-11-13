@@ -244,7 +244,7 @@ class JghListDictionary[TKey, TValue]:
 
         return removed_count, keys_with_removed_value
 
-    def deduplicate_values_in_all_lists(self) -> None:
+    def deduplicate_values_per_list(self) -> None:
         """
         Removes duplicate values from every list in the dictionary.
 
@@ -301,8 +301,8 @@ class JghListDictionary[TKey, TValue]:
             A tuple containing the original number of keys and the original total
             number of values.
         """
-        original_number_of_keys = self.number_of_keys
-        original_number_of_values = self.number_of_values
+        original_number_of_keys = self.count_of_keys
+        original_number_of_values = self.count_of_values
         self.backingstore_dict.clear()
         return original_number_of_keys, original_number_of_values
 
@@ -648,7 +648,7 @@ class JghListDictionary[TKey, TValue]:
         return key_value_pairs
 
     @property
-    def number_of_keys(self) -> int:
+    def count_of_keys(self) -> int:
         """
         Retrieves the number of keys in the dictionary.
 
@@ -660,7 +660,7 @@ class JghListDictionary[TKey, TValue]:
         return len(self.backingstore_dict)
 
     @property
-    def number_of_values(self) -> int:
+    def count_of_values(self) -> int:
         """
         Retrieves the total number of values in the dictionary.
 

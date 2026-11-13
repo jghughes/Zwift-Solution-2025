@@ -16,6 +16,7 @@ from jgh_read_write import (
 )
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
+from rider_compute_dto import RiderComputeDtoListModel
 from rider_compute_dto import RiderComputeDtoDictModel
 from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDtoListModel
@@ -53,6 +54,17 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str,
     return defaultdict(
         RiderComputeItem, {key: RiderComputeItem.from_dataTransferObject(dto) for key, dto in answer.items()}
     )
+
+def read_rider_compute_list_from_json(dirpath: Path, filename: str) -> list[RiderComputeItem]:
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
+    )
+    text = read_text(dirpath, filename)
+    something = json.loads(text)
+    answer = RiderComputeDtoListModel.model_validate(something, strict=True).root
+    return [RiderComputeItem.from_dataTransferObject(dto) for dto in answer]
+
+
 
 def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> list[RiderStatsItem]:
     """
@@ -193,7 +205,7 @@ def write_regression_modelling_dict_to_json(
     write_text_with_json_file_extension(dirpath, filename, text)
 
 
-def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[RiderTeamNameItem]:
+def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[RiderTeamNameItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderTeamNameItem domain objects.
 
@@ -217,7 +229,7 @@ def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[R
     return answer_as_item
 
 
-def read_teams_names_per_rider_from_event_result_files(dirpath: Path) -> JghListDictionary[str, str]:
+def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, RiderTeamNameItem]:
     """
     Reads every JSON event-result file in a directory and builds a lookup of
     the distinct team names associated with each rider across all events.
@@ -234,15 +246,15 @@ def read_teams_names_per_rider_from_event_result_files(dirpath: Path) -> JghList
     """
     file_paths: list[Path] = list_filePaths_recursive(dirpath, "*.json")
 
-    answer_as_list_dict: JghListDictionary[str, str] = JghListDictionary()
+    answer_as_list_dict: JghListDictionary[str, RiderTeamNameItem] = JghListDictionary()
 
     for file_path in file_paths:
         file_name = file_path.name
-        rider_items = read_event_file_for_teams_for_riders(dirpath, file_name)
+        rider_items = read_rider_list_from_single_event(dirpath, file_name)
         for item in rider_items:
-            answer_as_list_dict.append_value_to_list(item.zwift_id, item.team_name)
+            answer_as_list_dict.append_value_to_list(item.zwift_id, item)
 
-    answer_as_list_dict.deduplicate_values_in_all_lists()
+    answer_as_list_dict.deduplicate_values_per_list()
 
     return answer_as_list_dict
 
