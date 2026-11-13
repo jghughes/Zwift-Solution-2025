@@ -53,17 +53,27 @@ def main01() -> None:
     # ===========================
 
     # ===========================
-    # print("\nadding DRS team name/s to lookup dict of team names per rider")
-    # _answer_as_lookup_dict_of_teamnames_per_rider = JghListDictionary[str, str]()
-    # count_of_team_names : int = 0
-    # for zwift_id in _dict_of_drs_team_names_per_rider.get_keys():
-    #     if zwift_id in _answer_as_lookup_dict_of_teamnames_per_rider:
-    #         team_names = _dict_of_drs_team_names_per_rider.get_values(zwift_id)
-    #         for name in team_names:
-    #             _answer_as_lookup_dict_of_teamnames_per_rider.append_value_to_list(zwift_id, name)
-    #             count_of_team_names += 1
-    # print(f"\nresulting \n   Number of team names added in total: {count_of_team_names}")
+    print("\nadding master list name and DRS name/s to lookup dict of names per rider")
+    count_of_names : int = 0
+    for rider_stats_item in rider_stats_master_list:
+        zwift_id = rider_stats_item.zwift_id
+        names : list[str] = [rider_stats_item.name]
+        if _dict_of_drs_team_names_per_rider.contains_key(zwift_id):
+            names.extend(_dict_of_drs_team_names_per_rider.get_values(zwift_id))
+        for name in dict.fromkeys(n.strip() for n in names if n and n.strip()):
+            _answer_as_lookup_dict_of_teamnames_per_rider.append_value_to_list(zwift_id, name)
+            count_of_names += 1
+    print(f"\nresulting\n   Number of names added in total: {count_of_names}")
     # ===========================
+
+    # ===========================
+    print("\nrider names lookup list")
+    print(f"{'ZwiftId':<10} Names")
+    for zwift_id in _answer_as_lookup_dict_of_teamnames_per_rider.get_keys():
+        concatenated_names = " | ".join(_answer_as_lookup_dict_of_teamnames_per_rider.get_values(zwift_id))
+        print(f"{zwift_id!s:<10} {concatenated_names}")
+    # ===========================
+
 
 
 
