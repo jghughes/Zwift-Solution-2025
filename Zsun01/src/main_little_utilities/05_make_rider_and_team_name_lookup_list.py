@@ -2,7 +2,7 @@ import logging
 import time
 from pathlib import Path
 
-from custom_file_read_write import read_rider_stats_list_from_json, read_universe_of_riders_from_multiple_events, read_rider_compute_list_from_json
+from custom_file_read_write import read_rider_compute_list_from_json, read_universe_of_riders_from_multiple_events
 from jgh_exceptions import AlertMessageError
 from jgh_listdictionary import JghListDictionary
 from jgh_logging import log_event, setup_json_logging
