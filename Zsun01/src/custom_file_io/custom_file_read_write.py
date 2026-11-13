@@ -54,10 +54,7 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str,
         RiderComputeItem, {key: RiderComputeItem.from_dataTransferObject(dto) for key, dto in answer.items()}
     )
 
-
-def read_single_event_result_file_to_obtain_name_of_teams_for_each_rider_from_json(
-    dirpath: Path, filename: str
-) -> list[RiderStatsItem]:
+def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> list[RiderStatsItem]:
     """
     Reads a JSON file and deserializes its contents into a list of RiderStatsItem domain objects.
 
@@ -220,7 +217,7 @@ def read_event_file_for_teams_for_riders(dirpath: Path, filename: str) -> list[R
     return answer_as_item
 
 
-def read_teams_per_rider_from_event_result_files(dirpath: Path) -> JghListDictionary[str, str]:
+def read_teams_names_per_rider_from_event_result_files(dirpath: Path) -> JghListDictionary[str, str]:
     """
     Reads every JSON event-result file in a directory and builds a lookup of
     the distinct team names associated with each rider across all events.

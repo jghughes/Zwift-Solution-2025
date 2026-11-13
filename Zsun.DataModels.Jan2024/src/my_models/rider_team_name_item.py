@@ -12,7 +12,7 @@ class RiderTeamNameItem(ZwiftIdBase):
     team_name: str = ""
 
     @staticmethod
-    def to_dataTransferObject(item: "RiderTeamNameItem | None") -> RiderTeamNameDTO:
+    def to_dataTransferObject(item: "RiderTeamNameItem | None") -> "RiderTeamNameDTO":
         if item is None:
             return RiderTeamNameDTO()
         return RiderTeamNameDTO(
@@ -22,7 +22,7 @@ class RiderTeamNameItem(ZwiftIdBase):
         )
 
     @staticmethod
-    def from_dataTransferObject(dto: RiderTeamNameDTO | None) -> "RiderTeamNameItem":
+    def from_dataTransferObject(dto: "RiderTeamNameDTO | None") -> "RiderTeamNameItem":
         if dto is None:
             return RiderTeamNameItem()
         item = RiderTeamNameItem()

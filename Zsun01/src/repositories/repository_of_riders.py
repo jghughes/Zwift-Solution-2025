@@ -40,7 +40,6 @@ class RepositoryOfRiders:
     _routeItem: RouteItem | None = field(default_factory=RouteItem)
 
     # The main method to populate the repository. This is where the heavy lifting happens: reading files, doing curve fitting, and computing rider statistics. This method is synchronous/blocking and can take up to a minute to complete. It presumes that all files are present on local hard-drive and that their names match file_names and that the filenames match the zwiftIDs of the riders. In practice some or many files might be missing....
-
     def populate_repository(
         self,
         file_names: list[str] | None,  # filenames are zwiftIDs. some of the files might or might not exist
@@ -130,8 +129,9 @@ class RepositoryOfRiders:
             self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(
                 Path(folder_containing_generated_results_for_drs_events_dirpath)
             )
-            for zwift_id, team_names in self._dict_of_teamnames_per_rider.get_key_value_pairs():
+            for zwift_id in self._dict_of_teamnames_per_rider.get_keys():
                 if zwift_id in self._computed_dict_of_riderStatsItem:
+                    team_names = self._dict_of_teamnames_per_rider.get_values(zwift_id)
                     self._computed_dict_of_riderStatsItem[zwift_id].team_names = ", ".join(team_names)
 
         print("\nRepository successfully populated.")
