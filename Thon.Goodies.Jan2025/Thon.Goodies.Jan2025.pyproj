@@ -6,7 +6,7 @@
     <ProjectHome>.</ProjectHome>
     <StartupFile>
     </StartupFile>
-    <SearchPath>src;..\Thon.Azure.Oct2026\src;..\Thon.SolutionTools.Nov2026\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
+    <SearchPath>src;tests;..\Thon.Azure.Oct2026\src;..\Thon.SolutionTools.Nov2026\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
     <InterpreterId>MSBuild|.venv|$(MSBuildProjectFullPath)</InterpreterId>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -40,9 +40,11 @@
     </Compile>
     <Compile Include="src\jgh_logging.py" />
     <Compile Include="src\zwift_id_base.py" />
+    <Compile Include="tests\test_jgh_listdictionary.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
+    <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="..\.venv\">

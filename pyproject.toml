@@ -9,6 +9,7 @@ line-length = 120
 src = [
     "Thon.Azure.Oct2026/src",
     "Thon.Goodies.Jan2025/src",
+    "Thon.Goodies.Jan2025/tests",
     "Thon.SolutionTools.Nov2026/src",
     "Zsun.DataModels.Jan2024/src/my_models",
     "Zsun.DataModels.Jan2024/src/third_party_models",
@@ -43,6 +44,8 @@ ignore = [
 # change validation results, so os.path is kept on purpose.
 "Thon.Goodies.Jan2025/src/jgh_path_helpers.py" = ["PTH119", "PTH122"]
 "Thon.Goodies.Jan2025/src/jgh_mime_type_map.py" = ["PTH122"]
+# pytest tests are plain `assert` statements.
+"**/tests/**/*.py" = ["S101"]
 
 # known-first-party is not needed: every first-party module folder is already listed in "src" above.
 
@@ -54,6 +57,7 @@ plugins = ["pydantic.mypy"]
 mypy_path = [
     "$MYPY_CONFIG_FILE_DIR/Thon.Azure.Oct2026/src",
     "$MYPY_CONFIG_FILE_DIR/Thon.Goodies.Jan2025/src",
+    "$MYPY_CONFIG_FILE_DIR/Thon.Goodies.Jan2025/tests",
     "$MYPY_CONFIG_FILE_DIR/Thon.SolutionTools.Nov2026/src",
     "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/my_models",
     "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/third_party_models",
@@ -85,12 +89,43 @@ show_column_numbers = true
 warn_unused_configs = true
 sqlite_cache = true
 
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
 # scipy and scikit-learn ship no type information; treat them as Any in one place
 # instead of scattering "# type: ignore[import-untyped]" through the code.
 [[tool.mypy.overrides]]
 module = ["scipy.*", "sklearn.*"]
 ignore_missing_imports = true
 disallow_any_unimported = false
+
+# Source folders are import roots without packages, so pytest needs the same list too (kept identical by check_import_roots.py).
+# Tests live in a tests/ folder next to each project's src/ folder.
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["Thon.Goodies.Jan2025/tests"]
+addopts = "-ra --strict-markers --strict-config"
+pythonpath = [
+    "Thon.Azure.Oct2026/src",
+    "Thon.Goodies.Jan2025/src",
+    "Thon.Goodies.Jan2025/tests",
+    "Thon.SolutionTools.Nov2026/src",
+    "Zsun.DataModels.Jan2024/src/my_models",
+    "Zsun.DataModels.Jan2024/src/third_party_models",
+    "Zsun.DataTransferObjects.Jan2024/src/my_DTO",
+    "Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
+    "Zsun01/src",
+    "Zsun01/src/custom_file_io",
+    "Zsun01/src/formulae",
+    "Zsun01/src/main_little_utilities",
+    "Zsun01/src/main_production_pipeline",
+    "Zsun01/src/main_tools",
+    "Zsun01/src/matplot",
+    "Zsun01/src/paceline_display",
+    "Zsun01/src/repositories",
+]
 
 # Read by Pylance (bundled with Visual Studio's Python workload) for intellisense and live diagnostics.
 # Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here (kept identical by Thon.SolutionTools.Nov2026\src\check_import_roots.py).
@@ -104,6 +139,7 @@ exclude = ["**/__pycache__", "**/.*"]
 extraPaths = [
     "Thon.Azure.Oct2026/src",
     "Thon.Goodies.Jan2025/src",
+    "Thon.Goodies.Jan2025/tests",
     "Thon.SolutionTools.Nov2026/src",
     "Zsun.DataModels.Jan2024/src/my_models",
     "Zsun.DataModels.Jan2024/src/third_party_models",

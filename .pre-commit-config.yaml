@@ -30,10 +30,17 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-      # Same analyser and "standard" mode as Pylance in Visual Studio; keeps editor diagnostics and mypy from drifting.
+      # Same analyser family and "standard" mode as Pylance in Visual Studio (Pylance bundles its own pyright version);
+      # keeps editor diagnostics and mypy from drifting.
       - id: pyright
         name: pyright
         entry: .venv\\Scripts\\python.exe -m pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: pytest
+        name: pytest
+        entry: .venv\\Scripts\\python.exe -m pytest -q
         language: system
         types: [python]
         pass_filenames: false

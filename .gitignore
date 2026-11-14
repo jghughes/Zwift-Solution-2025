@@ -316,6 +316,9 @@ paket-files/
 __pycache__/
 *.pyc
 
+# Visual Studio profiler target settings (per-user)
+*.pyperf
+
 # Python tooling caches, virtual environments and local environment files
 .mypy_cache/
 .ruff_cache/

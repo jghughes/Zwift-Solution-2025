@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   lint-and-typecheck:
     runs-on: windows-latest
@@ -32,5 +35,8 @@ jobs:
       - name: Mypy
         run: python -m mypy .
 
-      - name: Pyright (same engine as Pylance)
+      - name: Pyright (same analyser family as Pylance)
         run: python -m pyright
+
+      - name: Pytest
+        run: python -m pytest
