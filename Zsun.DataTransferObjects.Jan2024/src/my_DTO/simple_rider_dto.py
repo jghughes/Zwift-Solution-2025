@@ -5,7 +5,7 @@ from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, RootMo
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "row": AliasChoices("row"),
     "zwift_id": AliasChoices("zwift_id", "zwiftId"),
-    "full_rider_name": AliasChoices("full_rider_name", "rider"),
+    "rider_name": AliasChoices("rider_name", "rider"),
     "team_name": AliasChoices("team_name", "team"),
 }
 
@@ -18,11 +18,11 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 
-class RiderTeamNameDTO(BaseModel):
+class SimpleRiderDTO(BaseModel):
     model_config = preferred_config_dict
     row: int = 0
     zwift_id: str = ""
-    full_rider_name: str = ""
+    rider_name: str = ""
     team_name: str = ""
 
     # Validator for zwift_id to convert int to string
@@ -33,9 +33,9 @@ class RiderTeamNameDTO(BaseModel):
         return cast(str, value)
 
 
-class RiderTeamNameDtoDictModel(RootModel[dict[str, RiderTeamNameDTO]]):
+class SimpleRiderDtoDictModel(RootModel[dict[str, SimpleRiderDTO]]):
     pass
 
 
-class RiderTeamNameDtoListModel(RootModel[list[RiderTeamNameDTO]]):
+class SimpleRiderDtoListModel(RootModel[list[SimpleRiderDTO]]):
     pass

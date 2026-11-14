@@ -3,7 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from custom_file_read_write import read_teams_per_rider_from_event_result_files
+from custom_file_read_write import read_universe_of_riders_from_multiple_events
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_dictionary_helpers import filter_generic_dict_by_key
 from jgh_listdictionary import JghListDictionary
@@ -12,6 +12,7 @@ from paceline_modelling_items import CurveFittingResultItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
+from simple_rider_item import SimpleRiderItem
 from slope_bucket_item import SlopeBucketItem
 from zwift_item import ZwiftItem
 from zwiftid_named_file_reader import (
@@ -28,7 +29,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem: dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_teamnames_per_rider: JghListDictionary[str, str] = field(default_factory=JghListDictionary)
+    _dict_of_teamnames_per_rider: JghListDictionary[str, SimpleRiderItem] = field(default_factory=JghListDictionary)
 
     _eligible_IDs: list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem: dict[str, CurveFittingResultItem] = field(default_factory=dict)
@@ -126,12 +127,13 @@ class RepositoryOfRiders:
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do third
 
         if folder_containing_generated_results_for_drs_events_dirpath != "":
-            self._dict_of_teamnames_per_rider = read_teams_per_rider_from_event_result_files(
+            self._dict_of_teamnames_per_rider = read_universe_of_riders_from_multiple_events(
                 Path(folder_containing_generated_results_for_drs_events_dirpath)
             )
             for zwift_id in self._dict_of_teamnames_per_rider.get_keys():
                 if zwift_id in self._computed_dict_of_riderStatsItem:
-                    team_names = self._dict_of_teamnames_per_rider.get_values(zwift_id)
+                    rider_items = self._dict_of_teamnames_per_rider.get_values(zwift_id)
+                    team_names = list(dict.fromkeys(item.team_name for item in rider_items))
                     self._computed_dict_of_riderStatsItem[zwift_id].team_names = ", ".join(team_names)
 
         print("\nRepository successfully populated.")

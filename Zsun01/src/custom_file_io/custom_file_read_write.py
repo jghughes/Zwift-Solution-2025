@@ -16,15 +16,12 @@ from jgh_read_write import (
 )
 from regression_modelling_dto import RegressionModellingDTO, RegressionModellingDTODictModel
 from regression_modelling_item import RegressionModellingItem
-from rider_compute_dto import RiderComputeDtoListModel
-from rider_compute_dto import RiderComputeDtoDictModel
+from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDtoListModel
 from rider_stats_item import RiderStatsItem
-
-# from rider_team_name_dto import RiderTeamNameDTO
-from rider_team_name_dto import RiderTeamNameDtoListModel
-from rider_team_name_item import RiderTeamNameItem
+from simple_rider_dto import SimpleRiderDtoListModel
+from simple_rider_item import SimpleRiderItem
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
@@ -55,6 +52,7 @@ def read_rider_compute_dict_from_json(dirpath: Path, filename: str) -> dict[str,
         RiderComputeItem, {key: RiderComputeItem.from_dataTransferObject(dto) for key, dto in answer.items()}
     )
 
+
 def read_rider_compute_list_from_json(dirpath: Path, filename: str) -> list[RiderComputeItem]:
     throw_if_file_path_ingredients_invalid_or_not_exists(
         dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
@@ -63,7 +61,6 @@ def read_rider_compute_list_from_json(dirpath: Path, filename: str) -> list[Ride
     something = json.loads(text)
     answer = RiderComputeDtoListModel.model_validate(something, strict=True).root
     return [RiderComputeItem.from_dataTransferObject(dto) for dto in answer]
-
 
 
 def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> list[RiderStatsItem]:
@@ -205,16 +202,16 @@ def write_regression_modelling_dict_to_json(
     write_text_with_json_file_extension(dirpath, filename, text)
 
 
-def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[RiderTeamNameItem]:
+def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[SimpleRiderItem]:
     """
-    Reads a JSON file and deserializes its contents into a list of RiderTeamNameItem domain objects.
+    Reads a JSON file and deserializes its contents into a list of SimpleRiderItem domain objects.
 
     Args:
         dirpath: Directory path containing the target file.
         filename: Name of the JSON file (without extension).
 
     Returns:
-        A list of RiderTeamNameItem instances populated from the JSON data.
+        A list of SimpleRiderItem instances populated from the JSON data.
 
     Raises:
         ValueError: If the directory or file path is invalid or the file does not exist.
@@ -224,12 +221,12 @@ def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[Ride
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
-    answer_as_dto = RiderTeamNameDtoListModel.model_validate(something, strict=True).root
-    answer_as_item = [RiderTeamNameItem.from_dataTransferObject(dto) for dto in answer_as_dto]
+    answer_as_dto = SimpleRiderDtoListModel.model_validate(something, strict=True).root
+    answer_as_item = [SimpleRiderItem.from_dataTransferObject(dto) for dto in answer_as_dto]
     return answer_as_item
 
 
-def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, RiderTeamNameItem]:
+def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, SimpleRiderItem]:
     """
     Reads every JSON event-result file in a directory and builds a lookup of
     the distinct team names associated with each rider across all events.
@@ -246,7 +243,7 @@ def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictio
     """
     file_paths: list[Path] = list_filePaths_recursive(dirpath, "*.json")
 
-    answer_as_list_dict: JghListDictionary[str, RiderTeamNameItem] = JghListDictionary()
+    answer_as_list_dict: JghListDictionary[str, SimpleRiderItem] = JghListDictionary()
 
     for file_path in file_paths:
         file_name = file_path.name

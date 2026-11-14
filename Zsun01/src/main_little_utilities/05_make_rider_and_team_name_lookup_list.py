@@ -8,81 +8,85 @@ from jgh_listdictionary import JghListDictionary
 from jgh_logging import log_event, setup_json_logging
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from rider_compute_item import RiderComputeItem
-from rider_team_name_item import RiderTeamNameItem
+from simple_rider_item import SimpleRiderItem
 from storage_config import DIRPATH_LOGGING
 
-membership_list_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\riderComputeDTO_by_jgh")
-generated_results_for_drs_events_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated")
-generated_results_for_zrl_events_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\WTRL\season-round-20\generated")
+membership_files_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\riderComputeDTO_by_jgh")
+generated_drs_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated")
+generated_zrl_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\WTRL\season-round-20\generated")
 
-membership_list_fileName = r"rider_compute_dto_as_list.json"
+membership_filename = r"rider_compute_dto_as_list.json"
 
 
 def main01() -> None:
-
     print("Tool starting")
 
     try:
         throw_if_any_dirpath_invalid_or_not_exists(
-            [membership_list_dirpath, generated_results_for_drs_events_dirpath, generated_results_for_zrl_events_dirpath]
+            [membership_files_dirpath, generated_drs_events_results_dirpath, generated_zrl_events_results_dirpath]
         )
     except Exception as err:
         print(err)
         return
 
     try:
-        throw_if_any_filename_invalid([membership_list_fileName])
+        throw_if_any_filename_invalid([membership_filename])
     except Exception as err:
         print(err)
         return
 
+    _answer: JghListDictionary[RiderComputeItem, SimpleRiderItem] = JghListDictionary[
+        RiderComputeItem, SimpleRiderItem
+    ]()
+
     # ===========================
-    print(f"\nreading membershiplist\n   Dirpath: {membership_list_dirpath}\n   Filename: {membership_list_fileName}")
-    membership_list : list[RiderComputeItem] = read_rider_compute_list_from_json(membership_list_dirpath, membership_list_fileName)
-    _answer_list_dict : JghListDictionary[RiderComputeItem, RiderTeamNameItem] = JghListDictionary[RiderComputeItem,RiderTeamNameItem]()
-    for member in membership_list:
-        _answer_list_dict.insert_key(member)
-    print(f"\nriders read\n   Number: {_answer_list_dict.count_of_keys}")
+    print(f"\nreading membershiplist\n   Dirpath: {membership_files_dirpath}\n   Filename: {membership_filename}")
+    members: list[RiderComputeItem] = read_rider_compute_list_from_json(membership_files_dirpath, membership_filename)
+    for member in members:
+        _answer.insert_key(member)
+    print(f"\nriders read\n   {_answer.count_of_keys}")
     # ===========================
 
     # ===========================
-    print(f"\nreading DRS riders from all events in season\n   Dirpath: {generated_results_for_drs_events_dirpath}")
-    drs_riders_dict : JghListDictionary[str, RiderTeamNameItem] = read_universe_of_riders_from_multiple_events(generated_results_for_drs_events_dirpath)
+    print(f"\nreading DRS riders from all events in season\n   Dirpath: {generated_drs_events_results_dirpath}")
+    drs_riders_dict: JghListDictionary[str, SimpleRiderItem] = read_universe_of_riders_from_multiple_events(
+        generated_drs_events_results_dirpath
+    )
     print(f"\nriders\n   Number: {drs_riders_dict.count_of_keys}")
 
     for zwift_id in drs_riders_dict.get_keys():
-        seen_team_names : set[str] = set()
-        items_with_unique_team_names : list[RiderTeamNameItem] = []
+        seen_team_names: set[str] = set()
+        items_with_unique_team_names: list[SimpleRiderItem] = []
         for item in drs_riders_dict[zwift_id]:
             if item.team_name not in seen_team_names:
                 seen_team_names.add(item.team_name)
                 items_with_unique_team_names.append(item)
         drs_riders_dict[zwift_id] = items_with_unique_team_names
-    print(f"\nteam names\n   Number: {drs_riders_dict.count_of_values}")
+    print(f"\nteam names\n   {drs_riders_dict.count_of_values}")
     # ===========================
 
     # ===========================
-    print("\nadding master list name and DRS name/s to lookup dict of names per rider")
-    count_of_names : int = 0
+    print("\nadding DRS team name/s")
+    count_of_names: int = 0
 
-    members_by_zwift_id : dict[str, RiderComputeItem] = {member.zwift_id: member for member in membership_list}
+    members_by_zwift_id: dict[str, RiderComputeItem] = {member.zwift_id: member for member in members}
 
     for zwift_id in drs_riders_dict.get_keys():
-        member = members_by_zwift_id.get(zwift_id)
-        if member is None:
+        found_member = members_by_zwift_id.get(zwift_id)
+        if found_member is None:
             continue
         for rider_team_name_item in drs_riders_dict[zwift_id]:
-            _answer_list_dict.append_value_to_list(member, rider_team_name_item)
+            _answer.append_value_to_list(found_member, rider_team_name_item)
             count_of_names += 1
-    print(f"\nresulting\n   Number of names added in total: {count_of_names}")
+    print(f"\nresulting\n   Number of team names added in total: {count_of_names}")
     # ===========================
 
     # ===========================
     print("\nrider names|team names lookup list")
     print(f"{'ZwiftId':<10} {'Name':<25} Team names")
-    rows : list[tuple[RiderComputeItem, str]] = []
-    for member in _answer_list_dict.get_keys():
-        team_name_items = sorted(_answer_list_dict[member], key=lambda item: item.team_name.casefold())
+    rows: list[tuple[RiderComputeItem, str]] = []
+    for member in _answer.get_keys():
+        team_name_items = sorted(_answer[member], key=lambda item: item.team_name.casefold())
         if len(team_name_items) == 0:
             continue
         rows.append((member, " | ".join([item.team_name for item in team_name_items])))
@@ -92,9 +96,6 @@ def main01() -> None:
     for member, concatenated_team_names in rows:
         print(f"{member.zwift_id!s:<10} {member.name!s:<25} {concatenated_team_names}")
     # ===========================
-
-
-
 
 
 # main runner
