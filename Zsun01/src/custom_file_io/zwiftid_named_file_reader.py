@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -48,7 +47,7 @@ def read_file_named_by_zwiftId_to_tuple_sync[T: HasZwiftID, DTO: BaseModel](
         - If reading or validation fails, zwift_id and item are None and error_message contains details.
         - The function does not log errors; error handling is delegated to the caller.
     """
-    file_name = os.path.basename(file_path)
+    file_name = Path(file_path).name
     try:
         inputjson = read_text_from_path(Path(file_path))
     except Exception as err:
@@ -64,7 +63,7 @@ def read_file_named_by_zwiftId_to_tuple_sync[T: HasZwiftID, DTO: BaseModel](
 
     # Extract the Zwift ID from the filename by removing its extension.
     # For example, "1234567.json" yields zwift_id = "1234567".
-    filename_fragment, _ = os.path.splitext(file_name)
+    filename_fragment = Path(file_name).stem
     item = function_to_translate_from_dto_to_corresponding_item(dto)
     item.zwift_id = filename_fragment
     return filename_fragment, item, None

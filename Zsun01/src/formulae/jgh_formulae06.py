@@ -119,7 +119,7 @@ def populate_rider_contributions(
         if rider_contribution.p1_duration != 0.0:
             msg = ""
             if rider_contribution.intensity_factor >= max_exertion_intensity_factor:
-                msg += f" IF>{round(100*max_exertion_intensity_factor)}%"
+                msg += f" IF>{round(100 * max_exertion_intensity_factor)}%"
 
             if rider_contribution.p1_w >= rider.get_proxy_pull_watts(rider_contribution.p1_duration):
                 msg += " pull>max W"

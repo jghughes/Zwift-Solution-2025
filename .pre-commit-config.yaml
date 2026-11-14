@@ -1,0 +1,24 @@
+# Runs the same checks as CI (.github/workflows/python-ci.yml) before every commit.
+# The hooks call the repo's .venv so tool versions always match requirements-dev.txt.
+# Enable once per clone (works for commits made from Visual Studio too):
+#   .venv\Scripts\pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: .venv\\Scripts\\python.exe -m ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: .venv\\Scripts\\python.exe -m ruff format
+        language: system
+        types: [python]
+      # Whole-project run: strict mypy needs every module to resolve imports, so no per-file mode.
+      - id: mypy
+        name: mypy
+        entry: .venv\\Scripts\\python.exe -m mypy .
+        language: system
+        types: [python]
+        pass_filenames: false

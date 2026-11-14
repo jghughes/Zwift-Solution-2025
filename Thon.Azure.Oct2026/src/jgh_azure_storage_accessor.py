@@ -213,9 +213,13 @@ class AzureStorageAccessor:
                 storage_account_connection_string
             ) as blob_service_client:
                 container_client = blob_service_client.get_container_client(container_name)
-                async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix):
-                    if substrings is None or any(s in properties_of_blob.name for s in substrings):
-                        blobs.append(properties_of_blob)
+                blobs.extend(
+                    [
+                        properties_of_blob
+                        async for properties_of_blob in container_client.list_blobs(name_starts_with=prefix)
+                        if substrings is None or any(s in properties_of_blob.name for s in substrings)
+                    ]
+                )
             return blobs
 
         return await _execute_async("Unable to list blobs.", operation)

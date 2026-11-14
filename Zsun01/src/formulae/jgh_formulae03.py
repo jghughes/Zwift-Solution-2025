@@ -363,7 +363,7 @@ def prune_all_sequences_of_pull_periods_in_the_total_solution_space(
     if len(pull_period_sequences_being_pruned) < ROTATION_SEQUENCE_UNIVERSE_SIZE_PRUNING_GOAL + 1:
         return pull_period_sequences_being_pruned
 
-    arr = pull_period_sequences_being_pruned
+    arr: NDArray[np.float64] = pull_period_sequences_being_pruned
     strengths: NDArray[np.float64] = np.array([r.get_proxy_1_minute_wkg() for r in riders])
     sorted_indices: NDArray[np.intp] = np.argsort(strengths)
     weakest_idx = sorted_indices[0]

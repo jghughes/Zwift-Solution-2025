@@ -13,6 +13,8 @@ editing; apply the general and Azure sections everywhere.
 - Never commit secrets. Secrets belong in Azure Key Vault (see `README - how to relocate secrets to Azure KeyVault.txt`).
 - Prefer the repository's existing tooling over adding new tools or dependencies.
 - Shared formatting rules live in `.editorconfig`; honour them.
+- Path-scoped, per-language guidance lives in `.github/instructions/*.instructions.md`; add a new file there (with an
+  `applyTo` glob) for each new language or project type, such as C#, rather than growing this file.
 
 ## Python (`*.py`, `*.pyproj`, `pyproject.toml`)
 
@@ -33,8 +35,10 @@ editing; apply the general and Azure sections everywhere.
 - Environment: a single virtual environment lives at `.venv` in the repo root (git-ignored) and is shared by all
   `.pyproj` projects. Create it with `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements-dev.txt`.
   Pin new dependencies in `requirements.txt` / `requirements-dev.txt`, the same files CI installs.
-- Before finishing, run from the repo root (the same commands CI runs):
-  `python -m ruff check .`, `python -m ruff format --check .`, `python -m mypy .`
+- Before finishing, run from the repo root (the same commands CI runs), using the `.venv` interpreter so tool versions
+  match the pins: `python -m ruff check .`, `python -m ruff format --check .`, `python -m mypy .`
+- A `pre-commit` hook runs the same three checks on every commit. Enable it once per clone with
+  `.venv\Scripts\pre-commit install`. Never bypass it with `--no-verify`.
 
 ## C# (`*.cs`, `*.csproj`, `*.sln`)
 

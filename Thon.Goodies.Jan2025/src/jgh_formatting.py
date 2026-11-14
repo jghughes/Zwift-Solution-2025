@@ -127,7 +127,7 @@ def format_number_0dp_padded1(x: int | float) -> str:
     Note: If the rounded integer requires more than 1 character (e.g. 1),
     the full number will be returned (no truncation).
     """
-    rounded = int(round(x))
+    rounded = round(x)
     return f"{rounded:01d}"
 
 
@@ -144,7 +144,7 @@ def format_number_0dp_padded2(x: int | float) -> str:
     Note: If the rounded integer requires more than 2 characters (e.g. 12),
     the full number will be returned (no truncation).
     """
-    rounded = int(round(x))
+    rounded = round(x)
     return f"{rounded:02d}"
 
 
@@ -161,7 +161,7 @@ def format_number_0dp_padded3(x: int | float) -> str:
     Note: If the rounded integer requires more than 3 characters (e.g. 1234),
     the full number will be returned (no truncation).
     """
-    rounded = int(round(x))
+    rounded = round(x)
     return f"{rounded:03d}"
 
 
@@ -178,7 +178,7 @@ def format_number_0dp_padded4(x: int | float) -> str:
     Note: If the rounded integer requires more than 4 characters (e.g. 12345),
     the full number will be returned (no truncation).
     """
-    rounded = int(round(x))
+    rounded = round(x)
     return f"{rounded:04d}"
 
 

@@ -85,19 +85,18 @@ def log_rider_exertions(test_description: str, result: dict[RiderComputeItem, li
     from tabulate import tabulate
 
     print(test_description)
-    table: list[list[object]] = []
-    for rider, efforts in result.items():
-        for effort in efforts:
-            table.append(
-                [
-                    rider.name,
-                    effort.current_location_in_paceline,
-                    round(effort.speed_kph, 1),
-                    round(effort.duration),
-                    round(effort.wattage, 0),
-                    round(effort.kilojoules, 0),
-                ]
-            )
+    table: list[list[object]] = [
+        [
+            rider.name,
+            effort.current_location_in_paceline,
+            round(effort.speed_kph, 1),
+            round(effort.duration),
+            round(effort.wattage, 0),
+            round(effort.kilojoules, 0),
+        ]
+        for rider, efforts in result.items()
+        for effort in efforts
+    ]
 
     headers = ["rider", "location", "kph", "seconds", "watts", "kJ"]
     print("\n" + tabulate(table, headers=headers, tablefmt="plain", disable_numparse=True))

@@ -27,13 +27,20 @@ src = [
 [tool.ruff.lint]
 select = [
     "E", "F", "I", "UP", "B", "SIM", "RUF",
-    "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "NPY", "PD", "PGH", "PIE", "PLE", "PLW", "PT", "RSE", "S", "TID",
+    "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "NPY", "PD", "PERF", "PGH", "PIE", "PLE", "PLW", "PT", "PTH",
+    "RSE", "S", "TID",
 ]
 # Repo-wide deferral only for a rule with hundreds of hits. Remove it as the code is cleaned up.
 ignore = [
     "E501",   # line length: `ruff format` handles code; 113 long strings/comments remain that it cannot wrap
-    "PD901",  # `df` is the conventional pandas variable name
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# These helpers validate and split filename *strings* (blob names, user input); they never touch the filesystem.
+# pathlib's suffix/stem differ from os.path.splitext on edge cases such as "a." and "CON.", which would silently
+# change validation results, so os.path is kept on purpose.
+"Thon.Goodies.Jan2025/src/jgh_path_helpers.py" = ["PTH119", "PTH122"]
+"Thon.Goodies.Jan2025/src/jgh_mime_type_map.py" = ["PTH122"]
 
 # known-first-party is not needed: every first-party module folder is already listed in "src" above.
 

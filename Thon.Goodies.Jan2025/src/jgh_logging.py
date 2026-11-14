@@ -1,6 +1,6 @@
 import json
 import logging
-import os
+from pathlib import Path
 from types import TracebackType
 from typing import Any
 
@@ -56,6 +56,8 @@ class JsonFileHandler(logging.FileHandler):
                 else:
                     log_entry[key] = str(value)
         with self._stream_lock:
+            if self.stream is None:
+                self.stream = self._open()
             self.stream.write(json.dumps(log_entry) + "\n")
             self.flush()
 
@@ -78,14 +80,15 @@ def setup_json_logging(log_directory: str) -> None:
     - events.log.json for all other levels
     At the beginning of each run, clear the log files if they exist.
     """
-    os.makedirs(log_directory, exist_ok=True)
-    info_log_path = os.path.join(log_directory, "info.log.json")
-    events_log_path = os.path.join(log_directory, "events.log.json")
+    log_dirpath = Path(log_directory)
+    log_dirpath.mkdir(parents=True, exist_ok=True)
+    info_log_path = log_dirpath / "info.log.json"
+    events_log_path = log_dirpath / "events.log.json"
 
     # Clear the log files if they exist
     for log_path in (info_log_path, events_log_path):
-        if os.path.exists(log_path):
-            with open(log_path, "w", encoding="utf-8"):
+        if log_path.exists():
+            with log_path.open("w", encoding="utf-8"):
                 pass  # Truncate the file
 
     root_logger = logging.getLogger()
@@ -100,11 +103,11 @@ def setup_json_logging(log_directory: str) -> None:
         def filter(self, record: logging.LogRecord) -> bool:
             return record.levelno != logging.INFO
 
-    info_handler = JsonFileHandler(info_log_path, mode="a", encoding="utf-8")
+    info_handler = JsonFileHandler(str(info_log_path), mode="a", encoding="utf-8")
     info_handler.setLevel(logging.INFO)
     info_handler.addFilter(InfoOnlyFilter())
 
-    events_handler = JsonFileHandler(events_log_path, mode="a", encoding="utf-8")
+    events_handler = JsonFileHandler(str(events_log_path), mode="a", encoding="utf-8")
     events_handler.setLevel(logging.DEBUG)
     events_handler.addFilter(NotInfoFilter())
 

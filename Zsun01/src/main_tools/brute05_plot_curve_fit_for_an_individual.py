@@ -100,21 +100,15 @@ def plot_curve_fit_chart_for_an_individual(
     """
     # model critical_power and w_prime
     x_y_ordinates_for_cp_w_prime = rider_flattened_watts_graph.export_x_y_ordinates_for_cp_w_prime_modelling()
-    critical_power, anaerobic_work_capacity, r_squared_cp, rmse_cp, answer_cp = do_curve_fit_with_cp_w_prime_model(
-        x_y_ordinates_for_cp_w_prime
-    )
+    _, _, _, _, _ = do_curve_fit_with_cp_w_prime_model(x_y_ordinates_for_cp_w_prime)
 
     # model pull power curve
     x_y_ordinates_for_pulling = rider_flattened_watts_graph.export_x_y_ordinates_for_pull_zone_modelling()
-    coefficient_pull, exponent_pull, r_squared_pull, rmse_pull, answer_pull = do_curve_fit_with_decay_model(
-        x_y_ordinates_for_pulling
-    )
+    coefficient_pull, exponent_pull, _, _, answer_pull = do_curve_fit_with_decay_model(x_y_ordinates_for_pulling)
 
     # model ftp curve (one hour power)
     x_y_ordinates_for_FTP_60min = rider_flattened_watts_graph.export_x_y_ordinates_for_one_hour_zone_modelling()
-    coefficient_60min, exponent_60min, r_squared_60min, rmse_60min, answer_60min = do_curve_fit_with_decay_model(
-        x_y_ordinates_for_FTP_60min
-    )
+    coefficient_60min, exponent_60min, _, _, answer_60min = do_curve_fit_with_decay_model(x_y_ordinates_for_FTP_60min)
 
     print("\nModelling completed. Thank you.\n")
 
@@ -192,7 +186,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     # Use a colour cycle so each rider gets a distinct colour (by default, matplotlib uses a cycle of 10 colours))
     colour_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-    fig, ax = plt.subplots(figsize=(12, 7))
+    _, ax = plt.subplots(figsize=(12, 7))
 
     all_x: list[float] = []
     all_y: list[float] = []
@@ -207,7 +201,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
         x_y_pull = flattened_watts_graph.export_x_y_ordinates_for_pull_zone_modelling()
         x_y_ftp = flattened_watts_graph.export_x_y_ordinates_for_one_hour_zone_modelling()
 
-        _, _, _, _, answer_cp = do_curve_fit_with_cp_w_prime_model(x_y_cp)
+        _, _, _, _, _ = do_curve_fit_with_cp_w_prime_model(x_y_cp)
         coefficient_pull, exponent_pull, _, _, answer_pull = do_curve_fit_with_decay_model(x_y_pull)
         coefficient_ftp, exponent_ftp, _, _, answer_ftp = do_curve_fit_with_decay_model(x_y_ftp)
 

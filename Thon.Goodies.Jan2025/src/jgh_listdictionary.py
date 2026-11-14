@@ -554,11 +554,7 @@ class JghListDictionary[TKey, TValue]:
         if key is None or key not in self.backingstore_dict:
             return []
 
-        selected_values: list[TValue] = []
-        for value in self.backingstore_dict[key]:
-            if value_selector(value):
-                selected_values.append(value)
-        return selected_values
+        return [value for value in self.backingstore_dict[key] if value_selector(value)]
 
     def get_selected_values_from_all(self, value_selector: Callable[[TValue], bool]) -> list[TValue]:
         """
@@ -590,12 +586,7 @@ class JghListDictionary[TKey, TValue]:
         list[TValue]
             A list of all matching values in the dictionary.
         """
-        selected_values: list[TValue] = []
-        for values in self.backingstore_dict.values():
-            for value in values:
-                if value_selector(value):
-                    selected_values.append(value)
-        return selected_values
+        return [value for values in self.backingstore_dict.values() for value in values if value_selector(value)]
 
     def get_key_value_pairs_containing_selected_values(
         self, value_selector: Callable[[TValue], bool]
@@ -623,12 +614,9 @@ class JghListDictionary[TKey, TValue]:
         list[tuple[TKey, TValue]]
             A list of key-value pairs where the values match the given condition.
         """
-        key_value_pairs: list[tuple[TKey, TValue]] = []
-        for key, values in self.backingstore_dict.items():
-            for value in values:
-                if value_selector(value):
-                    key_value_pairs.append((key, value))
-        return key_value_pairs
+        return [
+            (key, value) for key, values in self.backingstore_dict.items() for value in values if value_selector(value)
+        ]
 
     def get_key_value_pairs(self) -> list[tuple[TKey, TValue]]:
         """
@@ -641,11 +629,7 @@ class JghListDictionary[TKey, TValue]:
         list[tuple[TKey, TValue]]
             A list of all key-value pairs in the dictionary.
         """
-        key_value_pairs: list[tuple[TKey, TValue]] = []
-        for key, values in self.backingstore_dict.items():
-            for value in values:
-                key_value_pairs.append((key, value))
-        return key_value_pairs
+        return [(key, value) for key, values in self.backingstore_dict.items() for value in values]
 
     @property
     def count_of_keys(self) -> int:

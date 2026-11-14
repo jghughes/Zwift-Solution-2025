@@ -83,7 +83,7 @@ class RiderContributionDisplayObject:
         if rider.zwift_cat_open:
             answer = f"{rider.zwift_cat_open} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
         else:
-            answer = f"{" "} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
+            answer = f"{' '} {RiderContributionDisplayObject.make_pretty_zwiftracingapp_cat(rider)}"
         return answer
 
     @staticmethod
@@ -95,16 +95,16 @@ class RiderContributionDisplayObject:
     def make_pretty_pull(rider: RiderComputeItem, plan: RiderContributionItem) -> str:
         if plan.p1_duration == 0:
             return "------"
-        duration_str = f"{int(round(plan.p1_duration)):3d}sec"
+        duration_str = f"{round(plan.p1_duration):3d}sec"
         return duration_str
 
     @staticmethod
     def make_pretty_pull_comparison(rider: RiderComputeItem, plan: RiderContributionItem) -> str:
         my_ftp_wkg: float = RiderContributionDisplayObject.calculate_zwiftracingapp_zpFTP_wkg(rider)
-        my_ftp_wkg_rounded_as_str = f"{round(my_ftp_wkg,1)}wkg"
+        my_ftp_wkg_rounded_as_str = f"{round(my_ftp_wkg, 1)}wkg"
         if plan.p1_duration == 0:
             return my_ftp_wkg_rounded_as_str + " " + "-----------"
-        p1_wkg = f"{round(rider.get_watts_per_kg(plan.p1_w),1)}wkg"
+        p1_wkg = f"{round(rider.get_watts_per_kg(plan.p1_w), 1)}wkg"
         p1_over_zFtp_ratio = (
             f"{round(100 * safe_divide(plan.p1_w, rider.velo_zwiftpower_zFTP_watts)):>4}%"
             if rider.velo_zwiftpower_zFTP_watts != 0
@@ -123,7 +123,7 @@ class RiderContributionDisplayObject:
     def make_pretty_average_watts(rider: RiderComputeItem, contribution: RiderContributionItem) -> str:
         av_wkg = rider.get_watts_per_kg(contribution.average_watts)
 
-        return f"{round(av_wkg,1)}wkg {round(contribution.average_watts)}w"
+        return f"{round(av_wkg, 1)}wkg {round(contribution.average_watts)}w"
 
     @staticmethod
     def from_RiderContributionItem(
@@ -163,11 +163,9 @@ class RiderContributionDisplayObject:
             normalised_power_watts=contribution.normalized_watts,
             pretty_normalised_power_watts=f"{round(contribution.normalized_watts)}w",
             intensity_factor=contribution.intensity_factor,
-            pretty_intensity_factor=f"{round(100*contribution.intensity_factor)}%",
+            pretty_intensity_factor=f"{round(100 * contribution.intensity_factor)}%",
             effort_constraint_violation_reason=contribution.effort_constraint_violation_reason,
-            pretty_effort_constraint_violation_reason=contribution.effort_constraint_violation_reason
-            if contribution.effort_constraint_violation_reason
-            else "",
+            pretty_effort_constraint_violation_reason=contribution.effort_constraint_violation_reason or "",
         )
 
     @staticmethod
@@ -237,11 +235,7 @@ class PacelineComputationReportDisplayObject:
     ) -> list["PacelineComputationReportDisplayObject"]:
         if not reports:
             return []
-        answer: list[PacelineComputationReportDisplayObject] = []
-        for report in reports:
-            answer.append(PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report))
-
-        return answer
+        return [PacelineComputationReportDisplayObject.from_PacelineComputationReportItem(report) for report in reports]
 
 
 @dataclass
@@ -307,4 +301,4 @@ def populate_compute_statistics_for_pace_plan(
     total_pull_sequences_examined: int,
     plan_report_displayobject: PacelineComputationReportDisplayObject,
 ) -> None:
-    plan_report_displayobject.display_caption_right_aligned = f"[sigma={format_number_1dp(100*plan_report_displayobject.calculated_dispersion_of_intensity_of_effort)}%  variations={total_pull_sequences_examined}  compute={format_number_with_comma_separators(plan_report_displayobject.computational_time)}sec  ID={first_n_chars(plan_report_displayobject.guid,3)}]"
+    plan_report_displayobject.display_caption_right_aligned = f"[sigma={format_number_1dp(100 * plan_report_displayobject.calculated_dispersion_of_intensity_of_effort)}%  variations={total_pull_sequences_examined}  compute={format_number_with_comma_separators(plan_report_displayobject.computational_time)}sec  ID={first_n_chars(plan_report_displayobject.guid, 3)}]"

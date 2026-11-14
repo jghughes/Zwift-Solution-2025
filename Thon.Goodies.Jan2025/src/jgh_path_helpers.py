@@ -569,8 +569,7 @@ def find_all_file_paths_in_folder(
         return None, f"Directory validation failed: {dir_msg}"
     if mandatory_extension and (not mandatory_extension.startswith(".") or len(mandatory_extension) < 2):
         return None, (
-            f"Error: mandatory_extension must be a non-empty string starting with a dot. "
-            f"Got: [{mandatory_extension}]"
+            f"Error: mandatory_extension must be a non-empty string starting with a dot. Got: [{mandatory_extension}]"
         )
     valid_filenames: list[str] = []
     if filenames_without_extension is not None:

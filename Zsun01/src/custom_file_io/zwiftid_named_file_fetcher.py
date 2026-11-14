@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import os
+from pathlib import Path
 
 import aiofiles
 import httpx
@@ -69,29 +69,29 @@ async def _download_file_and_save_to_hard_drive_async(
         if not valid_foldername:
             log_event(logger, message=foldername_msg, level=logging.ERROR, extra_fields={"field_name": "dest_folder"})
             return
-        dest_folder_path = os.path.join(dest_dir_path, dest_folder)
+        dest_folder_path = Path(dest_dir_path) / dest_folder
     else:
-        dest_folder_path = dest_dir_path
+        dest_folder_path = Path(dest_dir_path)
 
-    os.makedirs(dest_folder_path, exist_ok=True)
+    dest_folder_path.mkdir(parents=True, exist_ok=True)
     filename = parse_filename(url)
-    dest_path = os.path.join(dest_folder_path, filename)
+    dest_path = dest_folder_path / filename
     async with semaphore:
         try:
             response = await http_client.get(url, timeout=30)
             response.raise_for_status()
             async with aiofiles.open(dest_path, "wb") as f:
                 await f.write(response.content)
-            file_size_bytes = os.path.getsize(dest_path)
+            file_size_bytes = (await asyncio.to_thread(dest_path.stat)).st_size
             log_event(
                 logger,
                 message="File downloaded successfully.",
                 level=logging.INFO,
                 extra_fields={
                     "url": url,
-                    "dest_path": dest_path,
+                    "dest_path": str(dest_path),
                     "filename": filename,
-                    "dest_folder": dest_folder_path,
+                    "dest_folder": str(dest_folder_path),
                     "file_size_bytes": file_size_bytes,
                 },
             )

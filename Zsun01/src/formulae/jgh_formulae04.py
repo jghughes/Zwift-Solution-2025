@@ -103,11 +103,11 @@ def log_rider_work_assignments(
 ) -> None:
     from tabulate import tabulate
 
-    table: list[list[object]] = []
-
-    for rider, assignments in result.items():
-        for assignment in assignments:
-            table.append([rider.name, assignment.position, assignment.duration, assignment.speed, assignment.slope_pc])
+    table: list[list[object]] = [
+        [rider.name, assignment.position, assignment.duration, assignment.speed, assignment.slope_pc]
+        for rider, assignments in result.items()
+        for assignment in assignments
+    ]
 
     headers = ["Rider", "Position", "Duration (sec)", "Speed (kph)", "Slope"]
     print(f"{test_description}:\n" + tabulate(table, headers=headers, tablefmt="plain", disable_numparse=True))
