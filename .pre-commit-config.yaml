@@ -6,10 +6,10 @@ repos:
   - repo: local
     hooks:
       # Fails when ruff src, mypy_path, pyright extraPaths or any .pyproj SearchPath drifts from the folders that
-      # contain .py files. Fix with: .venv\Scripts\python tools\check_import_roots.py --fix
+      # contain .py files. Fix with: .venv\Scripts\python Thon.SolutionTools.Nov2026\src\check_import_roots.py --fix
       - id: import-roots
         name: import roots in sync
-        entry: .venv\\Scripts\\python.exe tools/check_import_roots.py
+        entry: .venv\\Scripts\\python.exe Thon.SolutionTools.Nov2026/src/check_import_roots.py
         language: system
         files: \.(py|pyproj|toml)$
         pass_filenames: false

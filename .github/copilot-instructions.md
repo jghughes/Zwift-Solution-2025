@@ -29,7 +29,8 @@ editing; apply the general and Azure sections everywhere.
   bare name (for example `import jgh_formulae01`), not by package path. The import roots are listed identically in
   `[tool.ruff] src`, `[tool.mypy] mypy_path`, `[tool.pyright] extraPaths` and each `.pyproj` `SearchPath`.
   A root is any folder that directly contains `.py` files. When adding or renaming a source folder, run
-  `python tools\check_import_roots.py --fix` (it rewrites all of those lists; plain run = check only, also run by
+  `python Thon.SolutionTools.Nov2026\src\check_import_roots.py --fix` (it rewrites all of those lists; plain run =
+  check only, also run by
   pre-commit and CI) rather than editing them by hand. New `.py` files must also be added to the `.pyproj`.
 - Libraries: pandas, numpy, scipy, scikit-learn, matplotlib, httpx, Jinja2, tabulate, aiofiles, Azure SDK. scipy and
   scikit-learn are untyped (treated as `Any` by a mypy override).
@@ -39,7 +40,7 @@ editing; apply the general and Azure sections everywhere.
   Pin new dependencies in `requirements.txt` / `requirements-dev.txt`, the same files CI installs.
 - Before finishing, run from the repo root (the same commands CI runs), using the `.venv` interpreter so tool versions
   match the pins: `python -m ruff check .`, `python -m ruff format --check .`, `python -m mypy .`,
-  `python -m pyright`, `python tools\check_import_roots.py`
+  `python -m pyright`, `python Thon.SolutionTools.Nov2026\src\check_import_roots.py`
 - A `pre-commit` hook runs the same checks on every commit. Enable it once per clone with
   `.venv\Scripts\pre-commit install`. Never bypass it with `--no-verify`.
 

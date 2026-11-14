@@ -13,6 +13,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Zsun.DataModels.Jan2024", "
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Thon.Azure.Oct2026", "Thon.Azure.Oct2026\Thon.Azure.Oct2026.pyproj", "{9728580D-3A94-48A4-BF3C-20CF83300A45}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Thon.SolutionTools.Nov2026", "Thon.SolutionTools.Nov2026\Thon.SolutionTools.Nov2026.pyproj", "{230175E9-11B7-4A5F-85F6-54B0AD684906}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,8 @@ Global
 		{988382E8-F8BC-46B3-A768-F7C382A8C147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9728580D-3A94-48A4-BF3C-20CF83300A45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9728580D-3A94-48A4-BF3C-20CF83300A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{230175E9-11B7-4A5F-85F6-54B0AD684906}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{230175E9-11B7-4A5F-85F6-54B0AD684906}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

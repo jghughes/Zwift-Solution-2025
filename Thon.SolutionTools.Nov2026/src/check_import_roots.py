@@ -9,7 +9,7 @@ That list must be identical in these places, because none of the tools can share
 * [tool.pytest.ini_options] pythonpath (only if present)
 * <SearchPath> in every .pyproj
 
-Usage (from anywhere): python tools/check_import_roots.py [--fix]
+Usage (from anywhere): python Thon.SolutionTools.Nov2026/src/check_import_roots.py [--fix]
 Exit code 0 = all copies match, 1 = drift found (or fixed, with --fix).
 """
 
@@ -19,12 +19,11 @@ import sys
 import tomllib
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 PYPROJECT = REPO_ROOT / "pyproject.toml"
 MYPY_PREFIX = "$MYPY_CONFIG_FILE_DIR/"
 SEARCH_PATH_RE = re.compile(r"(<SearchPath>)(.*?)(</SearchPath>)", re.DOTALL)
-# This folder holds repo tooling, not importable application modules.
-EXCLUDED_DIRS = {"tools", "node_modules", "__pycache__"}
+EXCLUDED_DIRS = {"node_modules", "__pycache__"}
 
 
 def discover_roots() -> list[str]:
@@ -125,7 +124,7 @@ def main(argv: list[str]) -> int:
         print("Import roots have drifted from the folders that contain .py files:")
         for problem in problems:
             print(f"  - {problem}")
-        print("Run: python tools/check_import_roots.py --fix")
+        print("Run: python Thon.SolutionTools.Nov2026/src/check_import_roots.py --fix")
         return 1
     fix(roots, read_toml_lists())
     remaining = find_drift(roots)

@@ -5,7 +5,7 @@
     <ProjectGuid>9728580d-3a94-48a4-bf3c-20cf83300a45</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\repository_of_connectionstrings.py</StartupFile>
-    <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
+    <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Thon.SolutionTools.Nov2026\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
     <InterpreterId>MSBuild|.venv|$(MSBuildProjectFullPath)</InterpreterId>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

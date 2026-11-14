@@ -5,7 +5,7 @@
     <ProjectGuid>3f670ad8-602c-4e11-aebe-3d1b70b55de2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\main_production_pipeline\brute11_generate_and_distribute_everything.py</StartupFile>
-    <SearchPath>src;src\custom_file_io;src\formulae;src\main_little_utilities;src\main_production_pipeline;src\main_tools;src\matplot;src\paceline_display;src\repositories;..\Thon.Azure.Oct2026\src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO</SearchPath>
+    <SearchPath>src;src\custom_file_io;src\formulae;src\main_little_utilities;src\main_production_pipeline;src\main_tools;src\matplot;src\paceline_display;src\repositories;..\Thon.Azure.Oct2026\src;..\Thon.Goodies.Jan2025\src;..\Thon.SolutionTools.Nov2026\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO</SearchPath>
     <InterpreterId>MSBuild|.venv|$(MSBuildProjectFullPath)</InterpreterId>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

@@ -1,6 +1,6 @@
 # The "src" list for ruff, "mypy_path" for mypy and "extraPaths" for pyright below are deliberately identical:
 # every folder that holds importable modules (there are no __init__.py packages). Do not edit these lists by hand:
-# run `python tools\check_import_roots.py --fix`, which rewrites them (and the SearchPath entries in the .pyproj files)
+# run `python Thon.SolutionTools.Nov2026\src\check_import_roots.py --fix`, which rewrites them (and the SearchPath entries in the .pyproj files)
 # from the folders that directly contain .py files. Pre-commit and CI run it in check mode.
 
 [tool.ruff]
@@ -9,6 +9,7 @@ line-length = 120
 src = [
     "Thon.Azure.Oct2026/src",
     "Thon.Goodies.Jan2025/src",
+    "Thon.SolutionTools.Nov2026/src",
     "Zsun.DataModels.Jan2024/src/my_models",
     "Zsun.DataModels.Jan2024/src/third_party_models",
     "Zsun.DataTransferObjects.Jan2024/src/my_DTO",
@@ -53,6 +54,7 @@ plugins = ["pydantic.mypy"]
 mypy_path = [
     "$MYPY_CONFIG_FILE_DIR/Thon.Azure.Oct2026/src",
     "$MYPY_CONFIG_FILE_DIR/Thon.Goodies.Jan2025/src",
+    "$MYPY_CONFIG_FILE_DIR/Thon.SolutionTools.Nov2026/src",
     "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/my_models",
     "$MYPY_CONFIG_FILE_DIR/Zsun.DataModels.Jan2024/src/third_party_models",
     "$MYPY_CONFIG_FILE_DIR/Zsun.DataTransferObjects.Jan2024/src/my_DTO",
@@ -91,7 +93,7 @@ ignore_missing_imports = true
 disallow_any_unimported = false
 
 # Read by Pylance (bundled with Visual Studio's Python workload) for intellisense and live diagnostics.
-# Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here (kept identical by tools\check_import_roots.py).
+# Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here (kept identical by Thon.SolutionTools.Nov2026\src\check_import_roots.py).
 # "standard" stays deliberately lighter than mypy --strict: mypy remains the gate, Pylance is for fast feedback.
 [tool.pyright]
 pythonVersion = "3.12"
@@ -102,6 +104,7 @@ exclude = ["**/__pycache__", "**/.*"]
 extraPaths = [
     "Thon.Azure.Oct2026/src",
     "Thon.Goodies.Jan2025/src",
+    "Thon.SolutionTools.Nov2026/src",
     "Zsun.DataModels.Jan2024/src/my_models",
     "Zsun.DataModels.Jan2024/src/third_party_models",
     "Zsun.DataTransferObjects.Jan2024/src/my_DTO",
