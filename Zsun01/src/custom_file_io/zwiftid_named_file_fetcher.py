@@ -90,7 +90,7 @@ async def _download_file_and_save_to_hard_drive_async(
                 extra_fields={
                     "url": url,
                     "dest_path": str(dest_path),
-                    "filename": filename,
+                    "file_name": filename,
                     "dest_folder": str(dest_folder_path),
                     "file_size_bytes": file_size_bytes,
                 },
