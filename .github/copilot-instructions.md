@@ -30,6 +30,9 @@ editing; apply the general and Azure sections everywhere.
 - Libraries: pandas, numpy, scipy, scikit-learn, matplotlib, httpx, Jinja2, tabulate, aiofiles, Azure SDK. scipy and
   scikit-learn are untyped (treated as `Any` by a mypy override).
 - Tests (none yet): use `pytest`.
+- Environment: a single virtual environment lives at `.venv` in the repo root (git-ignored) and is shared by all
+  `.pyproj` projects. Create it with `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements-dev.txt`.
+  Pin new dependencies in `requirements.txt` / `requirements-dev.txt`, the same files CI installs.
 - Before finishing, run from the repo root (the same commands CI runs):
   `python -m ruff check .`, `python -m ruff format --check .`, `python -m mypy .`
 

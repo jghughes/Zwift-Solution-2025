@@ -87,6 +87,8 @@ disallow_any_unimported = false
 # "standard" stays deliberately lighter than mypy --strict: mypy remains the gate, Pylance is for fast feedback.
 [tool.pyright]
 pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
 typeCheckingMode = "standard"
 exclude = ["**/__pycache__", "**/.*"]
 extraPaths = [

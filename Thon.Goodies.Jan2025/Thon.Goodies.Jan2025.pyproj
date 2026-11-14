@@ -6,12 +6,13 @@
     <ProjectHome>.</ProjectHome>
     <StartupFile>
     </StartupFile>
-    <SearchPath>src</SearchPath>
+    <SearchPath>src;..\Thon.Azure.Oct2026\src;..\Zsun.DataModels.Jan2024\src\my_models;..\Zsun.DataModels.Jan2024\src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
+    <InterpreterId>MSBuild|.venv|$(MSBuildProjectFullPath)</InterpreterId>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Thon.Goodies.Jan2025</Name>
     <RootNamespace>Thon.Goodies.Jan2025</RootNamespace>
-    <TestFramework>unittest</TestFramework>
+    <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +43,20 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\.venv\">
+      <Id>.venv</Id>
+      <Version>3.12</Version>
+      <Description>.venv (Python 3.12 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="MSBuild|.venv|$(MSBuildProjectFullPath)" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

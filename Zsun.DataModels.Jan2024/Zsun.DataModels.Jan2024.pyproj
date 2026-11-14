@@ -5,11 +5,13 @@
     <ProjectGuid>988382e8-f8bc-46b3-a768-f7c382a8c147</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>src\my_models\rider_stats_item.py</StartupFile>
-    <SearchPath>src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src;src\my_models;src\third_party_models;..\Zsun.DataTransferObjects.Jan2024\src;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01;..\Zsun01\src\formulae;..\Zsun01\src\paceline_display</SearchPath>
+    <SearchPath>src\my_models;src\third_party_models;..\Thon.Azure.Oct2026\src;..\Thon.Goodies.Jan2025\src;..\Zsun.DataTransferObjects.Jan2024\src\my_DTO;..\Zsun.DataTransferObjects.Jan2024\src\third_party_DTO;..\Zsun01\src;..\Zsun01\src\custom_file_io;..\Zsun01\src\formulae;..\Zsun01\src\main_little_utilities;..\Zsun01\src\main_production_pipeline;..\Zsun01\src\main_tools;..\Zsun01\src\matplot;..\Zsun01\src\paceline_display;..\Zsun01\src\repositories</SearchPath>
+    <InterpreterId>MSBuild|.venv|$(MSBuildProjectFullPath)</InterpreterId>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Zsun.DataModels.Jan2024</Name>
     <RootNamespace>Zsun.DataModels.Jan2024</RootNamespace>
+    <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +38,20 @@
     <Compile Include="src\third_party_models\zwiftpower_flattened_90_day_watts_item.py" />
     <Compile Include="src\third_party_models\zwiftracingapp_item.py" />
     <Compile Include="src\third_party_models\zwift_item.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\.venv\">
+      <Id>.venv</Id>
+      <Version>3.12</Version>
+      <Description>.venv (Python 3.12 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="MSBuild|.venv|$(MSBuildProjectFullPath)" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
