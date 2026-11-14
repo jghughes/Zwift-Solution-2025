@@ -13,8 +13,12 @@ indent_size = 4
 # Matches [tool.ruff] line-length in pyproject.toml.
 max_line_length = 120
 
-[*.{toml,yml,yaml,json,xml,html,css,pyproj,csproj,props,targets}]
+[*.{yml,yaml,json,xml,html,css,pyproj,csproj,props,targets}]
 indent_size = 2
+
+[*.toml]
+# pyproject.toml lists are indented with 4 spaces.
+indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false

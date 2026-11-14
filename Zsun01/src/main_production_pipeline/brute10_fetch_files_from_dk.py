@@ -36,13 +36,13 @@ async def go_fetch_thousands_of_files_from_dk_V2() -> None:
     )
 
     urls_for_zwift_files: list[str] = [
-        f"{URL_ROOT_FOR_ZWIFT_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+        f"{URL_ROOT_FOR_ZWIFT_FILES}{zwift_id}.json" for zwift_id in array_of_cobbled_together_zwiftId
     ]
     urls_for_zwiftpower_90_day_best_files: list[str] = [
-        f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+        f"{URL_ROOT_FOR_ZWIFTPOWER_90_DAY_BEST_FILES}{zwift_id}.json" for zwift_id in array_of_cobbled_together_zwiftId
     ]
     urls_for_racing_app_files: list[str] = [
-        f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{id}.json" for id in array_of_cobbled_together_zwiftId
+        f"{URL_ROOT_FOR_ZWIFTRACINGAPP_FILES}{zwift_id}.json" for zwift_id in array_of_cobbled_together_zwiftId
     ]
 
     limits = httpx.Limits(max_connections=60, max_keepalive_connections=30)

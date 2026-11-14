@@ -30,8 +30,8 @@ src = [
 [tool.ruff.lint]
 select = [
     "E", "F", "I", "UP", "B", "SIM", "RUF",
-    "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "NPY", "PD", "PERF", "PGH", "PIE", "PLE", "PLW", "PT", "PTH",
-    "RSE", "S", "TID",
+    "A", "ASYNC", "C4", "DTZ", "FA", "FURB", "ICN", "ISC", "LOG", "NPY", "PD", "PERF", "PGH", "PIE", "PLE", "PLW",
+    "PT", "PTH", "Q", "RSE", "S", "SLF", "TID",
 ]
 # Repo-wide deferral only for a rule with hundreds of hits. Remove it as the code is cleaned up.
 ignore = [

@@ -263,22 +263,22 @@ def cleanup_name_string(name_to_clean: str | None) -> str:
         return sanitized_value
 
 
-def sanitise_string(input: str | None) -> str:
+def sanitise_string(value: str | None) -> str:
     """
     Sanitizes a string by removing invalid Unicode characters, unwanted symbols (e.g., emoji),
     reducing multiple spaces to a single space, and stripping leading and trailing whitespace.
 
     Args:
-        input (str): The string to sanitize.
+        value (str): The string to sanitize.
 
     Returns:
         str: The sanitized string.
     """
-    if input is None:
+    if value is None:
         return ""
     try:
         # Remove invalid Unicode characters (e.g., ?)
-        sanitized_value = input.replace("\ufffd", "")
+        sanitized_value = value.replace("\ufffd", "")
         # Remove invalid surrogate pairs or other invalid characters
         sanitized_value = sanitized_value.encode("utf-8", errors="ignore").decode("utf-8")
         # Remove unwanted Unicode characters (e.g., emoji, symbols)
@@ -298,4 +298,4 @@ def sanitise_string(input: str | None) -> str:
         # Strip leading and trailing spaces
         return sanitized_value.strip()
     except Exception as e:
-        raise ValueError(f"Error sanitizing string '{input}'. Details: {e}") from e
+        raise ValueError(f"Error sanitizing string '{value}'. Details: {e}") from e
