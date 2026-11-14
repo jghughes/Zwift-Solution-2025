@@ -5,6 +5,14 @@
 repos:
   - repo: local
     hooks:
+      # Fails when ruff src, mypy_path, pyright extraPaths or any .pyproj SearchPath drifts from the folders that
+      # contain .py files. Fix with: .venv\Scripts\python tools\check_import_roots.py --fix
+      - id: import-roots
+        name: import roots in sync
+        entry: .venv\\Scripts\\python.exe tools/check_import_roots.py
+        language: system
+        files: \.(py|pyproj|toml)$
+        pass_filenames: false
       - id: ruff-check
         name: ruff check
         entry: .venv\\Scripts\\python.exe -m ruff check --fix
@@ -19,6 +27,13 @@ repos:
       - id: mypy
         name: mypy
         entry: .venv\\Scripts\\python.exe -m mypy .
+        language: system
+        types: [python]
+        pass_filenames: false
+      # Same analyser and "standard" mode as Pylance in Visual Studio; keeps editor diagnostics and mypy from drifting.
+      - id: pyright
+        name: pyright
+        entry: .venv\\Scripts\\python.exe -m pyright
         language: system
         types: [python]
         pass_filenames: false

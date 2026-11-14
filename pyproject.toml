@@ -1,6 +1,7 @@
 # The "src" list for ruff, "mypy_path" for mypy and "extraPaths" for pyright below are deliberately identical:
-# every folder that holds importable modules (there are no __init__.py packages). Keep them in sync with each
-# other and with the SearchPath entries in the .pyproj files when a source folder is added or renamed.
+# every folder that holds importable modules (there are no __init__.py packages). Do not edit these lists by hand:
+# run `python tools\check_import_roots.py --fix`, which rewrites them (and the SearchPath entries in the .pyproj files)
+# from the folders that directly contain .py files. Pre-commit and CI run it in check mode.
 
 [tool.ruff]
 target-version = "py312"
@@ -90,7 +91,7 @@ ignore_missing_imports = true
 disallow_any_unimported = false
 
 # Read by Pylance (bundled with Visual Studio's Python workload) for intellisense and live diagnostics.
-# Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here; keep them identical to "src" above.
+# Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here (kept identical by tools\check_import_roots.py).
 # "standard" stays deliberately lighter than mypy --strict: mypy remains the gate, Pylance is for fast feedback.
 [tool.pyright]
 pythonVersion = "3.12"

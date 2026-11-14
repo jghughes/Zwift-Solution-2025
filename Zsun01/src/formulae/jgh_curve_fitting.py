@@ -41,10 +41,10 @@ def do_curve_fit_with_cp_w_prime_model(
     ydata_pred: NDArray[np.float64] = cp_w_prime_model_numpy(xdata, cp_watts, anaerobic_work_capacity)
 
     # Calculate the R-squared value
-    r2: float = r2_score(ydata, ydata_pred)
+    r2: float = float(r2_score(ydata, ydata_pred))
 
     # # Calculate the root mean square error (RMSE)
-    rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
+    rmse_cp: float = float(np.sqrt(mean_squared_error(ydata, ydata_pred)))
 
     # Recombine the original data and predicted values into a dictionary
     result: dict[int, tuple[float, float]] = {int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))}
@@ -86,10 +86,10 @@ def do_curve_fit_with_decay_model(
     ydata_pred: NDArray[np.float64] = decay_model_numpy(xdata, coefficient_ftp, exponent_ftp)
 
     # Calculate the R-squared value
-    r2: float = r2_score(ydata, ydata_pred)
+    r2: float = float(r2_score(ydata, ydata_pred))
 
     # Calculate the root mean square error (RMSE)
-    rmse_cp: float = np.sqrt(mean_squared_error(ydata, ydata_pred))
+    rmse_cp: float = float(np.sqrt(mean_squared_error(ydata, ydata_pred)))
 
     # Recombine the original xdata,y data and predicted y_data values into coefficient_ftp dictionary
     result: dict[int, tuple[float, float]] = {int(xdata[i]): (ydata[i], ydata_pred[i]) for i in range(len(xdata))}
