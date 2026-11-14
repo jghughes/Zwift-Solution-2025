@@ -1,6 +1,6 @@
-# The "src" list for ruff and "mypy_path" for mypy below are deliberately identical: every folder that
-# holds importable modules (there are no __init__.py packages). Keep them in sync with each other
-# and with the SearchPath entries in the .pyproj files when a source folder is added or renamed.
+# The "src" list for ruff, "mypy_path" for mypy and "extraPaths" for pyright below are deliberately identical:
+# every folder that holds importable modules (there are no __init__.py packages). Keep them in sync with each
+# other and with the SearchPath entries in the .pyproj files when a source folder is added or renamed.
 
 [tool.ruff]
 target-version = "py312"
@@ -27,11 +27,12 @@ src = [
 [tool.ruff.lint]
 select = [
     "E", "F", "I", "UP", "B", "SIM", "RUF",
-    "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "PGH", "PIE", "PLE", "PLW", "PT", "RSE", "S", "TID",
+    "ASYNC", "C4", "DTZ", "FURB", "ICN", "LOG", "NPY", "PD", "PGH", "PIE", "PLE", "PLW", "PT", "RSE", "S", "TID",
 ]
 # Repo-wide deferral only for a rule with hundreds of hits. Remove it as the code is cleaned up.
 ignore = [
     "E501",   # line length: `ruff format` handles code; 113 long strings/comments remain that it cannot wrap
+    "PD901",  # `df` is the conventional pandas variable name
 ]
 
 # known-first-party is not needed: every first-party module folder is already listed in "src" above.
@@ -71,6 +72,8 @@ enable_error_code = [
     "unused-awaitable",
 ]
 show_column_numbers = true
+warn_unused_configs = true
+sqlite_cache = true
 
 # scipy and scikit-learn ship no type information; treat them as Any in one place
 # instead of scattering "# type: ignore[import-untyped]" through the code.
@@ -78,3 +81,28 @@ show_column_numbers = true
 module = ["scipy.*", "sklearn.*"]
 ignore_missing_imports = true
 disallow_any_unimported = false
+
+# Read by Pylance (bundled with Visual Studio's Python workload) for intellisense and live diagnostics.
+# Pylance ignores [tool.ruff] and [tool.mypy], so the import roots are repeated here; keep them identical to "src" above.
+# "standard" stays deliberately lighter than mypy --strict: mypy remains the gate, Pylance is for fast feedback.
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+exclude = ["**/__pycache__", "**/.*"]
+extraPaths = [
+    "Thon.Azure.Oct2026/src",
+    "Thon.Goodies.Jan2025/src",
+    "Zsun.DataModels.Jan2024/src/my_models",
+    "Zsun.DataModels.Jan2024/src/third_party_models",
+    "Zsun.DataTransferObjects.Jan2024/src/my_DTO",
+    "Zsun.DataTransferObjects.Jan2024/src/third_party_DTO",
+    "Zsun01/src",
+    "Zsun01/src/custom_file_io",
+    "Zsun01/src/formulae",
+    "Zsun01/src/main_little_utilities",
+    "Zsun01/src/main_production_pipeline",
+    "Zsun01/src/main_tools",
+    "Zsun01/src/matplot",
+    "Zsun01/src/paceline_display",
+    "Zsun01/src/repositories",
+]

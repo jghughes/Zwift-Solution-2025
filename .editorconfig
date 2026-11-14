@@ -1,0 +1,24 @@
+# Top-most EditorConfig file. Visual Studio, ruff-format-compatible editors and C# tooling all read this.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.py]
+# Matches [tool.ruff] line-length in pyproject.toml.
+max_line_length = 120
+
+[*.{toml,yml,yaml,json,xml,html,css,pyproj,csproj,props,targets}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Add C# style rules (dotnet_style_*, csharp_*) here when C# projects join the solution.
+indent_size = 4
