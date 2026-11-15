@@ -226,7 +226,7 @@ def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[Team
     return answer_as_item
 
 
-def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, TeamMemberItem]:
+def read_universe_of_riders_from_multiple_events_by_zwift_id(dirpath: Path) -> JghListDictionary[str, TeamMemberItem]:
     """
     Reads every JSON event-result file in a directory and builds a lookup of
     the distinct team names associated with each rider across all events.
@@ -250,6 +250,36 @@ def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictio
         rider_items = read_rider_list_from_single_event(dirpath, file_name)
         for item in rider_items:
             answer_as_list_dict.append_value_to_list(item.zwift_id, item)
+
+    answer_as_list_dict.deduplicate_values_per_list()
+
+    return answer_as_list_dict
+
+
+def read_universe_of_riders_from_multiple_events_by_rider_name(dirpath: Path) -> JghListDictionary[str, TeamMemberItem]:
+    """
+    Reads every JSON event-result file in a directory and builds a lookup of
+    the distinct team names associated with each rider across all events.
+
+    Args:
+        dirpath: Directory containing the event-result JSON files.
+
+    Returns:
+        A JghListDictionary mapping each rider's name to a list of the
+        distinct team names that rider appears under.
+
+    Raises:
+        ValueError: If the directory or any file path is invalid or a file does not exist.
+    """
+    file_paths: list[Path] = list_filePaths_recursive(dirpath, "*.json")
+
+    answer_as_list_dict: JghListDictionary[str, TeamMemberItem] = JghListDictionary()
+
+    for file_path in file_paths:
+        file_name = file_path.name
+        rider_items = read_rider_list_from_single_event(dirpath, file_name)
+        for item in rider_items:
+            answer_as_list_dict.append_value_to_list(item.rider_name, item)
 
     answer_as_list_dict.deduplicate_values_per_list()
 

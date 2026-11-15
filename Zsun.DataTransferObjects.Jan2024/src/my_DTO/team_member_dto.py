@@ -5,8 +5,8 @@ from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, RootMo
 validation_alias_choices_map: dict[str, AliasChoices] = {
     "row": AliasChoices("row"),
     "zwift_id": AliasChoices("zwift_id", "zwiftId"),
-    "rider_name": AliasChoices("rider_name", "rider"),
-    "team_name": AliasChoices("team_name", "team"),
+    "rider_name": AliasChoices("rider_name", "rider", "rider-name"),
+    "team_name": AliasChoices("team_name", "team", "team-name"),
 }
 
 configdictV1 = ConfigDict(

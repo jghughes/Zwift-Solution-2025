@@ -3,7 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from custom_file_read_write import read_universe_of_riders_from_multiple_events
+from custom_file_read_write import read_universe_of_riders_from_multiple_events_by_zwift_id
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_dictionary_helpers import filter_generic_dict_by_key
 from jgh_listdictionary import JghListDictionary
@@ -127,7 +127,7 @@ class RepositoryOfRiders:
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do third
 
         if folder_containing_generated_results_for_drs_events_dirpath != "":
-            self._dict_of_teamnames_per_rider = read_universe_of_riders_from_multiple_events(
+            self._dict_of_teamnames_per_rider = read_universe_of_riders_from_multiple_events_by_zwift_id(
                 Path(folder_containing_generated_results_for_drs_events_dirpath)
             )
             for zwift_id in self._dict_of_teamnames_per_rider.get_keys():
