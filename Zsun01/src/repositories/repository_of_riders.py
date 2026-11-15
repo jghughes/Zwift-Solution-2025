@@ -12,8 +12,8 @@ from paceline_modelling_items import CurveFittingResultItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
-from simple_rider_item import SimpleRiderItem
 from slope_bucket_item import SlopeBucketItem
+from team_member_item import TeamMemberItem
 from zwift_item import ZwiftItem
 from zwiftid_named_file_reader import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -29,7 +29,7 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem: dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_teamnames_per_rider: JghListDictionary[str, SimpleRiderItem] = field(default_factory=JghListDictionary)
+    _dict_of_teamnames_per_rider: JghListDictionary[str, TeamMemberItem] = field(default_factory=JghListDictionary)
 
     _eligible_IDs: list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem: dict[str, CurveFittingResultItem] = field(default_factory=dict)

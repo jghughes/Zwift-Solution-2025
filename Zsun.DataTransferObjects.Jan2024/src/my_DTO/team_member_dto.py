@@ -18,7 +18,7 @@ configdictV1 = ConfigDict(
 preferred_config_dict = configdictV1
 
 
-class SimpleRiderDTO(BaseModel):
+class TeamMemberDTO(BaseModel):
     model_config = preferred_config_dict
     row: int = 0
     zwift_id: str = ""
@@ -33,9 +33,9 @@ class SimpleRiderDTO(BaseModel):
         return cast(str, value)
 
 
-class SimpleRiderDtoDictModel(RootModel[dict[str, SimpleRiderDTO]]):
+class TeamMemberDtoDictModel(RootModel[dict[str, TeamMemberDTO]]):
     pass
 
 
-class SimpleRiderDtoListModel(RootModel[list[SimpleRiderDTO]]):
+class TeamMemberDtoListModel(RootModel[list[TeamMemberDTO]]):
     pass

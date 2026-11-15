@@ -241,6 +241,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
         all_y.extend(ydata_pred_pull + ydata_pred_ftp)
 
     # --- axes, labels, legend ---
+    # max_x = max([0, 420])
     max_x = max(all_x)
     max_y = max(all_y)
     ax.set_xlim(0, max_x * 1.05)
@@ -259,9 +260,7 @@ def plot_comparative_chart_of_curve_fits_for_list_of_riders(
     plt.show()
 
 
-def do_all_the_plotting(
-    team_name: str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str
-) -> None:
+def main(team_name: str, zwiftIDs_of_riders_to_model: list[str], zwiftID_of_rider_to_plot_individually: str) -> None:
     """
     Run the whole workflow: validate, load, then plot.
 
@@ -325,6 +324,7 @@ if __name__ == "__main__":
         barry_b = "5490373"
         bill_henson = "5726145"
         brandi_steeve = "991817"
+        brent_huser = "480698"
         bryan_bumpas = "9011"
         carrie_merrit = "456545"
         ceri_pritchard = "4204538"
@@ -334,10 +334,12 @@ if __name__ == "__main__":
         dave_k = "3147366"
         david_evanetich = "4945836"
         dayton_danielson = "172105"
+        deesh_bhattal = "3024592"
         giao_nguyen = "183277"
+        henry_llamas_iv = "1604216"
         husky = "5134"
-        john_h = "1884456"
-        josh_n = "2508033"
+        john_hughes = "1884456"
+        josh_neil = "2508033"
         ken_chappell = "1111583"  # no current data on zr.app
         kent_johnson = "618585"
         lisa_bick = "846200"
@@ -357,13 +359,20 @@ if __name__ == "__main__":
         tony_chang = "7460730"
 
         _team_name = "rangers"
-        _zwiftIDs_of_riders_to_model: list[str] = [tony_chang, carrie_merrit, curtis_repen]
+        # _zwiftIDs_of_riders_to_model: list[str] = [henry_llamas_iv, brent_huser,  deesh_bhattal, dayton_danielson, ]
+        _zwiftIDs_of_riders_to_model: list[str] = [
+            josh_neil,
+            curtis_repen,
+            david_evanetich,
+            john_hughes,
+        ]
+        # _zwiftIDs_of_riders_to_model: list[str] = [curtis_repen, brent_huser, john_hughes, henry_llamas_iv, david_evanetich,deesh_bhattal, josh_neil, dayton_danielson, ]
         _zwiftID_of_rider_to_plot_individually: str = _zwiftIDs_of_riders_to_model[
             2
         ]  # the index of our desired rider for this example
 
         start_time = time.time()
-        do_all_the_plotting(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)
+        main(_team_name, _zwiftIDs_of_riders_to_model, _zwiftID_of_rider_to_plot_individually)
         end_time = time.time()
 
         success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."

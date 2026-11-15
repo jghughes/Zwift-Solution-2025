@@ -20,8 +20,8 @@ from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDtoListModel
 from rider_stats_item import RiderStatsItem
-from simple_rider_dto import SimpleRiderDtoListModel
-from simple_rider_item import SimpleRiderItem
+from team_member_dto import TeamMemberDtoListModel
+from team_member_item import TeamMemberItem
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 
@@ -202,16 +202,16 @@ def write_regression_modelling_dict_to_json(
     write_text_with_json_file_extension(dirpath, filename, text)
 
 
-def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[SimpleRiderItem]:
+def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[TeamMemberItem]:
     """
-    Reads a JSON file and deserializes its contents into a list of SimpleRiderItem domain objects.
+    Reads a JSON file and deserializes its contents into a list of TeamMemberItem domain objects.
 
     Args:
         dirpath: Directory path containing the target file.
         filename: Name of the JSON file (without extension).
 
     Returns:
-        A list of SimpleRiderItem instances populated from the JSON data.
+        A list of TeamMemberItem instances populated from the JSON data.
 
     Raises:
         ValueError: If the directory or file path is invalid or the file does not exist.
@@ -221,12 +221,12 @@ def read_rider_list_from_single_event(dirpath: Path, filename: str) -> list[Simp
     )
     text = read_text(dirpath, filename)
     something = json.loads(text)
-    answer_as_dto = SimpleRiderDtoListModel.model_validate(something, strict=True).root
-    answer_as_item = [SimpleRiderItem.from_dataTransferObject(dto) for dto in answer_as_dto]
+    answer_as_dto = TeamMemberDtoListModel.model_validate(something, strict=True).root
+    answer_as_item = [TeamMemberItem.from_dataTransferObject(dto) for dto in answer_as_dto]
     return answer_as_item
 
 
-def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, SimpleRiderItem]:
+def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictionary[str, TeamMemberItem]:
     """
     Reads every JSON event-result file in a directory and builds a lookup of
     the distinct team names associated with each rider across all events.
@@ -243,7 +243,7 @@ def read_universe_of_riders_from_multiple_events(dirpath: Path) -> JghListDictio
     """
     file_paths: list[Path] = list_filePaths_recursive(dirpath, "*.json")
 
-    answer_as_list_dict: JghListDictionary[str, SimpleRiderItem] = JghListDictionary()
+    answer_as_list_dict: JghListDictionary[str, TeamMemberItem] = JghListDictionary()
 
     for file_path in file_paths:
         file_name = file_path.name
