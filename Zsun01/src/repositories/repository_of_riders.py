@@ -45,7 +45,6 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
-        folder_containing_generated_results_for_drs_events_dirpath: str,
         routeItem: RouteItem | None = None,
     ) -> bool:
         """

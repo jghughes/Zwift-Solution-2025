@@ -90,7 +90,6 @@ from storage_config import (
     DIRPATH_RIDER_ALIASES_DTO,
     DIRPATH_RIDER_COMPUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
-    DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_ZWIFT_FILES,
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
@@ -168,7 +167,6 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
         DIRPATH_ZWIFT_FILES,
         DIRPATH_ZWIFTRACINGAPP_FILES,
         DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
-        DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
         route,
     )
     elapsed = time.time() - start_time
