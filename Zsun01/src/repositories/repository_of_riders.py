@@ -3,17 +3,15 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from custom_file_read_write import read_universe_of_riders_from_multiple_events_by_zwift_id
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_dictionary_helpers import filter_generic_dict_by_key
-from jgh_listdictionary import JghListDictionary
 from model_builders import build_CurveFittingResultItem, build_RiderComputeItem, build_RiderStatsItem
 from paceline_modelling_items import CurveFittingResultItem
+from rider_aliases_item import RiderAliasesItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
 from slope_bucket_item import SlopeBucketItem
-from team_member_item import TeamMemberItem
 from zwift_item import ZwiftItem
 from zwiftid_named_file_reader import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -29,12 +27,12 @@ class RepositoryOfRiders:
     _dict_of_ZwiftItem: dict[str, ZwiftItem] = field(default_factory=dict)
     _dict_of_ZwiftRacingAppItem: dict[str, ZwiftRacingAppItem] = field(default_factory=dict)
     _dict_of_ZwiftPower90dayWattsItem: dict[str, ZwiftPowerFlattened90dayWattsItem] = field(default_factory=dict)
-    _dict_of_teamnames_per_rider: JghListDictionary[str, TeamMemberItem] = field(default_factory=JghListDictionary)
 
     _eligible_IDs: list[str] = field(default_factory=list)
     _computed_dict_of_curveFitItem: dict[str, CurveFittingResultItem] = field(default_factory=dict)
     _computed_dict_of_riderComputeItem: dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem: dict[str, RiderStatsItem] = field(default_factory=dict)
+    _computed_dict_of_riderAliasesItem: dict[str, RiderAliasesItem] = field(default_factory=dict)
 
     _singleSegment: SlopeBucketItem = field(default_factory=SlopeBucketItem)
 
@@ -64,6 +62,7 @@ class RepositoryOfRiders:
             5. Fits decay and CP/W-prime curves to the 90-day power watts data.
             6. Computes RiderComputeItems for riders who have curve fit data.
             7. Computes RiderStatsItems for all riders with a Zwift profile.
+            8. Computes RiderAliasesItems for all riders with a Zwift profile.
 
         File presence is best-effort: file_names defines the candidate set of Zwift IDs to attempt.
         Individual files may be missing on disk without causing a failure -- missing data sources
@@ -125,16 +124,8 @@ class RepositoryOfRiders:
         self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids)  # do second
         print("\n7. Building RiderStatsItems.")
         self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do third
-
-        if folder_containing_generated_results_for_drs_events_dirpath != "":
-            self._dict_of_teamnames_per_rider = read_universe_of_riders_from_multiple_events_by_zwift_id(
-                Path(folder_containing_generated_results_for_drs_events_dirpath)
-            )
-            for zwift_id in self._dict_of_teamnames_per_rider.get_keys():
-                if zwift_id in self._computed_dict_of_riderStatsItem:
-                    rider_items = self._dict_of_teamnames_per_rider.get_values(zwift_id)
-                    team_names = list(dict.fromkeys(item.team_name for item in rider_items))
-                    self._computed_dict_of_riderStatsItem[zwift_id].team_names = ", ".join(team_names)
+        print("\n8. Building RiderAliasesItems.")
+        self._computed_dict_of_riderAliasesItem = self._make_dict_of_RiderAliasesItem(all_zwift_ids)  # do fourth
 
         print("\nRepository successfully populated.")
 
@@ -158,6 +149,9 @@ class RepositoryOfRiders:
 
     def get_dict_of_RiderStatsItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderStatsItem]:
         return deepcopy(filter_generic_dict_by_key(self._computed_dict_of_riderStatsItem, zwift_ids))
+
+    def get_dict_of_RiderAliasesItem_by_ids(self, zwift_ids: list[str] | None) -> dict[str, RiderAliasesItem]:
+        return deepcopy(filter_generic_dict_by_key(self._computed_dict_of_riderAliasesItem, zwift_ids))
 
     def get_count_of_RiderComputeItems(self) -> int:
         return len(self._computed_dict_of_riderComputeItem)
@@ -321,5 +315,54 @@ class RepositoryOfRiders:
             )
 
         print(f"Repository message: completed computing rider stats items for {len(answer)} riders.")
+
+        return answer
+
+    def _make_dict_of_RiderAliasesItem(self, zwift_ids: list[str] | None) -> dict[str, RiderAliasesItem]:
+        """
+        Iterates over the candidate Zwift IDs and builds a RiderAliasesItem for each rider
+        that has a Zwift profile, recording the name by which that rider is known in each
+        data source. Must be called after the RiderComputeItems and RiderStatsItems are built.
+
+        Names from sources the rider is missing from are left empty. ZwiftPower 90-day
+        data carries no rider name, so alias_zwiftpower is always empty here.
+
+        Args:
+            zwift_ids (list[str] | None):
+                Candidate list of Zwift IDs to process. If None, an empty list is used
+                and no items are produced.
+
+        Returns:
+            dict[str, RiderAliasesItem]: Dictionary of RiderAliasesItems keyed by zwift_id.
+            Only riders with a ZwiftItem are included.
+        """
+
+        answer: dict[str, RiderAliasesItem] = {}
+
+        if zwift_ids is None:
+            zwift_ids = []
+
+        print(f"Repository message: computing rider aliases items for {len(zwift_ids)} riders.")
+
+        for key in zwift_ids:
+            zwiftItem = self._dict_of_ZwiftItem.get(key)
+            if zwiftItem is None:
+                continue  # skip this key/rider if no Zwift data
+
+            statsItem = self._computed_dict_of_riderStatsItem.get(key)
+            computeItem = self._computed_dict_of_riderComputeItem.get(key)
+            racingAppItem = self._dict_of_ZwiftRacingAppItem.get(key)
+
+            answer[key] = RiderAliasesItem(
+                zwift_id=key,
+                alias_rider_stats_item=statsItem.name if statsItem is not None else "",
+                alias_rider_compute_item=computeItem.name if computeItem is not None else "",
+                zwift_country_code3=zwiftItem.country_code3,
+                alias_zwift_first_name=zwiftItem.first_name,
+                alias_zwift_last_name=zwiftItem.last_name,
+                alias_zwiftracing_app=racingAppItem.full_name if racingAppItem is not None else "",
+            )
+
+        print(f"Repository message: completed computing rider aliases items for {len(answer)} riders.")
 
         return answer

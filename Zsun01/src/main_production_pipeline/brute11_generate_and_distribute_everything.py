@@ -67,6 +67,8 @@ from jgh_read_write import (
 from jgh_string import format_seconds_to_hh_mm_ss, make_pretty_count_of_bytes
 from repository_of_riders import RepositoryOfRiders
 from repository_of_routes import RepositoryOfRoutes
+from rider_aliases_dto import RiderAliasesDtoDictModel, RiderAliasesDtoListModel
+from rider_aliases_item import RiderAliasesItem
 from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDtoDictModel, RiderStatsDtoListModel
@@ -74,6 +76,9 @@ from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
 from storage_config import (
     AZURE_ACCOUNTNAME_ZSUN,
+    AZURE_BLOBNAME_RIDER_ALIASES_DTO_DICT,
+    AZURE_BLOBNAME_RIDER_ALIASES_DTO_LIST,
+    AZURE_BLOBNAME_RIDER_ALIASES_DTO_LIST_AS_CSV,
     AZURE_BLOBNAME_RIDER_COMPUTE_DTO_DICT,
     AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST,
     AZURE_BLOBNAME_RIDER_COMPUTE_DTO_LIST_AS_CSV,
@@ -82,6 +87,7 @@ from storage_config import (
     AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
     AZURE_CONTAINERNAME_ZSUN,
     AZURE_CONTAINERNAME_ZSUN_BACK,
+    DIRPATH_RIDER_ALIASES_DTO,
     DIRPATH_RIDER_COMPUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
     DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER,
@@ -89,6 +95,10 @@ from storage_config import (
     DIRPATH_ZWIFT_FILES,
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
     DIRPATH_ZWIFTRACINGAPP_FILES,
+    FILENAME_RIDER_ALIASES_DTO_CSV_LIST,
+    FILENAME_RIDER_ALIASES_DTO_JSON_DICT,
+    FILENAME_RIDER_ALIASES_DTO_JSON_LIST,
+    FILENAME_RIDER_ALIASES_DTO_XLSX_LIST,
     FILENAME_RIDER_COMPUTE_DTO_CSV_LIST,
     FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
     FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
@@ -126,6 +136,7 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
                 # Path(DIRPATH_ZWIFTPOWER_PROFILE_PAGE),
                 Path(DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES),
                 Path(DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT),
+                Path(DIRPATH_RIDER_ALIASES_DTO),
             ]
         )
     except Exception as err:
@@ -133,7 +144,14 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
         print(err)
         return
     try:
-        throw_if_any_filename_invalid([FILENAME_RIDER_COMPUTE_DTO_JSON_DICT, FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST])
+        throw_if_any_filename_invalid(
+            [
+                FILENAME_RIDER_COMPUTE_DTO_JSON_DICT,
+                FILENAME_RIDER_COMPUTE_DTO_XLSX_LIST,
+                FILENAME_RIDER_ALIASES_DTO_JSON_DICT,
+                FILENAME_RIDER_ALIASES_DTO_XLSX_LIST,
+            ]
+        )
     except Exception as err:
         logger.error(f"Filename validation error: {err}", exc_info=True)
         print(err)
@@ -157,7 +175,9 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
     print(f"\nrider_repository populated in: {format_seconds_to_hh_mm_ss(elapsed)}")
     print(f"ended up with {rider_repository.get_count_of_RiderComputeItems()} curve fitted computed riders.")
 
-    print("\nBuilding DTO dicts for Task #1 (RiderComputeItem) and Task #2 (RiderStatsItem)...")
+    print(
+        "\nBuilding DTO dicts for Task #1 (RiderComputeItem), Task #2 (RiderStatsItem) and Task #3 (RiderAliasesItem)..."
+    )
 
     items_rb = rider_repository.get_dict_of_RiderComputeItem_by_ids(None)
     sorted_items_rb = sorted(
@@ -189,8 +209,19 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
     for row_num, (_, rs_item) in enumerate(dto_dict_rs.items(), start=1):
         rs_item.row = row_num
 
-    # Tasks #1 and #2 write to independent directories and blobs — run concurrently.
-    print("\nTask #1 and Task #2: distributing RiderComputeItem and RiderStatsItem records concurrently")
+    items_ra = rider_repository.get_dict_of_RiderAliasesItem_by_ids(None)
+    sorted_items_ra = sorted(
+        items_ra.items(),
+        key=lambda kv: kv[1].alias_rider_stats_item.casefold(),  # alphabetical by name
+    )
+    dto_dict_ra = {k: RiderAliasesItem.to_dataTransferObject(v) for k, v in sorted_items_ra}
+    for row_num, (_, ra_item) in enumerate(dto_dict_ra.items(), start=1):
+        ra_item.row = row_num
+
+    # Tasks #1, #2 and #3 write to independent directories and blobs — run concurrently.
+    print(
+        "\nTask #1, Task #2 and Task #3: distributing RiderComputeItem, RiderStatsItem and RiderAliasesItem records concurrently"
+    )
     await asyncio.gather(
         export_and_upload_dtos(
             dto_by_key=dto_dict_rb,
@@ -218,6 +249,20 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
             json_dict_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_DICT,
             json_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST,
             csv_list_blobname=AZURE_BLOBNAME_RIDER_STATS_DTO_LIST_AS_CSV,
+            logger=logger,
+        ),
+        export_and_upload_dtos(
+            dto_by_key=dto_dict_ra,
+            dict_model_cls=RiderAliasesDtoDictModel,
+            list_model_cls=RiderAliasesDtoListModel,
+            output_dir=DIRPATH_RIDER_ALIASES_DTO,
+            json_dict_filename=FILENAME_RIDER_ALIASES_DTO_JSON_DICT,
+            json_list_filename=FILENAME_RIDER_ALIASES_DTO_JSON_LIST,
+            excel_list_filename=FILENAME_RIDER_ALIASES_DTO_XLSX_LIST,
+            csv_list_filename=FILENAME_RIDER_ALIASES_DTO_CSV_LIST,
+            json_dict_blobname=AZURE_BLOBNAME_RIDER_ALIASES_DTO_DICT,
+            json_list_blobname=AZURE_BLOBNAME_RIDER_ALIASES_DTO_LIST,
+            csv_list_blobname=AZURE_BLOBNAME_RIDER_ALIASES_DTO_LIST_AS_CSV,
             logger=logger,
         ),
     )
