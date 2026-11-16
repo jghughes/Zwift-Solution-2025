@@ -29,6 +29,7 @@
   <ItemGroup>
     <Compile Include="src\my_models\paceline_modelling_items.py" />
     <Compile Include="src\my_models\regression_modelling_item.py" />
+    <Compile Include="src\my_models\rider_aliases_item.py" />
     <Compile Include="src\my_models\rider_compute_item.py" />
     <Compile Include="src\my_models\model_builders.py" />
     <Compile Include="src\my_models\team_member_item.py" />

@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\my_DTO\regression_modelling_dto.py" />
+    <Compile Include="src\my_DTO\rider_aliases_dto.py" />
     <Compile Include="src\my_DTO\team_member_dto.py" />
     <Compile Include="src\my_DTO\rider_stats_dto.py" />
     <Compile Include="src\my_DTO\route_dto.py" />
