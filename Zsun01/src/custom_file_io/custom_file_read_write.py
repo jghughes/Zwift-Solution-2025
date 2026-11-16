@@ -18,7 +18,7 @@ from regression_modelling_dto import RegressionModellingDTO, RegressionModelling
 from regression_modelling_item import RegressionModellingItem
 from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
-from rider_stats_dto import RiderStatsDtoListModel
+from rider_stats_dto import RiderStatsDTO, RiderStatsDtoListModel
 from rider_stats_item import RiderStatsItem
 from team_member_dto import TeamMemberDtoListModel
 from team_member_item import TeamMemberItem
@@ -198,6 +198,30 @@ def write_regression_modelling_dict_to_json(
         rider_id: RegressionModellingItem.to_dataTransferObject(item) for rider_id, item in data.items()
     }
     myObj = RegressionModellingDTODictModel(dataAsDictDTO)
+    text = myObj.model_dump_json(exclude_none=False)
+    write_text_with_json_file_extension(dirpath, filename, text)
+
+
+def write_rider_stats_list_to_json(dirpath: Path, filename: str, data: list[RiderStatsItem]) -> None:
+    """
+    Serializes and writes a list of RiderStatsItem domain objects to a JSON file.
+    Args:
+        dirpath: Directory path where the output file will be written.
+        filename: Name of the JSON file (without extension).
+        data: List of RiderStatsItem instances.
+
+    Returns:
+        None.
+
+    Raises:
+        ValueError: If the directory or file path is invalid.
+    """
+
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath, filename, ".json", require_file_exists_for_read=False, validate_dir_and_extension_only=False
+    )
+    dataAsListDTO: list[RiderStatsDTO] = [RiderStatsItem.to_dataTransferObject(item) for item in data]
+    myObj = RiderStatsDtoListModel(dataAsListDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
 

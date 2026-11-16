@@ -242,15 +242,6 @@ def main02() -> None:
     ):
         print(format_lookup_row_per_rider_name(rider_name, concatenated_team_names))
 
-    # # step 4: match ZRL team member items to rider compute items
-    # print("\nadding ZRL team member items")
-    # team_member_items_dict_by_rider_compute_item = match_team_member_items_to_rider_compute_items(
-    #     rider_compute_items, distinct_zrl_team_member_items_dict_by_rider_name
-    # )
-    # print(
-    #     f"\nresulting\n   Team member items added in total: {team_member_items_dict_by_rider_compute_item.count_of_values}"
-    # )
-
 
 # main runner
 if __name__ == "__main__":
@@ -264,7 +255,7 @@ if __name__ == "__main__":
         print("Starting script...be patient, this may or may not take a while...\n")
 
         start_time = time.time()
-        # main01()
+        main01()
         main02()
         end_time = time.time()
 
