@@ -2,15 +2,19 @@ import logging
 import time
 from pathlib import Path
 
+import pandas as pd
+
 from custom_file_read_write import (
     read_rider_compute_list_from_json,
     read_universe_of_riders_from_multiple_events_by_rider_name,
     read_universe_of_riders_from_multiple_events_by_zwift_id,
+    write_team_member_list_to_json,
 )
 from jgh_exceptions import AlertMessageError
 from jgh_listdictionary import JghListDictionary
 from jgh_logging import log_event, setup_json_logging
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
+from jgh_read_write import write_dataframe_as_xlsx_file
 from rider_compute_item import RiderComputeItem
 from storage_config import DIRPATH_LOGGING
 from team_member_item import TeamMemberItem
@@ -20,6 +24,12 @@ generated_drs_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffFo
 generated_zrl_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\WTRL\season-round-20\generated")
 
 rider_compute_filename = r"rider_compute_dto_as_list.json"
+
+generated_teamMember_lists_dirpath = Path(
+    r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\teamMemberDTO_by_jgh"
+)
+drs_teamMember_filename_as_json = r"team_member_in_drs_dto_as_list.json"
+drs_teamMember_filename_as_xlsx = r"team_member_in_drs_dto_as_list.xlsx"
 
 
 def build_distinct_team_member_items_by_team_name(team_member_items: list[TeamMemberItem]) -> list[TeamMemberItem]:
@@ -102,7 +112,7 @@ def build_lookup_rows_per_rider_compute_item(
     for rider_compute_item in team_member_items_dict_by_rider_compute_item.get_keys():
         team_member_items = sorted(
             team_member_items_dict_by_rider_compute_item[rider_compute_item],
-            key=lambda team_member_item: team_member_item.team_name.casefold(),
+            key=lambda z: z.team_name.casefold(),
         )
         if len(team_member_items) == 0:
             continue
@@ -110,7 +120,7 @@ def build_lookup_rows_per_rider_compute_item(
             (rider_compute_item, " | ".join(team_member_item.team_name for team_member_item in team_member_items))
         )
 
-    rows.sort(key=lambda row: (row[1].casefold(), str(row[0].name).casefold()))
+    rows.sort(key=lambda z: (z[1].casefold(), str(z[0].name).casefold()))
     return rows
 
 
@@ -122,13 +132,13 @@ def build_lookup_rows_per_rider_name(
     for rider_name in team_member_items_dict_by_rider_name.get_keys():
         team_member_items = sorted(
             team_member_items_dict_by_rider_name[rider_name],
-            key=lambda team_member_item: team_member_item.team_name.casefold(),
+            key=lambda z: z.team_name.casefold(),
         )
         if len(team_member_items) == 0:
             continue
         rows.append((rider_name, " | ".join(team_member_item.team_name for team_member_item in team_member_items)))
 
-    rows.sort(key=lambda row: (row[1].casefold(), row[0].casefold()))
+    rows.sort(key=lambda z: (z[1].casefold(), z[0].casefold()))
     return rows
 
 
@@ -150,6 +160,27 @@ def find_configuration_error(dirpaths: list[Path], filenames: list[str]) -> Exce
     except Exception as err:
         return err
     return None
+
+
+def save_as_excel_file(
+    output_dirPath: Path,
+    output_filename: str,
+    team_member_items: list[TeamMemberItem],
+) -> None:
+    """
+    Serialize teamMemberItems to DTO and save as an Excel file.
+    Args:
+        team_member_items: List of TeamMemberItems to be saved.
+        output_dirPath: Directory where the Excel file will be saved.
+        output_filename: Name of the Excel file to be saved.
+    """
+    dto_list = [TeamMemberItem.to_dataTransferObject(rider) for rider in team_member_items]
+    dto_list_dataframe_column_order = list(
+        dto_list[0].model_fields.keys()
+    )  # print all columns in the order they are defined in the DTO
+    dto_list_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
+    df = pd.DataFrame(dto_list_dataframe_rows, columns=dto_list_dataframe_column_order)
+    write_dataframe_as_xlsx_file(output_dirPath, output_filename, df)
 
 
 def main01() -> None:
@@ -200,6 +231,22 @@ def main01() -> None:
         team_member_items_dict_by_rider_compute_item
     ):
         print(format_lookup_row_per_rider_compute_item(rider_compute_item, concatenated_team_names))
+
+    # step 5: save team member items list to Excel file
+    team_member_items_as_list: list[TeamMemberItem] = team_member_items_dict_by_rider_compute_item.get_values_for_all()
+    team_member_items_as_list.sort(key=lambda z: z.team_name.casefold())
+    save_as_excel_file(generated_teamMember_lists_dirpath, drs_teamMember_filename_as_xlsx, team_member_items_as_list)
+    print(
+        f"\nSaved team member items list to Excel file\n   Dirpath: {generated_teamMember_lists_dirpath}\n   Filename: {drs_teamMember_filename_as_xlsx}"
+    )
+
+    # step 6: save team member items list as json file
+    write_team_member_list_to_json(
+        generated_teamMember_lists_dirpath, drs_teamMember_filename_as_json, team_member_items_as_list
+    )
+    print(
+        f"\nSaved team member items list to JSON file\n   Dirpath: {generated_teamMember_lists_dirpath}\n   Filename: {drs_teamMember_filename_as_json}"
+    )
 
 
 def main02() -> None:
@@ -256,7 +303,7 @@ if __name__ == "__main__":
 
         start_time = time.time()
         main01()
-        main02()
+        # main02()
         end_time = time.time()
 
         success_msg = f"Success: main execution completed successfully in {end_time - start_time:.2f} seconds."

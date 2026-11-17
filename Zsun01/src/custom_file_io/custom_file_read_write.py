@@ -20,7 +20,7 @@ from rider_compute_dto import RiderComputeDtoDictModel, RiderComputeDtoListModel
 from rider_compute_item import RiderComputeItem
 from rider_stats_dto import RiderStatsDTO, RiderStatsDtoListModel
 from rider_stats_item import RiderStatsItem
-from team_member_dto import TeamMemberDtoListModel
+from team_member_dto import TeamMemberDTO, TeamMemberDtoListModel
 from team_member_item import TeamMemberItem
 from zwiftpower_flattened_90_day_watts_dto import ZwiftPower90DayWattsDTODictModel, ZwiftPowerFlattened90DayWattsDTO
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
@@ -84,6 +84,16 @@ def read_rider_stats_list_from_json(dirpath: Path, filename: str) -> list[RiderS
     something = json.loads(text)
     answer = RiderStatsDtoListModel.model_validate(something, strict=True).root
     return [RiderStatsItem.from_dataTransferObject(dto) for dto in answer]
+
+
+def read_team_member_list_from_json(dirpath: Path, filename: str) -> list[TeamMemberItem]:
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
+    )
+    text = read_text(dirpath, filename)
+    something = json.loads(text)
+    answer = TeamMemberDtoListModel.model_validate(something, strict=True).root
+    return [TeamMemberItem.from_dataTransferObject(dto) for dto in answer]
 
 
 def read_zwiftpower_90day_watts_dict_from_json(
@@ -222,6 +232,30 @@ def write_rider_stats_list_to_json(dirpath: Path, filename: str, data: list[Ride
     )
     dataAsListDTO: list[RiderStatsDTO] = [RiderStatsItem.to_dataTransferObject(item) for item in data]
     myObj = RiderStatsDtoListModel(dataAsListDTO)
+    text = myObj.model_dump_json(exclude_none=False)
+    write_text_with_json_file_extension(dirpath, filename, text)
+
+
+def write_team_member_list_to_json(dirpath: Path, filename: str, data: list[TeamMemberItem]) -> None:
+    """
+    Serializes and writes a list of TeamMemberItem domain objects to a JSON file.
+    Args:
+        dirpath: Directory path where the output file will be written.
+        filename: Name of the JSON file (without extension).
+        data: List of TeamMemberItem instances.
+
+    Returns:
+        None.
+
+    Raises:
+        ValueError: If the directory or file path is invalid.
+    """
+
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath, filename, ".json", require_file_exists_for_read=False, validate_dir_and_extension_only=False
+    )
+    dataAsListDTO: list[TeamMemberDTO] = [TeamMemberItem.to_dataTransferObject(item) for item in data]
+    myObj = TeamMemberDtoListModel(dataAsListDTO)
     text = myObj.model_dump_json(exclude_none=False)
     write_text_with_json_file_extension(dirpath, filename, text)
 
