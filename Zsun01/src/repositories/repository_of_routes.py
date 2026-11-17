@@ -64,6 +64,30 @@ class RepositoryOfRoutes:
                 SlopeBucketItem(bucket_description="plus 16% bucket", bucket_length_km=0.0, bucket_slope_pc=16.0),
             ],
         ),
+        "yorkshire_sprint": RouteItem(
+            route_name="Yorkshire Sprint",
+            zwift_world_name="Yorkshire",
+            route_description="Puncheur",
+            route_length_km=0.4,
+            route_elevation_m=0,
+            route_lead_in_km=0.0,
+            route_slope_buckets=[
+                SlopeBucketItem(bucket_description="Yorkshire sprint", bucket_length_km=0.400, bucket_slope_pc=2.4),
+            ],
+        ),
+        "royal_pump_room": RouteItem(
+            route_name="Royal Pump Room 8",
+            zwift_world_name="Yorkshire",
+            route_description="Puncheur",
+            route_length_km=27.5,
+            route_elevation_m=0,
+            route_lead_in_km=0.0,
+            route_slope_buckets=[
+                SlopeBucketItem(bucket_description="Yorkshire sprint", bucket_length_km=0.400, bucket_slope_pc=2.4),
+                SlopeBucketItem(bucket_description="Yorkshire KOM forward", bucket_length_km=1.2, bucket_slope_pc=5.5),
+                SlopeBucketItem(bucket_description="Yorkshire KOM reverse", bucket_length_km=1.2, bucket_slope_pc=4.0),
+            ],
+        ),
         "crepe_escape02": RouteItem(
             route_name="Crepe Escape02",
             zwift_world_name="Paris",

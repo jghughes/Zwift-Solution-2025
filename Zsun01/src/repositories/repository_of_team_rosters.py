@@ -262,6 +262,23 @@ class RepositoryOfTeamRosters:
             "kissed": [
                 ("383480", "lynsey_segal"),
             ],
+            "copperheads": [
+                ("1350506", "david_holland"),
+                ("503460", "eric_vandergraaf"),
+                ("1363894", "bill_lomax"),
+                ("886688", "patrick_toay"),
+                ("988172", "tamra_roberts"),
+                ("11526", "scott_mcveigh"),
+            ],
+            "sidewinders": [
+                ("9011", "bryan_bumpas"),
+                ("1707548", "meridith_leubner"),
+                ("165253", "tim_sullivan"),
+                ("11741", "tom_bick"),
+                ("1587638", "bryan_lemire"),
+                ("404168", "mathias_haslund"),
+                ("1956", "scott_yarosh"),
+            ],
             "outlaws": [
                 ("7190116", "aaron_vrbenec"),
                 ("102945", "brian_hagan"),
@@ -280,7 +297,6 @@ class RepositoryOfTeamRosters:
             ],
             "rangers": [
                 ("5726145", "bill_henson"),
-                ("1363894", "bill_lomax"),
                 ("480698", "brent_huser"),
                 ("456545", "carrie_merrit"),
                 ("473087", "curtis_repen"),

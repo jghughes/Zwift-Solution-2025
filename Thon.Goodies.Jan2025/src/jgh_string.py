@@ -250,6 +250,7 @@ def cleanup_name_string(name_to_clean: str | None) -> str:
                 "RK Rhinos",
                 "(ZSUNR)",
                 "CC",
+                "wwhensonYoutube",
             ],
             key=len,
             reverse=True,

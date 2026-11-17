@@ -401,7 +401,7 @@ if __name__ == "__main__":
     try:
         throw_if_no_internet_connection()
 
-        this_route_name = "crepe_escape02"
+        this_route_name = "yorkshire_sprint"
 
         start_time = time.time()
         asyncio.run(generate_everything_and_save_and_upload(this_route_name))

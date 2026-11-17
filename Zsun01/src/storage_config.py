@@ -49,6 +49,7 @@ FILENAME_RIDER_STATS_DTO_XLSX_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.xl
 FILENAME_RIDER_STATS_DTO_CSV_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.csv"
 
 FILENAME_ABRIDGED_RIDER_STATS_DTO_JSON_LIST = f"abridged_{FILENAME_RIDER_STATS_DTO_JSON_LIST}"
+FILENAME_ABRIDGED_RIDER_STATS_DTO_XLSX_LIST = f"abridged_{FILENAME_RIDER_STATS_DTO_XLSX_LIST}"
 
 _riderAliasesDtoFileNamePrefix = "rider_aliases_dto"
 FILENAME_RIDER_ALIASES_DTO_JSON_DICT = f"{_riderAliasesDtoFileNamePrefix}_as_dict.json"
