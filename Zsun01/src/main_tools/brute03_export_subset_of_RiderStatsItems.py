@@ -76,15 +76,15 @@ def save_as_excel_file(
     dto_list_dataframe_column_order: list[str] = [
         "row",
         "full_name",
-        "zwift_country_code3",
-        "zwift_zftp_wkg",
-        "velo_cat_label",
-        "route_name",
+        # "zwift_country_code3",
+        # "zwift_zftp_wkg",
+        # "velo_cat_label",
+        # "route_name",
         "route_sec",
-        "route_hh_mm_ss",
+        # "route_hh_mm_ss",
         "route_watts",
         "route_wkg",
-        "route_kph",
+        # "route_kph",
     ]
     # dto_list_dataframe_column_order = list(dto_list[0].model_fields.keys()) #print all columns in the order they are defined in the DTO
     dto_list_dataframe_rows = [dto.model_dump(exclude_none=False) for dto in dto_list]
