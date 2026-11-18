@@ -90,6 +90,7 @@ from storage_config import (
     DIRPATH_RIDER_ALIASES_DTO,
     DIRPATH_RIDER_COMPUTE_DTO,
     DIRPATH_RIDER_STATS_DTO,
+    DIRPATH_TEAM_MEMBER_DTO,
     DIRPATH_VISUAL_STUDIO_PYTHON_PROJECT,
     DIRPATH_ZWIFT_FILES,
     DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
@@ -106,6 +107,7 @@ from storage_config import (
     FILENAME_RIDER_STATS_DTO_JSON_DICT,
     FILENAME_RIDER_STATS_DTO_JSON_LIST,
     FILENAME_RIDER_STATS_DTO_XLSX_LIST,
+    FILENAME_TEAM_MEMBER_DTO_JSON_LIST,
 )
 
 
@@ -123,7 +125,7 @@ async def upload_text_to_blob_storage_in_azure(
 
 
 # HEAP POWERFUL TOOL
-async def generate_everything_and_save_and_upload(route_name: str) -> None:
+async def main(route_name: str) -> None:
     print("starting script\n")
     logger = logging.getLogger()
 
@@ -167,6 +169,8 @@ async def generate_everything_and_save_and_upload(route_name: str) -> None:
         DIRPATH_ZWIFT_FILES,
         DIRPATH_ZWIFTRACINGAPP_FILES,
         DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES,
+        DIRPATH_TEAM_MEMBER_DTO,
+        FILENAME_TEAM_MEMBER_DTO_JSON_LIST,
         route,
     )
     elapsed = time.time() - start_time
@@ -404,7 +408,7 @@ if __name__ == "__main__":
         this_route_name = "yorkshire_sprint"
 
         start_time = time.time()
-        asyncio.run(generate_everything_and_save_and_upload(this_route_name))
+        asyncio.run(main(this_route_name))
         end_time = time.time()
 
         success_msg = f"Main execution completed successfully in {end_time - start_time:.2f} seconds."

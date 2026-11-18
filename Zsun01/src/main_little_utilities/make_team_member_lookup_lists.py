@@ -16,20 +16,25 @@ from jgh_logging import log_event, setup_json_logging
 from jgh_path_helpers import throw_if_any_dirpath_invalid_or_not_exists, throw_if_any_filename_invalid
 from jgh_read_write import write_dataframe_as_xlsx_file
 from rider_compute_item import RiderComputeItem
-from storage_config import DIRPATH_LOGGING
+from storage_config import (
+    DIRPATH_LOGGING,
+    DIRPATH_RIDER_COMPUTE_DTO,
+    DIRPATH_TEAM_MEMBER_DTO,
+    FILENAME_RIDER_COMPUTE_DTO_JSON_LIST,
+    FILENAME_TEAM_MEMBER_DTO_JSON_LIST,
+    FILENAME_TEAM_MEMBER_DTO_XLSX_LIST,
+)
 from team_member_item import TeamMemberItem
 
-rider_compute_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\riderComputeDTO_by_jgh")
+rider_compute_dirpath = Path(DIRPATH_RIDER_COMPUTE_DTO)
 generated_drs_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated")
 generated_zrl_events_results_dirpath = Path(r"C:\Users\johng\holding_pen\StuffForZsun\WTRL\season-round-20\generated")
 
-rider_compute_filename = r"rider_compute_dto_as_list.json"
+rider_compute_filename = FILENAME_RIDER_COMPUTE_DTO_JSON_LIST
 
-generated_teamMember_lists_dirpath = Path(
-    r"C:\Users\johng\holding_pen\StuffForZsun\!StuffFromDaveK_byJgh\teamMemberDTO_by_jgh"
-)
-drs_teamMember_filename_as_json = r"team_member_in_drs_dto_as_list.json"
-drs_teamMember_filename_as_xlsx = r"team_member_in_drs_dto_as_list.xlsx"
+generated_teamMember_lists_dirpath = Path(DIRPATH_TEAM_MEMBER_DTO)
+drs_teamMember_filename_as_json = FILENAME_TEAM_MEMBER_DTO_JSON_LIST
+drs_teamMember_filename_as_xlsx = FILENAME_TEAM_MEMBER_DTO_XLSX_LIST
 
 
 def build_distinct_team_member_items_by_team_name(team_member_items: list[TeamMemberItem]) -> list[TeamMemberItem]:

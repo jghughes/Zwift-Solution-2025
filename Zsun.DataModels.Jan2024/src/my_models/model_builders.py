@@ -16,6 +16,7 @@ from paceline_modelling_items import CurveFittingResultItem
 from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
+from team_member_item import TeamMemberItem
 from zwift_item import ZwiftItem
 from zwiftpower_flattened_90_day_watts_item import ZwiftPowerFlattened90dayWattsItem
 from zwiftracingapp_item import ZwiftRacingAppItem
@@ -143,6 +144,7 @@ def build_RiderStatsItem(
     zwiftracingappItem: ZwiftRacingAppItem | None,
     jghRiderComputeItem: RiderComputeItem | None,
     watts_90_day_item: ZwiftPowerFlattened90dayWattsItem | None,
+    team_member_item: TeamMemberItem | None,
     routeItem: RouteItem | None,
 ) -> RiderStatsItem:
     """
@@ -208,7 +210,7 @@ def build_RiderStatsItem(
         cat_open=zwiftItem.competition_metrics.zwift_category_open,
         cat_women=zwiftItem.competition_metrics.zwift_category_women,
         achievement_level=int(zwiftItem.achievement_level / 100.0),
-        team_names="",
+        team_names=team_member_item.team_name if team_member_item is not None else "",
         zwift_racing_score=round(zwiftItem.competition_metrics.zwift_racing_score),
         zwift_ftp_w=round(zwiftItem.ftp_on_zwift),
         zwift_zftp_w=round(zwiftracingappItem.zp_FTP),

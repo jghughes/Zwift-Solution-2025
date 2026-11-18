@@ -597,6 +597,3 @@ class JghListDictionary[TKey, TValue]:
             a list with the caller or with another key.
         """
         self.backingstore_dict[key] = list(value)
-
-
-# example usage of the JghListDictionary class

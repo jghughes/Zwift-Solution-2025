@@ -3,6 +3,9 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from custom_file_read_write import (
+    read_team_member_list_todict_from_json,
+)
 from jgh_curve_fitting import do_curve_fit_with_cp_w_prime_model, do_curve_fit_with_decay_model
 from jgh_dictionary_helpers import filter_generic_dict_by_key
 from model_builders import build_CurveFittingResultItem, build_RiderComputeItem, build_RiderStatsItem
@@ -12,6 +15,7 @@ from rider_compute_item import RiderComputeItem
 from rider_stats_item import RiderStatsItem
 from route_item import RouteItem
 from slope_bucket_item import SlopeBucketItem
+from team_member_item import TeamMemberItem
 from zwift_item import ZwiftItem
 from zwiftid_named_file_reader import (
     read_zwiftdto_files_to_item_dict_sync,
@@ -33,6 +37,7 @@ class RepositoryOfRiders:
     _computed_dict_of_riderComputeItem: dict[str, RiderComputeItem] = field(default_factory=dict)
     _computed_dict_of_riderStatsItem: dict[str, RiderStatsItem] = field(default_factory=dict)
     _computed_dict_of_riderAliasesItem: dict[str, RiderAliasesItem] = field(default_factory=dict)
+    _computed_dict_of_teamMemberItem: dict[str, TeamMemberItem] = field(default_factory=dict)
 
     _singleSegment: SlopeBucketItem = field(default_factory=SlopeBucketItem)
 
@@ -45,6 +50,8 @@ class RepositoryOfRiders:
         zwift_dir_path: str,
         zwiftracingapp_dir_path: str,
         zwiftpower_90day_graph_watts_dir_path: str,
+        team_member_list_dir_path: str,
+        team_member_filename: str,
         routeItem: RouteItem | None = None,
     ) -> bool:
         """
@@ -102,13 +109,18 @@ class RepositoryOfRiders:
         def _read_zwiftracingapp() -> dict[str, ZwiftRacingAppItem]:
             return read_zwiftracingappdto_files_to_item_dict_sync(Path(zwiftracingapp_dir_path), file_names)
 
+        def _read_team_members() -> dict[str, TeamMemberItem]:
+            return read_team_member_list_todict_from_json(Path(team_member_list_dir_path), team_member_filename)
+
         with ThreadPoolExecutor(max_workers=3) as executor:
             future_zwift = executor.submit(_read_zwift)
             future_zwiftpower = executor.submit(_read_zwiftpower)
             future_racingapp = executor.submit(_read_zwiftracingapp)
+            future_team_members = executor.submit(_read_team_members)
             self._dict_of_ZwiftItem = future_zwift.result()
             self._dict_of_ZwiftPower90dayWattsItem = future_zwiftpower.result()
             self._dict_of_ZwiftRacingAppItem = future_racingapp.result()
+            self._computed_dict_of_teamMemberItem = future_team_members.result()
 
         print("\n5. Fitting curves to 90-day power watts datapoints.")
 
@@ -121,11 +133,14 @@ class RepositoryOfRiders:
         self._computed_dict_of_curveFitItem = self._do_power_graph_curve_fitting(all_zwift_ids)  # do first
         print("\n6. Building RiderComputeItems.")
         self._computed_dict_of_riderComputeItem = self._make_dict_of_RiderComputeItem(all_zwift_ids)  # do second
-        print("\n7. Building RiderStatsItems.")
-        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do third
-        print("\n8. Building RiderAliasesItems.")
-        self._computed_dict_of_riderAliasesItem = self._make_dict_of_RiderAliasesItem(all_zwift_ids)  # do fourth
-
+        print("\n7. Making dict of team_members.")
+        self._computed_dict_of_teamMemberItem = self._make_dict_of_TeamMemberItem(
+            Path(team_member_list_dir_path), team_member_filename
+        )  # do third
+        print("\n8. Building RiderStatsItems.")
+        self._computed_dict_of_riderStatsItem = self._make_dict_of_RiderStatsItem(all_zwift_ids)  # do fourth
+        print("\n9. Building RiderAliasesItems.")
+        self._computed_dict_of_riderAliasesItem = self._make_dict_of_RiderAliasesItem(all_zwift_ids)  # do fifth
         print("\nRepository successfully populated.")
 
         return True
@@ -268,6 +283,9 @@ class RepositoryOfRiders:
 
         return answer
 
+    def _make_dict_of_TeamMemberItem(self, dirpath: Path, filename: str) -> dict[str, TeamMemberItem]:
+        return read_team_member_list_todict_from_json(dirpath, filename)
+
     def _make_dict_of_RiderStatsItem(self, zwift_ids: list[str] | None) -> dict[str, RiderStatsItem]:
         """
         Iterates over the candidate Zwift IDs and builds a RiderStatsItem for each rider
@@ -310,6 +328,7 @@ class RepositoryOfRiders:
                 self._dict_of_ZwiftRacingAppItem.get(key),
                 self._computed_dict_of_riderComputeItem.get(key),
                 self._dict_of_ZwiftPower90dayWattsItem.get(key),
+                self._computed_dict_of_teamMemberItem.get(key),
                 self._routeItem,
             )
 

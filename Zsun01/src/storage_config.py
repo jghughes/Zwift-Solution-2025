@@ -8,7 +8,6 @@ URL_ROOT_FOR_ZWIFTRACINGAPP_FILES = "https://data.zsunr.com/riders/json/zwiftrac
 
 FOLDER_NAME_OF_CLUB_MEMBERSHIP_LIST = "membership-list"
 FOLDER_NAME_ZWIFT_FILES = "zwift-files"
-# FOLDER_NAME_ZWIFTPOWER = "zwiftpower"
 FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST_FILES = "90-day-power-graph-watts-files"
 FOLDER_NAME_ZWIFTRACINGAPP_FILES = "zwiftracing-app-files"
 
@@ -25,11 +24,11 @@ DIRPATH_CLUB_MEMBERSHIP_LIST = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_OF_CLUB_
 
 DIRPATH_ZWIFT_FILES = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_ZWIFT_FILES}/"
 DIRPATH_ZWIFTRACINGAPP_FILES = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_ZWIFTRACINGAPP_FILES}/"
-# DIRPATH_ZWIFTPOWER = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_ZWIFTPOWER}/"
 DIRPATH_ZWIFTPOWER_90_DAY_BEST_FILES = f"{DIRPATH_FROM_DAVEK_ROOT}/{FOLDER_NAME_ZWIFTPOWER_90_DAY_BEST_FILES}/"
 
 DIRPATH_RIDER_COMPUTE_DTO = f"{_stuffByJghDirPathStem}/riderComputeDTO_by_jgh/"
 DIRPATH_RIDER_STATS_DTO = f"{_stuffByJghDirPathStem}/riderStatsDTO_by_jgh/"
+DIRPATH_TEAM_MEMBER_DTO = f"{_stuffByJghDirPathStem}/teamMemberDTO_by_jgh/"
 DIRPATH_RIDER_ALIASES_DTO = f"{_stuffByJghDirPathStem}/riderAliasesDTO_by_jgh/"
 DIRPATH_BRUTE_TTT_DOCS = f"{_stuffByJghDirPathStem}/brutePublicDocuments_by_jgh/"
 
@@ -51,13 +50,19 @@ FILENAME_RIDER_STATS_DTO_CSV_LIST = f"{_riderStatsDtoFileNamePrefix}_as_list.csv
 FILENAME_ABRIDGED_RIDER_STATS_DTO_JSON_LIST = f"abridged_{FILENAME_RIDER_STATS_DTO_JSON_LIST}"
 FILENAME_ABRIDGED_RIDER_STATS_DTO_XLSX_LIST = f"abridged_{FILENAME_RIDER_STATS_DTO_XLSX_LIST}"
 
+_teamMemberDtoFileNamePrefix = "team_member_in_drs"
+FILENAME_TEAM_MEMBER_DTO_JSON_DICT = f"{_teamMemberDtoFileNamePrefix}_as_dict.json"
+FILENAME_TEAM_MEMBER_DTO_JSON_LIST = f"{_teamMemberDtoFileNamePrefix}_as_list.json"
+FILENAME_TEAM_MEMBER_DTO_XLSX_LIST = f"{_teamMemberDtoFileNamePrefix}_as_list.xlsx"
+FILENAME_TEAM_MEMBER_DTO_CSV_LIST = f"{_teamMemberDtoFileNamePrefix}_as_list.csv"
+
 _riderAliasesDtoFileNamePrefix = "rider_aliases_dto"
 FILENAME_RIDER_ALIASES_DTO_JSON_DICT = f"{_riderAliasesDtoFileNamePrefix}_as_dict.json"
 FILENAME_RIDER_ALIASES_DTO_JSON_LIST = f"{_riderAliasesDtoFileNamePrefix}_as_list.json"
 FILENAME_RIDER_ALIASES_DTO_XLSX_LIST = f"{_riderAliasesDtoFileNamePrefix}_as_list.xlsx"
 FILENAME_RIDER_ALIASES_DTO_CSV_LIST = f"{_riderAliasesDtoFileNamePrefix}_as_list.csv"
 
-DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER = r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated"
+# DIRPATH_TO_LOOK_FOR_TEAM_NAMES_PER_RIDER = r"C:\Users\johng\holding_pen\StuffForZsun\DIRT\13\generated"
 
 AZURE_ACCOUNTNAME_ZSUN = "customerzsun"
 AZURE_CONTAINERNAME_BRUTE = "brute"

@@ -96,6 +96,14 @@ def read_team_member_list_from_json(dirpath: Path, filename: str) -> list[TeamMe
     return [TeamMemberItem.from_dataTransferObject(dto) for dto in answer]
 
 
+def read_team_member_list_todict_from_json(dirpath: Path, filename: str) -> dict[str, TeamMemberItem]:
+    throw_if_file_path_ingredients_invalid_or_not_exists(
+        dirpath, filename, ".json", require_file_exists_for_read=True, validate_dir_and_extension_only=False
+    )
+    answer_as_list = read_team_member_list_from_json(dirpath, filename)
+    return {z.zwift_id: z for z in answer_as_list}
+
+
 def read_zwiftpower_90day_watts_dict_from_json(
     dirpath: Path, filename: str
 ) -> dict[str, ZwiftPowerFlattened90dayWattsItem]:

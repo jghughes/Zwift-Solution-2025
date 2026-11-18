@@ -140,11 +140,6 @@ def read_zwiftdto_files_to_item_dict_sync(dirpath: Path, specified_zwiftIDs: lis
     answer = read_many_files_named_by_zwiftId_to_dict_sync(
         dirpath, specified_zwiftIDs, ZwiftDTO, ZwiftItem, ZwiftItem.from_dataTransferObject
     )
-
-    # zeroise the height of each zwift item, at stewart's temporary request
-    # for item in answer.values():
-    #     item.height_mm = 0.0
-
     return answer
 
 
